@@ -379,7 +379,7 @@
   .plan-list{list-style:none;margin:26px 0 30px;padding:0;flex:1}
   .plan-list li{position:relative;padding:11px 0 11px 28px;font-size:15px;color:var(--text);border-top:1px solid var(--line)}
   .plan-list li::before{content:"💎";position:absolute;left:0;top:10px;font-size:13px}
-  .plan-btn{background:var(--gold);color:var(--ink);border:none;cursor:pointer;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;padding:16px;border-radius:4px;transition:transform .15s}
+  .plan-btn{display:block;text-align:center;text-decoration:none;background:var(--gold);color:var(--ink);border:none;cursor:pointer;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;padding:16px;border-radius:4px;transition:transform .15s}
   .plan-btn:hover{transform:translateY(-2px)}
   .plan-note{text-align:center;color:var(--text-faint);font-size:13px;max-width:520px;margin:20px auto 110px;padding:0 20px;line-height:1.6}
 
@@ -1197,7 +1197,7 @@
         <li>Quizzes and activities included</li>
         <li>Great for schools and clubs</li>
       </ul>
-      <button class="plan-btn" onclick="planPick('Teacher plan — $220')">Choose this plan</button>
+      <a class="plan-btn" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=22000&name=Venture+1" target="_blank" rel="noopener noreferrer">Choose this plan — $220</a>
     </div>
     <div class="plan featured">
       <div class="plan-badge">Most Popular</div>
@@ -1209,10 +1209,10 @@
         <li>Quizzes to test what you learned</li>
         <li>Perfect for curious kids!</li>
       </ul>
-      <button class="plan-btn" onclick="planPick('Home plan — $90')">Choose this plan</button>
+      <a class="plan-btn" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=9000&name=Venture+1" target="_blank" rel="noopener noreferrer">Choose this plan — $90</a>
     </div>
   </div>
-  <p class="plan-note">A grown-up will help set up payment. This page shows the prices — the money part gets turned on later.</p>
+  <p class="plan-note">Both class checkouts are live — a grown-up should complete the payment. Members pay less: see the Memberships page. 💎</p>
 </div><!-- /view-classes -->
 
 <div class="view" id="view-teacher" hidden>
@@ -1298,10 +1298,13 @@
         <li>First to see new gems &amp; crafts</li>
         <li>Cancel anytime</li>
       </ul>
-      <button class="mem-btn" onclick="memPick('Gold Member (50% off)')">Choose Gold</button>
+      <div class="mem-btns">
+        <a class="mem-btn" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=11000&name=Venture+1" target="_blank" rel="noopener noreferrer">Teacher plan — $110</a>
+        <a class="mem-btn alt" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=4500&name=Venture+1" target="_blank" rel="noopener noreferrer">Home plan — $45</a>
+      </div>
     </div>
   </div>
-  <p class="mem-note">Silver checkout is live for both plans — a grown-up should complete the payment. Gold checkout is coming soon. 💎</p>
+  <p class="mem-note">All four membership checkouts are live — a grown-up should complete the payment. 💎</p>
 </div><!-- /view-memberships -->
 
 <div class="view" id="view-game" hidden>
