@@ -53,13 +53,19 @@
     font-family:var(--mono);font-size:10.5px;letter-spacing:.28em;
     text-transform:uppercase;color:var(--text-faint);
   }
-  nav.top{display:flex;gap:34px}
+  nav.top{display:flex;gap:34px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
   nav.top button{
     background:none;border:none;color:var(--text-dim);cursor:pointer;
     font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;
     padding:6px 0;transition:color .2s;
   }
   nav.top button:hover,nav.top button.on{color:var(--text)}
+  nav.top .buy-cta{
+    background:var(--gold);color:var(--ink);text-decoration:none;
+    font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+    padding:10px 16px;border-radius:4px;transition:transform .15s,filter .15s;
+  }
+  nav.top .buy-cta:hover{transform:translateY(-1px);filter:brightness(1.05)}
 
   /* ---------- Hero ---------- */
   .hero{
@@ -459,8 +465,10 @@
   .mem-list{list-style:none;margin:22px 0 26px;padding:0;flex:1;text-align:left}
   .mem-list li{position:relative;padding:10px 0 10px 26px;font-size:14px;color:var(--text);border-top:1px solid var(--line)}
   .mem-list li::before{content:"⭐";position:absolute;left:0;top:9px;font-size:12px}
-  .mem-btn{background:var(--gold);color:var(--ink);border:none;cursor:pointer;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;padding:16px;border-radius:4px;transition:transform .15s}
+  .mem-btn{display:block;text-align:center;text-decoration:none;background:var(--gold);color:var(--ink);border:none;cursor:pointer;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;padding:16px;border-radius:4px;transition:transform .15s}
   .mem-btn:hover{transform:translateY(-2px)}
+  .mem-btns{display:grid;gap:10px}
+  .mem-btn.alt{background:transparent;color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold)}
   .mem-note{text-align:center;color:var(--text-faint);font-size:13px;max-width:520px;margin:20px auto 110px;padding:0 20px;line-height:1.6}
 
   /* ---------- Battle Arena Game ---------- */
@@ -1074,7 +1082,8 @@
   }
   @media(max-width:640px){
     header.site{padding:16px 20px}
-    nav.top{display:none}
+    nav.top{display:flex;gap:10px}
+    nav.top button{display:none}
     .hero{padding:70px 20px 40px}
     .controls,.grid{padding-left:20px;padding-right:20px}
     .grid{grid-template-columns:1fr}
@@ -1121,6 +1130,7 @@
     <button data-view="feedback">Feedback</button>
     <button data-view="crafts">Crafts</button>
     <button data-view="memberships">Memberships</button>
+    <a class="buy-cta" href="#memberships" onclick="switchView('memberships');return false;">Join — from $67.50</a>
     <button data-view="game" id="game-nav-btn">🔒 Battle Arena</button>
     <button data-view="parade">✨ Warriors</button>
     <button data-view="codes">🔑 Codes</button>
@@ -1135,7 +1145,7 @@
 <section class="hero">
   <div class="eyebrow">Mineralogy · Sixty Specimens · Hand-Documented</div>
   <h1>A field catalog<br>of <em>crystalline</em> earth</h1>
-  <p class="lede">Sixty precious, semi-precious, and famously rare gemstones — from the everyday to the near-unobtainable — each documented by chemistry, hardness, crystal habit, and provenance. Not a shop, a reference. Open any specimen to study it.</p>
+  <p class="lede">Sixty precious, semi-precious, and famously rare gemstones — from the everyday to the near-unobtainable — each documented by chemistry, hardness, crystal habit, and provenance. Open any specimen to study it — or join as a member to unlock classes and savings.</p>
   <div class="meta-row">
     <div class="stat"><div class="n" id="stat-count">25</div><div class="l">Specimens</div></div>
     <div class="stat"><div class="n">4.5–10</div><div class="l">Mohs Range</div></div>
@@ -1271,7 +1281,10 @@
         <li>Member badge on your feedback</li>
         <li>Cancel anytime</li>
       </ul>
-      <button class="mem-btn" onclick="memPick('Silver Member (25% off)')">Choose Silver</button>
+      <div class="mem-btns">
+        <a class="mem-btn" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=16500&name=Venture+1" target="_blank" rel="noopener noreferrer">Teacher plan — $165</a>
+        <a class="mem-btn alt" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=6750&name=Venture+1" target="_blank" rel="noopener noreferrer">Home plan — $67.50</a>
+      </div>
     </div>
     <div class="mem-card gold">
       <div class="mem-badge">Best Deal</div>
@@ -1288,7 +1301,7 @@
       <button class="mem-btn" onclick="memPick('Gold Member (50% off)')">Choose Gold</button>
     </div>
   </div>
-  <p class="mem-note">A grown-up will help set up the payment. This page shows the deals — the money part gets turned on later! 💎</p>
+  <p class="mem-note">Silver checkout is live for both plans — a grown-up should complete the payment. Gold checkout is coming soon. 💎</p>
 </div><!-- /view-memberships -->
 
 <div class="view" id="view-game" hidden>
@@ -1374,7 +1387,7 @@
 </div>
 
 <footer id="about">
-  <span>Lithos Field Catalog · Compiled for study, not sale</span>
+  <span>Lithos Field Catalog · Compiled for study and teaching</span>
   <span>Hardness on the Mohs scale · Origins listed by prominence</span>
 </footer>
 
