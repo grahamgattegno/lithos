@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lithos — A Field Catalog of Gemstones</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Space+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0a0b0f;
+    --ink-2:#111319;
+    --panel:#15171f;
+    --panel-2:#1b1e28;
+    --line:rgba(255,255,255,.09);
+    --line-2:rgba(255,255,255,.14);
+    --text:#f2f0ea;
+    --text-dim:#a7a6a0;
+    --text-faint:#6d6d6b;
+    --gold:#c9a94f;
+    --serif:'Fraunces',Georgia,serif;
+    --sans:'Space Grotesk',system-ui,sans-serif;
+    --mono:'IBM Plex Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--ink);
+    color:var(--text);
+    font-family:var(--sans);
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  ::selection{background:var(--gold);color:var(--ink)}
+
+  /* ---------- Header ---------- */
+  header.site{
+    position:sticky;top:0;z-index:40;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:20px 40px;
+    background:rgba(10,11,15,.72);
+    backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line);
+  }
+  .brand{display:flex;align-items:baseline;gap:14px}
+  .brand .mark{
+    font-family:var(--serif);font-size:26px;font-weight:500;letter-spacing:.5px;
+  }
+  .brand .mark em{font-style:italic;color:var(--gold)}
+  .brand .tag{
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.28em;
+    text-transform:uppercase;color:var(--text-faint);
+  }
+  nav.top{display:flex;gap:34px}
+  nav.top button{
+    background:none;border:none;color:var(--text-dim);cursor:pointer;
+    font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+    padding:6px 0;transition:color .2s;
+  }
+  nav.top button:hover,nav.top button.on{color:var(--text)}
+
+  /* ---------- Hero ---------- */
+  .hero{
+    position:relative;
+    padding:120px 40px 70px;
+    max-width:1280px;margin:0 auto;
+  }
+  .hero .eyebrow{
+    font-family:var(--mono);font-size:11px;letter-spacing:.34em;text-transform:uppercase;
+    color:var(--gold);margin-bottom:34px;
+  }
+  .hero h1{
+    font-family:var(--serif);font-weight:300;
+    font-size:clamp(52px,9vw,132px);line-height:.92;letter-spacing:-.02em;
+  }
+  .hero h1 em{font-style:italic;color:var(--gold);font-weight:400}
+  .hero .lede{
+    margin-top:38px;max-width:560px;
+    font-size:17px;line-height:1.65;color:var(--text-dim);
+  }
+  .hero .meta-row{
+    margin-top:52px;display:flex;gap:52px;flex-wrap:wrap;
+    padding-top:30px;border-top:1px solid var(--line);
+  }
+  .hero .meta-row .stat .n{
+    font-family:var(--serif);font-size:38px;font-weight:400;line-height:1;
+  }
+  .hero .meta-row .stat .l{
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--text-faint);margin-top:10px;
+  }
+
+  /* ---------- Controls ---------- */
+  .controls{
+    position:sticky;top:73px;z-index:30;
+    max-width:1280px;margin:0 auto;padding:0 40px;
+  }
+  .controls-inner{
+    display:flex;gap:18px;align-items:center;flex-wrap:wrap;
+    padding:20px 0;
+    background:var(--ink);
+    border-bottom:1px solid var(--line);
+  }
+  .search{
+    position:relative;flex:1;min-width:260px;
+  }
+  .search svg{position:absolute;left:16px;top:50%;transform:translateY(-50%);opacity:.4}
+  .search input{
+    width:100%;background:var(--panel);border:1px solid var(--line);
+    color:var(--text);border-radius:2px;
+    padding:14px 16px 14px 46px;
+    font-family:var(--sans);font-size:14.5px;
+    transition:border-color .2s,background .2s;
+  }
+  .search input::placeholder{color:var(--text-faint)}
+  .search input:focus{outline:none;border-color:var(--gold);background:var(--panel-2)}
+  .filters{display:flex;gap:8px;flex-wrap:wrap}
+  .chip{
+    background:var(--panel);border:1px solid var(--line);color:var(--text-dim);
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+    padding:11px 15px;border-radius:2px;cursor:pointer;transition:all .18s;
+  }
+  .chip:hover{border-color:var(--line-2);color:var(--text)}
+  .chip.on{background:var(--gold);border-color:var(--gold);color:var(--ink)}
+  .count{
+    font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--text-faint);white-space:nowrap;
+  }
+
+  /* ---------- Grid ---------- */
+  .grid{
+    max-width:1280px;margin:0 auto;padding:44px 40px 120px;
+    display:grid;grid-template-columns:repeat(3,1fr);gap:2px;
+    background:var(--line);border:1px solid var(--line);border-radius:3px;overflow:hidden;
+  }
+  .card{
+    position:relative;background:var(--ink-2);cursor:pointer;
+    padding:0;overflow:hidden;
+    transition:background .3s;
+    display:flex;flex-direction:column;min-height:340px;
+    text-align:left;border:none;color:inherit;font:inherit;
+    animation:rise .5s cubic-bezier(.2,.8,.2,1) both;
+  }
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .card::before{
+    content:"";position:absolute;inset:0;
+    background:radial-gradient(120% 90% at 80% 0%, var(--glow) 0%, transparent 55%);
+    opacity:.5;transition:opacity .35s;pointer-events:none;
+  }
+  .card:hover{background:var(--panel)}
+  .card:hover::before{opacity:1}
+  .card:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+  .card .idx{
+    position:absolute;top:22px;right:24px;
+    font-family:var(--mono);font-size:11px;color:var(--text-faint);letter-spacing:.1em;
+  }
+  .card .swatch{
+    width:54px;height:54px;border-radius:50%;margin:26px 0 0 26px;
+    background:
+      radial-gradient(circle at 32% 28%, rgba(255,255,255,.55), transparent 42%),
+      var(--stone);
+    box-shadow:0 0 0 1px rgba(255,255,255,.14), 0 8px 30px -6px var(--glow);
+    position:relative;z-index:1;
+  }
+  .card .photo{
+    position:relative;z-index:1;height:190px;width:100%;overflow:hidden;
+    background:
+      radial-gradient(circle at 35% 30%, rgba(255,255,255,.28), transparent 55%),
+      var(--stone);
+  }
+  .card .photo img{
+    width:100%;height:100%;object-fit:cover;display:block;
+    transition:transform .5s cubic-bezier(.2,.8,.2,1),opacity .3s;
+    opacity:0;
+  }
+  .card .photo img.loaded{opacity:1}
+  .card:hover .photo img{transform:scale(1.05)}
+  .card .photo::after{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:linear-gradient(180deg,transparent 55%,var(--ink-2) 100%);
+    opacity:.9;
+  }
+  .card .body{padding:22px 26px 26px;margin-top:auto;position:relative;z-index:1}
+  .card .name{
+    font-family:var(--serif);font-size:30px;font-weight:400;letter-spacing:-.01em;line-height:1;
+  }
+  .card .formula{
+    font-family:var(--mono);font-size:11.5px;color:var(--gold);margin-top:10px;letter-spacing:.03em;
+  }
+  .card .quick{
+    display:flex;gap:20px;margin-top:20px;padding-top:18px;border-top:1px solid var(--line);
+  }
+  .card .quick div .k{
+    font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--text-faint);
+  }
+  .card .quick div .v{font-size:14px;margin-top:5px;color:var(--text)}
+  .card .arrow{
+    position:absolute;bottom:26px;right:26px;opacity:0;transform:translateX(-6px);
+    transition:all .25s;color:var(--gold);
+  }
+  .card:hover .arrow{opacity:1;transform:none}
+
+  .empty{
+    grid-column:1/-1;background:var(--ink-2);padding:90px 40px;text-align:center;
+  }
+  .empty h3{font-family:var(--serif);font-size:26px;font-weight:400;margin-bottom:12px}
+  .empty p{color:var(--text-dim);font-size:14px}
+
+  /* ---------- Detail overlay ---------- */
+  .overlay{
+    position:fixed;inset:0;z-index:80;
+    background:rgba(6,7,10,.7);backdrop-filter:blur(8px);
+    display:flex;justify-content:flex-end;
+    opacity:0;pointer-events:none;transition:opacity .3s;
+  }
+  .overlay.open{opacity:1;pointer-events:auto}
+  .drawer{
+    width:min(620px,100%);height:100%;overflow-y:auto;
+    background:var(--ink-2);border-left:1px solid var(--line-2);
+    transform:translateX(40px);transition:transform .38s cubic-bezier(.2,.8,.2,1);
+  }
+  .overlay.open .drawer{transform:none}
+  .drawer .d-photo{
+    position:relative;width:100%;height:280px;overflow:hidden;background:var(--stone);
+  }
+  .drawer .d-photo img{
+    width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .4s;
+  }
+  .drawer .d-photo img.loaded{opacity:1}
+  .drawer .d-photo::after{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:linear-gradient(180deg,rgba(0,0,0,.15) 0%,transparent 30%,var(--stone) 100%);
+    opacity:.55;
+  }
+  .drawer .hero-band{
+    position:relative;padding:40px;
+    background:linear-gradient(160deg, var(--stone) 0%, var(--ink-2) 82%);
+    border-bottom:1px solid var(--line);
+  }
+  .drawer .hero-band::after{
+    content:"";position:absolute;inset:0;
+    background:radial-gradient(140% 80% at 78% 8%, rgba(255,255,255,.28), transparent 50%);
+    mix-blend-mode:screen;
+  }
+  .drawer .close{
+    position:absolute;top:24px;right:24px;z-index:2;
+    width:40px;height:40px;border-radius:50%;
+    background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.2);
+    color:#fff;cursor:pointer;font-size:18px;line-height:1;
+    display:flex;align-items:center;justify-content:center;transition:background .2s;
+  }
+  .drawer .close:hover{background:rgba(0,0,0,.6)}
+  .drawer .d-eyebrow{
+    position:relative;z-index:1;font-family:var(--mono);font-size:11px;
+    letter-spacing:.24em;text-transform:uppercase;color:rgba(0,0,0,.62);font-weight:500;
+  }
+  .drawer .d-name{
+    position:relative;z-index:1;font-family:var(--serif);font-weight:400;
+    font-size:64px;line-height:.95;color:#0a0b0f;margin-top:14px;letter-spacing:-.02em;
+  }
+  .drawer .d-formula{
+    position:relative;z-index:1;font-family:var(--mono);font-size:14px;
+    color:rgba(0,0,0,.7);margin-top:16px;
+  }
+  .drawer .content{padding:40px}
+  .drawer .desc{font-size:16px;line-height:1.72;color:var(--text)}
+  .drawer .section-label{
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;
+    color:var(--gold);margin:44px 0 20px;padding-bottom:12px;border-bottom:1px solid var(--line);
+  }
+  .props{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line)}
+  .props .prop{background:var(--ink-2);padding:20px 22px}
+  .props .prop .k{
+    font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--text-faint);
+  }
+  .props .prop .v{font-size:19px;margin-top:9px;font-family:var(--serif)}
+  .mohs-track{margin-top:14px;height:6px;background:var(--panel);border-radius:3px;overflow:hidden}
+  .mohs-track span{display:block;height:100%;background:linear-gradient(90deg,var(--gold),#e6cf8c)}
+  .origins{display:flex;flex-wrap:wrap;gap:8px}
+  .origins .o{
+    background:var(--panel);border:1px solid var(--line);border-radius:2px;
+    padding:9px 14px;font-size:13px;color:var(--text-dim);
+    font-family:var(--mono);letter-spacing:.02em;
+  }
+  .colorways{display:flex;gap:12px;flex-wrap:wrap}
+  .colorways .cw{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-dim)}
+  .colorways .cw i{width:20px;height:20px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)}
+
+  footer{
+    border-top:1px solid var(--line);padding:44px 40px;
+    max-width:1280px;margin:0 auto;
+    display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px;
+    font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint);
+  }
+
+  /* ---------- Learn ---------- */
+  .learn-hero{max-width:1280px;margin:0 auto;padding:110px 40px 40px}
+  .learn-hero .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:var(--gold);margin-bottom:30px}
+  .learn-hero h1{font-family:var(--serif);font-weight:300;font-size:clamp(44px,7vw,92px);line-height:.95;letter-spacing:-.02em}
+  .learn-hero h1 em{font-style:italic;color:var(--gold);font-weight:400}
+  .learn-hero .lede{margin-top:32px;max-width:600px;font-size:17px;line-height:1.65;color:var(--text-dim)}
+  .lessons{max-width:1280px;margin:0 auto;padding:30px 40px 110px;display:flex;flex-direction:column;gap:2px;background:var(--line);border:1px solid var(--line);border-radius:3px;overflow:hidden}
+  .lesson{background:var(--ink-2);transition:background .25s}
+  .lesson.open{background:var(--panel)}
+  .lesson .l-head{width:100%;text-align:left;background:none;border:none;color:inherit;font:inherit;cursor:pointer;padding:30px 36px;display:flex;align-items:baseline;gap:26px}
+  .lesson .l-num{font-family:var(--mono);font-size:12px;color:var(--gold);letter-spacing:.1em;min-width:34px}
+  .lesson .l-title{font-family:var(--serif);font-size:28px;font-weight:400;letter-spacing:-.01em;flex:1}
+  .lesson .l-sub{font-size:13px;color:var(--text-faint);margin-top:8px;font-family:var(--sans)}
+  .lesson .l-toggle{font-family:var(--mono);font-size:20px;color:var(--text-dim);transition:transform .3s}
+  .lesson.open .l-toggle{transform:rotate(45deg)}
+  .lesson .l-body{max-height:0;overflow:hidden;transition:max-height .4s ease}
+  .lesson.open .l-body{max-height:1400px}
+  .lesson .l-inner{padding:0 36px 34px 96px;max-width:760px}
+  .lesson .l-inner p{font-size:15.5px;line-height:1.75;color:var(--text);margin-bottom:16px}
+  .lesson .l-inner p:last-child{margin-bottom:0}
+  .lesson .l-inner strong{color:var(--gold);font-weight:500}
+  .scale{display:flex;gap:2px;margin:22px 0;border:1px solid var(--line);border-radius:3px;overflow:hidden}
+  .scale .step{flex:1;padding:14px 6px;text-align:center;background:var(--ink)}
+  .scale .step .sn{font-family:var(--serif);font-size:20px}
+  .scale .step .sl{font-family:var(--mono);font-size:8.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin-top:6px;line-height:1.3}
+  .cc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:2px;background:var(--line);border:1px solid var(--line);border-radius:3px;overflow:hidden;margin:18px 0}
+  .cc-grid .cc{background:var(--ink);padding:20px 22px}
+  .cc-grid .cc h4{font-family:var(--serif);font-size:19px;font-weight:400;margin-bottom:8px}
+  .cc-grid .cc p{font-size:13.5px;line-height:1.6;color:var(--text-dim);margin:0}
+
+  /* ---------- Quiz ---------- */
+  .quiz-wrap{max-width:720px;margin:0 auto;padding:110px 40px 120px;min-height:70vh}
+  .quiz-intro .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:var(--gold);margin-bottom:26px}
+  .quiz-intro h1{font-family:var(--serif);font-weight:300;font-size:clamp(40px,6vw,76px);line-height:.98;letter-spacing:-.02em}
+  .quiz-intro h1 em{font-style:italic;color:var(--gold);font-weight:400}
+  .quiz-intro p{margin:28px 0 40px;font-size:16px;line-height:1.65;color:var(--text-dim)}
+  .btn{display:inline-flex;align-items:center;gap:12px;background:var(--gold);color:var(--ink);border:none;cursor:pointer;font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;padding:16px 28px;border-radius:2px;transition:transform .15s,background .2s}
+  .btn:hover{transform:translateY(-2px)}
+  .btn.ghost{background:none;color:var(--text-dim);border:1px solid var(--line-2)}
+  .btn.ghost:hover{color:var(--text);border-color:var(--gold)}
+  .q-progress{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--text-faint);margin-bottom:14px}
+  .q-bar{height:4px;background:var(--panel);border-radius:2px;overflow:hidden;margin-bottom:44px}
+  .q-bar span{display:block;height:100%;background:var(--gold);transition:width .35s}
+  .q-question{font-family:var(--serif);font-size:clamp(26px,4vw,38px);font-weight:400;line-height:1.2;letter-spacing:-.01em;margin-bottom:36px}
+  .q-opts{display:flex;flex-direction:column;gap:12px}
+  .q-opt{text-align:left;background:var(--panel);border:1px solid var(--line);color:var(--text);font:inherit;font-size:16px;padding:20px 24px;border-radius:3px;cursor:pointer;transition:border-color .18s,background .18s;display:flex;justify-content:space-between;align-items:center;gap:16px}
+  .q-opt:hover:not(:disabled){border-color:var(--line-2);background:var(--panel-2)}
+  .q-opt:disabled{cursor:default}
+  .q-opt.correct{border-color:#4caf7d;background:rgba(76,175,125,.12)}
+  .q-opt.wrong{border-color:#c0533f;background:rgba(192,83,63,.12)}
+  .q-opt .tick{font-family:var(--mono);font-size:15px;opacity:0}
+  .q-opt.correct .tick,.q-opt.wrong .tick{opacity:1}
+  .q-explain{margin-top:24px;padding:20px 24px;background:var(--ink-2);border-left:2px solid var(--gold);border-radius:2px;font-size:14.5px;line-height:1.65;color:var(--text-dim)}
+  .q-explain strong{color:var(--gold);font-weight:500}
+  .q-next{margin-top:32px;display:flex;justify-content:flex-end}
+  .q-result{text-align:center}
+  .q-result .score{font-family:var(--serif);font-size:clamp(64px,14vw,120px);line-height:1;color:var(--gold)}
+  .q-result .score small{font-size:.4em;color:var(--text-faint)}
+  .q-result .grade{font-family:var(--serif);font-size:30px;font-weight:400;margin:20px 0 14px}
+  .q-result .blurb{color:var(--text-dim);font-size:16px;line-height:1.6;max-width:440px;margin:0 auto 40px}
+  .q-result .actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+
+  @media(max-width:1000px){
+    .grid{grid-template-columns:repeat(2,1fr)}
+  }
+  @media(max-width:640px){
+    header.site{padding:16px 20px}
+    nav.top{display:none}
+    .hero{padding:70px 20px 40px}
+    .controls,.grid{padding-left:20px;padding-right:20px}
+    .grid{grid-template-columns:1fr}
+    .controls{top:65px}
+    .hero .meta-row{gap:34px}
+    .drawer .content,.drawer .hero-band{padding:28px 24px}
+    .props{grid-template-columns:1fr}
+    footer{padding:34px 20px;flex-direction:column;align-items:flex-start}
+    .learn-hero{padding:80px 20px 30px}
+    .lessons{padding:24px 20px 80px}
+    .lesson .l-head{padding:24px 22px;gap:16px}
+    .lesson .l-inner{padding:0 22px 28px 22px}
+    .cc-grid{grid-template-columns:1fr}
+    .scale{flex-wrap:wrap}
+    .scale .step{min-width:64px}
+    .quiz-wrap{padding:80px 20px 90px}
+  }
+  @media(prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important;scroll-behavior:auto}
+  }
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="brand">
+    <span class="mark">Lith<em>os</em></span>
+    <span class="tag">Field Catalog № 01</span>
+  </div>
+  <nav class="top">
+    <button class="on" data-view="catalog">Catalog</button>
+    <button data-view="learn">Learn</button>
+    <button data-view="quiz">Quiz</button>
+  </nav>
+</header>
+
+<div class="view" id="view-catalog">
+<section class="hero">
+  <div class="eyebrow">Mineralogy · Twenty-Five Specimens · Hand-Documented</div>
+  <h1>A field catalog<br>of <em>crystalline</em> earth</h1>
+  <p class="lede">Twenty-five precious, semi-precious, and famously rare gemstones — from the everyday to the near-unobtainable — each documented by chemistry, hardness, crystal habit, and provenance. Not a shop, a reference. Open any specimen to study it.</p>
+  <div class="meta-row">
+    <div class="stat"><div class="n" id="stat-count">25</div><div class="l">Specimens</div></div>
+    <div class="stat"><div class="n">4.5–10</div><div class="l">Mohs Range</div></div>
+    <div class="stat"><div class="n">30+</div><div class="l">Source Regions</div></div>
+    <div class="stat"><div class="n">9</div><div class="l">Crystal Systems</div></div>
+  </div>
+</section>
+
+<div class="controls">
+  <div class="controls-inner">
+    <div class="search">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="q" type="text" placeholder="Search by name, color, mineral class, or origin…" autocomplete="off">
+    </div>
+    <div class="filters" id="filters"></div>
+    <div class="count" id="count"></div>
+  </div>
+</div>
+
+<main class="grid" id="grid"></main>
+</div><!-- /view-catalog -->
+
+<div class="view" id="view-learn" hidden>
+  <section class="learn-hero">
+    <div class="eyebrow">The Fundamentals</div>
+    <h1>How to <em>read</em> a gemstone</h1>
+    <p class="lede">Five short lessons on what makes a stone a gem — how they form, how we measure them, and how to tell a fine one from a merely pretty one. Then test yourself in the Quiz.</p>
+  </section>
+  <div class="lessons" id="lessons"></div>
+</div><!-- /view-learn -->
+
+<div class="view" id="view-quiz" hidden>
+  <section class="quiz-wrap" id="quiz-wrap"></section>
+</div><!-- /view-quiz -->
+
+<div class="overlay" id="overlay">
+  <div class="drawer" id="drawer" role="dialog" aria-modal="true"></div>
+</div>
+
+<footer id="about">
+  <span>Lithos Field Catalog · Compiled for study, not sale</span>
+  <span>Hardness on the Mohs scale · Origins listed by prominence</span>
+</footer>
+
+<script>
+const GEMS = [
+  {name:"Diamond",img:"https://commons.wikimedia.org/wiki/Special:FilePath/Brillanten.jpg?width=900",formula:"C",class:"Native element",system:"Cubic",mohs:10,sg:"3.52",ri:"2.42",colorHex:["#eaf2f7","#dfe8ef"],stone:"#dbe4ec",glow:"rgba(180,210,235,.45)",colors:["Colorless","Yellow","Blue","Pink"],origins:["Botswana","Russia","Canada","South Africa","Australia"],desc:"Pure crystallized carbon and the hardest naturally occurring material known. Formed 150 kilometres below the surface under immense pressure and heat, then carried upward in volcanic kimberlite pipes. Its extraordinary refractive index and dispersion are what produce the fire prized in cut stones."},
+  {name:"Ruby",img:"https://commons.wikimedia.org/wiki/Special:FilePath/Ruby_cristal.jpg?width=900",formula:"Al₂O₃ (Cr)",class:"Oxide — Corundum",system:"Trigonal",mohs:9,sg:"4.00",ri:"1.77",colorHex:["#b0132a","#7d0d1e"],stone:"#a8122a",glow:"rgba(190,30,55,.5)",colors:["Red","Pinkish red"],origins:["Myanmar","Mozambique","Thailand","Sri Lanka"],desc:"The red variety of corundum, coloured by trace chromium that replaces aluminium in the lattice. The same mineral in any other colour is called sapphire. Burmese 'pigeon's blood' rubies command the highest prices of any coloured stone, gram for gram often exceeding diamond."},
+  {name:"Sapphire",img:"https://commons.wikimedia.org/wiki/Special:FilePath/Logan_sapphire_SI.jpg?width=900",formula:"Al₂O₃ (Fe,Ti)",class:"Oxide — Corundum",system:"Trigonal",mohs:9,sg:"4.00",ri:"1.77",colorHex:["#173a8f","#0e224f"],stone:"#1b3f96",glow:"rgba(40,80,190,.5)",colors:["Blue","Yellow","Pink","Colorless"],origins:["Sri Lanka","Madagascar","Kashmir","Australia"],desc:"Corundum in every colour except red. The classic blue comes from trace iron and titanium; padparadscha, a rare pink-orange, is the most coveted variety. Its hardness and durability have made it a favourite for engagement rings and, industrially, for scratch-resistant watch faces."},
+  {name:"Emerald",img:"https://commons.wikimedia.org/wiki/Special:FilePath/Emerald_Gem.JPG?width=900",formula:"Be₃Al₂Si₆O₁₈",class:"Silicate — Beryl",system:"Hexagonal",mohs:7.75,sg:"2.72",ri:"1.58",colorHex:["#0f7a4d","#0a4d31"],stone:"#128a56",glow:"rgba(20,150,95,.5)",colors:["Green"],origins:["Colombia","Zambia","Brazil"],desc:"The green variety of beryl, coloured by chromium and vanadium. Nearly all emeralds carry internal fractures and inclusions — the trade poetically calls them jardin, 'garden.' Colombian stones from the Muzo and Chivor mines set the standard for the pure, slightly bluish green."},
+  {name:"Amethyst",img:"https://commons.wikimedia.org/wiki/Special:FilePath/Amethystdruse.jpg?width=900",formula:"SiO₂",class:"Silicate — Quartz",system:"Trigonal",mohs:7,sg:"2.65",ri:"1.55",colorHex:["#7b3fb0","#4c2470"],stone:"#7d43b3",glow:"rgba(140,70,200,.5)",colors:["Purple","Violet"],origins:["Brazil","Uruguay","Zambia","South Korea"],desc:"A violet variety of quartz whose colour comes from irradiated iron impurities. The name derives from the Koine Greek amethystos, 'not intoxicated' — ancient Greeks believed it guarded against drunkenness and carved wine vessels from it. Once as valued as ruby, until vast Brazilian deposits made it abundant."},
+  {name:"Topaz",img:"https://commons.wikimedia.org/wiki/Special:FilePath/Topaz_cut.jpg?width=900",formula:"Al₂SiO₄(F,OH)₂",class:"Silicate",system:"Orthorhombic",mohs:8,sg:"3.55",ri:"1.62",colorHex:["#d99a1f","#a06a10"],stone:"#dba32a",glow:"rgba(215,160,40,.5)",colors:["Yellow","Blue","Pink","Colorless"],origins:["Brazil","Pakistan","Russia","Nigeria"],desc:"An aluminium fluorosilicate that crystallizes in long orthorhombic prisms. Naturally most often colourless or pale, much of the vivid blue topaz on the market is colourless stone that has been irradiated and heated. Imperial topaz — a warm orange-pink — is the rarest and most valued hue."},
+  {name:"Opal",img:"https://commons.wikimedia.org/wiki/Special:FilePath/Opal_from_Yowah,_Queensland,_Australia.jpg?width=900",formula:"SiO₂·nH₂O",class:"Mineraloid",system:"Amorphous",mohs:5.75,sg:"2.10",ri:"1.45",colorHex:["#2a6fb0","#c0344d"],stone:"#3f7fbf",glow:"rgba(90,150,220,.5)",colors:["Play-of-color","White","Black"],origins:["Australia","Ethiopia","Mexico"],desc:"A hydrated form of silica, holding up to 20% water, and technically not a crystal at all. Its famous play-of-colour comes from microscopic silica spheres diffracting light like a natural grating. Australia's Lightning Ridge produces the rare and prized black opal, where colour flashes against a dark body tone."},
+  {name:"Garnet",img:"https://commons.wikimedia.org/wiki/Special:FilePath/Almandine_red.jpg?width=900",formula:"X₃Y₂(SiO₄)₃",class:"Silicate group",system:"Cubic",mohs:7.25,sg:"3.90",ri:"1.78",colorHex:["#8f1f24","#5a1216"],stone:"#9c2229",glow:"rgba(170,40,45,.5)",colors:["Red","Orange","Green"],origins:["Mozambique","Tanzania","India","Namibia"],desc:"Not one mineral but a family sharing a crystal structure — almandine, pyrope, spessartine, and the vivid green tsavorite and demantoid among them. The deep red types are the most familiar, but colour spans nearly the whole spectrum. Used since the Bronze Age both as a gem and as an industrial abrasive."},
+  {name:"Aquamarine",img:"https://commons.wikimedia.org/wiki/Special:FilePath/Aquamarine_gem.jpg?width=900",formula:"Be₃Al₂Si₆O₁₈",class:"Silicate — Beryl",system:"Hexagonal",mohs:7.75,sg:"2.70",ri:"1.57",colorHex:["#5aa9c4","#2f6f88"],stone:"#63b3cd",glow:"rgba(90,175,205,.5)",colors:["Blue","Blue-green"],origins:["Brazil","Nigeria","Madagascar","Pakistan"],desc:"The blue-to-seafoam variety of beryl — the same species as emerald, coloured instead by trace iron. Its name means 'water of the sea.' Aquamarine grows in exceptionally clean, large crystals, so eye-clean faceted stones of considerable size are far easier to find than in almost any other gem."},
+  {name:"Tourmaline",img:"https://commons.wikimedia.org/wiki/Special:FilePath/Tourmaline-50848.jpg?width=900",formula:"(Na,Ca)(Li,Mg,Al)…",class:"Silicate — borosilicate",system:"Trigonal",mohs:7.25,sg:"3.10",ri:"1.63",colorHex:["#c0397a","#158a5c"],stone:"#cf4a86",glow:"rgba(200,70,140,.5)",colors:["Pink","Green","Watermelon"],origins:["Brazil","Nigeria","Afghanistan","USA"],desc:"A complex borosilicate with the widest colour range of any gem — a single crystal can shift from green to pink along its length, producing the beloved 'watermelon' slices. Tourmaline is pyroelectric and piezoelectric: heat or pressure it, and the crystal generates an electric charge across its ends."},
+  {name:"Peridot",img:"https://commons.wikimedia.org/wiki/Special:FilePath/Peridot_2.jpg?width=900",formula:"(Mg,Fe)₂SiO₄",class:"Silicate — Olivine",system:"Orthorhombic",mohs:6.75,sg:"3.34",ri:"1.65",colorHex:["#8fb02a","#5f7818"],stone:"#9cbd33",glow:"rgba(160,195,55,.5)",colors:["Yellow-green"],origins:["Pakistan","Myanmar","USA","China"],desc:"Gem-quality olivine, and one of the very few gemstones that occurs in only a single colour, an olive to lime green set by its own iron content rather than trace impurities. It forms deep in the mantle and even arrives from space — peridot crystals have been found inside pallasite meteorites."},
+  {name:"Spinel",img:"https://commons.wikimedia.org/wiki/Special:FilePath/Spinel-usa54c.jpg?width=900",formula:"MgAl₂O₄",class:"Oxide",system:"Cubic",mohs:8,sg:"3.60",ri:"1.72",colorHex:["#c02a52","#7a1832"],stone:"#cf305c",glow:"rgba(200,55,95,.5)",colors:["Red","Pink","Blue"],origins:["Myanmar","Tanzania","Sri Lanka","Tajikistan"],desc:"For centuries mistaken for ruby — the 'Black Prince's Ruby' in the British Imperial State Crown is in fact a spinel. It forms bright, singly-refractive crystals in near-perfect octahedra. Now valued in its own right, fine untreated red and hot-pink spinel has become one of the connoisseur's quiet favourites."},
+  {name:"Tanzanite",img:"https://commons.wikimedia.org/wiki/Special:FilePath/Tanzanite-crystal.jpg?width=900",formula:"Ca₂Al₃(SiO₄)₃(OH)",class:"Silicate — Zoisite",system:"Orthorhombic",mohs:6.75,sg:"3.35",ri:"1.69",colorHex:["#3f3fa0","#26265f"],stone:"#4646b0",glow:"rgba(90,90,200,.5)",colors:["Blue","Violet"],origins:["Tanzania"],desc:"Found in exactly one place on Earth — a few square kilometres of the Merelani Hills near Mount Kilimanjaro. It is strongly pleochroic, showing blue, violet, and burgundy from different angles; most rough is gently heated to draw out the pure blue-violet. Discovered only in 1967 and named by Tiffany & Co."},
+  {name:"Citrine",img:"https://commons.wikimedia.org/wiki/Special:FilePath/Citrine_gemstone.jpg?width=900",formula:"SiO₂",class:"Silicate — Quartz",system:"Trigonal",mohs:7,sg:"2.65",ri:"1.55",colorHex:["#d98a2b","#a55f16"],stone:"#e09330",glow:"rgba(215,140,45,.5)",colors:["Yellow","Golden","Amber"],origins:["Brazil","Bolivia","Madagascar"],desc:"The yellow-to-amber variety of quartz, coloured by traces of iron. Natural citrine is genuinely uncommon; most on the market is heat-treated amethyst, which turns golden at high temperature. Bolivia's Anahí mine produces ametrine — a natural bicolour where citrine and amethyst meet in one crystal."},
+  {name:"Jade",img:"https://commons.wikimedia.org/wiki/Special:FilePath/Jade_boulder.jpg?width=900",formula:"NaAlSi₂O₆",class:"Silicate — Pyroxene",system:"Monoclinic",mohs:6.75,sg:"3.30",ri:"1.66",colorHex:["#2f8f6a","#175a41"],stone:"#329c73",glow:"rgba(50,155,115,.45)",colors:["Green","Lavender","White"],origins:["Myanmar","Guatemala","Russia"],desc:"Two distinct minerals share the name: jadeite, rarer and harder, and nephrite. Its interlocking fibrous structure makes jade extraordinarily tough — resistant to breaking even where it is not especially hard — which is why it was worked into blades and ritual objects across Neolithic China and Mesoamerica. Top 'imperial' jadeite is a translucent emerald green."},
+  {name:"Alexandrite",img:"https://commons.wikimedia.org/wiki/Special:FilePath/Alexandrite_26.75cts.jpg?width=900",formula:"BeAl₂O₄ (Cr)",class:"Oxide — Chrysoberyl",system:"Orthorhombic",mohs:8.5,sg:"3.73",ri:"1.75",colorHex:["#1f7a4d","#8a2244"],stone:"#3a6b5a",glow:"rgba(120,60,110,.5)",colors:["Green (day)","Red (night)"],origins:["Russia","Brazil","Sri Lanka","Tanzania"],desc:"The great colour-change gem — emerald green in daylight, raspberry red under candle or incandescent light, an effect caused by trace chromium and the way it filters two windows of the spectrum. Discovered in the Russian Urals in the 1830s and named for the future Tsar Alexander II. Fine large stones with a full, clean change are among the rarest of all gems."},
+  {name:"Paraíba Tourmaline",img:"https://commons.wikimedia.org/wiki/Special:FilePath/Elbaite-Paraiba.jpg?width=900",formula:"…Cu-bearing borosilicate",class:"Silicate — Tourmaline",system:"Trigonal",mohs:7.25,sg:"3.10",ri:"1.64",colorHex:["#1fb0c4","#0e8fa8"],stone:"#22bcd2",glow:"rgba(40,190,215,.55)",colors:["Neon blue","Neon green"],origins:["Brazil","Mozambique","Nigeria"],desc:"An electric, almost glowing 'neon' blue-green tourmaline coloured by copper — a chemistry unknown in tourmaline until the deposit was found in Paraíba, Brazil, in 1989. The original Brazilian mine was tiny and is now largely worked out, which is why fine Paraíba can outprice diamond many times over per carat. Nothing else in the mineral kingdom quite matches the colour."},
+  {name:"Black Opal",img:"https://commons.wikimedia.org/wiki/Special:FilePath/Opal_from_Yowah,_Queensland,_Australia.jpg?width=900",formula:"SiO₂·nH₂O",class:"Mineraloid",system:"Amorphous",mohs:5.75,sg:"2.10",ri:"1.45",colorHex:["#0a0a12","#c0344d"],stone:"#141425",glow:"rgba(120,60,200,.5)",colors:["Play-of-color on black"],origins:["Australia (Lightning Ridge)"],desc:"The aristocrat of opals — a dark body tone that makes flashes of red, green and blue leap out with a vividness pale opal can never match. Nearly all of it comes from a single Australian field, Lightning Ridge. The rarest and most valued pattern is a bold, broad 'harlequin' mosaic; red-on-black is the most prized colour combination of all."},
+  {name:"Benitoite",img:"https://commons.wikimedia.org/wiki/Special:FilePath/Benitoite_crystals_on_matrix.jpg?width=900",formula:"BaTiSi₃O₉",class:"Silicate",system:"Hexagonal",mohs:6.5,sg:"3.65",ri:"1.76",colorHex:["#1a3fa0","#0d2160"],stone:"#1f47b0",glow:"rgba(45,90,200,.55)",colors:["Sapphire blue"],origins:["USA (California)"],desc:"A brilliant blue barium-titanium silicate found in gem quality in essentially one place on Earth — San Benito County, California, which made it the official state gem. It has higher dispersion (fire) than diamond, so faceted stones flash intensely, but the crystals are almost always small; a clean stone over one carat is a serious rarity. It also fluoresces glowing blue under UV light."},
+  {name:"Moissanite",img:"https://commons.wikimedia.org/wiki/Special:FilePath/Moissanite.jpg?width=900",formula:"SiC",class:"Carbide",system:"Hexagonal",mohs:9.25,sg:"3.21",ri:"2.65",colorHex:["#eef3f2","#dfe9e6"],stone:"#e6efec",glow:"rgba(200,225,220,.45)",colors:["Colorless","Faint green/yellow"],origins:["Meteorites","Laboratory"],desc:"Silicon carbide — first identified by Henri Moissan in 1893 in an Arizona meteorite crater, and initially mistaken for diamond. Natural moissanite is vanishingly rare, so gem material is grown in labs. With even higher dispersion and refractive index than diamond, it out-sparkles it outright, and at near-diamond hardness it has become the leading diamond alternative."},
+  {name:"Ammolite",img:"https://commons.wikimedia.org/wiki/Special:FilePath/Ammolite_closeup.jpg?width=900",formula:"CaCO₃ (aragonite)",class:"Organic — Fossil",system:"Orthorhombic",mohs:4.5,sg:"2.80",ri:"1.52",colorHex:["#c0392b","#1f8f6a"],stone:"#3f7f5a",glow:"rgba(160,90,50,.5)",colors:["Iridescent red","Green","Blue"],origins:["Canada (Alberta)"],desc:"One of the very few organic gemstones — the fossilized, iridescent shell of ammonites, sea creatures that died out around 66 million years ago. The play of fiery colour comes from stacked microscopic layers of aragonite. It is mined commercially in just one region, the Bearpaw Formation of southern Alberta, and was only recognized as a gemstone in 1981."},
+  {name:"Painite",img:"https://commons.wikimedia.org/wiki/Special:FilePath/Painite.jpg?width=900",formula:"CaZrAl₉O₁₅(BO₃)",class:"Borate",system:"Hexagonal",mohs:8,sg:"4.01",ri:"1.79",colorHex:["#8a3a24","#5a2214"],stone:"#9c4429",glow:"rgba(160,70,40,.5)",colors:["Brownish red","Orange-red"],origins:["Myanmar"],desc:"For decades the rarest gem mineral on Earth — after its 1951 discovery in Myanmar, only a handful of crystals were known to exist, and for a time just two were of gem quality. New finds in the 2000s raised the count, but fine faceted painite remains extraordinarily scarce. Its complex borate chemistry is unlike almost any other gemstone."},
+  {name:"Grandidierite",img:"https://commons.wikimedia.org/wiki/Special:FilePath/Grandidierite_-_Madagascar.jpg?width=900",formula:"(Mg,Fe)Al₃(BO₃)(SiO₄)O₂",class:"Silicate — borosilicate",system:"Orthorhombic",mohs:7.5,sg:"2.99",ri:"1.60",colorHex:["#3a9aa0","#1f6a72"],stone:"#3fa5ab",glow:"rgba(60,170,175,.5)",colors:["Blue-green","Teal"],origins:["Madagascar","Sri Lanka"],desc:"A translucent bluish-green borosilicate first found in Madagascar in 1902 and named for the explorer Alfred Grandidier. Transparent, facetable material was almost unknown until a new Madagascan deposit appeared around 2014. It is strongly trichroic — showing dark blue-green, colourless, and dark green from different directions — and clean stones are still counted among the rarest in the trade."},
+  {name:"Larimar",img:"https://commons.wikimedia.org/wiki/Special:FilePath/Larimar_pektolith.jpg?width=900",formula:"NaCa₂Si₃O₈(OH)",class:"Silicate — Pectolite",system:"Triclinic",mohs:5,sg:"2.85",ri:"1.60",colorHex:["#3f9fc4","#2a7a99"],stone:"#45a8ce",glow:"rgba(70,170,205,.45)",colors:["Sky blue","White-mottled"],origins:["Dominican Republic"],desc:"A soft, sky-blue variety of the mineral pectolite, patterned with white swirls like sunlit Caribbean water. It is found in commercial quantity in exactly one place — a single mountainside in the Dominican Republic — and its blue comes from trace copper. Known locally for generations, it was only formally named 'Larimar' in 1974, combining a daughter's name, Larissa, with the Spanish word for sea."},
+  {name:"Musgravite",img:"https://commons.wikimedia.org/wiki/Special:FilePath/Taaffeite.jpg?width=900",formula:"Be(Mg,Fe,Zn)₂Al₆O₁₂",class:"Oxide — Taaffeite group",system:"Trigonal",mohs:8,sg:"3.68",ri:"1.72",colorHex:["#7a7f8f","#4a4f5e"],stone:"#83879a",glow:"rgba(130,135,160,.5)",colors:["Grey-green","Purple-grey"],origins:["Australia","Greenland","Madagascar","Sri Lanka"],desc:"One of the rarest gemstones ever brought to market. First identified in 1967 from the Musgrave Ranges of Australia, it went decades with only a handful of faceted stones in existence, and for years was routinely confused with the already-rare taaffeite. Even today, gem-quality musgravite is counted in a very small number of known specimens, making a clean faceted example a genuine collector's trophy."}
+];
+
+const filterDefs=[
+  {label:"All",test:()=>true},
+  {label:"Mohs 8+",test:g=>g.mohs>=8},
+  {label:"Silicates",test:g=>/Silicate/.test(g.class)},
+  {label:"Red tones",test:g=>g.colors.some(c=>/red|pink/i.test(c))},
+  {label:"Single origin",test:g=>g.origins.length===1},
+  {label:"Colour-change / rare",test:g=>/Alexandrite|Paraíba|Benitoite|Painite|Grandidierite|Ammolite|Larimar|Black Opal|Moissanite/.test(g.name)}
+];
+
+let activeFilter=0, query="";
+const grid=document.getElementById('grid');
+const countEl=document.getElementById('count');
+const filtersEl=document.getElementById('filters');
+
+filterDefs.forEach((f,i)=>{
+  const b=document.createElement('button');
+  b.className='chip'+(i===0?' on':'');
+  b.textContent=f.label;
+  b.onclick=()=>{activeFilter=i;[...filtersEl.children].forEach(c=>c.classList.remove('on'));b.classList.add('on');render();};
+  filtersEl.appendChild(b);
+});
+
+function matches(g){
+  if(!filterDefs[activeFilter].test(g))return false;
+  if(!query)return true;
+  const hay=(g.name+' '+g.class+' '+g.system+' '+g.colors.join(' ')+' '+g.origins.join(' ')).toLowerCase();
+  return hay.includes(query);
+}
+
+function render(){
+  const list=GEMS.filter(matches);
+  grid.innerHTML='';
+  countEl.textContent=`${String(list.length).padStart(2,'0')} / ${GEMS.length} shown`;
+  if(!list.length){
+    grid.innerHTML=`<div class="empty"><h3>No specimen matches</h3><p>Try a different mineral class, colour, or origin.</p></div>`;
+    return;
+  }
+  list.forEach((g,i)=>{
+    const realIdx=GEMS.indexOf(g);
+    const el=document.createElement('button');
+    el.className='card';
+    el.style.setProperty('--stone',g.stone);
+    el.style.setProperty('--glow',g.glow);
+    el.style.animationDelay=(i*40)+'ms';
+    el.onclick=()=>openDrawer(realIdx);
+    el.innerHTML=`
+      <span class="idx">${String(realIdx+1).padStart(2,'0')}</span>
+      <div class="photo"><img alt="${g.name}" loading="lazy"
+        onload="this.classList.add('loaded')"
+        onerror="this.style.display='none'"
+        src="${g.img}"></div>
+      <div class="body">
+        <div class="name">${g.name}</div>
+        <div class="formula">${g.formula}</div>
+        <div class="quick">
+          <div><div class="k">Mohs</div><div class="v">${g.mohs}</div></div>
+          <div><div class="k">System</div><div class="v">${g.system}</div></div>
+          <div><div class="k">Origin</div><div class="v">${g.origins[0]}</div></div>
+        </div>
+      </div>
+      <span class="arrow">→</span>`;
+    grid.appendChild(el);
+  });
+}
+
+const overlay=document.getElementById('overlay');
+const drawer=document.getElementById('drawer');
+
+function openDrawer(i){
+  const g=GEMS[i];
+  drawer.style.setProperty('--stone',g.stone);
+  drawer.innerHTML=`
+    <button class="close" onclick="closeDrawer()" aria-label="Close">✕</button>
+    <div class="d-photo"><img alt="${g.name}"
+      onload="this.classList.add('loaded')"
+      onerror="this.parentNode.style.display='none'"
+      src="${g.img}"></div>
+    <div class="hero-band">
+      <div class="d-eyebrow">Specimen № ${String(i+1).padStart(2,'0')} · ${g.class}</div>
+      <div class="d-name">${g.name}</div>
+      <div class="d-formula">${g.formula}</div>
+    </div>
+    <div class="content">
+      <p class="desc">${g.desc}</p>
+
+      <div class="section-label">Physical Properties</div>
+      <div class="props">
+        <div class="prop"><div class="k">Hardness (Mohs)</div><div class="v">${g.mohs} / 10</div>
+          <div class="mohs-track"><span style="width:${g.mohs*10}%"></span></div></div>
+        <div class="prop"><div class="k">Crystal System</div><div class="v">${g.system}</div></div>
+        <div class="prop"><div class="k">Specific Gravity</div><div class="v">${g.sg}</div></div>
+        <div class="prop"><div class="k">Refractive Index</div><div class="v">${g.ri}</div></div>
+      </div>
+
+      <div class="section-label">Colour Range</div>
+      <div class="colorways">
+        ${g.colorHex.map((h,n)=>`<div class="cw"><i style="background:${h}"></i>${g.colors[n]||g.colors[0]}</div>`).join('')}
+      </div>
+
+      <div class="section-label">Notable Origins</div>
+      <div class="origins">${g.origins.map(o=>`<span class="o">${o}</span>`).join('')}</div>
+    </div>`;
+  overlay.classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeDrawer(){overlay.classList.remove('open');document.body.style.overflow='';}
+overlay.onclick=e=>{if(e.target===overlay)closeDrawer();};
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer();});
+
+document.getElementById('q').addEventListener('input',e=>{query=e.target.value.trim().toLowerCase();render();});
+document.getElementById('stat-count').textContent=GEMS.length;
+render();
+
+/* ---------- View switching ---------- */
+const views={
+  catalog:document.getElementById('view-catalog'),
+  learn:document.getElementById('view-learn'),
+  quiz:document.getElementById('view-quiz')
+};
+const navBtns=[...document.querySelectorAll('nav.top button')];
+let learnBuilt=false;
+function switchView(name){
+  Object.entries(views).forEach(([k,el])=>el.hidden=(k!==name));
+  navBtns.forEach(b=>b.classList.toggle('on',b.dataset.view===name));
+  window.scrollTo({top:0,behavior:'instant' in window?'instant':'auto'});
+  if(name==='learn'&&!learnBuilt){buildLessons();learnBuilt=true;}
+  if(name==='quiz')startQuiz();
+}
+navBtns.forEach(b=>b.addEventListener('click',()=>switchView(b.dataset.view)));
+
+/* ---------- Lessons ---------- */
+const LESSONS=[
+  {title:"What makes a rock a gem",sub:"Beauty, durability, and rarity",body:`
+    <p>Thousands of minerals exist, but only a few dozen are cut as gemstones. Three qualities decide which make the cut: <strong>beauty</strong> — colour, transparency, and the way light behaves inside the stone; <strong>durability</strong> — the ability to survive being worn without scratching or shattering; and <strong>rarity</strong> — scarcity is what turns a pretty crystal into a valuable one.</p>
+    <p>A gem is almost always a <strong>crystal</strong>: atoms locked into a repeating three-dimensional pattern. That internal order is what produces flat faces, sharp angles, and the optical effects we prize. A few gems — opal and amber among them — are <strong>amorphous</strong>, with no ordered lattice at all, and are called mineraloids rather than true minerals.</p>
+    <p>Colour usually comes not from the main ingredients but from trace impurities. The same mineral, corundum, is <strong>ruby</strong> when chromium sneaks in and <strong>sapphire</strong> when it's iron and titanium. Emerald and aquamarine are likewise the very same species — beryl — coloured by different elements.</p>`},
+  {title:"How gemstones form",sub:"Heat, pressure, water, and deep time",body:`
+    <p>Most gems are born in one of three settings. <strong>Igneous</strong> stones crystallize as molten rock cools — slowly enough, deep underground, for large clean crystals to grow. Diamond forms this way, over a hundred kilometres down, then rides to the surface in violent volcanic pipes.</p>
+    <p><strong>Metamorphic</strong> gems form when existing rock is cooked and squeezed by heat and pressure without melting — ruby, sapphire, and jade come from this slow transformation. <strong>Hydrothermal</strong> gems grow from hot mineral-rich water seeping through cracks, which is where much emerald and amethyst comes from.</p>
+    <p>A handful are outliers: <strong>opal</strong> settles out of silica-laden water near the surface, <strong>peridot</strong> rises from the deep mantle and even arrives in meteorites, and <strong>amber</strong> and <strong>ammolite</strong> are organic — fossilized resin and shell. The common thread is time: most of these processes take millions of years.</p>`},
+  {title:"The Mohs scale of hardness",sub:"Why diamond scratches everything",body:`
+    <p>Hardness measures resistance to scratching, ranked 1 to 10 on the <strong>Mohs scale</strong>. It's a ranking, not a measurement — the jumps aren't even. Diamond at 10 is roughly four times harder than corundum at 9, which is itself far harder than anything at 8.</p>
+    <p>The rule is simple: a mineral can scratch anything softer than itself and be scratched by anything harder. This matters for jewellery. Stones under about 7 are softer than everyday dust (which contains quartz, hardness 7), so a soft gem worn daily slowly abrades to a dull surface.</p>
+    <div class="scale">
+      <div class="step"><div class="sn">1</div><div class="sl">Talc</div></div>
+      <div class="step"><div class="sn">3</div><div class="sl">Calcite</div></div>
+      <div class="step"><div class="sn">5</div><div class="sl">Apatite</div></div>
+      <div class="step"><div class="sn">7</div><div class="sl">Quartz</div></div>
+      <div class="step"><div class="sn">8</div><div class="sl">Topaz</div></div>
+      <div class="step"><div class="sn">9</div><div class="sl">Corundum</div></div>
+      <div class="step"><div class="sn">10</div><div class="sl">Diamond</div></div>
+    </div>
+    <p>One caution: hardness is not toughness. <strong>Jade</strong> is only about 6.5 but is exceptionally tough — hard to break — because of its interlocking fibrous structure. Diamond is the hardest thing there is, yet it can cleave in two from a sharp knock along the right plane.</p>`},
+  {title:"The Four Cs",sub:"How value is judged",body:`
+    <p>The diamond trade standardized four factors that now shape how nearly all gems are valued.</p>
+    <div class="cc-grid">
+      <div class="cc"><h4>Colour</h4><p>For coloured stones, the single biggest value driver. The ideal is a pure, saturated hue that's neither too dark nor too pale. For diamonds, the opposite — the less colour, the rarer.</p></div>
+      <div class="cc"><h4>Clarity</h4><p>How free the stone is of internal inclusions and surface blemishes. Some inclusions are expected — emeralds almost always have them — but fewer generally means more valuable.</p></div>
+      <div class="cc"><h4>Cut</h4><p>Not the shape, but how well the stone is proportioned and faceted. A great cut returns light to the eye as brilliance and fire; a poor one leaves even fine rough looking lifeless.</p></div>
+      <div class="cc"><h4>Carat</h4><p>Weight, not size — one carat is 0.2 grams. Because large clean crystals are rare, price per carat rises steeply with size, so a 2-carat stone costs far more than two 1-carat stones.</p></div>
+    </div>
+    <p>For coloured gemstones, most experts rank them <strong>colour first</strong>, then clarity and cut. For diamonds, cut is often considered the most important of the four, because it's what makes a diamond sparkle.</p>`},
+  {title:"Treatments and imposters",sub:"What you're really buying",body:`
+    <p>Most gems on the market have been <strong>treated</strong> to improve appearance, and much of it is accepted trade practice — as long as it's disclosed. <strong>Heating</strong> deepens or clarifies colour in sapphire, ruby, and tanzanite and is extremely common. <strong>Irradiation</strong> turns colourless topaz vivid blue. Emeralds are routinely <strong>oil-filled</strong> to mask surface fractures.</p>
+    <p>The value gap between treated and genuinely untreated stones can be enormous, which is why a reputable lab report matters. An untreated, certified Burmese ruby is worth many times a heated one of the same look.</p>
+    <p>Then there are <strong>simulants</strong> and <strong>synthetics</strong> — two different things. A synthetic has the same chemistry as the natural stone but is grown in a lab (lab-grown diamond is real diamond). A simulant merely imitates the look — <strong>cubic zirconia</strong> and <strong>moissanite</strong> stand in for diamond but are entirely different materials. Neither is a scam if sold honestly; the problem is only ever non-disclosure.</p>`}
+];
+function buildLessons(){
+  const wrap=document.getElementById('lessons');
+  wrap.innerHTML=LESSONS.map((l,i)=>`
+    <div class="lesson">
+      <button class="l-head" aria-expanded="false">
+        <span class="l-num">${String(i+1).padStart(2,'0')}</span>
+        <span style="flex:1"><span class="l-title">${l.title}</span><span class="l-sub">${l.sub}</span></span>
+        <span class="l-toggle">+</span>
+      </button>
+      <div class="l-body"><div class="l-inner">${l.body}</div></div>
+    </div>`).join('');
+  wrap.querySelectorAll('.lesson').forEach(les=>{
+    les.querySelector('.l-head').addEventListener('click',()=>{
+      const on=les.classList.toggle('open');
+      les.querySelector('.l-head').setAttribute('aria-expanded',on);
+    });
+  });
+}
+
+/* ---------- Quiz ---------- */
+const STATIC_Q=[
+  {q:"On the Mohs scale, which is the hardest?",opts:["Topaz","Diamond","Corundum","Quartz"],a:1,ex:"Diamond is a 10 — the hardest natural material — roughly four times harder than corundum at 9."},
+  {q:"Ruby and sapphire are both varieties of which mineral?",opts:["Beryl","Quartz","Corundum","Spinel"],a:2,ex:"Both are corundum. Red corundum (from chromium) is ruby; every other colour is sapphire."},
+  {q:"What gives an opal its flashing play-of-colour?",opts:["Trace chromium","Radiation damage","Microscopic silica spheres diffracting light","Heat treatment"],a:2,ex:"Stacked microscopic silica spheres act as a natural diffraction grating, splitting light into colour."},
+  {q:"Which gem famously changes colour — green in daylight, red under lamplight?",opts:["Tanzanite","Alexandrite","Peridot","Aquamarine"],a:1,ex:"Alexandrite's chromium content makes it shift from green to raspberry red depending on the light source."},
+  {q:"Emerald and aquamarine are the same species. Which one?",opts:["Beryl","Corundum","Feldspar","Olivine"],a:0,ex:"Both are beryl — emerald coloured by chromium/vanadium, aquamarine by iron."},
+  {q:"'Carat' is a measure of a gem's…",opts:["Size","Weight","Colour depth","Hardness"],a:1,ex:"Carat is weight — one carat equals exactly 0.2 grams."},
+  {q:"Which treatment is most commonly used on sapphire and ruby?",opts:["Oiling","Irradiation","Heating","Dyeing"],a:2,ex:"Heating to deepen or clarify colour is extremely common and generally accepted when disclosed."},
+  {q:"Moissanite, often sold as a diamond alternative, is chemically…",opts:["Pure carbon","Silicon carbide","Cubic zirconia","Corundum"],a:1,ex:"Moissanite is silicon carbide (SiC) — a different material that actually out-sparkles diamond."}
+];
+function buildDynamicQ(){
+  // "Which stone is hardest?" using real data
+  const pick=[...GEMS].sort(()=>Math.random()-.5).slice(0,4);
+  const hardest=pick.reduce((a,b)=>b.mohs>a.mohs?b:a);
+  return {
+    q:`Of these four, which is hardest on the Mohs scale?`,
+    opts:pick.map(g=>g.name),
+    a:pick.indexOf(hardest),
+    ex:`${hardest.name} leads at Mohs ${hardest.mohs}. Higher Mohs means better resistance to scratching.`
+  };
+}
+let quizQs=[],qi=0,qScore=0,answered=false;
+function startQuiz(){
+  const shuffled=[...STATIC_Q].sort(()=>Math.random()-.5).slice(0,6);
+  quizQs=[...shuffled,buildDynamicQ()].sort(()=>Math.random()-.5);
+  qi=0;qScore=0;
+  renderQuizIntro();
+}
+function renderQuizIntro(){
+  document.getElementById('quiz-wrap').innerHTML=`
+    <div class="quiz-intro">
+      <div class="eyebrow">Test Yourself</div>
+      <h1>Are you a <em>gemologist</em> yet?</h1>
+      <p>${quizQs.length} questions drawn from the lessons and the catalog. No time limit — pick an answer to see the explanation, then move on.</p>
+      <button class="btn" id="quiz-start">Begin the quiz →</button>
+    </div>`;
+  document.getElementById('quiz-start').onclick=()=>{qi=0;qScore=0;renderQ();};
+}
+function renderQ(){
+  answered=false;
+  const item=quizQs[qi];
+  document.getElementById('quiz-wrap').innerHTML=`
+    <div class="q-progress"><span>Question ${qi+1} / ${quizQs.length}</span><span>Score ${qScore}</span></div>
+    <div class="q-bar"><span style="width:${(qi/quizQs.length)*100}%"></span></div>
+    <div class="q-question">${item.q}</div>
+    <div class="q-opts" id="q-opts">
+      ${item.opts.map((o,i)=>`<button class="q-opt" data-i="${i}">${o}<span class="tick"></span></button>`).join('')}
+    </div>
+    <div id="q-after"></div>`;
+  document.querySelectorAll('#q-opts .q-opt').forEach(b=>{
+    b.onclick=()=>answer(parseInt(b.dataset.i));
+  });
+}
+function answer(choice){
+  if(answered)return;answered=true;
+  const item=quizQs[qi];
+  const correct=item.a;
+  if(choice===correct)qScore++;
+  document.querySelectorAll('#q-opts .q-opt').forEach((b,i)=>{
+    b.disabled=true;
+    if(i===correct){b.classList.add('correct');b.querySelector('.tick').textContent='✓';}
+    else if(i===choice){b.classList.add('wrong');b.querySelector('.tick').textContent='✕';}
+  });
+  const last=qi===quizQs.length-1;
+  document.getElementById('q-after').innerHTML=`
+    <div class="q-explain"><strong>${choice===correct?'Correct.':'Not quite.'}</strong> ${item.ex}</div>
+    <div class="q-next"><button class="btn" id="q-next-btn">${last?'See your result →':'Next question →'}</button></div>`;
+  document.getElementById('q-next-btn').onclick=()=>{
+    if(last){renderResult();}else{qi++;renderQ();}
+  };
+}
+function renderResult(){
+  const pct=Math.round((qScore/quizQs.length)*100);
+  let grade,blurb;
+  if(pct===100){grade="Master Gemologist";blurb="A flawless run. You could grade stones on a trading floor.";}
+  else if(pct>=75){grade="Seasoned Collector";blurb="Strong knowledge — you'd rarely be fooled by a treated stone.";}
+  else if(pct>=50){grade="Keen Apprentice";blurb="A solid foundation. Revisit the lessons and the rarer specimens.";}
+  else{grade="Curious Beginner";blurb="Everyone starts here. Read the five lessons and try again — it sticks fast.";}
+  document.getElementById('quiz-wrap').innerHTML=`
+    <div class="q-result">
+      <div class="score">${qScore}<small>/${quizQs.length}</small></div>
+      <div class="grade">${grade}</div>
+      <p class="blurb">${blurb}</p>
+      <div class="actions">
+        <button class="btn" id="q-again">Try again →</button>
+        <button class="btn ghost" id="q-learn">Review the lessons</button>
+      </div>
+    </div>`;
+  document.getElementById('q-again').onclick=startQuiz;
+  document.getElementById('q-learn').onclick=()=>switchView('learn');
+}
+</script>
+</body>
+</html>

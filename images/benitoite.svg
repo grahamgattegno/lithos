@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="800" height="600">
+  <rect width="400" height="300" fill="url(#bg)"/>
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="42%" r="70%">
+      <stop offset="0%" stop-color="#5d7ac6"/>
+      <stop offset="60%" stop-color="#1b3e9a"/>
+      <stop offset="100%" stop-color="#0d1f4f"/>
+    </radialGradient>
+    <linearGradient id="fl" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#9aacdb"/>
+      <stop offset="100%" stop-color="#142e72"/>
+    </linearGradient>
+    <linearGradient id="fd" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1d43a7"/>
+      <stop offset="100%" stop-color="#0c1c46"/>
+    </linearGradient>
+  </defs>
+  <polygon points="303.0,170.5 287.3,208.3 258.3,237.3 220.5,253.0 179.5,253.0 141.7,237.3 112.7,208.3 97.0,170.5 97.0,129.5 112.7,91.7 141.7,62.7 179.5,47.0 220.5,47.0 258.3,62.7 287.3,91.7 303.0,129.5" fill="url(#fd)"/><polygon points="200,150 299.9,169.9 284.7,206.6" fill="url(#fd)" stroke="rgba(255,255,255,.12)" stroke-width=".6"/>
+  <polygon points="200,150 284.7,206.6 256.6,234.7" fill="url(#fl)" stroke="rgba(255,255,255,.12)" stroke-width=".6"/>
+  <polygon points="200,150 256.6,234.7 219.9,249.9" fill="url(#fd)" stroke="rgba(255,255,255,.12)" stroke-width=".6"/>
+  <polygon points="200,150 219.9,249.9 180.1,249.9" fill="url(#fl)" stroke="rgba(255,255,255,.12)" stroke-width=".6"/>
+  <polygon points="200,150 180.1,249.9 143.4,234.7" fill="url(#fd)" stroke="rgba(255,255,255,.12)" stroke-width=".6"/>
+  <polygon points="200,150 143.4,234.7 115.3,206.6" fill="url(#fl)" stroke="rgba(255,255,255,.12)" stroke-width=".6"/>
+  <polygon points="200,150 115.3,206.6 100.1,169.9" fill="url(#fd)" stroke="rgba(255,255,255,.12)" stroke-width=".6"/>
+  <polygon points="200,150 100.1,169.9 100.1,130.1" fill="url(#fl)" stroke="rgba(255,255,255,.12)" stroke-width=".6"/>
+  <polygon points="200,150 100.1,130.1 115.3,93.4" fill="url(#fd)" stroke="rgba(255,255,255,.12)" stroke-width=".6"/>
+  <polygon points="200,150 115.3,93.4 143.4,65.3" fill="url(#fl)" stroke="rgba(255,255,255,.12)" stroke-width=".6"/>
+  <polygon points="200,150 143.4,65.3 180.1,50.1" fill="url(#fd)" stroke="rgba(255,255,255,.12)" stroke-width=".6"/>
+  <polygon points="200,150 180.1,50.1 219.9,50.1" fill="url(#fl)" stroke="rgba(255,255,255,.12)" stroke-width=".6"/>
+  <polygon points="200,150 219.9,50.1 256.6,65.3" fill="url(#fd)" stroke="rgba(255,255,255,.12)" stroke-width=".6"/>
+  <polygon points="200,150 256.6,65.3 284.7,93.4" fill="url(#fl)" stroke="rgba(255,255,255,.12)" stroke-width=".6"/>
+  <polygon points="200,150 284.7,93.4 299.9,130.1" fill="url(#fd)" stroke="rgba(255,255,255,.12)" stroke-width=".6"/>
+  <polygon points="200,150 299.9,130.1 299.9,169.9" fill="url(#fl)" stroke="rgba(255,255,255,.12)" stroke-width=".6"/>
+  <polygon points="240.7,166.9 216.9,190.7 183.1,190.7 159.3,166.9 159.3,133.1 183.1,109.3 216.9,109.3 240.7,133.1" fill="url(#fl)" stroke="rgba(255,255,255,.25)" stroke-width="1"/><polygon points="200,150 240.7,166.9 216.9,190.7" fill="url(#fd)" stroke="rgba(255,255,255,.12)" stroke-width=".6"/>
+  <polygon points="200,150 216.9,190.7 183.1,190.7" fill="url(#fl)" stroke="rgba(255,255,255,.12)" stroke-width=".6"/>
+  <polygon points="200,150 183.1,190.7 159.3,166.9" fill="url(#fd)" stroke="rgba(255,255,255,.12)" stroke-width=".6"/>
+  <polygon points="200,150 159.3,166.9 159.3,133.1" fill="url(#fl)" stroke="rgba(255,255,255,.12)" stroke-width=".6"/>
+  <polygon points="200,150 159.3,133.1 183.1,109.3" fill="url(#fd)" stroke="rgba(255,255,255,.12)" stroke-width=".6"/>
+  <polygon points="200,150 183.1,109.3 216.9,109.3" fill="url(#fl)" stroke="rgba(255,255,255,.12)" stroke-width=".6"/>
+  <polygon points="200,150 216.9,109.3 240.7,133.1" fill="url(#fd)" stroke="rgba(255,255,255,.12)" stroke-width=".6"/>
+  <polygon points="200,150 240.7,133.1 240.7,166.9" fill="url(#fl)" stroke="rgba(255,255,255,.12)" stroke-width=".6"/><circle cx="170" cy="120" r="4" fill="#fff" opacity=".85"/><circle cx="240" cy="170" r="2.5" fill="#fff" opacity=".6"/>
+</svg>

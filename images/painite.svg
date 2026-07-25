@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="800" height="600">
+  <rect width="400" height="300" fill="url(#bg)"/>
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="42%" r="70%">
+      <stop offset="0%" stop-color="#b77864"/>
+      <stop offset="60%" stop-color="#893b24"/>
+      <stop offset="100%" stop-color="#461e12"/>
+    </radialGradient>
+    <linearGradient id="fl" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#d2aa9e"/>
+      <stop offset="100%" stop-color="#652c1a"/>
+    </linearGradient>
+    <linearGradient id="fd" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#944026"/>
+      <stop offset="100%" stop-color="#3e1b10"/>
+    </linearGradient>
+  </defs>
+  <rect x="100" y="50" width="200" height="200" rx="34" fill="url(#fd)"/><polygon points="200,150 298.5,176.4 272.1,222.1" fill="url(#fd)" stroke="rgba(255,255,255,.12)" stroke-width=".6"/>
+  <polygon points="200,150 272.1,222.1 226.4,248.5" fill="url(#fl)" stroke="rgba(255,255,255,.12)" stroke-width=".6"/>
+  <polygon points="200,150 226.4,248.5 173.6,248.5" fill="url(#fd)" stroke="rgba(255,255,255,.12)" stroke-width=".6"/>
+  <polygon points="200,150 173.6,248.5 127.9,222.1" fill="url(#fl)" stroke="rgba(255,255,255,.12)" stroke-width=".6"/>
+  <polygon points="200,150 127.9,222.1 101.5,176.4" fill="url(#fd)" stroke="rgba(255,255,255,.12)" stroke-width=".6"/>
+  <polygon points="200,150 101.5,176.4 101.5,123.6" fill="url(#fl)" stroke="rgba(255,255,255,.12)" stroke-width=".6"/>
+  <polygon points="200,150 101.5,123.6 127.9,77.9" fill="url(#fd)" stroke="rgba(255,255,255,.12)" stroke-width=".6"/>
+  <polygon points="200,150 127.9,77.9 173.6,51.5" fill="url(#fl)" stroke="rgba(255,255,255,.12)" stroke-width=".6"/>
+  <polygon points="200,150 173.6,51.5 226.4,51.5" fill="url(#fd)" stroke="rgba(255,255,255,.12)" stroke-width=".6"/>
+  <polygon points="200,150 226.4,51.5 272.1,77.9" fill="url(#fl)" stroke="rgba(255,255,255,.12)" stroke-width=".6"/>
+  <polygon points="200,150 272.1,77.9 298.5,123.6" fill="url(#fd)" stroke="rgba(255,255,255,.12)" stroke-width=".6"/>
+  <polygon points="200,150 298.5,123.6 298.5,176.4" fill="url(#fl)" stroke="rgba(255,255,255,.12)" stroke-width=".6"/><rect x="150.0" y="100.0" width="100.0" height="100.0" rx="16" fill="url(#fl)" stroke="rgba(255,255,255,.25)" stroke-width="1"/><path d="M150.0,100.0 L250.0,200.0 M250.0,100.0 L150.0,200.0" stroke="#c38e7e" stroke-width="2" opacity=".5"/><circle cx="176" cy="124" r="4" fill="#fff" opacity=".8"/>
+</svg>

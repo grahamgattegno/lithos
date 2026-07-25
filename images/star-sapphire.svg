@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="800" height="600">
+  <rect width="400" height="300" fill="url(#bg)"/>
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="42%" r="70%">
+      <stop offset="0%" stop-color="#657caa"/>
+      <stop offset="60%" stop-color="#244179"/>
+      <stop offset="100%" stop-color="#12213e"/>
+    </radialGradient>
+    <linearGradient id="fl" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#9fadca"/>
+      <stop offset="100%" stop-color="#1b3059"/>
+    </linearGradient>
+    <linearGradient id="fd" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#274683"/>
+      <stop offset="100%" stop-color="#101d37"/>
+    </linearGradient>
+  </defs>
+  <ellipse cx="200" cy="150" rx="115" ry="90" fill="url(#bg)"/><ellipse cx="200" cy="150" rx="115" ry="90" fill="url(#fd)" opacity=".5"/><ellipse cx="170" cy="118" rx="42" ry="26" fill="#fff" opacity=".35"/><line x1="120.0" y1="150.0" x2="280.0" y2="150.0" stroke="#ffffff" stroke-width="3" opacity=".85"/><line x1="160.0" y1="98.03847577293368" x2="240.0" y2="201.96152422706632" stroke="#ffffff" stroke-width="3" opacity=".85"/><line x1="240.0" y1="98.03847577293368" x2="160.0" y2="201.96152422706632" stroke="#ffffff" stroke-width="3" opacity=".85"/><circle cx="200" cy="150" r="6" fill="#fff" opacity=".9"/>
+</svg>
