@@ -1,0 +1,6 @@
+Gemstone photos in this folder come from Wikimedia Commons
+(public domain or Creative Commons). See PHOTO_SOURCES.json
+for which Commons file was used for each gem.
+
+Double-check each license before commercial use — CC-BY images
+require author credit.

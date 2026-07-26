@@ -171,22 +171,22 @@
     position:relative;z-index:1;
   }
   .card .photo{
-    position:relative;z-index:1;height:190px;width:100%;overflow:hidden;
-    background:
-      radial-gradient(circle at 35% 30%, rgba(255,255,255,.28), transparent 55%),
-      var(--stone);
+    position:relative;z-index:1;height:210px;width:100%;overflow:hidden;
+    background:#0c0d12;
   }
   .card .photo img{
-    width:100%;height:100%;object-fit:cover;display:block;
-    transition:transform .5s cubic-bezier(.2,.8,.2,1),opacity .3s;
-    opacity:0;
+    width:100%;height:100%;object-fit:cover;object-position:center 40%;display:block;
+    transition:transform .55s cubic-bezier(.2,.8,.2,1),opacity .35s,filter .4s;
+    opacity:0;filter:saturate(1.08) contrast(1.06);
   }
   .card .photo img.loaded{opacity:1}
-  .card:hover .photo img{transform:scale(1.05)}
+  .card:hover .photo img{transform:scale(1.04);filter:saturate(1.14) contrast(1.08) brightness(1.03)}
   .card .photo::after{
     content:"";position:absolute;inset:0;pointer-events:none;
-    background:linear-gradient(180deg,transparent 55%,var(--ink-2) 100%);
-    opacity:.9;
+    background:
+      linear-gradient(180deg,rgba(0,0,0,.18) 0%,transparent 28%,transparent 62%,rgba(10,11,15,.72) 100%),
+      radial-gradient(120% 80% at 30% 20%,rgba(255,255,255,.12),transparent 45%);
+    opacity:1;
   }
   .card .body{padding:22px 26px 26px;margin-top:auto;position:relative;z-index:1}
   .card .name{
@@ -229,16 +229,19 @@
   }
   .overlay.open .drawer{transform:none}
   .drawer .d-photo{
-    position:relative;width:100%;height:280px;overflow:hidden;background:var(--stone);
+    position:relative;width:100%;height:320px;overflow:hidden;background:#0c0d12;
   }
   .drawer .d-photo img{
-    width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .4s;
+    width:100%;height:100%;object-fit:cover;object-position:center 35%;display:block;opacity:0;transition:opacity .4s;
+    filter:saturate(1.08) contrast(1.05);
   }
   .drawer .d-photo img.loaded{opacity:1}
   .drawer .d-photo::after{
     content:"";position:absolute;inset:0;pointer-events:none;
-    background:linear-gradient(180deg,rgba(0,0,0,.15) 0%,transparent 30%,var(--stone) 100%);
-    opacity:.55;
+    background:
+      linear-gradient(180deg,rgba(0,0,0,.2) 0%,transparent 35%,rgba(10,11,15,.55) 100%),
+      radial-gradient(90% 60% at 70% 15%,rgba(255,255,255,.14),transparent 50%);
+    opacity:1;
   }
   .drawer .hero-band{
     position:relative;padding:40px;
