@@ -1053,7 +1053,7 @@
   .donate-wrap h1 em{font-style:italic;color:var(--gold);font-weight:400}
   .donate-wrap .lede{margin:26px auto 0;max-width:560px;font-size:16px;line-height:1.6;color:var(--text-dim)}
   .donate-grid{margin-top:40px;display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
-  .donate-card{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px 16px;cursor:pointer;transition:transform .16s,border-color .16s;color:var(--text)}
+  .donate-card{display:block;text-decoration:none;position:relative;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px 16px;cursor:pointer;transition:transform .16s,border-color .16s;color:var(--text);font:inherit;width:100%}
   .donate-card:hover{transform:translateY(-5px);border-color:var(--gold)}
   .donate-card.featured{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 16px 40px -18px rgba(201,169,79,.5)}
   .donate-card .d-emoji{font-size:42px;margin-bottom:10px}
@@ -1355,12 +1355,12 @@
     <div class="eyebrow">Support Lithos</div>
     <h1>Love the site? <em>Donate!</em> 💝</h1>
     <p class="lede">If you really like Lithos and want to help it grow, you can leave a little donation. Every bit helps me add more gems, crafts, and game levels! Thank you! 😊</p>
-    <div class="donate-warning">⚠️ Heads up! The pebble 🪙, gem 💎, ring 💍, and crown 👑 are just fun names for each amount — they are NOT real things you get or have to send. And right now this is only a demo, so no real money is ever charged. It's all pretend! 😊</div>
+    <div class="donate-warning">⚠️ Heads up! The pebble 🪙, gem 💎, ring 💍, and crown 👑 are just fun names for each amount — they are NOT real things you get or have to send. All four donation amounts are live. 😊</div>
     <div class="donate-grid">
-      <button class="donate-card" onclick="donate('$3')"><div class="d-emoji">🪙</div><div class="d-amt">$3</div><div class="d-note">A shiny pebble</div></button>
-      <button class="donate-card" onclick="donate('$5')"><div class="d-emoji">💎</div><div class="d-amt">$5</div><div class="d-note">A little gem</div></button>
-      <button class="donate-card featured" onclick="donate('$10')"><div class="d-badge">Most Loved</div><div class="d-emoji">💍</div><div class="d-amt">$10</div><div class="d-note">A precious ring</div></button>
-      <button class="donate-card" onclick="donate('$25')"><div class="d-emoji">👑</div><div class="d-amt">$25</div><div class="d-note">A royal crown</div></button>
+      <a class="donate-card" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=300&name=Venture+1" target="_blank" rel="noopener noreferrer"><div class="d-emoji">🪙</div><div class="d-amt">$3</div><div class="d-note">A shiny pebble</div></a>
+      <a class="donate-card" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=500&name=Venture+1" target="_blank" rel="noopener noreferrer"><div class="d-emoji">💎</div><div class="d-amt">$5</div><div class="d-note">A little gem</div></a>
+      <a class="donate-card featured" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=1500&name=Venture+1" target="_blank" rel="noopener noreferrer"><div class="d-badge">Most Loved</div><div class="d-emoji">💍</div><div class="d-amt">$15</div><div class="d-note">A precious ring</div></a>
+      <a class="donate-card" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=2500&name=Venture+1" target="_blank" rel="noopener noreferrer"><div class="d-emoji">👑</div><div class="d-amt">$25</div><div class="d-note">A royal crown</div></a>
     </div>
     <div class="donate-custom">
       <span>Or enter your own amount:</span>
@@ -1371,7 +1371,7 @@
       </div>
     </div>
     <div class="donate-result" id="donate-result"></div>
-    <p class="donate-note">💡 A grown-up will help set up real donations. Right now this is a demo — no real money is charged. Thank you for wanting to support Lithos! 💎</p>
+    <p class="donate-note">💡 All four donation amounts are live — a grown-up should complete checkout. Thank you for wanting to support Lithos! 💎</p>
   </section>
 </div><!-- /view-donate -->
 
