@@ -1079,7 +1079,7 @@
   .donate-wrap .lede{margin:26px auto 0;max-width:560px;font-size:16px;line-height:1.6;color:var(--text-dim)}
   .donate-wrap .lede a{color:var(--gold);text-underline-offset:3px}
   .donate-wrap .lede a:hover{color:var(--text)}
-  .donate-grid{margin-top:40px;display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  .donate-grid{margin-top:40px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
   .donate-card{display:block;text-decoration:none;position:relative;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px 16px;cursor:pointer;transition:transform .16s,border-color .16s;color:var(--text);font:inherit;width:100%}
   .donate-card:hover{transform:translateY(-5px);border-color:var(--gold)}
   .donate-card.featured{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 16px 40px -18px rgba(201,169,79,.5)}
@@ -1111,6 +1111,7 @@
     .crafts-grid{grid-template-columns:repeat(2,1fr)}
     .warrior-grid{grid-template-columns:repeat(3,1fr)}
     .auras-grid{grid-template-columns:repeat(2,1fr)}
+    .donate-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
   }
   @media(max-width:640px){
     header.site{padding:16px 20px}
@@ -1394,6 +1395,10 @@
  <a class="donate-card" href="https://donatenow.networkforgood.org/pactworld" target="_blank" rel="noopener noreferrer"><div class="d-gem"><img src="images/garnet.jpg" alt="Garnet"></div><div class="d-amt">$5</div><div class="d-note">Helps mining communities</div></a>
  <a class="donate-card featured" href="https://donatenow.networkforgood.org/pactworld" target="_blank" rel="noopener noreferrer"><div class="d-badge">Most Needed</div><div class="d-gem"><img src="images/ruby.jpg" alt="Ruby"></div><div class="d-amt">$15</div><div class="d-note">Advances fair livelihoods</div></a>
  <a class="donate-card" href="https://donatenow.networkforgood.org/pactworld" target="_blank" rel="noopener noreferrer"><div class="d-gem"><img src="images/sapphire.jpg" alt="Sapphire"></div><div class="d-amt">$25</div><div class="d-note">Fights child labor in mines</div></a>
+ <a class="donate-card" href="https://donatenow.networkforgood.org/pactworld" target="_blank" rel="noopener noreferrer"><div class="d-gem"><img src="images/emerald.jpg" alt="Emerald"></div><div class="d-amt">$50</div><div class="d-note">Funds safer mine training</div></a>
+ <a class="donate-card" href="https://donatenow.networkforgood.org/pactworld" target="_blank" rel="noopener noreferrer"><div class="d-gem"><img src="images/amethyst.jpg" alt="Amethyst"></div><div class="d-amt">$100</div><div class="d-note">Expands community programs</div></a>
+ <a class="donate-card" href="https://donatenow.networkforgood.org/pactworld" target="_blank" rel="noopener noreferrer"><div class="d-gem"><img src="images/tanzanite.jpg" alt="Tanzanite"></div><div class="d-amt">$250</div><div class="d-note">Protects kids from mine work</div></a>
+ <a class="donate-card" href="https://donatenow.networkforgood.org/pactworld" target="_blank" rel="noopener noreferrer"><div class="d-gem"><img src="images/diamond.jpg" alt="Diamond"></div><div class="d-amt">$500</div><div class="d-note">Powers lasting change</div></a>
  </div>
  <div class="donate-custom">
  <span>Or enter your own amount:</span>
@@ -1405,7 +1410,7 @@
  </div>
  <div class="donate-result" id="donate-result"></div>
  <p class="donate-note">Gifts open Pact’s official donation page (Network for Good). Pick your amount there — a grown-up should complete checkout. Pact funds work worldwide, including responsible mining programs.</p>
- <p class="donate-note">Disclaimer: the gemstone pictures and names on these donation cards (hematite, garnet, ruby, sapphire) are just fun labels for each gift amount — you are not buying a gemstone. Your donation goes to Pact to support its programs, including responsible mining.</p>
+ <p class="donate-note">Disclaimer: the gemstone pictures and names on these donation cards (hematite, garnet, ruby, sapphire, emerald, amethyst, tanzanite, diamond) are just fun labels for each gift amount — you are not buying a gemstone. Your donation goes to Pact to support its programs, including responsible mining.</p>
  </section>
 </div><!-- /view-donate -->
 
