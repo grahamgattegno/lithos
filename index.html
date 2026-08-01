@@ -1659,6 +1659,7 @@
  <span>Hardness on the Mohs scale · Origins by prominence · Prices are approximate retail</span>
 </footer>
 
+<script src="ai-config.js"></script>
 <script src="gems-data.js"></script>
 <script>
 /* Radioactive: U / Th / Ra as chemical elements in formula (not Cu/Au/Eu/…), or curated species names. */
@@ -2453,8 +2454,23 @@ function resolveAiProvider(rawProvider, key, base){
  if(looksLikeOpenAIKey(key)) return 'openai';
  return 'openai';
 }
+function getSiteAiConfig(){
+ try{
+ if(typeof window!=='undefined'&&window.LITHOS_AI_CONFIG&&window.LITHOS_AI_CONFIG.key){
+ return window.LITHOS_AI_CONFIG;
+ }
+ }catch(e){}
+ return null;
+}
 function getAiConfig(){
  let key='', base='', model='', provider='auto';
+ const site=getSiteAiConfig();
+ if(site){
+ key=(site.key||'').trim();
+ base=(site.base||GEMINI_DEFAULT_BASE).trim().replace(/\/$/,'');
+ model=(site.model||GEMINI_DEFAULT_MODEL).trim();
+ provider=site.provider||'gemini';
+ }else{
  try{
  key=localStorage.getItem(CLASS_AI_KEY)||'';
  base=localStorage.getItem(CLASS_AI_BASE)||'';
@@ -2464,6 +2480,7 @@ function getAiConfig(){
  key=key.trim();
  base=(base||'').trim().replace(/\/$/,'');
  model=(model||'').trim();
+ }
  const resolved=resolveAiProvider(provider, key, base);
  if(resolved==='gemini'){
  if(!base||base===OPENAI_DEFAULT_BASE) base=GEMINI_DEFAULT_BASE;
@@ -2512,7 +2529,9 @@ function updateClassAiMode(){
  return;
  }
  const label=cfg.resolved==='gemini'?'Gemini':'OpenAI-compatible';
- el.innerHTML='Mode: <b>Live AI</b> ('+label+' · key on this device) · falls back to local teacher if the API fails';
+ const site=getSiteAiConfig();
+ const src=site?'site config':'key on this device';
+ el.innerHTML='Mode: <b>Live AI</b> ('+label+' · '+src+') · falls back to local teacher if the API fails';
 }
 function markClassCheckoutPending(plan){
  try{ localStorage.setItem(CLASS_CHECKOUT_PENDING, plan||'1'); }catch(e){}
