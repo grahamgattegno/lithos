@@ -1417,7 +1417,7 @@
  </div>
  <div>
  <label for="class-ai-model">Model (optional)</label>
- <input id="class-ai-model" type="text" placeholder="gemini-2.5-flash or gpt-4o-mini" autocomplete="off">
+ <input id="class-ai-model" type="text" placeholder="gemini-flash-latest or gpt-4o-mini" autocomplete="off">
  </div>
  <div class="ai-btn-row">
  <button type="button" class="ai-defaults" id="class-ai-gemini-defaults">Use Gemini defaults</button>
@@ -2419,7 +2419,8 @@ const CLASS_AI_MODEL='lithos_ai_model';
 const CLASS_AI_PROVIDER='lithos_ai_provider';
 const CLASS_CHECKOUT_PENDING='lithos_class_checkout_pending';
 const GEMINI_DEFAULT_BASE='https://generativelanguage.googleapis.com/v1beta';
-const GEMINI_DEFAULT_MODEL='gemini-2.5-flash';
+const GEMINI_DEFAULT_MODEL='gemini-flash-latest';
+const GEMINI_MODEL_FALLBACKS=['gemini-flash-latest'];
 const OPENAI_DEFAULT_BASE='https://api.openai.com/v1';
 const OPENAI_DEFAULT_MODEL='gpt-4o-mini';
 let classAiBuilt=false;
@@ -2708,7 +2709,7 @@ function catalogContextForAI(q){
  return bits.join('\n');
 }
 async function classAiGeminiAnswer(q, cfg, system, context){
- const model=cfg.model.replace(/^models\//,'');
+ const preferred=cfg.model.replace(/^models\//,'');
  let base=cfg.base.replace(/\/$/,'');
  if(!/\/v1beta$/i.test(base) && !/\/v1$/i.test(base)){
  // Accept bare host or OpenAI-style leftovers
@@ -2718,7 +2719,6 @@ async function classAiGeminiAnswer(q, cfg, system, context){
  base=GEMINI_DEFAULT_BASE;
  }
  }
- const url=base+'/models/'+encodeURIComponent(model)+':generateContent';
  const contents=[];
  for(const m of classAiHistory.slice(-6)){
  const role=m.role==='assistant'?'model':'user';
@@ -2730,6 +2730,15 @@ async function classAiGeminiAnswer(q, cfg, system, context){
  contents,
  generationConfig:{temperature:0.6, maxOutputTokens:450}
  };
+ const tried=new Set();
+ const candidates=[preferred, ...GEMINI_MODEL_FALLBACKS].filter(m=>{
+ if(!m||tried.has(m)) return false;
+ tried.add(m);
+ return true;
+ });
+ let lastErr='';
+ for(const model of candidates){
+ const url=base+'/models/'+encodeURIComponent(model)+':generateContent';
  const res=await fetch(url,{
  method:'POST',
  headers:{
@@ -2740,7 +2749,9 @@ async function classAiGeminiAnswer(q, cfg, system, context){
  });
  if(!res.ok){
  const errText=await res.text().catch(()=> '');
- throw new Error('Gemini '+res.status+(errText?': '+errText.slice(0,160):''));
+ lastErr='Gemini '+res.status+(errText?': '+errText.slice(0,160):'');
+ if(res.status===404 && candidates.indexOf(model)<candidates.length-1) continue;
+ throw new Error(lastErr);
  }
  const data=await res.json();
  const parts=data.candidates&&data.candidates[0]&&data.candidates[0].content&&data.candidates[0].content.parts;
@@ -2750,6 +2761,8 @@ async function classAiGeminiAnswer(q, cfg, system, context){
  throw new Error(block?('Blocked: '+block):'Empty Gemini response');
  }
  return text;
+ }
+ throw new Error(lastErr||'Gemini request failed');
 }
 async function classAiOpenAIAnswer(q, cfg, system, context){
  const body={
