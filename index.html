@@ -1100,6 +1100,13 @@
   .donate-result{margin:26px auto 0;max-width:480px;min-height:16px;font-size:16px}
   .donate-result .thanks{background:linear-gradient(135deg,rgba(201,169,79,.18),rgba(232,155,176,.12));border:1px solid var(--gold);border-radius:12px;padding:22px;line-height:1.6}
   .donate-result .thanks .big{font-size:38px;margin-bottom:6px}
+  .donate-maker{margin:44px auto 0;max-width:560px;padding:28px 22px 24px;border-top:1px solid var(--line)}
+  .donate-maker .maker-label{font-family:var(--mono);font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--text-faint);margin-bottom:12px}
+  .donate-maker h2{font-family:var(--serif);font-weight:300;font-size:clamp(22px,3.5vw,30px);line-height:1.2;margin:0 0 10px;color:var(--text)}
+  .donate-maker .maker-lede{margin:0 auto;max-width:480px;font-size:14px;line-height:1.6;color:var(--text-dim)}
+  .donate-tip-grid{margin-top:20px;display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+  .donate-tip{display:inline-block;text-decoration:none;background:transparent;color:var(--gold);border:1px solid var(--line-2);border-radius:8px;padding:12px 18px;font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;transition:border-color .15s,transform .15s,background .15s}
+  .donate-tip:hover{border-color:var(--gold);transform:translateY(-2px);background:rgba(201,169,79,.08)}
   .donate-note{margin-top:30px;color:var(--text-faint);font-size:13px;max-width:520px;margin-left:auto;margin-right:auto;line-height:1.6}
   .donate-warning{background:rgba(255,180,60,.14);border:2px solid #ffb43c;border-radius:14px;padding:16px 20px;margin:0 auto 26px;max-width:600px;font-size:15px;font-weight:600;line-height:1.6;color:var(--text)}
   .bf-side-title{text-shadow:0 1px 4px rgba(0,0,0,.7)}
@@ -1389,7 +1396,7 @@
  <section class="donate-wrap">
  <div class="eyebrow">Support Pact</div>
  <h1>Help make mining <em>safer &amp; fairer</em></h1>
- <p class="lede">Your gift goes to <b>Pact</b>, a global nonprofit whose Mines to Markets work helps artisanal and small-scale miners — safer workplaces, less child labor, fairer incomes, and stronger mining communities. <a href="https://www.pactworld.org/our-expertise/mining" target="_blank" rel="noopener noreferrer">Learn more about Pact’s mining expertise</a>.</p>
+ <p class="lede">Gifts below go to <b>Pact</b>, a global nonprofit whose Mines to Markets work helps artisanal and small-scale miners — safer workplaces, less child labor, fairer incomes, and stronger mining communities. <a href="https://www.pactworld.org/our-expertise/mining" target="_blank" rel="noopener noreferrer">Learn more about Pact’s mining expertise</a>. Optionally, you can also tip the Lithos maker with a separate small gift below.</p>
  <div class="donate-grid">
  <a class="donate-card" href="https://donatenow.networkforgood.org/pactworld" target="_blank" rel="noopener noreferrer"><div class="d-gem"><img src="images/hematite.jpg" alt="Hematite"></div><div class="d-amt">$3</div><div class="d-note">Supports safer mining</div></a>
  <a class="donate-card" href="https://donatenow.networkforgood.org/pactworld" target="_blank" rel="noopener noreferrer"><div class="d-gem"><img src="images/garnet.jpg" alt="Garnet"></div><div class="d-amt">$5</div><div class="d-note">Helps mining communities</div></a>
@@ -1401,16 +1408,29 @@
  <a class="donate-card" href="https://donatenow.networkforgood.org/pactworld" target="_blank" rel="noopener noreferrer"><div class="d-gem"><img src="images/diamond.jpg" alt="Diamond"></div><div class="d-amt">$500</div><div class="d-note">Powers lasting change</div></a>
  </div>
  <div class="donate-custom">
- <span>Or enter your own amount:</span>
+ <span>Or enter your own amount for Pact:</span>
  <div class="dc-row">
  <span class="dc-dollar">$</span>
  <input id="donate-amount" type="number" min="1" placeholder="Any amount" autocomplete="off">
- <button class="game-btn" onclick="donateCustom()">Donate</button>
+ <button class="game-btn" onclick="donateCustom()">Donate to Pact</button>
  </div>
  </div>
  <div class="donate-result" id="donate-result"></div>
- <p class="donate-note">Gifts open Pact’s official donation page (Network for Good). Pick your amount there — a grown-up should complete checkout. Pact funds work worldwide, including responsible mining programs.</p>
- <p class="donate-note">Disclaimer: the gemstone pictures and names on these donation cards (hematite, garnet, ruby, sapphire, emerald, amethyst, tanzanite, diamond) are just fun labels for each gift amount — you are not buying a gemstone. Your donation goes to Pact to support its programs, including responsible mining.</p>
+ <div class="donate-maker">
+ <div class="maker-label">Optional · separate checkout</div>
+ <h2>Want a little to support the Lithos maker too?</h2>
+ <p class="maker-lede">Pact gifts and maker tips are <b>two separate checkouts</b> — nothing auto-splits. If you’d like, open a second link and tip Graham (~10%-style small thank-you amounts). Totally optional.</p>
+ <div class="donate-tip-grid">
+ <a class="donate-tip" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=100&name=Venture+1" target="_blank" rel="noopener noreferrer" onclick="tipMaker('$1')">Tip $1</a>
+ <a class="donate-tip" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=300&name=Venture+1" target="_blank" rel="noopener noreferrer" onclick="tipMaker('$3')">Tip $3</a>
+ <a class="donate-tip" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=500&name=Venture+1" target="_blank" rel="noopener noreferrer" onclick="tipMaker('$5')">Tip $5</a>
+ <a class="donate-tip" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=1000&name=Venture+1" target="_blank" rel="noopener noreferrer" onclick="tipMaker('$10')">Tip $10</a>
+ <a class="donate-tip" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=2500&name=Venture+1" target="_blank" rel="noopener noreferrer" onclick="tipMaker('$25')">Tip $25</a>
+ </div>
+ </div>
+ <p class="donate-note">Pact gifts open Pact’s official donation page (Network for Good). Pick your amount there — a grown-up should complete checkout. Pact funds work worldwide, including responsible mining programs.</p>
+ <p class="donate-note">Maker tips open a separate Founders Weekends checkout for Graham (who built Lithos). They do <b>not</b> go to Pact. Choosing both means two payments: one to Pact, one tip to the maker.</p>
+ <p class="donate-note">Disclaimer: the gemstone pictures and names on these donation cards (hematite, garnet, ruby, sapphire, emerald, amethyst, tanzanite, diamond) are just fun labels for each gift amount — you are not buying a gemstone. Your Pact donation goes to Pact to support its programs, including responsible mining.</p>
  </section>
 </div><!-- /view-donate -->
 
@@ -1857,7 +1877,7 @@ function planPick(which){
 function memPick(which){
  alert("Awesome! You picked "+which+"! \n\nA grown-up will help finish signing up. This is just a demo button for now!");
 }
-/* ---------- Donate (Pact via Network for Good) ---------- */
+/* ---------- Donate (Pact via Network for Good) + optional maker tip ---------- */
 const PACT_DONATE_URL='https://donatenow.networkforgood.org/pactworld';
 function donate(amount){
  window.open(PACT_DONATE_URL,'_blank','noopener,noreferrer');
@@ -1867,7 +1887,8 @@ function donate(amount){
  document.getElementById('donate-result').innerHTML=`<div class="thanks">
  <b>Opening Pact’s donate page…</b><br><br>
  ${tip}<br><br>
- Your gift supports Pact — including responsible mining work that helps artisanal miners and their communities. A grown-up should finish checkout.
+ Your gift supports Pact — including responsible mining work that helps artisanal miners and their communities. A grown-up should finish checkout.<br><br>
+ <span style="color:var(--text-dim);font-size:14px">Want to tip the Lithos maker too? That’s a separate, optional checkout below.</span>
  </div>`;
  document.getElementById('donate-result').scrollIntoView({behavior:'smooth',block:'center'});
 }
@@ -1878,6 +1899,14 @@ function donateCustom(){
  return;
  }
  donate('$'+v);
+}
+function tipMaker(amount){
+ document.getElementById('donate-result').innerHTML=`<div class="thanks">
+ <b>Opening maker tip checkout…</b><br><br>
+ Thanks for the optional <b>${amount}</b> tip to Graham (Lithos maker). This is a separate payment — it does not go to Pact.<br><br>
+ A grown-up should finish checkout.
+ </div>`;
+ document.getElementById('donate-result').scrollIntoView({behavior:'smooth',block:'center'});
 }
 
 /* ---------- Rock Teacher chat ---------- */
