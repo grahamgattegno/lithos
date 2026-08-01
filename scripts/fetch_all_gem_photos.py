@@ -50,7 +50,7 @@ _print_lock = threading.Lock()
 
 SKIP_TITLE_RE = re.compile(
     r"(map of|\blogo\b|\bflag\b|portrait|painting|\bcoin\b|\bstamp\b|diagram|schematic|"
-    r"crystal structure|unit cell|\bformula\b|periodic|\bchart\b|\bgraph\b|"
+    r"crystal[- ]?structure|unit[- ]?cell|ball[- ]?and[- ]?stick|molecular model|\bformula\b|periodic|\bchart\b|\bgraph\b|"
     r"coat of arms|signature|handwriting|manuscript|cartoon|clip art|"
     r"skeleton|skull|x[- ]?ray diffraction|powder diffraction|"
     r"electron.?microscop|sem image|tem image|\bbse\b|backscatter|"
