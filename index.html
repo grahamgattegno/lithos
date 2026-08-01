@@ -105,7 +105,7 @@
     max-width:1440px;margin:0 auto;padding:0 40px;
   }
   .controls-inner{
-    display:flex;gap:18px;align-items:center;flex-wrap:wrap;
+    display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap;
     padding:20px 0;
     background:var(--ink);
     border-bottom:1px solid var(--line);
@@ -123,7 +123,16 @@
   }
   .search input::placeholder{color:var(--text-faint)}
   .search input:focus{outline:none;border-color:var(--gold);background:var(--panel-2)}
-  .filters{display:flex;gap:8px;flex-wrap:wrap}
+  .filters{display:flex;flex-direction:column;gap:10px;flex:1;min-width:0}
+  .filter-row{display:flex;align-items:flex-start;gap:10px;min-width:0}
+  .filter-label{
+    flex:0 0 auto;margin-top:11px;min-width:7.5em;
+    font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--text-faint);white-space:nowrap;
+  }
+  .filter-pills{
+    display:flex;gap:8px;flex-wrap:wrap;min-width:0;
+  }
   .chip{
     background:var(--panel);border:1px solid var(--line);color:var(--text-dim);
     font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
@@ -133,7 +142,30 @@
   .chip.on{background:var(--gold);border-color:var(--gold);color:var(--ink)}
   .count{
     font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
-    color:var(--text-faint);white-space:nowrap;
+    color:var(--text-faint);white-space:nowrap;margin-top:12px;
+  }
+  .card .tags{
+    display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:10px;
+  }
+  .card .klass{
+    font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--text-faint);border:1px solid var(--line);padding:4px 8px;border-radius:2px;
+  }
+  .card .badge-radio{
+    font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+    color:#c4a46a;border:1px solid rgba(196,164,106,.45);padding:4px 8px;border-radius:2px;
+    background:rgba(196,164,106,.08);
+  }
+  .drawer .d-badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;position:relative;z-index:1}
+  .drawer .badge{
+    font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+    color:rgba(0,0,0,.62);border:1px solid rgba(0,0,0,.22);padding:4px 8px;border-radius:2px;
+    background:rgba(255,255,255,.28);
+  }
+  .drawer .badge-radio{
+    font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+    color:#5a4010;border:1px solid rgba(90,64,16,.35);padding:4px 8px;border-radius:2px;
+    background:rgba(255,230,160,.45);
   }
 
   /* ---------- Grid ---------- */
@@ -1131,6 +1163,13 @@
     nav.top button[data-view="donate"]{display:inline-block}
     .hero{padding:70px 20px 40px}
     .controls,.grid{padding-left:20px;padding-right:20px}
+    .filter-row{flex-direction:column;gap:6px}
+    .filter-label{margin-top:2px}
+    .filter-pills{
+      flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;
+      padding-bottom:4px;scrollbar-width:thin;
+    }
+    .filter-pills .chip{flex:0 0 auto}
     .grid{grid-template-columns:1fr}
     .crafts-grid{grid-template-columns:1fr;padding:30px 20px 80px}
     .mem-grid{grid-template-columns:1fr;padding:30px 20px 20px}
@@ -1461,27 +1500,77 @@
 
 <script src="gems-data.js"></script>
 <script>
-const filterDefs=[
- {label:"Gemstones",test:g=>g.kind!=="mineral"},
- {label:"All minerals",test:()=>true},
- {label:"Mohs 8+",test:g=>g.mohs>=8},
- {label:"Silicates",test:g=>/Silicate/.test(g.class)},
- {label:"Red tones",test:g=>g.colors.some(c=>/red|pink/i.test(c))},
- {label:"Single origin",test:g=>g.origins.length===1},
- {label:"Colour-change / rare",test:g=>/Alexandrite|Paraíba|Benitoite|Painite|Grandidierite|Ammolite|Larimar|Black Opal|Moissanite|Red Beryl|Padparadscha|Moldavite|Musgravite|Tsavorite|Demantoid|Taaffeite|Jeremejevite|Pezzottaite/.test(g.name)}
+/* Radioactive: U / Th / Ra as chemical elements in formula (not Cu/Au/Eu/…), or curated species names. */
+const RADIO_NAMES=/^(?:Autunite|Meta-?autunite|Uraninite|Torbernite|Meta-?torbernite|Carnotite|Thorianite|Pitchblende|Coffinite|Uranophane|Tyuyamunite|Boltwoodite|Kasolite|Soddyite|Curite|Becquerelite|Fourmarierite|Vandendriesscheite|Ianthinite|Zippeite|Johannite|Saleeite|Novacekite|Zeunerite|Meta-?zeunerite|Cuprosklodows?kite|Sklodows?kite|Andersonite|Liebigite|Rutherfordine|Schoepite|Para-?schoepite|Clarkeite|Brannerite|Davidite|Thorite|Huttonite|Betafite|Samarskite|Euxenite|Fergusonite|Gummite|Uranocircite|Phosphuranylite|Weeksite|Haiweeite|Studtite|Francevillite|Parsonsite|Bayleyite|Bergenite|Ulrichite|Zellerite|Mundite|Upalite|Masuyite|Umohoite|Wyartite|Althupite|Rameauite|Steacyite|Aspedamite|Cleusonite|Ichnusaite|Nuragheite|Sengierite|Vanuralite|Agrinierite|Uranopilite|Abernathyite|Guilleminite|Mathesiusite|Wolfsriedite|Yingjiangite|Brockite|Margaritasite|Ekanite|Albrechtschraufite|Znucalite)(?:-\([A-Za-z]+\))?$/i;
+function formulaHasRadioElement(formula){
+ if(!formula)return false;
+ let f=String(formula).replace(/[₀₁₂₃₄₅₆₇₈₉]/g,d=>'0123456789'['₀₁₂₃₄₅₆₇₈₉'.indexOf(d)]);
+ f=f.replace(/(?:Cu|Au|Eu|Lu|Pu|Ru)/g,'XX');
+ return /(?:^|[^A-Za-z])(?:U|Th|Ra)(?![a-z])/.test(f);
+}
+function isRadioactive(g){
+ return formulaHasRadioElement(g.formula)||RADIO_NAMES.test(g.name);
+}
+function classOf(g){return g.class||''}
+
+const filterGroups=[
+ {label:"Browse",items:[
+  {label:"Gemstones",test:g=>g.kind==="gem"},
+  {label:"All minerals",test:()=>true},
+  {label:"Mohs 8+",test:g=>g.mohs>=8},
+  {label:"Red tones",test:g=>g.colors.some(c=>/red|pink/i.test(c))},
+  {label:"Single origin",test:g=>g.origins.length===1},
+  {label:"Colour-change / rare",test:g=>/Alexandrite|Paraíba|Benitoite|Painite|Grandidierite|Ammolite|Larimar|Black Opal|Moissanite|Red Beryl|Padparadscha|Moldavite|Musgravite|Tsavorite|Demantoid|Taaffeite|Jeremejevite|Pezzottaite/.test(g.name)}
+ ]},
+ {label:"Mineral class",items:[
+  {label:"Silicates",test:g=>/Silicate/i.test(classOf(g))},
+  {label:"Oxides",test:g=>/\bOxide\b/i.test(classOf(g))},
+  {label:"Sulfides",test:g=>/Sulfide|Sulfosalt/i.test(classOf(g))},
+  {label:"Carbonates",test:g=>/Carbonate/i.test(classOf(g))},
+  {label:"Phosphates",test:g=>/Phosphate/i.test(classOf(g))},
+  {label:"Halides",test:g=>/Halide/i.test(classOf(g))},
+  {label:"Sulfates",test:g=>/Sulfate/i.test(classOf(g))},
+  {label:"Borates",test:g=>/Borate/i.test(classOf(g))},
+  {label:"Native elements",test:g=>/Native/i.test(classOf(g))},
+  {label:"Organic",test:g=>/Organic/i.test(classOf(g))},
+  {label:"Hydroxides",test:g=>/Hydroxide/i.test(classOf(g))}
+ ]},
+ {label:"Special",items:[
+  {label:"Radioactive",test:isRadioactive}
+ ]}
 ];
+const filterDefs=filterGroups.flatMap(g=>g.items);
 
 let activeFilter=0, query=""; // default: Gemstones
 const grid=document.getElementById('grid');
 const countEl=document.getElementById('count');
 const filtersEl=document.getElementById('filters');
 
-filterDefs.forEach((f,i)=>{
- const b=document.createElement('button');
- b.className='chip'+(i===0?' on':'');
- b.textContent=f.label;
- b.onclick=()=>{activeFilter=i;[...filtersEl.children].forEach(c=>c.classList.remove('on'));b.classList.add('on');render();};
- filtersEl.appendChild(b);
+filterGroups.forEach(group=>{
+ const row=document.createElement('div');
+ row.className='filter-row';
+ const lab=document.createElement('span');
+ lab.className='filter-label';
+ lab.textContent=group.label;
+ row.appendChild(lab);
+ const pills=document.createElement('div');
+ pills.className='filter-pills';
+ group.items.forEach(f=>{
+  const i=filterDefs.indexOf(f);
+  const b=document.createElement('button');
+  b.type='button';
+  b.className='chip'+(i===0?' on':'');
+  b.textContent=f.label;
+  b.onclick=()=>{
+   activeFilter=i;
+   filtersEl.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
+   b.classList.add('on');
+   render();
+  };
+  pills.appendChild(b);
+ });
+ row.appendChild(pills);
+ filtersEl.appendChild(row);
 });
 
 function matches(g){
@@ -1521,6 +1610,7 @@ function renderCard(g,i,realIdx){
  el.style.setProperty('--glow',g.glow);
  el.style.animationDelay=(Math.min(i,40)*25)+'ms';
  el.onclick=()=>openDrawer(realIdx);
+ const radio=isRadioactive(g);
  el.innerHTML=`
  <span class="idx">${String(realIdx+1).padStart(2,'0')}</span>
  <div class="photo"><img alt="${g.name}" loading="lazy"
@@ -1529,6 +1619,10 @@ function renderCard(g,i,realIdx){
  src="${g.img}"></div>
  <div class="body">
  <div class="name">${g.name}</div>
+ <div class="tags">
+ <span class="klass">${g.class}</span>
+ ${radio?'<span class="badge-radio">Radioactive</span>':''}
+ </div>
  <div class="formula">${g.formula}</div>
  <div class="price">${g.price}</div>
  <div class="quick">
@@ -1571,6 +1665,7 @@ const drawer=document.getElementById('drawer');
 
 function openDrawer(i){
  const g=GEMS[i];
+ const radio=isRadioactive(g);
  drawer.style.setProperty('--stone',g.stone);
  drawer.innerHTML=`
  <button class="close" onclick="closeDrawer()" aria-label="Close"></button>
@@ -1582,6 +1677,10 @@ function openDrawer(i){
  <div class="d-eyebrow">Specimen № ${String(i+1).padStart(2,'0')} · ${g.class}</div>
  <div class="d-name">${g.name}</div>
  <div class="d-formula">${g.formula}</div>
+ <div class="d-badges">
+ <span class="badge">${g.class}</span>
+ ${radio?'<span class="badge-radio">Radioactive</span>':''}
+ </div>
  <div class="d-price">${g.price}</div>
  </div>
  <div class="content">
@@ -1595,6 +1694,7 @@ function openDrawer(i){
  <div class="prop"><div class="k">Crystal System</div><div class="v">${g.system}</div></div>
  <div class="prop"><div class="k">Specific Gravity</div><div class="v">${g.sg}</div></div>
  <div class="prop"><div class="k">Refractive Index</div><div class="v">${g.ri}</div></div>
+ <div class="prop"><div class="k">Mineral Class</div><div class="v">${g.class}</div></div>
  </div>
  <p class="price-note">Prices are approximate retail ranges for fine gem-quality material. Real prices vary a lot with size, colour, clarity, and cut.</p>
 
