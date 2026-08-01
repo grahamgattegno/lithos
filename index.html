@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- lithos-v:prices-2 -->
+<!-- lithos-v:accuracy-3 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1190,9 +1190,9 @@
 
 <div class="view" id="view-catalog">
 <section class="hero">
- <div class="eyebrow">Mineralogy · <span id="hero-count-words">Twelve Hundred</span> Specimens · Hand-Documented</div>
+ <div class="eyebrow">Mineralogy · Gemstones + Reference Species · Hand-Checked Photos</div>
  <h1>A field catalog<br>of <em>crystalline</em> earth</h1>
- <p class="lede"><span id="hero-lede-count">Twelve hundred</span> precious, semi-precious, and famously rare gemstones — chosen for collectors, students, and geologists — from the everyday to the near-unobtainable — each documented by chemistry, hardness, crystal habit, and provenance. Open any specimen to study it — or join as a member to unlock classes and savings.</p>
+ <p class="lede">Start with the Gemstones filter for jewelry and collector stones with verified photos. Switch to All minerals for the full <span id="hero-lede-count">twelve hundred</span>-specimen reference set — each entry lists chemistry, hardness, crystal system, and provenance. Open any specimen to study it.</p>
  <div class="meta-row">
  <div class="stat"><div class="n" id="stat-count">1200</div><div class="l">Specimens</div></div>
  <div class="stat"><div class="n">4.5–10</div><div class="l">Mohs Range</div></div>
@@ -1462,7 +1462,8 @@
 <script src="gems-data.js"></script>
 <script>
 const filterDefs=[
- {label:"All",test:()=>true},
+ {label:"Gemstones",test:g=>g.kind!=="mineral"},
+ {label:"All minerals",test:()=>true},
  {label:"Mohs 8+",test:g=>g.mohs>=8},
  {label:"Silicates",test:g=>/Silicate/.test(g.class)},
  {label:"Red tones",test:g=>g.colors.some(c=>/red|pink/i.test(c))},
@@ -1470,7 +1471,7 @@ const filterDefs=[
  {label:"Colour-change / rare",test:g=>/Alexandrite|Paraíba|Benitoite|Painite|Grandidierite|Ammolite|Larimar|Black Opal|Moissanite|Red Beryl|Padparadscha|Moldavite|Musgravite|Tsavorite|Demantoid|Taaffeite|Jeremejevite|Pezzottaite/.test(g.name)}
 ];
 
-let activeFilter=0, query="";
+let activeFilter=0, query=""; // default: Gemstones
 const grid=document.getElementById('grid');
 const countEl=document.getElementById('count');
 const filtersEl=document.getElementById('filters');

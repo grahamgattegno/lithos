@@ -23,19 +23,30 @@ from retry_leftover_photos import (  # noqa: E402
 
 # High-confidence wrong / weak photos to replace this session.
 FORCE_SLUGS = [
-    "nephrite",       # carved jade museum cup
-    "willemite",      # fluorescent collage of many minerals
-    "sardonyx",       # gold ring jewelry
-    "ikaite",         # labeled calcite (glendonite OK only if named)
-    "fayalite",       # peridot / wrong olivine end-member
-    "gibbsite",       # book-plate / dubious hit
-    "apjohnite",      # Centralia sulfur field dump
-    "artroeite",      # Laurelite specimen
-    "goshenite",      # yellowish beryl+schorl, not colorless goshenite
-    "schorl",         # weak "dark green tourmaline" title; prefer black prism
-    "abswurmbachite", # yellow crust; species is typically black
-    "copiapite",      # shared botryogen+copiapite duo photo
-    "diamond",        # cut brilliant OK-ish; prefer crystal/rough if available
+    # Prior session + remaining live accuracy problems
+    "sapphire",       # Logan sapphire jewelry mount — prefer unset crystal
+    "natron",         # currently Natrolite photo (wrong species)
+    "pascoite",       # crystallographic diagram PNG
+    "huemulite",      # crystal drawing
+    "tongbaite",      # crystallographic alignment PNG
+    "urusovite",      # unit-cell 3D model
+    "szenicsite",     # crystal drawing
+    "alum-na",        # identical image reused with Alum-(K)
+    "jade",           # fibrous amphibole stock; prefer clear jadeite/nephrite
+    "nephrite",
+    "willemite",
+    "sardonyx",
+    "ikaite",
+    "fayalite",
+    "gibbsite",
+    "apjohnite",
+    "artroeite",
+    "goshenite",
+    "schorl",
+    "abswurmbachite",
+    "copiapite",
+    "diamond",
+    "topaz",          # cut stone OK but refresh if jewelry-adjacent
 ]
 
 
@@ -74,12 +85,22 @@ def search_strict(name: str, limit_per: int = 12) -> list[tuple[int, str]]:
                 syn = {
                     "sardonyx": ["sardonyx", "onyx", "agate"],
                     "nephrite": ["nephrite", "jade"],
+                    "jade": ["jade", "jadeite", "nephrite"],
                     "goshenite": ["goshenite", "beryl"],
                     "schorl": ["schorl", "tourmaline"],
                     "ikaite": ["ikaite", "glendonite"],
-                    "diamond": ["diamond", "diamant", "brillant"],
+                    "diamond": ["diamond", "diamant"],
+                    "sapphire": ["sapphire", "corundum"],
+                    "natron": ["natron", "soda"],
                     "copiapite": ["copiapite"],
                     "willemite": ["willemite"],
+                    "alum-na": ["alum", "sodium alum", "sodium aluminium sulfate"],
+                    "pascoite": ["pascoite"],
+                    "huemulite": ["huemulite"],
+                    "tongbaite": ["tongbaite"],
+                    "urusovite": ["urusovite"],
+                    "szenicsite": ["szenicsite"],
+                    "topaz": ["topaz"],
                 }.get(norm(base_name(name)), [])
                 tnorm = norm(t)
                 if not any(s in tnorm for s in syn if len(s) >= 4):

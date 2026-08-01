@@ -55,7 +55,11 @@ SKIP_TITLE_RE = re.compile(
     r"skeleton|skull|x[- ]?ray diffraction|powder diffraction|"
     r"electron.?microscop|sem image|tem image|\bbse\b|backscatter|"
     r"reflected light micrograph|thin section|optical micrograph|"
-    r"\bafs\b|\bnmr\b|raman map|\.pdf$)",
+    r"\bafs\b|\bnmr\b|raman map|\.pdf$|"
+    r"screenshot|software|compositor|\bvfx\b|baymax|"
+    r"noodle|ramen|\bmian\b|soup|food|restaurant|cuisine|"
+    r"jewelry|jewellery|necklace|bracelet|earring|pendant|engagement|wedding|"
+    r"\bring\b|brooch|tiara|crown|halo setting)",
     re.I,
 )
 SKIP_EXT = (".pdf", ".svg", ".gif", ".djvu", ".ogv", ".webm", ".mp3", ".wav", ".stl", ".ogg")
