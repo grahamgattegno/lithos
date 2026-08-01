@@ -1117,6 +1117,9 @@
     header.site{padding:16px 20px}
     nav.top{display:flex;gap:10px}
     nav.top button{display:none}
+    /* Keep Catalog + Donate reachable — other views stay desktop-nav only */
+    nav.top button[data-view="catalog"],
+    nav.top button[data-view="donate"]{display:inline-block}
     .hero{padding:70px 20px 40px}
     .controls,.grid{padding-left:20px;padding-right:20px}
     .grid{grid-template-columns:1fr}
@@ -1676,8 +1679,11 @@ const views={
 const navBtns=[...document.querySelectorAll('nav.top button')];
 let learnBuilt=false;
 function switchView(name){
+ if(!views[name])name='catalog';
  Object.entries(views).forEach(([k,el])=>el.hidden=(k!==name));
  navBtns.forEach(b=>b.classList.toggle('on',b.dataset.view===name));
+ const hash=name==='catalog'?'':('#'+name);
+ if(location.hash!==hash)history.replaceState(null,'',hash||location.pathname+location.search);
  window.scrollTo({top:0,behavior:'instant' in window?'instant':'auto'});
  if(name==='learn'&&!learnBuilt){buildLessons();learnBuilt=true;}
  if(name==='quiz')startQuiz();
@@ -1692,6 +1698,14 @@ function switchView(name){
  if(name==='moneygoal'){buildMoneyGoal();}
 }
 navBtns.forEach(b=>b.addEventListener('click',()=>switchView(b.dataset.view)));
+(function openHashView(){
+ const name=(location.hash||'').replace(/^#/,'').trim();
+ if(name&&views[name])switchView(name);
+})();
+window.addEventListener('hashchange',()=>{
+ const name=(location.hash||'').replace(/^#/,'').trim();
+ switchView(name&&views[name]?name:'catalog');
+});
 
 /* ---------- Lessons ---------- */
 const LESSONS=[
