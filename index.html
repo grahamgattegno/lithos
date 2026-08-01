@@ -573,6 +573,10 @@
   .mem-badge{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--gold);color:var(--ink);font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;padding:6px 14px;border-radius:20px}
   .mem-tier{font-family:var(--mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--text-dim);margin-bottom:14px}
   .mem-off{font-family:var(--serif);font-size:52px;font-weight:400;color:var(--gold);line-height:1;margin-bottom:20px}
+ .mem-join-price{font-family:var(--serif);font-size:22px;color:var(--text);margin-bottom:6px;line-height:1.2}
+ .mem-join-price b{color:var(--gold);font-size:40px;font-weight:400}
+ .mem-join-price span{font-size:14px;color:var(--text-faint);font-family:var(--sans)}
+ .mem-class-head{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint);margin:20px 0 10px}
   .mem-line{font-size:15px;color:var(--text);margin-bottom:8px}
   .mem-line s{color:var(--text-faint);margin-right:6px}
   .mem-line b{color:var(--gold);font-size:17px}
@@ -1519,11 +1523,12 @@
  <section class="mem-hero">
  <div class="eyebrow">Join &amp; Save</div>
  <h1>Become a <em>member</em></h1>
- <p class="lede">Members save on every class. <b>Gold</b> gets the best discount plus premium perks — live Gemini AI, voice chat, gold badge, and early access.</p>
+ <p class="lede">Silver starts at <b>$67.50/year</b>. Gold is <b>$165/year</b> — more expensive, but you get 50% off every class plus live AI, voice, and premium perks.</p>
  </section>
  <div class="mem-grid">
  <div class="mem-card">
  <div class="mem-tier">Silver Member</div>
+ <div class="mem-join-price">Join for <b>$67.50</b> <span>/ year</span></div>
  <div class="mem-off">25% OFF</div>
  <div class="mem-line">Teacher plan: <s>$220</s> <b>$165</b></div>
  <div class="mem-line">Home plan: <s>$90</s> <b>$67.50</b></div>
@@ -1535,13 +1540,18 @@
  <li>Cancel anytime</li>
  </ul>
  <div class="mem-btns">
- <a class="mem-btn class-buy" data-plan="silver-teacher" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=16500&name=Venture+1" target="_blank" rel="noopener noreferrer">Teacher plan — $165</a>
+ <a class="mem-btn class-buy" data-plan="silver-membership" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=6750&name=Venture+1" target="_blank" rel="noopener noreferrer">Join Silver — $67.50/yr</a>
+ </div>
+ <div class="mem-class-head">Member class prices</div>
+ <div class="mem-btns">
+ <a class="mem-btn alt class-buy" data-plan="silver-teacher" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=16500&name=Venture+1" target="_blank" rel="noopener noreferrer">Teacher plan — $165</a>
  <a class="mem-btn alt class-buy" data-plan="silver-home" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=6750&name=Venture+1" target="_blank" rel="noopener noreferrer">Home plan — $67.50</a>
  </div>
  </div>
  <div class="mem-card gold">
- <div class="mem-badge">Best Deal</div>
+ <div class="mem-badge">Best Perks</div>
  <div class="mem-tier">Gold Member</div>
+ <div class="mem-join-price">Join for <b>$165</b> <span>/ year</span></div>
  <div class="mem-off">50% OFF</div>
  <div class="mem-line">Teacher plan: <s>$220</s> <b>$110</b></div>
  <div class="mem-line">Home plan: <s>$90</s> <b>$45</b></div>
@@ -1555,7 +1565,11 @@
  <li>Cancel anytime</li>
  </ul>
  <div class="mem-btns">
- <a class="mem-btn class-buy" data-plan="gold-teacher" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=11000&name=Venture+1" target="_blank" rel="noopener noreferrer">Teacher plan — $110</a>
+ <a class="mem-btn class-buy" data-plan="gold-membership" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=16500&name=Venture+1" target="_blank" rel="noopener noreferrer">Join Gold — $165/yr</a>
+ </div>
+ <div class="mem-class-head">Member class prices</div>
+ <div class="mem-btns">
+ <a class="mem-btn alt class-buy" data-plan="gold-teacher" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=11000&name=Venture+1" target="_blank" rel="noopener noreferrer">Teacher plan — $110</a>
  <a class="mem-btn alt class-buy" data-plan="gold-home" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=4500&name=Venture+1" target="_blank" rel="noopener noreferrer">Home plan — $45</a>
  </div>
  </div>
