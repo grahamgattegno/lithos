@@ -1214,7 +1214,9 @@
     nav.top button{display:none}
     /* Keep Catalog + Donate reachable — other views stay desktop-nav only */
     nav.top button[data-view="catalog"],
-    nav.top button[data-view="donate"]{display:inline-block}
+    nav.top button[data-view="donate"],
+    nav.top button[data-view="battlefield"],
+    nav.top button[data-view="game"]{display:inline-block}
     .hero{padding:70px 20px 40px}
     .controls,.grid{padding-left:20px;padding-right:20px}
     .filter-row{flex-direction:column;gap:6px}
@@ -3003,7 +3005,7 @@ let quizzesDone=0; // goes up each time a quiz is finished
 let chosenWarrior=null;
 // Warriors from WEAKEST to STRONGEST. "need" = quizzes needed to unlock.
 const WARRIORS=[
- {name:"Rose Quartz Sprite", color:"#e89bb0", power:20, need:1, style:"sprite"},
+ {name:"Rose Quartz Sprite", color:"#e89bb0", power:20, need:0, style:"sprite"},
  {name:"Amethyst Mage", color:"#7d43b3", power:30, need:2, style:"mage"},
  {name:"Topaz Knight", color:"#dba32a", power:40, need:3, style:"knight"},
  {name:"Emerald Guardian", color:"#128a56", power:52, need:4, style:"guardian"},
@@ -4062,15 +4064,8 @@ function buildBattlefield(){
  const wrap=document.getElementById('bf-wrap');
  const unlocked=WARRIORS.filter(w=>quizzesDone>=w.need);
  if(unlocked.length===0){
- wrap.innerHTML=`
- <div class="eyebrow">Army Battle Mode</div>
- <h1>The <em>Battlefield</em></h1>
- <div style="text-align:center;padding:40px">
- <div class="biglock" style="margin:16px">Locked</div>
- <p class="bf-intro">Unlock a warrior first! Finish a <b>Quiz</b> to get your first gem warrior, then come lead your army into battle!</p>
- <div class="bf-btns" style="margin-top:24px"><button class="game-btn" onclick="switchView('quiz')">Take a Quiz →</button></div>
- </div>`;
- return;
+ // fallback starter — battlefield is always open
+ unlocked.push(WARRIORS[0]);
  }
  const power=playerPower();
  const size=armySize();
@@ -4088,7 +4083,8 @@ function buildBattlefield(){
  document.getElementById('bf-start').onclick=startArmyBattle;
 }
 function startArmyBattle(){
- const unlocked=WARRIORS.filter(w=>quizzesDone>=w.need);
+ let unlocked=WARRIORS.filter(w=>quizzesDone>=w.need);
+ if(unlocked.length===0) unlocked=[WARRIORS[0]];
  const hero=unlocked.reduce((a,b)=>b.power>a.power?b:a);
  const aura=AURAS[equippedAura]||AURAS[0];
  const baseHP=hero.plasma?hero.hp:100;
