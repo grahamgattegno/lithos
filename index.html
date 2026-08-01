@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- lithos-v:prices-2 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -193,18 +194,27 @@
     font-family:var(--serif);font-size:30px;font-weight:400;letter-spacing:-.01em;line-height:1;
   }
   .card .price{
-    font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--gold);
-    margin-top:8px;font-weight:500;
+    font-family:var(--mono);font-size:14px;letter-spacing:.02em;color:#f0d78c;
+    margin-top:12px;font-weight:600;
+  }
+  .card .price::before{
+    content:"Price · ";
+    color:var(--text-faint);font-weight:500;letter-spacing:.14em;text-transform:uppercase;font-size:10px;
   }
   .drawer .d-price{
-    position:relative;z-index:1;font-family:var(--mono);font-size:15px;
-    color:rgba(0,0,0,.78);margin-top:14px;font-weight:600;letter-spacing:.02em;
+    position:relative;z-index:1;font-family:var(--serif);font-size:28px;
+    color:#0a0b0f;margin-top:18px;font-weight:400;letter-spacing:-.01em;
+  }
+  .drawer .d-price::before{
+    content:"Price  ";
+    font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+    color:rgba(0,0,0,.55);font-weight:500;margin-right:8px;vertical-align:middle;
   }
   .drawer .price-note{
     margin-top:14px;font-size:13px;line-height:1.55;color:var(--text-faint);
   }
   .card .formula{
-    font-family:var(--mono);font-size:11.5px;color:var(--gold);margin-top:10px;letter-spacing:.03em;
+    font-family:var(--mono);font-size:11.5px;color:var(--text-dim);margin-top:10px;letter-spacing:.03em;
   }
   .card .quick{
     display:flex;gap:20px;margin-top:20px;padding-top:18px;border-top:1px solid var(--line);
@@ -1576,8 +1586,8 @@ function render(){
  <div class="formula">${g.formula}</div>
  <div class="price">${g.price}</div>
  <div class="quick">
+ <div><div class="k">Price</div><div class="v">${g.price}</div></div>
  <div><div class="k">Mohs</div><div class="v">${g.mohs}</div></div>
- <div><div class="k">System</div><div class="v">${g.system}</div></div>
  <div><div class="k">Origin</div><div class="v">${g.origins[0]}</div></div>
  </div>
  </div>
