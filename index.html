@@ -532,7 +532,10 @@
   .fb-list{display:flex;flex-direction:column;gap:14px}
   .fb-item{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px 20px}
   .fb-item .fb-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:8px}
-  .fb-item .fb-who{font-family:var(--serif);font-size:19px}
+  .fb-item .fb-who{font-family:var(--serif);font-size:19px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+ .fb-badge{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;padding:3px 7px;border-radius:3px}
+ .fb-badge.gold{background:var(--gold);color:var(--ink)}
+ .fb-badge.silver{background:var(--line-2);color:var(--text-dim)}
   .fb-item .fb-rate{font-size:14px;white-space:nowrap}
   .fb-item .fb-text{font-size:15px;line-height:1.55;color:var(--text)}
   .fb-empty{color:var(--text-faint);font-size:14px;text-align:center;padding:30px}
@@ -1381,7 +1384,7 @@
  <div id="class-ai-open" hidden>
  <div style="text-align:center"><span class="class-ai-badge">Unlocked</span></div>
  <div class="chat" id="class-chat">
- <div class="msg bot"><span class="ai-tag">Local Rock Teacher</span>Welcome, class member! Ask about any gem in the catalog, Mohs hardness, crystal systems, birthstones, or how stones form. I’ll answer from Lithos facts. A grown-up can add an API key below for smarter AI answers.</div>
+ <div class="msg bot" id="class-ai-welcome"><span class="ai-tag">Class member</span>Welcome! Ask about any gem in the catalog, Mohs hardness, crystal systems, birthstones, or how stones form.</div>
  </div>
  <div class="chat-voice-bar">
  <button type="button" class="voice-toggle" id="class-voice-toggle" aria-pressed="false" title="Speak Rock Teacher replies aloud">
@@ -1516,7 +1519,7 @@
  <section class="mem-hero">
  <div class="eyebrow">Join &amp; Save</div>
  <h1>Become a <em>member</em></h1>
- <p class="lede">Members get money off every class! Pick a membership and save on both the Teacher and Home plans.</p>
+ <p class="lede">Members save on every class. <b>Gold</b> gets the best discount plus premium perks — live Gemini AI, voice chat, gold badge, and early access.</p>
  </section>
  <div class="mem-grid">
  <div class="mem-card">
@@ -1525,9 +1528,10 @@
  <div class="mem-line">Teacher plan: <s>$220</s> <b>$165</b></div>
  <div class="mem-line">Home plan: <s>$90</s> <b>$67.50</b></div>
  <ul class="mem-list">
- <li>25% off every class</li>
- <li>AI Rock Teacher unlock</li>
- <li>Member badge on your feedback</li>
+ <li>25% off Teacher &amp; Home class plans</li>
+ <li>AI Rock Teacher (catalog answers)</li>
+ <li>Class lessons track</li>
+ <li>Silver badge on feedback</li>
  <li>Cancel anytime</li>
  </ul>
  <div class="mem-btns">
@@ -1542,10 +1546,12 @@
  <div class="mem-line">Teacher plan: <s>$220</s> <b>$110</b></div>
  <div class="mem-line">Home plan: <s>$90</s> <b>$45</b></div>
  <ul class="mem-list">
- <li>HALF PRICE on every class!</li>
- <li>AI Rock Teacher unlock</li>
- <li>Shiny gold member badge</li>
- <li>First to see new gems &amp; crafts</li>
+ <li><b>50% off</b> Teacher &amp; Home — biggest savings</li>
+ <li>Everything in Silver, plus:</li>
+ <li>Live Gemini AI Rock Teacher (site-powered)</li>
+ <li>Voice on by default — speak &amp; listen</li>
+ <li>Shiny gold badge on feedback</li>
+ <li>Early heads-up on new gems &amp; crafts</li>
  <li>Cancel anytime</li>
  </ul>
  <div class="mem-btns">
@@ -2423,6 +2429,7 @@ const CLASS_AI_BASE='lithos_ai_base';
 const CLASS_AI_MODEL='lithos_ai_model';
 const CLASS_AI_PROVIDER='lithos_ai_provider';
 const CLASS_CHECKOUT_PENDING='lithos_class_checkout_pending';
+const MEMBER_TIER_KEY='lithos_member_tier';
 const GEMINI_DEFAULT_BASE='https://generativelanguage.googleapis.com/v1beta';
 const GEMINI_DEFAULT_MODEL='gemini-flash-latest';
 const GEMINI_MODEL_FALLBACKS=['gemini-flash-latest'];
@@ -2435,10 +2442,21 @@ const classAiHistory=[];
 function hasClassAccess(){
  try{ return localStorage.getItem(CLASS_ACCESS_KEY)==='1'; }catch(e){ return false; }
 }
+function getMemberTier(){
+ try{ return localStorage.getItem(MEMBER_TIER_KEY)||''; }catch(e){ return ''; }
+}
+function isGoldMember(){ return getMemberTier()==='gold'; }
+function isSilverMember(){ return getMemberTier()==='silver'; }
+function setMemberTier(tier){
+ try{
+ if(tier) localStorage.setItem(MEMBER_TIER_KEY,tier);
+ else localStorage.removeItem(MEMBER_TIER_KEY);
+ }catch(e){}
+}
 function setClassAccess(on){
  try{
  if(on) localStorage.setItem(CLASS_ACCESS_KEY,'1');
- else localStorage.removeItem(CLASS_ACCESS_KEY);
+ else{ localStorage.removeItem(CLASS_ACCESS_KEY); setMemberTier(''); }
  }catch(e){}
 }
 function looksLikeGeminiKey(key){
@@ -2535,10 +2553,15 @@ function updateClassAiMode(){
  const label=cfg.resolved==='gemini'?'Gemini':'OpenAI-compatible';
  const site=getSiteAiConfig();
  const src=site?'site config':'key on this device';
- el.innerHTML='Mode: <b>Live AI</b> ('+label+' · '+src+') · falls back to local teacher if the API fails';
+ let html='Mode: <b>Live AI</b> ('+label+' · '+src+') · falls back to local teacher if the API fails';
+ if(isGoldMember()) html+=' · <b>Gold perks</b> (voice + live AI)';
+ el.innerHTML=html;
 }
 function markClassCheckoutPending(plan){
- try{ localStorage.setItem(CLASS_CHECKOUT_PENDING, plan||'1'); }catch(e){}
+ const p=plan||'class';
+ try{ localStorage.setItem(CLASS_CHECKOUT_PENDING,p); }catch(e){}
+ if(/^gold-/i.test(p)) setMemberTier('gold');
+ else if(/^silver-/i.test(p)) setMemberTier('silver');
 }
 function unlockClassAccess(fromBtn){
  if(fromBtn){
@@ -2547,6 +2570,11 @@ function unlockClassAccess(fromBtn){
  }
  setClassAccess(true);
  try{ localStorage.removeItem(CLASS_CHECKOUT_PENDING); }catch(e){}
+ if(isGoldMember()){
+ try{ localStorage.setItem(VOICE_PREF_KEY,'1'); }catch(e){}
+ lithosVoiceOn=true;
+ syncVoiceToggleUI();
+ }
  refreshClassAI();
  refreshClassLessons();
  const open=document.getElementById('class-ai-open');
@@ -2610,6 +2638,16 @@ function buildClassAI(){
  updateClassAiMode();
  initLithosVoiceUI();
  wireChatMic('class-chat-mic','class-chat-input',sendClassChat);
+ const welcome=document.getElementById('class-ai-welcome');
+ if(welcome){
+ if(isGoldMember()){
+ welcome.innerHTML='<span class="ai-tag">Gold member</span>Welcome, Gold member! You’ve got <b>live Gemini AI</b>, voice chat turned on, class lessons with member tips, and early access to new content. Ask me anything about gems, Mohs, crystal systems, or your lessons.';
+ }else if(isSilverMember()){
+ welcome.innerHTML='<span class="ai-tag">Silver member</span>Welcome, Silver member! Ask about gems in the catalog, Mohs hardness, crystal systems, and how stones form. Upgrade to Gold for live AI, voice, and half-off classes.';
+ }else{
+ welcome.innerHTML='<span class="ai-tag">Class member</span>Welcome! Ask about any gem in the catalog, Mohs hardness, crystal systems, birthstones, or how stones form.';
+ }
+ }
 }
 function addClassMsg(text,who,tag){
  const c=document.getElementById('class-chat');
@@ -2908,13 +2946,18 @@ function buildFeedback(){
  document.getElementById('fb-send').onclick=submitFeedback;
  renderFeedback();
 }
+function memberBadgeHtml(tier){
+ if(tier==='gold') return ' <span class="fb-badge gold">Gold</span>';
+ if(tier==='silver') return ' <span class="fb-badge silver">Silver</span>';
+ return '';
+}
 function renderFeedback(){
  const list=document.getElementById('fb-list');
  if(!feedbackData.length){list.innerHTML='<div class="fb-empty">No feedback yet — be the first!</div>';return;}
  list.innerHTML=feedbackData.map(f=>`
  <div class="fb-item">
  <div class="fb-top">
- <span class="fb-who">${escapeHtml(f.who)}</span>
+ <span class="fb-who">${escapeHtml(f.who)}${memberBadgeHtml(f.tier||'')}</span>
  <span class="fb-rate">${'★'.repeat(f.rating)}</span>
  </div>
  <div class="fb-text">${escapeHtml(f.text)}</div>
@@ -2926,7 +2969,7 @@ function submitFeedback(){
  const msg=document.getElementById('fb-msg').value.trim();
  if(!msg){alert("Please type a message first.");return;}
  if(!fbRating){alert("Please pick a star rating.");return;}
- feedbackData.unshift({who:name,rating:fbRating,text:msg});
+ feedbackData.unshift({who:name,rating:fbRating,text:msg,tier:getMemberTier()});
  // clear form
  document.getElementById('fb-name').value='';
  document.getElementById('fb-msg').value='';
@@ -5191,7 +5234,8 @@ function tryCode(){
  if(raw==="i am the owner of the game"){
  isOwner=true;
  quizzesDone=999; // unlock every warrior
- setClassAccess(true); // unlock class AI Rock Teacher
+ setClassAccess(true);
+ setMemberTier('gold');
  // add the special Plasma Mace to the arsenal (only once)
  if(!hasPlasmaMace){
  WEAPONS.push(PLASMA_MACE);
