@@ -27,11 +27,18 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: node scripts/generate-ai-config.mjs
 
+      - name: Stage site (include generated ai-config.js)
+        run: |
+          mkdir -p _pages_staging
+          rsync -a --exclude '.git' --exclude '_pages_staging' ./ _pages_staging/
+          test -f _pages_staging/ai-config.js || (echo "ai-config.js missing from staging" && exit 1)
+          touch _pages_staging/.nojekyll
+
       - uses: actions/configure-pages@v5
 
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _pages_staging
 
       - id: deployment
         uses: actions/deploy-pages@v4
