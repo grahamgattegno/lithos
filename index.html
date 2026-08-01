@@ -437,7 +437,36 @@
   .plan-list li::before{content:"";position:absolute;left:2px;top:14px;width:8px;height:8px;background:var(--gold);transform:rotate(45deg);border-radius:1px}
   .plan-btn{display:block;text-align:center;text-decoration:none;background:var(--gold);color:var(--ink);border:none;cursor:pointer;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;padding:16px;border-radius:4px;transition:transform .15s}
   .plan-btn:hover{transform:translateY(-2px)}
-  .plan-note{text-align:center;color:var(--text-faint);font-size:13px;max-width:520px;margin:20px auto 110px;padding:0 20px;line-height:1.6}
+  .plan-note{text-align:center;color:var(--text-faint);font-size:13px;max-width:520px;margin:20px auto 40px;padding:0 20px;line-height:1.6}
+
+  /* ---------- Class AI Rock Teacher (purchase-gated) ---------- */
+  .class-ai{max-width:760px;margin:0 auto;padding:20px 40px 110px}
+  .class-ai .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:var(--gold);margin-bottom:18px;text-align:center}
+  .class-ai h2{font-family:var(--serif);font-weight:300;font-size:clamp(32px,5vw,52px);line-height:1.05;letter-spacing:-.02em;text-align:center}
+  .class-ai h2 em{font-style:italic;color:var(--gold);font-weight:400}
+  .class-ai .lede{margin:18px auto 28px;max-width:540px;font-size:16px;line-height:1.6;color:var(--text-dim);text-align:center}
+  .class-ai-lock{background:var(--ink-2);border:1px solid var(--line);border-radius:12px;padding:32px 28px;text-align:center}
+  .class-ai-lock .lock-ico{font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--text-faint);margin-bottom:14px}
+  .class-ai-lock p{color:var(--text-dim);font-size:15px;line-height:1.6;max-width:480px;margin:0 auto 22px}
+  .class-ai-actions{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:8px}
+  .class-ai-actions .plan-btn{display:inline-block;padding:14px 22px;min-width:200px}
+  .class-ai-actions .plan-btn.ghost{background:transparent;color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold)}
+  .class-ai-badge{display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink);background:var(--gold);padding:6px 12px;border-radius:2px;margin-bottom:14px}
+  .class-ai-mode{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-faint);margin:12px 0 0;text-align:center}
+  .class-ai-mode b{color:var(--gold);font-weight:500}
+  .class-ai-settings{margin-top:22px;background:var(--panel);border:1px dashed var(--line-2);border-radius:10px;padding:18px 20px}
+  .class-ai-settings summary{cursor:pointer;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);list-style:none}
+  .class-ai-settings summary::-webkit-details-marker{display:none}
+  .class-ai-settings summary:hover{color:var(--gold)}
+  .class-ai-settings .ai-fields{display:grid;gap:12px;margin-top:16px}
+  .class-ai-settings label{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-faint)}
+  .class-ai-settings input{width:100%;box-sizing:border-box;background:var(--ink-2);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:12px 14px;font-family:var(--sans);font-size:14px;margin-top:6px}
+  .class-ai-settings input:focus{outline:none;border-color:var(--gold)}
+  .class-ai-settings .ai-hint{font-size:13px;line-height:1.55;color:var(--text-faint);margin:4px 0 0}
+  .class-ai-settings .ai-save{margin-top:4px;background:transparent;color:var(--gold);border:1px solid var(--gold);cursor:pointer;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:12px 18px;border-radius:6px}
+  .class-ai-settings .ai-save:hover{background:var(--gold);color:var(--ink)}
+  .msg.thinking{opacity:.7;font-style:italic}
+  .msg .ai-tag{display:block;font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;opacity:.85}
 
   /* ---------- Rock Teacher chat ---------- */
   .teacher-wrap{max-width:760px;margin:0 auto;padding:110px 40px 120px}
@@ -1173,6 +1202,8 @@
     .grid{grid-template-columns:1fr}
     .crafts-grid{grid-template-columns:1fr;padding:30px 20px 80px}
     .mem-grid{grid-template-columns:1fr;padding:30px 20px 20px}
+    .plans{grid-template-columns:1fr;padding:30px 20px 20px}
+    .class-ai{padding:20px 20px 90px}
     .warrior-grid{grid-template-columns:repeat(2,1fr)}
     .arsenal-row{grid-template-columns:repeat(2,1fr)}
     .auras-grid{grid-template-columns:1fr}
@@ -1271,7 +1302,7 @@
  <section class="classes-hero">
  <div class="eyebrow">Learn From a Real Rock Program</div>
  <h1>Geology <em>classes</em> for kids & students</h1>
- <p class="lede">Fun, hands-on lessons about rocks, crystals, and gemstones — taught with the Lithos catalog. Pick the plan that fits you.</p>
+ <p class="lede">Fun, hands-on lessons about rocks, crystals, and gemstones — taught with the Lithos catalog. Pick the plan that fits you. Class members unlock the <b>AI Rock Teacher</b> below.</p>
  </section>
  <div class="plans">
  <div class="plan">
@@ -1280,10 +1311,10 @@
  <ul class="plan-list">
  <li>Full set of geology lessons for a whole class</li>
  <li>Uses all <span id="plan-gem-count">1200</span> gemstones in the catalog</li>
+ <li>AI Rock Teacher for class Q&amp;A</li>
  <li>Quizzes and activities included</li>
- <li>Great for schools and clubs</li>
  </ul>
- <a class="plan-btn" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=22000&name=Venture+1" target="_blank" rel="noopener noreferrer">Choose this plan — $220</a>
+ <a class="plan-btn class-buy" data-plan="teacher" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=22000&name=Venture+1" target="_blank" rel="noopener noreferrer">Choose this plan — $220</a>
  </div>
  <div class="plan featured">
  <div class="plan-badge">Most Popular</div>
@@ -1291,21 +1322,68 @@
  <div class="plan-price">$90<span>/ course</span></div>
  <ul class="plan-list">
  <li>Learn geology at home, at your own speed</li>
- <li>All the gem lessons and fun facts</li>
+ <li>AI Rock Teacher unlocked after purchase</li>
  <li>Quizzes to test what you learned</li>
  <li>Perfect for curious kids!</li>
  </ul>
- <a class="plan-btn" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=9000&name=Venture+1" target="_blank" rel="noopener noreferrer">Choose this plan — $90</a>
+ <a class="plan-btn class-buy" data-plan="home" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=9000&name=Venture+1" target="_blank" rel="noopener noreferrer">Choose this plan — $90</a>
  </div>
  </div>
- <p class="plan-note">Both class checkouts are live — a grown-up should complete the payment. Members pay less: see the Memberships page.</p>
+ <p class="plan-note">Both class checkouts are live — a grown-up should complete the payment. Members pay less: see the Memberships page. After checkout, unlock the AI Rock Teacher below.</p>
+
+ <section class="class-ai" id="class-ai">
+ <div class="eyebrow">Class Member Perk</div>
+ <h2>AI <em>Rock Teacher</em></h2>
+ <p class="lede">Ask geology questions grounded in the Lithos catalog — Mohs hardness, crystal systems, gem facts, and lesson topics. Unlocks after you buy a class or membership.</p>
+
+ <div id="class-ai-locked" class="class-ai-lock">
+ <div class="lock-ico">Locked · Members &amp; class buyers</div>
+ <p>Purchase a class plan or membership, then tap unlock. This site can’t verify Founders Weekends payments automatically, so a grown-up confirms purchase on this device.</p>
+ <div class="class-ai-actions">
+ <a class="plan-btn" href="#memberships" onclick="switchView('memberships');return false;">See memberships</a>
+ <button type="button" class="plan-btn ghost" id="class-ai-unlock-btn">I’ve purchased — unlock</button>
+ </div>
+ </div>
+
+ <div id="class-ai-open" hidden>
+ <div style="text-align:center"><span class="class-ai-badge">Unlocked</span></div>
+ <div class="chat" id="class-chat">
+ <div class="msg bot"><span class="ai-tag">Local Rock Teacher</span>Welcome, class member! Ask about any gem in the catalog, Mohs hardness, crystal systems, birthstones, or how stones form. I’ll answer from Lithos facts. A grown-up can add an API key below for smarter AI answers.</div>
+ </div>
+ <div class="chat-row">
+ <input id="class-chat-input" type="text" placeholder="Ask the class Rock Teacher…" autocomplete="off">
+ <button type="button" id="class-chat-send">Ask</button>
+ </div>
+ <div class="chat-chips" id="class-chat-chips"></div>
+ <p class="class-ai-mode" id="class-ai-mode">Mode: <b>Local catalog teacher</b></p>
+ <details class="class-ai-settings" id="class-ai-settings">
+ <summary>Optional · Add API key for smarter AI answers</summary>
+ <div class="ai-fields">
+ <p class="ai-hint">Key stays only in this browser’s localStorage — never sent to Lithos servers (there aren’t any). Uses an OpenAI-compatible chat API. Leave blank to keep using the built-in local teacher.</p>
+ <div>
+ <label for="class-ai-key">API key</label>
+ <input id="class-ai-key" type="password" placeholder="sk-… or your provider key" autocomplete="off">
+ </div>
+ <div>
+ <label for="class-ai-base">API base URL (optional)</label>
+ <input id="class-ai-base" type="url" placeholder="https://api.openai.com/v1" autocomplete="off">
+ </div>
+ <div>
+ <label for="class-ai-model">Model (optional)</label>
+ <input id="class-ai-model" type="text" placeholder="gpt-4o-mini" autocomplete="off">
+ </div>
+ <button type="button" class="ai-save" id="class-ai-save">Save AI settings</button>
+ </div>
+ </details>
+ </div>
+ </section>
 </div><!-- /view-classes -->
 
 <div class="view" id="view-teacher" hidden>
  <section class="teacher-wrap">
  <div class="eyebrow">Your Friendly Geology Helper</div>
  <h1>Ask the <em>Rock Teacher</em></h1>
- <p class="lede">Type a question about rocks, crystals, or gems and the Rock Teacher will answer!</p>
+ <p class="lede">Free helper for everyone — type a question about rocks, crystals, or gems. Class buyers unlock a smarter <b>AI Rock Teacher</b> on the Classes page.</p>
  <div class="chat" id="chat">
  <div class="msg bot">Welcome. I'm the Rock Teacher — ask about any gem in the catalog, how stones form, hardness, colour, or rarity, and I'll answer with clear facts.</div>
  </div>
@@ -1364,12 +1442,13 @@
  <div class="mem-line">Home plan: <s>$220</s> <b>$165</b></div>
  <ul class="mem-list">
  <li>25% off every class</li>
+ <li>AI Rock Teacher unlock</li>
  <li>Member badge on your feedback</li>
  <li>Cancel anytime</li>
  </ul>
  <div class="mem-btns">
- <a class="mem-btn" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=6750&name=Venture+1" target="_blank" rel="noopener noreferrer">Teacher plan — $67.50</a>
- <a class="mem-btn alt" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=16500&name=Venture+1" target="_blank" rel="noopener noreferrer">Home plan — $165</a>
+ <a class="mem-btn class-buy" data-plan="silver-teacher" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=6750&name=Venture+1" target="_blank" rel="noopener noreferrer">Teacher plan — $67.50</a>
+ <a class="mem-btn alt class-buy" data-plan="silver-home" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=16500&name=Venture+1" target="_blank" rel="noopener noreferrer">Home plan — $165</a>
  </div>
  </div>
  <div class="mem-card gold">
@@ -1380,17 +1459,18 @@
  <div class="mem-line">Home plan: <s>$220</s> <b>$110</b></div>
  <ul class="mem-list">
  <li>HALF PRICE on every class!</li>
+ <li>AI Rock Teacher unlock</li>
  <li>Shiny gold member badge</li>
  <li>First to see new gems &amp; crafts</li>
  <li>Cancel anytime</li>
  </ul>
  <div class="mem-btns">
- <a class="mem-btn" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=4500&name=Venture+1" target="_blank" rel="noopener noreferrer">Teacher plan — $45</a>
- <a class="mem-btn alt" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=11000&name=Venture+1" target="_blank" rel="noopener noreferrer">Home plan — $110</a>
+ <a class="mem-btn class-buy" data-plan="gold-teacher" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=4500&name=Venture+1" target="_blank" rel="noopener noreferrer">Teacher plan — $45</a>
+ <a class="mem-btn alt class-buy" data-plan="gold-home" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=11000&name=Venture+1" target="_blank" rel="noopener noreferrer">Home plan — $110</a>
  </div>
  </div>
  </div>
- <p class="mem-note">All four membership checkouts are live — a grown-up should complete the payment.</p>
+ <p class="mem-note">All four membership checkouts are live — a grown-up should complete the payment. After checkout, open Classes and tap “I’ve purchased — unlock” for the AI Rock Teacher.</p>
 </div><!-- /view-memberships -->
 
 <div class="view" id="view-game" hidden>
@@ -1746,6 +1826,7 @@ function switchView(name){
  window.scrollTo({top:0,behavior:'instant' in window?'instant':'auto'});
  if(name==='learn'&&!learnBuilt){buildLessons();learnBuilt=true;}
  if(name==='quiz')startQuiz();
+ if(name==='classes'){refreshClassAI();}
  if(name==='teacher'&&!teacherBuilt){buildTeacher();teacherBuilt=true;}
  if(name==='feedback'&&!feedbackBuilt){buildFeedback();feedbackBuilt=true;}
  if(name==='crafts'&&!craftsBuilt){buildCrafts();craftsBuilt=true;}
@@ -2049,6 +2130,316 @@ function sendChat(){
  inp.value='';
  setTimeout(()=>addMsg(rockTeacherAnswer(q),'bot'),350);
 }
+
+/* ---------- Class AI Rock Teacher (purchase-gated) ---------- */
+const CLASS_ACCESS_KEY='lithos_class_access';
+const CLASS_AI_KEY='lithos_ai_key';
+const CLASS_AI_BASE='lithos_ai_base';
+const CLASS_AI_MODEL='lithos_ai_model';
+const CLASS_CHECKOUT_PENDING='lithos_class_checkout_pending';
+let classAiBuilt=false;
+let classAiBusy=false;
+const classAiHistory=[];
+
+function hasClassAccess(){
+ try{ return localStorage.getItem(CLASS_ACCESS_KEY)==='1'; }catch(e){ return false; }
+}
+function setClassAccess(on){
+ try{
+ if(on) localStorage.setItem(CLASS_ACCESS_KEY,'1');
+ else localStorage.removeItem(CLASS_ACCESS_KEY);
+ }catch(e){}
+}
+function getAiConfig(){
+ let key='', base='', model='';
+ try{
+ key=localStorage.getItem(CLASS_AI_KEY)||'';
+ base=localStorage.getItem(CLASS_AI_BASE)||'';
+ model=localStorage.getItem(CLASS_AI_MODEL)||'';
+ }catch(e){}
+ return {key:key.trim(), base:(base||'https://api.openai.com/v1').replace(/\/$/,''), model:(model||'gpt-4o-mini').trim()||'gpt-4o-mini'};
+}
+function saveAiConfig(){
+ const keyEl=document.getElementById('class-ai-key');
+ const baseEl=document.getElementById('class-ai-base');
+ const modelEl=document.getElementById('class-ai-model');
+ try{
+ if(keyEl) localStorage.setItem(CLASS_AI_KEY, keyEl.value.trim());
+ if(baseEl) localStorage.setItem(CLASS_AI_BASE, baseEl.value.trim());
+ if(modelEl) localStorage.setItem(CLASS_AI_MODEL, modelEl.value.trim());
+ }catch(e){}
+ updateClassAiMode();
+ alert('AI settings saved on this device.');
+}
+function updateClassAiMode(){
+ const el=document.getElementById('class-ai-mode');
+ if(!el) return;
+ const cfg=getAiConfig();
+ el.innerHTML=cfg.key
+ ? 'Mode: <b>Live AI</b> (API key on this device) · falls back to local teacher if the API fails'
+ : 'Mode: <b>Local catalog teacher</b> · add an API key below for smarter answers';
+}
+function markClassCheckoutPending(plan){
+ try{ localStorage.setItem(CLASS_CHECKOUT_PENDING, plan||'1'); }catch(e){}
+}
+function unlockClassAccess(fromBtn){
+ if(fromBtn){
+ const ok=confirm('Did a grown-up finish paying for a Lithos class or membership?\n\nTap OK to unlock the AI Rock Teacher on this device.');
+ if(!ok) return;
+ }
+ setClassAccess(true);
+ try{ localStorage.removeItem(CLASS_CHECKOUT_PENDING); }catch(e){}
+ refreshClassAI();
+ const open=document.getElementById('class-ai-open');
+ if(open) open.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function refreshClassAI(){
+ const locked=document.getElementById('class-ai-locked');
+ const open=document.getElementById('class-ai-open');
+ if(!locked||!open) return;
+ const unlocked=hasClassAccess();
+ locked.hidden=unlocked;
+ open.hidden=!unlocked;
+ if(unlocked){
+ if(!classAiBuilt){ buildClassAI(); classAiBuilt=true; }
+ else updateClassAiMode();
+ }else{
+ try{
+ if(localStorage.getItem(CLASS_CHECKOUT_PENDING)){
+ const btn=document.getElementById('class-ai-unlock-btn');
+ if(btn) btn.textContent="Back from checkout? Unlock now";
+ }
+ }catch(e){}
+ }
+}
+function buildClassAI(){
+ const samples=["Compare diamond and quartz","What crystal system is emerald?","Tell me about Mohs 7 gems","How do hydrothermal gems form?","What is corundum?","Which gems are Cubic?"];
+ const chips=document.getElementById('class-chat-chips');
+ chips.innerHTML=samples.map(s=>`<button type="button">${s}</button>`).join('');
+ chips.querySelectorAll('button').forEach(b=>b.onclick=()=>{
+ document.getElementById('class-chat-input').value=b.textContent;
+ sendClassChat();
+ });
+ document.getElementById('class-chat-send').onclick=sendClassChat;
+ document.getElementById('class-chat-input').addEventListener('keydown',e=>{if(e.key==='Enter')sendClassChat();});
+ document.getElementById('class-ai-save').onclick=saveAiConfig;
+ const cfg=getAiConfig();
+ const keyEl=document.getElementById('class-ai-key');
+ const baseEl=document.getElementById('class-ai-base');
+ const modelEl=document.getElementById('class-ai-model');
+ if(keyEl) keyEl.value=cfg.key;
+ if(baseEl) baseEl.value=localStorage.getItem(CLASS_AI_BASE)||'';
+ if(modelEl) modelEl.value=localStorage.getItem(CLASS_AI_MODEL)||'';
+ updateClassAiMode();
+}
+function addClassMsg(text,who,tag){
+ const c=document.getElementById('class-chat');
+ const d=document.createElement('div');
+ d.className='msg '+who;
+ if(tag){
+ const t=document.createElement('span');
+ t.className='ai-tag';
+ t.textContent=tag;
+ d.appendChild(t);
+ }
+ d.appendChild(document.createTextNode(text));
+ c.appendChild(d);
+ c.scrollTop=c.scrollHeight;
+ return d;
+}
+function findGemInQuestion(s){
+ // Prefer longer names so "rose quartz" beats "quartz"
+ const ranked=[...GEMS].sort((a,b)=>b.name.length-a.name.length);
+ return ranked.find(g=>s.includes(g.name.toLowerCase()))||null;
+}
+function gemsBySystem(system){
+ const sys=system.toLowerCase();
+ return GEMS.filter(g=>(g.system||'').toLowerCase().includes(sys));
+}
+function gemsNearMohs(n, tol){
+ return GEMS.filter(g=>Math.abs(g.mohs-n)<=(tol||0.5)).sort((a,b)=>a.mohs-b.mohs);
+}
+function classLocalAnswer(q){
+ const s=q.toLowerCase();
+ const fu=[
+ "What else should we dig into?",
+ "Want a harder challenge question next?",
+ "Ask me to compare two gems — class favorite!",
+ "Curious about a crystal system next?",
+ "Want Mohs practice? Name a number from 1 to 10."
+ ];
+ const follow=()=>fu[Math.floor(Math.random()*fu.length)];
+
+ // Compare two gems: "compare X and Y" / "X vs Y"
+ const vs=s.match(/compare\s+(.+?)\s+(?:and|vs\.?|versus)\s+(.+)/i) || s.match(/(.+?)\s+vs\.?\s+(.+)/i);
+ if(vs){
+ const a=findGemInQuestion(vs[1].toLowerCase()) || GEMS.find(g=>vs[1].toLowerCase().includes(g.name.toLowerCase()));
+ const b=findGemInQuestion(vs[2].toLowerCase()) || GEMS.find(g=>vs[2].toLowerCase().includes(g.name.toLowerCase()));
+ if(a&&b){
+ const harder=a.mohs===b.mohs?'They match on Mohs!':(a.mohs>b.mohs?`${a.name} is harder`:`${b.name} is harder`);
+ return `Class compare time! ${a.name} (${a.system}, Mohs ${a.mohs}, ${a.formula}) vs ${b.name} (${b.system}, Mohs ${b.mohs}, ${b.formula}). ${harder}. ${a.name}: ${a.desc.slice(0,160)}… ${b.name}: ${b.desc.slice(0,160)}… ${follow()}`;
+ }
+ }
+
+ const gem=findGemInQuestion(s);
+ if(gem){
+ const kin=GEMS.filter(g=>g!==gem && g.system===gem.system).slice(0,3).map(g=>g.name);
+ const kinLine=kin.length?` Other ${gem.system} specimens include ${kin.join(', ')}.`:'';
+ return `${gem.name} — ${gem.kind||'specimen'}. Formula ${gem.formula}, mineral class ${gem.class}, crystal system ${gem.system}, Mohs ${gem.mohs}, SG ${gem.sg}, RI ${gem.ri}. Colors: ${(gem.colors||[]).slice(0,3).join(', ')}. Origins: ${(gem.origins||[]).slice(0,3).join(', ')}. ${gem.desc}${kinLine} ${follow()}`;
+ }
+
+ if(s.includes('crystal system')||s.includes('cubic')||s.includes('hexagonal')||s.includes('trigonal')||s.includes('tetragonal')||s.includes('orthorhombic')||s.includes('monoclinic')||s.includes('triclinic')||s.includes('amorphous')){
+ const systems=['Cubic','Hexagonal','Trigonal','Tetragonal','Orthorhombic','Monoclinic','Triclinic','Amorphous'];
+ const hit=systems.find(sys=>s.includes(sys.toLowerCase()));
+ if(hit){
+ const list=gemsBySystem(hit).slice(0,8);
+ const names=list.map(g=>`${g.name} (${g.mohs})`).join(', ');
+ return `Crystal system ${hit}: atoms line up in a repeating pattern that grows those shapes. Catalog examples: ${names||'a few specimens'}. ${follow()}`;
+ }
+ return `There are seven crystal systems plus amorphous mineraloids (like opal and amber). Ask “which gems are Cubic?” or “what crystal system is emerald?” and I’ll pull from the catalog. ${follow()}`;
+ }
+
+ if(/\bmohs\b/.test(s)||s.includes('hardness')||s.includes('hardest')||s.includes('softest')||/mohs\s*\d/.test(s)){
+ const num=(s.match(/mohs\s*(\d+(?:\.\d+)?)/)||s.match(/\b(\d+(?:\.\d+)?)\b/));
+ if(num && !s.includes('hardest') && !s.includes('softest')){
+ const n=parseFloat(num[1]);
+ const near=gemsNearMohs(n,0.75).slice(0,10);
+ return `Around Mohs ${n}: ${near.map(g=>`${g.name} (${g.mohs})`).join(', ')||'not many exact matches'}. Harder stones can scratch softer ones. ${follow()}`;
+ }
+ const hardest=GEMS.reduce((a,b)=>b.mohs>a.mohs?b:a);
+ const softest=GEMS.reduce((a,b)=>b.mohs<a.mohs?b:a);
+ return `Mohs scale: 1 (talc-soft) to 10 (diamond). Hardest in catalog: ${hardest.name} at ${hardest.mohs}. Soft end example: ${softest.name} at ${softest.mohs}. Ask “Mohs 7 gems” for a list. ${follow()}`;
+ }
+
+ if(s.includes('corundum')){
+ return `Corundum is Al₂O₃ — ruby when chromium makes it red, sapphire for other colors. Same mineral, different trace elements! Both sit near Mohs 9. ${follow()}`;
+ }
+ if(s.includes('beryl')){
+ return `Beryl is Be₃Al₂Si₆O₁₈. Emerald (green) and aquamarine (blue-green) are famous varieties; also heliodor (yellow) and morganite (pink). Hexagonal crystals. ${follow()}`;
+ }
+ if(s.includes('form')||s.includes('hydrothermal')||s.includes('igneous')||s.includes('metamorphic')||s.includes('how do')){
+ return `Class note — gems form a few main ways: igneous (melt cools; diamond rides up in kimberlite), metamorphic (heat & pressure; ruby/sapphire/jade), hydrothermal (hot mineral water in cracks; many emeralds & amethyst), plus near-surface silica (opal) and organics (amber). Millions of years! ${follow()}`;
+ }
+ if(s.includes('birthstone')){
+ return rockTeacherAnswer(q);
+ }
+ if(s.includes('4 c')||s.includes('four c')||s.includes('colour')||s.includes('color')||s.includes('clarity')||s.includes('cut')||s.includes('carat')){
+ return `The Four Cs: Colour, Clarity, Cut, and Carat weight. For colored gems, colour usually matters most; for diamonds, cut often drives sparkle. Treatments (heat, oil, irradiation) are common when disclosed. ${follow()}`;
+ }
+ if(s.includes('hi')||s.includes('hello')||s.includes('hey')){
+ return `Hello, rock scientist! I’m your class Rock Teacher. I know the Lithos catalog — try a gem name, “compare ruby and sapphire,” or “which gems are Hexagonal?” ${follow()}`;
+ }
+ // Keyword search across catalog names/classes
+ const tokens=s.split(/\W+/).filter(t=>t.length>3);
+ const hits=GEMS.filter(g=>tokens.some(t=>
+ g.name.toLowerCase().includes(t)||
+ (g.class||'').toLowerCase().includes(t)||
+ (g.formula||'').toLowerCase().includes(t)
+ )).slice(0,5);
+ if(hits.length){
+ return `I found related specimens: ${hits.map(g=>`${g.name} (${g.system}, Mohs ${g.mohs})`).join('; ')}. Ask about any name for the full lab card. ${follow()}`;
+ }
+ return `I’m grounded in the Lithos catalog and class lessons. Try: a gem name, “compare X and Y,” “crystal system Cubic,” “Mohs 8,” or “how do hydrothermal gems form?” ${follow()}`;
+}
+function catalogContextForAI(q){
+ const s=q.toLowerCase();
+ const gem=findGemInQuestion(s);
+ const bits=[];
+ if(gem){
+ bits.push(`${gem.name}: ${gem.formula}; ${gem.class}; ${gem.system}; Mohs ${gem.mohs}; SG ${gem.sg}; RI ${gem.ri}; colors ${(gem.colors||[]).join('/')}; origins ${(gem.origins||[]).slice(0,3).join(', ')}; ${gem.desc}`);
+ }
+ const ranked=[...GEMS].sort((a,b)=>b.name.length-a.name.length);
+ for(const g of ranked){
+ if(bits.length>=6) break;
+ if(gem&&g===gem) continue;
+ if(s.includes(g.name.toLowerCase().split(' ')[0]) && g.name.length>4){
+ bits.push(`${g.name}: Mohs ${g.mohs}, ${g.system}, ${g.formula}`);
+ }
+ }
+ if(!bits.length){
+ bits.push(...GEMS.slice(0,4).map(g=>`${g.name} (Mohs ${g.mohs}, ${g.system})`));
+ }
+ return bits.join('\n');
+}
+async function classAiApiAnswer(q){
+ const cfg=getAiConfig();
+ if(!cfg.key) return null;
+ const system=`You are the Lithos AI Rock Teacher for kids and budding geologists. Tone: warm, clear, curious — never condescending. Use catalog facts when provided. Prefer short paragraphs. Stay on geology, gems, minerals, Mohs, crystal systems, and class topics. If unsure, say so and suggest looking in the Lithos catalog.`;
+ const context=catalogContextForAI(q);
+ const body={
+ model:cfg.model,
+ messages:[
+ {role:'system',content:system},
+ {role:'system',content:'Catalog context:\n'+context},
+ ...classAiHistory.slice(-6),
+ {role:'user',content:q}
+ ],
+ temperature:0.6,
+ max_tokens:450
+ };
+ const res=await fetch(cfg.base+'/chat/completions',{
+ method:'POST',
+ headers:{
+ 'Content-Type':'application/json',
+ 'Authorization':'Bearer '+cfg.key
+ },
+ body:JSON.stringify(body)
+ });
+ if(!res.ok){
+ const errText=await res.text().catch(()=> '');
+ throw new Error('API '+res.status+(errText?': '+errText.slice(0,120):''));
+ }
+ const data=await res.json();
+ const text=data.choices&&data.choices[0]&&data.choices[0].message&&data.choices[0].message.content;
+ if(!text) throw new Error('Empty API response');
+ return text.trim();
+}
+async function sendClassChat(){
+ if(classAiBusy||!hasClassAccess()) return;
+ const inp=document.getElementById('class-chat-input');
+ const q=inp.value.trim();
+ if(!q) return;
+ inp.value='';
+ addClassMsg(q,'user');
+ classAiHistory.push({role:'user',content:q});
+ classAiBusy=true;
+ const cfg=getAiConfig();
+ let thinking=null;
+ if(cfg.key){
+ thinking=addClassMsg('Thinking…','bot thinking');
+ thinking.classList.add('thinking');
+ }
+ try{
+ let answer=null;
+ let tag='Local Rock Teacher';
+ if(cfg.key){
+ try{
+ answer=await classAiApiAnswer(q);
+ tag='Live AI';
+ }catch(err){
+ answer=classLocalAnswer(q)+` (API unavailable — used local teacher. ${String(err.message||err).slice(0,80)})`;
+ tag='Local fallback';
+ }
+ }else{
+ await new Promise(r=>setTimeout(r,280));
+ answer=classLocalAnswer(q);
+ }
+ if(thinking) thinking.remove();
+ addClassMsg(answer,'bot',tag);
+ classAiHistory.push({role:'assistant',content:answer});
+ }finally{
+ classAiBusy=false;
+ }
+}
+// Checkout → pending unlock; unlock button; wire once
+(function initClassAccessUI(){
+ document.querySelectorAll('.class-buy').forEach(a=>{
+ a.addEventListener('click',()=>markClassCheckoutPending(a.dataset.plan||'class'));
+ });
+ const btn=document.getElementById('class-ai-unlock-btn');
+ if(btn) btn.addEventListener('click',()=>unlockClassAccess(true));
+ refreshClassAI();
+})();
 
 /* ---------- Feedback ---------- */
 let feedbackBuilt=false;
@@ -4376,6 +4767,7 @@ function tryCode(){
  if(raw==="i am the owner of the game"){
  isOwner=true;
  quizzesDone=999; // unlock every warrior
+ setClassAccess(true); // unlock class AI Rock Teacher
  // add the special Plasma Mace to the arsenal (only once)
  if(!hasPlasmaMace){
  WEAPONS.push(PLASMA_MACE);
@@ -4398,6 +4790,7 @@ function tryCode(){
  The ULTIMATE <b>PLASMA TITAN</b> — over 1qa health &amp; plasma superpower!<br>
  All ${WEAPONS.length} weapons in your arsenal<br>
  The legendary <b>PLASMA MACE</b> (+${PLASMA_MACE.bonus} power!) — equipped!<br>
+ The <b>AI Rock Teacher</b> on the Classes page<br>
  You can play freely!<br><br>
  Go to the Battle Arena and check it out! 
  </div>`;
