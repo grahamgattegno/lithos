@@ -471,8 +471,13 @@
   .class-ai-settings input{width:100%;box-sizing:border-box;background:var(--ink-2);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:12px 14px;font-family:var(--sans);font-size:14px;margin-top:6px}
   .class-ai-settings input:focus{outline:none;border-color:var(--gold)}
   .class-ai-settings .ai-hint{font-size:13px;line-height:1.55;color:var(--text-faint);margin:4px 0 0}
-  .class-ai-settings .ai-save{margin-top:4px;background:transparent;color:var(--gold);border:1px solid var(--gold);cursor:pointer;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:12px 18px;border-radius:6px}
-  .class-ai-settings .ai-save:hover{background:var(--gold);color:var(--ink)}
+  .class-ai-settings select{width:100%;box-sizing:border-box;background:var(--ink-2);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:12px 14px;font-family:var(--sans);font-size:14px;margin-top:6px}
+  .class-ai-settings select:focus{outline:none;border-color:var(--gold)}
+  .class-ai-settings .ai-note{font-size:13px;line-height:1.55;color:var(--text-dim);margin:0;padding:10px 12px;background:var(--ink-2);border-left:2px solid var(--gold);border-radius:0 6px 6px 0}
+  .class-ai-settings .ai-btn-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:4px}
+  .class-ai-settings .ai-save,.class-ai-settings .ai-defaults{background:transparent;color:var(--gold);border:1px solid var(--gold);cursor:pointer;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:12px 18px;border-radius:6px}
+  .class-ai-settings .ai-save:hover,.class-ai-settings .ai-defaults:hover{background:var(--gold);color:var(--ink)}
+  .class-ai-settings .ai-defaults{border-style:dashed;opacity:.9}
   .msg.thinking{opacity:.7;font-style:italic}
   .msg .ai-tag{display:block;font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;opacity:.85}
 
@@ -1372,20 +1377,32 @@
  <details class="class-ai-settings" id="class-ai-settings">
  <summary>Optional · Add API key for smarter AI answers</summary>
  <div class="ai-fields">
- <p class="ai-hint">Key stays only in this browser’s localStorage — never sent to Lithos servers (there aren’t any). Uses an OpenAI-compatible chat API. Leave blank to keep using the built-in local teacher.</p>
+ <p class="ai-note">Paste your Gemini key here — it stays on this device only. Never put keys in the public website code.</p>
+ <p class="ai-hint">Supports Google Gemini (native) and OpenAI-compatible APIs. Keys stay in this browser’s localStorage — never embedded in Lithos source or GitHub Pages. Leave blank to keep the built-in local teacher.</p>
+ <div>
+ <label for="class-ai-provider">Provider</label>
+ <select id="class-ai-provider">
+ <option value="auto">Auto-detect from key</option>
+ <option value="gemini">Google Gemini</option>
+ <option value="openai">OpenAI-compatible</option>
+ </select>
+ </div>
  <div>
  <label for="class-ai-key">API key</label>
- <input id="class-ai-key" type="password" placeholder="sk-… or your provider key" autocomplete="off">
+ <input id="class-ai-key" type="password" placeholder="Gemini: AQ.… or AIza… · OpenAI: sk-…" autocomplete="off">
  </div>
  <div>
  <label for="class-ai-base">API base URL (optional)</label>
- <input id="class-ai-base" type="url" placeholder="https://api.openai.com/v1" autocomplete="off">
+ <input id="class-ai-base" type="url" placeholder="Gemini or https://api.openai.com/v1" autocomplete="off">
  </div>
  <div>
  <label for="class-ai-model">Model (optional)</label>
- <input id="class-ai-model" type="text" placeholder="gpt-4o-mini" autocomplete="off">
+ <input id="class-ai-model" type="text" placeholder="gemini-2.5-flash or gpt-4o-mini" autocomplete="off">
  </div>
+ <div class="ai-btn-row">
+ <button type="button" class="ai-defaults" id="class-ai-gemini-defaults">Use Gemini defaults</button>
  <button type="button" class="ai-save" id="class-ai-save">Save AI settings</button>
+ </div>
  </div>
  </details>
  </div>
@@ -2217,7 +2234,12 @@ const CLASS_ACCESS_KEY='lithos_class_access';
 const CLASS_AI_KEY='lithos_ai_key';
 const CLASS_AI_BASE='lithos_ai_base';
 const CLASS_AI_MODEL='lithos_ai_model';
+const CLASS_AI_PROVIDER='lithos_ai_provider';
 const CLASS_CHECKOUT_PENDING='lithos_class_checkout_pending';
+const GEMINI_DEFAULT_BASE='https://generativelanguage.googleapis.com/v1beta';
+const GEMINI_DEFAULT_MODEL='gemini-2.5-flash';
+const OPENAI_DEFAULT_BASE='https://api.openai.com/v1';
+const OPENAI_DEFAULT_MODEL='gpt-4o-mini';
 let classAiBuilt=false;
 let classAiBusy=false;
 const classAiHistory=[];
@@ -2231,34 +2253,83 @@ function setClassAccess(on){
  else localStorage.removeItem(CLASS_ACCESS_KEY);
  }catch(e){}
 }
+function looksLikeGeminiKey(key){
+ const k=(key||'').trim();
+ return k.startsWith('AQ.')||k.startsWith('AIza');
+}
+function looksLikeOpenAIKey(key){
+ return (key||'').trim().startsWith('sk-');
+}
+function baseLooksLikeGemini(base){
+ return /generativelanguage\.googleapis\.com/i.test(base||'');
+}
+function resolveAiProvider(rawProvider, key, base){
+ const p=(rawProvider||'auto').toLowerCase();
+ if(p==='gemini'||p==='openai') return p;
+ if(looksLikeGeminiKey(key)||baseLooksLikeGemini(base)) return 'gemini';
+ if(looksLikeOpenAIKey(key)) return 'openai';
+ return 'openai';
+}
 function getAiConfig(){
- let key='', base='', model='';
+ let key='', base='', model='', provider='auto';
  try{
  key=localStorage.getItem(CLASS_AI_KEY)||'';
  base=localStorage.getItem(CLASS_AI_BASE)||'';
  model=localStorage.getItem(CLASS_AI_MODEL)||'';
+ provider=localStorage.getItem(CLASS_AI_PROVIDER)||'auto';
  }catch(e){}
- return {key:key.trim(), base:(base||'https://api.openai.com/v1').replace(/\/$/,''), model:(model||'gpt-4o-mini').trim()||'gpt-4o-mini'};
+ key=key.trim();
+ base=(base||'').trim().replace(/\/$/,'');
+ model=(model||'').trim();
+ const resolved=resolveAiProvider(provider, key, base);
+ if(resolved==='gemini'){
+ if(!base||base===OPENAI_DEFAULT_BASE) base=GEMINI_DEFAULT_BASE;
+ if(!model||model===OPENAI_DEFAULT_MODEL) model=GEMINI_DEFAULT_MODEL;
+ }else{
+ if(!base) base=OPENAI_DEFAULT_BASE;
+ if(!model) model=OPENAI_DEFAULT_MODEL;
+ }
+ return {key, base, model, provider:(provider||'auto'), resolved};
 }
 function saveAiConfig(){
  const keyEl=document.getElementById('class-ai-key');
  const baseEl=document.getElementById('class-ai-base');
  const modelEl=document.getElementById('class-ai-model');
+ const provEl=document.getElementById('class-ai-provider');
  try{
  if(keyEl) localStorage.setItem(CLASS_AI_KEY, keyEl.value.trim());
  if(baseEl) localStorage.setItem(CLASS_AI_BASE, baseEl.value.trim());
  if(modelEl) localStorage.setItem(CLASS_AI_MODEL, modelEl.value.trim());
+ if(provEl) localStorage.setItem(CLASS_AI_PROVIDER, provEl.value||'auto');
  }catch(e){}
  updateClassAiMode();
  alert('AI settings saved on this device.');
+}
+function applyGeminiDefaults(){
+ const provEl=document.getElementById('class-ai-provider');
+ const baseEl=document.getElementById('class-ai-base');
+ const modelEl=document.getElementById('class-ai-model');
+ if(provEl) provEl.value='gemini';
+ if(baseEl) baseEl.value=GEMINI_DEFAULT_BASE;
+ if(modelEl) modelEl.value=GEMINI_DEFAULT_MODEL;
+ try{
+ localStorage.setItem(CLASS_AI_PROVIDER,'gemini');
+ localStorage.setItem(CLASS_AI_BASE,GEMINI_DEFAULT_BASE);
+ localStorage.setItem(CLASS_AI_MODEL,GEMINI_DEFAULT_MODEL);
+ }catch(e){}
+ updateClassAiMode();
+ alert('Gemini defaults set. Paste your API key and tap Save — the key stays on this device only.');
 }
 function updateClassAiMode(){
  const el=document.getElementById('class-ai-mode');
  if(!el) return;
  const cfg=getAiConfig();
- el.innerHTML=cfg.key
- ? 'Mode: <b>Live AI</b> (API key on this device) · falls back to local teacher if the API fails'
- : 'Mode: <b>Local catalog teacher</b> · add an API key below for smarter answers';
+ if(!cfg.key){
+ el.innerHTML='Mode: <b>Local catalog teacher</b> · add an API key below for smarter answers';
+ return;
+ }
+ const label=cfg.resolved==='gemini'?'Gemini':'OpenAI-compatible';
+ el.innerHTML='Mode: <b>Live AI</b> ('+label+' · key on this device) · falls back to local teacher if the API fails';
 }
 function markClassCheckoutPending(plan){
  try{ localStorage.setItem(CLASS_CHECKOUT_PENDING, plan||'1'); }catch(e){}
@@ -2306,13 +2377,21 @@ function buildClassAI(){
  document.getElementById('class-chat-send').onclick=sendClassChat;
  document.getElementById('class-chat-input').addEventListener('keydown',e=>{if(e.key==='Enter')sendClassChat();});
  document.getElementById('class-ai-save').onclick=saveAiConfig;
+ const gemBtn=document.getElementById('class-ai-gemini-defaults');
+ if(gemBtn) gemBtn.onclick=applyGeminiDefaults;
  const cfg=getAiConfig();
  const keyEl=document.getElementById('class-ai-key');
  const baseEl=document.getElementById('class-ai-base');
  const modelEl=document.getElementById('class-ai-model');
+ const provEl=document.getElementById('class-ai-provider');
  if(keyEl) keyEl.value=cfg.key;
  if(baseEl) baseEl.value=localStorage.getItem(CLASS_AI_BASE)||'';
  if(modelEl) modelEl.value=localStorage.getItem(CLASS_AI_MODEL)||'';
+ if(provEl){
+ let stored='auto';
+ try{ stored=localStorage.getItem(CLASS_AI_PROVIDER)||'auto'; }catch(e){}
+ provEl.value=stored;
+ }
  updateClassAiMode();
 }
 function addClassMsg(text,who,tag){
@@ -2444,11 +2523,51 @@ function catalogContextForAI(q){
  }
  return bits.join('\n');
 }
-async function classAiApiAnswer(q){
- const cfg=getAiConfig();
- if(!cfg.key) return null;
- const system=`You are the Lithos AI Rock Teacher for kids and budding geologists. Tone: warm, clear, curious — never condescending. Use catalog facts when provided. Prefer short paragraphs. Stay on geology, gems, minerals, Mohs, crystal systems, and class topics. If unsure, say so and suggest looking in the Lithos catalog.`;
- const context=catalogContextForAI(q);
+async function classAiGeminiAnswer(q, cfg, system, context){
+ const model=cfg.model.replace(/^models\//,'');
+ let base=cfg.base.replace(/\/$/,'');
+ if(!/\/v1beta$/i.test(base) && !/\/v1$/i.test(base)){
+ // Accept bare host or OpenAI-style leftovers
+ if(/generativelanguage\.googleapis\.com/i.test(base)){
+ base=base.replace(/\/v1(\/.*)?$/i,'').replace(/\/$/,'')+'/v1beta';
+ }else{
+ base=GEMINI_DEFAULT_BASE;
+ }
+ }
+ const url=base+'/models/'+encodeURIComponent(model)+':generateContent';
+ const contents=[];
+ for(const m of classAiHistory.slice(-6)){
+ const role=m.role==='assistant'?'model':'user';
+ contents.push({role, parts:[{text:m.content}]});
+ }
+ contents.push({role:'user', parts:[{text:q}]});
+ const body={
+ systemInstruction:{parts:[{text:system+'\n\nCatalog context:\n'+context}]},
+ contents,
+ generationConfig:{temperature:0.6, maxOutputTokens:450}
+ };
+ const res=await fetch(url,{
+ method:'POST',
+ headers:{
+ 'Content-Type':'application/json',
+ 'x-goog-api-key':cfg.key
+ },
+ body:JSON.stringify(body)
+ });
+ if(!res.ok){
+ const errText=await res.text().catch(()=> '');
+ throw new Error('Gemini '+res.status+(errText?': '+errText.slice(0,160):''));
+ }
+ const data=await res.json();
+ const parts=data.candidates&&data.candidates[0]&&data.candidates[0].content&&data.candidates[0].content.parts;
+ const text=parts&&parts.map(p=>p.text||'').join('').trim();
+ if(!text){
+ const block=data.promptFeedback&&data.promptFeedback.blockReason;
+ throw new Error(block?('Blocked: '+block):'Empty Gemini response');
+ }
+ return text;
+}
+async function classAiOpenAIAnswer(q, cfg, system, context){
  const body={
  model:cfg.model,
  messages:[
@@ -2477,6 +2596,14 @@ async function classAiApiAnswer(q){
  if(!text) throw new Error('Empty API response');
  return text.trim();
 }
+async function classAiApiAnswer(q){
+ const cfg=getAiConfig();
+ if(!cfg.key) return null;
+ const system=`You are the Lithos AI Rock Teacher for kids and budding geologists. Tone: warm, clear, curious — never condescending. Use catalog facts when provided. Prefer short paragraphs. Stay on geology, gems, minerals, Mohs, crystal systems, and class topics. If unsure, say so and suggest looking in the Lithos catalog.`;
+ const context=catalogContextForAI(q);
+ if(cfg.resolved==='gemini') return classAiGeminiAnswer(q, cfg, system, context);
+ return classAiOpenAIAnswer(q, cfg, system, context);
+}
 async function sendClassChat(){
  if(classAiBusy||!hasClassAccess()) return;
  const inp=document.getElementById('class-chat-input');
@@ -2498,7 +2625,7 @@ async function sendClassChat(){
  if(cfg.key){
  try{
  answer=await classAiApiAnswer(q);
- tag='Live AI';
+ tag=cfg.resolved==='gemini'?'Live AI · Gemini':'Live AI';
  }catch(err){
  answer=classLocalAnswer(q)+` (API unavailable — used local teacher. ${String(err.message||err).slice(0,80)})`;
  tag='Local fallback';
