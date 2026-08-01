@@ -1100,11 +1100,13 @@
   .donate-result{margin:26px auto 0;max-width:480px;min-height:16px;font-size:16px}
   .donate-result .thanks{background:linear-gradient(135deg,rgba(201,169,79,.18),rgba(232,155,176,.12));border:1px solid var(--gold);border-radius:12px;padding:22px;line-height:1.6}
   .donate-result .thanks .big{font-size:38px;margin-bottom:6px}
-  .donate-maker{margin:44px auto 0;max-width:560px;padding:28px 22px 24px;border-top:1px solid var(--line)}
-  .donate-maker .maker-label{font-family:var(--mono);font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--text-faint);margin-bottom:12px}
+  .donate-tip-cue{margin:22px auto 0;max-width:560px;font-size:15px;line-height:1.55;color:var(--text);font-weight:600}
+  .donate-tip-cue a{color:var(--gold);text-decoration:underline;text-underline-offset:3px}
+  .donate-maker{margin:18px auto 0;max-width:560px;padding:22px 20px 20px;border:1px solid var(--line-2);border-radius:12px;background:rgba(201,169,79,.06)}
+  .donate-maker .maker-label{font-family:var(--mono);font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
   .donate-maker h2{font-family:var(--serif);font-weight:300;font-size:clamp(22px,3.5vw,30px);line-height:1.2;margin:0 0 10px;color:var(--text)}
   .donate-maker .maker-lede{margin:0 auto;max-width:480px;font-size:14px;line-height:1.6;color:var(--text-dim)}
-  .donate-tip-grid{margin-top:20px;display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+  .donate-tip-grid{margin-top:18px;display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
   .donate-tip{display:inline-block;text-decoration:none;background:transparent;color:var(--gold);border:1px solid var(--line-2);border-radius:8px;padding:12px 18px;font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;transition:border-color .15s,transform .15s,background .15s}
   .donate-tip:hover{border-color:var(--gold);transform:translateY(-2px);background:rgba(201,169,79,.08)}
   .donate-note{margin-top:30px;color:var(--text-faint);font-size:13px;max-width:520px;margin-left:auto;margin-right:auto;line-height:1.6}
@@ -1410,6 +1412,19 @@
  <a class="donate-card" href="https://donatenow.networkforgood.org/pactworld" target="_blank" rel="noopener noreferrer"><div class="d-gem"><img src="images/tanzanite.jpg" alt="Tanzanite"></div><div class="d-amt">$250</div><div class="d-note">Protects kids from mine work</div></a>
  <a class="donate-card" href="https://donatenow.networkforgood.org/pactworld" target="_blank" rel="noopener noreferrer"><div class="d-gem"><img src="images/diamond.jpg" alt="Diamond"></div><div class="d-amt">$500</div><div class="d-note">Powers lasting change</div></a>
  </div>
+ <p class="donate-tip-cue">Also optional: <a href="#donate" onclick="event.preventDefault();document.getElementById('maker-tip').scrollIntoView({behavior:'smooth',block:'start'})">Tip the Lithos maker</a> ($1–$25) — a separate thank-you to Graham, not Pact.</p>
+ <div class="donate-maker" id="maker-tip">
+ <div class="maker-label">Optional · separate checkout</div>
+ <h2>Tip the Lithos maker</h2>
+ <p class="maker-lede">Pact gifts and maker tips are <b>two separate checkouts</b> — nothing auto-splits. If you’d like, tip Graham (~10%-style small thank-you amounts). Totally optional.</p>
+ <div class="donate-tip-grid">
+ <a class="donate-tip" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=100&name=Venture+1" target="_blank" rel="noopener noreferrer" onclick="tipMaker('$1')">Tip $1</a>
+ <a class="donate-tip" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=300&name=Venture+1" target="_blank" rel="noopener noreferrer" onclick="tipMaker('$3')">Tip $3</a>
+ <a class="donate-tip" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=500&name=Venture+1" target="_blank" rel="noopener noreferrer" onclick="tipMaker('$5')">Tip $5</a>
+ <a class="donate-tip" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=1000&name=Venture+1" target="_blank" rel="noopener noreferrer" onclick="tipMaker('$10')">Tip $10</a>
+ <a class="donate-tip" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=2500&name=Venture+1" target="_blank" rel="noopener noreferrer" onclick="tipMaker('$25')">Tip $25</a>
+ </div>
+ </div>
  <div class="donate-custom">
  <span>Or enter your own amount for Pact:</span>
  <div class="dc-row">
@@ -1419,18 +1434,6 @@
  </div>
  </div>
  <div class="donate-result" id="donate-result"></div>
- <div class="donate-maker">
- <div class="maker-label">Optional · separate checkout</div>
- <h2>Want a little to support the Lithos maker too?</h2>
- <p class="maker-lede">Pact gifts and maker tips are <b>two separate checkouts</b> — nothing auto-splits. If you’d like, open a second link and tip Graham (~10%-style small thank-you amounts). Totally optional.</p>
- <div class="donate-tip-grid">
- <a class="donate-tip" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=100&name=Venture+1" target="_blank" rel="noopener noreferrer" onclick="tipMaker('$1')">Tip $1</a>
- <a class="donate-tip" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=300&name=Venture+1" target="_blank" rel="noopener noreferrer" onclick="tipMaker('$3')">Tip $3</a>
- <a class="donate-tip" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=500&name=Venture+1" target="_blank" rel="noopener noreferrer" onclick="tipMaker('$5')">Tip $5</a>
- <a class="donate-tip" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=1000&name=Venture+1" target="_blank" rel="noopener noreferrer" onclick="tipMaker('$10')">Tip $10</a>
- <a class="donate-tip" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=2500&name=Venture+1" target="_blank" rel="noopener noreferrer" onclick="tipMaker('$25')">Tip $25</a>
- </div>
- </div>
  <p class="donate-note">Pact gifts open Pact’s official donation page (Network for Good). Pick your amount there — a grown-up should complete checkout. Pact funds work worldwide, including responsible mining programs.</p>
  <p class="donate-note">Maker tips open a separate Founders Weekends checkout for Graham (who built Lithos). They do <b>not</b> go to Pact. Choosing both means two payments: one to Pact, one tip to the maker.</p>
  <p class="donate-note">Disclaimer: the gemstone pictures and names on these donation cards (hematite, garnet, ruby, sapphire, emerald, amethyst, tanzanite, diamond) are just fun labels for each gift amount — you are not buying a gemstone. Your Pact donation goes to Pact to support its programs, including responsible mining.</p>
@@ -1902,7 +1905,7 @@ function donate(amount){
  <b>Opening Pact’s donate page…</b><br><br>
  ${tip}<br><br>
  Your gift supports Pact — including responsible mining work that helps artisanal miners and their communities. A grown-up should finish checkout.<br><br>
- <span style="color:var(--text-dim);font-size:14px">Want to tip the Lithos maker too? That’s a separate, optional checkout below.</span>
+ <span style="color:var(--text-dim);font-size:14px">Want to tip the Lithos maker too? That’s a separate, optional checkout in the tip box above the custom amount.</span>
  </div>`;
  document.getElementById('donate-result').scrollIntoView({behavior:'smooth',block:'center'});
 }
