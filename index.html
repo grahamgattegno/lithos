@@ -1214,6 +1214,7 @@
     nav.top button{display:none}
     /* Keep Catalog + Donate reachable — other views stay desktop-nav only */
     nav.top button[data-view="catalog"],
+    nav.top button[data-view="classes"],
     nav.top button[data-view="donate"],
     nav.top button[data-view="battlefield"],
     nav.top button[data-view="game"]{display:inline-block}
@@ -1338,7 +1339,7 @@
  <div class="plan-price">$220<span>/ course</span></div>
  <ul class="plan-list">
  <li>Full set of geology lessons for a whole class</li>
- <li>Uses all <span id="plan-gem-count">1200</span> gemstones in the catalog</li>
+ <li>Uses all <span id="plan-gem-count">199</span> catalog gemstones + 1,000+ reference minerals</li>
  <li>Class lessons track + AI Rock Teacher</li>
  <li>Quizzes and activities included</li>
  </ul>
@@ -1400,7 +1401,7 @@
  <summary>Optional · Add API key for smarter AI answers</summary>
  <div class="ai-fields">
  <p class="ai-note">Paste your Gemini key here — it stays on this device only. Never put keys in the public website code.</p>
- <p class="ai-hint">Supports Google Gemini (native) and OpenAI-compatible APIs. Keys stay in this browser’s localStorage — never embedded in Lithos source or GitHub Pages. Leave blank to keep the built-in local teacher.</p>
+ <p class="ai-hint">Supports Google Gemini (native) and OpenAI-compatible APIs. On the live site, Gemini is wired in at deploy — no key paste needed. You can also save your own key in this browser’s localStorage. Leave blank to use the built-in local teacher when no site config is present.</p>
  <div>
  <label for="class-ai-provider">Provider</label>
  <select id="class-ai-provider">
@@ -1756,13 +1757,14 @@ function catalogNumberWords(n){
 }
 function syncHeroCounts(){
  const n=GEMS.length;
+ const gemCount=GEMS.filter(g=>g.kind==='gem').length;
  const words=catalogNumberWords(n);
  const wEl=document.getElementById('hero-count-words');
  const lEl=document.getElementById('hero-lede-count');
  const pEl=document.getElementById('plan-gem-count');
  if(wEl)wEl.textContent=words;
  if(lEl)lEl.textContent=words.charAt(0)+words.slice(1).toLowerCase();
- if(pEl)pEl.textContent=String(n);
+ if(pEl)pEl.textContent=String(gemCount);
  document.getElementById('stat-count').textContent=n;
 }
 
@@ -2588,12 +2590,21 @@ function buildClassAI(){
  const baseEl=document.getElementById('class-ai-base');
  const modelEl=document.getElementById('class-ai-model');
  const provEl=document.getElementById('class-ai-provider');
- if(keyEl) keyEl.value=cfg.key;
- if(baseEl) baseEl.value=localStorage.getItem(CLASS_AI_BASE)||'';
- if(modelEl) modelEl.value=localStorage.getItem(CLASS_AI_MODEL)||'';
+ const siteCfg=getSiteAiConfig();
+ if(keyEl){
+ if(siteCfg&&siteCfg.key){
+ keyEl.value='';
+ keyEl.placeholder='Using site Gemini config (deploy)';
+ }else{
+ keyEl.value=localStorage.getItem(CLASS_AI_KEY)||'';
+ }
+ }
+ if(baseEl) baseEl.value=siteCfg?(siteCfg.base||GEMINI_DEFAULT_BASE):(localStorage.getItem(CLASS_AI_BASE)||'');
+ if(modelEl) modelEl.value=siteCfg?(siteCfg.model||GEMINI_DEFAULT_MODEL):(localStorage.getItem(CLASS_AI_MODEL)||'');
  if(provEl){
  let stored='auto';
- try{ stored=localStorage.getItem(CLASS_AI_PROVIDER)||'auto'; }catch(e){}
+ if(siteCfg&&siteCfg.provider) stored=siteCfg.provider;
+ else try{ stored=localStorage.getItem(CLASS_AI_PROVIDER)||'auto'; }catch(e){}
  provEl.value=stored;
  }
  updateClassAiMode();
@@ -3742,23 +3753,8 @@ function updateGameLock(){
 }
 function buildGame(){
  const wrap=document.getElementById('game-wrap');
- const unlocked=unlockedCount();
- if(unlocked===0){
- // locked screen
- wrap.innerHTML=`
- <div class="eyebrow">Secret Mini-Game</div>
- <h1>The <em>Battle Arena</em></h1>
- <div class="game-locked">
- <div class="biglock">Locked</div>
- <p>The Battle Arena is locked! Finish a <b>Quiz</b> to unlock your first gem warrior. The more quizzes you finish, the stronger the warriors you unlock — all the way up to the mighty Diamond Titan!</p>
- <div class="game-count">Quizzes finished: ${quizzesDone}</div>
- <div class="game-progress"><span style="width:${Math.min(100,quizzesDone/1*100)}%"></span></div>
- <div class="game-btns">
- <button class="game-btn" onclick="switchView('quiz')">Take a Quiz →</button>
- </div>
- </div>`;
- return;
- }
+ let unlocked=WARRIORS.filter(w=>quizzesDone>=w.need);
+ if(unlocked.length===0) unlocked=[WARRIORS[0]]; // always open — starter warrior included
  // warrior roster + arsenal + arena
  const earned=weaponsEarned();
  const arsenalHTML=`
