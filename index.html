@@ -373,11 +373,19 @@
   .lesson .l-toggle{font-family:var(--mono);font-size:20px;color:var(--text-dim);transition:transform .3s}
   .lesson.open .l-toggle{transform:rotate(45deg)}
   .lesson .l-body{max-height:0;overflow:hidden;transition:max-height .4s ease}
-  .lesson.open .l-body{max-height:1400px}
+  .lesson.open .l-body{max-height:2000px}
   .lesson .l-inner{padding:0 36px 34px 96px;max-width:760px}
   .lesson .l-inner p{font-size:15.5px;line-height:1.75;color:var(--text);margin-bottom:16px}
   .lesson .l-inner p:last-child{margin-bottom:0}
   .lesson .l-inner strong{color:var(--gold);font-weight:500}
+  .lesson .member-tip{margin-top:22px;padding:16px 18px;background:rgba(201,169,79,.08);border-left:2px solid var(--gold);border-radius:2px}
+  .lesson .member-tip .tip-label{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+  .lesson .member-tip p{margin:0;font-size:14.5px;line-height:1.65;color:var(--text-dim)}
+  .class-lessons-footer{max-width:1440px;margin:0 auto;padding:0 40px 110px;display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+  .class-lessons-footer .plan-btn{display:inline-block;padding:14px 22px;min-width:200px}
+  .class-lessons-footer .plan-btn.ghost{background:transparent;color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold)}
+  .class-lessons-entry{max-width:900px;margin:0 auto;padding:8px 40px 36px;text-align:center}
+  .class-lessons-entry .plan-btn{display:inline-block;padding:14px 26px;min-width:220px}
   .scale{display:flex;gap:2px;margin:22px 0;border:1px solid var(--line);border-radius:3px;overflow:hidden}
   .scale .step{flex:1;padding:14px 6px;text-align:center;background:var(--ink)}
   .scale .step .sn{font-family:var(--serif);font-size:20px}
@@ -1219,6 +1227,7 @@
     .lessons{padding:24px 20px 80px}
     .lesson .l-head{padding:24px 22px;gap:16px}
     .lesson .l-inner{padding:0 22px 28px 22px}
+    .class-lessons-footer,.class-lessons-entry{padding-left:20px;padding-right:20px}
     .cc-grid{grid-template-columns:1fr}
     .scale{flex-wrap:wrap}
     .scale .step{min-width:64px}
@@ -1302,7 +1311,7 @@
  <section class="classes-hero">
  <div class="eyebrow">Learn From a Real Rock Program</div>
  <h1>Geology <em>classes</em> for kids & students</h1>
- <p class="lede">Fun, hands-on lessons about rocks, crystals, and gemstones — taught with the Lithos catalog. Pick the plan that fits you. Class members unlock the <b>AI Rock Teacher</b> below.</p>
+ <p class="lede">Fun, hands-on lessons about rocks, crystals, and gemstones — taught with the Lithos catalog. Pick the plan that fits you. Class members unlock the <b>class lessons</b> track and the <b>AI Rock Teacher</b> below.</p>
  </section>
  <div class="plans">
  <div class="plan">
@@ -1311,7 +1320,7 @@
  <ul class="plan-list">
  <li>Full set of geology lessons for a whole class</li>
  <li>Uses all <span id="plan-gem-count">1200</span> gemstones in the catalog</li>
- <li>AI Rock Teacher for class Q&amp;A</li>
+ <li>Class lessons track + AI Rock Teacher</li>
  <li>Quizzes and activities included</li>
  </ul>
  <a class="plan-btn class-buy" data-plan="teacher" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=22000&name=Venture+1" target="_blank" rel="noopener noreferrer">Choose this plan — $220</a>
@@ -1322,14 +1331,18 @@
  <div class="plan-price">$90<span>/ course</span></div>
  <ul class="plan-list">
  <li>Learn geology at home, at your own speed</li>
- <li>AI Rock Teacher unlocked after purchase</li>
+ <li>Class lessons + AI Rock Teacher after purchase</li>
  <li>Quizzes to test what you learned</li>
  <li>Perfect for curious kids!</li>
  </ul>
  <a class="plan-btn class-buy" data-plan="home" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=9000&name=Venture+1" target="_blank" rel="noopener noreferrer">Choose this plan — $90</a>
  </div>
  </div>
- <p class="plan-note">Both class checkouts are live — a grown-up should complete the payment. Members pay less: see the Memberships page. After checkout, unlock the AI Rock Teacher below.</p>
+ <p class="plan-note">Both class checkouts are live — a grown-up should complete the payment. Members pay less: see the Memberships page. After checkout, unlock class lessons and the AI Rock Teacher below.</p>
+
+ <div id="class-lessons-entry" class="class-lessons-entry" hidden>
+ <a class="plan-btn" href="#class-lessons" onclick="switchView('class-lessons');return false;">Open class lessons</a>
+ </div>
 
  <section class="class-ai" id="class-ai">
  <div class="eyebrow">Class Member Perk</div>
@@ -1378,6 +1391,29 @@
  </div>
  </section>
 </div><!-- /view-classes -->
+
+<div class="view" id="view-class-lessons" hidden>
+ <section class="learn-hero">
+ <div class="eyebrow">Class Member Track</div>
+ <h1>Class <em>lessons</em></h1>
+ <p class="lede">Your purchased geology track — the five core lessons, plus member tips that connect each chapter to the Lithos catalog and AI Rock Teacher. Free public lessons stay on <a href="#learn" onclick="switchView('learn');return false;" style="color:var(--gold)">Learn</a>.</p>
+ </section>
+ <div id="class-lessons-locked" class="class-ai-lock" style="max-width:640px;margin:0 auto 100px">
+ <div class="lock-ico">Locked · Class buyers &amp; members</div>
+ <p>This page is for people who purchased a class plan or membership. Buy on Classes, then unlock on this device — same unlock as the AI Rock Teacher.</p>
+ <div class="class-ai-actions">
+ <a class="plan-btn" href="#classes" onclick="switchView('classes');return false;">Go to Classes</a>
+ <button type="button" class="plan-btn ghost" id="class-lessons-unlock-btn">I’ve purchased — unlock</button>
+ </div>
+ </div>
+ <div id="class-lessons-open" hidden>
+ <div class="lessons" id="class-lessons"></div>
+ <div class="class-lessons-footer">
+ <a class="plan-btn" href="#classes" onclick="switchView('classes');return false;">Ask AI Rock Teacher</a>
+ <a class="plan-btn ghost" href="#quiz" onclick="switchView('quiz');return false;">Take the Quiz</a>
+ </div>
+ </div>
+</div><!-- /view-class-lessons -->
 
 <div class="view" id="view-teacher" hidden>
  <section class="teacher-wrap">
@@ -1803,6 +1839,7 @@ const views={
  learn:document.getElementById('view-learn'),
  quiz:document.getElementById('view-quiz'),
  classes:document.getElementById('view-classes'),
+ 'class-lessons':document.getElementById('view-class-lessons'),
  teacher:document.getElementById('view-teacher'),
  feedback:document.getElementById('view-feedback'),
  crafts:document.getElementById('view-crafts'),
@@ -1817,6 +1854,7 @@ const views={
 };
 const navBtns=[...document.querySelectorAll('nav.top button')];
 let learnBuilt=false;
+let classLessonsBuilt=false;
 function switchView(name){
  if(!views[name])name='catalog';
  Object.entries(views).forEach(([k,el])=>el.hidden=(k!==name));
@@ -1825,8 +1863,9 @@ function switchView(name){
  if(location.hash!==hash)history.replaceState(null,'',hash||location.pathname+location.search);
  window.scrollTo({top:0,behavior:'instant' in window?'instant':'auto'});
  if(name==='learn'&&!learnBuilt){buildLessons();learnBuilt=true;}
+ if(name==='class-lessons'){refreshClassLessons();}
  if(name==='quiz')startQuiz();
- if(name==='classes'){refreshClassAI();}
+ if(name==='classes'){refreshClassAI();refreshClassLessonsEntry();}
  if(name==='teacher'&&!teacherBuilt){buildTeacher();teacherBuilt=true;}
  if(name==='feedback'&&!feedbackBuilt){buildFeedback();feedbackBuilt=true;}
  if(name==='crafts'&&!craftsBuilt){buildCrafts();craftsBuilt=true;}
@@ -1852,11 +1891,13 @@ const LESSONS=[
  {title:"What makes a rock a gem",sub:"Beauty, durability, and rarity",body:`
  <p>Thousands of minerals exist, but only a few dozen are cut as gemstones. Three qualities decide which make the cut: <strong>beauty</strong> — colour, transparency, and the way light behaves inside the stone; <strong>durability</strong> — the ability to survive being worn without scratching or shattering; and <strong>rarity</strong> — scarcity is what turns a pretty crystal into a valuable one.</p>
  <p>A gem is almost always a <strong>crystal</strong>: atoms locked into a repeating three-dimensional pattern. That internal order is what produces flat faces, sharp angles, and the optical effects we prize. A few gems — opal and amber among them — are <strong>amorphous</strong>, with no ordered lattice at all, and are called mineraloids rather than true minerals.</p>
- <p>Colour usually comes not from the main ingredients but from trace impurities. The same mineral, corundum, is <strong>ruby</strong> when chromium sneaks in and <strong>sapphire</strong> when it's iron and titanium. Emerald and aquamarine are likewise the very same species — beryl — coloured by different elements.</p>`},
+ <p>Colour usually comes not from the main ingredients but from trace impurities. The same mineral, corundum, is <strong>ruby</strong> when chromium sneaks in and <strong>sapphire</strong> when it's iron and titanium. Emerald and aquamarine are likewise the very same species — beryl — coloured by different elements.</p>`,
+ tip:`Open Catalog and filter to Gemstones. Pick one stone you love and one you’d never wear — write one sentence for each on beauty, durability, and rarity. Then ask the AI Rock Teacher: “Compare [stone A] and [stone B].”`},
  {title:"How gemstones form",sub:"Heat, pressure, water, and deep time",body:`
  <p>Most gems are born in one of three settings. <strong>Igneous</strong> stones crystallize as molten rock cools — slowly enough, deep underground, for large clean crystals to grow. Diamond forms this way, over a hundred kilometres down, then rides to the surface in violent volcanic pipes.</p>
  <p><strong>Metamorphic</strong> gems form when existing rock is cooked and squeezed by heat and pressure without melting — ruby, sapphire, and jade come from this slow transformation. <strong>Hydrothermal</strong> gems grow from hot mineral-rich water seeping through cracks, which is where much emerald and amethyst comes from.</p>
- <p>A handful are outliers: <strong>opal</strong> settles out of silica-laden water near the surface, <strong>peridot</strong> rises from the deep mantle and even arrives in meteorites, and <strong>amber</strong> and <strong>ammolite</strong> are organic — fossilized resin and shell. The common thread is time: most of these processes take millions of years.</p>`},
+ <p>A handful are outliers: <strong>opal</strong> settles out of silica-laden water near the surface, <strong>peridot</strong> rises from the deep mantle and even arrives in meteorites, and <strong>amber</strong> and <strong>ammolite</strong> are organic — fossilized resin and shell. The common thread is time: most of these processes take millions of years.</p>`,
+ tip:`In Catalog, open diamond, emerald, and opal. For each, note formation style (igneous, hydrothermal, or near-surface). Ask the AI Rock Teacher “How do hydrothermal gems form?” and check your notes against the answer.`},
  {title:"The Mohs scale of hardness",sub:"Why diamond scratches everything",body:`
  <p>Hardness measures resistance to scratching, ranked 1 to 10 on the <strong>Mohs scale</strong>. It's a ranking, not a measurement — the jumps aren't even. Diamond at 10 is roughly four times harder than corundum at 9, which is itself far harder than anything at 8.</p>
  <p>The rule is simple: a mineral can scratch anything softer than itself and be scratched by anything harder. This matters for jewellery. Stones under about 7 are softer than everyday dust (which contains quartz, hardness 7), so a soft gem worn daily slowly abrades to a dull surface.</p>
@@ -1869,7 +1910,8 @@ const LESSONS=[
  <div class="step"><div class="sn">9</div><div class="sl">Corundum</div></div>
  <div class="step"><div class="sn">10</div><div class="sl">Diamond</div></div>
  </div>
- <p>One caution: hardness is not toughness. <strong>Jade</strong> is only about 6.5 but is exceptionally tough — hard to break — because of its interlocking fibrous structure. Diamond is the hardest thing there is, yet it can cleave in two from a sharp knock along the right plane.</p>`},
+ <p>One caution: hardness is not toughness. <strong>Jade</strong> is only about 6.5 but is exceptionally tough — hard to break — because of its interlocking fibrous structure. Diamond is the hardest thing there is, yet it can cleave in two from a sharp knock along the right plane.</p>`,
+ tip:`Ask the AI Rock Teacher for “Mohs 7 gems,” then find three catalog stones near Mohs 7. Rank them softest → hardest. Bonus: explain why jade can outlast a harder stone in a knock.`},
  {title:"The Four Cs",sub:"How value is judged",body:`
  <p>The diamond trade standardized four factors that now shape how nearly all gems are valued.</p>
  <div class="cc-grid">
@@ -1878,12 +1920,22 @@ const LESSONS=[
  <div class="cc"><h4>Cut</h4><p>Not the shape, but how well the stone is proportioned and faceted. A great cut returns light to the eye as brilliance and fire; a poor one leaves even fine rough looking lifeless.</p></div>
  <div class="cc"><h4>Carat</h4><p>Weight, not size — one carat is 0.2 grams. Because large clean crystals are rare, price per carat rises steeply with size, so a 2-carat stone costs far more than two 1-carat stones.</p></div>
  </div>
- <p>For coloured gemstones, most experts rank them <strong>colour first</strong>, then clarity and cut. For diamonds, cut is often considered the most important of the four, because it's what makes a diamond sparkle.</p>`},
+ <p>For coloured gemstones, most experts rank them <strong>colour first</strong>, then clarity and cut. For diamonds, cut is often considered the most important of the four, because it's what makes a diamond sparkle.</p>`,
+ tip:`Pick a colored gem and a diamond from the catalog. Rank the Four Cs for each (1–4). Ask the AI Rock Teacher which C usually matters most for colored stones — see if you agree.`},
  {title:"Treatments and imposters",sub:"What you're really buying",body:`
  <p>Most gems on the market have been <strong>treated</strong> to improve appearance, and much of it is accepted trade practice — as long as it's disclosed. <strong>Heating</strong> deepens or clarifies colour in sapphire, ruby, and tanzanite and is extremely common. <strong>Irradiation</strong> turns colourless topaz vivid blue. Emeralds are routinely <strong>oil-filled</strong> to mask surface fractures.</p>
  <p>The value gap between treated and genuinely untreated stones can be enormous, which is why a reputable lab report matters. An untreated, certified Burmese ruby is worth many times a heated one of the same look.</p>
- <p>Then there are <strong>simulants</strong> and <strong>synthetics</strong> — two different things. A synthetic has the same chemistry as the natural stone but is grown in a lab (lab-grown diamond is real diamond). A simulant merely imitates the look — <strong>cubic zirconia</strong> and <strong>moissanite</strong> stand in for diamond but are entirely different materials. Neither is a scam if sold honestly; the problem is only ever non-disclosure.</p>`}
+ <p>Then there are <strong>simulants</strong> and <strong>synthetics</strong> — two different things. A synthetic has the same chemistry as the natural stone but is grown in a lab (lab-grown diamond is real diamond). A simulant merely imitates the look — <strong>cubic zirconia</strong> and <strong>moissanite</strong> stand in for diamond but are entirely different materials. Neither is a scam if sold honestly; the problem is only ever non-disclosure.</p>`,
+ tip:`Write two sentences: one that correctly describes a heated sapphire, one that correctly describes moissanite. Then quiz a grown-up — or ask the AI Rock Teacher “What is the difference between synthetic and simulant?”`}
 ];
+function bindLessonToggles(wrap){
+ wrap.querySelectorAll('.lesson').forEach(les=>{
+ les.querySelector('.l-head').addEventListener('click',()=>{
+ const on=les.classList.toggle('open');
+ les.querySelector('.l-head').setAttribute('aria-expanded',on);
+ });
+ });
+}
 function buildLessons(){
  const wrap=document.getElementById('lessons');
  wrap.innerHTML=LESSONS.map((l,i)=>`
@@ -1895,12 +1947,41 @@ function buildLessons(){
  </button>
  <div class="l-body"><div class="l-inner">${l.body}</div></div>
  </div>`).join('');
- wrap.querySelectorAll('.lesson').forEach(les=>{
- les.querySelector('.l-head').addEventListener('click',()=>{
- const on=les.classList.toggle('open');
- les.querySelector('.l-head').setAttribute('aria-expanded',on);
- });
- });
+ bindLessonToggles(wrap);
+}
+function buildClassLessons(){
+ const wrap=document.getElementById('class-lessons');
+ if(!wrap) return;
+ wrap.innerHTML=LESSONS.map((l,i)=>`
+ <div class="lesson">
+ <button class="l-head" aria-expanded="false">
+ <span class="l-num">${String(i+1).padStart(2,'0')}</span>
+ <span style="flex:1"><span class="l-title">${l.title}</span><span class="l-sub">${l.sub}</span></span>
+ <span class="l-toggle">+</span>
+ </button>
+ <div class="l-body"><div class="l-inner">${l.body}${l.tip?`<div class="member-tip"><div class="tip-label">Member tip</div><p>${l.tip}</p></div>`:''}</div></div>
+ </div>`).join('');
+ bindLessonToggles(wrap);
+}
+function refreshClassLessonsEntry(){
+ const entry=document.getElementById('class-lessons-entry');
+ if(entry) entry.hidden=!hasClassAccess();
+}
+function refreshClassLessons(){
+ const locked=document.getElementById('class-lessons-locked');
+ const open=document.getElementById('class-lessons-open');
+ refreshClassLessonsEntry();
+ if(!locked||!open) return;
+ const unlocked=hasClassAccess();
+ locked.hidden=unlocked;
+ open.hidden=!unlocked;
+ if(unlocked&&!classLessonsBuilt){buildClassLessons();classLessonsBuilt=true;}
+ try{
+ if(!unlocked&&localStorage.getItem(CLASS_CHECKOUT_PENDING)){
+ const btn=document.getElementById('class-lessons-unlock-btn');
+ if(btn) btn.textContent="Back from checkout? Unlock now";
+ }
+ }catch(e){}
 }
 
 /* ---------- Quiz ---------- */
@@ -2184,18 +2265,20 @@ function markClassCheckoutPending(plan){
 }
 function unlockClassAccess(fromBtn){
  if(fromBtn){
- const ok=confirm('Did a grown-up finish paying for a Lithos class or membership?\n\nTap OK to unlock the AI Rock Teacher on this device.');
+ const ok=confirm('Did a grown-up finish paying for a Lithos class or membership?\n\nTap OK to unlock class lessons and the AI Rock Teacher on this device.');
  if(!ok) return;
  }
  setClassAccess(true);
  try{ localStorage.removeItem(CLASS_CHECKOUT_PENDING); }catch(e){}
  refreshClassAI();
+ refreshClassLessons();
  const open=document.getElementById('class-ai-open');
- if(open) open.scrollIntoView({behavior:'smooth',block:'start'});
+ if(open&&!document.getElementById('view-classes').hidden) open.scrollIntoView({behavior:'smooth',block:'start'});
 }
 function refreshClassAI(){
  const locked=document.getElementById('class-ai-locked');
  const open=document.getElementById('class-ai-open');
+ refreshClassLessonsEntry();
  if(!locked||!open) return;
  const unlocked=hasClassAccess();
  locked.hidden=unlocked;
@@ -2438,7 +2521,10 @@ async function sendClassChat(){
  });
  const btn=document.getElementById('class-ai-unlock-btn');
  if(btn) btn.addEventListener('click',()=>unlockClassAccess(true));
+ const lessonsBtn=document.getElementById('class-lessons-unlock-btn');
+ if(lessonsBtn) lessonsBtn.addEventListener('click',()=>unlockClassAccess(true));
  refreshClassAI();
+ refreshClassLessons();
 })();
 
 /* ---------- Feedback ---------- */
