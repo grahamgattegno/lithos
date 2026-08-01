@@ -1194,7 +1194,7 @@
  <h1>A field catalog<br>of <em>crystalline</em> earth</h1>
  <p class="lede">Two hundred precious, semi-precious, and famously rare gemstones — chosen for collectors, students, and geologists — from the everyday to the near-unobtainable — each documented by chemistry, hardness, crystal habit, and provenance. Open any specimen to study it — or join as a member to unlock classes and savings.</p>
  <div class="meta-row">
- <div class="stat"><div class="n" id="stat-count">25</div><div class="l">Specimens</div></div>
+ <div class="stat"><div class="n" id="stat-count">200</div><div class="l">Specimens</div></div>
  <div class="stat"><div class="n">4.5–10</div><div class="l">Mohs Range</div></div>
  <div class="stat"><div class="n">30+</div><div class="l">Source Regions</div></div>
  <div class="stat"><div class="n">9</div><div class="l">Crystal Systems</div></div>
@@ -1707,7 +1707,7 @@ function render(){
  el.className='card';
  el.style.setProperty('--stone',g.stone);
  el.style.setProperty('--glow',g.glow);
- el.style.animationDelay=(i*40)+'ms';
+ el.style.animationDelay=(Math.min(i,40)*25)+'ms';
  el.onclick=()=>openDrawer(realIdx);
  el.innerHTML=`
  <span class="idx">${String(realIdx+1).padStart(2,'0')}</span>
