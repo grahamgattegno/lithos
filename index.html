@@ -1318,6 +1318,24 @@
   .exp-field{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:14px;padding:16px;
     background:linear-gradient(180deg,#87ceeb 0%,#b8dfc8 42%,#6a9a4a 58%,#4a7a32 100%);min-height:320px}
   .exp-field.goldmine{background:linear-gradient(180deg,#1a1208 0%,#3a2810 35%,#5a4020 55%,#2a1a08 100%);border-color:rgba(255,211,78,.35)}
+  .exp-field.forest{background:linear-gradient(180deg,#87ceeb 0%,#b8dfc8 42%,#6a9a4a 58%,#4a7a32 100%)}
+  .exp-field.canyon{background:linear-gradient(180deg,#f0c890 0%,#d4a060 40%,#a07040 58%,#6a4828 100%);border-color:rgba(180,120,60,.4)}
+  .exp-field.canyon .exp-ground{background:linear-gradient(180deg,#b89060,#7a5830)}
+  .exp-field.cave{background:linear-gradient(180deg,#1a1428 0%,#3a2860 42%,#2a1848 58%,#100818 100%);border-color:rgba(160,120,255,.35)}
+  .exp-field.cave .exp-ground{background:linear-gradient(180deg,#3a3058,#1a1028);border-top-color:rgba(160,120,255,.2)}
+  .exp-field.river{background:linear-gradient(180deg,#6ec8e8 0%,#98d8f0 30%,#5ab0a0 52%,#3a8870 100%);border-color:rgba(80,180,200,.35)}
+  .exp-field.river .exp-ground{background:linear-gradient(180deg,#c8b898,#8a9880);border-top-color:rgba(120,200,220,.3)}
+  .exp-areas{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:12px}
+  .exp-area-btn{font-family:var(--mono);font-size:10px;letter-spacing:.06em;padding:8px 14px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--text-dim);cursor:pointer;transition:all .15s;line-height:1.3}
+  .exp-area-btn:hover{border-color:rgba(201,169,79,.45);color:var(--text)}
+  .exp-area-btn.on{border-color:var(--gold);background:rgba(201,169,79,.18);color:var(--gold);box-shadow:0 0 12px rgba(201,169,79,.15)}
+  .exp-area-btn.complete{border-color:rgba(18,138,86,.45);color:#8fd4a8}
+  .exp-area-btn.complete.on{border-color:var(--gold);color:var(--gold)}
+  .exp-area-btn span{display:block;font-size:9px;opacity:.85;margin-top:2px}
+  .exp-area-progress{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:8px}
+  .exp-ap-item{font-family:var(--mono);font-size:10px;padding:4px 10px;border-radius:6px;background:rgba(0,0,0,.2);color:var(--text-dim);border:1px solid rgba(255,255,255,.08)}
+  .exp-ap-item.done{color:#8fd4a8;border-color:rgba(18,138,86,.35)}
+  .exp-ap-item.here{color:var(--gold);border-color:rgba(201,169,79,.4)}
   .exp-billboard{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:300px;padding:24px 16px;position:relative}
   .exp-board{background:linear-gradient(180deg,#c4a574,#8b6914);border:4px solid #5a4010;border-radius:8px;padding:28px 32px;max-width:520px;
     box-shadow:0 8px 0 #3a2808,0 16px 40px rgba(0,0,0,.45);text-align:center;position:relative}
@@ -1339,6 +1357,11 @@
   @keyframes gemFoundPop{0%{transform:translateX(-50%) scale(.2);opacity:0}70%{transform:translateX(-50%) scale(1.15)}100%{transform:translateX(-50%) scale(1);opacity:1}}
   .exp-check{position:absolute;top:-6px;right:-10px;background:#128a56;color:#fff;border-radius:50%;width:22px;height:22px;font-size:13px;display:flex;align-items:center;justify-content:center;font-weight:800;box-shadow:0 2px 6px rgba(0,0,0,.35);z-index:4}
   .exp-hide-spot{position:absolute;transform:translateX(-50%);z-index:2;font-size:32px;line-height:1;bottom:36%;filter:drop-shadow(0 3px 4px rgba(0,0,0,.25))}
+  .exp-hide-spot.partial{animation:hideWiggle .5s ease infinite}
+  .exp-hide-spot.almost{filter:drop-shadow(0 0 8px rgba(255,211,78,.6))}
+  .exp-search-prog{position:absolute;bottom:-14px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:9px;color:#fff;background:rgba(0,0,0,.55);padding:2px 6px;border-radius:4px;white-space:nowrap}
+  .exp-vein-bar{position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);width:48px;height:5px;background:rgba(0,0,0,.4);border-radius:3px;overflow:hidden}
+  .exp-vein-bar span{display:block;height:100%;background:linear-gradient(90deg,#ffd34e,#ffb020);transition:width .15s}
   .exp-hide-spot.searching{animation:hideWiggle .35s ease}
   @keyframes hideWiggle{0%,100%{transform:translateX(-50%) rotate(0)}25%{transform:translateX(-50%) rotate(-8deg)}75%{transform:translateX(-50%) rotate(8deg)}}
   .exp-char.searching svg{animation:expSearch .5s ease}
@@ -1775,7 +1798,7 @@
  <button type="button" class="voice-preview" id="teacher-voice-preview">Preview</button>
  <button type="button" class="voice-creepy lithos-voice-creepy" id="teacher-voice-creepy" title="Silly spooky voice — slow and deep, but kid-friendly">Spooky</button>
  </div>
- <p class="voice-hint">Same voice setting as the class Rock Teacher. Mic fills the box when your browser supports it.</p>
+ <p class="voice-hint">Same voice setting as the class Rock Teacher. Voices marked ★ are clearest. Answers are read one sentence at a time.</p>
  </div>
  <div class="chat-row">
  <input id="chat-input" type="text" placeholder="Type your question here…" autocomplete="off">
@@ -2534,6 +2557,31 @@ function stopLithosSpeech(){
  lithosSpeechChain=null;
  try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){}
 }
+const CLEAR_VOICE_RANK=[/microsoft aria/i,/microsoft jenny/i,/microsoft zira/i,/samantha/i,/google us english/i,/karen/i,/google uk english female/i,/daniel/i,/moira/i];
+function spellSmallNumber(n){
+ const words=['zero','one','two','three','four','five','six','seven','eight','nine','ten'];
+ const i=parseInt(n,10);
+ return i>=0&&i<=10?words[i]:String(n);
+}
+function textForSpeech(text){
+ let t=String(text||'');
+ t=t.replace(/<[^>]+>/g,' ');
+ t=t.replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu,'');
+ t=t.replace(/\*\*([^*]+)\*\*/g,'$1').replace(/\*([^*]+)\*/g,'$1');
+ t=t.replace(/\(API unavailable[^)]*\)/gi,'');
+ t=t.replace(/\be\.g\./gi,'for example');
+ t=t.replace(/\bi\.e\./gi,'that is');
+ t=t.replace(/\bSG\b/g,'specific gravity');
+ t=t.replace(/\bRI\b/g,'refractive index');
+ t=t.replace(/\bMohs\s+(\d+)/gi,(_,n)=>'Mohs '+spellSmallNumber(n));
+ t=t.replace(/[₀₁₂₃₄₅₆₇₈₉]/g,d=>'0123456789'['₀₁₂₃₄₅₆₇₈₉'.indexOf(d)]);
+ t=t.replace(/Be₃Al₂Si₆O₁₈/gi,'beryl');
+ t=t.replace(/Al₂O₃/gi,'corundum');
+ t=t.replace(/SiO₂/gi,'silica');
+ t=t.replace(/[^\w\s.,!?;:'\-—]/g,' ');
+ t=t.replace(/\s+/g,' ').trim();
+ return t;
+}
 function splitIntoSentences(text){
  const t=String(text).replace(/\s+/g,' ').trim();
  if(!t) return [];
@@ -2542,10 +2590,22 @@ function splitIntoSentences(text){
  return sentences.map(s=>s.trim()).filter(Boolean);
 }
 function speechPartsFor(text){
- const clean=String(text).replace(/\s+/g,' ').trim();
+ const clean=textForSpeech(text);
  if(!clean) return [];
- if(clean.length<=500) return [clean];
- return splitIntoSentences(clean);
+ let parts=splitIntoSentences(clean);
+ const out=[];
+ for(const p of parts){
+ if(p.length<=130){ out.push(p); continue; }
+ const bits=p.split(/(?<=[,;])\s+/);
+ let chunk='';
+ for(const b of bits){
+ const next=chunk?(chunk+' '+b):b;
+ if(next.length>130&&chunk){ out.push(chunk.trim()); chunk=b; }
+ else chunk=next;
+ }
+ if(chunk) out.push(chunk.trim());
+ }
+ return out.filter(Boolean);
 }
 function speakOneLithosChunk(line){
  return new Promise(resolve=>{
@@ -2571,7 +2631,7 @@ async function runLithosSpeech(text, creepy){
  if(lithosSpeechChain!==chainId||!lithosVoiceOn) return;
  await speakOneLithosChunk(parts[i]);
  if(i<parts.length-1&&lithosSpeechChain===chainId){
- await new Promise(r=>setTimeout(r, creepy?650:100));
+ await new Promise(r=>setTimeout(r, creepy?480:320));
  }
  }
 }
@@ -2597,7 +2657,7 @@ async function previewLithosCreepy(){
  for(const line of getCreepyPreviewLines()){
  if(lithosSpeechChain!==chainId) return;
  await speakOneLithosChunk(line);
- await new Promise(r=>setTimeout(r, 650));
+ await new Promise(r=>setTimeout(r, 480));
  }
 }
 function getEnglishVoices(){
@@ -2622,8 +2682,8 @@ function pickCreepyVoice(){
  || null;
 }
 function getLithosSpeechStyle(){
- if(isCreepyVoiceMode()) return {rate:0.38, pitch:0.05, volume:0.92};
- return {rate:0.94, pitch:0.98, volume:1};
+ if(isCreepyVoiceMode()) return {rate:0.72, pitch:0.82, volume:0.95};
+ return {rate:0.84, pitch:1, volume:1};
 }
 function applyLithosUtterance(u){
  const style=getLithosSpeechStyle();
@@ -2631,7 +2691,14 @@ function applyLithosUtterance(u){
  u.pitch=style.pitch;
  u.volume=style.volume;
  if(lithosTtsVoice) u.voice=lithosTtsVoice;
- u.lang=(lithosTtsVoice&&lithosTtsVoice.lang)||(isCreepyVoiceMode()?'en-US':'en-GB');
+ u.lang=(lithosTtsVoice&&lithosTtsVoice.lang)||'en-US';
+}
+function pickClearVoice(pool){
+ for(const re of CLEAR_VOICE_RANK){
+ const v=pool.find(x=>re.test(x.name||''));
+ if(v) return v;
+ }
+ return pool.find(v=>/en-US/i.test(v.lang||''))||pool[0]||null;
 }
 function pickLithosVoice(){
  if(!window.speechSynthesis) return null;
@@ -2644,11 +2711,10 @@ function pickLithosVoice(){
  if(match) return match;
  }
  const pool=getEnglishVoices();
- const prefer=pool.find(v=>/daniel|karen|moira|samantha|microsoft aria|microsoft jenny|google uk english female|google us english/i.test(v.name||''))
- || pool.find(v=>/en-GB/i.test(v.lang||''))
- || pool.find(v=>/en-US/i.test(v.lang||''))
- || pool[0];
- return prefer||null;
+ return pickClearVoice(pool)||pool.find(v=>/en-US/i.test(v.lang||''))||pool[0]||null;
+}
+function isClearVoice(v){
+ return CLEAR_VOICE_RANK.some(re=>re.test(v.name||''));
 }
 function refreshLithosVoice(){
  lithosTtsVoice=pickLithosVoice();
@@ -2671,10 +2737,15 @@ function populateVoiceSelects(){
  creepyOpt.value=CREEPY_VOICE_ID;
  creepyOpt.textContent='Spooky mode (kid-friendly chills)';
  sel.appendChild(creepyOpt);
- voices.forEach(v=>{
+ const sorted=voices.slice().sort((a,b)=>{
+ const ac=isClearVoice(a)?0:1, bc=isClearVoice(b)?0:1;
+ if(ac!==bc) return ac-bc;
+ return (a.name||'').localeCompare(b.name||'');
+ });
+ sorted.forEach(v=>{
  const opt=document.createElement('option');
  opt.value=v.voiceURI;
- opt.textContent=v.name+(v.lang?' ('+v.lang+')':'');
+ opt.textContent=(isClearVoice(v)?'★ ':'')+v.name+(v.lang?' ('+v.lang+')':'');
  sel.appendChild(opt);
  });
  const pick=saved|| (lithosTtsVoice&&lithosTtsVoice.voiceURI) || sel.options[0].value;
@@ -2711,13 +2782,13 @@ function previewLithosVoice(){
  stopLithosSpeech();
  refreshLithosVoice();
  if(isCreepyVoiceMode()){ previewLithosCreepy(); return; }
- const msg='Hello! I am your Rock Teacher. Ask me about gems, Mohs hardness, or crystal systems.';
+ const msg='Hello! I am your Rock Teacher. I speak slowly and clearly. Ask me about gems, hardness, or how crystals form.';
  runLithosSpeech(msg, false);
 }
 function speakLithosReply(text){
  if(!lithosVoiceOn||!text||!window.speechSynthesis) return;
  stopLithosSpeech();
- const clean=String(text).replace(/\s+/g,' ').trim();
+ const clean=textForSpeech(text);
  if(!clean) return;
  runLithosSpeech(clean, isCreepyVoiceMode());
 }
@@ -2736,8 +2807,8 @@ function syncVoiceToggleUI(){
  const ttsOk=!!window.speechSynthesis;
  const sttOk=!!(window.SpeechRecognition||window.webkitSpeechRecognition);
  if(!ttsOk) hint.textContent='Voice readout isn’t available in this browser.';
- else if(!sttOk) hint.textContent='Voice on speaks answers. Mic dictation needs Chrome or Edge (limited in Safari/Firefox).';
- else hint.textContent='Turn voice on to hear answers. Mic listens, fills the box, then sends.';
+ else if(!sttOk) hint.textContent='Voice reads answers slowly, one sentence at a time. Pick a ★ clear voice. Mic needs Chrome or Edge.';
+ else hint.textContent='Voice reads answers slowly and clearly. Pick a ★ voice for easiest listening. Mic fills the box, then sends.';
  }
 }
 function setLithosVoiceOn(on){
@@ -3335,7 +3406,7 @@ async function classAiGeminiAnswer(q, cfg, system, context, history){
  }
  contents.push({role:'user', parts:[{text:q}]});
  const body={
- systemInstruction:{parts:[{text:system+'\n\nCatalog context:\n'+context+'\n\nAlways write complete sentences. Finish every thought — do not stop mid-sentence.'}]},
+ systemInstruction:{parts:[{text:system+'\n\nCatalog context:\n'+context+'\n\nAlways write complete sentences in plain spoken English (no formulas or emoji). Finish every thought — do not stop mid-sentence.'}]},
  contents,
  generationConfig:{temperature:0.6, maxOutputTokens:1024}
  };
@@ -3380,7 +3451,7 @@ async function classAiOpenAIAnswer(q, cfg, system, context, history){
  const body={
  model:cfg.model,
  messages:[
- {role:'system',content:system+' Always write complete sentences. Finish every thought.'},
+ {role:'system',content:system+' Always write complete sentences in plain spoken English (no formulas or emoji). Finish every thought.'},
  {role:'system',content:'Catalog context:\n'+context},
  ...hist.slice(-6),
  {role:'user',content:q}
@@ -3408,7 +3479,7 @@ async function classAiOpenAIAnswer(q, cfg, system, context, history){
 async function classAiApiAnswer(q, history){
  const cfg=getAiConfig();
  if(!cfg.key) return null;
- const system=`You are the Lithos AI Rock Teacher for kids and budding geologists. Tone: warm, clear, curious — never condescending. Use catalog facts when provided. Prefer short paragraphs but always finish your sentences. Stay on geology, gems, minerals, Mohs, crystal systems, and class topics. If unsure, say so and suggest looking in the Lithos catalog.`;
+ const system=`You are the Lithos AI Rock Teacher for kids and budding geologists. Tone: warm, clear, curious — never condescending. Use catalog facts when provided. Write in short, plain sentences that are easy to understand when read aloud — avoid chemical formulas, abbreviations, and emoji. Say "Mohs seven" not "Mohs 7". Stay on geology, gems, minerals, hardness, crystal systems, and class topics. If unsure, say so and suggest looking in the Lithos catalog.`;
  const context=catalogContextForAI(q);
  if(cfg.resolved==='gemini') return classAiGeminiAnswer(q, cfg, system, context, history);
  return classAiOpenAIAnswer(q, cfg, system, context, history);
@@ -5221,7 +5292,7 @@ function buildBattlefield(){
  wrap.innerHTML=`
  <div class="eyebrow">Gem Mine Expedition</div>
  <h1>The <em>Gem Mine</em></h1>
- <p class="bf-intro">Go on a <b>scavenger gem hunt</b> — follow the treasure map, check off 12 gems on the trail, then dig for 10 gold nuggets in the mine! Or charge straight into battle against corrupted gem monsters.</p>
+ <p class="bf-intro">Go on a <b>scavenger gem hunt</b> across <b>4 areas</b> (Forest, Canyon, Cave, Riverside) — 3 gems in each zone! Then dig 10 gold nuggets in the mine. Or charge into battle against corrupted gem monsters.</p>
  <div class="bf-power">
  <div class="bp-label">Your Battle Power</div>
  <div class="bp-num">${fmtHP(power)}</div>
@@ -5236,8 +5307,38 @@ function buildBattlefield(){
  document.getElementById('bf-expedition').onclick=startExpedition;
 }
 /* ---------- Gem Hunt Expedition: billboard → 12 gems → gold mine → leave ---------- */
-const EXPEDITION_GEM_COUNT=12;
+const HUNT_AREAS=[
+ {id:'forest',name:'Forest Trail',emoji:'🌲',need:3,sign:'Mossy paths — gems hide in bushes & trees',
+  hides:['🌿','🌳','🍂'],
+  gems:[
+   {x:18,color:'#7d43b3',name:'Amethyst',y:38},{x:52,color:'#7a9a30',name:'Peridot',y:40},{x:82,color:'#9c2229',name:'Garnet',y:39}
+  ]},
+ {id:'canyon',name:'Rocky Canyon',emoji:'🏜️',need:3,sign:'Dry canyon — search boulders & cliff cracks',
+  hides:['🪨','⛰️','🪵'],
+  gems:[
+   {x:22,color:'#1b3f96',name:'Sapphire',y:41},{x:55,color:'#ffd34e',name:'Citrine',y:38},{x:85,color:'#b85a40',name:'Agate',y:40}
+  ]},
+ {id:'cave',name:'Crystal Cave',emoji:'🕳️',need:3,sign:'Dark cave — crystals hide in the walls',
+  hides:['💎','🪨','✨'],
+  gems:[
+   {x:20,color:'#a8122a',name:'Ruby',y:39},{x:50,color:'#dbe4ec',name:'Diamond',y:41},{x:80,color:'#c9a0ff',name:'Fluorite',y:38}
+  ]},
+ {id:'river',name:'Riverside',emoji:'🌊',need:3,sign:'Shoreline — search reeds & wet stones',
+  hides:['🌾','🪨','🐚'],
+  gems:[
+   {x:25,color:'#3a9a9a',name:'Turquoise',y:40},{x:58,color:'#b8e0e8',name:'Moonstone',y:38},{x:88,color:'#4a6a8a',name:'Labradorite',y:41}
+  ]}
+];
+const EXPEDITION_GEM_COUNT=HUNT_AREAS.reduce((s,a)=>s+a.need,0);
 const EXPEDITION_GOLD_COUNT=10;
+const EXP_MOVE_STEP=2;
+const EXP_MOVE_COOLDOWN=320;
+const EXP_SEARCH_RADIUS=7;
+const EXP_SEARCH_HITS=3;
+const EXP_SEARCH_COOLDOWN=520;
+const EXP_MINE_RADIUS=7;
+const EXP_MINE_HITS=4;
+const EXP_MINE_COOLDOWN=480;
 const EXPEDITION_FACTS=[
  {fact:"<em>Diamond</em> is the only gem made of pure carbon — and it's a perfect 10 on the Mohs hardness scale!",emoji:"💎"},
  {fact:"Ruby and sapphire are the <em>same mineral</em> — corundum! Chromium makes ruby red; iron and titanium make sapphire blue.",emoji:"🔴"},
@@ -5246,29 +5347,47 @@ const EXPEDITION_FACTS=[
  {fact:"Opal flashes rainbow colors because tiny silica spheres inside split light — it's nicknamed the <em>Queen of Gems</em>!",emoji:"🌈"},
  {fact:"Most diamonds form about <em>150 km deep</em> underground, then ride up to the surface in volcanic pipes!",emoji:"🌋"},
 ];
-const HUNT_GEM_SPOTS=[
- {x:7,color:"#7d43b3",name:"Amethyst",bush:true,y:38},{x:16,color:"#9c2229",name:"Garnet",y:40},{x:24,color:"#1b3f96",name:"Sapphire",bush:true,y:39},
- {x:33,color:"#ffd34e",name:"Citrine",y:41},{x:41,color:"#a8122a",name:"Ruby",y:38},{x:50,color:"#dbe4ec",name:"Diamond",bush:true,y:40},
- {x:58,color:"#3a9a9a",name:"Turquoise",y:39},{x:66,color:"#7a9a30",name:"Peridot",y:41},{x:74,color:"#b8e0e8",name:"Moonstone",bush:true,y:38},
- {x:82,color:"#4a6a8a",name:"Labradorite",y:40},{x:90,color:"#b85a40",name:"Agate",y:39},{x:96,color:"#c9a0ff",name:"Fluorite",bush:true,y:41}
-];
 const HUNT_HIDE_ICONS=['🌿','🪨','🌳','🍂','🪵','🌾'];
 const GOLD_VEIN_SPOTS=[8,18,28,38,48,58,68,78,88,94];
+function expBuildGems(){
+ const all=[];
+ HUNT_AREAS.forEach(area=>{
+ area.gems.forEach((g,gi)=>{
+ const jitter=(Math.random()*10-5);
+ all.push({...g,areaId:area.id,x:Math.max(8,Math.min(92,g.x+jitter)),found:false,searches:0,searchesNeeded:EXP_SEARCH_HITS,hide:area.hides[gi%area.hides.length]});
+ });
+ });
+ return all;
+}
+function expCurrentArea(){ return HUNT_AREAS[exp.areaIdx]||HUNT_AREAS[0]; }
+function expAreaGems(areaId){ return exp.gems.filter(g=>g.areaId===(areaId||expCurrentArea().id)); }
+function expAreaFound(areaId){ return exp.gems.filter(g=>g.areaId===areaId&&g.found).length; }
+function expTravel(idx){
+ if(!exp||exp.phase!=='hunt'||idx===exp.areaIdx||idx<0||idx>=HUNT_AREAS.length)return;
+ exp.areaIdx=idx; exp.heroX=10;
+ const a=HUNT_AREAS[idx];
+ const left=a.need-expAreaFound(a.id);
+ exp.log=` 📍 ${a.emoji} ${a.name} — find ${left} more gem${left===1?'':'s'} here (${expAreaFound(a.id)}/${a.need})! `;
+ renderExpedition();
+}
 let exp=null;
 let expLoop=null;
+let expMoveLock=false;
+let expActionLock=false;
 function stopExpLoop(){ if(expLoop){clearInterval(expLoop);expLoop=null;} }
 function startExpLoop(){ stopExpLoop(); expLoop=setInterval(expTick,80); }
 function startExpedition(){
  stopBFLoop(); bf=null;
+ expMoveLock=false; expActionLock=false;
  const fact=EXPEDITION_FACTS[Math.floor(Math.random()*EXPEDITION_FACTS.length)];
  exp={
- phase:"hunt", fact:fact,
- heroX:8, heroY:0, jumping:false,
- gems:HUNT_GEM_SPOTS.map((g,i)=>({...g,found:false,hide:HUNT_HIDE_ICONS[i%HUNT_HIDE_ICONS.length]})),
+ phase:"hunt", fact:fact, areaIdx:0,
+ heroX:10, heroY:0, jumping:false,
+ gems:expBuildGems(),
  gemsFound:0, gold:0,
- veins:GOLD_VEIN_SPOTS.map(x=>({x,mined:false})),
+ veins:GOLD_VEIN_SPOTS.map(x=>({x,mined:false,hits:0,hitsNeeded:EXP_MINE_HITS})),
  swing:false, swingT:0, searchT:0, goldPops:[],
- log:" 🗺️ Use your treasure map! Walk the trail and tap Look! to search bushes & rocks for each gem.",
+ log:" 🗺️ Explore 4 areas! Tap a zone above to travel. Each area has 3 gems — search bushes, rocks & caves!",
  over:false
  };
  renderExpedition();
@@ -5284,30 +5403,39 @@ function expTick(){
 }
 function expNearestGem(){
  if(!exp||!exp.gems) return null;
- const left=exp.gems.filter(g=>!g.found);
+ const left=expAreaGems().filter(g=>!g.found);
  if(!left.length) return null;
  return left.reduce((a,b)=>Math.abs(a.x-exp.heroX)<Math.abs(b.x-exp.heroX)?a:b);
 }
 function expLookHint(){
+ const area=expCurrentArea();
+ const local=expAreaGems();
+ const localLeft=local.filter(g=>!g.found);
+ if(!localLeft.length){
+ const next=HUNT_AREAS.find(a=>expAreaFound(a.id)<a.need);
+ return next?` ✅ ${area.name} complete! Travel to ${next.emoji} ${next.name} for more gems. `:` You found every gem! `;
+ }
  const near=expNearestGem();
- if(!near) return " You found every gem on the map! ";
  const d=Math.abs(near.x-exp.heroX);
- if(d<=14) return " Something might be hidden right here — tap Look! 🔍";
- if(d<=28) return " Nothing here... but you're getting warmer! ";
- if(d<=45) return " Not here — try searching farther along the trail. ";
- return " Nothing here — explore more of the trail and check your map! ";
+ if(d<=EXP_SEARCH_RADIUS) return " You're right on top of something — keep tapping Look! 🔍";
+ if(d<=18) return " Getting close... move a tiny bit and search again. ";
+ if(d<=32) return ` Warm... a gem is hidden somewhere in ${area.name}. `;
+ if(d<=50) return ` Not here — explore more of ${area.name}. `;
+ return ` Nothing here — walk around ${area.name} and check hiding spots! `;
 }
 function expCompleteHunt(){
  if(exp.gemsFound>=EXPEDITION_GEM_COUNT){
- exp.phase="goldmine"; exp.heroX=12;
- exp.log=" 🎉 Treasure map complete! Bonus round — head into the gold mine for 10 nuggets! ";
+ exp.phase="goldmine"; exp.heroX=12; expMoveLock=false; expActionLock=false;
+ exp.log=" 🎉 Treasure map complete! Bonus round — each gold vein needs several pickaxe swings! ";
  stopExpLoop(); startExpLoop();
  }
 }
 function expMove(dir){
- if(!exp||exp.over||exp.phase==="billboard"||exp.phase==="done")return;
- exp.heroX=Math.max(3,Math.min(97,exp.heroX+dir*5));
+ if(expMoveLock||!exp||exp.over||exp.phase==="billboard"||exp.phase==="done")return;
+ expMoveLock=true;
+ exp.heroX=Math.max(3,Math.min(97,exp.heroX+dir*EXP_MOVE_STEP));
  renderExpedition();
+ setTimeout(()=>{ expMoveLock=false; if(exp) renderExpedition(); }, EXP_MOVE_COOLDOWN);
 }
 function expJump(){
  if(!exp||exp.over||exp.phase==="billboard"||exp.phase==="done")return;
@@ -5321,43 +5449,60 @@ function expJump(){
  }
 }
 function expMine(){
- if(!exp||exp.over||exp.phase!=="goldmine"||exp.gold>=EXPEDITION_GOLD_COUNT)return;
- exp.swing=true; exp.swingT=6;
+ if(expActionLock||!exp||exp.over||exp.phase!=="goldmine"||exp.gold>=EXPEDITION_GOLD_COUNT)return;
+ expActionLock=true;
+ exp.swing=true; exp.swingT=10;
  let hit=false;
  exp.veins.forEach(v=>{
- if(!v.mined && Math.abs(exp.heroX-v.x)<14){
+ if(!v.mined && Math.abs(exp.heroX-v.x)<EXP_MINE_RADIUS){
  hit=true;
+ v.hits++;
+ v.hitT=10;
+ if(v.hits>=v.hitsNeeded){
  v.mined=true;
  exp.gold++;
- v.hitT=8;
  exp.goldPops=exp.goldPops||[];
- exp.goldPops.push({x:v.x,life:12});
- exp.log=` *CLINK!* Mined a gold nugget! (${exp.gold}/${EXPEDITION_GOLD_COUNT})`;
+ exp.goldPops.push({x:v.x,life:14});
+ exp.log=` *CLINK!* Gold nugget! (${exp.gold}/${EXPEDITION_GOLD_COUNT})`;
  if(exp.gold>=EXPEDITION_GOLD_COUNT){
  exp.phase="done";
  exp.log=" 💰 Bagged 10 gold nuggets — scavenger hunt complete! ";
  exp.over=true;
  stopExpLoop();
  }
+ } else {
+ exp.log=` *CLANG!* Crack the rock! (${v.hits}/${v.hitsNeeded} swings)`;
+ }
  }
  });
- if(!hit) exp.log=exp.gold>=EXPEDITION_GOLD_COUNT-1?" Find the last gold vein! ":" Swing your pickaxe next to an unmined gold vein! ";
+ if(!hit) exp.log=exp.gold>=EXPEDITION_GOLD_COUNT-1?" Stand right on the last vein and keep digging! ":" Move closer to a gold vein — you need to be almost touching it! ";
  renderExpedition();
+ setTimeout(()=>{ expActionLock=false; if(exp) renderExpedition(); }, EXP_MINE_COOLDOWN);
 }
 function expCollect(){
- if(!exp||exp.over)return;
+ if(expActionLock||!exp||exp.over)return;
  if(exp.phase==="hunt"){
- exp.searching=true; exp.searchT=10;
- let got=false;
- exp.gems.forEach(g=>{
- if(!g.found && Math.abs(exp.heroX-g.x)<14){
+ expActionLock=true;
+ exp.searching=true; exp.searchT=18;
+ let got=false, partial=false;
+ expAreaGems().forEach(g=>{
+ if(!g.found && Math.abs(exp.heroX-g.x)<EXP_SEARCH_RADIUS){
+ partial=true;
+ g.searches++;
+ if(g.searches>=g.searchesNeeded){
  g.found=true; exp.gemsFound++; got=true;
- exp.log=` 🔍 Found ${g.name} hiding in the ${g.hide==='🪨'?'rocks':g.hide==='🌳'?'trees':'bushes'}! (${exp.gemsFound}/${EXPEDITION_GEM_COUNT})`;
+ const area=HUNT_AREAS.find(a=>a.id===g.areaId);
+ const areaDone=area&&expAreaFound(area.id)>=area.need;
+ exp.log=` 🔍 Found ${g.name} in ${area?area.name:'the wild'}! (${expAreaFound(g.areaId)}/${area?area.need:'?'})${areaDone?' — area complete! ✅':''} Total: ${exp.gemsFound}/${EXPEDITION_GEM_COUNT}`;
+ } else {
+ exp.log=` Digging... (${g.searches}/${g.searchesNeeded})`;
+ }
  }
  });
- if(!got) exp.log=expLookHint();
+ if(!got&&!partial) exp.log=expLookHint();
  expCompleteHunt();
  renderExpedition();
+ setTimeout(()=>{ expActionLock=false; if(exp) renderExpedition(); }, EXP_SEARCH_COOLDOWN);
  } else if(exp.phase==="goldmine") expMine();
 }
 function leaveExpedition(){ stopExpLoop(); exp=null; document.body.classList.remove('in-game'); buildBattlefield(); }
@@ -5374,7 +5519,7 @@ function renderExpedition(){
  <div class="exp-wrap"><div class="exp-done">
  <div style="font-size:48px;margin-bottom:12px">🏆</div>
  <h3>You did it!</h3>
- <p class="exp-log">You checked off all <b>12 gems</b> on your treasure map and dug up <b>10 gold nuggets</b>!<br>Amazing scavenger hunt!</p>
+ <p class="exp-log">You explored all <b>4 areas</b>, found <b>12 gems</b>, and dug up <b>10 gold nuggets</b>!<br>Amazing scavenger hunt!</p>
  <div class="bf-btns" style="margin-top:20px">
  <button class="game-btn" id="exp-leave"> Leave expedition</button>
  <button class="game-btn ghost" id="exp-to-battle"> Continue to Gem Mine battle</button>
@@ -5385,44 +5530,65 @@ function renderExpedition(){
  return;
  }
  const isGold=exp.phase==="goldmine";
- const hideSpotsHTML=(!isGold)?exp.gems.filter(g=>!g.found).map(g=>{
- const searching=exp.searching&&Math.abs(exp.heroX-g.x)<14;
- return `<div class="exp-hide-spot ${searching?'searching':''}" style="left:${g.x}%;bottom:${(g.y||38)-2}%">${g.hide}</div>`;
+ const area=expCurrentArea();
+ const areaGems=expAreaGems();
+ const hideSpotsHTML=(!isGold)?areaGems.filter(g=>!g.found).map(g=>{
+ const searching=exp.searching&&Math.abs(exp.heroX-g.x)<EXP_SEARCH_RADIUS;
+ const prog=g.searches/g.searchesNeeded;
+ const cls='exp-hide-spot'+(searching?' searching':'')+(prog>=0.66?' almost':prog>0?' partial':'');
+ return `<div class="${cls}" style="left:${g.x}%;bottom:${(g.y||38)-2}%">${g.hide}${g.searches>0?`<span class="exp-search-prog">${g.searches}/${g.searchesNeeded}</span>`:''}</div>`;
  }).join(''):'';
- const gemsHTML=(!isGold)?exp.gems.filter(g=>g.found).map(g=>{
+ const gemsHTML=(!isGold)?areaGems.filter(g=>g.found).map(g=>{
  return `<div class="exp-gem-spot spotted" style="left:${g.x}%;bottom:${g.y||38}%">${huntGemSVG(34,g.color)}<span class="exp-check">✓</span></div>`;
  }).join(''):'';
- const veinsHTML=isGold?exp.veins.map(v=>`<div class="exp-vein ${v.mined?'mined':''} ${v.hitT>0?'hit':''}" style="left:${v.x}%;bottom:36%">${goldVeinSVG(72,v.hitT>0||v.mined)}</div>`).join(''):'';
+ const veinsHTML=isGold?exp.veins.map(v=>{
+ const pct=v.mined?100:Math.round(v.hits/v.hitsNeeded*100);
+ return `<div class="exp-vein ${v.mined?'mined':''} ${v.hitT>0?'hit':''}" style="left:${v.x}%;bottom:36%">${goldVeinSVG(72,v.hitT>0||v.mined)}${!v.mined?`<div class="exp-vein-bar"><span style="width:${pct}%"></span></div>`:''}</div>`;
+ }).join(''):'';
  const popsHTML=isGold?(exp.goldPops||[]).map(p=>`<div class="exp-gold-pop" style="left:${p.x}%;bottom:50%">${goldNuggetSVG(22)} +1!</div>`).join(''):'';
  const pickaxe=isGold?`<span class="exp-pickaxe">${pickaxeSVG(44)}</span>`:'';
  const heroHTML=`<div class="exp-char ${exp.swing?'swinging':''} ${exp.searching?'searching':''}" style="left:${exp.heroX}%;bottom:${34+exp.heroY*0.35}%">${gemWarriorSVG(hero.color,64,hero.titan,hero.plasma,hero.style)}${pickaxe}</div>`;
  const counter=isGold
  ?`Gold bag: ${exp.gold} / ${EXPEDITION_GOLD_COUNT} ${goldNuggetSVG(18)}`
- :`Treasure map: ${exp.gemsFound} / ${EXPEDITION_GEM_COUNT} gems found 🗺️`;
+ :`${area.emoji} ${area.name}: ${expAreaFound(area.id)} / ${area.need} &nbsp;•&nbsp; Total: ${exp.gemsFound} / ${EXPEDITION_GEM_COUNT} 🗺️`;
  const actionLabel=isGold?"Dig! ⛏":"Look! 🔍";
  const factBanner=(!isGold&&exp.fact)?`<div class="exp-fact-banner">${exp.fact.emoji} <b>Trail clue:</b> ${exp.fact.fact}</div>`:'';
- const checklist=(!isGold)?`<div class="exp-checklist">${exp.gems.map(g=>`<span class="exp-cl-item ${g.found?'done':''}">${g.found?'✓':'?'} ${g.name}</span>`).join('')}</div>`:'';
- const hint=(!isGold)?`<div class="exp-hint">← → explore &nbsp;•&nbsp; tap <b>Look! 🔍</b> to search bushes, rocks &amp; trees</div>`:'';
+ const areaTabs=(!isGold)?`<div class="exp-areas">${HUNT_AREAS.map((a,i)=>{
+ const found=expAreaFound(a.id);
+ const done=found>=a.need;
+ return `<button type="button" class="exp-area-btn ${i===exp.areaIdx?'on':''} ${done?'complete':''}" data-area="${i}">${a.emoji} ${a.name}<span>${found}/${a.need} gems</span></button>`;
+ }).join('')}</div>`:'';
+ const areaProgress=(!isGold)?`<div class="exp-area-progress">${HUNT_AREAS.map((a,i)=>{
+ const found=expAreaFound(a.id);
+ const done=found>=a.need;
+ const here=i===exp.areaIdx;
+ return `<span class="exp-ap-item ${done?'done':''} ${here?'here':''}">${a.emoji} ${found}/${a.need}</span>`;
+ }).join('')}</div>`:'';
+ const checklist=(!isGold)?`<div class="exp-checklist">${areaGems.map(g=>`<span class="exp-cl-item ${g.found?'done':''}">${g.found?'✓':'?'} ${g.name}</span>`).join('')}</div>`:'';
+ const hint=(!isGold)?`<div class="exp-hint">Tap areas above to travel &nbsp;•&nbsp; stand next to hiding spots &nbsp;•&nbsp; <b>Look! 🔍</b> ${EXP_SEARCH_HITS}× per gem</div>`:'';
+ const mineHint=isGold?`<div class="exp-hint">← → move carefully &nbsp;•&nbsp; stand on each vein &nbsp;•&nbsp; tap <b>Dig! ⛏</b> ${EXP_MINE_HITS} times per nugget</div>`:'';
  wrap.innerHTML=`
  <div class="eyebrow">Gem Hunt Expedition</div>
- <h1>${isGold?'The <em>Gold Mine</em>':'Scavenger <em>Gem Hunt</em>'}</h1>
+ <h1>${isGold?'The <em>Gold Mine</em>':area.emoji+' '+area.name}</h1>
  <div class="exp-wrap">
  ${factBanner}
+ ${areaTabs}
+ ${areaProgress}
  ${checklist}
  <div class="exp-counter">${counter}</div>
- <div class="exp-field ${isGold?'goldmine':''}">
- ${isGold?'<div class="exp-mine-wall"></div><div class="exp-tunnel"></div><div class="exp-mine-sign">⛏ Bonus round — dig up 10 gold nuggets!</div>':'<div class="exp-trail-sign">🔍 Search the trail — gems are hidden!</div>'}
+ <div class="exp-field ${isGold?'goldmine':area.id}">
+ ${isGold?'<div class="exp-mine-wall"></div><div class="exp-tunnel"></div><div class="exp-mine-sign">⛏ Each vein needs several swings — get close!</div>':`<div class="exp-trail-sign">${area.sign}</div>`}
  <div class="exp-play">
  <div class="exp-ground"></div>
  ${hideSpotsHTML}${gemsHTML}${veinsHTML}${popsHTML}${heroHTML}
  </div>
  <div class="exp-log">${exp.log}</div>
- ${hint}
+ ${hint}${mineHint}
  <div class="bf-controls">
- <button class="game-btn" id="exp-left">← Left</button>
+ <button class="game-btn" id="exp-left" ${expMoveLock?'disabled':''}>← Left</button>
  <button class="game-btn" id="exp-jump">Jump</button>
- <button class="game-btn" id="exp-right">Right →</button>
- <button class="game-btn" id="exp-action">${actionLabel}</button>
+ <button class="game-btn" id="exp-right" ${expMoveLock?'disabled':''}>Right →</button>
+ <button class="game-btn" id="exp-action" ${expActionLock?'disabled':''}>${actionLabel}</button>
  </div>
  <div class="bf-btns" style="margin-top:10px"><button class="game-btn ghost" id="exp-leave">Leave</button></div>
  </div></div>`;
@@ -5431,6 +5597,7 @@ function renderExpedition(){
  document.getElementById('exp-jump').onclick=expJump;
  document.getElementById('exp-action').onclick=expCollect;
  document.getElementById('exp-leave').onclick=leaveExpedition;
+ if(!isGold) wrap.querySelectorAll('.exp-area-btn').forEach(btn=>btn.onclick=()=>expTravel(+btn.dataset.area));
 }
 function startArmyBattle(){
  stopExpLoop(); exp=null;

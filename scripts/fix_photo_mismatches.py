@@ -78,7 +78,7 @@ def search_strict(name: str, limit_per: int = 12) -> list[tuple[int, str]]:
             if m.SKIP_TITLE_RE.search(t) or t.lower().endswith(m.SKIP_EXT):
                 continue
             low = t.lower()
-            if any(x in low for x in ("jewelry", "jewellery", "necklace", "bracelet", "earring", " ring", "pendant", "museum", "cup ", "carving")):
+            if any(x in low for x in ("jewelry", "jewellery", "necklace", "bracelet", "earring", " ring", "pendant", "museum", "cup ", "carving", "restaurant", "mall", "kitchen", "noodle", "ramen", "crystal jade")):
                 continue
             if not name_in_title(name, t):
                 # Allow known mineral synonyms in title for varieties
