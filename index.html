@@ -770,6 +770,55 @@
   .fb-item .fb-text{font-size:15px;line-height:1.55;color:var(--text)}
   .fb-empty{color:var(--text-faint);font-size:14px;text-align:center;padding:30px}
 
+  /* ---------- Business collaboration ---------- */
+  .collab-hero{max-width:1440px;margin:0 auto;padding:110px 40px 20px;text-align:center}
+  .collab-hero .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:var(--gold);margin-bottom:24px}
+  .collab-hero h1{font-family:var(--serif);font-weight:300;font-size:clamp(38px,6vw,80px);line-height:1;letter-spacing:-.02em}
+  .collab-hero h1 em{font-style:italic;color:var(--gold);font-weight:400}
+  .collab-hero .lede{margin:26px auto 0;max-width:620px;font-size:17px;line-height:1.6;color:var(--text-dim)}
+  .collab-grid{max-width:1100px;margin:0 auto;padding:44px 40px 20px;display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+  .collab-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:28px 26px;text-align:left;transition:border-color .18s,transform .18s}
+  .collab-card:hover{border-color:var(--gold);transform:translateY(-3px)}
+  .collab-card.active{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold)}
+  .collab-card .c-tag{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+  .collab-card h3{font-family:var(--serif);font-size:24px;margin-bottom:10px;font-weight:400}
+  .collab-card p{font-size:14px;line-height:1.55;color:var(--text-dim);margin-bottom:16px}
+  .collab-card .collab-link{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);text-decoration:none;border-bottom:1px solid transparent;transition:border-color .15s;background:none;border:0;padding:0;cursor:pointer;font:inherit}
+  .collab-card .collab-link:hover{border-bottom-color:var(--gold)}
+  .collab-partners{max-width:1100px;margin:0 auto;padding:20px 40px}
+  .collab-partners h2{font-family:var(--serif);font-weight:400;font-size:clamp(26px,4vw,36px);margin-bottom:8px;text-align:center}
+  .collab-partners .sub{text-align:center;color:var(--text-dim);font-size:15px;margin-bottom:28px;line-height:1.55}
+  .collab-partner-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+  .collab-partner{background:var(--ink-2);border:1px solid var(--line);border-radius:10px;padding:22px 24px;display:flex;flex-direction:column;gap:12px}
+  .collab-partner .p-name{font-family:var(--serif);font-size:22px}
+  .collab-partner .p-status{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+  .collab-partner p{font-size:14px;line-height:1.5;color:var(--text-dim);flex:1}
+  .collab-partner .mem-btn{text-decoration:none;display:block}
+  .collab-form-wrap{max-width:720px;margin:0 auto;padding:20px 40px 110px}
+  .collab-form-wrap h2{font-family:var(--serif);font-weight:400;font-size:clamp(26px,4vw,36px);margin-bottom:8px;text-align:center}
+  .collab-form-wrap .sub{text-align:center;color:var(--text-dim);font-size:15px;margin-bottom:28px;line-height:1.55}
+  .collab-form{background:var(--ink-2);border:1px solid var(--line);border-radius:12px;padding:28px;display:flex;flex-direction:column}
+  .collab-form .fb-label{margin-top:4px}
+  .collab-form input,.collab-form textarea,.collab-form select{background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:14px 16px;font-family:var(--sans);font-size:15px;margin-bottom:22px;resize:vertical}
+  .collab-form select{cursor:pointer}
+  .collab-form input:focus,.collab-form textarea:focus,.collab-form select:focus{outline:none;border-color:var(--gold)}
+  .collab-form-actions{display:flex;flex-wrap:wrap;gap:10px}
+  .collab-form-actions button{flex:1;min-width:140px;background:var(--gold);color:var(--ink);border:none;cursor:pointer;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;padding:16px;border-radius:8px;transition:transform .15s}
+  .collab-form-actions button:hover{transform:translateY(-2px)}
+  .collab-form-actions button.ghost{background:transparent;color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold)}
+  .collab-status{min-height:22px;margin-top:14px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);text-align:center}
+  .collab-list-head{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin:44px 0 18px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+  .collab-item{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px 20px;margin-bottom:12px}
+  .collab-item .ci-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:6px;flex-wrap:wrap}
+  .collab-item .ci-who{font-family:var(--serif);font-size:18px}
+  .collab-item .ci-type{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold)}
+  .collab-item .ci-meta{font-size:13px;color:var(--text-faint);margin-bottom:8px}
+  .collab-item .ci-text{font-size:15px;line-height:1.55;color:var(--text)}
+  .careers-perks{max-width:900px;margin:0 auto;padding:10px 40px 24px;display:flex;flex-wrap:wrap;justify-content:center;gap:10px 18px}
+  .careers-perk{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);padding:8px 14px;border:1px solid var(--line);border-radius:20px}
+  .careers-perk em{font-style:normal;color:var(--gold)}
+  .collab-card .c-open{display:inline-block;font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;background:rgba(201,169,79,.12);color:var(--gold);padding:4px 8px;border-radius:4px;margin-left:8px;vertical-align:middle}
+
   /* ---------- Crafts ---------- */
   .crafts-hero{max-width:1440px;margin:0 auto;padding:110px 40px 20px;text-align:center}
   .crafts-hero .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:#4ea8ff;margin-bottom:24px}
@@ -1793,6 +1842,10 @@
     .grid{grid-template-columns:1fr}
     .crafts-grid{grid-template-columns:1fr;padding:30px 20px 80px}
     .mem-grid{grid-template-columns:1fr;padding:30px 20px 20px}
+    .collab-grid{grid-template-columns:1fr;padding:30px 20px 20px}
+    .collab-hero{padding:90px 20px 16px}
+    .collab-partners,.collab-form-wrap{padding-left:20px;padding-right:20px}
+    .careers-perks{padding-left:20px;padding-right:20px}
     .plans{grid-template-columns:1fr;padding:30px 20px 20px}
     .class-ai{padding:20px 20px 90px}
     .warrior-grid{grid-template-columns:repeat(2,1fr)}
@@ -1842,6 +1895,8 @@
  <button data-view="classes">Classes</button>
  <button data-view="teacher">Ask the Rock Teacher</button>
  <button data-view="feedback">Feedback</button>
+ <button data-view="collaborate">Collaborate</button>
+ <button data-view="careers">Careers</button>
  <button data-view="crafts">Crafts</button>
  <button data-view="memberships">Memberships</button>
  <a class="buy-cta" href="#memberships" onclick="switchView('memberships');return false;">Join — from $67.50</a>
@@ -2169,6 +2224,211 @@
  </section>
 </div><!-- /view-feedback -->
 
+<div class="view" id="view-collaborate" hidden>
+ <section class="collab-hero">
+ <div class="eyebrow">Partnerships &amp; Growth</div>
+ <h1>Business <em>collaboration</em></h1>
+ <p class="lede">Affiliate programs, classroom licensing, gem retailers, museums, and creators — Lithos is built for real partnerships. Pick a path below or send us a proposal.</p>
+ </section>
+
+ <div class="collab-grid" id="collab-types">
+ <div class="collab-card" data-collab-type="affiliate">
+ <div class="c-tag">Earn commission</div>
+ <h3>Affiliate partner</h3>
+ <p>Promote certified loose gems through Lithos catalog CTAs. Our current retail partner is GemsNY (~5% commission via Impact).</p>
+ <a class="collab-link" data-partner="gemsny" data-partner-path="join" href="https://www.gemsny.com/affiliates" target="_blank" rel="noopener noreferrer">Apply at GemsNY ↗</a>
+ </div>
+ <div class="collab-card" data-collab-type="classroom">
+ <div class="c-tag">Schools &amp; teachers</div>
+ <h3>Classroom license</h3>
+ <p>Use Lithos lessons, quizzes, and the Rock Teacher in your geology unit. Bulk class pricing and co-branded landing pages available.</p>
+ <button type="button" class="collab-link collab-pick" data-collab-type="classroom">Start classroom inquiry →</button>
+ </div>
+ <div class="collab-card" data-collab-type="retail">
+ <div class="c-tag">Gem retailers</div>
+ <h3>Catalog integration</h3>
+ <p>Jewelers and lapidaries can link specific stones to your inventory. Featured placement in gem detail drawers and Learn articles.</p>
+ <button type="button" class="collab-link collab-pick" data-collab-type="retail">Propose a retail deal →</button>
+ </div>
+ <div class="collab-card" data-collab-type="content">
+ <div class="c-tag">Media &amp; museums</div>
+ <h3>Content &amp; outreach</h3>
+ <p>Museums, YouTube creators, and podcasters — cross-promote educational content, guest posts, and specimen photography credits.</p>
+ <button type="button" class="collab-link collab-pick" data-collab-type="content">Pitch a collaboration →</button>
+ </div>
+ </div>
+
+ <section class="collab-partners">
+ <h2>Active partners</h2>
+ <p class="sub">Live integrations on Lithos today. More partners added as agreements are signed.</p>
+ <div class="collab-partner-row">
+ <div class="collab-partner">
+ <div class="p-status">Retail · Active</div>
+ <div class="p-name">GemsNY</div>
+ <p>Certified loose rubies, sapphires, emeralds, and gemstones linked from catalog cards, Learn, and gem detail drawers.</p>
+ <a class="mem-btn" data-partner="gemsny" data-partner-path="home" href="https://www.gemsny.com/" target="_blank" rel="sponsored noopener noreferrer">Visit GemsNY ↗</a>
+ </div>
+ <div class="collab-partner">
+ <div class="p-status">Affiliate program · Open</div>
+ <div class="p-name">Join the network</div>
+ <p>Apply through GemsNY’s affiliate portal. Once approved, paste your Impact tracking link into Lithos config for tracked commissions.</p>
+ <a class="mem-btn alt" data-partner="gemsny" data-partner-path="join" href="https://www.gemsny.com/affiliates" target="_blank" rel="noopener noreferrer">Affiliate signup ↗</a>
+ </div>
+ </div>
+ </section>
+
+ <section class="collab-form-wrap">
+ <h2>Send a proposal</h2>
+ <p class="sub">Fill out the form — we save it locally and open a GitHub issue so the Lithos team can follow up.</p>
+ <form class="collab-form" id="collab-form" novalidate>
+ <label class="fb-label" for="collab-type">Partnership type</label>
+ <select id="collab-type" required>
+ <option value="">Select a partnership type…</option>
+ <option value="affiliate">Affiliate partner</option>
+ <option value="classroom">Classroom license</option>
+ <option value="retail">Catalog / retail integration</option>
+ <option value="content">Content, media, or museum</option>
+ <option value="other">Other</option>
+ </select>
+
+ <label class="fb-label" for="collab-name">Your name</label>
+ <input id="collab-name" type="text" placeholder="Alex Rivera" autocomplete="name" required>
+
+ <label class="fb-label" for="collab-org">Organization (optional)</label>
+ <input id="collab-org" type="text" placeholder="Sunrise Elementary / Gem Co." autocomplete="organization">
+
+ <label class="fb-label" for="collab-email">Email</label>
+ <input id="collab-email" type="email" placeholder="you@school.edu" autocomplete="email" required>
+
+ <label class="fb-label" for="collab-site">Website (optional)</label>
+ <input id="collab-site" type="url" placeholder="https://yoursite.com" autocomplete="url">
+
+ <label class="fb-label" for="collab-msg">Your proposal</label>
+ <textarea id="collab-msg" rows="5" placeholder="Tell us what you have in mind, audience size, timeline, etc." required></textarea>
+
+ <div class="collab-form-actions">
+ <button type="submit" id="collab-send">Submit proposal</button>
+ <button type="button" class="ghost" id="collab-copy">Copy as text</button>
+ </div>
+ <div class="collab-status" id="collab-status" aria-live="polite"></div>
+ </form>
+
+ <div class="collab-list-head">Your submitted proposals (this device)</div>
+ <div id="collab-list"></div>
+ </section>
+</div><!-- /view-collaborate -->
+
+<div class="view" id="view-careers" hidden>
+ <section class="collab-hero">
+ <div class="eyebrow">Join the team</div>
+ <h1>Work at <em>Lithos</em></h1>
+ <p class="lede">Help build the best gem catalog on the web — lessons, games, AI Rock Teacher, and a growing mineral reference library. Remote-friendly, mission-driven, and gem-obsessed.</p>
+ </section>
+
+ <div class="careers-perks">
+ <span class="careers-perk"><em>Remote</em> friendly</span>
+ <span class="careers-perk"><em>Flexible</em> hours</span>
+ <span class="careers-perk"><em>Learn</em> mineralogy on the job</span>
+ <span class="careers-perk"><em>Open source</em> spirit</span>
+ </div>
+
+ <div class="collab-grid" id="careers-roles">
+ <div class="collab-card" data-career-role="web-dev">
+ <div class="c-tag">Engineering · Open</div>
+ <h3>Web developer</h3>
+ <p>Improve Lithos in vanilla HTML/JS — catalog UX, Gem Hunt, slideshows, accessibility, and performance on GitHub Pages.</p>
+ <button type="button" class="collab-link career-pick" data-career-role="web-dev">Apply for this role →</button>
+ </div>
+ <div class="collab-card" data-career-role="content">
+ <div class="c-tag">Editorial · Open</div>
+ <h3>Mineralogy writer</h3>
+ <p>Research and write accurate gem entries, Learn lessons, and quiz questions. Geology students and hobbyists welcome.</p>
+ <button type="button" class="collab-link career-pick" data-career-role="content">Apply for this role →</button>
+ </div>
+ <div class="collab-card" data-career-role="photo">
+ <div class="c-tag">Media · Open</div>
+ <h3>Photo researcher</h3>
+ <p>Source and verify specimen photos (Wikimedia, museums), update attributions, and flag mislabeled images in the catalog.</p>
+ <button type="button" class="collab-link career-pick" data-career-role="photo">Apply for this role →</button>
+ </div>
+ <div class="collab-card" data-career-role="game">
+ <div class="c-tag">Interactive · Open</div>
+ <h3>Game designer</h3>
+ <p>Design levels, puzzles, and rewards for Gem Hunt, Gem Arena, and Gem Warriors. Balance difficulty and keep it fun for kids.</p>
+ <button type="button" class="collab-link career-pick" data-career-role="game">Apply for this role →</button>
+ </div>
+ <div class="collab-card" data-career-role="community">
+ <div class="c-tag">Community · Open</div>
+ <h3>Community moderator</h3>
+ <p>Help review feedback, triage GitHub issues, and guide teachers using Lithos in classrooms.</p>
+ <button type="button" class="collab-link career-pick" data-career-role="community">Apply for this role →</button>
+ </div>
+ <div class="collab-card" data-career-role="general">
+ <div class="c-tag">General · Open</div>
+ <h3>Open application</h3>
+ <p>Don’t see your role? Tell us what you’d build — design, video, partnerships, translations, or something we haven’t thought of.</p>
+ <button type="button" class="collab-link career-pick" data-career-role="general">Send open application →</button>
+ </div>
+ </div>
+
+ <section class="collab-form-wrap">
+ <h2>Apply now</h2>
+ <p class="sub">Submit your application — we save it on this device and open a GitHub issue for the Lithos team to review.</p>
+ <form class="collab-form" id="careers-form" novalidate>
+ <label class="fb-label" for="career-role">Role</label>
+ <select id="career-role" required>
+ <option value="">Select a role…</option>
+ <option value="web-dev">Web developer</option>
+ <option value="content">Mineralogy writer</option>
+ <option value="photo">Photo researcher</option>
+ <option value="game">Game designer</option>
+ <option value="community">Community moderator</option>
+ <option value="general">Open application</option>
+ </select>
+
+ <label class="fb-label" for="career-name">Full name</label>
+ <input id="career-name" type="text" placeholder="Jordan Lee" autocomplete="name" required>
+
+ <label class="fb-label" for="career-email">Email</label>
+ <input id="career-email" type="email" placeholder="you@email.com" autocomplete="email" required>
+
+ <label class="fb-label" for="career-location">Location / time zone</label>
+ <input id="career-location" type="text" placeholder="Portland, OR (PT)" autocomplete="address-level1" required>
+
+ <label class="fb-label" for="career-availability">Availability</label>
+ <select id="career-availability" required>
+ <option value="">Select availability…</option>
+ <option value="full-time">Full-time</option>
+ <option value="part-time">Part-time</option>
+ <option value="contract">Contract / project</option>
+ <option value="intern">Internship</option>
+ <option value="volunteer">Volunteer / nights &amp; weekends</option>
+ </select>
+
+ <label class="fb-label" for="career-portfolio">Portfolio or website (optional)</label>
+ <input id="career-portfolio" type="url" placeholder="https://yourportfolio.com" autocomplete="url">
+
+ <label class="fb-label" for="career-github">GitHub or LinkedIn (optional)</label>
+ <input id="career-github" type="url" placeholder="https://github.com/you">
+
+ <label class="fb-label" for="career-resume">Résumé link (optional)</label>
+ <input id="career-resume" type="url" placeholder="https://drive.google.com/...">
+
+ <label class="fb-label" for="career-msg">Why Lithos? What would you work on first?</label>
+ <textarea id="career-msg" rows="6" placeholder="Tell us about your experience, favorite gems, and what you'd contribute in your first 30 days." required></textarea>
+
+ <div class="collab-form-actions">
+ <button type="submit" id="career-send">Submit application</button>
+ <button type="button" class="ghost" id="career-copy">Copy as text</button>
+ </div>
+ <div class="collab-status" id="career-status" aria-live="polite"></div>
+ </form>
+
+ <div class="collab-list-head">Your submitted applications (this device)</div>
+ <div id="career-list"></div>
+ </section>
+</div><!-- /view-careers -->
+
 <div class="view" id="view-crafts" hidden>
  <section class="crafts-hero">
  <div class="eyebrow">Make Something Sparkly</div>
@@ -2350,6 +2610,8 @@
  <span>Lithos Field Catalog · Compiled for study and teaching</span>
  <div class="partner-foot">
  <a data-partner="gemsny" data-partner-path="home" href="https://www.gemsny.com/" target="_blank" rel="sponsored noopener noreferrer">Shop at GemsNY ↗</a>
+ <a href="#collaborate" onclick="switchView('collaborate');return false;">Business collaboration</a>
+ <a href="#careers" onclick="switchView('careers');return false;">Work at Lithos</a>
  <span class="partner-disclosure">Partner link · Lithos may earn commission</span>
  </div>
  <span>Hardness on the Mohs scale · Origins by prominence · Prices are approximate retail</span>
@@ -2745,6 +3007,8 @@ const views={
  'class-lessons':document.getElementById('view-class-lessons'),
  teacher:document.getElementById('view-teacher'),
  feedback:document.getElementById('view-feedback'),
+ collaborate:document.getElementById('view-collaborate'),
+ careers:document.getElementById('view-careers'),
  crafts:document.getElementById('view-crafts'),
  memberships:document.getElementById('view-memberships'),
  game:document.getElementById('view-game'),
@@ -2775,6 +3039,8 @@ function switchView(name){
  if(name==='classes'){refreshClassAI();refreshClassLessonsEntry();}
  if(name==='teacher'&&!teacherBuilt){buildTeacher();teacherBuilt=true;}
  if(name==='feedback'&&!feedbackBuilt){buildFeedback();feedbackBuilt=true;}
+ if(name==='collaborate'&&!collabBuilt){buildCollaborate();collabBuilt=true;}
+ if(name==='careers'&&!careersBuilt){buildCareers();careersBuilt=true;}
  if(name==='crafts'&&!craftsBuilt){buildCrafts();craftsBuilt=true;}
  if(name==='game'){buildGame();}
  if(name==='parade'){buildParade();}
@@ -4015,9 +4281,291 @@ function submitFeedback(){
  document.getElementById('fb-name').value='';
  document.getElementById('fb-msg').value='';
  fbRating=0;
- [...document.querySelectorAll('#fb-stars.star')].forEach(s=>s.classList.remove('on'));
+ [...document.querySelectorAll('#fb-stars .star')].forEach(s=>s.classList.remove('on'));
  renderFeedback();
  alert("Thank you for your feedback.");
+}
+
+/* ---------- Business collaboration ---------- */
+const COLLAB_REPO='grahamgattegno/lithos';
+const COLLAB_STORAGE_KEY='lithos_collab_inquiries_v1';
+const COLLAB_TYPE_LABELS={
+ affiliate:'Affiliate partner',
+ classroom:'Classroom license',
+ retail:'Catalog / retail integration',
+ content:'Content, media, or museum',
+ other:'Other partnership'
+};
+let collabBuilt=false;
+function loadCollabInquiries(){
+ try{
+  const raw=localStorage.getItem(COLLAB_STORAGE_KEY);
+  return raw?JSON.parse(raw):[];
+ }catch(_){return[];}
+}
+function saveCollabInquiries(list){
+ try{localStorage.setItem(COLLAB_STORAGE_KEY,JSON.stringify(list));}catch(_){}
+}
+function collabFormData(){
+ return {
+  type:document.getElementById('collab-type').value,
+  name:document.getElementById('collab-name').value.trim(),
+  org:document.getElementById('collab-org').value.trim(),
+  email:document.getElementById('collab-email').value.trim(),
+  site:document.getElementById('collab-site').value.trim(),
+  msg:document.getElementById('collab-msg').value.trim()
+ };
+}
+function collabProposalText(d){
+ const lines=[
+  `**Partnership type:** ${COLLAB_TYPE_LABELS[d.type]||d.type}`,
+  `**Name:** ${d.name}`,
+  d.org?`**Organization:** ${d.org}`:'',
+  `**Email:** ${d.email}`,
+  d.site?`**Website:** ${d.site}`:'',
+  '',
+  '**Proposal**',
+  d.msg,
+  '',
+  '---',
+  '_Submitted via Lithos Business Collaboration page_'
+ ].filter(Boolean);
+ return lines.join('\n');
+}
+function collabIssueUrl(d){
+ const title=`Partnership: ${COLLAB_TYPE_LABELS[d.type]||d.type} — ${d.name}`;
+ const body=collabProposalText(d);
+ return `https://github.com/${COLLAB_REPO}/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`;
+}
+function setCollabStatus(msg,isError){
+ const el=document.getElementById('collab-status');
+ el.textContent=msg||'';
+ el.style.color=isError?'#e88':'var(--gold)';
+}
+function highlightCollabType(type){
+ document.querySelectorAll('.collab-card[data-collab-type]').forEach(card=>{
+  card.classList.toggle('active',card.dataset.collabType===type);
+ });
+}
+function renderCollabList(){
+ const list=document.getElementById('collab-list');
+ const items=loadCollabInquiries();
+ if(!items.length){
+  list.innerHTML='<div class="fb-empty">No proposals yet on this device — submit one above.</div>';
+  return;
+ }
+ list.innerHTML=items.map(item=>`
+  <div class="collab-item">
+   <div class="ci-top">
+    <span class="ci-who">${escapeHtml(item.name)}</span>
+    <span class="ci-type">${escapeHtml(COLLAB_TYPE_LABELS[item.type]||item.type)}</span>
+   </div>
+   <div class="ci-meta">${escapeHtml(item.org||'Independent')} · ${escapeHtml(item.email)}${item.when?` · ${escapeHtml(item.when)}`:''}</div>
+   <div class="ci-text">${escapeHtml(item.msg)}</div>
+  </div>`).join('');
+}
+function validateCollabForm(d){
+ if(!d.type){setCollabStatus('Pick a partnership type.',true);return false;}
+ if(!d.name){setCollabStatus('Enter your name.',true);return false;}
+ if(!d.email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)){setCollabStatus('Enter a valid email.',true);return false;}
+ if(!d.msg||d.msg.length<20){setCollabStatus('Write a proposal (at least 20 characters).',true);return false;}
+ return true;
+}
+function submitCollabProposal(e){
+ e.preventDefault();
+ const d=collabFormData();
+ if(!validateCollabForm(d))return;
+ const entry={...d,when:new Date().toLocaleString()};
+ const items=loadCollabInquiries();
+ items.unshift(entry);
+ saveCollabInquiries(items);
+ renderCollabList();
+ window.open(collabIssueUrl(d),'_blank','noopener,noreferrer');
+ document.getElementById('collab-form').reset();
+ highlightCollabType('');
+ setCollabStatus('Saved locally · GitHub issue opened in a new tab.');
+}
+function copyCollabProposal(){
+ const d=collabFormData();
+ if(!validateCollabForm(d))return;
+ const text=collabProposalText(d);
+ if(navigator.clipboard&&navigator.clipboard.writeText){
+  navigator.clipboard.writeText(text).then(()=>setCollabStatus('Proposal copied to clipboard.')).catch(()=>setCollabStatus('Could not copy — try Submit instead.',true));
+  return;
+ }
+ setCollabStatus('Copy not supported here — use Submit proposal.',true);
+}
+function buildCollaborate(){
+ initPartnerLinks();
+ document.querySelectorAll('.collab-pick').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+   const type=btn.dataset.collabType;
+   document.getElementById('collab-type').value=type;
+   highlightCollabType(type);
+   document.getElementById('collab-msg').focus();
+   document.querySelector('.collab-form-wrap').scrollIntoView({behavior:'smooth',block:'start'});
+  });
+ });
+ document.querySelectorAll('.collab-card[data-collab-type]').forEach(card=>{
+  card.addEventListener('click',e=>{
+   if(e.target.closest('a[href],button'))return;
+   const type=card.dataset.collabType;
+   document.getElementById('collab-type').value=type;
+   highlightCollabType(type);
+  });
+ });
+ document.getElementById('collab-type').addEventListener('change',e=>highlightCollabType(e.target.value));
+ document.getElementById('collab-form').addEventListener('submit',submitCollabProposal);
+ document.getElementById('collab-copy').addEventListener('click',copyCollabProposal);
+ renderCollabList();
+}
+
+/* ---------- Careers (Work at Lithos) ---------- */
+const CAREERS_REPO='grahamgattegno/lithos';
+const CAREERS_STORAGE_KEY='lithos_career_applications_v1';
+const CAREER_ROLE_LABELS={
+ 'web-dev':'Web developer',
+ content:'Mineralogy writer',
+ photo:'Photo researcher',
+ game:'Game designer',
+ community:'Community moderator',
+ general:'Open application'
+};
+const CAREER_AVAIL_LABELS={
+ 'full-time':'Full-time',
+ 'part-time':'Part-time',
+ contract:'Contract / project',
+ intern:'Internship',
+ volunteer:'Volunteer / nights & weekends'
+};
+let careersBuilt=false;
+function loadCareerApplications(){
+ try{
+  const raw=localStorage.getItem(CAREERS_STORAGE_KEY);
+  return raw?JSON.parse(raw):[];
+ }catch(_){return[];}
+}
+function saveCareerApplications(list){
+ try{localStorage.setItem(CAREERS_STORAGE_KEY,JSON.stringify(list));}catch(_){}
+}
+function careerFormData(){
+ return {
+  role:document.getElementById('career-role').value,
+  name:document.getElementById('career-name').value.trim(),
+  email:document.getElementById('career-email').value.trim(),
+  location:document.getElementById('career-location').value.trim(),
+  availability:document.getElementById('career-availability').value,
+  portfolio:document.getElementById('career-portfolio').value.trim(),
+  github:document.getElementById('career-github').value.trim(),
+  resume:document.getElementById('career-resume').value.trim(),
+  msg:document.getElementById('career-msg').value.trim()
+ };
+}
+function careerApplicationText(d){
+ const lines=[
+  `**Role:** ${CAREER_ROLE_LABELS[d.role]||d.role}`,
+  `**Name:** ${d.name}`,
+  `**Email:** ${d.email}`,
+  `**Location:** ${d.location}`,
+  `**Availability:** ${CAREER_AVAIL_LABELS[d.availability]||d.availability}`,
+  d.portfolio?`**Portfolio:** ${d.portfolio}`:'',
+  d.github?`**GitHub / LinkedIn:** ${d.github}`:'',
+  d.resume?`**Résumé:** ${d.resume}`:'',
+  '',
+  '**Why Lithos / first 30 days**',
+  d.msg,
+  '',
+  '---',
+  '_Submitted via Lithos Careers page_'
+ ].filter(Boolean);
+ return lines.join('\n');
+}
+function careerIssueUrl(d){
+ const title=`Careers: ${CAREER_ROLE_LABELS[d.role]||d.role} — ${d.name}`;
+ return `https://github.com/${CAREERS_REPO}/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(careerApplicationText(d))}`;
+}
+function setCareerStatus(msg,isError){
+ const el=document.getElementById('career-status');
+ el.textContent=msg||'';
+ el.style.color=isError?'#e88':'var(--gold)';
+}
+function highlightCareerRole(role){
+ document.querySelectorAll('.collab-card[data-career-role]').forEach(card=>{
+  card.classList.toggle('active',card.dataset.careerRole===role);
+ });
+}
+function renderCareerList(){
+ const list=document.getElementById('career-list');
+ const items=loadCareerApplications();
+ if(!items.length){
+  list.innerHTML='<div class="fb-empty">No applications yet on this device — apply above.</div>';
+  return;
+ }
+ list.innerHTML=items.map(item=>`
+  <div class="collab-item">
+   <div class="ci-top">
+    <span class="ci-who">${escapeHtml(item.name)}</span>
+    <span class="ci-type">${escapeHtml(CAREER_ROLE_LABELS[item.role]||item.role)}</span>
+   </div>
+   <div class="ci-meta">${escapeHtml(CAREER_AVAIL_LABELS[item.availability]||item.availability)} · ${escapeHtml(item.location)} · ${escapeHtml(item.email)}${item.when?` · ${escapeHtml(item.when)}`:''}</div>
+   <div class="ci-text">${escapeHtml(item.msg)}</div>
+  </div>`).join('');
+}
+function validateCareerForm(d){
+ if(!d.role){setCareerStatus('Pick a role.',true);return false;}
+ if(!d.name){setCareerStatus('Enter your name.',true);return false;}
+ if(!d.email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)){setCareerStatus('Enter a valid email.',true);return false;}
+ if(!d.location){setCareerStatus('Enter your location or time zone.',true);return false;}
+ if(!d.availability){setCareerStatus('Select your availability.',true);return false;}
+ if(!d.msg||d.msg.length<30){setCareerStatus('Write at least 30 characters about why you want to join.',true);return false;}
+ return true;
+}
+function submitCareerApplication(e){
+ e.preventDefault();
+ const d=careerFormData();
+ if(!validateCareerForm(d))return;
+ const entry={...d,when:new Date().toLocaleString()};
+ const items=loadCareerApplications();
+ items.unshift(entry);
+ saveCareerApplications(items);
+ renderCareerList();
+ window.open(careerIssueUrl(d),'_blank','noopener,noreferrer');
+ document.getElementById('careers-form').reset();
+ highlightCareerRole('');
+ setCareerStatus('Saved locally · GitHub issue opened in a new tab.');
+}
+function copyCareerApplication(){
+ const d=careerFormData();
+ if(!validateCareerForm(d))return;
+ const text=careerApplicationText(d);
+ if(navigator.clipboard&&navigator.clipboard.writeText){
+  navigator.clipboard.writeText(text).then(()=>setCareerStatus('Application copied to clipboard.')).catch(()=>setCareerStatus('Could not copy — try Submit instead.',true));
+  return;
+ }
+ setCareerStatus('Copy not supported here — use Submit application.',true);
+}
+function buildCareers(){
+ document.querySelectorAll('.career-pick').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+   const role=btn.dataset.careerRole;
+   document.getElementById('career-role').value=role;
+   highlightCareerRole(role);
+   document.getElementById('career-msg').focus();
+   document.querySelector('#view-careers .collab-form-wrap').scrollIntoView({behavior:'smooth',block:'start'});
+  });
+ });
+ document.querySelectorAll('.collab-card[data-career-role]').forEach(card=>{
+  card.addEventListener('click',e=>{
+   if(e.target.closest('button'))return;
+   const role=card.dataset.careerRole;
+   document.getElementById('career-role').value=role;
+   highlightCareerRole(role);
+  });
+ });
+ document.getElementById('career-role').addEventListener('change',e=>highlightCareerRole(e.target.value));
+ document.getElementById('careers-form').addEventListener('submit',submitCareerApplication);
+ document.getElementById('career-copy').addEventListener('click',copyCareerApplication);
+ renderCareerList();
 }
 
 /* ---------- Crafts ---------- */
