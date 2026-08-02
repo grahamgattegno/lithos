@@ -1344,6 +1344,9 @@
   .exp-sparkle{position:absolute;transform:translateX(-50%);z-index:4;font-size:14px;color:gold;opacity:.7;pointer-events:none;animation:expSpark 1.2s ease-in-out infinite}
   @keyframes expSpark{0%,100%{opacity:.4;transform:translateX(-50%) translateY(0)}50%{opacity:1;transform:translateX(-50%) translateY(-4px)}}
   .exp-mine-sign{position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:6;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#ffd34e;background:rgba(0,0,0,.45);padding:6px 12px;border-radius:6px;white-space:nowrap}
+  .exp-fact-banner{margin-bottom:10px;background:linear-gradient(135deg,rgba(201,169,79,.18),rgba(18,138,86,.12));border:1px solid rgba(201,169,79,.35);border-radius:10px;padding:12px 16px;text-align:center;font-size:14px;line-height:1.5;color:var(--text)}
+  .exp-fact-banner em{font-style:italic;color:var(--gold)}
+  .exp-hint{text-align:center;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin:6px 0 10px}
   .exp-gold-pop{position:absolute;z-index:8;font-size:18px;font-weight:800;color:#ffd34e;pointer-events:none;animation:goldPop .7s ease forwards}
   @keyframes goldPop{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-30px)}}
   .exp-pickaxe{position:absolute;right:-8%;bottom:28%;z-index:6;line-height:0;transform-origin:bottom left}
@@ -1535,6 +1538,9 @@
   }
   .lock-mark{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint)}
   .biglock{font-family:var(--mono);font-size:14px;letter-spacing:.22em;text-transform:uppercase;color:var(--text-faint);margin:20px 0}
+  .view[hidden]{display:none!important}
+  body.in-game footer{display:none}
+  body.in-game .site .tag{opacity:0}
 </style>
 </head>
 <body>
@@ -2226,6 +2232,7 @@ function switchView(name){
  if(!views[name])name='catalog';
  Object.entries(views).forEach(([k,el])=>el.hidden=(k!==name));
  navBtns.forEach(b=>b.classList.toggle('on',b.dataset.view===(gemHunt?'gemhunt':name)));
+ document.body.classList.toggle('in-game',name==='battlefield'||name==='game');
  const hash=gemHunt?'#gemhunt':(name==='catalog'?'':('#'+name));
  if(location.hash!==hash)history.replaceState(null,'',hash||location.pathname+location.search);
  window.scrollTo({top:0,behavior:'instant' in window?'instant':'auto'});
@@ -2245,11 +2252,6 @@ function switchView(name){
  if(name==='parts'){buildParts();}
 }
 navBtns.forEach(b=>b.addEventListener('click',()=>switchView(b.dataset.view)));
-(function openHashView(){
- const name=(location.hash||'').replace(/^#/,'').trim();
- if(name==='gemhunt'){switchView('gemhunt');return;}
- if(name&&views[name])switchView(name);
-})();
 window.addEventListener('hashchange',()=>{
  const name=(location.hash||'').replace(/^#/,'').trim();
  if(name==='gemhunt'){switchView('gemhunt');return;}
@@ -5207,15 +5209,17 @@ function startExpedition(){
  stopBFLoop(); bf=null;
  const fact=EXPEDITION_FACTS[Math.floor(Math.random()*EXPEDITION_FACTS.length)];
  exp={
- phase:"billboard", fact:fact,
- heroX:50, heroY:0, jumping:false,
+ phase:"hunt", fact:fact,
+ heroX:8, heroY:0, jumping:false,
  gems:HUNT_GEM_SPOTS.map(g=>({...g,found:false})),
  gemsFound:0, gold:0,
  veins:GOLD_VEIN_SPOTS.map(x=>({x,mined:false})),
  swing:false, swingT:0, goldPops:[],
- log:"", over:false
+ log:" Walk the trail — collect 12 gems! Use the arrow buttons or ← → keys.",
+ over:false
  };
  renderExpedition();
+ startExpLoop();
 }
 function expTick(){
  if(!exp||exp.over||exp.phase==="billboard"||exp.phase==="done")return;
@@ -5297,32 +5301,13 @@ function expCollect(){
  renderExpedition();
  } else if(exp.phase==="goldmine") expMine();
 }
-function leaveExpedition(){ stopExpLoop(); exp=null; buildBattlefield(); }
+function leaveExpedition(){ stopExpLoop(); exp=null; document.body.classList.remove('in-game'); buildBattlefield(); }
 function renderExpedition(){
  const wrap=document.getElementById('bf-wrap');
  if(!wrap||!exp)return;
+ document.body.classList.add('in-game');
  const unlocked=WARRIORS.filter(w=>warriorUnlocked(w));
  const hero=unlocked.reduce((a,b)=>b.power>a.power?b:a, WARRIORS[0]);
- if(exp.phase==="billboard"){
- wrap.innerHTML=`
- <div class="eyebrow">Gem Hunt Expedition</div>
- <h1>Welcome to the <em>Trail</em></h1>
- <div class="exp-wrap"><div class="exp-field">
- <div class="exp-billboard">
- <div class="exp-board">
- <div class="exp-board-title">${exp.fact.emoji} Did You Know?</div>
- <div class="exp-board-fact">${exp.fact.fact}</div>
- <button class="game-btn" id="exp-begin">Start the Gem Hunt!</button>
- </div>
- </div>
- </div>
- <p class="exp-log">Read the billboard, then hunt for <b>12 hidden gems</b> on the trail!</p>
- <div class="bf-btns"><button class="game-btn ghost" id="exp-leave">Back</button></div>
- </div>`;
- document.getElementById('exp-begin').onclick=()=>{ exp.phase="hunt"; exp.log=" Scour the trail — 12 gems are hidden among the bushes! Walk near sparkles to collect them. "; renderExpedition(); startExpLoop(); };
- document.getElementById('exp-leave').onclick=leaveExpedition;
- return;
- }
  if(exp.phase==="done"){
  wrap.innerHTML=`
  <div class="eyebrow">Expedition Complete!</div>
@@ -5359,10 +5344,13 @@ function renderExpedition(){
  ?`Gold mined: ${exp.gold} / ${EXPEDITION_GOLD_COUNT} ${goldNuggetSVG(18)}`
  :`Gems found: ${exp.gemsFound} / ${EXPEDITION_GEM_COUNT} 💎`;
  const actionLabel=isGold?"Mine! ⛏":"Search!";
+ const factBanner=(!isGold&&exp.fact)?`<div class="exp-fact-banner">${exp.fact.emoji} <b>Did you know?</b> ${exp.fact.fact}</div>`:'';
+ const hint=(!isGold)?`<div class="exp-hint">← → move &nbsp;•&nbsp; Space jump &nbsp;•&nbsp; Enter search</div>`:'';
  wrap.innerHTML=`
  <div class="eyebrow">Gem Hunt Expedition</div>
  <h1>${isGold?'The <em>Gold Mine</em>':'Scavenger <em>Gem Hunt</em>'}</h1>
  <div class="exp-wrap">
+ ${factBanner}
  <div class="exp-counter">${counter}</div>
  <div class="exp-field ${isGold?'goldmine':''}">
  ${isGold?'<div class="exp-mine-wall"></div><div class="exp-tunnel"></div><div class="exp-mine-sign">⛏ Gold Mine — mine 10 nuggets!</div>':''}
@@ -5371,6 +5359,7 @@ function renderExpedition(){
  ${bushesHTML}${sparklesHTML}${gemsHTML}${veinsHTML}${popsHTML}${heroHTML}
  </div>
  <div class="exp-log">${exp.log}</div>
+ ${hint}
  <div class="bf-controls">
  <button class="game-btn" id="exp-left">← Left</button>
  <button class="game-btn" id="exp-jump">Jump</button>
@@ -7498,6 +7487,11 @@ function showEmeraldGiftNotification(){
  setTimeout(()=>{ const g=document.getElementById('gift-notif'); if(g){ g.classList.add('gift-hide'); setTimeout(()=>g.remove(),600); } }, 12000);
 }
 setTimeout(giveFreeEmeraldGuardian, 900);
+(function openHashView(){
+ const name=(location.hash||'').replace(/^#/,'').trim();
+ if(name==='gemhunt'){switchView('gemhunt');return;}
+ if(name&&views[name])switchView(name);
+})();
 </script>
 </body>
 </html>
