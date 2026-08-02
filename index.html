@@ -1334,12 +1334,15 @@
   .exp-char{position:absolute;transition:left .12s linear,bottom .09s linear;z-index:5;line-height:0}
   .exp-char.swinging svg{animation:expSwing .35s ease}
   @keyframes expSwing{0%{transform:rotate(0)}40%{transform:rotate(-28deg) translateX(8px)}100%{transform:rotate(0)}}
-  .exp-gem-spot{position:absolute;transform:translateX(-50%);z-index:3;line-height:0;transition:transform .2s,filter .2s}
-  .exp-gem-spot.near{transform:translateX(-50%) scale(1.12);filter:drop-shadow(0 0 12px gold)}
-  .exp-gem-spot.spotted{transform:translateX(-50%) scale(1);filter:drop-shadow(0 0 10px rgba(255,211,78,.8))}
-  .exp-gem-spot:not(.spotted){opacity:.92}
+  .exp-gem-spot{position:absolute;transform:translateX(-50%);z-index:3;line-height:0;transition:transform .3s,filter .3s,opacity .3s}
+  .exp-gem-spot.spotted{transform:translateX(-50%) scale(1);filter:drop-shadow(0 0 10px rgba(255,211,78,.8));animation:gemFoundPop .45s ease}
+  @keyframes gemFoundPop{0%{transform:translateX(-50%) scale(.2);opacity:0}70%{transform:translateX(-50%) scale(1.15)}100%{transform:translateX(-50%) scale(1);opacity:1}}
   .exp-check{position:absolute;top:-6px;right:-10px;background:#128a56;color:#fff;border-radius:50%;width:22px;height:22px;font-size:13px;display:flex;align-items:center;justify-content:center;font-weight:800;box-shadow:0 2px 6px rgba(0,0,0,.35);z-index:4}
-  .exp-marker{position:absolute;bottom:52%;font-size:18px;transform:translateX(-50%);z-index:2;opacity:.75;pointer-events:none}
+  .exp-hide-spot{position:absolute;transform:translateX(-50%);z-index:2;font-size:32px;line-height:1;bottom:36%;filter:drop-shadow(0 3px 4px rgba(0,0,0,.25))}
+  .exp-hide-spot.searching{animation:hideWiggle .35s ease}
+  @keyframes hideWiggle{0%,100%{transform:translateX(-50%) rotate(0)}25%{transform:translateX(-50%) rotate(-8deg)}75%{transform:translateX(-50%) rotate(8deg)}}
+  .exp-char.searching svg{animation:expSearch .5s ease}
+  @keyframes expSearch{0%,100%{transform:rotate(0)}30%{transform:rotate(-12deg) translateY(4px)}60%{transform:rotate(8deg) translateY(2px)}}
   .exp-checklist{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:10px;padding:10px 12px;background:rgba(0,0,0,.2);border:1px solid rgba(201,169,79,.25);border-radius:10px}
   .exp-cl-item{font-family:var(--mono);font-size:10px;letter-spacing:.06em;padding:4px 8px;border-radius:6px;background:rgba(255,255,255,.06);color:var(--text-dim)}
   .exp-cl-item.done{background:rgba(18,138,86,.25);color:#8fd4a8;text-decoration:line-through;text-decoration-color:rgba(143,212,168,.5)}
@@ -5249,6 +5252,7 @@ const HUNT_GEM_SPOTS=[
  {x:58,color:"#3a9a9a",name:"Turquoise",y:39},{x:66,color:"#7a9a30",name:"Peridot",y:41},{x:74,color:"#b8e0e8",name:"Moonstone",bush:true,y:38},
  {x:82,color:"#4a6a8a",name:"Labradorite",y:40},{x:90,color:"#b85a40",name:"Agate",y:39},{x:96,color:"#c9a0ff",name:"Fluorite",bush:true,y:41}
 ];
+const HUNT_HIDE_ICONS=['🌿','🪨','🌳','🍂','🪵','🌾'];
 const GOLD_VEIN_SPOTS=[8,18,28,38,48,58,68,78,88,94];
 let exp=null;
 let expLoop=null;
@@ -5260,11 +5264,11 @@ function startExpedition(){
  exp={
  phase:"hunt", fact:fact,
  heroX:8, heroY:0, jumping:false,
- gems:HUNT_GEM_SPOTS.map(g=>({...g,found:false})),
+ gems:HUNT_GEM_SPOTS.map((g,i)=>({...g,found:false,hide:HUNT_HIDE_ICONS[i%HUNT_HIDE_ICONS.length]})),
  gemsFound:0, gold:0,
  veins:GOLD_VEIN_SPOTS.map(x=>({x,mined:false})),
- swing:false, swingT:0, goldPops:[],
- log:" 🗺️ Scavenger hunt! Walk the trail and check off all 12 gems on your treasure map!",
+ swing:false, swingT:0, searchT:0, goldPops:[],
+ log:" 🗺️ Use your treasure map! Walk the trail and tap Look! to search bushes & rocks for each gem.",
  over:false
  };
  renderExpedition();
@@ -5273,24 +5277,32 @@ function startExpedition(){
 function expTick(){
  if(!exp||exp.over||exp.phase==="billboard"||exp.phase==="done")return;
  if(exp.swingT>0){ exp.swingT--; if(exp.swingT<=0)exp.swing=false; }
+ if(exp.searchT>0){ exp.searchT--; if(exp.searchT<=0)exp.searching=false; }
  if(exp.veins) exp.veins.forEach(v=>{ if(v.hitT>0) v.hitT--; });
  if(exp.goldPops) exp.goldPops=exp.goldPops.filter(p=>{p.life--;return p.life>0;});
- let changed=false;
- if(exp.phase==="hunt"){
- exp.gems.forEach(g=>{
- if(!g.found && Math.abs(exp.heroX-g.x)<8){
- g.found=true; exp.gemsFound++; changed=true;
- exp.log=` ✓ Spotted ${g.name} — checked off! (${exp.gemsFound}/${EXPEDITION_GEM_COUNT})`;
+ if(exp.swingT>0 || exp.searchT>0 || (exp.goldPops&&exp.goldPops.length)) renderExpedition();
+}
+function expNearestGem(){
+ if(!exp||!exp.gems) return null;
+ const left=exp.gems.filter(g=>!g.found);
+ if(!left.length) return null;
+ return left.reduce((a,b)=>Math.abs(a.x-exp.heroX)<Math.abs(b.x-exp.heroX)?a:b);
+}
+function expLookHint(){
+ const near=expNearestGem();
+ if(!near) return " You found every gem on the map! ";
+ const d=Math.abs(near.x-exp.heroX);
+ if(d<=14) return " Something might be hidden right here — tap Look! 🔍";
+ if(d<=28) return " Nothing here... but you're getting warmer! ";
+ if(d<=45) return " Not here — try searching farther along the trail. ";
+ return " Nothing here — explore more of the trail and check your map! ";
+}
+function expCompleteHunt(){
  if(exp.gemsFound>=EXPEDITION_GEM_COUNT){
  exp.phase="goldmine"; exp.heroX=12;
  exp.log=" 🎉 Treasure map complete! Bonus round — head into the gold mine for 10 nuggets! ";
- stopExpLoop();
- startExpLoop();
+ stopExpLoop(); startExpLoop();
  }
- }
- });
- }
- if(changed || exp.swingT>0 || (exp.goldPops&&exp.goldPops.length)) renderExpedition();
 }
 function expMove(dir){
  if(!exp||exp.over||exp.phase==="billboard"||exp.phase==="done")return;
@@ -5335,18 +5347,16 @@ function expMine(){
 function expCollect(){
  if(!exp||exp.over)return;
  if(exp.phase==="hunt"){
+ exp.searching=true; exp.searchT=10;
  let got=false;
  exp.gems.forEach(g=>{
- if(!g.found && Math.abs(exp.heroX-g.x)<12){ g.found=true; exp.gemsFound++; got=true;
- exp.log=` ✓ Spotted ${g.name} — checked off! (${exp.gemsFound}/${EXPEDITION_GEM_COUNT})`; }
- });
- if(!got) exp.log=" Walk closer to the next treasure on your map! ";
- if(exp.gemsFound>=EXPEDITION_GEM_COUNT){
- exp.phase="goldmine"; exp.heroX=12;
- exp.log=" 🎉 Treasure map complete! Bonus round — head into the gold mine for 10 nuggets! ";
- stopExpLoop();
- startExpLoop();
+ if(!g.found && Math.abs(exp.heroX-g.x)<14){
+ g.found=true; exp.gemsFound++; got=true;
+ exp.log=` 🔍 Found ${g.name} hiding in the ${g.hide==='🪨'?'rocks':g.hide==='🌳'?'trees':'bushes'}! (${exp.gemsFound}/${EXPEDITION_GEM_COUNT})`;
  }
+ });
+ if(!got) exp.log=expLookHint();
+ expCompleteHunt();
  renderExpedition();
  } else if(exp.phase==="goldmine") expMine();
 }
@@ -5375,28 +5385,24 @@ function renderExpedition(){
  return;
  }
  const isGold=exp.phase==="goldmine";
- const sparklesHTML=(!isGold)?exp.gems.filter(g=>!g.found).map(g=>{
- const near=Math.abs(exp.heroX-g.x)<14;
- return `<div class="exp-sparkle" style="left:${g.x}%;bottom:${(g.y||38)+10}%">${near?'👀':'✨'}</div>`;
+ const hideSpotsHTML=(!isGold)?exp.gems.filter(g=>!g.found).map(g=>{
+ const searching=exp.searching&&Math.abs(exp.heroX-g.x)<14;
+ return `<div class="exp-hide-spot ${searching?'searching':''}" style="left:${g.x}%;bottom:${(g.y||38)-2}%">${g.hide}</div>`;
  }).join(''):'';
- const markersHTML=(!isGold)?exp.gems.map(g=>`<div class="exp-marker" style="left:${g.x}%">${g.found?'🚩':'📍'}</div>`).join(''):'';
- const gemsHTML=(!isGold)?exp.gems.map(g=>{
- const near=!g.found&&Math.abs(exp.heroX-g.x)<12;
- const cls=g.found?'spotted':(near?'near':'');
- const check=g.found?'<span class="exp-check">✓</span>':'';
- return `<div class="exp-gem-spot ${cls}" style="left:${g.x}%;bottom:${g.y||38}%">${huntGemSVG(34,g.color)}${check}</div>`;
+ const gemsHTML=(!isGold)?exp.gems.filter(g=>g.found).map(g=>{
+ return `<div class="exp-gem-spot spotted" style="left:${g.x}%;bottom:${g.y||38}%">${huntGemSVG(34,g.color)}<span class="exp-check">✓</span></div>`;
  }).join(''):'';
  const veinsHTML=isGold?exp.veins.map(v=>`<div class="exp-vein ${v.mined?'mined':''} ${v.hitT>0?'hit':''}" style="left:${v.x}%;bottom:36%">${goldVeinSVG(72,v.hitT>0||v.mined)}</div>`).join(''):'';
  const popsHTML=isGold?(exp.goldPops||[]).map(p=>`<div class="exp-gold-pop" style="left:${p.x}%;bottom:50%">${goldNuggetSVG(22)} +1!</div>`).join(''):'';
  const pickaxe=isGold?`<span class="exp-pickaxe">${pickaxeSVG(44)}</span>`:'';
- const heroHTML=`<div class="exp-char ${exp.swing?'swinging':''}" style="left:${exp.heroX}%;bottom:${34+exp.heroY*0.35}%">${gemWarriorSVG(hero.color,64,hero.titan,hero.plasma,hero.style)}${pickaxe}</div>`;
+ const heroHTML=`<div class="exp-char ${exp.swing?'swinging':''} ${exp.searching?'searching':''}" style="left:${exp.heroX}%;bottom:${34+exp.heroY*0.35}%">${gemWarriorSVG(hero.color,64,hero.titan,hero.plasma,hero.style)}${pickaxe}</div>`;
  const counter=isGold
  ?`Gold bag: ${exp.gold} / ${EXPEDITION_GOLD_COUNT} ${goldNuggetSVG(18)}`
- :`Treasure map: ${exp.gemsFound} / ${EXPEDITION_GEM_COUNT} checked off 🗺️`;
- const actionLabel=isGold?"Dig! ⛏":"Spot it! 📋";
+ :`Treasure map: ${exp.gemsFound} / ${EXPEDITION_GEM_COUNT} gems found 🗺️`;
+ const actionLabel=isGold?"Dig! ⛏":"Look! 🔍";
  const factBanner=(!isGold&&exp.fact)?`<div class="exp-fact-banner">${exp.fact.emoji} <b>Trail clue:</b> ${exp.fact.fact}</div>`:'';
- const checklist=(!isGold)?`<div class="exp-checklist">${exp.gems.map(g=>`<span class="exp-cl-item ${g.found?'done':''}">${g.found?'✓':'○'} ${g.name}</span>`).join('')}</div>`:'';
- const hint=(!isGold)?`<div class="exp-hint">← → explore the trail &nbsp;•&nbsp; Spot it! to check gems off your map</div>`:'';
+ const checklist=(!isGold)?`<div class="exp-checklist">${exp.gems.map(g=>`<span class="exp-cl-item ${g.found?'done':''}">${g.found?'✓':'?'} ${g.name}</span>`).join('')}</div>`:'';
+ const hint=(!isGold)?`<div class="exp-hint">← → explore &nbsp;•&nbsp; tap <b>Look! 🔍</b> to search bushes, rocks &amp; trees</div>`:'';
  wrap.innerHTML=`
  <div class="eyebrow">Gem Hunt Expedition</div>
  <h1>${isGold?'The <em>Gold Mine</em>':'Scavenger <em>Gem Hunt</em>'}</h1>
@@ -5405,10 +5411,10 @@ function renderExpedition(){
  ${checklist}
  <div class="exp-counter">${counter}</div>
  <div class="exp-field ${isGold?'goldmine':''}">
- ${isGold?'<div class="exp-mine-wall"></div><div class="exp-tunnel"></div><div class="exp-mine-sign">⛏ Bonus round — dig up 10 gold nuggets!</div>':'<div class="exp-trail-sign">🗺️ Scavenger hunt trail — spot every gem!</div>'}
+ ${isGold?'<div class="exp-mine-wall"></div><div class="exp-tunnel"></div><div class="exp-mine-sign">⛏ Bonus round — dig up 10 gold nuggets!</div>':'<div class="exp-trail-sign">🔍 Search the trail — gems are hidden!</div>'}
  <div class="exp-play">
  <div class="exp-ground"></div>
- ${markersHTML}${sparklesHTML}${gemsHTML}${veinsHTML}${popsHTML}${heroHTML}
+ ${hideSpotsHTML}${gemsHTML}${veinsHTML}${popsHTML}${heroHTML}
  </div>
  <div class="exp-log">${exp.log}</div>
  ${hint}
