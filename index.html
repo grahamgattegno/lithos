@@ -99,101 +99,194 @@
     color:var(--text-faint);margin-top:10px;
   }
 
-  /* ---------- Animated gem slideshow ---------- */
-  .gem-slideshow{
-    max-width:1440px;margin:0 auto 40px;padding:0 40px;
-    position:relative;
-  }
+  /* ---------- Animated gem slideshow (max cool) ---------- */
+  .gem-slideshow{max-width:1440px;margin:0 auto 44px;padding:0 40px;position:relative}
   .gem-slide-stage{
-    position:relative;overflow:hidden;border-radius:6px;
-    border:1px solid var(--line);background:linear-gradient(135deg,var(--ink-2) 0%,var(--panel) 45%,var(--ink) 100%);
-    min-height:320px;isolation:isolate;
+    position:relative;overflow:hidden;border-radius:8px;
+    border:1px solid var(--line);
+    background:var(--ink);
+    min-height:380px;isolation:isolate;
+    box-shadow:0 24px 80px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.04);
   }
-  .gem-slide-stage::before{
-    content:'';position:absolute;inset:0;
-    background:radial-gradient(ellipse 60% 50% at 70% 50%,rgba(201,169,98,.12),transparent 70%);
-    pointer-events:none;z-index:0;
+  .gem-stage-fx{position:absolute;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+  .gem-stage-glow{
+    position:absolute;width:120%;height:120%;top:-10%;left:-10%;
+    background:radial-gradient(ellipse 55% 45% at 72% 48%,var(--stage-glow,rgba(201,169,98,.22)),transparent 65%);
+    transition:background 1s ease;animation:glowPulse 4s ease-in-out infinite;
   }
-  .gem-slide{
-    position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:24px;
-    padding:40px 48px;opacity:0;visibility:hidden;transform:translateX(40px) scale(.97);
-    transition:opacity .65s ease,transform .65s ease,visibility .65s;
-    z-index:1;
+  .gem-stage-mesh{
+    position:absolute;inset:0;opacity:.35;
+    background:
+      radial-gradient(circle at 20% 80%,var(--stage-glow,rgba(201,169,98,.15)) 0%,transparent 45%),
+      radial-gradient(circle at 85% 20%,rgba(255,255,255,.04) 0%,transparent 40%);
+    animation:meshDrift 12s ease-in-out infinite alternate;
   }
-  .gem-slide.active{opacity:1;visibility:visible;transform:none;z-index:2}
-  .gem-slide.exit-left{opacity:0;transform:translateX(-40px) scale(.97)}
-  .gem-slide-copy .slide-tag{
-    font-family:var(--mono);font-size:10px;letter-spacing:.28em;text-transform:uppercase;
-    color:var(--gold);margin-bottom:14px;display:block;
-  }
-  .gem-slide-copy h2{
-    font-family:var(--serif);font-weight:300;font-size:clamp(36px,5vw,56px);line-height:1;
-    letter-spacing:-.02em;margin-bottom:12px;
-  }
-  .gem-slide-copy h2 em{font-style:italic;color:var(--slide-accent,var(--gold))}
-  .gem-slide-copy p{font-size:15px;line-height:1.6;color:var(--text-dim);max-width:380px;margin-bottom:20px}
-  .gem-slide-stats{display:flex;gap:20px;flex-wrap:wrap}
-  .gem-slide-stats span{
-    font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;
-    color:var(--text-faint);padding:8px 12px;border:1px solid var(--line);border-radius:3px;
-  }
-  .gem-slide-stats span b{color:var(--slide-accent,var(--gold));font-weight:400;margin-right:6px}
-  .gem-slide-visual{
-    position:relative;display:flex;align-items:center;justify-content:center;
-    min-height:240px;perspective:800px;
+  .gem-stage-rays{
+    position:absolute;top:50%;right:18%;width:280px;height:280px;transform:translate(50%,-50%);
+    background:conic-gradient(from 0deg,transparent 0deg,var(--stage-glow,rgba(201,169,98,.08)) 15deg,transparent 30deg,transparent 60deg,var(--stage-glow,rgba(201,169,98,.06)) 75deg,transparent 90deg,transparent 120deg,var(--stage-glow,rgba(201,169,98,.05)) 135deg,transparent 150deg);
+    animation:raySpin 24s linear infinite;opacity:.7;
   }
   .gem-orbit{
-    position:absolute;width:220px;height:220px;border-radius:50%;
-    border:1px dashed rgba(201,169,98,.15);animation:orbitSpin 18s linear infinite;
+    position:absolute;top:50%;right:18%;width:260px;height:260px;margin:-130px -130px 0 0;
+    border-radius:50%;border:1px solid rgba(255,255,255,.06);
+    animation:orbitSpin 20s linear infinite;
   }
-  .gem-orbit::after{
-    content:'';position:absolute;top:-4px;left:50%;width:8px;height:8px;border-radius:50%;
-    background:var(--slide-accent,var(--gold));box-shadow:0 0 12px var(--slide-accent,var(--gold));
+  .gem-orbit-b{
+    position:absolute;top:50%;right:18%;width:300px;height:300px;margin:-150px -150px 0 0;
+    border-radius:50%;border:1px dashed rgba(255,255,255,.08);
+    animation:orbitSpin 28s linear infinite reverse;
   }
-  .gem-float-wrap{animation:gemFloat 4s ease-in-out infinite;transform-style:preserve-3d}
+  .gem-orbit::after,.gem-orbit-b::after{
+    content:'';position:absolute;top:-5px;left:50%;width:10px;height:10px;border-radius:50%;
+    background:var(--stage-accent,var(--gold));
+    box-shadow:0 0 16px 4px var(--stage-accent,var(--gold)),0 0 32px 8px color-mix(in srgb,var(--stage-accent,var(--gold)) 40%,transparent);
+    transform:translateX(-50%);
+  }
+  .gem-particles{position:absolute;inset:0;width:100%;height:100%;opacity:.85}
+  .gem-slide{
+    position:absolute;inset:0;display:grid;grid-template-columns:1.05fr .95fr;align-items:center;gap:32px;
+    padding:48px 56px 56px;opacity:0;visibility:hidden;
+    transform:translateX(60px) scale(.94);filter:blur(6px);
+    transition:opacity .75s cubic-bezier(.22,1,.36,1),transform .75s cubic-bezier(.22,1,.36,1),filter .75s ease,visibility .75s;
+    z-index:1;
+  }
+  .gem-slide.active{
+    opacity:1;visibility:visible;transform:none;filter:none;z-index:2;
+  }
+  .gem-slide.exit-left{opacity:0;transform:translateX(-60px) scale(.94);filter:blur(6px)}
+  .gem-slide-copy{position:relative;z-index:3}
+  .gem-slide-copy .slide-tag{
+    font-family:var(--mono);font-size:10px;letter-spacing:.32em;text-transform:uppercase;
+    color:var(--stage-accent,var(--gold));margin-bottom:16px;display:block;
+    opacity:0;transform:translateY(12px);
+  }
+  .gem-slide.active .slide-tag{animation:slideTextIn .6s cubic-bezier(.22,1,.36,1) .15s forwards}
+  .gem-slide-copy h2{
+    font-family:var(--serif);font-weight:300;font-size:clamp(42px,6vw,72px);line-height:.95;
+    letter-spacing:-.03em;margin-bottom:16px;
+    opacity:0;transform:translateY(20px);
+  }
+  .gem-slide.active h2{animation:slideTextIn .7s cubic-bezier(.22,1,.36,1) .25s forwards}
+  .gem-slide-copy h2 em{
+    font-style:italic;color:var(--stage-accent,var(--gold));
+    text-shadow:0 0 40px color-mix(in srgb,var(--stage-accent,var(--gold)) 50%,transparent);
+  }
+  .gem-slide-copy p{
+    font-size:16px;line-height:1.65;color:var(--text-dim);max-width:400px;margin-bottom:24px;
+    opacity:0;transform:translateY(16px);
+  }
+  .gem-slide.active p{animation:slideTextIn .7s cubic-bezier(.22,1,.36,1) .38s forwards}
+  .gem-slide-stats{display:flex;gap:12px;flex-wrap:wrap;opacity:0;transform:translateY(12px)}
+  .gem-slide.active .gem-slide-stats{animation:slideTextIn .6s cubic-bezier(.22,1,.36,1) .52s forwards}
+  .gem-slide-stats span{
+    font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--text-faint);padding:10px 14px;border:1px solid var(--line);border-radius:4px;
+    background:rgba(255,255,255,.02);backdrop-filter:blur(4px);
+    transition:border-color .3s,box-shadow .3s;
+  }
+  .gem-slide.active .gem-slide-stats span{
+    box-shadow:0 0 20px color-mix(in srgb,var(--stage-accent,var(--gold)) 15%,transparent);
+    border-color:color-mix(in srgb,var(--stage-accent,var(--gold)) 35%,var(--line));
+  }
+  .gem-slide-stats span b{color:var(--stage-accent,var(--gold));font-weight:400;margin-right:6px}
+  .gem-slide-visual{
+    position:relative;display:flex;align-items:center;justify-content:center;
+    min-height:280px;perspective:900px;z-index:3;
+  }
+  .gem-float-wrap{
+    animation:gemFloat 3.5s ease-in-out infinite;transform-style:preserve-3d;
+    filter:drop-shadow(0 0 30px color-mix(in srgb,var(--stage-accent,var(--gold)) 55%,transparent))
+           drop-shadow(0 28px 50px rgba(0,0,0,.55));
+  }
   .gem-svg-main{
-    width:min(200px,40vw);height:auto;filter:drop-shadow(0 20px 40px rgba(0,0,0,.5));
-    animation:gemTilt 6s ease-in-out infinite;
+    width:min(240px,46vw);height:auto;
+    animation:gemTilt 5s ease-in-out infinite,gemShimmer 3s ease-in-out infinite;
   }
-  .gem-sparkles{position:absolute;inset:0;pointer-events:none}
+  .gem-slide[data-gem="diamond"] .gem-svg-main{animation:gemTilt 5s ease-in-out infinite,diamondFire 2.5s linear infinite}
+  .gem-sparkles{position:absolute;inset:-10%;pointer-events:none}
   .gem-sparkles i{
-    position:absolute;width:4px;height:4px;border-radius:50%;background:#fff;
-    box-shadow:0 0 8px 2px var(--slide-accent,var(--gold));opacity:0;
-    animation:sparklePop 3s ease-in-out infinite;
+    position:absolute;border-radius:50%;background:#fff;
+    box-shadow:0 0 10px 3px var(--stage-accent,var(--gold));
+    opacity:0;animation:sparklePop 2.8s ease-in-out infinite;
   }
-  .gem-sparkles i:nth-child(1){top:18%;left:22%;animation-delay:0s}
-  .gem-sparkles i:nth-child(2){top:35%;right:18%;animation-delay:.8s}
-  .gem-sparkles i:nth-child(3){bottom:28%;left:30%;animation-delay:1.6s}
-  .gem-sparkles i:nth-child(4){top:55%;right:28%;animation-delay:2.2s}
-  .gem-sparkles i:nth-child(5){bottom:15%;right:35%;animation-delay:.4s}
+  .gem-sparkles i:nth-child(1){width:5px;height:5px;top:12%;left:18%;animation-delay:0s}
+  .gem-sparkles i:nth-child(2){width:3px;height:3px;top:28%;right:12%;animation-delay:.5s}
+  .gem-sparkles i:nth-child(3){width:6px;height:6px;bottom:22%;left:24%;animation-delay:1.1s}
+  .gem-sparkles i:nth-child(4){width:4px;height:4px;top:48%;right:22%;animation-delay:1.7s}
+  .gem-sparkles i:nth-child(5){width:3px;height:3px;bottom:10%;right:30%;animation-delay:.3s}
+  .gem-sparkles i:nth-child(6){width:5px;height:5px;top:65%;left:10%;animation-delay:2s}
+  .gem-sparkles i:nth-child(7){width:2px;height:2px;top:8%;right:40%;animation-delay:2.4s}
+  .gem-sparkles i:nth-child(8){width:4px;height:4px;bottom:35%;right:8%;animation-delay:.9s}
   .prism-sweep{
-    position:absolute;inset:0;background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.08) 50%,transparent 60%);
-    transform:translateX(-100%);animation:prismSweep 5s ease-in-out infinite;pointer-events:none;
+    position:absolute;inset:-20%;pointer-events:none;
+    background:linear-gradient(105deg,transparent 42%,rgba(255,255,255,.14) 50%,transparent 58%);
+    transform:translateX(-130%) skewX(-8deg);animation:prismSweep 4s ease-in-out infinite;
   }
-  .gem-slide-dots{
-    display:flex;justify-content:center;gap:10px;margin-top:16px;
+  .gem-slide-progress{
+    position:absolute;bottom:0;left:0;right:0;height:3px;background:rgba(255,255,255,.06);z-index:10;
   }
+  .gem-slide-progress i{
+    display:block;height:100%;width:0;background:linear-gradient(90deg,var(--stage-accent,var(--gold)),color-mix(in srgb,var(--stage-accent,var(--gold)) 60%,#fff));
+    box-shadow:0 0 12px var(--stage-accent,var(--gold));
+    transition:width .1s linear;
+  }
+  .gem-slide-nav{
+    position:absolute;top:50%;transform:translateY(-50%);z-index:12;
+    width:44px;height:44px;border-radius:50%;border:1px solid var(--line-2);
+    background:rgba(10,10,12,.75);backdrop-filter:blur(8px);color:var(--text);
+    cursor:pointer;font-size:20px;line-height:1;display:flex;align-items:center;justify-content:center;
+    transition:border-color .2s,background .2s,transform .2s,box-shadow .2s;
+  }
+  .gem-slide-nav:hover{border-color:var(--gold);background:rgba(201,169,98,.12);transform:translateY(-50%) scale(1.06);box-shadow:0 0 24px rgba(201,169,98,.2)}
+  .gem-slide-prev{left:16px}
+  .gem-slide-next{right:16px}
+  .gem-slide-counter{
+    position:absolute;top:18px;right:22px;z-index:12;
+    font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--text-faint);
+  }
+  .gem-slide-counter b{color:var(--stage-accent,var(--gold));font-weight:400}
+  .gem-slide-dots{display:flex;justify-content:center;align-items:center;gap:12px;margin-top:18px}
   .gem-slide-dots button{
-    width:10px;height:10px;border-radius:50%;border:1px solid var(--line-2);background:transparent;
-    cursor:pointer;padding:0;transition:background .25s,transform .25s,border-color .25s;
+    width:32px;height:4px;border-radius:2px;border:none;background:var(--line-2);
+    cursor:pointer;padding:0;transition:background .3s,width .3s,box-shadow .3s;
   }
-  .gem-slide-dots button.on{background:var(--gold);border-color:var(--gold);transform:scale(1.15)}
-  .gem-slide-dots button:hover{border-color:var(--gold)}
-  @keyframes gemFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
-  @keyframes gemTilt{0%,100%{transform:rotateY(-8deg) rotateX(4deg)}50%{transform:rotateY(8deg) rotateX(-4deg)}}
+  .gem-slide-dots button.on{
+    width:48px;background:var(--stage-accent,var(--gold));
+    box-shadow:0 0 14px color-mix(in srgb,var(--stage-accent,var(--gold)) 60%,transparent);
+  }
+  .gem-slide-dots button:hover{background:color-mix(in srgb,var(--stage-accent,var(--gold)) 50%,var(--line-2))}
+  @keyframes glowPulse{0%,100%{opacity:.85;transform:scale(1)}50%{opacity:1;transform:scale(1.03)}}
+  @keyframes meshDrift{0%{transform:translate(0,0)}100%{transform:translate(-3%,2%)}}
+  @keyframes raySpin{to{transform:translate(50%,-50%) rotate(360deg)}}
+  @keyframes gemFloat{0%,100%{transform:translateY(0) rotateX(0deg)}50%{transform:translateY(-18px) rotateX(6deg)}}
+  @keyframes gemTilt{0%,100%{transform:rotateY(-12deg) rotateX(6deg)}50%{transform:rotateY(12deg) rotateX(-6deg)}}
+  @keyframes gemShimmer{0%,100%{filter:brightness(1)}50%{filter:brightness(1.15)}}
+  @keyframes diamondFire{
+    0%,100%{filter:brightness(1.1) hue-rotate(0deg)}
+    33%{filter:brightness(1.2) hue-rotate(25deg)}
+    66%{filter:brightness(1.15) hue-rotate(-20deg)}
+  }
   @keyframes orbitSpin{to{transform:rotate(360deg)}}
-  @keyframes sparklePop{0%,100%{opacity:0;transform:scale(.5)}50%{opacity:1;transform:scale(1.2)}}
-  @keyframes prismSweep{0%,100%{transform:translateX(-120%)}45%,55%{transform:translateX(120%)}}
+  @keyframes sparklePop{0%,100%{opacity:0;transform:scale(.3) rotate(0deg)}50%{opacity:1;transform:scale(1.4) rotate(180deg)}}
+  @keyframes prismSweep{0%,100%{transform:translateX(-130%) skewX(-8deg)}48%,52%{transform:translateX(130%) skewX(-8deg)}}
+  @keyframes slideTextIn{to{opacity:1;transform:none}}
+  @keyframes progressFill{from{width:0}to{width:100%}}
+  .gem-slideshow.paused .gem-slide-progress i{animation-play-state:paused!important}
   @media(prefers-reduced-motion:reduce){
-    .gem-float-wrap,.gem-svg-main,.gem-orbit,.prism-sweep,.gem-sparkles i{animation:none!important}
-    .gem-slide{transition:opacity .3s ease,visibility .3s;transform:none!important}
+    .gem-float-wrap,.gem-svg-main,.gem-orbit,.gem-orbit-b,.prism-sweep,.gem-sparkles i,.gem-stage-glow,.gem-stage-rays,.gem-stage-mesh{animation:none!important}
+    .gem-slide{transition:opacity .3s ease,visibility .3s;transform:none!important;filter:none!important}
+    .gem-slide-copy .slide-tag,.gem-slide-copy h2,.gem-slide-copy p,.gem-slide-stats{opacity:1!important;transform:none!important;animation:none!important}
+    .gem-particles{display:none}
   }
   @media(max-width:860px){
-    .gem-slide{grid-template-columns:1fr;text-align:center;padding:32px 24px}
+    .gem-slide{grid-template-columns:1fr;text-align:center;padding:36px 24px 52px}
     .gem-slide-copy p{margin-left:auto;margin-right:auto}
     .gem-slide-stats{justify-content:center}
-    .gem-slide-visual{order:-1;min-height:180px}
+    .gem-slide-visual{order:-1;min-height:200px}
     .gem-slideshow{padding:0 20px}
+    .gem-stage-rays,.gem-orbit,.gem-orbit-b{right:50%}
+    .gem-slide-nav{width:38px;height:38px;font-size:16px}
+    .gem-slide-prev{left:8px}.gem-slide-next{right:8px}
   }
 
   /* ---------- Controls ---------- */
@@ -1767,7 +1860,19 @@
 
 <section class="gem-slideshow" aria-label="Featured gemstones" id="gem-slideshow">
  <div class="gem-slide-stage" id="gem-slide-stage">
-  <article class="gem-slide active" style="--slide-accent:#b0132a" data-slide="0">
+  <div class="gem-stage-fx" aria-hidden="true">
+   <div class="gem-stage-glow"></div>
+   <div class="gem-stage-mesh"></div>
+   <div class="gem-stage-rays"></div>
+   <div class="gem-orbit"></div>
+   <div class="gem-orbit-b"></div>
+   <canvas class="gem-particles" id="gem-particles" aria-hidden="true"></canvas>
+  </div>
+  <div class="gem-slide-counter" id="gem-slide-counter"><b>01</b> / 05</div>
+  <button type="button" class="gem-slide-nav gem-slide-prev" id="gem-slide-prev" aria-label="Previous gem">‹</button>
+  <button type="button" class="gem-slide-nav gem-slide-next" id="gem-slide-next" aria-label="Next gem">›</button>
+  <div class="gem-slide-progress" aria-hidden="true"><i id="gem-slide-progress"></i></div>
+  <article class="gem-slide active" style="--stage-accent:#ff4060;--stage-glow:rgba(255,64,96,.25)" data-slide="0" data-gem="ruby">
    <div class="gem-slide-copy">
     <span class="slide-tag">Corundum · Oxide</span>
     <h2><em>Ruby</em></h2>
@@ -1775,15 +1880,14 @@
     <div class="gem-slide-stats"><span><b>Mohs</b>9</span><span><b>System</b>Trigonal</span><span><b>Origin</b>Myanmar</span></div>
    </div>
    <div class="gem-slide-visual">
-    <div class="gem-orbit"></div>
     <div class="gem-float-wrap">
      <svg class="gem-svg-main" viewBox="0 0 120 140" aria-hidden="true"><defs><linearGradient id="gRuby" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ff4060"/><stop offset="50%" stop-color="#b0132a"/><stop offset="100%" stop-color="#5a0818"/></linearGradient></defs><polygon fill="url(#gRuby)" points="60,8 108,45 90,132 30,132 12,45"/><polygon fill="rgba(255,255,255,.25)" points="60,8 60,70 12,45"/><polygon fill="rgba(0,0,0,.2)" points="60,70 90,132 60,132"/><polygon fill="rgba(255,180,180,.15)" points="60,8 108,45 60,70"/></svg>
     </div>
-    <div class="gem-sparkles"><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="gem-sparkles"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
     <div class="prism-sweep"></div>
    </div>
   </article>
-  <article class="gem-slide" style="--slide-accent:#173a8f" data-slide="1">
+  <article class="gem-slide" style="--stage-accent:#4a7fd4;--stage-glow:rgba(74,127,212,.28)" data-slide="1" data-gem="sapphire">
    <div class="gem-slide-copy">
     <span class="slide-tag">Corundum · Oxide</span>
     <h2><em>Sapphire</em></h2>
@@ -1791,15 +1895,14 @@
     <div class="gem-slide-stats"><span><b>Mohs</b>9</span><span><b>System</b>Trigonal</span><span><b>Origin</b>Sri Lanka</span></div>
    </div>
    <div class="gem-slide-visual">
-    <div class="gem-orbit"></div>
     <div class="gem-float-wrap">
      <svg class="gem-svg-main" viewBox="0 0 120 140" aria-hidden="true"><defs><linearGradient id="gSapphire" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#4a7fd4"/><stop offset="50%" stop-color="#173a8f"/><stop offset="100%" stop-color="#0a1840"/></linearGradient></defs><polygon fill="url(#gSapphire)" points="60,8 108,45 90,132 30,132 12,45"/><polygon fill="rgba(255,255,255,.22)" points="60,8 60,70 12,45"/><polygon fill="rgba(0,0,0,.25)" points="60,70 90,132 60,132"/></svg>
     </div>
-    <div class="gem-sparkles"><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="gem-sparkles"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
     <div class="prism-sweep"></div>
    </div>
   </article>
-  <article class="gem-slide" style="--slide-accent:#0f7a4d" data-slide="2">
+  <article class="gem-slide" style="--stage-accent:#3ecf8a;--stage-glow:rgba(62,207,138,.22)" data-slide="2" data-gem="emerald">
    <div class="gem-slide-copy">
     <span class="slide-tag">Beryl · Silicate</span>
     <h2><em>Emerald</em></h2>
@@ -1807,15 +1910,14 @@
     <div class="gem-slide-stats"><span><b>Mohs</b>7.75</span><span><b>System</b>Hexagonal</span><span><b>Origin</b>Colombia</span></div>
    </div>
    <div class="gem-slide-visual">
-    <div class="gem-orbit"></div>
     <div class="gem-float-wrap">
      <svg class="gem-svg-main" viewBox="0 0 120 140" aria-hidden="true"><defs><linearGradient id="gEmerald" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3ecf8a"/><stop offset="50%" stop-color="#0f7a4d"/><stop offset="100%" stop-color="#064028"/></linearGradient></defs><polygon fill="url(#gEmerald)" points="60,8 108,45 90,132 30,132 12,45"/><polygon fill="rgba(255,255,255,.2)" points="60,8 60,70 12,45"/><polygon fill="rgba(0,0,0,.22)" points="60,70 90,132 60,132"/></svg>
     </div>
-    <div class="gem-sparkles"><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="gem-sparkles"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
     <div class="prism-sweep"></div>
    </div>
   </article>
-  <article class="gem-slide" style="--slide-accent:#7b3fb0" data-slide="3">
+  <article class="gem-slide" style="--stage-accent:#c080e8;--stage-glow:rgba(192,128,232,.25)" data-slide="3" data-gem="amethyst">
    <div class="gem-slide-copy">
     <span class="slide-tag">Quartz · Silicate</span>
     <h2><em>Amethyst</em></h2>
@@ -1823,15 +1925,14 @@
     <div class="gem-slide-stats"><span><b>Mohs</b>7</span><span><b>System</b>Trigonal</span><span><b>Origin</b>Brazil</span></div>
    </div>
    <div class="gem-slide-visual">
-    <div class="gem-orbit"></div>
     <div class="gem-float-wrap">
      <svg class="gem-svg-main" viewBox="0 0 120 160" aria-hidden="true"><defs><linearGradient id="gAmethyst" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#4c2470"/><stop offset="50%" stop-color="#7b3fb0"/><stop offset="100%" stop-color="#c080e8"/></linearGradient></defs><polygon fill="url(#gAmethyst)" points="60,140 20,60 35,20 85,20 100,60"/><polygon fill="rgba(255,255,255,.18)" points="60,20 35,20 60,80"/><polygon fill="rgba(0,0,0,.2)" points="60,80 100,60 60,140"/><polygon fill="url(#gAmethyst)" opacity=".7" points="60,20 85,20 100,60 60,80"/></svg>
     </div>
-    <div class="gem-sparkles"><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="gem-sparkles"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
     <div class="prism-sweep"></div>
    </div>
   </article>
-  <article class="gem-slide" style="--slide-accent:#dbe4ec" data-slide="4">
+  <article class="gem-slide" style="--stage-accent:#e8f4ff;--stage-glow:rgba(200,220,255,.3)" data-slide="4" data-gem="diamond">
    <div class="gem-slide-copy">
     <span class="slide-tag">Carbon · Native</span>
     <h2><em>Diamond</em></h2>
@@ -1839,11 +1940,10 @@
     <div class="gem-slide-stats"><span><b>Mohs</b>10</span><span><b>System</b>Cubic</span><span><b>Origin</b>Botswana</span></div>
    </div>
    <div class="gem-slide-visual">
-    <div class="gem-orbit"></div>
     <div class="gem-float-wrap">
      <svg class="gem-svg-main" viewBox="0 0 120 140" aria-hidden="true"><defs><linearGradient id="gDiamond" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ffffff"/><stop offset="40%" stop-color="#dbe4ec"/><stop offset="100%" stop-color="#a8b8c8"/></linearGradient></defs><polygon fill="url(#gDiamond)" points="60,5 110,50 60,135 10,50"/><polygon fill="rgba(255,255,255,.5)" points="60,5 60,70 10,50"/><polygon fill="rgba(180,200,220,.3)" points="60,5 110,50 60,70"/><polygon fill="rgba(0,0,0,.08)" points="60,70 110,50 60,135"/><polygon fill="rgba(255,220,255,.2)" points="60,70 10,50 60,135"/></svg>
     </div>
-    <div class="gem-sparkles"><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="gem-sparkles"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
     <div class="prism-sweep"></div>
    </div>
   </article>
@@ -2260,14 +2360,40 @@ function partnerUrl(partnerKey,pathKey){
  return url;
 }
 function initGemSlideshow(){
+ const root=document.getElementById('gem-slideshow');
+ const stage=document.getElementById('gem-slide-stage');
  const slides=[...document.querySelectorAll('.gem-slide')];
  const dotsEl=document.getElementById('gem-slide-dots');
- if(!slides.length||!dotsEl)return;
- let cur=0,timer=null;
+ const counterEl=document.getElementById('gem-slide-counter');
+ const progressEl=document.getElementById('gem-slide-progress');
+ const canvas=document.getElementById('gem-particles');
+ if(!slides.length||!dotsEl||!stage)return;
+ const SLIDE_MS=5000;
+ let cur=0,timer=null,progressRaf=null,particles=[];
+ const accentOf=i=>{
+  const s=slides[i];
+  const m=getComputedStyle(s).getPropertyValue('--stage-accent').trim();
+  return m||'#c9a962';
+ };
+ function syncStageTheme(i){
+  const s=slides[i];
+  stage.style.setProperty('--stage-accent',getComputedStyle(s).getPropertyValue('--stage-accent'));
+  stage.style.setProperty('--stage-glow',getComputedStyle(s).getPropertyValue('--stage-glow'));
+  if(counterEl) counterEl.innerHTML='<b>'+String(i+1).padStart(2,'0')+'</b> / '+String(slides.length).padStart(2,'0');
+ }
+ function startProgress(){
+  if(!progressEl)return;
+  progressEl.style.animation='none';
+  progressEl.offsetHeight;
+  progressEl.style.animation='progressFill '+SLIDE_MS+'ms linear forwards';
+ }
+ function stopProgress(){
+  if(progressEl){ progressEl.style.animation='none'; progressEl.style.width='0'; }
+  if(progressRaf){ cancelAnimationFrame(progressRaf); progressRaf=null; }
+ }
  slides.forEach((_,i)=>{
   const b=document.createElement('button');
-  b.type='button';
-  b.setAttribute('role','tab');
+  b.type='button'; b.setAttribute('role','tab');
   b.setAttribute('aria-label','Show gem slide '+(i+1));
   if(i===0)b.classList.add('on');
   b.onclick=()=>go(i,true);
@@ -2278,16 +2404,66 @@ function initGemSlideshow(){
   if(n===cur&&manual)return;
   slides[cur].classList.remove('active');
   slides[cur].classList.add('exit-left');
-  setTimeout(()=>slides[cur].classList.remove('exit-left'),650);
+  setTimeout(()=>slides[cur].classList.remove('exit-left'),750);
   cur=(n+slides.length)%slides.length;
   slides[cur].classList.add('active');
   dots.forEach((d,i)=>{ d.classList.toggle('on',i===cur); d.setAttribute('aria-selected',i===cur?'true':'false'); });
+  syncStageTheme(cur);
+  resetParticles(accentOf(cur));
   resetTimer();
  }
  function resetTimer(){
-  clearInterval(timer);
-  timer=setInterval(()=>go(cur+1,false),4500);
+  clearInterval(timer); stopProgress();
+  startProgress();
+  timer=setInterval(()=>go(cur+1,false),SLIDE_MS);
  }
+ document.getElementById('gem-slide-prev')?.addEventListener('click',()=>go(cur-1,true));
+ document.getElementById('gem-slide-next')?.addEventListener('click',()=>go(cur+1,true));
+ root?.addEventListener('mouseenter',()=>{ root.classList.add('paused'); clearInterval(timer); stopProgress(); });
+ root?.addEventListener('mouseleave',()=>{ root.classList.remove('paused'); resetTimer(); });
+ let touchX=0;
+ stage?.addEventListener('touchstart',e=>{ touchX=e.touches[0].clientX; },{passive:true});
+ stage?.addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-touchX;
+  if(Math.abs(dx)>50) go(cur+(dx<0?1:-1),true);
+ },{passive:true});
+ if(canvas){
+  const ctx=canvas.getContext('2d');
+  function resizeCanvas(){
+   const r=stage.getBoundingClientRect();
+   canvas.width=Math.floor(r.width); canvas.height=Math.floor(r.height);
+  }
+  function resetParticles(color){
+   resizeCanvas();
+   particles=[];
+   const n=Math.min(70,Math.floor(canvas.width*canvas.height/8000));
+   for(let i=0;i<n;i++){
+    particles.push({
+     x:Math.random()*canvas.width,y:Math.random()*canvas.height,
+     vx:(Math.random()-.5)*.6,vy:(Math.random()-.5)*.6,
+     r:Math.random()*2.2+.4,a:Math.random()*.5+.2,color
+    });
+   }
+  }
+  function drawParticles(){
+   if(!ctx||!canvas.width)return;
+   ctx.clearRect(0,0,canvas.width,canvas.height);
+   for(const p of particles){
+    p.x+=p.vx; p.y+=p.vy;
+    if(p.x<0)p.x=canvas.width; if(p.x>canvas.width)p.x=0;
+    if(p.y<0)p.y=canvas.height; if(p.y>canvas.height)p.y=0;
+    ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fillStyle=p.color; ctx.globalAlpha=p.a;
+    ctx.shadowBlur=8; ctx.shadowColor=p.color; ctx.fill();
+   }
+   ctx.globalAlpha=1; ctx.shadowBlur=0;
+   progressRaf=requestAnimationFrame(drawParticles);
+  }
+  resetParticles(accentOf(0));
+  drawParticles();
+  window.addEventListener('resize',()=>resetParticles(accentOf(cur)));
+ }
+ syncStageTheme(0);
  resetTimer();
 }
 function initPartnerLinks(){
