@@ -3145,7 +3145,7 @@ const PLASMA_TITAN={name:"Plasma Titan", color:"#7d5aff", power:9999, need:0, ti
 const GLITCH_MACE={art:"glitch", name:"Glitched Mace", bonus:Infinity, glitch:true, codeOnly:true};
 const GLITCH_SHIELD={art:"glitch", name:"Glitched Shield", block:Infinity, color:"#39ff14", glitch:true, codeOnly:true};
 const GLITCH_TITAN={name:"Glitched Plasma", color:"#39ff14", power:Infinity, need:0, titan:true, plasma:true, glitch:true, hp:Infinity, codeOnly:true};
-const GLITCH_AURA={name:"Glitched Aura", color:"#39ff14", hpMult:Infinity, atkMult:Infinity, label:"∞", glitch:true, codeOnly:true};
+const GLITCH_AURA={name:"Glitched Aura", color:"#39ff14", hpMult:Infinity, atkMult:Infinity, label:"x1no", glitch:true, codeOnly:true};
 function makeGlitchInfinite(){
  GLITCH_MACE.bonus=Infinity;
  GLITCH_SHIELD.block=Infinity;
@@ -3153,7 +3153,7 @@ function makeGlitchInfinite(){
  GLITCH_TITAN.hp=Infinity;
  GLITCH_AURA.hpMult=Infinity;
  GLITCH_AURA.atkMult=Infinity;
- GLITCH_AURA.label="∞";
+ GLITCH_AURA.label="x1no";
 }
 let hasGlitchItems=false;
 let hasPlasmaTitan=false;
@@ -3846,7 +3846,7 @@ function buildGame(){
  ${earned>0?'<p class="game-hint"> Tap a shield to equip it — it blocks part of every hit you take!</p>':''}
  </div>`;
  wrap.innerHTML=`
- <div class="eyebrow">You Unlocked ${unlocked} of ${WARRIORS.length} Warriors</div>
+ <div class="eyebrow">You Unlocked ${unlocked.length} of ${WARRIORS.length} Warriors</div>
  <h1>The <em>Battle Arena</em></h1>
  <div class="game-count" style="margin-top:20px">Quizzes finished: ${quizzesDone} — finish more to unlock stronger warriors!</div>
  <div class="warrior-grid" id="warrior-grid"></div>
@@ -3956,7 +3956,7 @@ function renderArena(msg){
  const left=8+Math.random()*84;
  const dur=(4+Math.random()*4).toFixed(1);
  const delay=(Math.random()*4).toFixed(1);
- const em=['','','',''][Math.floor(Math.random()*4)];
+ const em=['✨','⭐','💠','🔹'][Math.floor(Math.random()*4)];
  return `<div class="spark" style="left:${left}%;bottom:0;animation-duration:${dur}s;animation-delay:${delay}s">${em}</div>`;
  }).join('');
  document.getElementById('arena-area').innerHTML=`
@@ -5313,8 +5313,8 @@ function playBathroomCutscene(){
  <div class="cs-floor"></div>
  ${extra||''}
  </div>`;
- const toilet = (x) => `<div class="cs-toilet" style="left:${x}%"></div>`;
- const sink = (x) => `<div class="cs-sink" style="left:${x}%"></div>`;
+ const toilet = (x) => `<div class="cs-toilet" style="left:${x}%">🚽</div>`;
+ const sink = (x) => `<div class="cs-sink" style="left:${x}%">🚰</div>`;
  const you = (x, face) => `<div class="cs-you" style="left:${x}%">${onyxWarriorSVG(90)}<div class="cs-face">${face||''}</div></div>`;
  const overlord = (x) => `<div class="cs-overlord" style="left:${x}%">${gemWarriorSVG("#1b3f96",90,false,false,"warlord")}</div>`;
  const speech = (txt) => `<div class="cs-speech">${txt}</div>`;
@@ -5322,19 +5322,19 @@ function playBathroomCutscene(){
  // the scenes, played one after another
  const scenes=[
  // 1: you walk into the bathroom
- ()=>{stage.innerHTML=bathroom(toilet(70)+sink(20)+you(8,'')+speech(" You walk into the bathroom..."));},
+ ()=>{stage.innerHTML=bathroom(toilet(70)+sink(20)+you(8,'')+speech("🚪 You walk into the bathroom..."));},
  // 2: the Sapphire Overlord is getting OUT of the toilet stall!
- ()=>{stage.innerHTML=bathroom(toilet(70)+sink(20)+overlord(64)+you(30,'')+speech(" A SAPPHIRE OVERLORD is getting out of the bathroom!!"));},
+ ()=>{stage.innerHTML=bathroom(toilet(70)+sink(20)+overlord(64)+you(30,'😳')+speech("😱 A SAPPHIRE OVERLORD is getting out of the bathroom!!"));},
  // 3: the overlord leaves, you use the toilet
- ()=>{stage.innerHTML=bathroom(toilet(70)+sink(20)+you(66,'')+speech(" Phew! Now you use it..."));},
+ ()=>{stage.innerHTML=bathroom(toilet(70)+sink(20)+you(66,'😌')+speech("😅 Phew! Now you use it..."));},
  // 4: go wash your hands
- ()=>{stage.innerHTML=bathroom(toilet(70)+sink(20)+you(22,'')+speech(" Time to wash your hands!"));},
+ ()=>{stage.innerHTML=bathroom(toilet(70)+sink(20)+you(22,'🙂')+speech("🚰 Time to wash your hands!"));},
  // 5: NO SOAP?!
- ()=>{stage.innerHTML=bathroom(toilet(70)+sink(20)+you(22,'')+speech(" NO SOAP!?"));},
+ ()=>{stage.innerHTML=bathroom(toilet(70)+sink(20)+you(22,'😧')+speech("😧 NO SOAP!?"));},
  // 6: look behind — a sign says NO SOAP!!!!!
- ()=>{stage.innerHTML=bathroom(toilet(70)+sink(20)+`<div class="cs-sign"> NO SOAP!!!!!!!!!!!</div>`+you(40,'')+speech(" You look behind you..."));},
+ ()=>{stage.innerHTML=bathroom(toilet(70)+sink(20)+`<div class="cs-sign">🪧 NO SOAP!!!!!!!!!!!</div>`+you(40,'😱')+speech("😱 You look behind you..."));},
  // 7: the end
- ()=>{stage.innerHTML=bathroom(`<div class="cs-sign big"> NO SOAP!!!!!!!!!!!</div>`+you(45,'')+speech(" THE END "));},
+ ()=>{stage.innerHTML=bathroom(`<div class="cs-sign big">🪧 NO SOAP!!!!!!!!!!!</div>`+you(45,'😭')+speech("🎬 THE END 😂"));},
  ];
 
  let i=0;
