@@ -3595,20 +3595,50 @@ function backToCrafts(){
 
 /* ---------- Gem Arena Game ---------- */
 let chosenWarrior=null;
-// Warriors from WEAKEST to STRONGEST. "need" is legacy (ignored — all warriors are available).
+// Warriors from WEAKEST to STRONGEST — beat Crystal Lords to unlock (need = lords required).
 const WARRIORS=[
  {name:"Rose Quartz Sprite", color:"#e89bb0", power:20, need:0, style:"sprite"},
- {name:"Amethyst Mage", color:"#7d43b3", power:30, need:2, style:"mage"},
- {name:"Topaz Knight", color:"#dba32a", power:40, need:3, style:"knight"},
- {name:"Emerald Guardian", color:"#128a56", power:52, need:4, style:"guardian"},
- {name:"Sapphire Warlord", color:"#1b3f96", power:64, need:5, style:"warlord"},
- {name:"Ruby Champion", color:"#a8122a", power:78, need:6, style:"champion"},
- {name:"Diamond Titan", color:"#dbe4ec", power:95, need:8, titan:true},
- {name:"Black Onyx Warrior", color:"#2b2b33", power:110, need:10, style:"onyx"},
- {name:"Moonstone Sentinel", color:"#b8e0e8", power:125, need:7, style:"knight"},
+ {name:"Amethyst Mage", color:"#7d43b3", power:30, need:1, style:"mage"},
+ {name:"Topaz Knight", color:"#dba32a", power:40, need:2, style:"knight"},
+ {name:"Emerald Guardian", color:"#128a56", power:52, need:3, style:"guardian"},
+ {name:"Sapphire Warlord", color:"#1b3f96", power:64, need:4, style:"warlord"},
+ {name:"Ruby Champion", color:"#a8122a", power:78, need:5, style:"champion"},
+ {name:"Diamond Titan", color:"#dbe4ec", power:95, need:6, titan:true},
+ {name:"Black Onyx Warrior", color:"#2b2b33", power:110, need:7, style:"onyx"},
+ {name:"Moonstone Sentinel", color:"#b8e0e8", power:125, need:8, style:"knight"},
 ];
-function warriorUnlocked(w){return true;}
-function unlockedCount(){return WARRIORS.length;}
+const EMERALD_GUARDIAN_INDEX=3;
+const BOSSES_DEFEATED_KEY='lithos_bosses_defeated';
+let bossesDefeated=0;
+function loadGameProgress(){
+ try{ bossesDefeated=Math.max(0, parseInt(localStorage.getItem(BOSSES_DEFEATED_KEY)||'0',10)||0); }catch(e){ bossesDefeated=0; }
+}
+function saveGameProgress(){
+ try{ localStorage.setItem(BOSSES_DEFEATED_KEY, String(bossesDefeated)); }catch(e){}
+}
+loadGameProgress();
+function warriorUnlockHint(w,i){
+ if(w.codeOnly) return 'Secret code only';
+ if(w.ownerOnly) return 'Owner code only';
+ if(i===EMERALD_GUARDIAN_INDEX && !hasEmeraldGift()) return 'Free gift — or beat 3 Crystal Lords';
+ if(w.need<=0) return '';
+ return `Beat ${w.need} Crystal Lord${w.need>1?'s':''}`;
+}
+function warriorUnlocked(w,i){
+ if(i==null) i=WARRIORS.indexOf(w);
+ if(i<0) return false;
+ if(w.codeOnly){
+ if(w.rainbowgod) return hasRainbowItems;
+ if(w.glitch) return hasGlitchItems;
+ return false;
+ }
+ if(w.ownerOnly) return hasPlasmaTitan&&isOwner;
+ if(isOwner) return true;
+ if(i===EMERALD_GUARDIAN_INDEX && hasEmeraldGift()) return true;
+ if(w.need<=0) return true;
+ return bossesDefeated>=w.need;
+}
+function unlockedCount(){ return WARRIORS.filter((w,i)=>warriorUnlocked(w,i)).length; }
 // format big numbers nicely: 1000000000000000 -> "1qa"
 function fmtHP(n){
  if(n==null || !isFinite(n)) return n===Infinity?'∞':'0';
@@ -3934,7 +3964,6 @@ const RAINBOW_SHIELD={art:"rainbow", name:"Ammolite Aegis", block:95, color:"#ff
 let hasRainbowItems=false;
 let hasGlitchItems=false;
 let hasPlasmaTitan=false;
-let bossesDefeated=0; // how many bosses you've beaten
 let equippedWeapon=-1; // which weapon is equipped (-1 = none)
 // AURAS give health & attack MULTIPLIERS! Black Diamond Void is the strongest (x100t)!
 const AURAS=[
@@ -4905,7 +4934,7 @@ function buildGame(){
  ${earned>0?'<p class="game-hint">Tap a shield to equip it — each one has a gem fact below its name!</p>':'<p class="game-hint">Shields show real names and gem facts even before you unlock them!</p>'}
  </div>`;
  wrap.innerHTML=`
- <div class="eyebrow">All ${WARRIORS.length} Gem Warriors Ready</div>
+ <div class="eyebrow">${unlockedCount()} / ${WARRIORS.length} Gem Warriors Unlocked</div>
  <h1>The <em>Gem Arena</em></h1>
  <div class="warrior-grid" id="warrior-grid"></div>
  ${arsenalHTML}
@@ -4915,17 +4944,23 @@ function buildGame(){
  <div id="arena-area"></div>`;
  const grid=document.getElementById('warrior-grid');
  grid.innerHTML=WARRIORS.map((w,i)=>{
+ const ok=warriorUnlocked(w,i);
  const isGift=hasEmeraldGift()&&i===EMERALD_GUARDIAN_INDEX;
- return `<div class="warrior unlocked" data-i="${i}" style="--wc:${w.color}">
+ return `<div class="warrior ${ok?'unlocked':'locked'}" data-i="${i}" style="--wc:${w.color}">
  <div class="w-body ${w.glitch?'glitched':''}">${gemWarriorSVG(w.color,64,w.titan,w.plasma,w.style)}</div>
  <div class="w-name">${w.name}</div>
- <div class="w-power"> Power ${w.power}</div>
- ${isGift?'<div class="w-gift">🎁 Your free gift</div>':''}
+ <div class="w-power">${ok?('Power '+w.power):'🔒 Locked'}</div>
+ ${isGift&&ok?'<div class="w-gift">🎁 Your free gift</div>':''}
+ ${!ok?`<div class="w-need">${warriorUnlockHint(w,i)}</div>`:''}
  </div>`;
  }).join('');
 grid.querySelectorAll('.warrior').forEach(el=>{
- el.onclick=()=>{chosenWarrior=+el.dataset.i;startBattle(false);};
- });
+ el.onclick=()=>{
+ const i=+el.dataset.i;
+ if(!warriorUnlocked(WARRIORS[i],i)){ alert(`That warrior is locked! ${warriorUnlockHint(WARRIORS[i],i)}`); return; }
+ chosenWarrior=i; startBattle(false);
+ };
+});
  // weapon equip clicks
  wrap.querySelectorAll('.weapon.got[data-w]').forEach(el=>{
  el.onclick=(e)=>{
@@ -4959,13 +4994,14 @@ let battle=null;
 function buildParade(){
  const stage=document.getElementById('parade-stage');
  stage.innerHTML=WARRIORS.map((w,i)=>{
- const move='m'+(i%3); // three different movement styles
+ const move='m'+(i%3);
  const delay=(i*0.25).toFixed(2);
- return `<div class="p-warrior ${move}" style="animation-delay:${delay}s">
+ const ok=warriorUnlocked(w,i);
+ return `<div class="p-warrior ${move} ${ok?'':'plocked'}" style="animation-delay:${delay}s">
  <div style="animation-delay:${delay}s">${gemWarriorSVG(w.color, 90, w.titan, w.plasma, w.style)}</div>
  <div class="p-name">${w.name}</div>
  </div>`;
- }).join('') + `<p class="parade-note" style="flex-basis:100%"><b>All warriors are dancing!</b> Pick one and head to the Gem Arena.</p>`;
+ }).join('') + `<p class="parade-note" style="flex-basis:100%"><b>${unlockedCount()} warriors unlocked!</b> Beat Crystal Lords in the Gem Arena to unlock more.</p>`;
  // apply the animation delay to the svgs too so they don't all move together
  [...stage.querySelectorAll('.p-warrior')].forEach((el,i)=>{
  const svg=el.querySelector('svg');
@@ -4975,6 +5011,9 @@ function buildParade(){
 
 function startBattle(isBoss){
  if(chosenWarrior===null){alert("Pick a gem warrior first!");return;}
+ if(!warriorUnlocked(WARRIORS[chosenWarrior],chosenWarrior)){
+ alert(`That warrior is locked! ${warriorUnlockHint(WARRIORS[chosenWarrior],chosenWarrior)}`); return;
+ }
  const hero=WARRIORS[chosenWarrior];
  let foe;
  if(isBoss){
@@ -5089,6 +5128,7 @@ function doAttack(){
  let reward='';
  if(bossesDefeated===f.bossIndex){
  bossesDefeated++;
+ saveGameProgress();
  const wi=f.bossIndex;
  const newWp=WEAPONS[wi];
  if(newWp){reward=`<br> You earned a new gem weapon: <b>${newWp.name}</b> (+${fmtHP(newWp.bonus)} power)!`;}
@@ -6865,6 +6905,7 @@ function tryCode(){
  hasRainbowItems=true;
  }
  bossesDefeated=WEAPONS.length;
+ saveGameProgress();
  chosenWarrior=WARRIORS.length-1;
  equippedWeapon=WEAPONS.findIndex(w=>w.art==="rainbow");
  equippedShield=SHIELDS.findIndex(s=>s.art==="rainbow");
@@ -6890,6 +6931,7 @@ function tryCode(){
  hasGlitchItems=true;
  }
  bossesDefeated=WEAPONS.length; // unlock every weapon AND shield
+ saveGameProgress();
  equippedWeapon=WEAPONS.length-1; // equip the Glitched Jasper Mace
  equippedShield=SHIELDS.length-1; // equip the Glitched Fluorite Shield
  equippedAura=AURAS.length-1; // equip the Glitched Aura
@@ -6923,6 +6965,7 @@ function tryCode(){
  hasPlasmaTitan=true;
  }
  bossesDefeated=WEAPONS.length; // give every weapon INCLUDING the plasma mace
+ saveGameProgress();
  equippedWeapon=WEAPONS.length-1; // equip the Prism Mace (strongest!)
  equippedShield=SHIELDS.length-1; // equip the strongest shield (Onyx Aegis!)
  updateGameLock();
@@ -6960,8 +7003,8 @@ function tryCode(){
 
  // other fun codes
  const CODES={
- "gempower":()=>{updateGameLock();return " GEM POWER! All gem warriors ready!";},
- "bossbuster":()=>{bossesDefeated=WEAPONS.length;equippedWeapon=WEAPONS.length-1;return " CRYSTAL LORD BUSTER! All gem weapons unlocked and equipped!";},
+ "gempower":()=>{bossesDefeated=Math.max(bossesDefeated,8);saveGameProgress();if(typeof buildGame==='function'&&document.getElementById('game-wrap'))buildGame();return " GEM POWER! All gem warriors ready!";},
+ "bossbuster":()=>{bossesDefeated=WEAPONS.length;saveGameProgress();equippedWeapon=WEAPONS.length-1;if(typeof buildGame==='function'&&document.getElementById('game-wrap'))buildGame();return " CRYSTAL LORD BUSTER! All gem weapons unlocked and equipped!";},
  "sparkle":()=>" Sparkle sparkle! (Just for fun — you got a sparkle!)",
  };
  if(CODES[raw]){
@@ -7475,13 +7518,13 @@ function playBathroomCutscene(){
 }
 
 // ===== FREE EMERALD GUARDIAN GIFT — code: free gift (NOT Diamond Titan) =====
-const EMERALD_GUARDIAN_INDEX=3;
 const EMERALD_GIFT_KEY='lithos_emerald_gift';
 function hasEmeraldGift(){ return localStorage.getItem(EMERALD_GIFT_KEY)==='1'; }
 function grantEmeraldGuardianGift(showPopup){
  localStorage.setItem(EMERALD_GIFT_KEY,'1');
  chosenWarrior=EMERALD_GUARDIAN_INDEX;
  if(showPopup!==false) showEmeraldGiftNotification();
+ if(typeof buildGame==='function'&&document.getElementById('view-game')&&!document.getElementById('view-game').hidden) buildGame();
 }
 function showEmeraldGiftNotification(){
  if(document.getElementById('gift-notif')) return;
