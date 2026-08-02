@@ -1356,17 +1356,9 @@
   .exp-play{position:relative;height:220px;margin:8px 0;z-index:1}
   .exp-ground{position:absolute;left:-16px;right:-16px;bottom:0;height:38%;background:linear-gradient(180deg,#5a8a3a,#3a6028);
     border-top:2px solid rgba(255,255,255,.2);box-shadow:inset 0 4px 10px rgba(0,0,0,.25)}
-  .exp-pit{position:absolute;bottom:0;height:32%;background:radial-gradient(ellipse at center top,rgba(0,0,0,.55),rgba(0,0,0,.85));border-top:2px dashed rgba(255,255,255,.15);z-index:0;transform:translateX(-50%);border-radius:8px 8px 0 0}
+  .exp-pit{position:absolute;bottom:0;height:32%;background:radial-gradient(ellipse at center top,rgba(0,0,0,.55),rgba(0,0,0,.85));border-top:2px dashed rgba(255,255,255,.15);z-index:0;transform:translateX(-50%);border-radius:8px 8px 0 0;pointer-events:none}
   .exp-pit::after{content:"";position:absolute;left:50%;top:20%;transform:translateX(-50%);font-size:18px;opacity:.5}
-  .exp-plat{position:absolute;height:14%;background:linear-gradient(180deg,#6a9a4a,#4a7a32);border:2px solid rgba(255,255,255,.25);border-radius:6px 6px 0 0;box-shadow:0 -4px 8px rgba(0,0,0,.2);z-index:1}
-  .exp-field.canyon .exp-plat{background:linear-gradient(180deg,#c0a070,#907848)}
-  .exp-field.cave .exp-plat{background:linear-gradient(180deg,#5a4880,#3a2858)}
-  .exp-field.river .exp-plat{background:linear-gradient(180deg,#8ab8a8,#5a9888)}
-  .exp-field.volcano .exp-plat{background:linear-gradient(180deg,#a05040,#702818)}
-  .exp-field.snow .exp-plat{background:linear-gradient(180deg,#e0eef8,#b0c8d8)}
-  .exp-field.desert .exp-plat{background:linear-gradient(180deg,#e8d090,#c0a060)}
-  .exp-field.ruins .exp-plat{background:linear-gradient(180deg,#8090a0,#506068)}
-  .exp-hurdle{position:absolute;transform:translateX(-50%);z-index:4;font-size:28px;line-height:1;bottom:36%;filter:drop-shadow(0 3px 4px rgba(0,0,0,.35))}
+  .exp-hurdle{position:absolute;transform:translateX(-50%);z-index:4;font-size:28px;line-height:1;bottom:36%;filter:drop-shadow(0 3px 4px rgba(0,0,0,.35));pointer-events:none}
   .exp-char.falling{opacity:.85;transition:none}
   .exp-field.goldmine .exp-ground{background:linear-gradient(180deg,#4a3820,#2a1a08);border-top-color:rgba(255,211,78,.25)}
   .exp-char{position:absolute;transition:left .08s linear,bottom .06s linear;z-index:5;line-height:0}
@@ -5330,56 +5322,56 @@ function buildBattlefield(){
 const HUNT_AREAS=[
  {id:'forest',name:'Forest Trail',emoji:'🌲',sign:'Jump gaps & hop logs — gems hide in bushes!',
   hides:['🌿','🌳','🍂','🪵'],
-  obby:{gaps:[{from:28,to:36},{from:62,to:69}],platforms:[{from:44,to:56,lift:24}],hurdles:[{x:52}]},
+  obby:{gaps:[{from:28,to:36},{from:62,to:69}],hurdles:[{x:48}]},
   gems:[
    {x:14,color:'#7d43b3',name:'Amethyst',y:38},{x:38,color:'#7a9a30',name:'Peridot',y:40},
    {x:62,color:'#9c2229',name:'Garnet',y:39},{x:86,color:'#2a8a58',name:'Jade',y:41}
   ]},
  {id:'canyon',name:'Rocky Canyon',emoji:'🏜️',sign:'Leap canyon cracks — search the boulders!',
   hides:['🪨','⛰️','🪵','🌵'],
-  obby:{gaps:[{from:32,to:40},{from:68,to:75}],platforms:[{from:48,to:60,lift:20}],hurdles:[{x:22}]},
+  obby:{gaps:[{from:32,to:40},{from:68,to:75}],hurdles:[{x:54}]},
   gems:[
    {x:14,color:'#1b3f96',name:'Sapphire',y:41},{x:38,color:'#ffd34e',name:'Citrine',y:38},
    {x:62,color:'#b85a40',name:'Agate',y:40},{x:86,color:'#c06030',name:'Jasper',y:39}
   ]},
  {id:'cave',name:'Crystal Cave',emoji:'🕳️',sign:'Hop stone ledges over dark pits!',
   hides:['💎','🪨','✨','🔮'],
-  obby:{gaps:[{from:30,to:38},{from:64,to:71}],platforms:[{from:46,to:58,lift:26}],hurdles:[{x:78}]},
+  obby:{gaps:[{from:30,to:38},{from:64,to:71}],hurdles:[{x:50}]},
   gems:[
    {x:14,color:'#a8122a',name:'Ruby',y:39},{x:38,color:'#dbe4ec',name:'Diamond',y:41},
    {x:62,color:'#c9a0ff',name:'Fluorite',y:38},{x:86,color:'#e8e8f0',name:'Quartz',y:40}
   ]},
  {id:'river',name:'Riverside',emoji:'🌊',sign:'Jump over streams — search the shore!',
   hides:['🌾','🪨','🐚','💧'],
-  obby:{gaps:[{from:34,to:42},{from:70,to:77}],platforms:[{from:50,to:62,lift:18}],hurdles:[{x:38}]},
+  obby:{gaps:[{from:34,to:42},{from:70,to:77}],hurdles:[{x:56}]},
   gems:[
    {x:14,color:'#3a9a9a',name:'Turquoise',y:40},{x:38,color:'#b8e0e8',name:'Moonstone',y:38},
    {x:62,color:'#4a6a8a',name:'Labradorite',y:41},{x:86,color:'#6ec8e0',name:'Aquamarine',y:39}
   ]},
  {id:'volcano',name:'Volcano Crater',emoji:'🌋',sign:'Leap lava cracks — stay on the rocks!',
   hides:['🪨','🔥','🌋','💨'],
-  obby:{gaps:[{from:26,to:34},{from:60,to:67}],platforms:[{from:42,to:54,lift:22}],hurdles:[{x:86}]},
+  obby:{gaps:[{from:26,to:34},{from:60,to:67}],hurdles:[{x:46}]},
   gems:[
    {x:14,color:'#2a2030',name:'Obsidian',y:40},{x:38,color:'#ff6020',name:'Fire Opal',y:38},
    {x:62,color:'#d04020',name:'Carnelian',y:41},{x:86,color:'#e89040',name:'Sunstone',y:39}
   ]},
  {id:'snow',name:'Snowy Peak',emoji:'🏔️',sign:'Jump icy crevasses — watch your step!',
   hides:['❄️','🪨','⛄','🧊'],
-  obby:{gaps:[{from:30,to:38},{from:66,to:73}],platforms:[{from:48,to:60,lift:20}],hurdles:[{x:62}]},
+  obby:{gaps:[{from:30,to:38},{from:66,to:73}],hurdles:[{x:52}]},
   gems:[
    {x:14,color:'#ffd080',name:'Topaz',y:39},{x:38,color:'#5060a0',name:'Iolite',y:41},
    {x:62,color:'#e8a0c8',name:'Kunzite',y:38},{x:86,color:'#40a878',name:'Amazonite',y:40}
   ]},
  {id:'desert',name:'Desert Oasis',emoji:'🏝️',sign:'Hop sand pits — gems near the oasis!',
   hides:['🌴','🪨','🏜️','🦎'],
-  obby:{gaps:[{from:28,to:36},{from:64,to:71}],platforms:[{from:44,to:56,lift:18}],hurdles:[{x:14}]},
+  obby:{gaps:[{from:28,to:36},{from:64,to:71}],hurdles:[{x:50}]},
   gems:[
    {x:14,color:'#e8c080',name:'Opal',y:40},{x:38,color:'#2040a0',name:'Lapis Lazuli',y:38},
    {x:62,color:'#30a060',name:'Malachite',y:41},{x:86,color:'#60c878',name:'Chrysoprase',y:39}
   ]},
  {id:'ruins',name:'Ancient Ruins',emoji:'🏛️',sign:'Cross broken floors — temple obby!',
   hides:['🧱','🏺','📜','⚱️'],
-  obby:{gaps:[{from:32,to:40},{from:68,to:75}],platforms:[{from:50,to:62,lift:24}],hurdles:[{x:46}]},
+  obby:{gaps:[{from:32,to:40},{from:68,to:75}],hurdles:[{x:54}]},
   gems:[
    {x:14,color:'#208848',name:'Emerald',y:39},{x:38,color:'#6020a0',name:'Alexandrite',y:41},
    {x:62,color:'#5040a8',name:'Tanzanite',y:38},{x:86,color:'#c02050',name:'Spinel',y:40}
@@ -5421,7 +5413,7 @@ function expBuildGems(){
 function expCurrentArea(){ return HUNT_AREAS[exp.areaIdx]||HUNT_AREAS[0]; }
 function expAreaGems(areaId){ return exp.gems.filter(g=>g.areaId===(areaId||expCurrentArea().id)); }
 function expAreaFound(areaId){ return exp.gems.filter(g=>g.areaId===areaId&&g.found).length; }
-function expAreaObby(){ const a=expCurrentArea(); return a.obby||{gaps:[],platforms:[],hurdles:[]}; }
+function expAreaObby(){ const a=expCurrentArea(); return a.obby||{gaps:[],hurdles:[]}; }
 function expInGap(x){
  const ob=expAreaObby();
  return ob.gaps.some(g=>x>=g.from&&x<=g.to);
@@ -5456,19 +5448,13 @@ function expJumpDir(){
  }
  return exp.faceDir||1;
 }
-function expGroundLift(x){
- const ob=expAreaObby();
- for(const p of ob.platforms||[]){ if(x>=p.from&&x<=p.to) return p.lift||18; }
- return 0;
-}
 function expCharBottomPct(){
- const lift=expGroundLift(exp.heroX);
- return 34+lift*0.35+exp.heroY*0.35;
+ return 34+exp.heroY*0.35;
 }
 function expHurdleBlock(x){
- if(exp.jumping&&exp.heroY>20) return false;
+ if(exp.jumping&&exp.heroY>15) return false;
  const ob=expAreaObby();
- return (ob.hurdles||[]).some(h=>Math.abs(x-h.x)<5);
+ return (ob.hurdles||[]).some(h=>Math.abs(x-h.x)<3);
 }
 function expFall(){
  if(!exp||exp.falling||exp.jumping) return;
@@ -5735,13 +5721,8 @@ function renderExpedition(){
  const emoji=area.id==='river'?'💧':area.id==='volcano'?'🔥':area.id==='snow'?'🧊':'🕳️';
  return `<div class="exp-pit" style="left:${mid}%;width:${w}%" title="Jump!">${emoji?`<span style="position:absolute;left:50%;top:15%;transform:translateX(-50%);font-size:16px;opacity:.6">${emoji}</span>`:''}</div>`;
  }).join('');
- const plats=(ob.platforms||[]).map(p=>{
- const mid=(p.from+p.to)/2, w=p.to-p.from;
- const bottom=38+(p.lift||18)*0.35;
- return `<div class="exp-plat" style="left:${mid}%;width:${w}%;bottom:${bottom}%;transform:translateX(-50%)"></div>`;
- }).join('');
  const hurdles=(ob.hurdles||[]).map(h=>`<div class="exp-hurdle" style="left:${h.x}%">🪵</div>`).join('');
- return pits+plats+hurdles;
+ return pits+hurdles;
  })():''}
  ${hideSpotsHTML}${gemsHTML}${veinsHTML}${popsHTML}${heroHTML}
  </div>
