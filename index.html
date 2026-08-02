@@ -54,7 +54,7 @@
     font-family:var(--mono);font-size:10.5px;letter-spacing:.28em;
     text-transform:uppercase;color:var(--text-faint);
   }
-  nav.top{display:flex;gap:34px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+  nav.top{display:flex;gap:34px;align-items:center;flex-wrap:wrap;justify-content:flex-end;max-width:100%}
   nav.top button{
     background:none;border:none;color:var(--text-dim);cursor:pointer;
     font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;
@@ -1878,7 +1878,7 @@
   }
   @media(max-width:640px){
     header.site{padding:16px 20px}
-    nav.top{display:flex;gap:10px}
+    nav.top{display:flex;gap:10px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%;padding-bottom:4px;scrollbar-width:thin}
     nav.top button{display:none}
     /* Keep Catalog + Donate reachable — other views stay desktop-nav only */
     nav.top button[data-view="catalog"],
@@ -1960,11 +1960,11 @@
  <button data-view="memberships">Memberships</button>
  <a class="buy-cta" href="#memberships" onclick="switchView('memberships');return false;">Join — from $67.50</a>
  <button data-view="game" id="game-nav-btn">Gem Arena</button>
+ <button data-view="battlefield">Battlefield</button>
  <button data-view="gemhunt">Gem Hunt</button>
  <button data-view="parade">Gem Warriors</button>
  <button data-view="codes">Codes</button>
  <button data-view="auras">Auras</button>
- <button data-view="battlefield">Gem Mine</button>
  <button data-view="donate">Donate</button>
  <button data-view="moneygoal">Money Goal</button>
  <button data-view="parts" id="parts-nav-btn" style="display:none">Parts</button>
@@ -2729,6 +2729,7 @@
  <a href="#collaborate" onclick="switchView('collaborate');return false;">Business collaboration</a>
  <a href="#careers" onclick="switchView('careers');return false;">Work at Lithos</a>
  <a href="#video" onclick="switchView('video');return false;">Owner TV</a>
+ <a href="#battlefield" onclick="switchView('battlefield');return false;">Battlefield</a>
  <span class="partner-disclosure">Partner link · Lithos may earn commission</span>
  </div>
  <span>Hardness on the Mohs scale · Origins by prominence · Prices are approximate retail</span>
@@ -6181,6 +6182,7 @@ function buildGame(){
  ${arsenalHTML}
  <div class="game-btns" style="margin:24px 0">
  <button class="game-btn" id="boss-btn"> Fight a Crystal Lord!</button>
+ <button class="game-btn ghost" type="button" onclick="switchView('battlefield')"> Go to Battlefield</button>
  </div>
  <div id="arena-area"></div>`;
  const grid=document.getElementById('warrior-grid');
@@ -6452,12 +6454,14 @@ function armySize(){
 }
 function buildBattlefield(){
  const wrap=document.getElementById('bf-wrap');
+ if(!wrap) return;
+ try{
  const power=playerPower();
  const size=armySize();
  wrap.innerHTML=`
  <div class="eyebrow">Gem Mine Expedition</div>
- <h1>The <em>Gem Mine</em></h1>
- <p class="bf-intro">Go on a huge <b>scavenger gem hunt</b> — explore <b>8 areas</b>, jump gaps & hop logs in each zone, and find <b>32 hidden gems</b> 💎! Then dig 10 gold nuggets in the mine.</p>
+ <h1>The <em>Battlefield</em></h1>
+ <p class="bf-intro">Go on a huge <b>scavenger gem hunt</b> — explore <b>8 areas</b>, jump gaps & hop logs in each zone, and find <b>32 hidden gems</b> 💎! Then dig 10 gold nuggets in the mine — or charge straight into the gem monster army.</p>
  <div class="bf-power">
  <div class="bp-label">Your Battle Power</div>
  <div class="bp-num">${fmtHP(power)}</div>
@@ -6470,6 +6474,10 @@ function buildBattlefield(){
  <div id="bf-arena"></div>`;
  document.getElementById('bf-start').onclick=startArmyBattle;
  document.getElementById('bf-expedition').onclick=startExpedition;
+ }catch(err){
+ wrap.innerHTML=`<div class="eyebrow">Gem Mine Expedition</div><h1>The <em>Battlefield</em></h1><p class="bf-intro">Something went wrong loading the mine. Refresh and try again.</p><div class="bf-btns"><button class="game-btn" onclick="buildBattlefield()">Reload Battlefield</button></div>`;
+ console.error(err);
+ }
 }
 /* ---------- Gem Hunt Expedition: billboard → 12 gems → gold mine → leave ---------- */
 const HUNT_AREAS=[
