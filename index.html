@@ -5418,6 +5418,17 @@ function expInGap(x){
  const ob=expAreaObby();
  return ob.gaps.some(g=>x>=g.from&&x<=g.to);
 }
+function expSafeLand(x){
+ let sx=Math.max(3,Math.min(97,x));
+ if(!expInGap(sx)) return sx;
+ const ob=expAreaObby();
+ for(const g of ob.gaps){
+ if(sx>=g.from&&sx<=g.to){
+ sx=sx-g.from<=g.to-sx?Math.max(3,g.from-5):Math.min(97,g.to+5);
+ }
+ }
+ return sx;
+}
 function expOnSolid(x,y){
  if(expInGap(x)) return y>15;
  return true;
@@ -5425,28 +5436,43 @@ function expOnSolid(x,y){
 function expLeapTarget(dir){
  const x=exp.heroX;
  const ob=expAreaObby();
+ if(dir>0){
  for(const g of ob.gaps){
- if(dir>0&&x<=g.from+2&&x>=g.from-12) return Math.min(97,g.to+4);
- if(dir<0&&x>=g.to-2&&x<=g.to+12) return Math.max(3,g.from-4);
+ if(x<g.to&&g.from-x<22) return expSafeLand(g.to+8);
  }
  for(const h of ob.hurdles||[]){
- if(dir>0&&x<h.x+2&&x>=h.x-10) return Math.min(97,h.x+7);
- if(dir<0&&x>h.x-2&&x<=h.x+10) return Math.max(3,h.x-7);
+ if(x<h.x+3&&h.x-x<18) return expSafeLand(h.x+9);
  }
- return Math.max(3,Math.min(97,x+dir*16));
+ } else {
+ for(const g of ob.gaps){
+ if(x>g.from&&x-g.to<22) return expSafeLand(g.from-8);
+ }
+ for(const h of ob.hurdles||[]){
+ if(x>h.x-3&&x-h.x<18) return expSafeLand(h.x-9);
+ }
+ }
+ return expSafeLand(x+dir*14);
 }
 function expJumpDir(){
  const x=exp.heroX;
+ const fd=exp.faceDir||1;
  const ob=expAreaObby();
+ if(fd>0){
+ for(const g of ob.gaps){ if(x<g.to&&g.from-x<20) return 1; }
+ for(const h of ob.hurdles||[]){ if(x<h.x&&h.x-x<16) return 1; }
+ } else {
+ for(const g of ob.gaps){ if(x>g.from&&x-g.to<20) return -1; }
+ for(const h of ob.hurdles||[]){ if(x>h.x&&x-h.x<16) return -1; }
+ }
  for(const g of ob.gaps){
- if(x<g.from&&g.from-x<14) return 1;
- if(x>g.to&&x-g.to<14) return -1;
+ if(x<g.from&&g.from-x<16) return 1;
+ if(x>g.to&&x-g.to<16) return -1;
  }
  for(const h of ob.hurdles||[]){
- if(x<h.x&&h.x-x<12) return 1;
- if(x>h.x&&x-h.x<12) return -1;
+ if(x<h.x&&h.x-x<14) return 1;
+ if(x>h.x&&x-h.x<14) return -1;
  }
- return exp.faceDir||1;
+ return fd;
 }
 function expCharBottomPct(){
  return 34+exp.heroY*0.35;
@@ -5561,7 +5587,7 @@ function expJump(){
  if(!exp||exp.over||exp.falling||exp.jumping||exp.phase==="billboard"||exp.phase==="done")return;
  const dir=expJumpDir();
  const startX=exp.heroX;
- const targetX=expLeapTarget(dir);
+ const targetX=expSafeLand(expLeapTarget(dir));
  exp.jumping=true; expMoveLock=true;
  let t=0;
  const jump=setInterval(()=>{
@@ -5574,8 +5600,9 @@ function expJump(){
  if(prog>=1){
  clearInterval(jump);
  exp.heroY=0; exp.jumping=false; expMoveLock=false;
- if(expInGap(exp.heroX)) expFall();
- else{ exp.respawnX=exp.heroX; exp.log=''; }
+ exp.heroX=targetX;
+ exp.respawnX=targetX;
+ exp.log='';
  renderExpedition();
  } else renderExpedition();
  },EXP_JUMP_MS);
