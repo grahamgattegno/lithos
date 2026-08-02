@@ -514,7 +514,8 @@
   .voice-preview:hover{border-color:var(--gold);background:rgba(201,169,79,.08)}
   .voice-creepy{background:linear-gradient(135deg,#141a14,#0a0e0a);border:1px solid #3a5238;color:#8fbc6a;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:8px 12px;border-radius:8px;cursor:pointer;transition:border-color .15s,box-shadow .15s,transform .15s}
   .voice-creepy:hover{border-color:#6fbf4a;transform:translateY(-1px)}
-  .voice-creepy.on{border-color:#8dff5a;color:#d7ffb8;box-shadow:0 0 16px rgba(120,255,80,.28), inset 0 0 20px rgba(40,80,30,.35)}
+  .voice-creepy.on{border-color:#ff3b3b;color:#ffd0d0;background:linear-gradient(135deg,#1a0808,#0a0404);box-shadow:0 0 20px rgba(255,40,40,.35), inset 0 0 24px rgba(80,0,0,.45);animation:creepyFlicker 2.2s ease-in-out infinite}
+  @keyframes creepyFlicker{0%,100%{opacity:1;filter:brightness(1)}45%{opacity:.82;filter:brightness(1.15)}55%{opacity:.95;filter:brightness(.88)}}
   .chat-row .chat-mic{background:var(--panel);color:var(--gold);border:1px solid var(--line);padding:0 16px;min-width:52px;letter-spacing:.08em}
   .chat-row .chat-mic:hover{border-color:var(--gold);transform:translateY(-2px)}
   .chat-row .chat-mic.listening{background:var(--gold);color:var(--ink);border-color:var(--gold);animation:mic-pulse 1.2s ease-in-out infinite}
@@ -1624,7 +1625,7 @@
  <label for="class-voice-select">Voice</label>
  <select id="class-voice-select" class="lithos-voice-select" title="Pick who reads answers aloud"></select>
  <button type="button" class="voice-preview" id="class-voice-preview">Preview</button>
- <button type="button" class="voice-creepy lithos-voice-creepy" id="class-voice-creepy" title="Super slow, deep, creepy cave voice">Creepy</button>
+ <button type="button" class="voice-creepy lithos-voice-creepy" id="class-voice-creepy" title="Maximum nightmare voice — slow, deep, pauses, chills">Nightmare</button>
  </div>
  <p class="voice-hint" id="class-voice-hint">Turn voice on to hear answers. Mic uses your browser’s speech recognition when available.</p>
  </div>
@@ -1710,7 +1711,7 @@
  <label for="teacher-voice-select">Voice</label>
  <select id="teacher-voice-select" class="lithos-voice-select" title="Pick who reads answers aloud"></select>
  <button type="button" class="voice-preview" id="teacher-voice-preview">Preview</button>
- <button type="button" class="voice-creepy lithos-voice-creepy" id="teacher-voice-creepy" title="Super slow, deep, creepy cave voice">Creepy</button>
+ <button type="button" class="voice-creepy lithos-voice-creepy" id="teacher-voice-creepy" title="Maximum nightmare voice — slow, deep, pauses, chills">Nightmare</button>
  </div>
  <p class="voice-hint">Same voice setting as the class Rock Teacher. Mic fills the box when your browser supports it.</p>
  </div>
@@ -2439,7 +2440,9 @@ function tipMaker(amount){
 const VOICE_PREF_KEY='lithos_voice_on';
 const VOICE_URI_KEY='lithos_voice_uri';
 const CREEPY_VOICE_ID='__creepy__';
+const CREEPY_VOICE_RANK=[/whisper/i,/zarvox/i,/bad news/i,/organ/i,/cellos/i,/bahh/i,/fred/i,/trinoids/i,/nimbus/i,/holger/i,/albert/i,/wobble/i,/boing/i,/junior/i,/ralph/i,/bells/i,/superstar/i];
 let lithosVoiceOn=false;
+let lithosCreepyChain=null;
 let lithosTtsVoice=null;
 let lithosVoicePrefLoaded=false;
 let lithosVoicesHooked=false;
@@ -2466,6 +2469,7 @@ function saveVoicePref(on){
  }catch(e){}
 }
 function stopLithosSpeech(){
+ lithosCreepyChain=null;
  try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){}
 }
 function getEnglishVoices(){
@@ -2480,16 +2484,83 @@ function isCreepyVoiceMode(){
 function pickCreepyVoice(){
  const all=window.speechSynthesis.getVoices()||[];
  const pool=all.length?all:getEnglishVoices();
- return pool.find(v=>/zarvox|whisper|bad news|organ|cellos|bahh|fred|trinoids|nimbus|holger|albert|wobble|superstar|boing|junior|ralph|bruce|graham bell/i.test(v.name||''))
- || pool.find(v=>/microsoft david|microsoft mark|microsoft guy|google uk english male|english male/i.test(v.name||''))
- || pool.find(v=>/male|david|mark|tom|james|alex|daniel/i.test(v.name||''))
+ for(const re of CREEPY_VOICE_RANK){
+ const v=pool.find(x=>re.test(x.name||''));
+ if(v) return v;
+ }
+ return pool.find(v=>/microsoft david|microsoft mark|google uk english male|english male|male|david|mark|tom|james|alex|daniel/i.test(v.name||''))
  || getEnglishVoices()[0]
  || pool[0]
  || null;
 }
 function getLithosSpeechStyle(){
- if(isCreepyVoiceMode()) return {rate:0.52, pitch:0.32, volume:1};
+ if(isCreepyVoiceMode()) return {rate:0.34, pitch:0.01, volume:0.92};
  return {rate:0.94, pitch:0.98, volume:1};
+}
+function creepifyText(text){
+ let t=String(text).replace(/\s+/g,' ').trim();
+ if(!t) return [];
+ t=t.replace(/[,;:]/g,' ... ... ');
+ t=t.replace(/([.!?])\s*/g,'$1 ... ... ... ');
+ if(t.length>220){
+ const chunks=[];
+ for(let i=0;i<t.length;i+=90) chunks.push(t.slice(i,i+90).trim());
+ return chunks.filter(Boolean).map(c=>c+' ... ... ');
+ }
+ return [t+' ... ... ...'];
+}
+function speakUtteranceCreepy(text, onDone){
+ const u=new SpeechSynthesisUtterance(text);
+ if(!lithosTtsVoice) refreshLithosVoice();
+ applyLithosUtterance(u);
+ u.onend=()=>{ if(typeof onDone==='function') onDone(); };
+ u.onerror=()=>{ if(typeof onDone==='function') onDone(); };
+ try{ speechSynthesis.speak(u); }catch(e){ if(typeof onDone==='function') onDone(); }
+}
+function speakLithosCreepy(text){
+ const parts=creepifyText(text);
+ if(!parts.length) return;
+ const chainId=Date.now();
+ lithosCreepyChain=chainId;
+ let i=0;
+ function next(){
+ if(lithosCreepyChain!==chainId) return;
+ if(i>=parts.length) return;
+ const delay=i===0?0:320+Math.random()*680;
+ setTimeout(()=>{
+ if(lithosCreepyChain!==chainId) return;
+ speakUtteranceCreepy(parts[i], ()=>{ i++; next(); });
+ }, delay);
+ }
+ next();
+}
+function getCreepyPreviewLines(){
+ return [
+ 'I know... you are there...',
+ 'I can hear you... breathing...',
+ 'in the mine...',
+ 'The gems... they whisper... at night...',
+ 'Do not... turn around...'
+ ];
+}
+function previewLithosCreepy(){
+ if(!window.speechSynthesis) return;
+ stopLithosSpeech();
+ refreshLithosVoice();
+ const chainId=Date.now();
+ lithosCreepyChain=chainId;
+ const lines=getCreepyPreviewLines();
+ let i=0;
+ function nextLine(){
+ if(lithosCreepyChain!==chainId) return;
+ if(i>=lines.length) return;
+ const delay=i===0?0:900+Math.random()*1100;
+ setTimeout(()=>{
+ if(lithosCreepyChain!==chainId) return;
+ speakUtteranceCreepy(lines[i], ()=>{ i++; nextLine(); });
+ }, delay);
+ }
+ nextLine();
 }
 function applyLithosUtterance(u){
  const style=getLithosSpeechStyle();
@@ -2535,7 +2606,7 @@ function populateVoiceSelects(){
  sel.disabled=false;
  const creepyOpt=document.createElement('option');
  creepyOpt.value=CREEPY_VOICE_ID;
- creepyOpt.textContent='Super creepy (cave dweller)';
+ creepyOpt.textContent='Nightmare mode (maximum chills)';
  sel.appendChild(creepyOpt);
  voices.forEach(v=>{
  const opt=document.createElement('option');
@@ -2558,7 +2629,7 @@ function syncCreepyToggleUI(){
  document.querySelectorAll('.lithos-voice-creepy').forEach(btn=>{
  btn.classList.toggle('on', on);
  btn.setAttribute('aria-pressed', on?'true':'false');
- btn.textContent=on?'Creepy on':'Creepy';
+ btn.textContent=on?'Nightmare on':'Nightmare';
  });
 }
 function toggleCreepyVoice(){
@@ -2567,17 +2638,17 @@ function toggleCreepyVoice(){
  refreshLithosVoice();
  syncCreepyToggleUI();
  document.querySelectorAll('.lithos-voice-select').forEach(sel=>{
- sel.value=getSavedVoiceUri()||sel.options[1]?.value||sel.value;
+ sel.value=getSavedVoiceUri()||sel.options[0]?.value||sel.value;
  });
- previewLithosVoice();
+ if(isCreepyVoiceMode()) previewLithosCreepy();
+ else previewLithosVoice();
 }
 function previewLithosVoice(){
  if(!window.speechSynthesis) return;
  stopLithosSpeech();
  refreshLithosVoice();
- const msg=isCreepyVoiceMode()
- ? 'I have been waiting... in the dark... beneath the earth... for eons... Ask me about gems... if you dare...'
- : 'Hello! I am your Rock Teacher. Ask me about gems, Mohs hardness, or crystal systems.';
+ if(isCreepyVoiceMode()){ previewLithosCreepy(); return; }
+ const msg='Hello! I am your Rock Teacher. Ask me about gems, Mohs hardness, or crystal systems.';
  const u=new SpeechSynthesisUtterance(msg);
  applyLithosUtterance(u);
  try{ speechSynthesis.speak(u); }catch(e){}
@@ -2587,6 +2658,7 @@ function speakLithosReply(text){
  stopLithosSpeech();
  const clean=String(text).replace(/\s+/g,' ').trim();
  if(!clean) return;
+ if(isCreepyVoiceMode()){ speakLithosCreepy(clean); return; }
  const u=new SpeechSynthesisUtterance(clean);
  if(!lithosTtsVoice) refreshLithosVoice();
  applyLithosUtterance(u);
