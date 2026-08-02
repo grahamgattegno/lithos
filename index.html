@@ -1057,6 +1057,8 @@
   .gift-msg{font-size:14px;color:var(--text);line-height:1.5;margin-bottom:16px}
   .gift-btn{background:var(--gold);color:var(--ink);border:none;border-radius:10px;padding:11px 22px;font-weight:800;cursor:pointer;font-size:14px}
   .gift-btn:hover{transform:translateY(-2px)}
+  .gift-warrior{margin:10px auto 12px;line-height:0;filter:drop-shadow(0 6px 14px rgba(18,138,86,.45))}
+  .w-gift{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#8fd4a8;margin-top:6px}
   /* ===== BATHROOM CUTSCENE ===== */
   #cutscene{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center}
   .cs-stage{position:relative;width:min(92vw,760px);height:min(70vh,460px)}
@@ -4913,10 +4915,12 @@ function buildGame(){
  <div id="arena-area"></div>`;
  const grid=document.getElementById('warrior-grid');
  grid.innerHTML=WARRIORS.map((w,i)=>{
+ const isGift=hasEmeraldGift()&&i===EMERALD_GUARDIAN_INDEX;
  return `<div class="warrior unlocked" data-i="${i}" style="--wc:${w.color}">
  <div class="w-body ${w.glitch?'glitched':''}">${gemWarriorSVG(w.color,64,w.titan,w.plasma,w.style)}</div>
  <div class="w-name">${w.name}</div>
  <div class="w-power"> Power ${w.power}</div>
+ ${isGift?'<div class="w-gift">🎁 Your free gift</div>':''}
  </div>`;
  }).join('');
 grid.querySelectorAll('.warrior').forEach(el=>{
@@ -6947,10 +6951,10 @@ function tryCode(){
  return;
  }
 
- // FREE GIFT — unlocks the Emerald Guardian warrior!
+ // FREE GIFT — Emerald Guardian only (not Diamond Titan!)
  if(raw==="free gift"){
- giveFreeEmeraldGuardian();
- res.innerHTML=`<div class="win"><b>FREE GIFT!</b><br><br>You unlocked the <b>Emerald Guardian</b> warrior! He's ready in the Gem Arena.</div>`;
+ grantEmeraldGuardianGift(true);
+ res.innerHTML=`<div class="win"><b>Emerald Guardian unlocked!</b><br><br>Your free warrior is the <b>Emerald Guardian</b> — find him in the Gem Arena!</div>`;
  return;
  }
 
@@ -7470,21 +7474,27 @@ function playBathroomCutscene(){
  document.getElementById('cs-skip').onclick=()=>{clearInterval(timer);cs.remove();};
 }
 
-// ===== FREE EMERALD GUARDIAN GIFT — for whoever is playing! (code: free gift) =====
+// ===== FREE EMERALD GUARDIAN GIFT — code: free gift (NOT Diamond Titan) =====
 const EMERALD_GUARDIAN_INDEX=3;
-function giveFreeEmeraldGuardian(){
- showEmeraldGiftNotification();
+const EMERALD_GIFT_KEY='lithos_emerald_gift';
+function hasEmeraldGift(){ return localStorage.getItem(EMERALD_GIFT_KEY)==='1'; }
+function grantEmeraldGuardianGift(showPopup){
+ localStorage.setItem(EMERALD_GIFT_KEY,'1');
+ chosenWarrior=EMERALD_GUARDIAN_INDEX;
+ if(showPopup!==false) showEmeraldGiftNotification();
 }
 function showEmeraldGiftNotification(){
  if(document.getElementById('gift-notif')) return;
+ const w=WARRIORS[EMERALD_GUARDIAN_INDEX];
  const n=document.createElement('div');
  n.id='gift-notif';
  n.innerHTML=`
  <button class="gift-close" id="gift-close">✕</button>
  <div class="gift-icon">💚</div>
- <div class="gift-title">FREE GIFT!</div>
- <div class="gift-msg">You got a <b>FREE Emerald Guardian</b> warrior!<br>He's unlocked and ready in the Gem Arena — go try him out!</div>
- <button class="gift-btn" id="gift-go">Let's go!</button>`;
+ <div class="gift-title">Emerald Guardian!</div>
+ <div class="gift-warrior">${gemWarriorSVG(w.color,72,false,false,w.style)}</div>
+ <div class="gift-msg">Your free warrior is the <b>Emerald Guardian</b> — not the Diamond Titan!<br>He's ready in the Gem Arena.</div>
+ <button class="gift-btn" id="gift-go">Battle as Emerald Guardian!</button>`;
  document.body.appendChild(n);
  document.getElementById('gift-close').onclick=()=>n.remove();
  document.getElementById('gift-go').onclick=()=>{
@@ -7494,7 +7504,7 @@ function showEmeraldGiftNotification(){
  };
  setTimeout(()=>{ const g=document.getElementById('gift-notif'); if(g){ g.classList.add('gift-hide'); setTimeout(()=>g.remove(),600); } }, 12000);
 }
-setTimeout(giveFreeEmeraldGuardian, 900);
+if(!hasEmeraldGift()) setTimeout(()=>grantEmeraldGuardianGift(), 900);
 (function openHashView(){
  const name=(location.hash||'').replace(/^#/,'').trim();
  if(name==='gemhunt'){switchView('gemhunt');return;}
