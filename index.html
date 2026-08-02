@@ -1311,6 +1311,50 @@
   .bf-exit.next{color:#ffd34e}
   .bf-controls{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;position:relative;z-index:2;margin-top:6px}
   .bf-controls .game-btn{padding:14px 20px}
+  /* ===== Gem Hunt Expedition (billboard → scavenger hunt → gold mine) ===== */
+  .exp-wrap{margin-top:20px}
+  .exp-field{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:14px;padding:16px;
+    background:linear-gradient(180deg,#87ceeb 0%,#b8dfc8 42%,#6a9a4a 58%,#4a7a32 100%);min-height:320px}
+  .exp-field.goldmine{background:linear-gradient(180deg,#1a1208 0%,#3a2810 35%,#5a4020 55%,#2a1a08 100%);border-color:rgba(255,211,78,.35)}
+  .exp-billboard{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:300px;padding:24px 16px;position:relative}
+  .exp-board{background:linear-gradient(180deg,#c4a574,#8b6914);border:4px solid #5a4010;border-radius:8px;padding:28px 32px;max-width:520px;
+    box-shadow:0 8px 0 #3a2808,0 16px 40px rgba(0,0,0,.45);text-align:center;position:relative}
+  .exp-board::before,.exp-board::after{content:"";position:absolute;top:100%;width:14px;height:80px;background:linear-gradient(180deg,#6a5030,#3a2818);border-radius:0 0 4px 4px}
+  .exp-board::before{left:18%}
+  .exp-board::after{right:18%}
+  .exp-board-title{font-family:var(--mono);font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:#3a2808;margin-bottom:14px}
+  .exp-board-fact{font-family:var(--serif);font-size:clamp(18px,3vw,24px);line-height:1.45;color:#1a1008;margin-bottom:22px}
+  .exp-board-fact em{font-style:italic;color:#5a3010}
+  .exp-play{position:relative;height:200px;margin:8px 0;z-index:1}
+  .exp-ground{position:absolute;left:-16px;right:-16px;bottom:0;height:38%;background:linear-gradient(180deg,#5a8a3a,#3a6028);
+    border-top:2px solid rgba(255,255,255,.2);box-shadow:inset 0 4px 10px rgba(0,0,0,.25)}
+  .exp-field.goldmine .exp-ground{background:linear-gradient(180deg,#4a3820,#2a1a08);border-top-color:rgba(255,211,78,.25)}
+  .exp-char{position:absolute;transition:left .12s linear,bottom .09s linear;z-index:5;line-height:0}
+  .exp-char.swinging svg{animation:expSwing .35s ease}
+  @keyframes expSwing{0%{transform:rotate(0)}40%{transform:rotate(-28deg) translateX(8px)}100%{transform:rotate(0)}}
+  .exp-gem-spot{position:absolute;transform:translateX(-50%);z-index:3;line-height:0;cursor:pointer;transition:transform .2s,opacity .2s}
+  .exp-gem-spot.hidden{opacity:.35;filter:blur(.5px);transform:translateX(-50%) scale(.75)}
+  .exp-gem-spot.near{opacity:1;transform:translateX(-50%) scale(1.15);filter:drop-shadow(0 0 10px gold)}
+  .exp-gem-spot.found{opacity:0;pointer-events:none;transform:translateX(-50%) scale(0)}
+  .exp-bush{position:absolute;bottom:34%;font-size:28px;z-index:2;transform:translateX(-50%);opacity:.85}
+  .exp-vein{position:absolute;transform:translateX(-50%);z-index:2;line-height:0;transition:transform .15s}
+  .exp-vein.hit{animation:veinHit .3s ease}
+  .exp-vein.mined{opacity:.35;filter:grayscale(.5)}
+  @keyframes veinHit{0%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(.92)}100%{transform:translateX(-50%) scale(1)}}
+  .exp-sparkle{position:absolute;transform:translateX(-50%);z-index:4;font-size:14px;color:gold;opacity:.7;pointer-events:none;animation:expSpark 1.2s ease-in-out infinite}
+  @keyframes expSpark{0%,100%{opacity:.4;transform:translateX(-50%) translateY(0)}50%{opacity:1;transform:translateX(-50%) translateY(-4px)}}
+  .exp-mine-sign{position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:6;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#ffd34e;background:rgba(0,0,0,.45);padding:6px 12px;border-radius:6px;white-space:nowrap}
+  .exp-gold-pop{position:absolute;z-index:8;font-size:18px;font-weight:800;color:#ffd34e;pointer-events:none;animation:goldPop .7s ease forwards}
+  @keyframes goldPop{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-30px)}}
+  .exp-pickaxe{position:absolute;right:-8%;bottom:28%;z-index:6;line-height:0;transform-origin:bottom left}
+  .exp-char.swinging .exp-pickaxe{animation:pickSwing .35s ease}
+  @keyframes pickSwing{0%{transform:rotate(0)}45%{transform:rotate(-55deg)}100%{transform:rotate(0)}}
+  .exp-counter{text-align:center;font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+  .exp-log{text-align:center;font-size:14px;color:var(--text-dim);margin:10px 0;min-height:40px;line-height:1.5}
+  .exp-done{text-align:center;padding:20px}
+  .exp-done h3{font-family:var(--serif);font-size:28px;color:var(--gold);margin-bottom:10px}
+  .exp-tunnel{position:absolute;right:0;top:0;bottom:38%;width:18%;background:radial-gradient(ellipse at left,#000 0%,transparent 70%);z-index:0;opacity:.5}
+  .exp-mine-wall{position:absolute;left:0;right:0;top:0;bottom:38%;background:repeating-linear-gradient(90deg,rgba(0,0,0,.08) 0 40px,transparent 40px 80px);z-index:0;pointer-events:none}
   /* lab rescue scene */
   .bf-tube{position:absolute;z-index:1;line-height:0;padding:4px 4px 0;border-radius:10px 10px 4px 4px;
     background:linear-gradient(180deg, rgba(120,200,255,.25), rgba(90,160,220,.12));
@@ -1449,6 +1493,7 @@
     nav.top button[data-view="classes"],
     nav.top button[data-view="donate"],
     nav.top button[data-view="battlefield"],
+    nav.top button[data-view="gemhunt"],
     nav.top button[data-view="game"]{display:inline-block}
     .hero{padding:70px 20px 40px}
     .controls,.grid{padding-left:20px;padding-right:20px}
@@ -1510,6 +1555,7 @@
  <button data-view="memberships">Memberships</button>
  <a class="buy-cta" href="#memberships" onclick="switchView('memberships');return false;">Join — from $67.50</a>
  <button data-view="game" id="game-nav-btn">Gem Arena</button>
+ <button data-view="gemhunt">Gem Hunt</button>
  <button data-view="parade">Gem Warriors</button>
  <button data-view="codes">Codes</button>
  <button data-view="auras">Auras</button>
@@ -2175,10 +2221,12 @@ const navBtns=[...document.querySelectorAll('nav.top button')];
 let learnBuilt=false;
 let classLessonsBuilt=false;
 function switchView(name){
+ const gemHunt=name==='gemhunt';
+ if(gemHunt) name='battlefield';
  if(!views[name])name='catalog';
  Object.entries(views).forEach(([k,el])=>el.hidden=(k!==name));
- navBtns.forEach(b=>b.classList.toggle('on',b.dataset.view===name));
- const hash=name==='catalog'?'':('#'+name);
+ navBtns.forEach(b=>b.classList.toggle('on',b.dataset.view===(gemHunt?'gemhunt':name)));
+ const hash=gemHunt?'#gemhunt':(name==='catalog'?'':('#'+name));
  if(location.hash!==hash)history.replaceState(null,'',hash||location.pathname+location.search);
  window.scrollTo({top:0,behavior:'instant' in window?'instant':'auto'});
  if(name==='learn'&&!learnBuilt){buildLessons();learnBuilt=true;}
@@ -2192,17 +2240,19 @@ function switchView(name){
  if(name==='parade'){buildParade();}
  if(name==='codes'){buildCodes();}
  if(name==='auras'){buildAuras();}
- if(name==='battlefield'){buildBattlefield();}
+ if(name==='battlefield'){ if(gemHunt) startExpedition(); else buildBattlefield(); }
  if(name==='moneygoal'){buildMoneyGoal();}
  if(name==='parts'){buildParts();}
 }
 navBtns.forEach(b=>b.addEventListener('click',()=>switchView(b.dataset.view)));
 (function openHashView(){
  const name=(location.hash||'').replace(/^#/,'').trim();
+ if(name==='gemhunt'){switchView('gemhunt');return;}
  if(name&&views[name])switchView(name);
 })();
 window.addEventListener('hashchange',()=>{
  const name=(location.hash||'').replace(/^#/,'').trim();
+ if(name==='gemhunt'){switchView('gemhunt');return;}
  switchView(name&&views[name]?name:'catalog');
 });
 
@@ -3552,7 +3602,7 @@ function warriorUnlocked(w){return true;}
 function unlockedCount(){return WARRIORS.length;}
 // format big numbers nicely: 1000000000000000 -> "1qa"
 function fmtHP(n){
- if(!isFinite(n) || n===Infinity) return '∞';
+ if(n==null || !isFinite(n)) return n===Infinity?'∞':'0';
  n=Math.max(0,Math.round(n));
  if(n>=1e30)return Math.round(n/1e30)+'no'; // nonillion
  if(n>=1e24)return (n/1e24).toFixed(1).replace(/\.0$/,'')+'sp'; // septillion
@@ -3566,8 +3616,34 @@ function fmtHP(n){
  return ''+n;
 }
 function hpPct(hp,maxhp){
- if(!isFinite(hp) || !isFinite(maxhp) || maxhp===0) return 100;
+ if(!isFinite(maxhp) || maxhp<=0) return isFinite(hp)&&hp>0?100:0;
+ if(!isFinite(hp) || isNaN(hp)) return 0;
  return Math.max(0, Math.min(100, hp/maxhp*100));
+}
+// Cheat/infinite stats stay fun for the player but bosses must stay beatable
+const BATTLE_POWER_CAP=9999;
+function battleNum(n,cap){
+ cap=cap==null?BATTLE_POWER_CAP:cap;
+ if(n==null||!isFinite(n)) return cap;
+ return Math.min(Math.max(0,n),cap);
+}
+function finiteHp(hp,fallback){
+ const n=battleNum(hp, fallback==null?9999:fallback);
+ return Math.max(1, Math.round(n));
+}
+function dealDamage(hp,dmg){
+ hp=finiteHp(hp,9999);
+ dmg=Math.max(1, Math.round(battleNum(dmg,9999)));
+ return Math.max(0, hp-dmg);
+}
+function mineBossHP(kind){
+ const p=battleNum(playerPower());
+ if(kind==='overgem') return Math.min(3500, Math.round(600+p*0.12));
+ return Math.min(2000, Math.round(400+p*0.08));
+}
+function calcBossHP(mult,pMult){
+ void mult; void pMult;
+ return mineBossHP('lord');
 }
 
 // BOSSES — corrupted crystal lords. Beat one to earn the next gem weapon!
@@ -4159,6 +4235,40 @@ function rockSVG(size){
  <polygon points="6,30 4,18 14,8 28,6 37,16 34,30 20,37" fill="#6a6f7c" stroke="#3a3f48" stroke-width="2"/>
  <polygon points="14,8 20,20 6,30 4,18" fill="#828896" opacity=".7"/>
  <polygon points="28,6 34,30 20,37 20,20" fill="#4a4f5a" opacity=".6"/>
+ </svg>`;
+}
+function huntGemSVG(size,color){
+ size=size||32;
+ const uid='hg'+Math.random().toString(36).slice(2,6);
+ const base=color||'#7d43b3';
+ return `<svg viewBox="0 0 40 48" width="${size}" height="${size*1.2}" xmlns="http://www.w3.org/2000/svg">
+ <defs><linearGradient id="${uid}g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${gemShade(base,.4)}"/><stop offset="100%" stop-color="${gemShade(base,-.3)}"/></linearGradient></defs>
+ <polygon points="20,2 34,16 28,44 12,44 6,16" fill="url(#${uid}g)" stroke="${gemShade(base,.5)}" stroke-width="1.2"/>
+ <polygon points="20,2 34,16 20,24" fill="#fff" opacity=".35"/>
+ </svg>`;
+}
+function pickaxeSVG(size){
+ size=size||48;
+ return `<svg viewBox="0 0 60 60" width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">
+ <rect x="26" y="18" width="8" height="38" rx="2" fill="#8b6914" stroke="#5a4010" stroke-width="1"/>
+ <polygon points="4,20 30,8 30,22 4,28" fill="#aaa" stroke="#666" stroke-width="1.2"/>
+ <polygon points="56,20 30,8 30,22 56,28" fill="#ccc" stroke="#888" stroke-width="1.2"/>
+ </svg>`;
+}
+function goldVeinSVG(size,hit){
+ size=size||64;
+ const glow=hit?'#ffd34e':'#b8860b';
+ return `<svg viewBox="0 0 70 60" width="${size}" height="${size*.86}" xmlns="http://www.w3.org/2000/svg">
+ <polygon points="8,52 4,28 18,12 38,8 58,22 66,48 42,56" fill="#4a4038" stroke="#2a2018" stroke-width="2"/>
+ <path d="M14,40 Q28,22 44,34 T62,28" stroke="${glow}" stroke-width="4" fill="none" stroke-linecap="round" opacity=".9"/>
+ <path d="M20,48 Q34,36 48,44" stroke="${glow}" stroke-width="2.5" fill="none" stroke-linecap="round" opacity=".7"/>
+ </svg>`;
+}
+function goldNuggetSVG(size){
+ size=size||24;
+ return `<svg viewBox="0 0 32 28" width="${size}" height="${size*.875}" xmlns="http://www.w3.org/2000/svg">
+ <polygon points="16,2 28,12 24,26 8,26 4,12" fill="#ffd34e" stroke="#c9a030" stroke-width="1.2"/>
+ <polygon points="16,2 28,12 16,16" fill="#fff6c0" opacity=".5"/>
  </svg>`;
 }
 // a BIG pile of dirt (optionally with the glowing crystal core peeking out of it)
@@ -4857,9 +4967,9 @@ function startBattle(isBoss){
  const hero=WARRIORS[chosenWarrior];
  let foe;
  if(isBoss){
- // pick the next boss you haven't beaten (or the last one)
  const bi=Math.min(bossesDefeated, BOSSES.length-1);
- foe={...BOSSES[bi], maxhp:BOSSES[bi].hp, isBoss:true, bossIndex:bi};
+ const bhp=finiteHp(BOSSES[bi].hp,220);
+ foe={...BOSSES[bi], hp:bhp, maxhp:bhp, isBoss:true, bossIndex:bi};
  } else {
  const r=GEM_FOES[Math.floor(Math.random()*GEM_FOES.length)];
  foe={...r, hp:r.hp, maxhp:r.hp, isBoss:false};
@@ -4867,9 +4977,9 @@ function startBattle(isBoss){
  // the Prism Titan has HUGE health! Plus your aura multiplies it!
  const aura = AURAS[equippedAura] || AURAS[0];
  const baseHP = hero.plasma? hero.hp : 100;
- const heroHP = baseHP * aura.hpMult;
+ const heroHP = finiteHp(baseHP * aura.hpMult, baseHP);
  battle={
- hero:{...hero, hp:heroHP, maxhp:heroHP, atkMult:aura.atkMult},
+ hero:{...hero, hp:heroHP, maxhp:heroHP, atkMult:battleNum(aura.atkMult,100)},
  foe:foe,
  over:false
  };
@@ -4946,7 +5056,7 @@ function doAttack(){
  const wpBonus = equippedWeapon>=0? WEAPONS[equippedWeapon].bonus : 0;
  const wpNote = wpBonus>0? ` (with ${WEAPONS[equippedWeapon].name} +${fmtHP(wpBonus)})` : '';
  const atkMult = h.atkMult || 1;
- const heroHit=Math.round((h.power/4 + wpBonus/4 + Math.random()*10) * atkMult);
+ const heroHit=Math.max(1, Math.round((battleNum(h.power)/4 + battleNum(wpBonus)/4 + Math.random()*10) * battleNum(atkMult,100)));
 
  // disable button during animation
  const ab=document.getElementById('attack-btn'); if(ab)ab.disabled=true;
@@ -4957,7 +5067,7 @@ function doAttack(){
  // 2) foe gets hit + POW
  animate('fighter-foe','gethit',500);
  showPow('fighter-foe', POW_WORDS[Math.floor(Math.random()*POW_WORDS.length)]);
- f.hp=Math.max(0, f.hp-heroHit);
+ f.hp=dealDamage(f.hp, heroHit);
  let log=` ${h.name} strikes ${f.name} for ${fmtHP(heroHit)}${wpNote}! `;
 
  if(f.hp<=0){
@@ -5019,10 +5129,10 @@ function doAttack(){
 // update just the health bars without rebuilding (keeps animations smooth)
 function updateHP(){
  const h=battle.hero, f=battle.foe;
- const hb=document.querySelector('#fighter-hero.hp-bar span');
- const ht=document.querySelector('#fighter-hero.hp-text');
- const fb=document.querySelector('#fighter-foe.hp-bar span');
- const ft=document.querySelector('#fighter-foe.hp-text');
+ const hb=document.querySelector('#fighter-hero .hp-bar span');
+ const ht=document.querySelector('#fighter-hero .hp-text');
+ const fb=document.querySelector('#fighter-foe .hp-bar span');
+ const ft=document.querySelector('#fighter-foe .hp-text');
  if(hb)hb.style.width=hpPct(h.hp,h.maxhp)+'%';
  if(ht)ht.innerHTML=` ${fmtHP(h.hp)} / ${fmtHP(h.maxhp)}`;
  if(fb)fb.style.width=hpPct(f.hp,f.maxhp)+'%';
@@ -5042,7 +5152,7 @@ function playerPower(){
  const bestW=unlocked.reduce((a,b)=>b.power>a.power?b:a, {power:0});
  const wp = equippedWeapon>=0 && WEAPONS[equippedWeapon]? WEAPONS[equippedWeapon].bonus : 0;
  const aura = AURAS[equippedAura] || AURAS[0];
- return Math.round((bestW.power + wp) * aura.atkMult);
+ return battleNum(Math.round((bestW.power + wp) * aura.atkMult));
 }
 function armySize(){
  // bigger army the stronger you are (but capped so it's playable)
@@ -5057,26 +5167,235 @@ function buildBattlefield(){
  wrap.innerHTML=`
  <div class="eyebrow">Gem Mine Expedition</div>
  <h1>The <em>Gem Mine</em></h1>
- <p class="bf-intro">Lead your strongest gem warrior against waves of corrupted <b>gem monsters</b>! The stronger you are, the bigger the crystal army. Shatter every monster to win!</p>
+ <p class="bf-intro">Start with a <b>scavenger gem hunt</b> on the trail — read the billboard, find 12 hidden gems, then mine 10 gold nuggets! Or charge straight into battle against corrupted gem monsters.</p>
  <div class="bf-power">
  <div class="bp-label">Your Battle Power</div>
  <div class="bp-num">${fmtHP(power)}</div>
  <div class="bp-army">Because you're this powerful, you'll face an army of <b>${size}</b> gem monsters!</div>
  </div>
- <div class="bf-btns"><button class="game-btn" id="bf-start"> Charge into battle!</button></div>
+ <div class="bf-btns">
+ <button class="game-btn" id="bf-expedition" style="font-size:14px;padding:18px 32px">🔍 Start Gem Hunt!</button>
+ <button class="game-btn ghost" id="bf-start"> Charge into battle!</button>
+ </div>
  <div id="bf-arena"></div>`;
  document.getElementById('bf-start').onclick=startArmyBattle;
+ document.getElementById('bf-expedition').onclick=startExpedition;
+}
+/* ---------- Gem Hunt Expedition: billboard → 12 gems → gold mine → leave ---------- */
+const EXPEDITION_GEM_COUNT=12;
+const EXPEDITION_GOLD_COUNT=10;
+const EXPEDITION_FACTS=[
+ {fact:"<em>Diamond</em> is the only gem made of pure carbon — and it's a perfect 10 on the Mohs hardness scale!",emoji:"💎"},
+ {fact:"Ruby and sapphire are the <em>same mineral</em> — corundum! Chromium makes ruby red; iron and titanium make sapphire blue.",emoji:"🔴"},
+ {fact:"Emerald and aquamarine are both <em>beryl</em>. Chromium turns beryl green (emerald); iron makes it blue (aquamarine)!",emoji:"💚"},
+ {fact:"Amethyst gets its purple color from iron inside quartz — ancient Greeks thought it kept you from getting drunk!",emoji:"💜"},
+ {fact:"Opal flashes rainbow colors because tiny silica spheres inside split light — it's nicknamed the <em>Queen of Gems</em>!",emoji:"🌈"},
+ {fact:"Most diamonds form about <em>150 km deep</em> underground, then ride up to the surface in volcanic pipes!",emoji:"🌋"},
+];
+const HUNT_GEM_SPOTS=[
+ {x:7,color:"#7d43b3",name:"Amethyst",bush:true,y:38},{x:16,color:"#9c2229",name:"Garnet",y:40},{x:24,color:"#1b3f96",name:"Sapphire",bush:true,y:39},
+ {x:33,color:"#ffd34e",name:"Citrine",y:41},{x:41,color:"#a8122a",name:"Ruby",y:38},{x:50,color:"#dbe4ec",name:"Diamond",bush:true,y:40},
+ {x:58,color:"#3a9a9a",name:"Turquoise",y:39},{x:66,color:"#7a9a30",name:"Peridot",y:41},{x:74,color:"#b8e0e8",name:"Moonstone",bush:true,y:38},
+ {x:82,color:"#4a6a8a",name:"Labradorite",y:40},{x:90,color:"#b85a40",name:"Agate",y:39},{x:96,color:"#c9a0ff",name:"Fluorite",bush:true,y:41}
+];
+const GOLD_VEIN_SPOTS=[8,18,28,38,48,58,68,78,88,94];
+let exp=null;
+let expLoop=null;
+function stopExpLoop(){ if(expLoop){clearInterval(expLoop);expLoop=null;} }
+function startExpLoop(){ stopExpLoop(); expLoop=setInterval(expTick,80); }
+function startExpedition(){
+ stopBFLoop(); bf=null;
+ const fact=EXPEDITION_FACTS[Math.floor(Math.random()*EXPEDITION_FACTS.length)];
+ exp={
+ phase:"billboard", fact:fact,
+ heroX:50, heroY:0, jumping:false,
+ gems:HUNT_GEM_SPOTS.map(g=>({...g,found:false})),
+ gemsFound:0, gold:0,
+ veins:GOLD_VEIN_SPOTS.map(x=>({x,mined:false})),
+ swing:false, swingT:0, goldPops:[],
+ log:"", over:false
+ };
+ renderExpedition();
+}
+function expTick(){
+ if(!exp||exp.over||exp.phase==="billboard"||exp.phase==="done")return;
+ if(exp.swingT>0){ exp.swingT--; if(exp.swingT<=0)exp.swing=false; }
+ if(exp.veins) exp.veins.forEach(v=>{ if(v.hitT>0) v.hitT--; });
+ if(exp.goldPops) exp.goldPops=exp.goldPops.filter(p=>{p.life--;return p.life>0;});
+ let changed=false;
+ if(exp.phase==="hunt"){
+ exp.gems.forEach(g=>{
+ if(!g.found && Math.abs(exp.heroX-g.x)<8){
+ g.found=true; exp.gemsFound++; changed=true;
+ exp.log=` Found a ${g.name}! (${exp.gemsFound}/${EXPEDITION_GEM_COUNT})`;
+ if(exp.gemsFound>=EXPEDITION_GEM_COUNT){
+ exp.phase="goldmine"; exp.heroX=12;
+ exp.log=" All 12 gems found! Walk into the gold mine — grab your pickaxe and mine 10 nuggets! ";
+ stopExpLoop();
+ startExpLoop();
+ }
+ }
+ });
+ }
+ if(changed || exp.swingT>0 || (exp.goldPops&&exp.goldPops.length)) renderExpedition();
+}
+function expMove(dir){
+ if(!exp||exp.over||exp.phase==="billboard"||exp.phase==="done")return;
+ exp.heroX=Math.max(3,Math.min(97,exp.heroX+dir*5));
+ renderExpedition();
+}
+function expJump(){
+ if(!exp||exp.over||exp.phase==="billboard"||exp.phase==="done")return;
+ if(!exp.jumping){
+ exp.jumping=true; let t=0;
+ const jump=setInterval(()=>{
+ t+=0.11; exp.heroY=Math.sin(t*Math.PI)*60;
+ if(t>=1){clearInterval(jump);exp.heroY=0;exp.jumping=false;}
+ renderExpedition();
+ },30);
+ }
+}
+function expMine(){
+ if(!exp||exp.over||exp.phase!=="goldmine"||exp.gold>=EXPEDITION_GOLD_COUNT)return;
+ exp.swing=true; exp.swingT=6;
+ let hit=false;
+ exp.veins.forEach(v=>{
+ if(!v.mined && Math.abs(exp.heroX-v.x)<14){
+ hit=true;
+ v.mined=true;
+ exp.gold++;
+ v.hitT=8;
+ exp.goldPops=exp.goldPops||[];
+ exp.goldPops.push({x:v.x,life:12});
+ exp.log=` *CLINK!* Mined a gold nugget! (${exp.gold}/${EXPEDITION_GOLD_COUNT})`;
+ if(exp.gold>=EXPEDITION_GOLD_COUNT){
+ exp.phase="done";
+ exp.log=" You collected all 10 gold nuggets! Time to leave the mine. ";
+ exp.over=true;
+ stopExpLoop();
+ }
+ }
+ });
+ if(!hit) exp.log=exp.gold>=EXPEDITION_GOLD_COUNT-1?" Find the last gold vein! ":" Swing your pickaxe next to an unmined gold vein! ";
+ renderExpedition();
+}
+function expCollect(){
+ if(!exp||exp.over)return;
+ if(exp.phase==="hunt"){
+ let got=false;
+ exp.gems.forEach(g=>{
+ if(!g.found && Math.abs(exp.heroX-g.x)<12){ g.found=true; exp.gemsFound++; got=true;
+ exp.log=` Found a ${g.name}! (${exp.gemsFound}/${EXPEDITION_GEM_COUNT})`; }
+ });
+ if(!got) exp.log=" Walk closer to a hidden gem sparkle! ";
+ if(exp.gemsFound>=EXPEDITION_GEM_COUNT){
+ exp.phase="goldmine"; exp.heroX=12;
+ exp.log=" All 12 gems found! Walk into the gold mine — grab your pickaxe and mine 10 nuggets! ";
+ stopExpLoop();
+ startExpLoop();
+ }
+ renderExpedition();
+ } else if(exp.phase==="goldmine") expMine();
+}
+function leaveExpedition(){ stopExpLoop(); exp=null; buildBattlefield(); }
+function renderExpedition(){
+ const wrap=document.getElementById('bf-wrap');
+ if(!wrap||!exp)return;
+ const unlocked=WARRIORS.filter(w=>warriorUnlocked(w));
+ const hero=unlocked.reduce((a,b)=>b.power>a.power?b:a, WARRIORS[0]);
+ if(exp.phase==="billboard"){
+ wrap.innerHTML=`
+ <div class="eyebrow">Gem Hunt Expedition</div>
+ <h1>Welcome to the <em>Trail</em></h1>
+ <div class="exp-wrap"><div class="exp-field">
+ <div class="exp-billboard">
+ <div class="exp-board">
+ <div class="exp-board-title">${exp.fact.emoji} Did You Know?</div>
+ <div class="exp-board-fact">${exp.fact.fact}</div>
+ <button class="game-btn" id="exp-begin">Start the Gem Hunt!</button>
+ </div>
+ </div>
+ </div>
+ <p class="exp-log">Read the billboard, then hunt for <b>12 hidden gems</b> on the trail!</p>
+ <div class="bf-btns"><button class="game-btn ghost" id="exp-leave">Back</button></div>
+ </div>`;
+ document.getElementById('exp-begin').onclick=()=>{ exp.phase="hunt"; exp.log=" Scour the trail — 12 gems are hidden among the bushes! Walk near sparkles to collect them. "; renderExpedition(); startExpLoop(); };
+ document.getElementById('exp-leave').onclick=leaveExpedition;
+ return;
+ }
+ if(exp.phase==="done"){
+ wrap.innerHTML=`
+ <div class="eyebrow">Expedition Complete!</div>
+ <h1>Gold Mine <em>conquered!</em></h1>
+ <div class="exp-wrap"><div class="exp-done">
+ <div style="font-size:48px;margin-bottom:12px">🏆</div>
+ <h3>You did it!</h3>
+ <p class="exp-log">You found all <b>12 gems</b> and mined <b>10 gold nuggets</b>!<br>Great work, gem hunter!</p>
+ <div class="bf-btns" style="margin-top:20px">
+ <button class="game-btn" id="exp-leave"> Leave expedition</button>
+ <button class="game-btn ghost" id="exp-to-battle"> Continue to Gem Mine battle</button>
+ </div>
+ </div></div>`;
+ document.getElementById('exp-leave').onclick=leaveExpedition;
+ document.getElementById('exp-to-battle').onclick=()=>{ stopExpLoop(); exp=null; startArmyBattle(); };
+ return;
+ }
+ const isGold=exp.phase==="goldmine";
+ const sparklesHTML=(!isGold)?exp.gems.filter(g=>!g.found).map(g=>{
+ const near=Math.abs(exp.heroX-g.x)<14;
+ return `<div class="exp-sparkle" style="left:${g.x}%;bottom:${(g.y||38)+8}%">${near?'✨':'·'}</div>`;
+ }).join(''):'';
+ const gemsHTML=(!isGold)?exp.gems.map(g=>{
+ const near=!g.found&&Math.abs(exp.heroX-g.x)<12;
+ const cls=g.found?'found':(near?'near':(g.bush?'hidden':''));
+ return `<div class="exp-gem-spot ${cls}" style="left:${g.x}%;bottom:${g.y||38}%">${huntGemSVG(34,g.color)}</div>`;
+ }).join(''):'';
+ const bushesHTML=(!isGold)?exp.gems.filter(g=>g.bush&&!g.found).map(g=>`<div class="exp-bush" style="left:${g.x}%">🌿</div>`).join(''):'';
+ const veinsHTML=isGold?exp.veins.map(v=>`<div class="exp-vein ${v.mined?'mined':''} ${v.hitT>0?'hit':''}" style="left:${v.x}%;bottom:36%">${goldVeinSVG(72,v.hitT>0||v.mined)}</div>`).join(''):'';
+ const popsHTML=isGold?(exp.goldPops||[]).map(p=>`<div class="exp-gold-pop" style="left:${p.x}%;bottom:50%">${goldNuggetSVG(22)} +1!</div>`).join(''):'';
+ const pickaxe=isGold?`<span class="exp-pickaxe">${pickaxeSVG(44)}</span>`:'';
+ const heroHTML=`<div class="exp-char ${exp.swing?'swinging':''}" style="left:${exp.heroX}%;bottom:${34+exp.heroY*0.35}%">${gemWarriorSVG(hero.color,64,hero.titan,hero.plasma,hero.style)}${pickaxe}</div>`;
+ const counter=isGold
+ ?`Gold mined: ${exp.gold} / ${EXPEDITION_GOLD_COUNT} ${goldNuggetSVG(18)}`
+ :`Gems found: ${exp.gemsFound} / ${EXPEDITION_GEM_COUNT} 💎`;
+ const actionLabel=isGold?"Mine! ⛏":"Search!";
+ wrap.innerHTML=`
+ <div class="eyebrow">Gem Hunt Expedition</div>
+ <h1>${isGold?'The <em>Gold Mine</em>':'Scavenger <em>Gem Hunt</em>'}</h1>
+ <div class="exp-wrap">
+ <div class="exp-counter">${counter}</div>
+ <div class="exp-field ${isGold?'goldmine':''}">
+ ${isGold?'<div class="exp-mine-wall"></div><div class="exp-tunnel"></div><div class="exp-mine-sign">⛏ Gold Mine — mine 10 nuggets!</div>':''}
+ <div class="exp-play">
+ <div class="exp-ground"></div>
+ ${bushesHTML}${sparklesHTML}${gemsHTML}${veinsHTML}${popsHTML}${heroHTML}
+ </div>
+ <div class="exp-log">${exp.log}</div>
+ <div class="bf-controls">
+ <button class="game-btn" id="exp-left">← Left</button>
+ <button class="game-btn" id="exp-jump">Jump</button>
+ <button class="game-btn" id="exp-right">Right →</button>
+ <button class="game-btn" id="exp-action">${actionLabel}</button>
+ </div>
+ <div class="bf-btns" style="margin-top:10px"><button class="game-btn ghost" id="exp-leave">Leave</button></div>
+ </div></div>`;
+ document.getElementById('exp-left').onclick=()=>expMove(-1);
+ document.getElementById('exp-right').onclick=()=>expMove(1);
+ document.getElementById('exp-jump').onclick=expJump;
+ document.getElementById('exp-action').onclick=expCollect;
+ document.getElementById('exp-leave').onclick=leaveExpedition;
 }
 function startArmyBattle(){
+ stopExpLoop(); exp=null;
  const unlocked=WARRIORS.filter(w=>warriorUnlocked(w));
  const hero=unlocked.reduce((a,b)=>b.power>a.power?b:a);
  const aura=AURAS[equippedAura]||AURAS[0];
  const baseHP=hero.plasma?hero.hp:100;
  const size=armySize();
- const power=playerPower();
+ const power=battleNum(playerPower());
  const golemHP=Math.max(40, Math.round(power*0.15)+40);
  bf={
- hero:{...hero, hp:baseHP*aura.hpMult, maxhp:baseHP*aura.hpMult, atkMult:aura.atkMult},
+ hero:{...hero, hp:finiteHp(baseHP*aura.hpMult,baseHP), maxhp:finiteHp(baseHP*aura.hpMult,baseHP), atkMult:battleNum(aura.atkMult,100), power:battleNum(hero.power)},
  total:size*3, // 3x more shard golems total!
  toSpawn:size*3, // how many still need to appear
  defeated:0, // how many you've beaten
@@ -5165,7 +5484,7 @@ function bfSwing(){
  }
  const h=bf.hero;
  const atkMult=h.atkMult||1;
- const hit=Math.round((h.power/3 + (equippedWeapon>=0&&WEAPONS[equippedWeapon]?WEAPONS[equippedWeapon].bonus/3:0) + Math.random()*10)*atkMult);
+ const hit=Math.max(1, Math.round((battleNum(h.power)/3 + (equippedWeapon>=0&&WEAPONS[equippedWeapon]?battleNum(WEAPONS[equippedWeapon].bonus)/3:0) + Math.random()*10)*battleNum(atkMult,100)));
  bfAnim('attacking', 500);
  showSlash();
 
@@ -5198,7 +5517,7 @@ function bfSwing(){
  if(bf.phase==="creator"){
  const boss=bf.creator;
  if(Math.abs(boss.x - bf.heroX) < 28){
- boss.hp-=hit; boss.hurt=true; setTimeout(()=>{boss.hurt=false;},200);
+ boss.hp=dealDamage(boss.hp,hit); boss.hurt=true; setTimeout(()=>{boss.hurt=false;},200);
  addSparks(boss.x,55); addSparks(boss.x-4,48); addSparks(boss.x+4,48);
  bf.log=` You struck the Corrupted Overgem for ${fmtHP(hit)}!`;
  if(boss.hp<=0){
@@ -5215,8 +5534,9 @@ function bfSwing(){
  if(bf.phase==="boss"){
  // hit the giant boss if close
  const boss=bf.boss;
+ if(!isFinite(boss.hp)||isNaN(boss.hp)){ boss.hp=boss.maxhp=mineBossHP('lord'); }
  if(Math.abs(boss.x - bf.heroX) < 26){
- boss.hp-=hit; boss.hurt=true; setTimeout(()=>{boss.hurt=false;},200);
+ boss.hp=dealDamage(boss.hp,hit); boss.hurt=true; setTimeout(()=>{boss.hurt=false;},200);
  addSparks(boss.x,50); addSparks(boss.x-3,44); addSparks(boss.x+3,44);
  bf.log=` You struck the Crystal Lord for ${fmtHP(hit)}!`;
  if(boss.hp<=0){
@@ -5276,13 +5596,13 @@ function bfSwing(){
  renderBattlefieldFrame();
 }
 function spawnBoss(){
- const power=playerPower();
+ const hp=mineBossHP('lord');
  const go=()=>{
  bf.phase="boss";
  bf.boss={
  x:80,
- hp:bf.golemMaxHP*20 + power*1.5,
- maxhp:bf.golemMaxHP*20 + power*1.5,
+ hp:hp,
+ maxhp:hp,
  hurt:false, jump:0, jumping:false, shootTimer:0
  };
  bf.log=` The GIANT CORRUPTED CRYSTAL LORD appears! It's HUGE and TOUGH! Shatter it! `;
@@ -5345,12 +5665,12 @@ function bfClimb(){
 }
 // spawn the Corrupted Overgem — the final crystal colossus boss!
 function spawnCreator(){
- const power=playerPower();
+ const hp=mineBossHP('overgem');
  const go=()=>{
  bf.phase="creator";
  bf.lasers=[]; bf.debris=[];
  bf.creator={ x:82, jump:0, jumping:false, shootTimer:0,
- hp:bf.golemMaxHP*35 + power*2.5, maxhp:bf.golemMaxHP*35 + power*2.5, hurt:false };
+ hp:hp, maxhp:hp, hurt:false };
  bf.log=` THE CORRUPTED OVERGEM! A monstrous dark crystal colossus! This is the FINAL battle — DEFEAT IT! `;
  renderBattlefieldFrame();
  };
@@ -5413,7 +5733,7 @@ function startBrainBoss(){
  bf.phase="brainboss";
  bf.heroX=14; bf.heroY=0;
  bf.brain={x:78, pulse:0};
- bf.superbot={x:64, hp:999999999, hurt:false, shootTimer:0, x0:64};
+ bf.superbot={x:64, hp:5000, maxhp:5000, hurt:false, shootTimer:0, x0:64};
  bf.pipesPulled=false;
  bf.showPipes=false;
  bf.brainHits=0;
@@ -5680,7 +6000,7 @@ function bfTick(){
 
  // YOUR RESCUED TEAM fights too — they attack the Creator and do REAL damage!
  if(bf.allies && bf.allyList && bf.allyList.length){
- const power=playerPower();
+ const power=battleNum(playerPower());
  bf.allyTimer=(bf.allyTimer||0)+1;
  if(bf.allyTimer>=14){ // the team lands a coordinated hit
  bf.allyTimer=0;
@@ -5691,8 +6011,9 @@ function bfTick(){
  else if(a.kind==="ruby"){ teamHit += Math.round(power*0.04 + 22); arrows=true; } // rubies fire arrows
  else teamHit += Math.round(power*0.03 + 15);
  });
+ teamHit=Math.min(teamHit,4000);
  if(teamHit>0){
- boss.hp -= teamHit; boss.hurt=true; setTimeout(()=>{if(bf&&bf.creator)bf.creator.hurt=false;},180);
+ boss.hp=dealDamage(boss.hp,teamHit); boss.hurt=true; setTimeout(()=>{if(bf&&bf.creator)bf.creator.hurt=false;},180);
  addSparks(boss.x,52); addSparks(boss.x-4,46);
  if(arrows){ bf.arrows=bf.arrows||[]; bf.arrows.push({x:bf.heroX-6,y:40,tx:boss.x}); }
  bf.log=` Your team strikes the Overgem for ${fmtHP(teamHit)}! `;
@@ -6229,6 +6550,15 @@ document.addEventListener('click',e=>{
   if(bf&&bf.quizActive){ bf.quizResult=null; renderBattlefieldFrame(); return; }
   if(arenaQuiz&&arenaQuiz.active){ arenaQuiz.result=null; renderStageQuizOverlay(getActiveStageQuiz()); return; }
  }
+ if(exp){
+  switch(btn.id){
+  case 'exp-left': expMove(-1); return;
+  case 'exp-right': expMove(1); return;
+  case 'exp-jump': expJump(); return;
+  case 'exp-action': expCollect(); return;
+  case 'exp-leave': leaveExpedition(); return;
+  }
+ }
  if(!bf)return;
  switch(btn.id){
  case 'bf-left': if(!bf.over)bfMove(-1); break;
@@ -6263,6 +6593,15 @@ document.addEventListener('keydown',e=>{
 });
 // arrow keys + space controls
 document.addEventListener('keydown',e=>{
+ if(exp && !views.battlefield.hidden){
+ if(exp.phase==="billboard"||exp.phase==="done")return;
+ if(e.key==='l'||e.key==='L'){leaveExpedition();e.preventDefault();return;}
+ if(e.key==='ArrowLeft'){expMove(-1);e.preventDefault();}
+ else if(e.key==='ArrowRight'){expMove(1);e.preventDefault();}
+ else if(e.key==='ArrowUp'||e.key===' '){expJump();e.preventDefault();}
+ else if(e.key==='Enter'||e.key==='a'||e.key==='A'){expCollect();e.preventDefault();}
+ return;
+ }
  if(views.battlefield.hidden)return;
  // L key leaves the factory (works even when the battle is over)
  if(e.key==='l'||e.key==='L'){stopBFLoop();buildBattlefield();e.preventDefault();return;}
