@@ -5425,8 +5425,34 @@ function expInGap(x){
  return ob.gaps.some(g=>x>=g.from&&x<=g.to);
 }
 function expOnSolid(x,y){
- if(expInGap(x)) return y>28;
+ if(expInGap(x)) return y>15;
  return true;
+}
+function expLeapTarget(dir){
+ const x=exp.heroX;
+ const ob=expAreaObby();
+ for(const g of ob.gaps){
+ if(dir>0&&x<=g.from+2&&x>=g.from-12) return Math.min(97,g.to+4);
+ if(dir<0&&x>=g.to-2&&x<=g.to+12) return Math.max(3,g.from-4);
+ }
+ for(const h of ob.hurdles||[]){
+ if(dir>0&&x<h.x+2&&x>=h.x-10) return Math.min(97,h.x+7);
+ if(dir<0&&x>h.x-2&&x<=h.x+10) return Math.max(3,h.x-7);
+ }
+ return Math.max(3,Math.min(97,x+dir*16));
+}
+function expJumpDir(){
+ const x=exp.heroX;
+ const ob=expAreaObby();
+ for(const g of ob.gaps){
+ if(x<g.from&&g.from-x<14) return 1;
+ if(x>g.to&&x-g.to<14) return -1;
+ }
+ for(const h of ob.hurdles||[]){
+ if(x<h.x&&h.x-x<12) return 1;
+ if(x>h.x&&x-h.x<12) return -1;
+ }
+ return exp.faceDir||1;
 }
 function expGroundLift(x){
  const ob=expAreaObby();
@@ -5477,7 +5503,7 @@ function startExpedition(){
  const fact=EXPEDITION_FACTS[Math.floor(Math.random()*EXPEDITION_FACTS.length)];
  exp={
  phase:"hunt", fact:fact, areaIdx:0,
- heroX:10, heroY:0, respawnX:10, jumping:false, falling:false,
+ heroX:10, heroY:0, respawnX:10, faceDir:1, jumping:false, falling:false,
  gems:expBuildGems(),
  gemsFound:0, gold:0,
  veins:GOLD_VEIN_SPOTS.map(x=>({x,mined:false,hits:0,hitsNeeded:EXP_MINE_HITS})),
@@ -5526,33 +5552,44 @@ function expCompleteHunt(){
  }
 }
 function expMove(dir){
- if(expMoveLock||exp.falling||!exp||exp.over||exp.phase==="billboard"||exp.phase==="done")return;
- if(exp.jumping){ exp.log=' Wait for your jump to land! '; return; }
+ if(expMoveLock||exp.falling||exp.jumping||!exp||exp.over||exp.phase==="billboard"||exp.phase==="done")return;
+ exp.faceDir=dir;
  const nx=Math.max(3,Math.min(97,exp.heroX+dir*EXP_MOVE_STEP));
+ if(expInGap(nx)){
+ exp.log=dir>0?' 🕳️ Gap ahead — tap Jump to leap across! ':' 🕳️ Gap behind — turn and Jump! ';
+ renderExpedition(); return;
+ }
  if(expHurdleBlock(nx)){
- exp.log=' 🪵 Log in the way — tap Jump first! ';
+ exp.log=' 🪵 Log blocking the path — tap Jump to hop over! ';
  renderExpedition(); return;
  }
  expMoveLock=true;
  exp.heroX=nx;
- if(expOnSolid(nx,exp.heroY)) exp.respawnX=nx;
- else expFall();
+ if(expOnSolid(nx,0)) exp.respawnX=nx;
  renderExpedition();
  setTimeout(()=>{ expMoveLock=false; if(exp) renderExpedition(); }, EXP_MOVE_COOLDOWN);
 }
 function expJump(){
- if(!exp||exp.over||exp.falling||exp.phase==="billboard"||exp.phase==="done")return;
- if(exp.jumping) return;
- exp.jumping=true; let t=0;
+ if(!exp||exp.over||exp.falling||exp.jumping||exp.phase==="billboard"||exp.phase==="done")return;
+ const dir=expJumpDir();
+ const startX=exp.heroX;
+ const targetX=expLeapTarget(dir);
+ exp.jumping=true; expMoveLock=true;
+ let t=0;
  const jump=setInterval(()=>{
  if(!exp){ clearInterval(jump); return; }
- t+=0.11; exp.heroY=Math.sin(t*Math.PI)*60;
- if(t>=1){
- clearInterval(jump); exp.heroY=0; exp.jumping=false;
- if(expOnSolid(exp.heroX,0)) exp.respawnX=exp.heroX;
- else expFall();
- }
+ t+=0.07;
+ const prog=Math.min(t,1);
+ const arc=Math.sin(prog*Math.PI);
+ exp.heroY=arc*80;
+ exp.heroX=startX+(targetX-startX)*prog;
+ if(prog>=1){
+ clearInterval(jump);
+ exp.heroY=0; exp.jumping=false; expMoveLock=false;
+ if(expInGap(exp.heroX)) expFall();
+ else{ exp.respawnX=exp.heroX; exp.log=''; }
  renderExpedition();
+ } else renderExpedition();
  },30);
 }
 function expMine(){
@@ -5674,7 +5711,7 @@ function renderExpedition(){
  return `<span class="exp-ap-item ${done?'done':''} ${here?'here':''}">${a.emoji} ${found}/${need}</span>`;
  }).join('')}</div>`:'';
  const checklist=(!isGold)?`<div class="exp-checklist">${areaGems.map(g=>`<span class="exp-cl-item ${g.found?'done':''}">${g.found?'✓':'?'} ${g.name}</span>`).join('')}</div>`:'';
- const hint=(!isGold)?`<div class="exp-hint">← → walk &nbsp;•&nbsp; <b>Jump</b> over gaps &amp; logs &nbsp;•&nbsp; <b>Look! 🔍</b> ${EXP_SEARCH_HITS}× per gem</div>`:'';
+ const hint=(!isGold)?`<div class="exp-hint">Walk toward gaps/logs &nbsp;•&nbsp; tap <b>Jump</b> to leap across &nbsp;•&nbsp; then <b>Look! 🔍</b></div>`:'';
  const mineHint=isGold?`<div class="exp-hint">← → move carefully &nbsp;•&nbsp; stand on each vein &nbsp;•&nbsp; tap <b>Dig! ⛏</b> ${EXP_MINE_HITS} times per nugget</div>`:'';
  wrap.innerHTML=`
  <div class="eyebrow">Gem Hunt Expedition</div>
@@ -5710,7 +5747,7 @@ function renderExpedition(){
  ${hint}${mineHint}
  <div class="bf-controls">
  <button class="game-btn" id="exp-left" ${expMoveLock?'disabled':''}>← Left</button>
- <button class="game-btn" id="exp-jump">Jump</button>
+ <button class="game-btn" id="exp-jump" ${exp.jumping||expMoveLock?'disabled':''}>Jump ⬆</button>
  <button class="game-btn" id="exp-right" ${expMoveLock?'disabled':''}>Right →</button>
  <button class="game-btn" id="exp-action" ${expActionLock?'disabled':''}>${actionLabel}</button>
  </div>
