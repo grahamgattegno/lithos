@@ -1808,6 +1808,49 @@
   .part-emoji{font-size:38px;line-height:1;margin-bottom:8px}
   .part-name{font-weight:800;font-size:17px;margin-bottom:4px}
   .part-desc{font-size:13px;color:var(--muted);line-height:1.4}
+  /* ===== OWNER VIDEO PLATFORM ===== */
+  .video-wrap{max-width:1200px;margin:0 auto;padding:100px 32px 120px}
+  .video-wrap .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:#9b7bff;margin-bottom:20px;text-align:center}
+  .video-wrap h1{font-family:var(--serif);font-weight:300;font-size:clamp(36px,5vw,72px);line-height:1;letter-spacing:-.02em;text-align:center}
+  .video-wrap h1 em{font-style:italic;color:#c4a8ff;font-weight:400}
+  .video-wrap .lede{margin:22px auto 0;max-width:620px;font-size:16px;line-height:1.6;color:var(--text-dim);text-align:center}
+  .video-locked-box{max-width:520px;margin:40px auto 0;text-align:center;padding:36px 28px;background:var(--panel);border:1px solid var(--line);border-radius:14px}
+  .video-locked-box .lock-icon{font-size:52px;margin-bottom:14px}
+  .video-stage{background:#050508;border:1px solid var(--line);border-radius:14px;overflow:hidden;margin:36px 0 24px;aspect-ratio:16/9;position:relative}
+  .video-stage iframe,.video-stage video{width:100%;height:100%;border:0;display:block;background:#000}
+  .video-stage-empty{display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-faint);font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase}
+  .video-now-playing{padding:14px 18px;background:var(--ink-2);border:1px solid var(--line);border-radius:10px;margin-bottom:24px}
+  .video-now-playing .vp-title{font-family:var(--serif);font-size:22px;margin-bottom:6px}
+  .video-now-playing .vp-desc{font-size:14px;line-height:1.55;color:var(--text-dim)}
+  .video-now-playing .vp-cat{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#9b7bff;margin-top:8px}
+  .video-toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:22px}
+  .video-toolbar input[type=search]{flex:1;min-width:180px;background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:12px 14px;font-size:15px}
+  .video-toolbar input:focus{outline:none;border-color:#9b7bff}
+  .video-cats{display:flex;flex-wrap:wrap;gap:8px}
+  .video-cat-btn{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;padding:8px 12px;border-radius:20px;border:1px solid var(--line);background:transparent;color:var(--text-dim);cursor:pointer;transition:border-color .15s,color .15s}
+  .video-cat-btn.on,.video-cat-btn:hover{border-color:#9b7bff;color:#c4a8ff}
+  .video-add{background:var(--ink-2);border:1px solid var(--line);border-radius:12px;padding:24px;margin-bottom:28px}
+  .video-add summary{cursor:pointer;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#9b7bff;list-style:none}
+  .video-add summary::-webkit-details-marker{display:none}
+  .video-add-form{margin-top:18px;display:grid;gap:0}
+  .video-add-form input,.video-add-form textarea{background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:12px 14px;font-family:var(--sans);font-size:15px;margin-bottom:16px;resize:vertical}
+  .video-add-form input:focus,.video-add-form textarea:focus{outline:none;border-color:#9b7bff}
+  .video-add-form button{background:linear-gradient(135deg,#7d5aff,#9b7bff);color:#fff;border:none;cursor:pointer;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;padding:14px 18px;border-radius:8px;transition:transform .15s}
+  .video-add-form button:hover{transform:translateY(-2px)}
+  .video-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+  .video-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;cursor:pointer;text-align:left;transition:transform .15s,border-color .15s;position:relative}
+  .video-card:hover{transform:translateY(-4px);border-color:#9b7bff}
+  .video-card.playing{border-color:#9b7bff;box-shadow:0 0 0 1px #9b7bff}
+  .video-thumb{aspect-ratio:16/9;background:linear-gradient(135deg,#1a1030,#0a0812);position:relative;overflow:hidden}
+  .video-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+  .video-thumb .play-badge{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:36px;opacity:.85;text-shadow:0 2px 12px rgba(0,0,0,.6)}
+  .video-card-body{padding:14px 16px 16px}
+  .video-card-body h3{font-family:var(--serif);font-size:18px;font-weight:400;margin-bottom:6px;line-height:1.25}
+  .video-card-body p{font-size:13px;line-height:1.45;color:var(--text-dim);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .video-card-body .vc-cat{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#9b7bff;margin-top:8px}
+  .video-del{position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;border:1px solid var(--line);background:rgba(0,0,0,.65);color:#e88;font-size:16px;line-height:1;cursor:pointer;opacity:0;transition:opacity .15s;z-index:2}
+  .video-card:hover .video-del{opacity:1}
+  .video-empty{text-align:center;color:var(--text-faint);padding:48px 20px;font-size:15px;line-height:1.6}
   .bf-side-title{text-shadow:0 1px 4px rgba(0,0,0,.7)}
   .bf-hp-text{text-shadow:0 1px 3px rgba(0,0,0,.7)}
   .bf-log{position:relative;z-index:1}
@@ -1909,6 +1952,7 @@
  <button data-view="donate">Donate</button>
  <button data-view="moneygoal">Money Goal</button>
  <button data-view="parts" id="parts-nav-btn" style="display:none">Parts</button>
+ <button data-view="video" id="video-nav-btn" style="display:none">Owner TV</button>
  </nav>
 </header>
 
@@ -2593,6 +2637,54 @@
  </section>
 </div><!-- /view-moneygoal -->
 
+<div class="view" id="view-video" hidden>
+ <section class="video-wrap">
+ <div id="video-locked" hidden>
+  <div class="eyebrow">Owner only</div>
+  <h1>Private <em>video</em> platform</h1>
+  <div class="video-locked-box">
+   <div class="lock-icon">🔒</div>
+   <p class="lede">This area is for the Lithos owner only. Enter the owner code on the <button type="button" class="collab-link" onclick="switchView('codes')">Secret Codes</button> page to unlock Owner TV.</p>
+  </div>
+ </div>
+ <div id="video-platform" hidden>
+  <div class="eyebrow">Owner private stream</div>
+  <h1>Owner <em>TV</em></h1>
+  <p class="lede">Your personal video library — add anything you want. YouTube, Vimeo, or direct MP4 links. Not limited to gems.</p>
+
+  <div class="video-stage" id="video-stage">
+   <div class="video-stage-empty" id="video-stage-empty">Pick a video below to start watching</div>
+  </div>
+  <div class="video-now-playing" id="video-now-playing" hidden>
+   <div class="vp-title" id="video-playing-title"></div>
+   <div class="vp-desc" id="video-playing-desc"></div>
+   <div class="vp-cat" id="video-playing-cat"></div>
+  </div>
+
+  <details class="video-add">
+   <summary>+ Add a video</summary>
+   <form class="video-add-form" id="video-add-form">
+    <label class="fb-label" for="video-add-title">Title</label>
+    <input id="video-add-title" type="text" placeholder="My favorite clip" required>
+    <label class="fb-label" for="video-add-url">Video URL (YouTube, Vimeo, or .mp4)</label>
+    <input id="video-add-url" type="url" placeholder="https://www.youtube.com/watch?v=..." required>
+    <label class="fb-label" for="video-add-cat">Category (optional)</label>
+    <input id="video-add-cat" type="text" placeholder="Music, memes, tutorials…">
+    <label class="fb-label" for="video-add-desc">Description (optional)</label>
+    <textarea id="video-add-desc" rows="2" placeholder="Notes about this video"></textarea>
+    <button type="submit">Add to library</button>
+   </form>
+  </details>
+
+  <div class="video-toolbar">
+   <input type="search" id="video-search" placeholder="Search your library…" autocomplete="off">
+   <div class="video-cats" id="video-cats"></div>
+  </div>
+  <div class="video-grid" id="video-grid"></div>
+ </div>
+ </section>
+</div><!-- /view-video -->
+
 <div class="view" id="view-parts" hidden>
  <section class="parts-wrap">
  <div class="eyebrow">Owner Scene Viewer</div>
@@ -3018,6 +3110,7 @@ const views={
  battlefield:document.getElementById('view-battlefield'),
  donate:document.getElementById('view-donate'),
  moneygoal:document.getElementById('view-moneygoal'),
+ video:document.getElementById('view-video'),
  parts:document.getElementById('view-parts')
 };
 const navBtns=[...document.querySelectorAll('nav.top button')];
@@ -3048,6 +3141,7 @@ function switchView(name){
  if(name==='auras'){buildAuras();}
  if(name==='battlefield'){ if(gemHunt) startExpedition(); else buildBattlefield(); }
  if(name==='moneygoal'){buildMoneyGoal();}
+ if(name==='video'){buildVideoPlatform();}
  if(name==='parts'){buildParts();}
 }
 navBtns.forEach(b=>b.addEventListener('click',()=>switchView(b.dataset.view)));
@@ -4707,6 +4801,13 @@ function restoreOwnerUnlocks(){
  if(typeof setMemberTier==='function') setMemberTier('gold');
  if(!hasPlasmaMace){ WEAPONS.push(PLASMA_MACE); hasPlasmaMace=true; }
  if(!hasPlasmaTitan){ WARRIORS.push(PLASMA_TITAN); hasPlasmaTitan=true; }
+ updateOwnerNav();
+}
+function updateOwnerNav(){
+ const partsBtn=document.getElementById('parts-nav-btn');
+ const videoBtn=document.getElementById('video-nav-btn');
+ if(partsBtn) partsBtn.style.display=isOwner?'inline-block':'none';
+ if(videoBtn) videoBtn.style.display=isOwner?'inline-block':'none';
 }
 function warriorUnlockHint(w,i){
  if(w.codeOnly) return 'Secret code only';
@@ -5035,6 +5136,7 @@ function afterShield(dmg){
 // THE PRISM TITAN — the ultimate owner-only warrior! Over 1 quadrillion health!
 const PLASMA_TITAN={name:"Prism Titan", color:"#7d5aff", power:9999, need:0, titan:true, plasma:true, hp:1000000000000000, ownerOnly:true};
 loadGameProgress();
+updateOwnerNav();
 // ===== GLITCHED PACK — EVERY stat is Infinity (code: "code breaker") =====
 const GLITCH_MACE={art:"glitch", name:"Glitched Jasper Mace", bonus:Infinity, glitch:true, codeOnly:true, fact:"Jasper comes in wild banded patterns — nature's own glitch art!"};
 const GLITCH_SHIELD={art:"glitch", name:"Glitched Fluorite Shield", block:Infinity, color:"#39ff14", glitch:true, codeOnly:true, fact:"Fluorite glows under UV light — nature's own glitch!"};
@@ -8170,6 +8272,174 @@ const BATTLE_PARTS=[
  {id:"malfunction", emoji:"⚡", name:"Golem Overload", desc:"The mega golem cracks and glitches out!"},
  {id:"finalescape", emoji:"🏁", name:"Exit / Escape", desc:"Run to the exit and WIN the game!"},
 ];
+/* ---------- Owner video platform ---------- */
+const VIDEO_STORAGE_KEY='lithos_owner_videos_v1';
+let videoFilterCat='all';
+let videoSearchQuery='';
+let videoPlayingId=null;
+function parseVideoUrl(raw){
+ const url=(raw||'').trim();
+ if(!url) return null;
+ let m=url.match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([\w-]{11})/i);
+ if(m) return {type:'youtube', id:m[1], embed:`https://www.youtube-nocookie.com/embed/${m[1]}?rel=0`, thumb:`https://img.youtube.com/vi/${m[1]}/hqdefault.jpg`};
+ m=url.match(/vimeo\.com\/(?:video\/)?(\d+)/i);
+ if(m) return {type:'vimeo', id:m[1], embed:`https://player.vimeo.com/video/${m[1]}`, thumb:''};
+ if(/^https?:\/\/.+\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(url)) return {type:'direct', id:url, embed:url, thumb:''};
+ return null;
+}
+function loadOwnerVideos(){
+ try{
+  const raw=localStorage.getItem(VIDEO_STORAGE_KEY);
+  return raw?JSON.parse(raw):[];
+ }catch(_){return[];}
+}
+function saveOwnerVideos(list){
+ try{localStorage.setItem(VIDEO_STORAGE_KEY,JSON.stringify(list));}catch(_){}
+}
+function addOwnerVideo(entry){
+ const list=loadOwnerVideos();
+ list.unshift(entry);
+ saveOwnerVideos(list);
+}
+function deleteOwnerVideo(id){
+ saveOwnerVideos(loadOwnerVideos().filter(v=>v.id!==id));
+ if(videoPlayingId===id){
+  videoPlayingId=null;
+  clearVideoStage();
+ }
+}
+function clearVideoStage(){
+ const stage=document.getElementById('video-stage');
+ const np=document.getElementById('video-now-playing');
+ if(!stage) return;
+ stage.innerHTML='<div class="video-stage-empty" id="video-stage-empty">Pick a video below to start watching</div>';
+ if(np) np.hidden=true;
+}
+function playOwnerVideo(v){
+ if(!v||!isOwner) return;
+ videoPlayingId=v.id;
+ const parsed=parseVideoUrl(v.url);
+ const stage=document.getElementById('video-stage');
+ const np=document.getElementById('video-now-playing');
+ if(!stage||!parsed) return;
+ stage.innerHTML='';
+ if(parsed.type==='direct'){
+  const vid=document.createElement('video');
+  vid.src=parsed.embed;
+  vid.controls=true;
+  vid.playsInline=true;
+  vid.setAttribute('controlsList','nodownload');
+  stage.appendChild(vid);
+  vid.play().catch(()=>{});
+ }else{
+  const iframe=document.createElement('iframe');
+  iframe.src=parsed.embed;
+  iframe.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+  iframe.allowFullscreen=true;
+  iframe.title=v.title||'Video';
+  stage.appendChild(iframe);
+ }
+ if(np){
+  document.getElementById('video-playing-title').textContent=v.title||'Untitled';
+  document.getElementById('video-playing-desc').textContent=v.desc||'';
+  document.getElementById('video-playing-cat').textContent=v.category?`Category: ${v.category}`:'';
+  np.hidden=false;
+ }
+ renderVideoGrid();
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+function renderVideoCats(videos){
+ const wrap=document.getElementById('video-cats');
+ if(!wrap) return;
+ const cats=['all',...new Set(videos.map(v=>(v.category||'').trim()).filter(Boolean))];
+ wrap.innerHTML=cats.map(c=>`<button type="button" class="video-cat-btn${c===videoFilterCat?' on':''}" data-cat="${escapeHtml(c)}">${c==='all'?'All':escapeHtml(c)}</button>`).join('');
+ wrap.querySelectorAll('.video-cat-btn').forEach(btn=>{
+  btn.onclick=()=>{videoFilterCat=btn.dataset.cat;renderVideoGrid();renderVideoCats(loadOwnerVideos());};
+ });
+}
+function filteredVideos(videos){
+ let list=videos.slice();
+ if(videoFilterCat!=='all') list=list.filter(v=>(v.category||'').trim()===videoFilterCat);
+ const q=videoSearchQuery.trim().toLowerCase();
+ if(q) list=list.filter(v=>(v.title||'').toLowerCase().includes(q)||(v.desc||'').toLowerCase().includes(q)||(v.category||'').toLowerCase().includes(q));
+ return list;
+}
+function renderVideoGrid(){
+ const grid=document.getElementById('video-grid');
+ if(!grid) return;
+ const videos=filteredVideos(loadOwnerVideos());
+ if(!videos.length){
+  grid.innerHTML=`<div class="video-empty">${loadOwnerVideos().length?'No videos match your search.':'Your library is empty — use “Add a video” above to paste a YouTube, Vimeo, or MP4 link.'}</div>`;
+  return;
+ }
+ grid.innerHTML=videos.map(v=>{
+  const parsed=parseVideoUrl(v.url);
+  const thumb=parsed&&parsed.thumb?`<img src="${parsed.thumb}" alt="" loading="lazy">`:'';
+  return `<article class="video-card${videoPlayingId===v.id?' playing':''}" data-vid="${escapeHtml(v.id)}">
+   <button type="button" class="video-del" data-del="${escapeHtml(v.id)}" title="Remove">×</button>
+   <div class="video-thumb">${thumb}<span class="play-badge">▶</span></div>
+   <div class="video-card-body">
+    <h3>${escapeHtml(v.title||'Untitled')}</h3>
+    <p>${escapeHtml(v.desc||'')}</p>
+    ${v.category?`<div class="vc-cat">${escapeHtml(v.category)}</div>`:''}
+   </div>
+  </article>`;
+ }).join('');
+ grid.querySelectorAll('.video-card').forEach(card=>{
+  card.onclick=e=>{
+   if(e.target.closest('.video-del')) return;
+   const id=card.dataset.vid;
+   const v=loadOwnerVideos().find(x=>x.id===id);
+   if(v) playOwnerVideo(v);
+  };
+ });
+ grid.querySelectorAll('.video-del').forEach(btn=>{
+  btn.onclick=e=>{
+   e.stopPropagation();
+   if(confirm('Remove this video from your library?')) deleteOwnerVideo(btn.dataset.del);
+   renderVideoGrid();
+   renderVideoCats(loadOwnerVideos());
+  };
+ });
+}
+function submitVideoAdd(e){
+ e.preventDefault();
+ if(!isOwner) return;
+ const title=document.getElementById('video-add-title').value.trim();
+ const url=document.getElementById('video-add-url').value.trim();
+ const category=document.getElementById('video-add-cat').value.trim();
+ const desc=document.getElementById('video-add-desc').value.trim();
+ if(!title||!url){alert('Title and URL are required.');return;}
+ if(!parseVideoUrl(url)){alert('Unsupported URL. Use YouTube, Vimeo, or a direct .mp4 / .webm link.');return;}
+ addOwnerVideo({id:Date.now().toString(36)+Math.random().toString(36).slice(2,7),title,url,category,desc,addedAt:new Date().toISOString()});
+ document.getElementById('video-add-form').reset();
+ document.querySelector('.video-add').open=false;
+ renderVideoGrid();
+ renderVideoCats(loadOwnerVideos());
+}
+let videoPlatformBuilt=false;
+function buildVideoPlatform(){
+ const locked=document.getElementById('video-locked');
+ const platform=document.getElementById('video-platform');
+ if(!isOwner){
+  if(locked) locked.hidden=false;
+  if(platform) platform.hidden=true;
+  return;
+ }
+ if(locked) locked.hidden=true;
+ if(platform) platform.hidden=false;
+ if(!videoPlatformBuilt){
+  document.getElementById('video-add-form').addEventListener('submit',submitVideoAdd);
+  document.getElementById('video-search').addEventListener('input',e=>{videoSearchQuery=e.target.value;renderVideoGrid();});
+  videoPlatformBuilt=true;
+ }
+ renderVideoCats(loadOwnerVideos());
+ renderVideoGrid();
+ if(videoPlayingId){
+  const v=loadOwnerVideos().find(x=>x.id===videoPlayingId);
+  if(v) playOwnerVideo(v);
+ }
+}
 function buildParts(){
  const grid=document.getElementById('parts-grid');
  grid.innerHTML=BATTLE_PARTS.map((p,i)=>`
@@ -8427,6 +8697,7 @@ function tryCode(){
  equippedShield=SHIELDS.length-1; // equip the strongest shield (Onyx Aegis!)
  updateGameLock();
  const partsBtn=document.getElementById('parts-nav-btn'); if(partsBtn)partsBtn.style.display='';
+ updateOwnerNav();
  if(typeof buildAuras==='function' && document.getElementById('auras-grid')) buildAuras();
  res.innerHTML=`<div class="owner">
  <div class="crown"></div>
@@ -8438,7 +8709,8 @@ function tryCode(){
  The legendary <b>PRISM MACE</b> (+${PLASMA_MACE.bonus} power!) — equipped!<br>
  The <b>AI Rock Teacher</b> on the Classes page<br>
  You can play freely!<br>
- NEW: a <b>Parts</b> button appeared in the menu — jump to ANY part of the adventure!<br><br>
+ NEW: a <b>Parts</b> button appeared in the menu — jump to ANY part of the adventure!<br>
+ NEW: <b>Owner TV</b> — your private video platform for anything you want to watch!<br><br>
  Go to the Gem Arena and check it out!
  </div>`;
  return;
