@@ -1369,7 +1369,7 @@
   .exp-hurdle{position:absolute;transform:translateX(-50%);z-index:4;font-size:28px;line-height:1;bottom:36%;filter:drop-shadow(0 3px 4px rgba(0,0,0,.35))}
   .exp-char.falling{opacity:.85;transition:none}
   .exp-field.goldmine .exp-ground{background:linear-gradient(180deg,#4a3820,#2a1a08);border-top-color:rgba(255,211,78,.25)}
-  .exp-char{position:absolute;transition:left .12s linear,bottom .09s linear;z-index:5;line-height:0}
+  .exp-char{position:absolute;transition:left .08s linear,bottom .06s linear;z-index:5;line-height:0}
   .exp-char.swinging svg{animation:expSwing .35s ease}
   @keyframes expSwing{0%{transform:rotate(0)}40%{transform:rotate(-28deg) translateX(8px)}100%{transform:rotate(0)}}
   .exp-gem-spot{position:absolute;transform:translateX(-50%);z-index:3;line-height:0;transition:transform .3s,filter .3s,opacity .3s}
@@ -5396,6 +5396,8 @@ const EXP_SEARCH_COOLDOWN=520;
 const EXP_MINE_RADIUS=7;
 const EXP_MINE_HITS=4;
 const EXP_MINE_COOLDOWN=480;
+const EXP_JUMP_SPEED=0.18;
+const EXP_JUMP_MS=16;
 const EXPEDITION_FACTS=[
  {fact:"<em>Diamond</em> is the only gem made of pure carbon — and it's a perfect 10 on the Mohs hardness scale!",emoji:"💎"},
  {fact:"Ruby and sapphire are the <em>same mineral</em> — corundum! Chromium makes ruby red; iron and titanium make sapphire blue.",emoji:"🔴"},
@@ -5578,7 +5580,7 @@ function expJump(){
  let t=0;
  const jump=setInterval(()=>{
  if(!exp){ clearInterval(jump); return; }
- t+=0.07;
+ t+=EXP_JUMP_SPEED;
  const prog=Math.min(t,1);
  const arc=Math.sin(prog*Math.PI);
  exp.heroY=arc*80;
@@ -5590,7 +5592,7 @@ function expJump(){
  else{ exp.respawnX=exp.heroX; exp.log=''; }
  renderExpedition();
  } else renderExpedition();
- },30);
+ },EXP_JUMP_MS);
 }
 function expMine(){
  if(expActionLock||!exp||exp.over||exp.phase!=="goldmine"||exp.gold>=EXPEDITION_GOLD_COUNT)return;
