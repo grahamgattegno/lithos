@@ -1625,7 +1625,7 @@
  <label for="class-voice-select">Voice</label>
  <select id="class-voice-select" class="lithos-voice-select" title="Pick who reads answers aloud"></select>
  <button type="button" class="voice-preview" id="class-voice-preview">Preview</button>
- <button type="button" class="voice-creepy lithos-voice-creepy" id="class-voice-creepy" title="Maximum nightmare voice — slow, deep, pauses, chills">Nightmare</button>
+ <button type="button" class="voice-creepy lithos-voice-creepy" id="class-voice-creepy" title="Silly spooky voice — slow and deep, but kid-friendly">Spooky</button>
  </div>
  <p class="voice-hint" id="class-voice-hint">Turn voice on to hear answers. Mic uses your browser’s speech recognition when available.</p>
  </div>
@@ -1711,7 +1711,7 @@
  <label for="teacher-voice-select">Voice</label>
  <select id="teacher-voice-select" class="lithos-voice-select" title="Pick who reads answers aloud"></select>
  <button type="button" class="voice-preview" id="teacher-voice-preview">Preview</button>
- <button type="button" class="voice-creepy lithos-voice-creepy" id="teacher-voice-creepy" title="Maximum nightmare voice — slow, deep, pauses, chills">Nightmare</button>
+ <button type="button" class="voice-creepy lithos-voice-creepy" id="teacher-voice-creepy" title="Silly spooky voice — slow and deep, but kid-friendly">Spooky</button>
  </div>
  <p class="voice-hint">Same voice setting as the class Rock Teacher. Mic fills the box when your browser supports it.</p>
  </div>
@@ -2500,14 +2500,14 @@ function getLithosSpeechStyle(){
 function creepifyText(text){
  let t=String(text).replace(/\s+/g,' ').trim();
  if(!t) return [];
- t=t.replace(/[,;:]/g,' ... ... ');
- t=t.replace(/([.!?])\s*/g,'$1 ... ... ... ');
+ t=t.replace(/[,;:]/g,' ... ');
+ t=t.replace(/([.!?])\s*/g,'$1 ... ');
  if(t.length>220){
  const chunks=[];
- for(let i=0;i<t.length;i+=90) chunks.push(t.slice(i,i+90).trim());
- return chunks.filter(Boolean).map(c=>c+' ... ... ');
+ for(let i=0;i<t.length;i+=100) chunks.push(t.slice(i,i+100).trim());
+ return chunks.filter(Boolean).map(c=>c+' ...');
  }
- return [t+' ... ... ...'];
+ return [t+' ...'];
 }
 function speakUtteranceCreepy(text, onDone){
  const u=new SpeechSynthesisUtterance(text);
@@ -2526,7 +2526,7 @@ function speakLithosCreepy(text){
  function next(){
  if(lithosCreepyChain!==chainId) return;
  if(i>=parts.length) return;
- const delay=i===0?0:320+Math.random()*680;
+ const delay=i===0?0:280+Math.random()*420;
  setTimeout(()=>{
  if(lithosCreepyChain!==chainId) return;
  speakUtteranceCreepy(parts[i], ()=>{ i++; next(); });
@@ -2536,11 +2536,11 @@ function speakLithosCreepy(text){
 }
 function getCreepyPreviewLines(){
  return [
- 'I know... you are there...',
- 'I can hear you... breathing...',
- 'in the mine...',
- 'The gems... they whisper... at night...',
- 'Do not... turn around...'
+ 'Boo! ... Just kidding.',
+ 'I am your silly... spooky... Rock Teacher.',
+ 'I live deep... deep... underground.',
+ 'Gems can glow... and sparkle... like tiny stars.',
+ 'Ask me about rocks and crystals... if you dare!'
  ];
 }
 function previewLithosCreepy(){
@@ -2554,7 +2554,7 @@ function previewLithosCreepy(){
  function nextLine(){
  if(lithosCreepyChain!==chainId) return;
  if(i>=lines.length) return;
- const delay=i===0?0:900+Math.random()*1100;
+ const delay=i===0?0:900+Math.random()*600;
  setTimeout(()=>{
  if(lithosCreepyChain!==chainId) return;
  speakUtteranceCreepy(lines[i], ()=>{ i++; nextLine(); });
@@ -2606,7 +2606,7 @@ function populateVoiceSelects(){
  sel.disabled=false;
  const creepyOpt=document.createElement('option');
  creepyOpt.value=CREEPY_VOICE_ID;
- creepyOpt.textContent='Nightmare mode (maximum chills)';
+ creepyOpt.textContent='Spooky mode (kid-friendly chills)';
  sel.appendChild(creepyOpt);
  voices.forEach(v=>{
  const opt=document.createElement('option');
@@ -2629,7 +2629,7 @@ function syncCreepyToggleUI(){
  document.querySelectorAll('.lithos-voice-creepy').forEach(btn=>{
  btn.classList.toggle('on', on);
  btn.setAttribute('aria-pressed', on?'true':'false');
- btn.textContent=on?'Nightmare on':'Nightmare';
+ btn.textContent=on?'Spooky on':'Spooky';
  });
 }
 function toggleCreepyVoice(){
