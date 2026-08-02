@@ -99,6 +99,103 @@
     color:var(--text-faint);margin-top:10px;
   }
 
+  /* ---------- Animated gem slideshow ---------- */
+  .gem-slideshow{
+    max-width:1440px;margin:0 auto 40px;padding:0 40px;
+    position:relative;
+  }
+  .gem-slide-stage{
+    position:relative;overflow:hidden;border-radius:6px;
+    border:1px solid var(--line);background:linear-gradient(135deg,var(--ink-2) 0%,var(--panel) 45%,var(--ink) 100%);
+    min-height:320px;isolation:isolate;
+  }
+  .gem-slide-stage::before{
+    content:'';position:absolute;inset:0;
+    background:radial-gradient(ellipse 60% 50% at 70% 50%,rgba(201,169,98,.12),transparent 70%);
+    pointer-events:none;z-index:0;
+  }
+  .gem-slide{
+    position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:24px;
+    padding:40px 48px;opacity:0;visibility:hidden;transform:translateX(40px) scale(.97);
+    transition:opacity .65s ease,transform .65s ease,visibility .65s;
+    z-index:1;
+  }
+  .gem-slide.active{opacity:1;visibility:visible;transform:none;z-index:2}
+  .gem-slide.exit-left{opacity:0;transform:translateX(-40px) scale(.97)}
+  .gem-slide-copy .slide-tag{
+    font-family:var(--mono);font-size:10px;letter-spacing:.28em;text-transform:uppercase;
+    color:var(--gold);margin-bottom:14px;display:block;
+  }
+  .gem-slide-copy h2{
+    font-family:var(--serif);font-weight:300;font-size:clamp(36px,5vw,56px);line-height:1;
+    letter-spacing:-.02em;margin-bottom:12px;
+  }
+  .gem-slide-copy h2 em{font-style:italic;color:var(--slide-accent,var(--gold))}
+  .gem-slide-copy p{font-size:15px;line-height:1.6;color:var(--text-dim);max-width:380px;margin-bottom:20px}
+  .gem-slide-stats{display:flex;gap:20px;flex-wrap:wrap}
+  .gem-slide-stats span{
+    font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--text-faint);padding:8px 12px;border:1px solid var(--line);border-radius:3px;
+  }
+  .gem-slide-stats span b{color:var(--slide-accent,var(--gold));font-weight:400;margin-right:6px}
+  .gem-slide-visual{
+    position:relative;display:flex;align-items:center;justify-content:center;
+    min-height:240px;perspective:800px;
+  }
+  .gem-orbit{
+    position:absolute;width:220px;height:220px;border-radius:50%;
+    border:1px dashed rgba(201,169,98,.15);animation:orbitSpin 18s linear infinite;
+  }
+  .gem-orbit::after{
+    content:'';position:absolute;top:-4px;left:50%;width:8px;height:8px;border-radius:50%;
+    background:var(--slide-accent,var(--gold));box-shadow:0 0 12px var(--slide-accent,var(--gold));
+  }
+  .gem-float-wrap{animation:gemFloat 4s ease-in-out infinite;transform-style:preserve-3d}
+  .gem-svg-main{
+    width:min(200px,40vw);height:auto;filter:drop-shadow(0 20px 40px rgba(0,0,0,.5));
+    animation:gemTilt 6s ease-in-out infinite;
+  }
+  .gem-sparkles{position:absolute;inset:0;pointer-events:none}
+  .gem-sparkles i{
+    position:absolute;width:4px;height:4px;border-radius:50%;background:#fff;
+    box-shadow:0 0 8px 2px var(--slide-accent,var(--gold));opacity:0;
+    animation:sparklePop 3s ease-in-out infinite;
+  }
+  .gem-sparkles i:nth-child(1){top:18%;left:22%;animation-delay:0s}
+  .gem-sparkles i:nth-child(2){top:35%;right:18%;animation-delay:.8s}
+  .gem-sparkles i:nth-child(3){bottom:28%;left:30%;animation-delay:1.6s}
+  .gem-sparkles i:nth-child(4){top:55%;right:28%;animation-delay:2.2s}
+  .gem-sparkles i:nth-child(5){bottom:15%;right:35%;animation-delay:.4s}
+  .prism-sweep{
+    position:absolute;inset:0;background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.08) 50%,transparent 60%);
+    transform:translateX(-100%);animation:prismSweep 5s ease-in-out infinite;pointer-events:none;
+  }
+  .gem-slide-dots{
+    display:flex;justify-content:center;gap:10px;margin-top:16px;
+  }
+  .gem-slide-dots button{
+    width:10px;height:10px;border-radius:50%;border:1px solid var(--line-2);background:transparent;
+    cursor:pointer;padding:0;transition:background .25s,transform .25s,border-color .25s;
+  }
+  .gem-slide-dots button.on{background:var(--gold);border-color:var(--gold);transform:scale(1.15)}
+  .gem-slide-dots button:hover{border-color:var(--gold)}
+  @keyframes gemFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+  @keyframes gemTilt{0%,100%{transform:rotateY(-8deg) rotateX(4deg)}50%{transform:rotateY(8deg) rotateX(-4deg)}}
+  @keyframes orbitSpin{to{transform:rotate(360deg)}}
+  @keyframes sparklePop{0%,100%{opacity:0;transform:scale(.5)}50%{opacity:1;transform:scale(1.2)}}
+  @keyframes prismSweep{0%,100%{transform:translateX(-120%)}45%,55%{transform:translateX(120%)}}
+  @media(prefers-reduced-motion:reduce){
+    .gem-float-wrap,.gem-svg-main,.gem-orbit,.prism-sweep,.gem-sparkles i{animation:none!important}
+    .gem-slide{transition:opacity .3s ease,visibility .3s;transform:none!important}
+  }
+  @media(max-width:860px){
+    .gem-slide{grid-template-columns:1fr;text-align:center;padding:32px 24px}
+    .gem-slide-copy p{margin-left:auto;margin-right:auto}
+    .gem-slide-stats{justify-content:center}
+    .gem-slide-visual{order:-1;min-height:180px}
+    .gem-slideshow{padding:0 20px}
+  }
+
   /* ---------- Controls ---------- */
   .controls{
     position:sticky;top:73px;z-index:30;
@@ -1668,6 +1765,92 @@
  </div>
 </section>
 
+<section class="gem-slideshow" aria-label="Featured gemstones" id="gem-slideshow">
+ <div class="gem-slide-stage" id="gem-slide-stage">
+  <article class="gem-slide active" style="--slide-accent:#b0132a" data-slide="0">
+   <div class="gem-slide-copy">
+    <span class="slide-tag">Corundum · Oxide</span>
+    <h2><em>Ruby</em></h2>
+    <p>Chromium paints corundum the deepest red. Mohs 9 — only diamond is harder among gems.</p>
+    <div class="gem-slide-stats"><span><b>Mohs</b>9</span><span><b>System</b>Trigonal</span><span><b>Origin</b>Myanmar</span></div>
+   </div>
+   <div class="gem-slide-visual">
+    <div class="gem-orbit"></div>
+    <div class="gem-float-wrap">
+     <svg class="gem-svg-main" viewBox="0 0 120 140" aria-hidden="true"><defs><linearGradient id="gRuby" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ff4060"/><stop offset="50%" stop-color="#b0132a"/><stop offset="100%" stop-color="#5a0818"/></linearGradient></defs><polygon fill="url(#gRuby)" points="60,8 108,45 90,132 30,132 12,45"/><polygon fill="rgba(255,255,255,.25)" points="60,8 60,70 12,45"/><polygon fill="rgba(0,0,0,.2)" points="60,70 90,132 60,132"/><polygon fill="rgba(255,180,180,.15)" points="60,8 108,45 60,70"/></svg>
+    </div>
+    <div class="gem-sparkles"><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="prism-sweep"></div>
+   </div>
+  </article>
+  <article class="gem-slide" style="--slide-accent:#173a8f" data-slide="1">
+   <div class="gem-slide-copy">
+    <span class="slide-tag">Corundum · Oxide</span>
+    <h2><em>Sapphire</em></h2>
+    <p>Iron and titanium weave the classic blue. The same mineral as ruby — every color except red.</p>
+    <div class="gem-slide-stats"><span><b>Mohs</b>9</span><span><b>System</b>Trigonal</span><span><b>Origin</b>Sri Lanka</span></div>
+   </div>
+   <div class="gem-slide-visual">
+    <div class="gem-orbit"></div>
+    <div class="gem-float-wrap">
+     <svg class="gem-svg-main" viewBox="0 0 120 140" aria-hidden="true"><defs><linearGradient id="gSapphire" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#4a7fd4"/><stop offset="50%" stop-color="#173a8f"/><stop offset="100%" stop-color="#0a1840"/></linearGradient></defs><polygon fill="url(#gSapphire)" points="60,8 108,45 90,132 30,132 12,45"/><polygon fill="rgba(255,255,255,.22)" points="60,8 60,70 12,45"/><polygon fill="rgba(0,0,0,.25)" points="60,70 90,132 60,132"/></svg>
+    </div>
+    <div class="gem-sparkles"><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="prism-sweep"></div>
+   </div>
+  </article>
+  <article class="gem-slide" style="--slide-accent:#0f7a4d" data-slide="2">
+   <div class="gem-slide-copy">
+    <span class="slide-tag">Beryl · Silicate</span>
+    <h2><em>Emerald</em></h2>
+    <p>Chromium and vanadium green the queen of beryl. Jardin inclusions tell stories of deep formation.</p>
+    <div class="gem-slide-stats"><span><b>Mohs</b>7.75</span><span><b>System</b>Hexagonal</span><span><b>Origin</b>Colombia</span></div>
+   </div>
+   <div class="gem-slide-visual">
+    <div class="gem-orbit"></div>
+    <div class="gem-float-wrap">
+     <svg class="gem-svg-main" viewBox="0 0 120 140" aria-hidden="true"><defs><linearGradient id="gEmerald" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3ecf8a"/><stop offset="50%" stop-color="#0f7a4d"/><stop offset="100%" stop-color="#064028"/></linearGradient></defs><polygon fill="url(#gEmerald)" points="60,8 108,45 90,132 30,132 12,45"/><polygon fill="rgba(255,255,255,.2)" points="60,8 60,70 12,45"/><polygon fill="rgba(0,0,0,.22)" points="60,70 90,132 60,132"/></svg>
+    </div>
+    <div class="gem-sparkles"><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="prism-sweep"></div>
+   </div>
+  </article>
+  <article class="gem-slide" style="--slide-accent:#7b3fb0" data-slide="3">
+   <div class="gem-slide-copy">
+    <span class="slide-tag">Quartz · Silicate</span>
+    <h2><em>Amethyst</em></h2>
+    <p>Irradiated iron gives quartz its royal violet. Ancient Greeks believed it guarded against drunkenness.</p>
+    <div class="gem-slide-stats"><span><b>Mohs</b>7</span><span><b>System</b>Trigonal</span><span><b>Origin</b>Brazil</span></div>
+   </div>
+   <div class="gem-slide-visual">
+    <div class="gem-orbit"></div>
+    <div class="gem-float-wrap">
+     <svg class="gem-svg-main" viewBox="0 0 120 160" aria-hidden="true"><defs><linearGradient id="gAmethyst" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#4c2470"/><stop offset="50%" stop-color="#7b3fb0"/><stop offset="100%" stop-color="#c080e8"/></linearGradient></defs><polygon fill="url(#gAmethyst)" points="60,140 20,60 35,20 85,20 100,60"/><polygon fill="rgba(255,255,255,.18)" points="60,20 35,20 60,80"/><polygon fill="rgba(0,0,0,.2)" points="60,80 100,60 60,140"/><polygon fill="url(#gAmethyst)" opacity=".7" points="60,20 85,20 100,60 60,80"/></svg>
+    </div>
+    <div class="gem-sparkles"><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="prism-sweep"></div>
+   </div>
+  </article>
+  <article class="gem-slide" style="--slide-accent:#dbe4ec" data-slide="4">
+   <div class="gem-slide-copy">
+    <span class="slide-tag">Carbon · Native</span>
+    <h2><em>Diamond</em></h2>
+    <p>Pure carbon at Mohs 10. Born 150 km deep — volcanic pipes carry the hardest gem to the surface.</p>
+    <div class="gem-slide-stats"><span><b>Mohs</b>10</span><span><b>System</b>Cubic</span><span><b>Origin</b>Botswana</span></div>
+   </div>
+   <div class="gem-slide-visual">
+    <div class="gem-orbit"></div>
+    <div class="gem-float-wrap">
+     <svg class="gem-svg-main" viewBox="0 0 120 140" aria-hidden="true"><defs><linearGradient id="gDiamond" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ffffff"/><stop offset="40%" stop-color="#dbe4ec"/><stop offset="100%" stop-color="#a8b8c8"/></linearGradient></defs><polygon fill="url(#gDiamond)" points="60,5 110,50 60,135 10,50"/><polygon fill="rgba(255,255,255,.5)" points="60,5 60,70 10,50"/><polygon fill="rgba(180,200,220,.3)" points="60,5 110,50 60,70"/><polygon fill="rgba(0,0,0,.08)" points="60,70 110,50 60,135"/><polygon fill="rgba(255,220,255,.2)" points="60,70 10,50 60,135"/></svg>
+    </div>
+    <div class="gem-sparkles"><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="prism-sweep"></div>
+   </div>
+  </article>
+ </div>
+ <div class="gem-slide-dots" id="gem-slide-dots" role="tablist" aria-label="Gem slides"></div>
+</section>
+
 <section class="partner-strip" aria-label="Education partner">
  <div class="partner-card">
  <div>
@@ -2076,6 +2259,37 @@ function partnerUrl(partnerKey,pathKey){
  const url=p.paths[pathKey]||p.paths.home;
  return url;
 }
+function initGemSlideshow(){
+ const slides=[...document.querySelectorAll('.gem-slide')];
+ const dotsEl=document.getElementById('gem-slide-dots');
+ if(!slides.length||!dotsEl)return;
+ let cur=0,timer=null;
+ slides.forEach((_,i)=>{
+  const b=document.createElement('button');
+  b.type='button';
+  b.setAttribute('role','tab');
+  b.setAttribute('aria-label','Show gem slide '+(i+1));
+  if(i===0)b.classList.add('on');
+  b.onclick=()=>go(i,true);
+  dotsEl.appendChild(b);
+ });
+ const dots=[...dotsEl.children];
+ function go(n,manual){
+  if(n===cur&&manual)return;
+  slides[cur].classList.remove('active');
+  slides[cur].classList.add('exit-left');
+  setTimeout(()=>slides[cur].classList.remove('exit-left'),650);
+  cur=(n+slides.length)%slides.length;
+  slides[cur].classList.add('active');
+  dots.forEach((d,i)=>{ d.classList.toggle('on',i===cur); d.setAttribute('aria-selected',i===cur?'true':'false'); });
+  resetTimer();
+ }
+ function resetTimer(){
+  clearInterval(timer);
+  timer=setInterval(()=>go(cur+1,false),4500);
+ }
+ resetTimer();
+}
 function initPartnerLinks(){
  document.querySelectorAll('[data-partner]').forEach(el=>{
   const pk=el.dataset.partner||DEFAULT_PARTNER;
@@ -2319,6 +2533,7 @@ overlay.onclick=e=>{if(e.target===overlay)closeDrawer();};
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer();});
 
 document.getElementById('q').addEventListener('input',e=>{query=e.target.value.trim().toLowerCase();render();});
+initGemSlideshow();
 initPartnerLinks();
 syncHeroCounts();
 render();
