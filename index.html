@@ -356,6 +356,40 @@
     display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px;
     font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint);
   }
+  footer .partner-foot{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center}
+  footer .partner-foot a{color:var(--gold);text-decoration:none;transition:color .2s}
+  footer .partner-foot a:hover{color:var(--text)}
+  footer .partner-disclosure{font-size:9.5px;letter-spacing:.1em;color:var(--text-faint);text-transform:none;font-family:var(--sans)}
+
+  /* ---------- Star Lanka Partner ---------- */
+  .partner-strip{max-width:1440px;margin:0 auto;padding:0 40px 36px}
+  .partner-card{
+    display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;
+    background:var(--panel);border:1px solid var(--line);border-radius:3px;padding:24px 28px;
+  }
+  .partner-card .partner-label{
+    font-family:var(--mono);font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;
+  }
+  .partner-card h3{font-family:var(--serif);font-weight:400;font-size:clamp(20px,3vw,24px);line-height:1.2}
+  .partner-card h3 em{font-style:italic;color:var(--gold)}
+  .partner-card p{font-size:14px;line-height:1.55;color:var(--text-dim);max-width:540px;margin-top:8px}
+  .partner-cta{
+    display:inline-block;text-decoration:none;background:var(--gold);color:var(--ink);
+    font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+    padding:14px 22px;border-radius:4px;transition:transform .15s,filter .15s;white-space:nowrap;
+  }
+  .partner-cta:hover{transform:translateY(-2px);filter:brightness(1.05)}
+  .partner-learn{margin-top:22px;font-size:15px;line-height:1.6;color:var(--text-dim);max-width:600px}
+  .partner-learn a{color:var(--gold);text-underline-offset:3px}
+  .partner-learn a:hover{color:var(--text)}
+  .drawer .partner-cta-wrap{margin-top:8px}
+  .drawer .partner-cta-wrap p{font-size:14px;line-height:1.6;color:var(--text-dim);margin-bottom:16px}
+  .drawer .partner-link{
+    display:inline-block;text-decoration:none;background:var(--gold);color:var(--ink);
+    font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+    padding:12px 18px;border-radius:4px;transition:transform .15s;
+  }
+  .drawer .partner-link:hover{transform:translateY(-1px)}
 
   /* ---------- Learn ---------- */
   .learn-hero{max-width:1440px;margin:0 auto;padding:110px 40px 40px}
@@ -462,22 +496,6 @@
   .class-ai-badge{display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink);background:var(--gold);padding:6px 12px;border-radius:2px;margin-bottom:14px}
   .class-ai-mode{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-faint);margin:12px 0 0;text-align:center}
   .class-ai-mode b{color:var(--gold);font-weight:500}
-  .class-ai-settings{margin-top:22px;background:var(--panel);border:1px dashed var(--line-2);border-radius:10px;padding:18px 20px}
-  .class-ai-settings summary{cursor:pointer;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);list-style:none}
-  .class-ai-settings summary::-webkit-details-marker{display:none}
-  .class-ai-settings summary:hover{color:var(--gold)}
-  .class-ai-settings .ai-fields{display:grid;gap:12px;margin-top:16px}
-  .class-ai-settings label{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-faint)}
-  .class-ai-settings input{width:100%;box-sizing:border-box;background:var(--ink-2);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:12px 14px;font-family:var(--sans);font-size:14px;margin-top:6px}
-  .class-ai-settings input:focus{outline:none;border-color:var(--gold)}
-  .class-ai-settings .ai-hint{font-size:13px;line-height:1.55;color:var(--text-faint);margin:4px 0 0}
-  .class-ai-settings select{width:100%;box-sizing:border-box;background:var(--ink-2);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:12px 14px;font-family:var(--sans);font-size:14px;margin-top:6px}
-  .class-ai-settings select:focus{outline:none;border-color:var(--gold)}
-  .class-ai-settings .ai-note{font-size:13px;line-height:1.55;color:var(--text-dim);margin:0;padding:10px 12px;background:var(--ink-2);border-left:2px solid var(--gold);border-radius:0 6px 6px 0}
-  .class-ai-settings .ai-btn-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:4px}
-  .class-ai-settings .ai-save,.class-ai-settings .ai-defaults{background:transparent;color:var(--gold);border:1px solid var(--gold);cursor:pointer;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:12px 18px;border-radius:6px}
-  .class-ai-settings .ai-save:hover,.class-ai-settings .ai-defaults:hover{background:var(--gold);color:var(--ink)}
-  .class-ai-settings .ai-defaults{border-style:dashed;opacity:.9}
   .msg.thinking{opacity:.7;font-style:italic}
   .msg .ai-tag{display:block;font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;opacity:.85}
 
@@ -1586,6 +1604,8 @@
     .drawer .content,.drawer .hero-band{padding:28px 24px}
     .props{grid-template-columns:1fr}
     footer{padding:34px 20px;flex-direction:column;align-items:flex-start}
+    .partner-strip{padding:0 20px 28px}
+    .partner-card{padding:20px 22px}
     .learn-hero{padding:80px 20px 30px}
     .lessons{padding:24px 20px 80px}
     .lesson .l-head{padding:24px 22px;gap:16px}
@@ -1648,6 +1668,17 @@
  </div>
 </section>
 
+<section class="partner-strip" aria-label="Education partner">
+ <div class="partner-card">
+ <div>
+ <div class="partner-label">Education Partner</div>
+ <h3>See real Ceylon gems at <em>Star Lanka</em></h3>
+ <p>Fine natural colored gemstones since 1985 — Ceylon sapphires, spinels, moonstone, and more. Lithos is a field reference; Star Lanka is where you can study specimens in hand.</p>
+ </div>
+ <a class="partner-cta" data-starlanka="home" href="https://www.starlanka.com/" target="_blank" rel="sponsored noopener noreferrer">Shop gems at Star Lanka ↗</a>
+ </div>
+</section>
+
 <div class="controls">
  <div class="controls-inner">
  <div class="search">
@@ -1667,6 +1698,7 @@
  <div class="eyebrow">The Fundamentals</div>
  <h1>How to <em>read</em> a gemstone</h1>
  <p class="lede">Five short lessons on what makes a stone a gem — how they form, how we measure them, and how to tell a fine one from a merely pretty one. Then test yourself in the Quiz.</p>
+ <p class="partner-learn">Studying corundum or Ceylon origins? Browse <a data-starlanka="sri-lanka" href="https://www.starlanka.com/gemstone-origins/sri-lanka/" target="_blank" rel="sponsored noopener noreferrer">Sri Lankan gemstones at Star Lanka</a> — Lithos education partner for natural colored gems since 1985.</p>
  </section>
  <div class="lessons" id="lessons"></div>
 </div><!-- /view-learn -->
@@ -1740,7 +1772,7 @@
  <label for="class-voice-select">Voice</label>
  <select id="class-voice-select" class="lithos-voice-select" title="Pick who reads answers aloud"></select>
  <button type="button" class="voice-preview" id="class-voice-preview">Preview</button>
- <button type="button" class="voice-creepy lithos-voice-creepy" id="class-voice-creepy" title="Silly spooky voice — slow and deep, but kid-friendly">Spooky</button>
+ <button type="button" class="voice-creepy lithos-voice-creepy" id="class-voice-creepy" title="Silly slow voice for fun at home — not recommended in class">Spooky</button>
  </div>
  <p class="voice-hint" id="class-voice-hint">Turn voice on to hear answers. Mic uses your browser’s speech recognition when available.</p>
  </div>
@@ -1751,37 +1783,6 @@
  </div>
  <div class="chat-chips" id="class-chat-chips"></div>
  <p class="class-ai-mode" id="class-ai-mode">Mode: <b>Local catalog teacher</b></p>
- <details class="class-ai-settings" id="class-ai-settings">
- <summary>Optional · Add API key for smarter AI answers</summary>
- <div class="ai-fields">
- <p class="ai-note">Paste your Gemini key here — it stays on this device only. Never put keys in the public website code.</p>
- <p class="ai-hint">Supports Google Gemini (native) and OpenAI-compatible APIs. On the live site, Gemini is wired in at deploy — no key paste needed. You can also save your own key in this browser’s localStorage. Leave blank to use the built-in local teacher when no site config is present.</p>
- <div>
- <label for="class-ai-provider">Provider</label>
- <select id="class-ai-provider">
- <option value="auto">Auto-detect from key</option>
- <option value="gemini">Google Gemini</option>
- <option value="openai">OpenAI-compatible</option>
- </select>
- </div>
- <div>
- <label for="class-ai-key">API key</label>
- <input id="class-ai-key" type="password" placeholder="Gemini: AQ.… or AIza… · OpenAI: sk-…" autocomplete="off">
- </div>
- <div>
- <label for="class-ai-base">API base URL (optional)</label>
- <input id="class-ai-base" type="url" placeholder="Gemini or https://api.openai.com/v1" autocomplete="off">
- </div>
- <div>
- <label for="class-ai-model">Model (optional)</label>
- <input id="class-ai-model" type="text" placeholder="gemini-flash-latest or gpt-4o-mini" autocomplete="off">
- </div>
- <div class="ai-btn-row">
- <button type="button" class="ai-defaults" id="class-ai-gemini-defaults">Use Gemini defaults</button>
- <button type="button" class="ai-save" id="class-ai-save">Save AI settings</button>
- </div>
- </div>
- </details>
  </div>
  </section>
 </div><!-- /view-classes -->
@@ -1826,9 +1827,9 @@
  <label for="teacher-voice-select">Voice</label>
  <select id="teacher-voice-select" class="lithos-voice-select" title="Pick who reads answers aloud"></select>
  <button type="button" class="voice-preview" id="teacher-voice-preview">Preview</button>
- <button type="button" class="voice-creepy lithos-voice-creepy" id="teacher-voice-creepy" title="Silly spooky voice — slow and deep, but kid-friendly">Spooky</button>
+ <button type="button" class="voice-creepy lithos-voice-creepy" id="teacher-voice-creepy" title="Silly slow voice for fun at home — not recommended in class">Spooky</button>
  </div>
- <p class="voice-hint">Same voice setting as the class Rock Teacher. Voices marked ★ are clearest. Answers are read one sentence at a time.</p>
+ <p class="voice-hint">Same voice setting as the class Rock Teacher. Pick a ★ voice for class — save Spooky for fun at home. Answers are read one sentence at a time.</p>
  </div>
  <div class="chat-row">
  <input id="chat-input" type="text" placeholder="Type your question here…" autocomplete="off">
@@ -2042,12 +2043,49 @@
 
 <footer id="about">
  <span>Lithos Field Catalog · Compiled for study and teaching</span>
+ <div class="partner-foot">
+ <a data-starlanka="home" href="https://www.starlanka.com/" target="_blank" rel="sponsored noopener noreferrer">Shop gems at Star Lanka ↗</a>
+ <span class="partner-disclosure">Partner link · Lithos may earn commission</span>
+ </div>
  <span>Hardness on the Mohs scale · Origins by prominence · Prices are approximate retail</span>
 </footer>
 
 <script src="ai-config.js"></script>
 <script src="gems-data.js"></script>
 <script>
+/* ---------- Star Lanka affiliate (fill affiliateId after joining starlanka.com/affiliate-program/) ---------- */
+const STARLANKA={
+ affiliateId:'', // e.g. '27' → appends ?gg=27 to all partner links
+ paths:{
+  home:'https://www.starlanka.com/',
+  gems:'https://www.starlanka.com/gemstones/',
+  'sri-lanka':'https://www.starlanka.com/gemstone-origins/sri-lanka/',
+  program:'https://www.starlanka.com/affiliate-program/'
+ }
+};
+function starlankaUrl(key){
+ const url=STARLANKA.paths[key]||STARLANKA.paths.home;
+ if(!STARLANKA.affiliateId)return url;
+ return url+(url.includes('?')?'&':'?')+'gg='+encodeURIComponent(STARLANKA.affiliateId);
+}
+function initStarlankaLinks(){
+ document.querySelectorAll('[data-starlanka]').forEach(el=>{
+  el.href=starlankaUrl(el.dataset.starlanka||'home');
+ });
+}
+function isCeylonGem(g){
+ return g.kind==='gem'&&g.origins.some(o=>/sri lanka/i.test(o));
+}
+function starlankaDrawerCta(g){
+ if(!isCeylonGem(g))return '';
+ const url=starlankaUrl('sri-lanka');
+ return `<div class="section-label">Find This Stone</div>
+ <div class="partner-cta-wrap">
+ <p>${g.name} is prized from Sri Lanka (Ceylon). Browse natural specimens from our partner Star Lanka — fine colored gems since 1985.</p>
+ <a class="partner-link" href="${url}" target="_blank" rel="sponsored noopener noreferrer">Shop Ceylon gems at Star Lanka ↗</a>
+ </div>`;
+}
+
 /* Radioactive: U / Th / Ra as chemical elements in formula (not Cu/Au/Eu/…), or curated species names. */
 const RADIO_NAMES=/^(?:Autunite|Meta-?autunite|Uraninite|Torbernite|Meta-?torbernite|Carnotite|Thorianite|Pitchblende|Coffinite|Uranophane|Tyuyamunite|Boltwoodite|Kasolite|Soddyite|Curite|Becquerelite|Fourmarierite|Vandendriesscheite|Ianthinite|Zippeite|Johannite|Saleeite|Novacekite|Zeunerite|Meta-?zeunerite|Cuprosklodows?kite|Sklodows?kite|Andersonite|Liebigite|Rutherfordine|Schoepite|Para-?schoepite|Clarkeite|Brannerite|Davidite|Thorite|Huttonite|Betafite|Samarskite|Euxenite|Fergusonite|Gummite|Uranocircite|Phosphuranylite|Weeksite|Haiweeite|Studtite|Francevillite|Parsonsite|Bayleyite|Bergenite|Ulrichite|Zellerite|Mundite|Upalite|Masuyite|Umohoite|Wyartite|Althupite|Rameauite|Steacyite|Aspedamite|Cleusonite|Ichnusaite|Nuragheite|Sengierite|Vanuralite|Agrinierite|Uranopilite|Abernathyite|Guilleminite|Mathesiusite|Wolfsriedite|Yingjiangite|Brockite|Margaritasite|Ekanite|Albrechtschraufite|Znucalite)(?:-\([A-Za-z]+\))?$/i;
 function formulaHasRadioElement(formula){
@@ -2254,6 +2292,8 @@ function openDrawer(i){
 
  <div class="section-label">Notable Origins</div>
  <div class="origins">${g.origins.map(o=>`<span class="o">${o}</span>`).join('')}</div>
+
+ ${starlankaDrawerCta(g)}
  </div>`;
  overlay.classList.add('open');
  document.body.style.overflow='hidden';
@@ -2263,6 +2303,7 @@ overlay.onclick=e=>{if(e.target===overlay)closeDrawer();};
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer();});
 
 document.getElementById('q').addEventListener('input',e=>{query=e.target.value.trim().toLowerCase();render();});
+initStarlankaLinks();
 syncHeroCounts();
 render();
 
@@ -2555,7 +2596,11 @@ function tipMaker(amount){
 const VOICE_PREF_KEY='lithos_voice_on';
 const VOICE_URI_KEY='lithos_voice_uri';
 const CREEPY_VOICE_ID='__creepy__';
-const CREEPY_VOICE_RANK=[/whisper/i,/zarvox/i,/bad news/i,/organ/i,/cellos/i,/bahh/i,/fred/i,/trinoids/i,/nimbus/i,/holger/i,/albert/i,/wobble/i,/boing/i,/junior/i,/ralph/i,/bells/i,/superstar/i];
+const NOVELTY_VOICE_BLOCKLIST=[/jester/i,/whisper/i,/zarvox/i,/boing/i,/bahh/i,/bells/i,/trinoids/i,/organ/i,/bad news/i,/wobble/i,/albert/i,/holger/i,/nimbus/i,/superstar/i,/fred/i,/junior/i,/ralph/i,/cellos/i,/good news/i,/pipe organ/i,/hysterical/i,/princess/i,/kathy/i,/bruce/i,/vicki/i,/agnes/i,/reed/i,/rocko/i,/grandma/i,/grandpa/i,/sandy/i,/flo/i,/eddy/i];
+const CREEPY_VOICE_RANK=[/microsoft david/i,/microsoft mark/i,/google uk english male/i,/english male/i,/daniel/i];
+function isBlocklistedVoice(v){
+ return NOVELTY_VOICE_BLOCKLIST.some(re=>re.test(v.name||''));
+}
 let lithosVoiceOn=false;
 let lithosSpeechChain=null;
 let lithosTtsVoice=null;
@@ -2694,13 +2739,13 @@ function getEnglishVoices(){
  if(!window.speechSynthesis) return [];
  const voices=speechSynthesis.getVoices()||[];
  const en=voices.filter(v=>/^en(-|_)/i.test(v.lang||'')||/english/i.test(v.name||''));
- return (en.length?en:voices).slice().sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+ return (en.length?en:voices).slice().filter(v=>!isBlocklistedVoice(v)).sort((a,b)=>(a.name||'').localeCompare(b.name||''));
 }
 function isCreepyVoiceMode(){
  return getSavedVoiceUri()===CREEPY_VOICE_ID;
 }
 function pickCreepyVoice(){
- const all=window.speechSynthesis.getVoices()||[];
+ const all=(window.speechSynthesis.getVoices()||[]).filter(v=>!isBlocklistedVoice(v));
  const pool=all.length?all:getEnglishVoices();
  for(const re of CREEPY_VOICE_RANK){
  const v=pool.find(x=>re.test(x.name||''));
@@ -2737,8 +2782,9 @@ function pickLithosVoice(){
  const saved=getSavedVoiceUri();
  if(saved===CREEPY_VOICE_ID) return pickCreepyVoice();
  if(saved){
- const match=voices.find(v=>v.voiceURI===saved);
- if(match) return match;
+  const match=voices.find(v=>v.voiceURI===saved);
+  if(match&&!isBlocklistedVoice(match)) return match;
+  if(match&&isBlocklistedVoice(match)) saveVoiceUri('');
  }
  const pool=getEnglishVoices();
  return pickClearVoice(pool)||pool.find(v=>/en-US/i.test(v.lang||''))||pool[0]||null;
@@ -2763,21 +2809,26 @@ function populateVoiceSelects(){
  return;
  }
  sel.disabled=false;
- const creepyOpt=document.createElement('option');
- creepyOpt.value=CREEPY_VOICE_ID;
- creepyOpt.textContent='Spooky mode (kid-friendly chills)';
- sel.appendChild(creepyOpt);
- const sorted=voices.slice().sort((a,b)=>{
- const ac=isClearVoice(a)?0:1, bc=isClearVoice(b)?0:1;
- if(ac!==bc) return ac-bc;
- return (a.name||'').localeCompare(b.name||'');
- });
- sorted.forEach(v=>{
+ const clearVoices=voices.filter(isClearVoice).sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+ clearVoices.forEach(v=>{
  const opt=document.createElement('option');
  opt.value=v.voiceURI;
- opt.textContent=(isClearVoice(v)?'★ ':'')+v.name+(v.lang?' ('+v.lang+')':'');
+ opt.textContent='★ '+v.name+(v.lang?' ('+v.lang+')':'');
  sel.appendChild(opt);
  });
+ if(saved&&saved!==CREEPY_VOICE_ID&&!clearVoices.some(v=>v.voiceURI===saved)){
+ const extra=voices.find(v=>v.voiceURI===saved);
+ if(extra){
+ const opt=document.createElement('option');
+ opt.value=extra.voiceURI;
+ opt.textContent=extra.name+(extra.lang?' ('+extra.lang+')':'')+' (other)';
+ sel.appendChild(opt);
+ }
+ }
+ const creepyOpt=document.createElement('option');
+ creepyOpt.value=CREEPY_VOICE_ID;
+ creepyOpt.textContent='Spooky mode (fun at home — not for class)';
+ sel.appendChild(creepyOpt);
  const pick=saved|| (lithosTtsVoice&&lithosTtsVoice.voiceURI) || sel.options[0].value;
  if(pick) sel.value=pick;
  if(prev&&sel.querySelector('option[value="'+prev.replace(/"/g,'\\"')+'"]')) sel.value=prev;
@@ -2804,8 +2855,6 @@ function toggleCreepyVoice(){
  document.querySelectorAll('.lithos-voice-select').forEach(sel=>{
  sel.value=getSavedVoiceUri()||sel.options[0]?.value||sel.value;
  });
- if(isCreepyVoiceMode()) previewLithosCreepy();
- else previewLithosVoice();
 }
 function previewLithosVoice(){
  if(!window.speechSynthesis) return;
@@ -2837,8 +2886,8 @@ function syncVoiceToggleUI(){
  const ttsOk=!!window.speechSynthesis;
  const sttOk=!!(window.SpeechRecognition||window.webkitSpeechRecognition);
  if(!ttsOk) hint.textContent='Voice readout isn’t available in this browser.';
- else if(!sttOk) hint.textContent='Voice reads answers slowly, one sentence at a time. Pick a ★ clear voice. Mic needs Chrome or Edge.';
- else hint.textContent='Voice reads answers slowly and clearly. Pick a ★ voice for easiest listening. Mic fills the box, then sends.';
+ else if(!sttOk) hint.textContent='Voice reads answers slowly, one sentence at a time. Pick a ★ clear voice for class — save Spooky for fun at home. Mic needs Chrome or Edge.';
+ else hint.textContent='Voice reads answers slowly and clearly. Pick a ★ voice for class. Mic fills the box, then sends.';
  }
 }
 function setLithosVoiceOn(on){
@@ -3063,10 +3112,6 @@ async function sendChat(){
 
 /* ---------- Class AI Rock Teacher (purchase-gated) ---------- */
 const CLASS_ACCESS_KEY='lithos_class_access';
-const CLASS_AI_KEY='lithos_ai_key';
-const CLASS_AI_BASE='lithos_ai_base';
-const CLASS_AI_MODEL='lithos_ai_model';
-const CLASS_AI_PROVIDER='lithos_ai_provider';
 const CLASS_CHECKOUT_PENDING='lithos_class_checkout_pending';
 const MEMBER_TIER_KEY='lithos_member_tier';
 const GEMINI_DEFAULT_BASE='https://generativelanguage.googleapis.com/v1beta';
@@ -3098,22 +3143,9 @@ function setClassAccess(on){
  else{ localStorage.removeItem(CLASS_ACCESS_KEY); setMemberTier(''); }
  }catch(e){}
 }
-function looksLikeGeminiKey(key){
- const k=(key||'').trim();
- return k.startsWith('AQ.')||k.startsWith('AIza');
-}
-function looksLikeOpenAIKey(key){
- return (key||'').trim().startsWith('sk-');
-}
-function baseLooksLikeGemini(base){
- return /generativelanguage\.googleapis\.com/i.test(base||'');
-}
-function resolveAiProvider(rawProvider, key, base){
- const p=(rawProvider||'auto').toLowerCase();
- if(p==='gemini'||p==='openai') return p;
- if(looksLikeGeminiKey(key)||baseLooksLikeGemini(base)) return 'gemini';
- if(looksLikeOpenAIKey(key)) return 'openai';
- return 'openai';
+function resolveAiProvider(rawProvider){
+ const p=(rawProvider||'gemini').toLowerCase();
+ return p==='openai'?'openai':'gemini';
 }
 function getSiteAiConfig(){
  try{
@@ -3124,25 +3156,15 @@ function getSiteAiConfig(){
  return null;
 }
 function getAiConfig(){
- let key='', base='', model='', provider='auto';
  const site=getSiteAiConfig();
- if(site){
- key=(site.key||'').trim();
- base=(site.base||GEMINI_DEFAULT_BASE).trim().replace(/\/$/,'');
- model=(site.model||GEMINI_DEFAULT_MODEL).trim();
- provider=site.provider||'gemini';
- }else{
- try{
- key=localStorage.getItem(CLASS_AI_KEY)||'';
- base=localStorage.getItem(CLASS_AI_BASE)||'';
- model=localStorage.getItem(CLASS_AI_MODEL)||'';
- provider=localStorage.getItem(CLASS_AI_PROVIDER)||'auto';
- }catch(e){}
- key=key.trim();
- base=(base||'').trim().replace(/\/$/,'');
- model=(model||'').trim();
+ if(!site||!(site.key||'').trim()){
+ return {key:'', base:'', model:'', provider:'gemini', resolved:'gemini'};
  }
- const resolved=resolveAiProvider(provider, key, base);
+ const key=(site.key||'').trim();
+ let base=(site.base||GEMINI_DEFAULT_BASE).trim().replace(/\/$/,'');
+ let model=(site.model||GEMINI_DEFAULT_MODEL).trim();
+ const provider=site.provider||'gemini';
+ const resolved=resolveAiProvider(provider);
  if(resolved==='gemini'){
  if(!base||base===OPENAI_DEFAULT_BASE) base=GEMINI_DEFAULT_BASE;
  if(!model||model===OPENAI_DEFAULT_MODEL) model=GEMINI_DEFAULT_MODEL;
@@ -3150,49 +3172,18 @@ function getAiConfig(){
  if(!base) base=OPENAI_DEFAULT_BASE;
  if(!model) model=OPENAI_DEFAULT_MODEL;
  }
- return {key, base, model, provider:(provider||'auto'), resolved};
-}
-function saveAiConfig(){
- const keyEl=document.getElementById('class-ai-key');
- const baseEl=document.getElementById('class-ai-base');
- const modelEl=document.getElementById('class-ai-model');
- const provEl=document.getElementById('class-ai-provider');
- try{
- if(keyEl) localStorage.setItem(CLASS_AI_KEY, keyEl.value.trim());
- if(baseEl) localStorage.setItem(CLASS_AI_BASE, baseEl.value.trim());
- if(modelEl) localStorage.setItem(CLASS_AI_MODEL, modelEl.value.trim());
- if(provEl) localStorage.setItem(CLASS_AI_PROVIDER, provEl.value||'auto');
- }catch(e){}
- updateClassAiMode();
- alert('AI settings saved on this device.');
-}
-function applyGeminiDefaults(){
- const provEl=document.getElementById('class-ai-provider');
- const baseEl=document.getElementById('class-ai-base');
- const modelEl=document.getElementById('class-ai-model');
- if(provEl) provEl.value='gemini';
- if(baseEl) baseEl.value=GEMINI_DEFAULT_BASE;
- if(modelEl) modelEl.value=GEMINI_DEFAULT_MODEL;
- try{
- localStorage.setItem(CLASS_AI_PROVIDER,'gemini');
- localStorage.setItem(CLASS_AI_BASE,GEMINI_DEFAULT_BASE);
- localStorage.setItem(CLASS_AI_MODEL,GEMINI_DEFAULT_MODEL);
- }catch(e){}
- updateClassAiMode();
- alert('Gemini defaults set. Paste your API key and tap Save — the key stays on this device only.');
+ return {key, base, model, provider, resolved};
 }
 function updateClassAiMode(){
  const el=document.getElementById('class-ai-mode');
  if(!el) return;
  const cfg=getAiConfig();
  if(!cfg.key){
- el.innerHTML='Mode: <b>Local catalog teacher</b> · add an API key below for smarter answers';
+ el.innerHTML='Mode: <b>Local catalog teacher</b>';
  return;
  }
  const label=cfg.resolved==='gemini'?'Gemini':'OpenAI-compatible';
- const site=getSiteAiConfig();
- const src=site?'site config':'key on this device';
- let html='Mode: <b>Live AI</b> ('+label+' · '+src+') · falls back to local teacher if the API fails';
+ let html='Mode: <b>Live AI</b> ('+label+') · falls back to local teacher if the API fails';
  if(isGoldMember()) html+=' · <b>Gold perks</b> (voice + live AI)';
  el.innerHTML=html;
 }
@@ -3249,31 +3240,9 @@ function buildClassAI(){
  });
  document.getElementById('class-chat-send').onclick=sendClassChat;
  document.getElementById('class-chat-input').addEventListener('keydown',e=>{if(e.key==='Enter')sendClassChat();});
- document.getElementById('class-ai-save').onclick=saveAiConfig;
- const gemBtn=document.getElementById('class-ai-gemini-defaults');
- if(gemBtn) gemBtn.onclick=applyGeminiDefaults;
- const cfg=getAiConfig();
- const keyEl=document.getElementById('class-ai-key');
- const baseEl=document.getElementById('class-ai-base');
- const modelEl=document.getElementById('class-ai-model');
- const provEl=document.getElementById('class-ai-provider');
- const siteCfg=getSiteAiConfig();
- if(keyEl){
- if(siteCfg&&siteCfg.key){
- keyEl.value='';
- keyEl.placeholder='Using site Gemini config (deploy)';
- }else{
- keyEl.value=localStorage.getItem(CLASS_AI_KEY)||'';
- }
- }
- if(baseEl) baseEl.value=siteCfg?(siteCfg.base||GEMINI_DEFAULT_BASE):(localStorage.getItem(CLASS_AI_BASE)||'');
- if(modelEl) modelEl.value=siteCfg?(siteCfg.model||GEMINI_DEFAULT_MODEL):(localStorage.getItem(CLASS_AI_MODEL)||'');
- if(provEl){
- let stored='auto';
- if(siteCfg&&siteCfg.provider) stored=siteCfg.provider;
- else try{ stored=localStorage.getItem(CLASS_AI_PROVIDER)||'auto'; }catch(e){}
- provEl.value=stored;
- }
+ try{
+ ['lithos_ai_key','lithos_ai_base','lithos_ai_model','lithos_ai_provider'].forEach(k=>localStorage.removeItem(k));
+ }catch(e){}
  updateClassAiMode();
  initLithosVoiceUI();
  wireChatMic('class-chat-mic','class-chat-input',sendClassChat);
@@ -3714,6 +3683,7 @@ const WARRIORS=[
 const EMERALD_GUARDIAN_INDEX=3;
 const BOSSES_DEFEATED_KEY='lithos_bosses_defeated';
 const OWNER_FLAG_KEY='lithos_owner';
+const BOSS_PROGRESS_MIGRATION_KEY='lithos_boss_progress_v2';
 let bossesDefeated=0;
 let isOwner=false;
 let hasPlasmaMace=false;
@@ -3729,10 +3699,22 @@ function effectiveBossProgress(){
 function loadGameProgress(){
  try{
  isOwner=localStorage.getItem(OWNER_FLAG_KEY)==='1';
+ if(!isOwner&&!localStorage.getItem(BOSS_PROGRESS_MIGRATION_KEY)){
+ // One-time: old cheat codes persisted inflated boss counts — clear for non-owners
+ bossesDefeated=0;
+ try{
+ localStorage.setItem(BOSSES_DEFEATED_KEY,'0');
+ localStorage.setItem(BOSS_PROGRESS_MIGRATION_KEY,'1');
+ }catch(e){}
+ }else{
  bossesDefeated=Math.max(0, parseInt(localStorage.getItem(BOSSES_DEFEATED_KEY)||'0',10)||0);
  if(!isOwner&&bossesDefeated>BOSSES.length){
  bossesDefeated=BOSSES.length;
  try{ localStorage.setItem(BOSSES_DEFEATED_KEY, String(bossesDefeated)); }catch(e){}
+ }
+ if(!localStorage.getItem(BOSS_PROGRESS_MIGRATION_KEY)){
+ try{ localStorage.setItem(BOSS_PROGRESS_MIGRATION_KEY,'1'); }catch(e){}
+ }
  }
  }catch(e){ bossesDefeated=0; isOwner=false; }
  restoreOwnerUnlocks();
