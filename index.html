@@ -506,6 +506,12 @@
   .voice-toggle .voice-dot{width:8px;height:8px;border-radius:50%;background:var(--text-faint);flex-shrink:0}
   .voice-toggle.on .voice-dot{background:var(--ink)}
   .voice-hint{font-size:12px;line-height:1.45;color:var(--text-faint);margin:0;flex:1;min-width:180px}
+  .voice-pick{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .voice-pick label{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-faint)}
+  .voice-select{background:var(--panel);border:1px solid var(--line);color:var(--text);font-family:var(--sans);font-size:13px;padding:8px 10px;border-radius:8px;max-width:220px;cursor:pointer}
+  .voice-select:focus{outline:none;border-color:var(--gold)}
+  .voice-preview{background:transparent;border:1px solid var(--line-2);color:var(--gold);font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:8px 12px;border-radius:8px;cursor:pointer}
+  .voice-preview:hover{border-color:var(--gold);background:rgba(201,169,79,.08)}
   .chat-row .chat-mic{background:var(--panel);color:var(--gold);border:1px solid var(--line);padding:0 16px;min-width:52px;letter-spacing:.08em}
   .chat-row .chat-mic:hover{border-color:var(--gold);transform:translateY(-2px)}
   .chat-row .chat-mic.listening{background:var(--gold);color:var(--ink);border-color:var(--gold);animation:mic-pulse 1.2s ease-in-out infinite}
@@ -1611,6 +1617,11 @@
  <span class="voice-dot" aria-hidden="true"></span>
  <span id="class-voice-label">Voice off</span>
  </button>
+ <div class="voice-pick">
+ <label for="class-voice-select">Voice</label>
+ <select id="class-voice-select" class="lithos-voice-select" title="Pick who reads answers aloud"></select>
+ <button type="button" class="voice-preview" id="class-voice-preview">Preview</button>
+ </div>
  <p class="voice-hint" id="class-voice-hint">Turn voice on to hear answers. Mic uses your browser’s speech recognition when available.</p>
  </div>
  <div class="chat-row">
@@ -1691,6 +1702,11 @@
  <span class="voice-dot" aria-hidden="true"></span>
  <span id="teacher-voice-label">Voice off</span>
  </button>
+ <div class="voice-pick">
+ <label for="teacher-voice-select">Voice</label>
+ <select id="teacher-voice-select" class="lithos-voice-select" title="Pick who reads answers aloud"></select>
+ <button type="button" class="voice-preview" id="teacher-voice-preview">Preview</button>
+ </div>
  <p class="voice-hint">Same voice setting as the class Rock Teacher. Mic fills the box when your browser supports it.</p>
  </div>
  <div class="chat-row">
@@ -2416,6 +2432,7 @@ function tipMaker(amount){
 
 /* ---------- Rock Teacher voice (TTS + STT) ---------- */
 const VOICE_PREF_KEY='lithos_voice_on';
+const VOICE_URI_KEY='lithos_voice_uri';
 let lithosVoiceOn=false;
 let lithosTtsVoice=null;
 let lithosVoicePrefLoaded=false;
@@ -2425,6 +2442,15 @@ function loadVoicePref(){
  if(lithosVoicePrefLoaded) return;
  lithosVoicePrefLoaded=true;
  try{ lithosVoiceOn=localStorage.getItem(VOICE_PREF_KEY)==='1'; }catch(e){ lithosVoiceOn=false; }
+}
+function getSavedVoiceUri(){
+ try{ return localStorage.getItem(VOICE_URI_KEY)||''; }catch(e){ return ''; }
+}
+function saveVoiceUri(uri){
+ try{
+ if(uri) localStorage.setItem(VOICE_URI_KEY, uri);
+ else localStorage.removeItem(VOICE_URI_KEY);
+ }catch(e){}
 }
 function saveVoicePref(on){
  lithosVoiceOn=!!on;
@@ -2436,20 +2462,69 @@ function saveVoicePref(on){
 function stopLithosSpeech(){
  try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){}
 }
+function getEnglishVoices(){
+ if(!window.speechSynthesis) return [];
+ const voices=speechSynthesis.getVoices()||[];
+ const en=voices.filter(v=>/^en(-|_)/i.test(v.lang||'')||/english/i.test(v.name||''));
+ return (en.length?en:voices).slice().sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+}
 function pickLithosVoice(){
  if(!window.speechSynthesis) return null;
  const voices=speechSynthesis.getVoices()||[];
  if(!voices.length) return null;
- const en=voices.filter(v=>/^en(-|_)/i.test(v.lang||'')||/english/i.test(v.name||''));
- const pool=en.length?en:voices;
- const prefer=pool.find(v=>/google|samantha|karen|daniel|moira|alex|microsoft (aria|jenny|guy)|natural/i.test(v.name||''))
- || pool.find(v=>/en-US/i.test(v.lang||''))
+ const saved=getSavedVoiceUri();
+ if(saved){
+ const match=voices.find(v=>v.voiceURI===saved);
+ if(match) return match;
+ }
+ const pool=getEnglishVoices();
+ const prefer=pool.find(v=>/daniel|karen|moira|samantha|microsoft aria|microsoft jenny|google uk english female|google us english/i.test(v.name||''))
  || pool.find(v=>/en-GB/i.test(v.lang||''))
+ || pool.find(v=>/en-US/i.test(v.lang||''))
  || pool[0];
  return prefer||null;
 }
 function refreshLithosVoice(){
  lithosTtsVoice=pickLithosVoice();
+ populateVoiceSelects();
+}
+function populateVoiceSelects(){
+ const voices=getEnglishVoices();
+ const saved=getSavedVoiceUri();
+ document.querySelectorAll('.lithos-voice-select').forEach(sel=>{
+ const prev=sel.value;
+ sel.innerHTML='';
+ if(!voices.length){
+ sel.innerHTML='<option value="">Loading voices…</option>';
+ sel.disabled=true;
+ return;
+ }
+ sel.disabled=false;
+ voices.forEach(v=>{
+ const opt=document.createElement('option');
+ opt.value=v.voiceURI;
+ opt.textContent=v.name+(v.lang?' ('+v.lang+')':'');
+ sel.appendChild(opt);
+ });
+ const pick=saved|| (lithosTtsVoice&&lithosTtsVoice.voiceURI) || sel.options[0].value;
+ if(pick) sel.value=pick;
+ if(prev&&sel.querySelector('option[value="'+prev.replace(/"/g,'\\"')+'"]')) sel.value=prev;
+ });
+}
+function onVoiceSelectChange(uri){
+ saveVoiceUri(uri||'');
+ refreshLithosVoice();
+}
+function previewLithosVoice(){
+ if(!window.speechSynthesis) return;
+ stopLithosSpeech();
+ refreshLithosVoice();
+ const u=new SpeechSynthesisUtterance('Hello! I am your Rock Teacher. Ask me about gems, Mohs hardness, or crystal systems.');
+ if(lithosTtsVoice) u.voice=lithosTtsVoice;
+ u.lang=(lithosTtsVoice&&lithosTtsVoice.lang)||'en-GB';
+ u.rate=0.94;
+ u.pitch=0.98;
+ try{ speechSynthesis.speak(u); }catch(e){}
 }
 function speakLithosReply(text){
  if(!lithosVoiceOn||!text||!window.speechSynthesis) return;
@@ -2459,9 +2534,9 @@ function speakLithosReply(text){
  const u=new SpeechSynthesisUtterance(clean);
  if(!lithosTtsVoice) refreshLithosVoice();
  if(lithosTtsVoice) u.voice=lithosTtsVoice;
- u.lang=(lithosTtsVoice&&lithosTtsVoice.lang)||'en-US';
- u.rate=1;
- u.pitch=1;
+ u.lang=(lithosTtsVoice&&lithosTtsVoice.lang)||'en-GB';
+ u.rate=0.94;
+ u.pitch=0.98;
  try{ speechSynthesis.speak(u); }catch(e){}
 }
 function syncVoiceToggleUI(){
@@ -2554,6 +2629,22 @@ function initLithosVoiceUI(){
  syncVoiceToggleUI();
  wireVoiceToggle('class-voice-toggle');
  wireVoiceToggle('teacher-voice-toggle');
+ document.querySelectorAll('.lithos-voice-select').forEach(sel=>{
+ if(sel.dataset.voicePickWired) return;
+ sel.dataset.voicePickWired='1';
+ sel.addEventListener('change',()=>{
+ onVoiceSelectChange(sel.value);
+ document.querySelectorAll('.lithos-voice-select').forEach(other=>{
+ if(other!==sel) other.value=sel.value;
+ });
+ });
+ });
+ ['class-voice-preview','teacher-voice-preview'].forEach(id=>{
+ const btn=document.getElementById(id);
+ if(!btn||btn.dataset.previewWired) return;
+ btn.dataset.previewWired='1';
+ btn.addEventListener('click',previewLithosVoice);
+ });
  if(window.speechSynthesis&&!lithosVoicesHooked){
  lithosVoicesHooked=true;
  refreshLithosVoice();
