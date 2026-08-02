@@ -2472,44 +2472,71 @@ function stopLithosSpeech(){
  lithosSpeechChain=null;
  try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){}
 }
-function splitForSpeech(text, maxLen=200){
+function splitIntoSentences(text){
  const t=String(text).replace(/\s+/g,' ').trim();
  if(!t) return [];
- if(t.length<=maxLen) return [t];
- const sentences=t.match(/[^.!?]+[.!?]+|[^.!?]+$/g)||[t];
- const parts=[];
- let buf='';
- for(const s of sentences){
- const piece=s.trim();
- if(!piece) continue;
- if((buf+' '+piece).trim().length>maxLen && buf){
-  parts.push(buf.trim());
-  buf=piece;
- }else buf=buf?(buf+' '+piece):piece;
- }
- if(buf.trim()) parts.push(buf.trim());
- return parts.length?parts:[t];
+ const sentences=t.match(/[^.!?]+[.!?]+|[^.!?]+$/g);
+ if(!sentences||!sentences.length) return [t];
+ return sentences.map(s=>s.trim()).filter(Boolean);
 }
-function speakLithosQueued(parts, creepy){
+function speechPartsFor(text){
+ const clean=String(text).replace(/\s+/g,' ').trim();
+ if(!clean) return [];
+ if(clean.length<=500) return [clean];
+ return splitIntoSentences(clean);
+}
+function speakOneLithosChunk(line){
+ return new Promise(resolve=>{
+ if(!lithosVoiceOn||!window.speechSynthesis){ resolve(); return; }
+ const u=new SpeechSynthesisUtterance(line);
+ if(!lithosTtsVoice) refreshLithosVoice();
+ applyLithosUtterance(u);
+ u.onend=resolve;
+ u.onerror=resolve;
+ try{
+ if(window.speechSynthesis.paused) speechSynthesis.resume();
+ speechSynthesis.speak(u);
+ }catch(e){ resolve(); }
+ });
+}
+async function runLithosSpeech(text, creepy){
+ const parts=speechPartsFor(text);
  if(!parts.length) return;
  const chainId=Date.now();
  lithosSpeechChain=chainId;
- let i=0;
- function next(){
- if(lithosSpeechChain!==chainId) return;
- if(i>=parts.length) return;
- const delay=i===0?0:(creepy?260+Math.random()*360:50);
- setTimeout(()=>{
- if(lithosSpeechChain!==chainId) return;
- const u=new SpeechSynthesisUtterance(parts[i]);
- if(!lithosTtsVoice) refreshLithosVoice();
- applyLithosUtterance(u);
- u.onend=()=>{ i++; next(); };
- u.onerror=()=>{ i++; next(); };
- try{ speechSynthesis.speak(u); }catch(e){ i++; next(); }
- }, delay);
+ await new Promise(r=>setTimeout(r, 100));
+ for(let i=0;i<parts.length;i++){
+ if(lithosSpeechChain!==chainId||!lithosVoiceOn) return;
+ await speakOneLithosChunk(parts[i]);
+ if(i<parts.length-1&&lithosSpeechChain===chainId){
+ await new Promise(r=>setTimeout(r, creepy?650:100));
  }
- next();
+ }
+}
+function speakLithosCreepy(text){
+ runLithosSpeech(text, true);
+}
+function getCreepyPreviewLines(){
+ return [
+ 'Boo! Just kidding.',
+ 'I am your silly spooky Rock Teacher.',
+ 'I live deep, deep underground.',
+ 'Gems can glow and sparkle like tiny stars.',
+ 'Ask me about rocks and crystals if you dare!'
+ ];
+}
+async function previewLithosCreepy(){
+ if(!window.speechSynthesis) return;
+ stopLithosSpeech();
+ refreshLithosVoice();
+ const chainId=Date.now();
+ lithosSpeechChain=chainId;
+ await new Promise(r=>setTimeout(r, 100));
+ for(const line of getCreepyPreviewLines()){
+ if(lithosSpeechChain!==chainId) return;
+ await speakOneLithosChunk(line);
+ await new Promise(r=>setTimeout(r, 650));
+ }
 }
 function getEnglishVoices(){
  if(!window.speechSynthesis) return [];
@@ -2533,37 +2560,8 @@ function pickCreepyVoice(){
  || null;
 }
 function getLithosSpeechStyle(){
- if(isCreepyVoiceMode()) return {rate:0.34, pitch:0.01, volume:0.92};
+ if(isCreepyVoiceMode()) return {rate:0.38, pitch:0.05, volume:0.92};
  return {rate:0.94, pitch:0.98, volume:1};
-}
-function creepifyText(text){
- return splitForSpeech(text, 140).map(s=>s.replace(/([.!?])$/,'$1 ...'));
-}
-function speakUtteranceCreepy(text, onDone){
- const u=new SpeechSynthesisUtterance(text);
- if(!lithosTtsVoice) refreshLithosVoice();
- applyLithosUtterance(u);
- u.onend=()=>{ if(typeof onDone==='function') onDone(); };
- u.onerror=()=>{ if(typeof onDone==='function') onDone(); };
- try{ speechSynthesis.speak(u); }catch(e){ if(typeof onDone==='function') onDone(); }
-}
-function speakLithosCreepy(text){
- speakLithosQueued(creepifyText(text), true);
-}
-function getCreepyPreviewLines(){
- return [
- 'Boo! ... Just kidding.',
- 'I am your silly... spooky... Rock Teacher.',
- 'I live deep... deep... underground.',
- 'Gems can glow... and sparkle... like tiny stars.',
- 'Ask me about rocks and crystals... if you dare!'
- ];
-}
-function previewLithosCreepy(){
- if(!window.speechSynthesis) return;
- stopLithosSpeech();
- refreshLithosVoice();
- speakLithosQueued(getCreepyPreviewLines(), true);
 }
 function applyLithosUtterance(u){
  const style=getLithosSpeechStyle();
@@ -2652,17 +2650,14 @@ function previewLithosVoice(){
  refreshLithosVoice();
  if(isCreepyVoiceMode()){ previewLithosCreepy(); return; }
  const msg='Hello! I am your Rock Teacher. Ask me about gems, Mohs hardness, or crystal systems.';
- const u=new SpeechSynthesisUtterance(msg);
- applyLithosUtterance(u);
- try{ speechSynthesis.speak(u); }catch(e){}
+ runLithosSpeech(msg, false);
 }
 function speakLithosReply(text){
  if(!lithosVoiceOn||!text||!window.speechSynthesis) return;
  stopLithosSpeech();
  const clean=String(text).replace(/\s+/g,' ').trim();
  if(!clean) return;
- if(isCreepyVoiceMode()){ speakLithosCreepy(clean); return; }
- speakLithosQueued(splitForSpeech(clean, 200), false);
+ runLithosSpeech(clean, isCreepyVoiceMode());
 }
 function syncVoiceToggleUI(){
  loadVoicePref();
