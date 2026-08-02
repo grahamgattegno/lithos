@@ -2442,7 +2442,7 @@ const VOICE_URI_KEY='lithos_voice_uri';
 const CREEPY_VOICE_ID='__creepy__';
 const CREEPY_VOICE_RANK=[/whisper/i,/zarvox/i,/bad news/i,/organ/i,/cellos/i,/bahh/i,/fred/i,/trinoids/i,/nimbus/i,/holger/i,/albert/i,/wobble/i,/boing/i,/junior/i,/ralph/i,/bells/i,/superstar/i];
 let lithosVoiceOn=false;
-let lithosCreepyChain=null;
+let lithosSpeechChain=null;
 let lithosTtsVoice=null;
 let lithosVoicePrefLoaded=false;
 let lithosVoicesHooked=false;
@@ -2469,8 +2469,47 @@ function saveVoicePref(on){
  }catch(e){}
 }
 function stopLithosSpeech(){
- lithosCreepyChain=null;
+ lithosSpeechChain=null;
  try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){}
+}
+function splitForSpeech(text, maxLen=200){
+ const t=String(text).replace(/\s+/g,' ').trim();
+ if(!t) return [];
+ if(t.length<=maxLen) return [t];
+ const sentences=t.match(/[^.!?]+[.!?]+|[^.!?]+$/g)||[t];
+ const parts=[];
+ let buf='';
+ for(const s of sentences){
+ const piece=s.trim();
+ if(!piece) continue;
+ if((buf+' '+piece).trim().length>maxLen && buf){
+  parts.push(buf.trim());
+  buf=piece;
+ }else buf=buf?(buf+' '+piece):piece;
+ }
+ if(buf.trim()) parts.push(buf.trim());
+ return parts.length?parts:[t];
+}
+function speakLithosQueued(parts, creepy){
+ if(!parts.length) return;
+ const chainId=Date.now();
+ lithosSpeechChain=chainId;
+ let i=0;
+ function next(){
+ if(lithosSpeechChain!==chainId) return;
+ if(i>=parts.length) return;
+ const delay=i===0?0:(creepy?260+Math.random()*360:50);
+ setTimeout(()=>{
+ if(lithosSpeechChain!==chainId) return;
+ const u=new SpeechSynthesisUtterance(parts[i]);
+ if(!lithosTtsVoice) refreshLithosVoice();
+ applyLithosUtterance(u);
+ u.onend=()=>{ i++; next(); };
+ u.onerror=()=>{ i++; next(); };
+ try{ speechSynthesis.speak(u); }catch(e){ i++; next(); }
+ }, delay);
+ }
+ next();
 }
 function getEnglishVoices(){
  if(!window.speechSynthesis) return [];
@@ -2498,16 +2537,7 @@ function getLithosSpeechStyle(){
  return {rate:0.94, pitch:0.98, volume:1};
 }
 function creepifyText(text){
- let t=String(text).replace(/\s+/g,' ').trim();
- if(!t) return [];
- t=t.replace(/[,;:]/g,' ... ');
- t=t.replace(/([.!?])\s*/g,'$1 ... ');
- if(t.length>220){
- const chunks=[];
- for(let i=0;i<t.length;i+=100) chunks.push(t.slice(i,i+100).trim());
- return chunks.filter(Boolean).map(c=>c+' ...');
- }
- return [t+' ...'];
+ return splitForSpeech(text, 140).map(s=>s.replace(/([.!?])$/,'$1 ...'));
 }
 function speakUtteranceCreepy(text, onDone){
  const u=new SpeechSynthesisUtterance(text);
@@ -2518,21 +2548,7 @@ function speakUtteranceCreepy(text, onDone){
  try{ speechSynthesis.speak(u); }catch(e){ if(typeof onDone==='function') onDone(); }
 }
 function speakLithosCreepy(text){
- const parts=creepifyText(text);
- if(!parts.length) return;
- const chainId=Date.now();
- lithosCreepyChain=chainId;
- let i=0;
- function next(){
- if(lithosCreepyChain!==chainId) return;
- if(i>=parts.length) return;
- const delay=i===0?0:280+Math.random()*420;
- setTimeout(()=>{
- if(lithosCreepyChain!==chainId) return;
- speakUtteranceCreepy(parts[i], ()=>{ i++; next(); });
- }, delay);
- }
- next();
+ speakLithosQueued(creepifyText(text), true);
 }
 function getCreepyPreviewLines(){
  return [
@@ -2547,20 +2563,7 @@ function previewLithosCreepy(){
  if(!window.speechSynthesis) return;
  stopLithosSpeech();
  refreshLithosVoice();
- const chainId=Date.now();
- lithosCreepyChain=chainId;
- const lines=getCreepyPreviewLines();
- let i=0;
- function nextLine(){
- if(lithosCreepyChain!==chainId) return;
- if(i>=lines.length) return;
- const delay=i===0?0:900+Math.random()*600;
- setTimeout(()=>{
- if(lithosCreepyChain!==chainId) return;
- speakUtteranceCreepy(lines[i], ()=>{ i++; nextLine(); });
- }, delay);
- }
- nextLine();
+ speakLithosQueued(getCreepyPreviewLines(), true);
 }
 function applyLithosUtterance(u){
  const style=getLithosSpeechStyle();
@@ -2659,10 +2662,7 @@ function speakLithosReply(text){
  const clean=String(text).replace(/\s+/g,' ').trim();
  if(!clean) return;
  if(isCreepyVoiceMode()){ speakLithosCreepy(clean); return; }
- const u=new SpeechSynthesisUtterance(clean);
- if(!lithosTtsVoice) refreshLithosVoice();
- applyLithosUtterance(u);
- try{ speechSynthesis.speak(u); }catch(e){}
+ speakLithosQueued(splitForSpeech(clean, 200), false);
 }
 function syncVoiceToggleUI(){
  loadVoicePref();
@@ -2784,6 +2784,8 @@ function initLithosVoiceUI(){
 
 /* ---------- Rock Teacher chat ---------- */
 let teacherBuilt=false;
+let teacherBusy=false;
+const teacherAiHistory=[];
 function buildTeacher(){
  const chips=document.getElementById('chat-chips');
  const samples=["How do diamonds form?","What is the hardest gem?","Tell me about rubies","Which gem is the rarest?","Why is amethyst purple?","What's your favorite gem?","What are birthstones?","What is a crystal?"];
@@ -2801,6 +2803,7 @@ function addMsg(text,who){
  d.textContent=text;
  c.appendChild(d);
  c.scrollTop=c.scrollHeight;
+ return d;
 }
 function rockTeacherAnswer(q){
  const s=q.toLowerCase();
@@ -2863,18 +2866,41 @@ function rockTeacherAnswer(q){
  // fallback — still chatty and encouraging
  return `Ooh, that's an interesting one! I know a TON about all the gems in our collection, plus how they form, why they're different colors, which is hardest, birthstones, and more! Try asking me something like "tell me about emerald," "what is the hardest gem?", "how do gems form?", or even "what's your favorite gem?" I'm ready to chat! `;
 }
-function sendChat(){
+async function sendChat(){
+ if(teacherBusy) return;
  const inp=document.getElementById('chat-input');
  const q=inp.value.trim();
- if(!q)return;
+ if(!q) return;
  stopLithosSpeech();
  addMsg(q,'user');
  inp.value='';
- setTimeout(()=>{
- const answer=rockTeacherAnswer(q);
+ teacherBusy=true;
+ const cfg=getAiConfig();
+ let thinking=null;
+ try{
+ let answer;
+ if(cfg.key){
+ thinking=addMsg('Thinking…','bot');
+ try{
+ answer=await classAiApiAnswer(q, teacherAiHistory);
+ teacherAiHistory.push({role:'user',content:q});
+ teacherAiHistory.push({role:'assistant',content:answer});
+ }catch(err){
+ answer=rockTeacherAnswer(q);
+ }
+ if(thinking&&thinking.parentNode){
+ thinking.textContent=answer;
+ thinking.classList.remove('thinking');
+ }else addMsg(answer,'bot');
+ }else{
+ await new Promise(r=>setTimeout(r,350));
+ answer=rockTeacherAnswer(q);
  addMsg(answer,'bot');
+ }
  speakLithosReply(answer);
- },350);
+ }finally{
+ teacherBusy=false;
+ }
 }
 
 /* ---------- Class AI Rock Teacher (purchase-gated) ---------- */
@@ -3233,7 +3259,7 @@ function catalogContextForAI(q){
  }
  return bits.join('\n');
 }
-async function classAiGeminiAnswer(q, cfg, system, context){
+async function classAiGeminiAnswer(q, cfg, system, context, history){
  const preferred=cfg.model.replace(/^models\//,'');
  let base=cfg.base.replace(/\/$/,'');
  if(!/\/v1beta$/i.test(base) && !/\/v1$/i.test(base)){
@@ -3244,16 +3270,17 @@ async function classAiGeminiAnswer(q, cfg, system, context){
  base=GEMINI_DEFAULT_BASE;
  }
  }
+ const hist=history||classAiHistory;
  const contents=[];
- for(const m of classAiHistory.slice(-6)){
+ for(const m of hist.slice(-6)){
  const role=m.role==='assistant'?'model':'user';
  contents.push({role, parts:[{text:m.content}]});
  }
  contents.push({role:'user', parts:[{text:q}]});
  const body={
- systemInstruction:{parts:[{text:system+'\n\nCatalog context:\n'+context}]},
+ systemInstruction:{parts:[{text:system+'\n\nCatalog context:\n'+context+'\n\nAlways write complete sentences. Finish every thought — do not stop mid-sentence.'}]},
  contents,
- generationConfig:{temperature:0.6, maxOutputTokens:450}
+ generationConfig:{temperature:0.6, maxOutputTokens:1024}
  };
  const tried=new Set();
  const candidates=[preferred, ...GEMINI_MODEL_FALLBACKS].filter(m=>{
@@ -3279,27 +3306,30 @@ async function classAiGeminiAnswer(q, cfg, system, context){
  throw new Error(lastErr);
  }
  const data=await res.json();
- const parts=data.candidates&&data.candidates[0]&&data.candidates[0].content&&data.candidates[0].content.parts;
- const text=parts&&parts.map(p=>p.text||'').join('').trim();
+ const cand=data.candidates&&data.candidates[0];
+ const parts=cand&&cand.content&&cand.content.parts;
+ let text=parts&&parts.map(p=>p.text||'').join('').trim();
  if(!text){
  const block=data.promptFeedback&&data.promptFeedback.blockReason;
  throw new Error(block?('Blocked: '+block):'Empty Gemini response');
  }
+ if(cand.finishReason==='MAX_TOKENS'&&text&&!/[.!?…]$/.test(text)) text+='…';
  return text;
  }
  throw new Error(lastErr||'Gemini request failed');
 }
-async function classAiOpenAIAnswer(q, cfg, system, context){
+async function classAiOpenAIAnswer(q, cfg, system, context, history){
+ const hist=history||classAiHistory;
  const body={
  model:cfg.model,
  messages:[
- {role:'system',content:system},
+ {role:'system',content:system+' Always write complete sentences. Finish every thought.'},
  {role:'system',content:'Catalog context:\n'+context},
- ...classAiHistory.slice(-6),
+ ...hist.slice(-6),
  {role:'user',content:q}
  ],
  temperature:0.6,
- max_tokens:450
+ max_tokens:1024
  };
  const res=await fetch(cfg.base+'/chat/completions',{
  method:'POST',
@@ -3318,13 +3348,13 @@ async function classAiOpenAIAnswer(q, cfg, system, context){
  if(!text) throw new Error('Empty API response');
  return text.trim();
 }
-async function classAiApiAnswer(q){
+async function classAiApiAnswer(q, history){
  const cfg=getAiConfig();
  if(!cfg.key) return null;
- const system=`You are the Lithos AI Rock Teacher for kids and budding geologists. Tone: warm, clear, curious — never condescending. Use catalog facts when provided. Prefer short paragraphs. Stay on geology, gems, minerals, Mohs, crystal systems, and class topics. If unsure, say so and suggest looking in the Lithos catalog.`;
+ const system=`You are the Lithos AI Rock Teacher for kids and budding geologists. Tone: warm, clear, curious — never condescending. Use catalog facts when provided. Prefer short paragraphs but always finish your sentences. Stay on geology, gems, minerals, Mohs, crystal systems, and class topics. If unsure, say so and suggest looking in the Lithos catalog.`;
  const context=catalogContextForAI(q);
- if(cfg.resolved==='gemini') return classAiGeminiAnswer(q, cfg, system, context);
- return classAiOpenAIAnswer(q, cfg, system, context);
+ if(cfg.resolved==='gemini') return classAiGeminiAnswer(q, cfg, system, context, history);
+ return classAiOpenAIAnswer(q, cfg, system, context, history);
 }
 async function sendClassChat(){
  if(classAiBusy||!hasClassAccess()) return;
@@ -3347,7 +3377,7 @@ async function sendClassChat(){
  let tag='Local Rock Teacher';
  if(cfg.key){
  try{
- answer=await classAiApiAnswer(q);
+ answer=await classAiApiAnswer(q, classAiHistory);
  tag=cfg.resolved==='gemini'?'Live AI · Gemini':'Live AI';
  }catch(err){
  answer=classLocalAnswer(q)+` (API unavailable — used local teacher. ${String(err.message||err).slice(0,80)})`;
