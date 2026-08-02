@@ -1872,7 +1872,9 @@
     nav.top button[data-view="donate"],
     nav.top button[data-view="battlefield"],
     nav.top button[data-view="gemhunt"],
-    nav.top button[data-view="game"]{display:inline-block}
+    nav.top button[data-view="game"],
+    nav.top button[data-view="video"]{display:inline-block}
+    body.is-owner nav.top button[data-view="parts"]{display:inline-block}
     .hero{padding:70px 20px 40px}
     .controls,.grid{padding-left:20px;padding-right:20px}
     .filter-row{flex-direction:column;gap:6px}
@@ -1952,7 +1954,7 @@
  <button data-view="donate">Donate</button>
  <button data-view="moneygoal">Money Goal</button>
  <button data-view="parts" id="parts-nav-btn" style="display:none">Parts</button>
- <button data-view="video" id="video-nav-btn" style="display:none">Owner TV</button>
+ <button data-view="video" id="video-nav-btn">Owner TV</button>
  </nav>
 </header>
 
@@ -2565,6 +2567,7 @@
  <div class="code-result" id="code-result"></div>
  <div class="code-hint">
  <p>Secret codes unlock special powers — including one that makes you the <b>owner</b> of the whole game.</p>
+ <p style="margin-top:14px"><a href="#video" onclick="switchView('video');return false;" style="color:var(--gold)">Owner TV</a> — private video platform (owner code required).</p>
  </div>
  </section>
 </div><!-- /view-codes -->
@@ -2644,7 +2647,8 @@
   <h1>Private <em>video</em> platform</h1>
   <div class="video-locked-box">
    <div class="lock-icon">🔒</div>
-   <p class="lede">This area is for the Lithos owner only. Enter the owner code on the <button type="button" class="collab-link" onclick="switchView('codes')">Secret Codes</button> page to unlock Owner TV.</p>
+   <p class="lede">This area is for the Lithos owner only. Go to <button type="button" class="collab-link" onclick="switchView('codes')">Secret Codes</button> and enter the owner code to unlock your private video library.</p>
+   <p class="lede" style="margin-top:12px;font-size:14px">Once unlocked, you can add YouTube, Vimeo, or MP4 links — anything you want, not just gems.</p>
   </div>
  </div>
  <div id="video-platform" hidden>
@@ -2704,6 +2708,7 @@
  <a data-partner="gemsny" data-partner-path="home" href="https://www.gemsny.com/" target="_blank" rel="sponsored noopener noreferrer">Shop at GemsNY ↗</a>
  <a href="#collaborate" onclick="switchView('collaborate');return false;">Business collaboration</a>
  <a href="#careers" onclick="switchView('careers');return false;">Work at Lithos</a>
+ <a href="#video" onclick="switchView('video');return false;">Owner TV</a>
  <span class="partner-disclosure">Partner link · Lithos may earn commission</span>
  </div>
  <span>Hardness on the Mohs scale · Origins by prominence · Prices are approximate retail</span>
@@ -4804,10 +4809,9 @@ function restoreOwnerUnlocks(){
  updateOwnerNav();
 }
 function updateOwnerNav(){
+ document.body.classList.toggle('is-owner',!!isOwner);
  const partsBtn=document.getElementById('parts-nav-btn');
- const videoBtn=document.getElementById('video-nav-btn');
  if(partsBtn) partsBtn.style.display=isOwner?'inline-block':'none';
- if(videoBtn) videoBtn.style.display=isOwner?'inline-block':'none';
 }
 function warriorUnlockHint(w,i){
  if(w.codeOnly) return 'Secret code only';
@@ -8711,6 +8715,7 @@ function tryCode(){
  You can play freely!<br>
  NEW: a <b>Parts</b> button appeared in the menu — jump to ANY part of the adventure!<br>
  NEW: <b>Owner TV</b> — your private video platform for anything you want to watch!<br><br>
+ <button type="button" class="game-btn" onclick="switchView('video')" style="margin-top:8px">Open Owner TV now</button><br><br>
  Go to the Gem Arena and check it out!
  </div>`;
  return;
