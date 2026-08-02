@@ -3713,14 +3713,42 @@ const WARRIORS=[
 ];
 const EMERALD_GUARDIAN_INDEX=3;
 const BOSSES_DEFEATED_KEY='lithos_bosses_defeated';
+const OWNER_FLAG_KEY='lithos_owner';
 let bossesDefeated=0;
+let isOwner=false;
+let hasPlasmaMace=false;
+let hasPlasmaTitan=false;
+let cheatGemPower=false;
+let cheatBossBuster=false;
+function effectiveBossProgress(){
+ if(isOwner) return bossesDefeated;
+ if(cheatGemPower) return Math.max(bossesDefeated, 8);
+ if(cheatBossBuster) return Math.max(bossesDefeated, BOSSES.length);
+ return Math.min(bossesDefeated, BOSSES.length);
+}
 function loadGameProgress(){
- try{ bossesDefeated=Math.max(0, parseInt(localStorage.getItem(BOSSES_DEFEATED_KEY)||'0',10)||0); }catch(e){ bossesDefeated=0; }
+ try{
+ isOwner=localStorage.getItem(OWNER_FLAG_KEY)==='1';
+ bossesDefeated=Math.max(0, parseInt(localStorage.getItem(BOSSES_DEFEATED_KEY)||'0',10)||0);
+ if(!isOwner&&bossesDefeated>BOSSES.length){
+ bossesDefeated=BOSSES.length;
+ try{ localStorage.setItem(BOSSES_DEFEATED_KEY, String(bossesDefeated)); }catch(e){}
+ }
+ }catch(e){ bossesDefeated=0; isOwner=false; }
+ restoreOwnerUnlocks();
 }
 function saveGameProgress(){
- try{ localStorage.setItem(BOSSES_DEFEATED_KEY, String(bossesDefeated)); }catch(e){}
+ const toSave=isOwner?bossesDefeated:Math.min(bossesDefeated, BOSSES.length);
+ bossesDefeated=toSave;
+ try{ localStorage.setItem(BOSSES_DEFEATED_KEY, String(toSave)); }catch(e){}
 }
-loadGameProgress();
+function restoreOwnerUnlocks(){
+ if(!isOwner) return;
+ if(typeof setClassAccess==='function') setClassAccess(true);
+ if(typeof setMemberTier==='function') setMemberTier('gold');
+ if(!hasPlasmaMace){ WEAPONS.push(PLASMA_MACE); hasPlasmaMace=true; }
+ if(!hasPlasmaTitan){ WARRIORS.push(PLASMA_TITAN); hasPlasmaTitan=true; }
+}
 function warriorUnlockHint(w,i){
  if(w.codeOnly) return 'Secret code only';
  if(w.ownerOnly) return 'Owner code only';
@@ -3736,11 +3764,11 @@ function warriorUnlocked(w,i){
  if(w.glitch) return hasGlitchItems;
  return false;
  }
- if(w.ownerOnly) return hasPlasmaTitan&&isOwner;
+ if(w.ownerOnly) return isOwner&&hasPlasmaTitan;
  if(isOwner) return true;
  if(i===EMERALD_GUARDIAN_INDEX && hasEmeraldGift()) return true;
- if(w.need<=0) return true;
- return bossesDefeated>=w.need;
+ if(i===0 && w.need<=0) return true;
+ return effectiveBossProgress()>=w.need;
 }
 function unlockedCount(){ return WARRIORS.filter((w,i)=>warriorUnlocked(w,i)).length; }
 // format big numbers nicely: 1000000000000000 -> "1qa"
@@ -4047,6 +4075,7 @@ function afterShield(dmg){
 }
 // THE PRISM TITAN — the ultimate owner-only warrior! Over 1 quadrillion health!
 const PLASMA_TITAN={name:"Prism Titan", color:"#7d5aff", power:9999, need:0, titan:true, plasma:true, hp:1000000000000000, ownerOnly:true};
+loadGameProgress();
 // ===== GLITCHED PACK — EVERY stat is Infinity (code: "code breaker") =====
 const GLITCH_MACE={art:"glitch", name:"Glitched Jasper Mace", bonus:Infinity, glitch:true, codeOnly:true, fact:"Jasper comes in wild banded patterns — nature's own glitch art!"};
 const GLITCH_SHIELD={art:"glitch", name:"Glitched Fluorite Shield", block:Infinity, color:"#39ff14", glitch:true, codeOnly:true, fact:"Fluorite glows under UV light — nature's own glitch!"};
@@ -4067,8 +4096,31 @@ const RAINBOW_HAMMER={art:"rainbow", name:"Opal Hammer", bonus:5000000, rainbow:
 const RAINBOW_SHIELD={art:"rainbow", name:"Ammolite Aegis", block:95, color:"#ff00cc", rainbow:true, codeOnly:true, fact:"Ammolite shimmers like a rainbow — it's fossilized shell!"};
 let hasRainbowItems=false;
 let hasGlitchItems=false;
-let hasPlasmaTitan=false;
-let equippedWeapon=-1; // which weapon is equipped (-1 = none)
+function weaponUnlocked(i){
+ const wp=WEAPONS[i];
+ if(!wp) return false;
+ if(wp.ownerOnly) return isOwner&&hasPlasmaMace;
+ if(wp.codeOnly){
+ if(wp.rainbow) return hasRainbowItems;
+ if(wp.glitch) return hasGlitchItems;
+ return false;
+ }
+ if(isOwner||cheatBossBuster) return true;
+ return i<effectiveBossProgress();
+}
+function shieldUnlocked(i){
+ const sh=SHIELDS[i];
+ if(!sh) return false;
+ if(sh.codeOnly||sh.glitch) return hasGlitchItems;
+ if(sh.rainbow) return hasRainbowItems;
+ if(isOwner||cheatBossBuster) return true;
+ return i<effectiveBossProgress();
+}
+function weaponsEarned(){
+ let n=0;
+ for(let i=0;i<WEAPONS.length;i++) if(weaponUnlocked(i)) n++;
+ return n;
+}
 // AURAS give health & attack MULTIPLIERS! Black Diamond Void is the strongest (x100t)!
 const AURAS=[
  {name:"No Aura", color:"#888", hpMult:1, atkMult:1, label:"Normal"},
@@ -4079,7 +4131,7 @@ const AURAS=[
  {name:"Black Diamond Void Aura", color:"#7d5aff", hpMult:100e12, atkMult:100e12, label:"x100t", dark:true},
 ];
 let equippedAura=0; // start with No Aura
-function weaponsEarned(){return Math.min(bossesDefeated, WEAPONS.length);}
+let equippedWeapon=-1; // which weapon is equipped (-1 = none)
 
 // 3D gem shading helpers — light from top-left, shadow bottom-right
 function gemParse(hex){
@@ -5005,10 +5057,10 @@ function buildGame(){
  const earned=weaponsEarned();
  const arsenalHTML=`
  <div class="arsenal">
- <div class="arsenal-head"> Your Arsenal — Crystal Lords Defeated: ${bossesDefeated}</div>
+ <div class="arsenal-head"> Your Arsenal — Crystal Lords Defeated: ${effectiveBossProgress()}</div>
  <div class="arsenal-row">
  ${WEAPONS.map((wp,i)=>{
- const got=i<earned;
+ const got=weaponUnlocked(i);
  const eq=equippedWeapon===i;
  return `<div class="weapon ${got?'got':'locked'} ${eq?'equipped':''}" data-w="${i}">
  <div class="wp-emoji">${got?(wp.art?weaponSVG(wp.art,44):wp.emoji):'<span class="lock-mark">Locked</span>'}</div>
@@ -5024,7 +5076,7 @@ function buildGame(){
  <div class="arsenal-head" style="margin-top:16px"> Shields — Block damage in battle!</div>
  <div class="arsenal-row">
  ${SHIELDS.map((sh,i)=>{
- const got=i<earned;
+ const got=shieldUnlocked(i);
  const eq=equippedShield===i;
  return `<div class="weapon ${got?'got':'locked'} ${eq?'equipped':''}" data-s="${i}">
  <div class="wp-emoji">${got?shieldSVG(sh.art,44):'<span class="lock-mark">Locked</span>'}</div>
@@ -5295,8 +5347,6 @@ function updateHP(){
 }
 
 /* ---------- Secret Codes ---------- */
-let isOwner=false;
-let hasPlasmaMace=false;
 
 /* ---------- Gem Mine (fight corrupted shards!) ---------- */
 let bf=null;
@@ -7355,8 +7405,6 @@ function tryCode(){
  SHIELDS.push(RAINBOW_SHIELD);
  hasRainbowItems=true;
  }
- bossesDefeated=WEAPONS.length;
- saveGameProgress();
  chosenWarrior=WARRIORS.length-1;
  equippedWeapon=WEAPONS.findIndex(w=>w.art==="rainbow");
  equippedShield=SHIELDS.findIndex(s=>s.art==="rainbow");
@@ -7381,8 +7429,6 @@ function tryCode(){
  AURAS.push(GLITCH_AURA);
  hasGlitchItems=true;
  }
- bossesDefeated=WEAPONS.length; // unlock every weapon AND shield
- saveGameProgress();
  equippedWeapon=WEAPONS.length-1; // equip the Glitched Jasper Mace
  equippedShield=SHIELDS.length-1; // equip the Glitched Fluorite Shield
  equippedAura=AURAS.length-1; // equip the Glitched Aura
@@ -7403,6 +7449,7 @@ function tryCode(){
  // THE OWNER CODE — unlocks everything!
  if(raw==="i am the owner of the game"){
  isOwner=true;
+ try{ localStorage.setItem(OWNER_FLAG_KEY,'1'); }catch(e){}
  setClassAccess(true);
  setMemberTier('gold');
  // add the special Prism Mace to the arsenal (only once)
@@ -7415,7 +7462,7 @@ function tryCode(){
  WARRIORS.push(PLASMA_TITAN);
  hasPlasmaTitan=true;
  }
- bossesDefeated=WEAPONS.length; // give every weapon INCLUDING the plasma mace
+ bossesDefeated=BOSSES.length;
  saveGameProgress();
  equippedWeapon=WEAPONS.length-1; // equip the Prism Mace (strongest!)
  equippedShield=SHIELDS.length-1; // equip the strongest shield (Onyx Aegis!)
@@ -7454,8 +7501,8 @@ function tryCode(){
 
  // other fun codes
  const CODES={
- "gempower":()=>{bossesDefeated=Math.max(bossesDefeated,8);saveGameProgress();if(typeof buildGame==='function'&&document.getElementById('game-wrap'))buildGame();return " GEM POWER! All gem warriors ready!";},
- "bossbuster":()=>{bossesDefeated=WEAPONS.length;saveGameProgress();equippedWeapon=WEAPONS.length-1;if(typeof buildGame==='function'&&document.getElementById('game-wrap'))buildGame();return " CRYSTAL LORD BUSTER! All gem weapons unlocked and equipped!";},
+ "gempower":()=>{cheatGemPower=true;if(typeof buildGame==='function'&&document.getElementById('game-wrap'))buildGame();return " GEM POWER! All gem warriors ready!";},
+ "bossbuster":()=>{cheatBossBuster=true;equippedWeapon=BOSSES.length-1;if(typeof buildGame==='function'&&document.getElementById('game-wrap'))buildGame();return " CRYSTAL LORD BUSTER! All gem weapons unlocked and equipped!";},
  "sparkle":()=>" Sparkle sparkle! (Just for fun — you got a sparkle!)",
  };
  if(CODES[raw]){
