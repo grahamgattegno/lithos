@@ -361,7 +361,7 @@
   footer .partner-foot a:hover{color:var(--text)}
   footer .partner-disclosure{font-size:9.5px;letter-spacing:.1em;color:var(--text-faint);text-transform:none;font-family:var(--sans)}
 
-  /* ---------- Star Lanka Partner ---------- */
+  /* ---------- Partner / affiliate ---------- */
   .partner-strip{max-width:1440px;margin:0 auto;padding:0 40px 36px}
   .partner-card{
     display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;
@@ -1672,10 +1672,10 @@
  <div class="partner-card">
  <div>
  <div class="partner-label">Education Partner</div>
- <h3>See real Ceylon gems at <em>Star Lanka</em></h3>
- <p>Fine natural colored gemstones since 1985 — Ceylon sapphires, spinels, moonstone, and more. Lithos is a field reference; Star Lanka is where you can study specimens in hand.</p>
+ <h3>Shop certified gems at <em>GemsNY</em></h3>
+ <p>50,000+ certified loose gemstones — sapphires, rubies, emeralds, and more. Lithos is your field reference; GemsNY is where you can browse real certified stones.</p>
  </div>
- <a class="partner-cta" data-starlanka="home" href="https://www.starlanka.com/" target="_blank" rel="sponsored noopener noreferrer">Shop gems at Star Lanka ↗</a>
+ <a class="partner-cta" data-partner="gemsny" data-partner-path="home" href="https://www.gemsny.com/" target="_blank" rel="sponsored noopener noreferrer">Shop at GemsNY ↗</a>
  </div>
 </section>
 
@@ -1698,7 +1698,7 @@
  <div class="eyebrow">The Fundamentals</div>
  <h1>How to <em>read</em> a gemstone</h1>
  <p class="lede">Five short lessons on what makes a stone a gem — how they form, how we measure them, and how to tell a fine one from a merely pretty one. Then test yourself in the Quiz.</p>
- <p class="partner-learn">Studying corundum or Ceylon origins? Browse <a data-starlanka="sri-lanka" href="https://www.starlanka.com/gemstone-origins/sri-lanka/" target="_blank" rel="sponsored noopener noreferrer">Sri Lankan gemstones at Star Lanka</a> — Lithos education partner for natural colored gems since 1985.</p>
+ <p class="partner-learn">Studying corundum or colored gems? Browse <a data-partner="gemsny" data-partner-path="gems" href="https://www.gemsny.com/gems" target="_blank" rel="sponsored noopener noreferrer">certified loose gemstones at GemsNY</a> — partner for natural sapphires, rubies, and emeralds (up to 5% affiliate commission).</p>
  </section>
  <div class="lessons" id="lessons"></div>
 </div><!-- /view-learn -->
@@ -2044,7 +2044,7 @@
 <footer id="about">
  <span>Lithos Field Catalog · Compiled for study and teaching</span>
  <div class="partner-foot">
- <a data-starlanka="home" href="https://www.starlanka.com/" target="_blank" rel="sponsored noopener noreferrer">Shop gems at Star Lanka ↗</a>
+ <a data-partner="gemsny" data-partner-path="home" href="https://www.gemsny.com/" target="_blank" rel="sponsored noopener noreferrer">Shop at GemsNY ↗</a>
  <span class="partner-disclosure">Partner link · Lithos may earn commission</span>
  </div>
  <span>Hardness on the Mohs scale · Origins by prominence · Prices are approximate retail</span>
@@ -2053,36 +2053,52 @@
 <script src="ai-config.js"></script>
 <script src="gems-data.js"></script>
 <script>
-/* ---------- Star Lanka affiliate (fill affiliateId after joining starlanka.com/affiliate-program/) ---------- */
-const STARLANKA={
- affiliateId:'', // e.g. '27' → appends ?gg=27 to all partner links
- paths:{
-  home:'https://www.starlanka.com/',
-  gems:'https://www.starlanka.com/gemstones/',
-  'sri-lanka':'https://www.starlanka.com/gemstone-origins/sri-lanka/',
-  program:'https://www.starlanka.com/affiliate-program/'
+/* ---------- Affiliate partner: GemsNY (Impact Radius — join at gemsny.com/affiliates) ---------- */
+const DEFAULT_PARTNER='gemsny';
+const AFFILIATE_PARTNERS={
+ gemsny:{
+  name:'GemsNY',
+  clickUrl:'', // paste Impact tracking link from dashboard after approval (optional override)
+  paths:{
+   home:'https://www.gemsny.com/',
+   gems:'https://www.gemsny.com/gems',
+   sapphire:'https://www.gemsny.com/sapphires/basic-search',
+   ruby:'https://www.gemsny.com/ruby/basic-search',
+   emerald:'https://www.gemsny.com/emerald/basic-search',
+   join:'https://www.gemsny.com/affiliates'
+  }
  }
 };
-function starlankaUrl(key){
- const url=STARLANKA.paths[key]||STARLANKA.paths.home;
- if(!STARLANKA.affiliateId)return url;
- return url+(url.includes('?')?'&':'?')+'gg='+encodeURIComponent(STARLANKA.affiliateId);
+function partnerUrl(partnerKey,pathKey){
+ const p=AFFILIATE_PARTNERS[partnerKey];
+ if(!p)return '#';
+ if(p.clickUrl)return p.clickUrl;
+ const url=p.paths[pathKey]||p.paths.home;
+ return url;
 }
-function initStarlankaLinks(){
- document.querySelectorAll('[data-starlanka]').forEach(el=>{
-  el.href=starlankaUrl(el.dataset.starlanka||'home');
+function initPartnerLinks(){
+ document.querySelectorAll('[data-partner]').forEach(el=>{
+  const pk=el.dataset.partner||DEFAULT_PARTNER;
+  const path=el.dataset.partnerPath||'home';
+  el.href=partnerUrl(pk, path);
  });
 }
-function isCeylonGem(g){
- return g.kind==='gem'&&g.origins.some(o=>/sri lanka/i.test(o));
+const SHOP_GEM_RE=/ruby|sapphire|emerald|amethyst|topaz|aquamarine|garnet|tanzanite|opal|morganite|alexandrite|spinel|tourmaline|peridot|citrine|jade|moonstone|padparadscha|tsavorite|demantoid|alexandrite/i;
+function partnerGemPath(g){
+ if(/sapphire|padparadscha|star sapphire/i.test(g.name))return 'sapphire';
+ if(/ruby|star ruby|rubellite/i.test(g.name))return 'ruby';
+ if(/emerald/i.test(g.name))return 'emerald';
+ return 'gems';
 }
-function starlankaDrawerCta(g){
- if(!isCeylonGem(g))return '';
- const url=starlankaUrl('sri-lanka');
+function partnerDrawerCta(g){
+ if(g.kind!=='gem'||!SHOP_GEM_RE.test(g.name))return '';
+ const path=partnerGemPath(g);
+ const url=partnerUrl(DEFAULT_PARTNER, path);
+ const labels={sapphire:'loose sapphires',ruby:'loose rubies',emerald:'loose emeralds',gems:'certified loose gemstones'};
  return `<div class="section-label">Find This Stone</div>
  <div class="partner-cta-wrap">
- <p>${g.name} is prized from Sri Lanka (Ceylon). Browse natural specimens from our partner Star Lanka — fine colored gems since 1985.</p>
- <a class="partner-link" href="${url}" target="_blank" rel="sponsored noopener noreferrer">Shop Ceylon gems at Star Lanka ↗</a>
+ <p>${g.name} is a prized gemstone. Browse ${labels[path]||labels.gems} from our partner GemsNY — certified, conflict-free stones.</p>
+ <a class="partner-link" href="${url}" target="_blank" rel="sponsored noopener noreferrer">Shop at GemsNY ↗</a>
  </div>`;
 }
 
@@ -2293,7 +2309,7 @@ function openDrawer(i){
  <div class="section-label">Notable Origins</div>
  <div class="origins">${g.origins.map(o=>`<span class="o">${o}</span>`).join('')}</div>
 
- ${starlankaDrawerCta(g)}
+ ${partnerDrawerCta(g)}
  </div>`;
  overlay.classList.add('open');
  document.body.style.overflow='hidden';
@@ -2303,7 +2319,7 @@ overlay.onclick=e=>{if(e.target===overlay)closeDrawer();};
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer();});
 
 document.getElementById('q').addEventListener('input',e=>{query=e.target.value.trim().toLowerCase();render();});
-initStarlankaLinks();
+initPartnerLinks();
 syncHeroCounts();
 render();
 
