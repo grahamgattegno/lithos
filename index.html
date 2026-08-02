@@ -1353,9 +1353,21 @@
   .exp-board-title{font-family:var(--mono);font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:#3a2808;margin-bottom:14px}
   .exp-board-fact{font-family:var(--serif);font-size:clamp(18px,3vw,24px);line-height:1.45;color:#1a1008;margin-bottom:22px}
   .exp-board-fact em{font-style:italic;color:#5a3010}
-  .exp-play{position:relative;height:200px;margin:8px 0;z-index:1}
+  .exp-play{position:relative;height:220px;margin:8px 0;z-index:1}
   .exp-ground{position:absolute;left:-16px;right:-16px;bottom:0;height:38%;background:linear-gradient(180deg,#5a8a3a,#3a6028);
     border-top:2px solid rgba(255,255,255,.2);box-shadow:inset 0 4px 10px rgba(0,0,0,.25)}
+  .exp-pit{position:absolute;bottom:0;height:32%;background:radial-gradient(ellipse at center top,rgba(0,0,0,.55),rgba(0,0,0,.85));border-top:2px dashed rgba(255,255,255,.15);z-index:0;transform:translateX(-50%);border-radius:8px 8px 0 0}
+  .exp-pit::after{content:"";position:absolute;left:50%;top:20%;transform:translateX(-50%);font-size:18px;opacity:.5}
+  .exp-plat{position:absolute;height:14%;background:linear-gradient(180deg,#6a9a4a,#4a7a32);border:2px solid rgba(255,255,255,.25);border-radius:6px 6px 0 0;box-shadow:0 -4px 8px rgba(0,0,0,.2);z-index:1}
+  .exp-field.canyon .exp-plat{background:linear-gradient(180deg,#c0a070,#907848)}
+  .exp-field.cave .exp-plat{background:linear-gradient(180deg,#5a4880,#3a2858)}
+  .exp-field.river .exp-plat{background:linear-gradient(180deg,#8ab8a8,#5a9888)}
+  .exp-field.volcano .exp-plat{background:linear-gradient(180deg,#a05040,#702818)}
+  .exp-field.snow .exp-plat{background:linear-gradient(180deg,#e0eef8,#b0c8d8)}
+  .exp-field.desert .exp-plat{background:linear-gradient(180deg,#e8d090,#c0a060)}
+  .exp-field.ruins .exp-plat{background:linear-gradient(180deg,#8090a0,#506068)}
+  .exp-hurdle{position:absolute;transform:translateX(-50%);z-index:4;font-size:28px;line-height:1;bottom:36%;filter:drop-shadow(0 3px 4px rgba(0,0,0,.35))}
+  .exp-char.falling{opacity:.85;transition:none}
   .exp-field.goldmine .exp-ground{background:linear-gradient(180deg,#4a3820,#2a1a08);border-top-color:rgba(255,211,78,.25)}
   .exp-char{position:absolute;transition:left .12s linear,bottom .09s linear;z-index:5;line-height:0}
   .exp-char.swinging svg{animation:expSwing .35s ease}
@@ -5300,7 +5312,7 @@ function buildBattlefield(){
  wrap.innerHTML=`
  <div class="eyebrow">Gem Mine Expedition</div>
  <h1>The <em>Gem Mine</em></h1>
- <p class="bf-intro">Go on a huge <b>scavenger gem hunt</b> — explore <b>8 areas</b> and find <b>32 hidden gems</b> 💎! Then dig 10 gold nuggets in the mine. Or charge into battle against corrupted gem monsters.</p>
+ <p class="bf-intro">Go on a huge <b>scavenger gem hunt</b> — explore <b>8 areas</b>, jump gaps & hop logs in each zone, and find <b>32 hidden gems</b> 💎! Then dig 10 gold nuggets in the mine.</p>
  <div class="bf-power">
  <div class="bp-label">Your Battle Power</div>
  <div class="bp-num">${fmtHP(power)}</div>
@@ -5316,50 +5328,58 @@ function buildBattlefield(){
 }
 /* ---------- Gem Hunt Expedition: billboard → 12 gems → gold mine → leave ---------- */
 const HUNT_AREAS=[
- {id:'forest',name:'Forest Trail',emoji:'🌲',sign:'Mossy paths — gems hide in bushes & trees',
+ {id:'forest',name:'Forest Trail',emoji:'🌲',sign:'Jump gaps & hop logs — gems hide in bushes!',
   hides:['🌿','🌳','🍂','🪵'],
+  obby:{gaps:[{from:28,to:36},{from:62,to:69}],platforms:[{from:44,to:56,lift:24}],hurdles:[{x:52}]},
   gems:[
    {x:14,color:'#7d43b3',name:'Amethyst',y:38},{x:38,color:'#7a9a30',name:'Peridot',y:40},
    {x:62,color:'#9c2229',name:'Garnet',y:39},{x:86,color:'#2a8a58',name:'Jade',y:41}
   ]},
- {id:'canyon',name:'Rocky Canyon',emoji:'🏜️',sign:'Dry canyon — search boulders & cliff cracks',
+ {id:'canyon',name:'Rocky Canyon',emoji:'🏜️',sign:'Leap canyon cracks — search the boulders!',
   hides:['🪨','⛰️','🪵','🌵'],
+  obby:{gaps:[{from:32,to:40},{from:68,to:75}],platforms:[{from:48,to:60,lift:20}],hurdles:[{x:22}]},
   gems:[
    {x:14,color:'#1b3f96',name:'Sapphire',y:41},{x:38,color:'#ffd34e',name:'Citrine',y:38},
    {x:62,color:'#b85a40',name:'Agate',y:40},{x:86,color:'#c06030',name:'Jasper',y:39}
   ]},
- {id:'cave',name:'Crystal Cave',emoji:'🕳️',sign:'Dark cave — crystals hide in the walls',
+ {id:'cave',name:'Crystal Cave',emoji:'🕳️',sign:'Hop stone ledges over dark pits!',
   hides:['💎','🪨','✨','🔮'],
+  obby:{gaps:[{from:30,to:38},{from:64,to:71}],platforms:[{from:46,to:58,lift:26}],hurdles:[{x:78}]},
   gems:[
    {x:14,color:'#a8122a',name:'Ruby',y:39},{x:38,color:'#dbe4ec',name:'Diamond',y:41},
    {x:62,color:'#c9a0ff',name:'Fluorite',y:38},{x:86,color:'#e8e8f0',name:'Quartz',y:40}
   ]},
- {id:'river',name:'Riverside',emoji:'🌊',sign:'Shoreline — search reeds & wet stones',
+ {id:'river',name:'Riverside',emoji:'🌊',sign:'Jump over streams — search the shore!',
   hides:['🌾','🪨','🐚','💧'],
+  obby:{gaps:[{from:34,to:42},{from:70,to:77}],platforms:[{from:50,to:62,lift:18}],hurdles:[{x:38}]},
   gems:[
    {x:14,color:'#3a9a9a',name:'Turquoise',y:40},{x:38,color:'#b8e0e8',name:'Moonstone',y:38},
    {x:62,color:'#4a6a8a',name:'Labradorite',y:41},{x:86,color:'#6ec8e0',name:'Aquamarine',y:39}
   ]},
- {id:'volcano',name:'Volcano Crater',emoji:'🌋',sign:'Hot lava fields — gems cooled in volcanic rock',
+ {id:'volcano',name:'Volcano Crater',emoji:'🌋',sign:'Leap lava cracks — stay on the rocks!',
   hides:['🪨','🔥','🌋','💨'],
+  obby:{gaps:[{from:26,to:34},{from:60,to:67}],platforms:[{from:42,to:54,lift:22}],hurdles:[{x:86}]},
   gems:[
    {x:14,color:'#2a2030',name:'Obsidian',y:40},{x:38,color:'#ff6020',name:'Fire Opal',y:38},
    {x:62,color:'#d04020',name:'Carnelian',y:41},{x:86,color:'#e89040',name:'Sunstone',y:39}
   ]},
- {id:'snow',name:'Snowy Peak',emoji:'🏔️',sign:'Frozen summit — gems frozen in ice & snow',
+ {id:'snow',name:'Snowy Peak',emoji:'🏔️',sign:'Jump icy crevasses — watch your step!',
   hides:['❄️','🪨','⛄','🧊'],
+  obby:{gaps:[{from:30,to:38},{from:66,to:73}],platforms:[{from:48,to:60,lift:20}],hurdles:[{x:62}]},
   gems:[
    {x:14,color:'#ffd080',name:'Topaz',y:39},{x:38,color:'#5060a0',name:'Iolite',y:41},
    {x:62,color:'#e8a0c8',name:'Kunzite',y:38},{x:86,color:'#40a878',name:'Amazonite',y:40}
   ]},
- {id:'desert',name:'Desert Oasis',emoji:'🏝️',sign:'Sandy dunes around a hidden oasis',
+ {id:'desert',name:'Desert Oasis',emoji:'🏝️',sign:'Hop sand pits — gems near the oasis!',
   hides:['🌴','🪨','🏜️','🦎'],
+  obby:{gaps:[{from:28,to:36},{from:64,to:71}],platforms:[{from:44,to:56,lift:18}],hurdles:[{x:14}]},
   gems:[
    {x:14,color:'#e8c080',name:'Opal',y:40},{x:38,color:'#2040a0',name:'Lapis Lazuli',y:38},
    {x:62,color:'#30a060',name:'Malachite',y:41},{x:86,color:'#60c878',name:'Chrysoprase',y:39}
   ]},
- {id:'ruins',name:'Ancient Ruins',emoji:'🏛️',sign:'Crumbled temple — gems lost for centuries',
+ {id:'ruins',name:'Ancient Ruins',emoji:'🏛️',sign:'Cross broken floors — temple obby!',
   hides:['🧱','🏺','📜','⚱️'],
+  obby:{gaps:[{from:32,to:40},{from:68,to:75}],platforms:[{from:50,to:62,lift:24}],hurdles:[{x:46}]},
   gems:[
    {x:14,color:'#208848',name:'Emerald',y:39},{x:38,color:'#6020a0',name:'Alexandrite',y:41},
    {x:62,color:'#5040a8',name:'Tanzanite',y:38},{x:86,color:'#c02050',name:'Spinel',y:40}
@@ -5399,9 +5419,47 @@ function expBuildGems(){
 function expCurrentArea(){ return HUNT_AREAS[exp.areaIdx]||HUNT_AREAS[0]; }
 function expAreaGems(areaId){ return exp.gems.filter(g=>g.areaId===(areaId||expCurrentArea().id)); }
 function expAreaFound(areaId){ return exp.gems.filter(g=>g.areaId===areaId&&g.found).length; }
+function expAreaObby(){ const a=expCurrentArea(); return a.obby||{gaps:[],platforms:[],hurdles:[]}; }
+function expInGap(x){
+ const ob=expAreaObby();
+ return ob.gaps.some(g=>x>=g.from&&x<=g.to);
+}
+function expOnSolid(x,y){
+ if(expInGap(x)) return y>28;
+ return true;
+}
+function expGroundLift(x){
+ const ob=expAreaObby();
+ for(const p of ob.platforms||[]){ if(x>=p.from&&x<=p.to) return p.lift||18; }
+ return 0;
+}
+function expCharBottomPct(){
+ const lift=expGroundLift(exp.heroX);
+ return 34+lift*0.35+exp.heroY*0.35;
+}
+function expHurdleBlock(x){
+ if(exp.jumping&&exp.heroY>20) return false;
+ const ob=expAreaObby();
+ return (ob.hurdles||[]).some(h=>Math.abs(x-h.x)<5);
+}
+function expFall(){
+ if(!exp||exp.falling||exp.jumping) return;
+ exp.falling=true; expMoveLock=true;
+ exp.log=' 💨 Whoops — jump over the gap! ';
+ let t=0;
+ const fall=setInterval(()=>{
+ if(!exp){ clearInterval(fall); return; }
+ t+=0.1; exp.heroY=-Math.min(t*35,25);
+ if(t>=0.9){
+ clearInterval(fall);
+ exp.heroX=exp.respawnX||10; exp.heroY=0; exp.falling=false; expMoveLock=false;
+ renderExpedition();
+ } else renderExpedition();
+ },30);
+}
 function expTravel(idx){
  if(!exp||exp.phase!=='hunt'||idx===exp.areaIdx||idx<0||idx>=HUNT_AREAS.length)return;
- exp.areaIdx=idx; exp.heroX=10;
+ exp.areaIdx=idx; exp.heroX=10; exp.respawnX=10; exp.heroY=0;
  const a=HUNT_AREAS[idx];
  const left=expAreaNeed(a)-expAreaFound(a.id);
  exp.log=` 📍 ${a.emoji} ${a.name} — find ${left} more gem${left===1?'':'s'} here (${expAreaFound(a.id)}/${expAreaNeed(a)})! `;
@@ -5419,12 +5477,12 @@ function startExpedition(){
  const fact=EXPEDITION_FACTS[Math.floor(Math.random()*EXPEDITION_FACTS.length)];
  exp={
  phase:"hunt", fact:fact, areaIdx:0,
- heroX:10, heroY:0, jumping:false,
+ heroX:10, heroY:0, respawnX:10, jumping:false, falling:false,
  gems:expBuildGems(),
  gemsFound:0, gold:0,
  veins:GOLD_VEIN_SPOTS.map(x=>({x,mined:false,hits:0,hitsNeeded:EXP_MINE_HITS})),
  swing:false, swingT:0, searchT:0, goldPops:[],
- log:` 🗺️ Explore ${HUNT_AREAS.length} areas! Tap a zone to travel. Each area has hidden gems 💎 — search every spot!`,
+ log:` 🗺️ Explore ${HUNT_AREAS.length} areas! Jump gaps, hop logs, then search for gems 💎!`,
  over:false
  };
  renderExpedition();
@@ -5468,22 +5526,34 @@ function expCompleteHunt(){
  }
 }
 function expMove(dir){
- if(expMoveLock||!exp||exp.over||exp.phase==="billboard"||exp.phase==="done")return;
+ if(expMoveLock||exp.falling||!exp||exp.over||exp.phase==="billboard"||exp.phase==="done")return;
+ if(exp.jumping){ exp.log=' Wait for your jump to land! '; return; }
+ const nx=Math.max(3,Math.min(97,exp.heroX+dir*EXP_MOVE_STEP));
+ if(expHurdleBlock(nx)){
+ exp.log=' 🪵 Log in the way — tap Jump first! ';
+ renderExpedition(); return;
+ }
  expMoveLock=true;
- exp.heroX=Math.max(3,Math.min(97,exp.heroX+dir*EXP_MOVE_STEP));
+ exp.heroX=nx;
+ if(expOnSolid(nx,exp.heroY)) exp.respawnX=nx;
+ else expFall();
  renderExpedition();
  setTimeout(()=>{ expMoveLock=false; if(exp) renderExpedition(); }, EXP_MOVE_COOLDOWN);
 }
 function expJump(){
- if(!exp||exp.over||exp.phase==="billboard"||exp.phase==="done")return;
- if(!exp.jumping){
+ if(!exp||exp.over||exp.falling||exp.phase==="billboard"||exp.phase==="done")return;
+ if(exp.jumping) return;
  exp.jumping=true; let t=0;
  const jump=setInterval(()=>{
+ if(!exp){ clearInterval(jump); return; }
  t+=0.11; exp.heroY=Math.sin(t*Math.PI)*60;
- if(t>=1){clearInterval(jump);exp.heroY=0;exp.jumping=false;}
+ if(t>=1){
+ clearInterval(jump); exp.heroY=0; exp.jumping=false;
+ if(expOnSolid(exp.heroX,0)) exp.respawnX=exp.heroX;
+ else expFall();
+ }
  renderExpedition();
  },30);
- }
 }
 function expMine(){
  if(expActionLock||!exp||exp.over||exp.phase!=="goldmine"||exp.gold>=EXPEDITION_GOLD_COUNT)return;
@@ -5584,7 +5654,7 @@ function renderExpedition(){
  }).join(''):'';
  const popsHTML=isGold?(exp.goldPops||[]).map(p=>`<div class="exp-gold-pop" style="left:${p.x}%;bottom:50%">${goldNuggetSVG(22)} +1!</div>`).join(''):'';
  const pickaxe=isGold?`<span class="exp-pickaxe">${pickaxeSVG(44)}</span>`:'';
- const heroHTML=`<div class="exp-char ${exp.swing?'swinging':''} ${exp.searching?'searching':''}" style="left:${exp.heroX}%;bottom:${34+exp.heroY*0.35}%">${gemWarriorSVG(hero.color,64,hero.titan,hero.plasma,hero.style)}${pickaxe}</div>`;
+ const heroHTML=`<div class="exp-char ${exp.swing?'swinging':''} ${exp.searching?'searching':''} ${exp.falling?'falling':''}" style="left:${exp.heroX}%;bottom:${expCharBottomPct()}%">${gemWarriorSVG(hero.color,64,hero.titan,hero.plasma,hero.style)}${pickaxe}</div>`;
  const counter=isGold
  ?`Gold bag: ${exp.gold} / ${EXPEDITION_GOLD_COUNT} ${goldNuggetSVG(18)}`
  :`${area.emoji} ${area.name}: ${expAreaFound(area.id)} / ${expAreaNeed(area)} &nbsp;•&nbsp; Total: ${exp.gemsFound} / ${EXPEDITION_GEM_COUNT} 💎`;
@@ -5604,7 +5674,7 @@ function renderExpedition(){
  return `<span class="exp-ap-item ${done?'done':''} ${here?'here':''}">${a.emoji} ${found}/${need}</span>`;
  }).join('')}</div>`:'';
  const checklist=(!isGold)?`<div class="exp-checklist">${areaGems.map(g=>`<span class="exp-cl-item ${g.found?'done':''}">${g.found?'✓':'?'} ${g.name}</span>`).join('')}</div>`:'';
- const hint=(!isGold)?`<div class="exp-hint">Tap areas above to travel &nbsp;•&nbsp; stand next to hiding spots &nbsp;•&nbsp; <b>Look! 🔍</b> ${EXP_SEARCH_HITS}× per gem</div>`:'';
+ const hint=(!isGold)?`<div class="exp-hint">← → walk &nbsp;•&nbsp; <b>Jump</b> over gaps &amp; logs &nbsp;•&nbsp; <b>Look! 🔍</b> ${EXP_SEARCH_HITS}× per gem</div>`:'';
  const mineHint=isGold?`<div class="exp-hint">← → move carefully &nbsp;•&nbsp; stand on each vein &nbsp;•&nbsp; tap <b>Dig! ⛏</b> ${EXP_MINE_HITS} times per nugget</div>`:'';
  wrap.innerHTML=`
  <div class="eyebrow">Gem Hunt Expedition</div>
@@ -5619,6 +5689,21 @@ function renderExpedition(){
  ${isGold?'<div class="exp-mine-wall"></div><div class="exp-tunnel"></div><div class="exp-mine-sign">⛏ Each vein needs several swings — get close!</div>':`<div class="exp-trail-sign">${area.sign}</div>`}
  <div class="exp-play">
  <div class="exp-ground"></div>
+ ${(!isGold)?(()=>{
+ const ob=area.obby||{};
+ const pits=(ob.gaps||[]).map(g=>{
+ const mid=(g.from+g.to)/2, w=g.to-g.from;
+ const emoji=area.id==='river'?'💧':area.id==='volcano'?'🔥':area.id==='snow'?'🧊':'🕳️';
+ return `<div class="exp-pit" style="left:${mid}%;width:${w}%" title="Jump!">${emoji?`<span style="position:absolute;left:50%;top:15%;transform:translateX(-50%);font-size:16px;opacity:.6">${emoji}</span>`:''}</div>`;
+ }).join('');
+ const plats=(ob.platforms||[]).map(p=>{
+ const mid=(p.from+p.to)/2, w=p.to-p.from;
+ const bottom=38+(p.lift||18)*0.35;
+ return `<div class="exp-plat" style="left:${mid}%;width:${w}%;bottom:${bottom}%;transform:translateX(-50%)"></div>`;
+ }).join('');
+ const hurdles=(ob.hurdles||[]).map(h=>`<div class="exp-hurdle" style="left:${h.x}%">🪵</div>`).join('');
+ return pits+plats+hurdles;
+ })():''}
  ${hideSpotsHTML}${gemsHTML}${veinsHTML}${popsHTML}${heroHTML}
  </div>
  <div class="exp-log">${exp.log}</div>
