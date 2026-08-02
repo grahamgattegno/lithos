@@ -1818,6 +1818,7 @@
   .video-locked-box .lock-icon{font-size:52px;margin-bottom:14px}
   .video-stage{background:#050508;border:1px solid var(--line);border-radius:14px;overflow:hidden;margin:36px 0 24px;aspect-ratio:16/9;position:relative}
   .video-stage iframe,.video-stage video{width:100%;height:100%;border:0;display:block;background:#000}
+  .video-stage-label{position:absolute;bottom:0;left:0;right:0;padding:14px 18px;background:linear-gradient(transparent,rgba(0,0,0,.88));font-family:var(--serif);font-size:clamp(16px,2.5vw,22px);color:#fff;pointer-events:none;z-index:2;line-height:1.25}
   .video-stage-empty{display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-faint);font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase}
   .video-now-playing{padding:14px 18px;background:var(--ink-2);border:1px solid var(--line);border-radius:10px;margin-bottom:24px}
   .video-now-playing .vp-title{font-family:var(--serif);font-size:22px;margin-bottom:6px}
@@ -2661,28 +2662,21 @@
   </div>
   <div class="video-now-playing" id="video-now-playing" hidden>
    <div class="vp-title" id="video-playing-title"></div>
-   <div class="vp-desc" id="video-playing-desc"></div>
-   <div class="vp-cat" id="video-playing-cat"></div>
   </div>
 
   <details class="video-add">
    <summary>+ Add a video</summary>
    <form class="video-add-form" id="video-add-form">
-    <label class="fb-label" for="video-add-title">Title</label>
-    <input id="video-add-title" type="text" placeholder="My favorite clip" required>
     <label class="fb-label" for="video-add-url">Video URL (YouTube, Vimeo, or .mp4)</label>
     <input id="video-add-url" type="url" placeholder="https://www.youtube.com/watch?v=..." required>
-    <label class="fb-label" for="video-add-cat">Category (optional)</label>
-    <input id="video-add-cat" type="text" placeholder="Music, memes, tutorials…">
-    <label class="fb-label" for="video-add-desc">Description (optional)</label>
-    <textarea id="video-add-desc" rows="2" placeholder="Notes about this video"></textarea>
+    <label class="fb-label" for="video-add-title">Title</label>
+    <input id="video-add-title" type="text" placeholder="Auto-fills when you paste a link" required>
     <button type="submit">Add to library</button>
    </form>
   </details>
 
   <div class="video-toolbar">
-   <input type="search" id="video-search" placeholder="Search your library…" autocomplete="off">
-   <div class="video-cats" id="video-cats"></div>
+   <input type="search" id="video-search" placeholder="Search by title…" autocomplete="off">
   </div>
   <div class="video-grid" id="video-grid"></div>
  </div>
@@ -8278,9 +8272,38 @@ const BATTLE_PARTS=[
 ];
 /* ---------- Owner video platform ---------- */
 const VIDEO_STORAGE_KEY='lithos_owner_videos_v1';
-let videoFilterCat='all';
 let videoSearchQuery='';
 let videoPlayingId=null;
+let videoTitleFetchTimer=null;
+async function fetchVideoTitleFromUrl(url){
+ try{
+  const r=await fetch(`https://noembed.com/embed?url=${encodeURIComponent(url)}`);
+  if(!r.ok) return '';
+  const j=await r.json();
+  return (j.title||'').trim();
+ }catch(_){return '';}
+}
+function scheduleVideoTitleLookup(){
+ clearTimeout(videoTitleFetchTimer);
+ videoTitleFetchTimer=setTimeout(async()=>{
+  const urlEl=document.getElementById('video-add-url');
+  const titleEl=document.getElementById('video-add-title');
+  if(!urlEl||!titleEl) return;
+  const url=urlEl.value.trim();
+  if(!parseVideoUrl(url)) return;
+  if(titleEl.value.trim()&&!titleEl.dataset.autoFilled) return;
+  titleEl.placeholder='Looking up title…';
+  const title=await fetchVideoTitleFromUrl(url);
+  if(title){
+   titleEl.value=title;
+   titleEl.dataset.autoFilled='1';
+   titleEl.placeholder='Auto-fills when you paste a link';
+  }else{
+   titleEl.placeholder=url.match(/\.(mp4|webm|ogg|mov)/i)?'Name this video':'Could not fetch title — type one in';
+   titleEl.focus();
+  }
+ },400);
+}
 function parseVideoUrl(raw){
  const url=(raw||'').trim();
  if(!url) return null;
@@ -8343,30 +8366,21 @@ function playOwnerVideo(v){
   iframe.title=v.title||'Video';
   stage.appendChild(iframe);
  }
+ const label=document.createElement('div');
+ label.className='video-stage-label';
+ label.textContent=v.title||'Untitled';
+ stage.appendChild(label);
  if(np){
   document.getElementById('video-playing-title').textContent=v.title||'Untitled';
-  document.getElementById('video-playing-desc').textContent=v.desc||'';
-  document.getElementById('video-playing-cat').textContent=v.category?`Category: ${v.category}`:'';
   np.hidden=false;
  }
  renderVideoGrid();
  window.scrollTo({top:0,behavior:'smooth'});
 }
-function renderVideoCats(videos){
- const wrap=document.getElementById('video-cats');
- if(!wrap) return;
- const cats=['all',...new Set(videos.map(v=>(v.category||'').trim()).filter(Boolean))];
- wrap.innerHTML=cats.map(c=>`<button type="button" class="video-cat-btn${c===videoFilterCat?' on':''}" data-cat="${escapeHtml(c)}">${c==='all'?'All':escapeHtml(c)}</button>`).join('');
- wrap.querySelectorAll('.video-cat-btn').forEach(btn=>{
-  btn.onclick=()=>{videoFilterCat=btn.dataset.cat;renderVideoGrid();renderVideoCats(loadOwnerVideos());};
- });
-}
 function filteredVideos(videos){
- let list=videos.slice();
- if(videoFilterCat!=='all') list=list.filter(v=>(v.category||'').trim()===videoFilterCat);
  const q=videoSearchQuery.trim().toLowerCase();
- if(q) list=list.filter(v=>(v.title||'').toLowerCase().includes(q)||(v.desc||'').toLowerCase().includes(q)||(v.category||'').toLowerCase().includes(q));
- return list;
+ if(!q) return videos.slice();
+ return videos.filter(v=>(v.title||'').toLowerCase().includes(q));
 }
 function renderVideoGrid(){
  const grid=document.getElementById('video-grid');
@@ -8384,8 +8398,6 @@ function renderVideoGrid(){
    <div class="video-thumb">${thumb}<span class="play-badge">▶</span></div>
    <div class="video-card-body">
     <h3>${escapeHtml(v.title||'Untitled')}</h3>
-    <p>${escapeHtml(v.desc||'')}</p>
-    ${v.category?`<div class="vc-cat">${escapeHtml(v.category)}</div>`:''}
    </div>
   </article>`;
  }).join('');
@@ -8402,24 +8414,25 @@ function renderVideoGrid(){
    e.stopPropagation();
    if(confirm('Remove this video from your library?')) deleteOwnerVideo(btn.dataset.del);
    renderVideoGrid();
-   renderVideoCats(loadOwnerVideos());
   };
  });
 }
-function submitVideoAdd(e){
+async function submitVideoAdd(e){
  e.preventDefault();
  if(!isOwner) return;
- const title=document.getElementById('video-add-title').value.trim();
  const url=document.getElementById('video-add-url').value.trim();
- const category=document.getElementById('video-add-cat').value.trim();
- const desc=document.getElementById('video-add-desc').value.trim();
- if(!title||!url){alert('Title and URL are required.');return;}
+ let title=document.getElementById('video-add-title').value.trim();
+ if(!url){alert('Paste a video URL first.');return;}
  if(!parseVideoUrl(url)){alert('Unsupported URL. Use YouTube, Vimeo, or a direct .mp4 / .webm link.');return;}
- addOwnerVideo({id:Date.now().toString(36)+Math.random().toString(36).slice(2,7),title,url,category,desc,addedAt:new Date().toISOString()});
+ if(!title){
+  title=await fetchVideoTitleFromUrl(url);
+  if(!title) title=url.split('/').pop().split('?')[0]||'Untitled';
+ }
+ addOwnerVideo({id:Date.now().toString(36)+Math.random().toString(36).slice(2,7),title,url,addedAt:new Date().toISOString()});
  document.getElementById('video-add-form').reset();
+ delete document.getElementById('video-add-title').dataset.autoFilled;
  document.querySelector('.video-add').open=false;
  renderVideoGrid();
- renderVideoCats(loadOwnerVideos());
 }
 let videoPlatformBuilt=false;
 function buildVideoPlatform(){
@@ -8435,9 +8448,13 @@ function buildVideoPlatform(){
  if(!videoPlatformBuilt){
   document.getElementById('video-add-form').addEventListener('submit',submitVideoAdd);
   document.getElementById('video-search').addEventListener('input',e=>{videoSearchQuery=e.target.value;renderVideoGrid();});
+  const urlInput=document.getElementById('video-add-url');
+  const titleInput=document.getElementById('video-add-title');
+  urlInput.addEventListener('input',scheduleVideoTitleLookup);
+  urlInput.addEventListener('paste',()=>setTimeout(scheduleVideoTitleLookup,0));
+  titleInput.addEventListener('input',()=>{delete titleInput.dataset.autoFilled;});
   videoPlatformBuilt=true;
  }
- renderVideoCats(loadOwnerVideos());
  renderVideoGrid();
  if(videoPlayingId){
   const v=loadOwnerVideos().find(x=>x.id===videoPlayingId);
