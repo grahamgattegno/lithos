@@ -3085,9 +3085,9 @@
 
 <div class="view" id="view-poppy" hidden>
  <section class="poppy-wrap">
- <div class="eyebrow">Gem Factory — Horror Adventure</div>
+ <div class="eyebrow">Gem Factory — Crystal Adventure</div>
  <h1>Gem <em>Factory</em></h1>
- <p class="lede"><b>Gem Factory</b> — a desktop horror adventure. Built for keyboard + mouse — WASD or arrow keys to move, Space to grab, Shift to hide, click objects to interact. Sneak, grab, hide, and <b>RUN FOR YOUR LIFE</b> through 10 factory chapters.</p>
+ <p class="lede"><b>Gem Factory</b> — a desktop crystal-cavern adventure. Built for keyboard + mouse — WASD or arrow keys to move, Space to grab, Shift to hide, click objects to interact. Sneak, grab, hide, and <b>RUN</b> through 10 factory chapters.</p>
  <div class="poppy-char-preview" id="poppy-char-preview"></div>
  <div class="poppy-device" id="poppy-device"></div>
  <div class="poppy-grid" id="poppy-grid"></div>
@@ -10078,55 +10078,55 @@ const POPPY_CHAPTERS=[
   obstacles:[{id:'b1',x:28,type:'block'},{id:'b2',x:52,type:'block'},{id:'g1',x:82,type:'gate'}],
   props:[{id:'c1',x:20,type:'crate'},{id:'c2',x:44,type:'crate'},{id:'c3',x:66,type:'crate'},{id:'exit',x:92,type:'door',needs:3}],
   monster:{x:88,dir:-1,speed:1.4,range:18,name:'Gem Sentinel',type:'golem',sleeping:true}},
- {n:2,name:'Gem Golem Hall',emoji:'🗿',desc:'Crystal pillars. Hide from Golem.',decor:'hall',mode:'patrol',gore:true,
+ {n:2,name:'Gem Golem Hall',emoji:'🗿',desc:'Crystal pillars. Hide from Golem.',decor:'hall',mode:'patrol',gore:false,
   intro:'The GEM GOLEM patrols the hall — a towering sapphire brute. Crystal pillars block your path. Hide in pods when its facets glow, then slip past.',
   boss:{name:'Gem Golem',type:'golem',phases:2},
   obstacles:[{id:'p1',x:28,type:'block'},{id:'p2',x:52,type:'block'},{id:'p3',x:74,type:'block'}],
   props:[{id:'h1',x:22,type:'hide'},{id:'h2',x:48,type:'hide'},{id:'h3',x:70,type:'hide'},{id:'exit',x:93,type:'door',needs:0}],
   monster:{x:80,dir:-1,speed:1.5,range:16,name:'Gem Golem',type:'golem'}},
- {n:3,name:'Power Cavern',emoji:'⚡',desc:'Lasers, dark zones, Spark Golem.',decor:'power',mode:'explore',gore:true,
+ {n:3,name:'Power Cavern',emoji:'⚡',desc:'Lasers, dark zones, Spark Golem.',decor:'power',mode:'explore',gore:false,
   intro:'Total blackout. Spark arcs crackle in the dark. Flip crystal switches to restore power — but the SPARK GOLEM stirs when the grid comes alive…',
   boss:{name:'Spark Golem',type:'golem',phases:2},
   obstacles:[{id:'l1',x:32,type:'laser'},{id:'l2',x:55,type:'laser'},{id:'g1',x:72,type:'gate'}],
   props:[{id:'lev',x:36,type:'lever'},{id:'fuse',x:58,type:'lever',needsLever:true},{id:'exit',x:93,type:'door',needs:0}],
   monster:{x:8,dir:1,speed:1.8,range:14,name:'Spark Golem',type:'golem',sleeping:true}},
- {n:4,name:'Blood Geode Bay',emoji:'🔮',desc:'Gore shards. Stalker hunts.',decor:'storage',mode:'patrol',gore:true,
-  intro:'Crystal blood pools on the floor. Shattered geodes everywhere. Claw marks on the walls. The CRYSTAL STALKER hunts here — hide or be torn apart.',
+ {n:4,name:'Geode Bay',emoji:'🔮',desc:'Crystal shards. Stalker hunts.',decor:'storage',mode:'patrol',gore:false,
+  intro:'Shattered geodes glitter on the floor. Crystal dust hangs in the air. The CRYSTAL STALKER patrols here — hide in a pod when it gets close.',
   boss:{name:'Crystal Stalker',type:'stalker',phases:2},
   obstacles:[{id:'s1',x:26,type:'shard'},{id:'s2',x:44,type:'shard'},{id:'b1',x:58,type:'block'},{id:'s3',x:76,type:'shard'}],
   props:[{id:'h1',x:20,type:'hide'},{id:'h2',x:46,type:'hide'},{id:'h3',x:68,type:'hide'},{id:'exit',x:93,type:'door',needs:0}],
   monster:{x:14,dir:1,speed:1.7,range:16,name:'Crystal Stalker',type:'huggy'}},
- {n:5,name:'Vent Chase',emoji:'🕳️',desc:'Collapsing vents. Full chase.',decor:'vent',mode:'chase',gore:true,
-  intro:'CLANG CLANG CLANG! The GEM GOLEM tears through the vents! Collapsing crystal rubble blocks the path — RUN or be crushed!!!',
+ {n:5,name:'Vent Chase',emoji:'🕳️',desc:'Collapsing vents. Full chase.',decor:'vent',mode:'chase',gore:false,
+  intro:'CLANG CLANG CLANG! The GEM GOLEM tears through the vents! Collapsing crystal rubble everywhere — RUN to the vault!!!',
   boss:{name:'Gem Golem',type:'golem',phases:2},
   obstacles:[{id:'c1',x:35,type:'collapse'},{id:'c2',x:55,type:'collapse'},{id:'c3',x:72,type:'collapse'}],
   props:[{id:'exit',x:93,type:'door',needs:0}],
   monster:{x:2,speed:2.3,name:'Gem Golem',type:'golem'}},
- {n:6,name:'Experiment Pit',emoji:'🔬',desc:'4 nodes, lasers, Weaver boss.',decor:'lab',mode:'explore',gore:true,
-  intro:'Failed gem experiments drip crystal blood. Activate all 4 power nodes — gem lasers guard each one. The AMETHYST WEAVER is waking up…',
+ {n:6,name:'Experiment Pit',emoji:'🔬',desc:'4 nodes, lasers, Weaver boss.',decor:'lab',mode:'explore',gore:false,
+  intro:'Failed gem experiments flicker in the dark. Activate all 4 power nodes — gem lasers guard each one. The AMETHYST WEAVER is waking up…',
   boss:{name:'Amethyst Weaver',type:'weaver',phases:2},
   obstacles:[{id:'l1',x:26,type:'laser'},{id:'l2',x:42,type:'laser'},{id:'l3',x:58,type:'laser'},{id:'l4',x:74,type:'laser'}],
   props:[{id:'p1',x:22,type:'console'},{id:'p2',x:38,type:'console'},{id:'p3',x:54,type:'console'},{id:'p4',x:70,type:'console'},{id:'exit',x:93,type:'door',needs:4}]},
- {n:7,name:'Music Cavern',emoji:'🎵',desc:'Silence = death zones.',decor:'music',mode:'patrol',gore:true,
+ {n:7,name:'Music Cavern',emoji:'🎵',desc:'Silence = danger zones.',decor:'music',mode:'patrol',gore:false,
   intro:'Crystal harmonics fill the cavern… then SILENCE. When the music stops, danger zones activate. The AMETHYST WEAVER hunts in the quiet.',
   boss:{name:'Amethyst Weaver',type:'weaver',phases:2},
   obstacles:[{id:'l1',x:30,type:'laser'},{id:'l2',x:50,type:'laser'},{id:'l3',x:70,type:'laser'}],
   props:[{id:'h1',x:24,type:'hide'},{id:'h2',x:52,type:'hide'},{id:'h3',x:74,type:'hide'},{id:'exit',x:93,type:'door',needs:0}],
   monster:{x:78,dir:-1,speed:1.8,range:17,name:'Amethyst Weaver',type:'mommy',dance:true}},
- {n:8,name:'Loading Dock',emoji:'🚢',desc:'Gate timer. Crusher chase.',decor:'dock',mode:'chase',gore:true,gateTimer:50,
+ {n:8,name:'Loading Dock',emoji:'🚢',desc:'Gate timer. Crusher chase.',decor:'dock',mode:'chase',gore:false,gateTimer:50,
   intro:'FACTORY ALARM! The GEODE CRUSHER smashes through ore carts! A massive gate is CLOSING — sprint before it seals you in forever!!!',
   boss:{name:'Geode Crusher',type:'geode',phases:2},
   obstacles:[{id:'g1',x:85,type:'gate'}],
   props:[{id:'exit',x:93,type:'door',needs:0}],
   monster:{x:3,speed:2.5,name:'Geode Crusher',type:'boxy'}},
- {n:9,name:'Elevator Shaft',emoji:'🛗',desc:'Falling gems. Box climbs.',decor:'elevator',mode:'explore',gore:true,
+ {n:9,name:'Elevator Shaft',emoji:'🛗',desc:'Falling gems. Box climbs.',decor:'elevator',mode:'explore',gore:false,
   intro:'You hear it CLIMBING — crystal scraping on metal. Pull all 3 switches while dodging falling gem shards. Race up before the GEODE BOX catches you!',
   boss:{name:'Geode Box',type:'geode',phases:2},
   obstacles:[{id:'f1',x:34,type:'block'},{id:'f2',x:56,type:'block'},{id:'f3',x:78,type:'block'}],
   props:[{id:'s1',x:26,type:'lever'},{id:'s2',x:48,type:'lever'},{id:'s3',x:70,type:'lever'},{id:'exit',x:93,type:'door',needs:3}],
   monster:{x:6,dir:1,speed:1.6,range:12,name:'Geode Box',type:'boxy',climbing:true}},
- {n:10,name:'Crystal King',emoji:'👑',desc:'Ultimate boss. Run or die.',decor:'escape',mode:'chase',gore:true,
-  intro:'THE VAULT GATE. All obstacles. All horror. The CRYSTAL KING — massive, multi-faceted, merciless — hunts you at full speed. THIS IS THE END. RUN!!!',
+ {n:10,name:'Crystal King',emoji:'👑',desc:'Ultimate boss. Run!',decor:'escape',mode:'chase',gore:false,
+  intro:'THE VAULT GATE. Every obstacle. The CRYSTAL KING — massive, multi-faceted, merciless — hunts you at full speed. THIS IS THE END. RUN!!!',
   boss:{name:'Crystal King',type:'king',phases:3},
   obstacles:[{id:'b1',x:22,type:'block'},{id:'l1',x:38,type:'laser'},{id:'c1',x:52,type:'collapse'},{id:'s1',x:64,type:'shard'},{id:'l2',x:76,type:'laser'}],
   props:[{id:'exit',x:93,type:'door',needs:0}],
@@ -10502,12 +10502,7 @@ function ppPropHTML(p,s){
 function ppDecorHTML(c){
  const pipes=[12,35,58,78].map((p,i)=>`<div class="pp-pipe" style="left:${ppWorldScreen(p)};top:${14+i%2*4}%;width:${60+i*10}px"></div>`).join('');
  const sign=`<div class="pp-playtime-sign" style="left:${ppWorldScreen(50)}">GEM FACTORY</div>`;
- let gore='';
- if(c.gore){
-  gore=[22,38,55,72].map((p,i)=>`<div class="pp-blood pp-shard-${(i%2)+1}" style="left:${ppWorldScreen(p)}"></div>`).join('');
-  gore+=`<div class="pp-scratch" style="left:${ppWorldScreen(44)};bottom:36%"></div><div class="pp-gore-vignette"></div>`;
- }
- return sign+pipes+gore;
+ return sign+pipes;
 }
 function ppRenderWorld(){
  const g=ppGame,s=g.state,c=g.cfg;
@@ -10545,7 +10540,7 @@ function ppRenderWorld(){
   const left=Math.max(0,Math.ceil((g.gateCloseAt-Date.now())/1000));
   gateTimer=`<div class="pp-gate-timer">GATE ${left}s</div>`;
  }
- return `<div class="pp-world"><div class="pp-scene ${chasing?'chase':''} danger-${danger} pp-decor-${c.decor||'lobby'}${c.gore?' pp-gore':''}"><div class="pp-corridor"><div class="pp-corridor-bg"></div><div class="pp-spotlight"></div><div class="pp-fog"></div><div class="pp-grain"></div>${musicGlow}${chasePulse}${heartbeat}<div class="pp-scene-lights${tension>15||c.n>1?' flicker':''}"></div><div class="pp-ceiling"></div>${ppDecorHTML(c)}<div class="pp-hall"><div class="pp-wall left"></div><div class="pp-wall right"></div><div class="pp-back-wall"></div><div class="pp-floor"></div>${obstacles}${props}${monsterHTML}</div><div class="pp-player-shadow" style="left:50%"></div><div class="pp-player-wrap ${ppPlayerAnimClass()}">${ppPlayerHTML(ppPlayerSize(),ppPose())}</div>${grabHint}${whisper}${bossPhase}${gateTimer}<div class="pp-mood pp-mood-text-only">${ppMoodText()}</div>${fearBar}${chaseBar}<div class="pp-progress"><div class="pp-progress-fill" style="width:${Math.max(progPct,s.x)}%"></div></div><div class="pp-hud"><span class="pp-hud-pill">${c.name}</span><span class="pp-hud-pill">${chasing?'RUN — '+ppBossName():c.mode==='patrol'?'HIDE · SNEAK · RUN':'WALK · GRAB · EXPLORE'}</span></div></div></div></div>`;
+ return `<div class="pp-world"><div class="pp-scene ${chasing?'chase':''} danger-${danger} pp-decor-${c.decor||'lobby'}"><div class="pp-corridor"><div class="pp-corridor-bg"></div><div class="pp-spotlight"></div><div class="pp-fog"></div><div class="pp-grain"></div>${musicGlow}${chasePulse}${heartbeat}<div class="pp-scene-lights${tension>15||c.n>1?' flicker':''}"></div><div class="pp-ceiling"></div>${ppDecorHTML(c)}<div class="pp-hall"><div class="pp-wall left"></div><div class="pp-wall right"></div><div class="pp-back-wall"></div><div class="pp-floor"></div>${obstacles}${props}${monsterHTML}</div><div class="pp-player-shadow" style="left:50%"></div><div class="pp-player-wrap ${ppPlayerAnimClass()}">${ppPlayerHTML(ppPlayerSize(),ppPose())}</div>${grabHint}${whisper}${bossPhase}${gateTimer}<div class="pp-mood pp-mood-text-only">${ppMoodText()}</div>${fearBar}${chaseBar}<div class="pp-progress"><div class="pp-progress-fill" style="width:${Math.max(progPct,s.x)}%"></div></div><div class="pp-hud"><span class="pp-hud-pill">${c.name}</span><span class="pp-hud-pill">${chasing?'RUN — '+ppBossName():c.mode==='patrol'?'HIDE · SNEAK · RUN':'WALK · GRAB · EXPLORE'}</span></div></div></div></div>`;
 }
 function ppHold(dir,run,on){
  if(!ppGame)return;
@@ -10666,7 +10661,7 @@ function ppGameLoop(ts){
    if(haz){
     s.fear=Math.min(100,(s.fear||0)+0.4*dt);
     if(haz.type==='collapse'&&Math.random()<.02)ppGame.msg='⚠️ Crystal rubble — keep moving!';
-    else if(haz.type==='shard'&&Math.random()<.02)ppGame.msg='🩸 Sharp gem shards — watch your step!';
+    else if(haz.type==='shard'&&Math.random()<.02)ppGame.msg='💎 Loose crystal shards — watch your step!';
    }
   }
  }
@@ -10902,7 +10897,7 @@ function renderPoppyPlay(){
  }
  if(g.lost){
   const mtype=ppMonsterType(g.state?.monster,g.cfg);
-  scr.innerHTML=`<div class="pp-end pp-death-screen" style="padding:40px 20px;position:relative"><div class="pp-death-blood"></div>${ppMonsterHTML(mtype,true,100,true)}<div class="pp-death-title">YOU DIED</div><p class="pp-death-sub">${g.state?.monster?.name||'The toy'} got you.</p><p class="pp-msg">${g.msg}</p><button type="button" class="pp-btn wide" onclick="playPoppyChapter(${c.n})">Try Again</button><button type="button" class="pp-btn wide ghost" onclick="closePoppyPlay();switchView('poppy')">Quit</button></div>`;
+  scr.innerHTML=`<div class="pp-end" style="padding:40px 20px">${ppMonsterHTML(mtype,true,100,true)}<h2 style="color:#818cf8">Caught!</h2><p class="pp-death-sub">${g.state?.monster?.name||'The boss'} tagged you.</p><p class="pp-msg">${g.msg}</p><button type="button" class="pp-btn wide" onclick="playPoppyChapter(${c.n})">Try Again</button><button type="button" class="pp-btn wide ghost" onclick="closePoppyPlay();switchView('poppy')">Quit</button></div>`;
   return;
  }
  if(!g.shellBuilt){
