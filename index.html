@@ -10075,8 +10075,8 @@ const POPPY_CHAPTERS=[
  {n:1,name:'Crystal Entry',emoji:'💎',desc:'Blocks, shards, sentinel scare.',decor:'lobby',mode:'explore',gore:false,
   intro:'GEM FACTORY — Crystal Entry. Fallen gem crates block your path. Collect 3 shards from ore carts, then sprint to the vault before the GEM SENTINEL wakes…',
   boss:{name:'Gem Sentinel',type:'golem',phases:1},
-  obstacles:[{id:'b1',x:30,type:'block'},{id:'b2',x:50,type:'block'},{id:'g1',x:76,type:'gate'}],
-  props:[{id:'c1',x:18,type:'crate'},{id:'c2',x:42,type:'crate'},{id:'c3',x:64,type:'crate'},{id:'exit',x:90,type:'door',needs:3}],
+  obstacles:[{id:'b1',x:28,type:'block'},{id:'b2',x:52,type:'block'},{id:'g1',x:82,type:'gate'}],
+  props:[{id:'c1',x:20,type:'crate'},{id:'c2',x:44,type:'crate'},{id:'c3',x:66,type:'crate'},{id:'exit',x:92,type:'door',needs:3}],
   monster:{x:88,dir:-1,speed:1.4,range:18,name:'Gem Sentinel',type:'golem',sleeping:true}},
  {n:2,name:'Gem Golem Hall',emoji:'🗿',desc:'Crystal pillars. Hide from Golem.',decor:'hall',mode:'patrol',gore:true,
   intro:'The GEM GOLEM patrols the hall — a towering sapphire brute. Crystal pillars block your path. Hide in pods when its facets glow, then slip past.',
@@ -10415,10 +10415,19 @@ function ppOpenGates(){
 function ppBlockedAt(x){
  if(!ppGame?.cfg.obstacles)return false;
  return ppGame.cfg.obstacles.some(o=>{
-  if(o.type==='gate')return !o.open&&Math.abs(x-o.x)<5;
-  if(o.type==='block'||o.type==='collapse'||o.type==='shard')return Math.abs(x-o.x)<5;
+  /* Only closed vault gates hard-block — crystal pillars/rubble are visual hazards in 1D corridors */
+  if(o.type==='gate')return !o.open&&Math.abs(x-o.x)<6;
   return false;
  });
+}
+function ppObstacleHazard(x){
+ if(!ppGame?.cfg.obstacles)return null;
+ for(const o of ppGame.cfg.obstacles){
+  if(o.type==='block'||o.type==='collapse'||o.type==='shard'){
+   if(Math.abs(x-o.x)<7)return o;
+  }
+ }
+ return null;
 }
 function ppCheckLasers(){
  if(!ppGame?.cfg.obstacles)return;
@@ -10647,7 +10656,20 @@ function ppGameLoop(ts){
  let nx=s.x;
  if(ppGame.keys.left&&!s.crouch){nx=Math.max(5,s.x-spd*dt);s.pose=ppGame.keys.run||chasing?'run':'walk';moving=true;}
  if(ppGame.keys.right&&!s.crouch){nx=Math.min(96,s.x+spd*dt);s.pose=ppGame.keys.run||chasing?'run':'walk';moving=true;}
- if(nx!==s.x&&ppBlockedAt(nx))nx=s.x;
+ if(nx!==s.x){
+  if(ppBlockedAt(nx)){
+   nx=s.x;
+   const gate=ppGame.cfg.obstacles?.find(o=>o.type==='gate'&&!o.open);
+   if(gate&&Math.abs(s.x-gate.x)<10)ppGame.msg=ppCheckObjectiveDone()?'Vault gate opening…':'🔒 Vault gate locked — finish your objectives first!';
+  }else{
+   const haz=ppObstacleHazard(nx);
+   if(haz){
+    s.fear=Math.min(100,(s.fear||0)+0.4*dt);
+    if(haz.type==='collapse'&&Math.random()<.02)ppGame.msg='⚠️ Crystal rubble — keep moving!';
+    else if(haz.type==='shard'&&Math.random()<.02)ppGame.msg='🩸 Sharp gem shards — watch your step!';
+   }
+  }
+ }
  s.x=nx;
  if(!moving&&!s.crouch)s.pose='idle';
  if(chasing&&s.monster&&!s.monster.sleeping){
