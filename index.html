@@ -752,6 +752,9 @@
   .voice-toggle .voice-dot{width:8px;height:8px;border-radius:50%;background:var(--text-faint);flex-shrink:0}
   .voice-toggle.on .voice-dot{background:var(--ink)}
   .voice-hint{font-size:12px;line-height:1.45;color:var(--text-faint);margin:0;flex:1;min-width:180px}
+  .chat-upsell{margin-top:14px;padding:14px 16px;background:rgba(201,169,79,.08);border:1px solid rgba(201,169,79,.22);border-radius:8px;font-size:13.5px;line-height:1.55;color:var(--text-dim)}
+  .chat-upsell a{color:var(--gold);font-weight:500}
+  .chat-upsell strong{color:var(--text)}
   .voice-pick{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap}
   .voice-pick label{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-faint)}
   .voice-select{background:var(--panel);border:1px solid var(--line);color:var(--text);font-family:var(--sans);font-size:13px;padding:8px 10px;border-radius:8px;max-width:220px;cursor:pointer}
@@ -2707,7 +2710,7 @@
  <section class="class-ai" id="class-ai">
  <div class="eyebrow">Class Member Perk</div>
  <h2>AI <em>Rock Teacher</em></h2>
- <p class="lede">Ask geology questions grounded in the Lithos catalog — Mohs hardness, crystal systems, gem facts, and lesson topics. Unlocks after you buy a class or membership.</p>
+ <p class="lede">Ask geology questions grounded in the Lithos catalog — Mohs hardness, crystal systems, gem facts, and lesson topics. Unlocks after you buy a class or membership. <b>Gold</b> members get live Gemini AI + voice; Silver and class buyers get the deeper catalog teacher.</p>
 
  <div id="class-ai-locked" class="class-ai-lock">
  <div class="lock-ico">Locked · Members &amp; class buyers</div>
@@ -2723,19 +2726,20 @@
  <div class="chat" id="class-chat">
  <div class="msg bot" id="class-ai-welcome"><span class="ai-tag">Class member</span>Welcome! Ask about any gem in the catalog, Mohs hardness, crystal systems, birthstones, or how stones form.</div>
  </div>
- <div class="chat-voice-bar">
- <button type="button" class="voice-toggle" id="class-voice-toggle" aria-pressed="false" title="Speak Rock Teacher replies aloud">
- <span class="voice-dot" aria-hidden="true"></span>
- <span id="class-voice-label">Voice off</span>
- </button>
- <div class="voice-pick">
- <label for="class-voice-select">Voice</label>
- <select id="class-voice-select" class="lithos-voice-select" title="Pick who reads answers aloud"></select>
- <button type="button" class="voice-preview" id="class-voice-preview">Preview</button>
- <button type="button" class="voice-creepy lithos-voice-creepy" id="class-voice-creepy" title="Silly slow voice for fun at home — not recommended in class">Spooky</button>
+ <div class="chat-voice-bar" id="class-voice-gold" hidden>
+  <button type="button" class="voice-toggle" id="class-voice-toggle" aria-pressed="false" title="Speak Rock Teacher replies aloud">
+   <span class="voice-dot" aria-hidden="true"></span>
+   <span id="class-voice-label">Voice off</span>
+  </button>
+  <div class="voice-pick">
+   <label for="class-voice-select">Voice</label>
+   <select id="class-voice-select" class="lithos-voice-select" title="Pick who reads answers aloud"></select>
+   <button type="button" class="voice-preview" id="class-voice-preview">Preview</button>
+   <button type="button" class="voice-creepy lithos-voice-creepy" id="class-voice-creepy" title="Silly slow voice for fun at home — not recommended in class">Spooky</button>
+  </div>
+  <p class="voice-hint" id="class-voice-hint">Turn voice on to hear answers. Mic uses your browser’s speech recognition when available.</p>
  </div>
- <p class="voice-hint" id="class-voice-hint">Turn voice on to hear answers. Mic uses your browser’s speech recognition when available.</p>
- </div>
+ <p class="voice-hint" id="class-voice-silver-hint" hidden>Catalog teacher mode — full gem data, compare mode, and class lessons. Upgrade to <b>Gold</b> for live Gemini AI + voice readout.</p>
  <div class="chat-row">
  <input id="class-chat-input" type="text" placeholder="Ask the class Rock Teacher…" autocomplete="off">
  <button type="button" class="chat-mic" id="class-chat-mic" title="Speak your question" aria-label="Speak your question">Mic</button>
@@ -2774,22 +2778,12 @@
  <section class="teacher-wrap">
  <div class="eyebrow">Your Friendly Geology Helper</div>
  <h1>Ask the <em>Rock Teacher</em></h1>
- <p class="lede">Free helper for everyone — type a question about rocks, crystals, or gems. Class buyers unlock a smarter <b>AI Rock Teacher</b> on the Classes page.</p>
+ <p class="lede">Free quick helper — short answers from a built-in gem guide. Class members unlock a <b>deeper catalog teacher</b> (formulas, crystal systems, compare mode). <b>Gold</b> adds live Gemini AI + voice on the Classes page.</p>
  <div class="chat" id="chat">
- <div class="msg bot">Welcome. I'm the Rock Teacher — ask about any gem in the catalog, how stones form, hardness, colour, or rarity, and I'll answer with clear facts.</div>
+  <div class="msg bot">Welcome! I’m the free Rock Teacher — good for quick questions about gems, hardness, and how stones form. For compare mode, full catalog data, class lessons, live AI, and voice, see <a href="#memberships" onclick="switchView('memberships');return false;" style="color:var(--gold)">memberships</a>.</div>
  </div>
- <div class="chat-voice-bar">
- <button type="button" class="voice-toggle" id="teacher-voice-toggle" aria-pressed="false" title="Speak Rock Teacher replies aloud">
- <span class="voice-dot" aria-hidden="true"></span>
- <span id="teacher-voice-label">Voice off</span>
- </button>
- <div class="voice-pick">
- <label for="teacher-voice-select">Voice</label>
- <select id="teacher-voice-select" class="lithos-voice-select" title="Pick who reads answers aloud"></select>
- <button type="button" class="voice-preview" id="teacher-voice-preview">Preview</button>
- <button type="button" class="voice-creepy lithos-voice-creepy" id="teacher-voice-creepy" title="Silly slow voice for fun at home — not recommended in class">Spooky</button>
- </div>
- <p class="voice-hint">Same voice setting as the class Rock Teacher. Pick a ★ voice for class — save Spooky for fun at home. Answers are read one sentence at a time.</p>
+ <div class="chat-upsell">
+  <strong>What’s free vs paid?</strong> This page = fast keyword answers. Class/Silver = full catalog teacher + member lesson tips. Gold = live Gemini AI that reads answers aloud and ties into your lessons.
  </div>
  <div class="chat-row">
  <input id="chat-input" type="text" placeholder="Type your question here…" autocomplete="off">
@@ -3053,7 +3047,7 @@
  <div class="mem-line">Home plan: <s>$90</s> <b>$67.50</b></div>
  <ul class="mem-list">
  <li>25% off Teacher &amp; Home class plans</li>
- <li>AI Rock Teacher (catalog answers)</li>
+ <li>Deep catalog Rock Teacher (formulas, compare, crystal systems)</li>
  <li>Class lessons track</li>
  <li>Silver badge on feedback</li>
  <li>Cancel anytime</li>
@@ -4294,22 +4288,29 @@ function speakLithosReply(text){
 }
 function syncVoiceToggleUI(){
  loadVoicePref();
- [['class-voice-toggle','class-voice-label'],['teacher-voice-toggle','teacher-voice-label']].forEach(([btnId,labelId])=>{
- const btn=document.getElementById(btnId);
- const label=document.getElementById(labelId);
- if(!btn) return;
+ const btn=document.getElementById('class-voice-toggle');
+ const label=document.getElementById('class-voice-label');
+ if(btn){
  btn.classList.toggle('on', lithosVoiceOn);
  btn.setAttribute('aria-pressed', lithosVoiceOn?'true':'false');
  if(label) label.textContent=lithosVoiceOn?'Voice on':'Voice off';
- });
+ }
  const hint=document.getElementById('class-voice-hint');
  if(hint){
  const ttsOk=!!window.speechSynthesis;
  const sttOk=!!(window.SpeechRecognition||window.webkitSpeechRecognition);
  if(!ttsOk) hint.textContent='Voice readout isn’t available in this browser.';
  else if(!sttOk) hint.textContent='Voice reads answers slowly, one sentence at a time. Pick a ★ clear voice for class — save Spooky for fun at home. Mic needs Chrome or Edge.';
- else hint.textContent='Voice reads answers slowly and clearly. Pick a ★ voice for class. Mic fills the box, then sends.';
+ else hint.textContent='Gold perk: voice reads answers slowly and clearly. Pick a ★ voice for class. Mic fills the box, then sends.';
  }
+}
+function syncClassVoicePerks(){
+ const goldWrap=document.getElementById('class-voice-gold');
+ const silverHint=document.getElementById('class-voice-silver-hint');
+ const gold=isGoldMember()&&hasClassAccess();
+ if(goldWrap) goldWrap.hidden=!gold;
+ if(silverHint) silverHint.hidden=gold||!hasClassAccess();
+ if(!gold) stopLithosSpeech();
 }
 function setLithosVoiceOn(on){
  if(!on) stopLithosSpeech();
@@ -4380,8 +4381,8 @@ function wireChatMic(micId, inputId, onDone){
 function initLithosVoiceUI(){
  loadVoicePref();
  syncVoiceToggleUI();
+ syncClassVoicePerks();
  wireVoiceToggle('class-voice-toggle');
- wireVoiceToggle('teacher-voice-toggle');
  document.querySelectorAll('.lithos-voice-select').forEach(sel=>{
  if(sel.dataset.voicePickWired) return;
  sel.dataset.voicePickWired='1';
@@ -4392,7 +4393,7 @@ function initLithosVoiceUI(){
  });
  });
  });
- ['class-voice-preview','teacher-voice-preview'].forEach(id=>{
+ ['class-voice-preview'].forEach(id=>{
  const btn=document.getElementById(id);
  if(!btn||btn.dataset.previewWired) return;
  btn.dataset.previewWired='1';
@@ -4413,7 +4414,6 @@ function initLithosVoiceUI(){
 /* ---------- Rock Teacher chat ---------- */
 let teacherBuilt=false;
 let teacherBusy=false;
-const teacherAiHistory=[];
 function buildTeacher(){
  const chips=document.getElementById('chat-chips');
  const samples=["How do diamonds form?","What is the hardest gem?","Tell me about rubies","Which gem is the rarest?","Why is amethyst purple?","What's your favorite gem?","What are birthstones?","What is a crystal?"];
@@ -4499,33 +4499,13 @@ async function sendChat(){
  const inp=document.getElementById('chat-input');
  const q=inp.value.trim();
  if(!q) return;
- stopLithosSpeech();
  addMsg(q,'user');
  inp.value='';
  teacherBusy=true;
- const cfg=getAiConfig();
- let thinking=null;
  try{
- let answer;
- if(cfg.key){
- thinking=addMsg('Thinking…','bot');
- try{
- answer=await classAiApiAnswer(q, teacherAiHistory);
- teacherAiHistory.push({role:'user',content:q});
- teacherAiHistory.push({role:'assistant',content:answer});
- }catch(err){
- answer=rockTeacherAnswer(q);
- }
- if(thinking&&thinking.parentNode){
- thinking.textContent=answer;
- thinking.classList.remove('thinking');
- }else addMsg(answer,'bot');
- }else{
  await new Promise(r=>setTimeout(r,350));
- answer=rockTeacherAnswer(q);
+ const answer=rockTeacherAnswer(q);
  addMsg(answer,'bot');
- }
- speakLithosReply(answer);
  }finally{
  teacherBusy=false;
  }
@@ -4599,14 +4579,16 @@ function updateClassAiMode(){
  const el=document.getElementById('class-ai-mode');
  if(!el) return;
  const cfg=getAiConfig();
- if(!cfg.key){
- el.innerHTML='Mode: <b>Local catalog teacher</b>';
+ if(isGoldMember()&&cfg.key){
+ const label=cfg.resolved==='gemini'?'Gemini':'OpenAI-compatible';
+ el.innerHTML='Mode: <b>Gold · Live AI</b> ('+label+') + voice · full catalog context & class lessons';
  return;
  }
- const label=cfg.resolved==='gemini'?'Gemini':'OpenAI-compatible';
- let html='Mode: <b>Live AI</b> ('+label+') · falls back to local teacher if the API fails';
- if(isGoldMember()) html+=' · <b>Gold perks</b> (voice + live AI)';
- el.innerHTML=html;
+ if(hasClassAccess()){
+ el.innerHTML='Mode: <b>Catalog teacher</b> — formulas, crystal systems, compare mode, lesson tips. <a href="#memberships" onclick="switchView(\'memberships\');return false;" style="color:var(--gold)">Upgrade to Gold</a> for live AI + voice.';
+ return;
+ }
+ el.innerHTML='Mode: <b>Locked</b>';
 }
 function markClassCheckoutPending(plan){
  const p=plan||'class';
@@ -4641,7 +4623,7 @@ function refreshClassAI(){
  open.hidden=!unlocked;
  if(unlocked){
  if(!classAiBuilt){ buildClassAI(); classAiBuilt=true; }
- else updateClassAiMode();
+ else{ updateClassAiMode(); syncClassVoicePerks(); }
  }else{
  try{
  if(localStorage.getItem(CLASS_CHECKOUT_PENDING)){
@@ -4666,15 +4648,16 @@ function buildClassAI(){
  }catch(e){}
  updateClassAiMode();
  initLithosVoiceUI();
+ syncClassVoicePerks();
  wireChatMic('class-chat-mic','class-chat-input',sendClassChat);
  const welcome=document.getElementById('class-ai-welcome');
  if(welcome){
  if(isGoldMember()){
- welcome.innerHTML='<span class="ai-tag">Gold member</span>Welcome, Gold member! You’ve got <b>live Gemini AI</b>, voice chat turned on, class lessons with member tips, and early access to new content. Ask me anything about gems, Mohs, crystal systems, or your lessons.';
+ welcome.innerHTML='<span class="ai-tag">Gold member</span>Welcome! You’ve got <b>live Gemini AI</b>, voice readout, class lessons with member tips, and full catalog context. Ask me to compare gems, quiz you, or tie an answer to a lesson.';
  }else if(isSilverMember()){
- welcome.innerHTML='<span class="ai-tag">Silver member</span>Welcome, Silver member! Ask about gems in the catalog, Mohs hardness, crystal systems, and how stones form. Upgrade to Gold for live AI, voice, and half-off classes.';
+ welcome.innerHTML='<span class="ai-tag">Silver member</span>Welcome! You’ve got the <b>deep catalog teacher</b> — formulas, crystal systems, compare mode, and class lessons. Upgrade to Gold for live AI + voice.';
  }else{
- welcome.innerHTML='<span class="ai-tag">Class member</span>Welcome! Ask about any gem in the catalog, Mohs hardness, crystal systems, birthstones, or how stones form.';
+ welcome.innerHTML='<span class="ai-tag">Class member</span>Welcome! You’ve got the <b>deep catalog teacher</b> — full gem data, compare mode, and lesson tips. Gold members also get live AI + voice.';
  }
  }
 }
@@ -4807,6 +4790,66 @@ function catalogContextForAI(q){
  }
  return bits.join('\n');
 }
+function lessonContextForAI(){
+ return LESSONS.map((l,i)=>`Lesson ${i+1}: ${l.title} — ${l.sub}`).join('\n');
+}
+function classAiSystemPrompt(premium){
+ let system='You are the Lithos AI Rock Teacher for kids and budding geologists. Tone: warm, clear, curious — never condescending. Use catalog facts when provided. Write in short, plain sentences that are easy to understand when read aloud — avoid chemical formulas, abbreviations, and emoji. Say "Mohs seven" not "Mohs 7". Stay on geology, gems, minerals, hardness, crystal systems, and class topics. If unsure, say so and suggest looking in the Lithos catalog.';
+ if(premium){
+ system+=`\n\nYou are the PREMIUM Gold tutor — noticeably deeper than the free helper. Class lessons:\n${lessonContextForAI()}\n\nWhen helpful: tie answers to lesson topics, offer quick quiz-style follow-ups, compare gems in clear side-by-side structure, and suggest specific catalog gems to explore next.`;
+ }
+ return system;
+}
+async function classAiApiAnswer(q, history, opts){
+ const cfg=getAiConfig();
+ if(!cfg.key) return null;
+ const premium=!!(opts&&opts.premium);
+ const system=classAiSystemPrompt(premium);
+ const context=catalogContextForAI(q);
+ if(cfg.resolved==='gemini') return classAiGeminiAnswer(q, cfg, system, context, history);
+ return classAiOpenAIAnswer(q, cfg, system, context, history);
+}
+async function sendClassChat(){
+ if(classAiBusy||!hasClassAccess()) return;
+ const inp=document.getElementById('class-chat-input');
+ const q=inp.value.trim();
+ if(!q) return;
+ stopLithosSpeech();
+ inp.value='';
+ addClassMsg(q,'user');
+ classAiHistory.push({role:'user',content:q});
+ classAiBusy=true;
+ const cfg=getAiConfig();
+ const goldLive=isGoldMember()&&!!cfg.key;
+ let thinking=null;
+ if(goldLive){
+ thinking=addClassMsg('Thinking…','bot thinking');
+ thinking.classList.add('thinking');
+ }
+ try{
+ let answer=null;
+ let tag='Catalog teacher';
+ if(goldLive){
+ try{
+ answer=await classAiApiAnswer(q, classAiHistory, {premium:true});
+ tag='Gold · Live AI';
+ }catch(err){
+ answer=classLocalAnswer(q)+` (Live AI unavailable — used catalog teacher. ${String(err.message||err).slice(0,80)})`;
+ tag='Catalog fallback';
+ }
+ }else{
+ await new Promise(r=>setTimeout(r,280));
+ answer=classLocalAnswer(q);
+ tag=isSilverMember()?'Silver · Catalog teacher':'Class · Catalog teacher';
+ }
+ if(thinking) thinking.remove();
+ addClassMsg(answer,'bot',tag);
+ classAiHistory.push({role:'assistant',content:answer});
+ if(isGoldMember()) speakLithosReply(answer);
+ }finally{
+ classAiBusy=false;
+ }
+}
 async function classAiGeminiAnswer(q, cfg, system, context, history){
  const preferred=cfg.model.replace(/^models\//,'');
  let base=cfg.base.replace(/\/$/,'');
@@ -4895,53 +4938,6 @@ async function classAiOpenAIAnswer(q, cfg, system, context, history){
  const text=data.choices&&data.choices[0]&&data.choices[0].message&&data.choices[0].message.content;
  if(!text) throw new Error('Empty API response');
  return text.trim();
-}
-async function classAiApiAnswer(q, history){
- const cfg=getAiConfig();
- if(!cfg.key) return null;
- const system=`You are the Lithos AI Rock Teacher for kids and budding geologists. Tone: warm, clear, curious — never condescending. Use catalog facts when provided. Write in short, plain sentences that are easy to understand when read aloud — avoid chemical formulas, abbreviations, and emoji. Say "Mohs seven" not "Mohs 7". Stay on geology, gems, minerals, hardness, crystal systems, and class topics. If unsure, say so and suggest looking in the Lithos catalog.`;
- const context=catalogContextForAI(q);
- if(cfg.resolved==='gemini') return classAiGeminiAnswer(q, cfg, system, context, history);
- return classAiOpenAIAnswer(q, cfg, system, context, history);
-}
-async function sendClassChat(){
- if(classAiBusy||!hasClassAccess()) return;
- const inp=document.getElementById('class-chat-input');
- const q=inp.value.trim();
- if(!q) return;
- stopLithosSpeech();
- inp.value='';
- addClassMsg(q,'user');
- classAiHistory.push({role:'user',content:q});
- classAiBusy=true;
- const cfg=getAiConfig();
- let thinking=null;
- if(cfg.key){
- thinking=addClassMsg('Thinking…','bot thinking');
- thinking.classList.add('thinking');
- }
- try{
- let answer=null;
- let tag='Local Rock Teacher';
- if(cfg.key){
- try{
- answer=await classAiApiAnswer(q, classAiHistory);
- tag=cfg.resolved==='gemini'?'Live AI · Gemini':'Live AI';
- }catch(err){
- answer=classLocalAnswer(q)+` (API unavailable — used local teacher. ${String(err.message||err).slice(0,80)})`;
- tag='Local fallback';
- }
- }else{
- await new Promise(r=>setTimeout(r,280));
- answer=classLocalAnswer(q);
- }
- if(thinking) thinking.remove();
- addClassMsg(answer,'bot',tag);
- classAiHistory.push({role:'assistant',content:answer});
- speakLithosReply(answer);
- }finally{
- classAiBusy=false;
- }
 }
 // Checkout → pending unlock; unlock button; wire once
 (function initClassAccessUI(){
