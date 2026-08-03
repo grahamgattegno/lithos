@@ -1246,6 +1246,10 @@
   .poppy-device-btn:hover{border-color:#ff4d8d;transform:translateY(-2px)}
   .poppy-device-btn.active{border-color:#ff4d8d;background:rgba(255,77,141,.12);box-shadow:0 0 0 1px rgba(255,77,141,.25) inset}
   .poppy-device-hint{font-size:12px;line-height:1.5;color:var(--text-dim);margin:12px 0 0}
+  .poppy-reset{text-align:center;margin:20px auto 0;max-width:420px}
+  .poppy-reset-btn{background:transparent;border:1px solid rgba(255,100,100,.35);color:#ff8080;border-radius:10px;padding:12px 20px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;touch-action:manipulation}
+  .poppy-reset-btn:hover{border-color:#ff6080;background:rgba(255,80,80,.08)}
+  .poppy-reset-msg{font-size:12px;color:#3fa34d;margin-top:10px;min-height:18px}
   .pp-keys{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:12px auto 0;max-width:360px}
   .pp-keys span{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;background:rgba(255,77,141,.12);border:1px solid rgba(255,120,180,.25);padding:8px 10px;border-radius:8px;color:#ffb8d4}
   @media (min-width:768px){
@@ -2974,6 +2978,7 @@
  <div class="poppy-char-preview" id="poppy-char-preview"></div>
  <div class="poppy-device" id="poppy-device"></div>
  <div class="poppy-grid" id="poppy-grid"></div>
+ <div class="poppy-reset" id="poppy-reset"></div>
  </section>
 </div><!-- /view-poppy -->
 
@@ -9952,6 +9957,14 @@ const POPPY_CHAPTERS=[
 let ppGame=null;
 function poppyUnlockLevel(){try{return Math.max(1,parseInt(localStorage.getItem(POPPY_KEY)||'1',10)||1);}catch(_){return 1;}}
 function poppySaveLevel(n){try{localStorage.setItem(POPPY_KEY,String(Math.max(poppyUnlockLevel(),n)));}catch(_){}}
+function poppyResetProgress(){
+ if(!confirm('Reset all chapter progress? This cannot be undone.'))return;
+ try{localStorage.setItem(POPPY_KEY,'1');}catch(_){}
+ closePoppyPlay();
+ buildPoppyHub();
+ const msg=document.getElementById('poppy-reset-msg');
+ if(msg){msg.textContent='Progress reset — Chapter 1 unlocked.';setTimeout(()=>{if(msg)msg.textContent='';},4000);}
+}
 function ppPlayerHTML(size,pose){
  size=size||96;pose=pose||'idle';
  const cls=['pp-rplayer',pose].filter(Boolean).join(' ');
@@ -10405,6 +10418,11 @@ function buildPoppyHub(){
   return `<button type="button" class="poppy-ch${locked?' locked':''}${done?' done':''}" data-ch="${ch.n}" ${locked?'disabled':''}><span class="ch-badge">${done?'✓':locked?'🔒':''}</span><div class="ch-num">Chapter ${ch.n}</div><div class="ch-emoji">${ch.emoji}</div><div class="ch-name">${ch.name}</div><div class="ch-desc">${ch.desc}</div></button>`;
  }).join('');
  grid.querySelectorAll('.poppy-ch:not(.locked)').forEach(btn=>{btn.onclick=()=>playPoppyChapter(+btn.dataset.ch);});
+ const reset=document.getElementById('poppy-reset');
+ if(reset){
+  reset.innerHTML=`<button type="button" class="poppy-reset-btn" id="poppy-reset-btn">Restart Progress</button><p class="poppy-reset-msg" id="poppy-reset-msg"></p>`;
+  document.getElementById('poppy-reset-btn').onclick=poppyResetProgress;
+ }
 }
 function closePoppyPlay(){
  ppStopLoop();
