@@ -1267,7 +1267,10 @@
   .poppy-ch{
     background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 14px;
     text-align:center;cursor:pointer;transition:transform .15s,border-color .15s;position:relative;
+    touch-action:manipulation;-webkit-tap-highlight-color:rgba(255,77,141,.2);
+    font:inherit;color:inherit;width:100%;appearance:none;-webkit-appearance:none;
   }
+  .poppy-ch:not(.locked):active{transform:scale(.98);border-color:#ff4d8d}
   .poppy-ch:hover:not(.locked){transform:translateY(-3px);border-color:#ff4d8d}
   .poppy-ch.locked{opacity:.45;cursor:not-allowed}
   .poppy-ch.done{border-color:#3fa34d}
@@ -3578,6 +3581,7 @@ function switchView(name){
  const gemHunt=name==='gemhunt';
  if(gemHunt) name='battlefield';
  if(!views[name])name='catalog';
+ closePoppyPlay();
  Object.entries(views).forEach(([k,el])=>el.hidden=(k!==name));
  navBtns.forEach(b=>b.classList.toggle('on',b.dataset.view===(gemHunt?'gemhunt':name)));
  syncMobileNav(gemHunt?'gemhunt':name);
@@ -9956,6 +9960,32 @@ const POPPY_CHAPTERS=[
 ];
 let ppGame=null;
 function poppyUnlockLevel(){try{return Math.max(1,parseInt(localStorage.getItem(POPPY_KEY)||'1',10)||1);}catch(_){return 1;}}
+function poppyFrontierChapter(){
+ const u=poppyUnlockLevel();
+ return u>POPPY_CHAPTERS.length?1:u;
+}
+function poppyHubActive(){return views.poppy&&!views.poppy.hidden&&!ppGame&&!document.getElementById('poppyplay');}
+function poppyPickChapter(btn){
+ if(!btn||btn.classList.contains('locked')||btn.disabled)return;
+ const n=+btn.dataset.ch;
+ if(n>=1&&n<=POPPY_CHAPTERS.length)playPoppyChapter(n);
+}
+let poppyGridBound=false;
+function bindPoppyGrid(){
+ const grid=document.getElementById('poppy-grid');
+ if(!grid||poppyGridBound)return;
+ poppyGridBound=true;
+ grid.addEventListener('click',e=>{
+  const btn=e.target.closest('.poppy-ch');
+  if(!btn||!grid.contains(btn))return;
+  poppyPickChapter(btn);
+ });
+ grid.addEventListener('keydown',e=>{
+  if(e.key!=='Enter'&&e.key!==' ')return;
+  const btn=e.target.closest('.poppy-ch');
+  if(btn)poppyPickChapter(btn);
+ });
+}
 function poppySaveLevel(n){try{localStorage.setItem(POPPY_KEY,String(Math.max(poppyUnlockLevel(),n)));}catch(_){}}
 function poppyResetProgress(){
  if(!confirm('Reset all chapter progress? This cannot be undone.'))return;
@@ -10408,7 +10438,7 @@ function buildPoppyHub(){
  if(prev)prev.innerHTML=ppPlayerHTML(110,'idle');
  if(dev){
   const mode=ppDeviceMode();
-  dev.innerHTML=`<div class="poppy-device-label">How are you playing?</div><div class="poppy-device-btns"><button type="button" class="poppy-device-btn${mode==='mobile'?' active':''}" data-device="mobile">Mobile (touch)</button><button type="button" class="poppy-device-btn${mode==='computer'?' active':''}" data-device="computer">Computer (keyboard)</button></div><p class="poppy-device-hint">${mode==='mobile'?'Use the on-screen D-pad to walk, grab, hide, and run.':'Use arrow keys / WASD, Space to grab, Shift to hide, Shift+→ to run. Click objects too!'}</p>`;
+  dev.innerHTML=`<div class="poppy-device-label">How are you playing?</div><div class="poppy-device-btns"><button type="button" class="poppy-device-btn${mode==='mobile'?' active':''}" data-device="mobile">Mobile (touch)</button><button type="button" class="poppy-device-btn${mode==='computer'?' active':''}" data-device="computer">Computer (keyboard)</button></div><p class="poppy-device-hint">${mode==='mobile'?'Tap a chapter to play.':'Use arrow keys / WASD, Space to grab, Shift to hide, Shift+→ to run. Click objects too!'} Press <b>S</b> to start your current chapter.</p>`;
   dev.querySelectorAll('[data-device]').forEach(btn=>{btn.onclick=()=>setPoppyDevice(btn.dataset.device);});
  }
  if(!grid)return;
@@ -10417,7 +10447,7 @@ function buildPoppyHub(){
   const locked=ch.n>unlock,done=ch.n<unlock;
   return `<button type="button" class="poppy-ch${locked?' locked':''}${done?' done':''}" data-ch="${ch.n}" ${locked?'disabled':''}><span class="ch-badge">${done?'✓':locked?'🔒':''}</span><div class="ch-num">Chapter ${ch.n}</div><div class="ch-emoji">${ch.emoji}</div><div class="ch-name">${ch.name}</div><div class="ch-desc">${ch.desc}</div></button>`;
  }).join('');
- grid.querySelectorAll('.poppy-ch:not(.locked)').forEach(btn=>{btn.onclick=()=>playPoppyChapter(+btn.dataset.ch);});
+ bindPoppyGrid();
  const reset=document.getElementById('poppy-reset');
  if(reset){
   reset.innerHTML=`<button type="button" class="poppy-reset-btn" id="poppy-reset-btn">Restart Progress</button><p class="poppy-reset-msg" id="poppy-reset-msg"></p>`;
@@ -10452,6 +10482,13 @@ function playPoppyChapter(n){
  document.addEventListener('keyup',ppOnKeyUp);
  renderPoppyPlay();
 }
+document.addEventListener('keydown',e=>{
+ if(e.key!=='s'&&e.key!=='S')return;
+ if(!poppyHubActive())return;
+ if(e.target.closest('input,textarea,select,[contenteditable]'))return;
+ e.preventDefault();
+ playPoppyChapter(poppyFrontierChapter());
+});
 function ppStartChapter(){
  if(!ppGame)return;
  ppGame.intro=false;
