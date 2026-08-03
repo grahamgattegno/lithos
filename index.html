@@ -3335,7 +3335,7 @@
   <div class="video-channel-box">
    <label class="fb-label" for="video-channel-add-input">Add a YouTube channel</label>
    <div class="video-ch-add-row">
-    <input id="video-channel-add-input" type="text" placeholder="clawquest or Claw Quest" autocomplete="off">
+    <input id="video-channel-add-input" type="text" placeholder="papajake, Papa Jake, clawquest…" autocomplete="off">
     <button type="button" id="video-channel-add-btn">Add channel</button>
    </div>
    <div class="video-channel-status" id="video-channel-status" aria-live="polite"></div>
@@ -9130,9 +9130,38 @@ const BATTLE_PARTS=[
 const VIDEO_STORAGE_KEY='lithos_owner_videos_v1';
 const OWNER_CHANNELS_KEY='lithos_owner_channels_v1';
 const OWNER_ACTIVE_CHANNEL_KEY='lithos_owner_active_channel';
-const CLAWQUEST_CHANNEL_ID='UCGfY_UIx0l-tJs_4ob0ODLg';
+const CLAWQUEST_CHANNEL_ID='UCLS1ahNPeY5iGSI7PzzZdRQ';
 const DEFAULT_OWNER_CHANNELS=[{handle:'clawquest',name:'Claw Quest',id:CLAWQUEST_CHANNEL_ID}];
+const INLINE_CHANNEL_INDEX=[
+ {handle:'clawquest',id:CLAWQUEST_CHANNEL_ID,name:'Claw Quest'},
+ {handle:'papajake',id:'UCX6DIOG8Pm4xZ8MKZZ3Uv3w',name:'Papa Jake'}
+];
 const CHANNEL_PAGE_SIZE=30;
+let youtubeChannelIndex=null;
+async function loadYouTubeChannelIndex(){
+ if(youtubeChannelIndex) return youtubeChannelIndex;
+ try{
+  const res=await fetch('data/youtube-channel-index.json');
+  if(res.ok) youtubeChannelIndex=await res.json();
+ }catch(_){}
+ if(!Array.isArray(youtubeChannelIndex)) youtubeChannelIndex=[];
+ return youtubeChannelIndex;
+}
+function lookupChannelIndex(query){
+ const h=normalizeChannelHandle(query);
+ if(!h) return null;
+ const pools=[...(youtubeChannelIndex||[]),...INLINE_CHANNEL_INDEX];
+ return pools.find(c=>{
+  const ch=normalizeChannelHandle(c.handle);
+  const nm=normalizeChannelHandle(c.name);
+  return ch===h||nm===h;
+ })||null;
+}
+async function fetchRssChannelVideos(channelId){
+ const xml=await proxyFetchText('https://www.youtube.com/feeds/videos.xml?channel_id='+encodeURIComponent(channelId),12000);
+ const parsed=parseYouTubeRss(xml);
+ return parsed;
+}
 let videoSearchQuery='';
 let videoPlayingId=null;
 let videoTitleFetchTimer=null;
@@ -9142,7 +9171,21 @@ function loadOwnerChannels(){
   const raw=localStorage.getItem(OWNER_CHANNELS_KEY);
   if(raw){
    const list=JSON.parse(raw);
-   if(Array.isArray(list)&&list.length) return list;
+   if(Array.isArray(list)&&list.length){
+    let migrated=false;
+    const fixed=list.map(c=>{
+     const handle=normalizeChannelHandle(c.handle||c.name);
+     let entry={...c,handle:handle||c.handle};
+     if(handle==='clawquest'&&entry.id!==CLAWQUEST_CHANNEL_ID){
+      migrated=true;
+      entry={...entry,id:CLAWQUEST_CHANNEL_ID,name:entry.name||'Claw Quest'};
+     }
+     if(handle&&handle!==c.handle) migrated=true;
+     return entry;
+    });
+    if(migrated) saveOwnerChannels(fixed);
+    return fixed;
+   }
   }
  }catch(_){}
  return DEFAULT_OWNER_CHANNELS.map(c=>({...c}));
@@ -9151,7 +9194,12 @@ function saveOwnerChannels(list){
  try{localStorage.setItem(OWNER_CHANNELS_KEY,JSON.stringify(list));}catch(_){}
 }
 function loadActiveChannelHandle(){
- try{return localStorage.getItem(OWNER_ACTIVE_CHANNEL_KEY)||'';}catch(_){return '';}
+ try{
+  const raw=localStorage.getItem(OWNER_ACTIVE_CHANNEL_KEY)||'';
+  const h=normalizeChannelHandle(raw);
+  if(raw&&h&&h!==raw) saveActiveChannelHandle(h);
+  return h||raw;
+ }catch(_){return '';}
 }
 function saveActiveChannelHandle(handle){
  try{
@@ -9159,7 +9207,7 @@ function saveActiveChannelHandle(handle){
   else localStorage.removeItem(OWNER_ACTIVE_CHANNEL_KEY);
  }catch(_){}
 }
-function normalizeChannelHandle(h){return String(h||'').trim().replace(/^@/,'').toLowerCase();}
+function normalizeChannelHandle(h){return String(h||'').trim().replace(/^@/,'').replace(/\s+/g,'').toLowerCase();}
 async function loadClawQuestVideoCatalog(){
  try{
   const res=await fetch('data/claw-quest-videos.json');
@@ -9326,26 +9374,149 @@ function renderVideoGrid(){
   };
  });
 }
-const INVIDIOUS_HOSTS=[
- 'https://inv.nadeko.net',
- 'https://yewtu.be',
- 'https://inv.tux.pizza',
- 'https://invidious.nerdvpn.de'
+const INVIDIOUS_HOSTS=['https://inv.nadeko.net','https://yewtu.be'];
+const PIPED_HOSTS=['https://pipedapi.kavin.rocks','https://pipedapi.syncpundit.io'];
+const CORS_PROXY_PREFIXES=[
+ url=>'https://api.allorigins.win/raw?url='+encodeURIComponent(url),
+ url=>'https://corsproxy.io/?'+encodeURIComponent(url)
 ];
-let channelBrowse={id:null,handle:'',name:'',avatar:'',videos:[],page:0,hasMore:true,loading:false,localCatalog:null};
+const CORS_PROXY=(url)=>CORS_PROXY_PREFIXES[0](url);
+const API_TIMEOUT_MS=3500;
+const PROXY_TIMEOUT_MS=12000;
+let channelBrowse={id:null,handle:'',name:'',avatar:'',videos:[],page:0,hasMore:true,loading:false,localCatalog:null,scrapedCatalog:null,loadSource:''};
+async function apiFetchJson(url,timeoutMs=API_TIMEOUT_MS){
+ const ctrl=new AbortController();
+ const t=setTimeout(()=>ctrl.abort(),timeoutMs);
+ try{
+  const r=await fetch(url,{signal:ctrl.signal});
+  clearTimeout(t);
+  if(r.ok) return await r.json();
+  throw new Error('HTTP '+r.status);
+ }catch(e){clearTimeout(t);throw e;}
+}
+async function proxyFetchText(url,timeoutMs=PROXY_TIMEOUT_MS){
+ let lastErr=null;
+ for(const prefix of CORS_PROXY_PREFIXES){
+  const ctrl=new AbortController();
+  const t=setTimeout(()=>ctrl.abort(),timeoutMs);
+  try{
+   const r=await fetch(prefix(url),{signal:ctrl.signal});
+   clearTimeout(t);
+   if(!r.ok) throw new Error('HTTP '+r.status);
+   const text=await r.text();
+   if(!text||text.length<40||/Endpoint disabled/i.test(text)) throw new Error('Empty or blocked proxy response');
+   return text;
+  }catch(e){clearTimeout(t);lastErr=e;}
+ }
+ try{
+  const ctrl=new AbortController();
+  const t=setTimeout(()=>ctrl.abort(),timeoutMs);
+  const r=await fetch('https://api.allorigins.win/get?url='+encodeURIComponent(url),{signal:ctrl.signal});
+  clearTimeout(t);
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  const j=await r.json();
+  const text=j&&j.contents?String(j.contents):'';
+  if(text.length<40) throw new Error('Empty get proxy response');
+  return text;
+ }catch(e){lastErr=e;}
+ throw lastErr||new Error('Proxy fetch failed');
+}
+async function scrapeChannelVideos(channelId,handle){
+ const h=normalizeChannelHandle(handle);
+ const urls=[
+  'https://www.youtube.com/channel/'+encodeURIComponent(channelId)+'/videos',
+  h?'https://www.youtube.com/@'+encodeURIComponent(h)+'/videos':null
+ ].filter(Boolean);
+ for(const url of urls){
+  try{
+   const html=await proxyFetchText(url);
+   const videos=scrapeVideosFromChannelHtml(html);
+   if(videos.length) return videos;
+  }catch(_){}
+ }
+ return [];
+}
 async function invidiousFetch(path){
  let lastErr=null;
  for(const host of INVIDIOUS_HOSTS){
-  try{
-   const ctrl=new AbortController();
-   const t=setTimeout(()=>ctrl.abort(),9000);
-   const r=await fetch(host+path,{signal:ctrl.signal});
-   clearTimeout(t);
-   if(r.ok) return await r.json();
-   lastErr=new Error('HTTP '+r.status);
-  }catch(e){lastErr=e;}
+  try{return await apiFetchJson(host+path);}catch(e){lastErr=e;}
  }
- throw lastErr||new Error('Could not load channel');
+ throw lastErr||new Error('Invidious unavailable');
+}
+async function pipedFetch(path){
+ let lastErr=null;
+ for(const host of PIPED_HOSTS){
+  try{return await apiFetchJson(host+path);}catch(e){lastErr=e;}
+ }
+ throw lastErr||new Error('Piped unavailable');
+}
+function parseYouTubeRss(xml){
+ const videos=[];
+ let channelName='';
+ const titleM=xml.match(/<feed[^>]*>[\s\S]*?<title>([^<]+)<\/title>/);
+ if(titleM) channelName=titleM[1].replace(/ - YouTube$/,'').trim();
+ for(const entry of xml.match(/<entry>[\s\S]*?<\/entry>/g)||[]){
+  const videoId=(entry.match(/<yt:videoId>([^<]+)/)||[])[1];
+  const title=(entry.match(/<entry>[\s\S]*?<title>([^<]+)<\/title>/)||[])[1];
+  const published=(entry.match(/<published>([^<]+)/)||[])[1]||'';
+  if(!videoId) continue;
+  videos.push({videoId,title:title||'Untitled',published,thumb:`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,url:`https://www.youtube.com/watch?v=${videoId}`});
+ }
+ return {channelName,videos};
+}
+function scrapeChannelIdsFromHtml(html,handleHint){
+ const hint=normalizeChannelHandle(handleHint||'');
+ const ids=[...html.matchAll(/"channelId":"(UC[\w-]{22})"/g)].map(m=>m[1]);
+ const uniq=[...new Set(ids)];
+ if(!uniq.length) return null;
+ if(hint){
+  for(const m of html.matchAll(/"channelId":"(UC[\w-]{22})"[\s\S]{0,1200}?"text":"((?:\\.|[^"\\])*)"/g)){
+   const id=m[1], name=normalizeChannelHandle(m[2].replace(/\\u[\da-fA-F]{4}/g,c=>String.fromCharCode(parseInt(c.slice(2),16))).replace(/\\"/g,'"'));
+   if(name===hint||name.includes(hint)||hint.includes(name)) return id;
+  }
+  for(const m of html.matchAll(/"text":"((?:\\.|[^"\\])*)"/g)){
+   const name=normalizeChannelHandle(m[1].replace(/\\u[\da-fA-F]{4}/g,c=>String.fromCharCode(parseInt(c.slice(2),16))).replace(/\\"/g,'"'));
+   if(name===hint||name.includes(hint)||hint.includes(name)){
+    const slice=html.slice(Math.max(0,m.index-400),m.index+400);
+    const id=(slice.match(/"channelId":"(UC[\w-]{22})"/)||[])[1];
+    if(id) return id;
+   }
+  }
+  const handleRe=new RegExp('@'+hint.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'i');
+  if(handleRe.test(html)){
+   for(const id of uniq){if(html.includes('"channelId":"'+id+'"')) return id;}
+  }
+ }
+ return uniq[0];
+}
+function scrapeVideosFromChannelHtml(html){
+ const seen=new Set();
+ const videos=[];
+ const titleById=new Map();
+ for(const m of html.matchAll(/"title":\{"runs":\[\{"text":"((?:\\.|[^"\\])*)"\}/g)){
+  const t=m[1].replace(/\\u[\da-fA-F]{4}/g,c=>String.fromCharCode(parseInt(c.slice(2),16))).replace(/\\"/g,'"');
+  if(t.length>3&&t.length<200&&!/keyboard shortcuts|playback|general|subtitles/i.test(t)) titleById.set(t,t);
+ }
+ for(const m of html.matchAll(/"videoId":"([\w-]{11})"/g)){
+  const videoId=m[1];
+  if(seen.has(videoId)) continue;
+  seen.add(videoId);
+  videos.push({videoId,title:'Video '+videoId,thumb:`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,url:`https://www.youtube.com/watch?v=${videoId}`,published:''});
+ }
+ const titleMatches=[...html.matchAll(/"text":"((?:\\.|[^"\\]){5,120})"\}[^\]]{0,80}"watchEndpoint":\{"videoId":"([\w-]{11})"/g)];
+ for(const m of titleMatches){
+  const title=m[1].replace(/\\u[\da-fA-F]{4}/g,c=>String.fromCharCode(parseInt(c.slice(2),16))).replace(/\\"/g,'"');
+  const v=videos.find(x=>x.videoId===m[2]);
+  if(v&&title) v.title=title;
+ }
+ return videos;
+}
+async function fetchChannelMetaFromRss(channelId){
+ try{
+  const xml=await proxyFetchText('https://www.youtube.com/feeds/videos.xml?channel_id='+encodeURIComponent(channelId));
+  const parsed=parseYouTubeRss(xml);
+  return {name:parsed.channelName||'',avatar:''};
+ }catch(_){return {name:'',avatar:''};}
 }
 function parseChannelQuery(raw){
  const q=(raw||'').trim();
@@ -9358,47 +9529,101 @@ function parseChannelQuery(raw){
  if(m) return {kind:'search',value:m[1]};
  if(q.startsWith('@')) return {kind:'handle',value:q.slice(1)};
  if(/^UC[\w-]{10,}$/.test(q)) return {kind:'id',value:q};
- if(/^[\w.-]+$/.test(q)) return {kind:'handle',value:q};
- return {kind:'search',value:q.replace(/^@/,'')};
+ if(/^[\w.\s-]+$/.test(q)) return {kind:'handle',value:q.replace(/\s+/g,'')};
+ return {kind:'search',value:q.replace(/^@/,'').replace(/\s+/g,'')};
 }
 async function resolveYouTubeChannel(parsed){
- if(parsed.kind==='handle'&&normalizeChannelHandle(parsed.value)==='clawquest'){
+ await loadYouTubeChannelIndex();
+ const queryRaw=parsed.value||'';
+ const handleHint=normalizeChannelHandle(parsed.kind==='handle'?parsed.value:queryRaw);
+ if(handleHint==='clawquest'){
   return {id:CLAWQUEST_CHANNEL_ID,name:'Claw Quest',avatar:'',handle:'clawquest'};
  }
+ const indexed=lookupChannelIndex(handleHint||queryRaw);
+ if(indexed) return {id:indexed.id,name:indexed.name||handleHint,avatar:'',handle:normalizeChannelHandle(indexed.handle)};
  if(parsed.kind==='id'){
-  const info=await invidiousFetch(`/api/v1/channels/${encodeURIComponent(parsed.value)}`);
-  return {id:info.authorId||parsed.value,name:info.author||parsed.value,avatar:(info.authorThumbnails||[]).slice(-1)[0]?.url||'',handle:normalizeChannelHandle(info.authorId||'')};
- }
- if(parsed.kind==='handle'){
   try{
-   const info=await invidiousFetch(`/api/v1/channels/@${encodeURIComponent(parsed.value)}`);
-   return {id:info.authorId,name:info.author,avatar:(info.authorThumbnails||[]).slice(-1)[0]?.url||'',handle:normalizeChannelHandle(parsed.value)};
+   const info=await invidiousFetch('/api/v1/channels/'+encodeURIComponent(parsed.value));
+   return {id:info.authorId||parsed.value,name:info.author||parsed.value,avatar:(info.authorThumbnails||[]).slice(-1)[0]?.url||'',handle:normalizeChannelHandle(info.author||parsed.value)};
   }catch(_){
-   if(normalizeChannelHandle(parsed.value)==='clawquest'){
-    return {id:CLAWQUEST_CHANNEL_ID,name:'Claw Quest',avatar:'',handle:'clawquest'};
-   }
+   const meta=await fetchChannelMetaFromRss(parsed.value);
+   return {id:parsed.value,name:meta.name||parsed.value,avatar:'',handle:normalizeChannelHandle(meta.name||parsed.value)};
   }
  }
+ if(parsed.kind==='handle'){
+  const saved=loadOwnerChannels().find(c=>normalizeChannelHandle(c.handle)===handleHint);
+  if(saved&&saved.id){
+   const id=handleHint==='clawquest'?CLAWQUEST_CHANNEL_ID:saved.id;
+   return {id,name:saved.name||handleHint,avatar:'',handle:handleHint};
+  }
+  try{
+   const html=await proxyFetchText('https://www.youtube.com/@'+encodeURIComponent(parsed.value));
+   const channelId=scrapeChannelIdsFromHtml(html,parsed.value);
+   if(channelId){
+    const meta=await fetchChannelMetaFromRss(channelId);
+    return {id:channelId,name:meta.name||parsed.value,avatar:'',handle:handleHint};
+   }
+  }catch(_){}
+  try{
+   const info=await pipedFetch('/c/'+encodeURIComponent(parsed.value));
+   if(info.id) return {id:info.id,name:info.name||parsed.value,avatar:info.avatarUrl||'',handle:handleHint};
+  }catch(_){}
+  try{
+   const html=await proxyFetchText('https://www.youtube.com/results?search_query='+encodeURIComponent(parsed.value)+'&sp=EgIQAg%3D%3D');
+   const channelId=scrapeChannelIdsFromHtml(html,parsed.value);
+   if(channelId){
+    const meta=await fetchChannelMetaFromRss(channelId);
+    return {id:channelId,name:meta.name||parsed.value,avatar:'',handle:handleHint};
+   }
+  }catch(_){}
+  try{
+   const info=await invidiousFetch('/api/v1/channels/@'+encodeURIComponent(parsed.value));
+   return {id:info.authorId,name:info.author,avatar:(info.authorThumbnails||[]).slice(-1)[0]?.url||'',handle:handleHint};
+  }catch(_){}
+ }
  const q=parsed.kind==='handle'?('@'+parsed.value):parsed.value;
- const results=await invidiousFetch(`/api/v1/search?q=${encodeURIComponent(q)}&type=channel`);
- const ch=(Array.isArray(results)?results:[]).find(r=>r.type==='channel');
- if(!ch) throw new Error('Channel not found — try clawquest or the channel name');
- return {id:ch.authorId,name:ch.author||q,avatar:(ch.authorThumbnails||[]).slice(-1)[0]?.url||'',handle:normalizeChannelHandle(ch.author||q)};
+ try{
+  const html=await proxyFetchText('https://www.youtube.com/results?search_query='+encodeURIComponent(q)+'&sp=EgIQAg%3D%3D');
+  const channelId=scrapeChannelIdsFromHtml(html,q);
+  if(channelId){
+   const meta=await fetchChannelMetaFromRss(channelId);
+   return {id:channelId,name:meta.name||q,avatar:'',handle:handleHint||normalizeChannelHandle(meta.name||q)};
+  }
+ }catch(_){}
+ try{
+  const results=await invidiousFetch('/api/v1/search?q='+encodeURIComponent(q)+'&type=channel');
+  const ch=(Array.isArray(results)?results:[]).find(r=>r.type==='channel');
+  if(ch) return {id:ch.authorId,name:ch.author||q,avatar:(ch.authorThumbnails||[]).slice(-1)[0]?.url||'',handle:handleHint||normalizeChannelHandle(ch.author||q)};
+ }catch(_){}
+ throw new Error('Channel not found — try the @handle or paste a /channel/UC… link');
 }
 async function fetchYouTubeChannelPage(channelId,page,handle){
  const h=normalizeChannelHandle(handle);
- try{
-  const data=await invidiousFetch(`/api/v1/channels/${encodeURIComponent(channelId)}/videos?page=${page}&sort_by=newest`);
-  return mapChannelVideos(Array.isArray(data)?data:(data.videos||[]));
- }catch(err){
-  if(h==='clawquest'||channelId===CLAWQUEST_CHANNEL_ID){
-   if(!channelBrowse.localCatalog) channelBrowse.localCatalog=await loadClawQuestVideoCatalog();
-   const batch=mapJsonVideos(channelBrowse.localCatalog,(page-1)*CHANNEL_PAGE_SIZE,CHANNEL_PAGE_SIZE);
-   if(!batch.length) throw err;
-   return batch;
-  }
-  throw err;
+ const isClaw=h==='clawquest'||channelId===CLAWQUEST_CHANNEL_ID;
+ if(isClaw){
+  if(!channelBrowse.localCatalog) channelBrowse.localCatalog=await loadClawQuestVideoCatalog();
+  const batch=mapJsonVideos(channelBrowse.localCatalog||[],(page-1)*CHANNEL_PAGE_SIZE,CHANNEL_PAGE_SIZE);
+  if(batch.length){channelBrowse.loadSource='catalog';return batch;}
  }
+ if(page===1&&!channelBrowse.scrapedCatalog){
+  channelBrowse.scrapedCatalog=await scrapeChannelVideos(channelId,h);
+ }
+ if(channelBrowse.scrapedCatalog&&channelBrowse.scrapedCatalog.length){
+  channelBrowse.loadSource='scrape';
+  const start=(page-1)*CHANNEL_PAGE_SIZE;
+  return channelBrowse.scrapedCatalog.slice(start,start+CHANNEL_PAGE_SIZE);
+ }
+ if(page===1){
+  try{
+   const parsed=await fetchRssChannelVideos(channelId);
+   if(parsed.videos.length){
+    channelBrowse.loadSource='rss';
+    if(parsed.channelName) channelBrowse.name=channelBrowse.name||parsed.channelName;
+    return parsed.videos;
+   }
+  }catch(_){}
+ }
+ return [];
 }
 function renderSavedChannels(){
  const wrap=document.getElementById('video-channels-saved');
@@ -9427,10 +9652,15 @@ function upsertOwnerChannel(entry){
  const handle=normalizeChannelHandle(entry.handle||entry.name);
  if(!handle) return;
  const list=loadOwnerChannels();
- if(!list.some(c=>normalizeChannelHandle(c.handle)===handle)){
-  list.push({handle,name:entry.name||handle,id:entry.id||''});
+ const idx=list.findIndex(c=>normalizeChannelHandle(c.handle)===handle);
+ if(idx>=0){
+  if(entry.id) list[idx].id=entry.id;
+  if(entry.name) list[idx].name=entry.name;
   saveOwnerChannels(list);
+  return;
  }
+ list.push({handle,name:entry.name||handle,id:entry.id||''});
+ saveOwnerChannels(list);
 }
 function removeOwnerChannel(handle){
  const h=normalizeChannelHandle(handle);
@@ -9523,13 +9753,18 @@ async function exploreYouTubeChannel(page=1,handleOverride){
  try{
   if(page===1){
    let ch=null;
-   if(saved&&saved.id){
-    ch={id:saved.id,name:saved.name||handle,avatar:'',handle};
+   const indexed=lookupChannelIndex(handle);
+   if(indexed){
+    ch={id:indexed.id,name:indexed.name||handle,avatar:'',handle:normalizeChannelHandle(indexed.handle)};
+    upsertOwnerChannel(ch);
+   }else if(saved&&saved.id){
+    const id=handle==='clawquest'?CLAWQUEST_CHANNEL_ID:saved.id;
+    ch={id,name:saved.name||handle,avatar:'',handle};
    }else{
     ch=await resolveYouTubeChannel(parsed);
     upsertOwnerChannel(ch);
    }
-   channelBrowse={id:ch.id,handle:ch.handle||handle,name:ch.name,avatar:ch.avatar||'',videos:[],page:0,hasMore:true,loading:true,localCatalog:null};
+   channelBrowse={id:ch.id,handle:ch.handle||handle,name:ch.name,avatar:ch.avatar||'',videos:[],page:0,hasMore:true,loading:true,localCatalog:null,scrapedCatalog:null,loadSource:''};
    activeChannelHandle=ch.handle||handle;
    saveActiveChannelHandle(activeChannelHandle);
    renderSavedChannels();
@@ -9540,13 +9775,28 @@ async function exploreYouTubeChannel(page=1,handleOverride){
   if(page===1) channelBrowse.videos=batch;
   else channelBrowse.videos=channelBrowse.videos.concat(batch);
   channelBrowse.page=page;
-  channelBrowse.hasMore=batch.length>=CHANNEL_PAGE_SIZE;
+  if(channelBrowse.loadSource==='rss') channelBrowse.hasMore=false;
+  else if(channelBrowse.loadSource==='scrape') channelBrowse.hasMore=channelBrowse.scrapedCatalog&&channelBrowse.videos.length<channelBrowse.scrapedCatalog.length;
+  else if(channelBrowse.loadSource==='catalog') channelBrowse.hasMore=channelBrowse.videos.length<(channelBrowse.localCatalog||[]).length;
+  else channelBrowse.hasMore=batch.length>=CHANNEL_PAGE_SIZE;
   renderChannelGrid();
-  setChannelStatus(`${channelBrowse.videos.length} video${channelBrowse.videos.length===1?'':'s'} from ${channelBrowse.name}`);
-  if(page===1&&channelBrowse.videos.length) document.getElementById('video-channel-grid')?.scrollIntoView({behavior:'smooth',block:'nearest'});
+  if(channelBrowse.videos.length){
+   const src=channelBrowse.loadSource==='rss'?' (latest via YouTube feed)':channelBrowse.loadSource==='scrape'?' (via YouTube)':channelBrowse.loadSource==='catalog'?' (full catalog)':'';
+   setChannelStatus(`${channelBrowse.videos.length} video${channelBrowse.videos.length===1?'':'s'} from ${channelBrowse.name}${src}`);
+   if(page===1) document.getElementById('video-channel-grid')?.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }else{
+   const ytUrl=channelBrowse.handle?`https://www.youtube.com/@${encodeURIComponent(channelBrowse.handle)}`:`https://www.youtube.com/channel/${encodeURIComponent(channelBrowse.id)}`;
+   setChannelStatus(`Could not load videos here — open ${channelBrowse.name} on YouTube`,true);
+   const grid=document.getElementById('video-channel-grid');
+   if(grid) grid.innerHTML=`<div class="video-empty">Videos could not load in Lithos right now. <a href="${escapeHtml(ytUrl)}" target="_blank" rel="noopener noreferrer" style="color:#9b7bff">Watch on YouTube ↗</a></div>`;
+  }
  }catch(err){
-  setChannelStatus((err&&err.message)||'Could not load that channel. Try clawquest or another channel name.',true);
-  if(page===1){channelBrowse={id:null,handle:'',name:'',avatar:'',videos:[],page:0,hasMore:true,loading:false,localCatalog:null};renderChannelHead();renderChannelGrid();}
+  if(page===1&&channelBrowse.id&&channelBrowse.videos.length){
+   setChannelStatus(`${channelBrowse.videos.length} video${channelBrowse.videos.length===1?'':'s'} from ${channelBrowse.name} — could not load more`);
+  }else{
+   setChannelStatus((err&&err.message)||'Could not load that channel. Try clawquest or another channel name.',true);
+   if(page===1){channelBrowse={id:null,handle:'',name:'',avatar:'',videos:[],page:0,hasMore:true,loading:false,localCatalog:null,scrapedCatalog:null,loadSource:''};renderChannelHead();renderChannelGrid();}
+  }
  }finally{
   channelBrowse.loading=false;
   if(goBtn) goBtn.disabled=false;
@@ -9591,6 +9841,7 @@ function buildVideoPlatform(){
  if(locked) locked.hidden=true;
  if(platform) platform.hidden=false;
  if(!videoPlatformBuilt){
+  loadYouTubeChannelIndex();
   document.getElementById('video-add-form').addEventListener('submit',submitVideoAdd);
   document.getElementById('video-search').addEventListener('input',e=>{videoSearchQuery=e.target.value;renderVideoGrid();});
   const urlInput=document.getElementById('video-add-url');
