@@ -1378,6 +1378,37 @@
   .pp-chase-bar{height:100%;background:linear-gradient(90deg,#ff0040,#ff6080);transition:width .15s}
   .pp-footprint{position:absolute;bottom:30%;font-size:18px;opacity:.25;pointer-events:none;animation:ppFadePrint 2s ease-out forwards}
   @keyframes ppFadePrint{to{opacity:0;transform:translateY(-10px)}}
+  .pp-corridor{position:absolute;inset:0;overflow:hidden}
+  .pp-corridor-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 30%,rgba(255,100,160,.08),transparent 70%)}
+  .pp-ceiling{position:absolute;left:-10%;right:-10%;top:0;height:22%;background:linear-gradient(180deg,#1a1424,#0a0810);border-bottom:2px solid rgba(255,77,141,.1)}
+  .pp-pipe{position:absolute;height:8px;background:linear-gradient(180deg,#4a5060,#2a3040);border-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,.4)}
+  .pp-obj{position:absolute;transform:translateX(-50%);z-index:3;cursor:pointer;touch-action:manipulation;border:none;background:none;padding:0;transition:filter .15s}
+  .pp-obj.glow{filter:drop-shadow(0 0 14px rgba(255,77,141,.9))}
+  .pp-obj-crate{width:clamp(40px,11vw,56px);height:clamp(36px,9vw,48px);background:linear-gradient(165deg,#7a5840 0%,#4a3828 40%,#2a2018 100%);border:2px solid #5a4838;border-radius:5px;box-shadow:0 10px 20px rgba(0,0,0,.55),inset 0 2px 0 rgba(255,255,255,.08)}
+  .pp-obj-crate::after{content:'';position:absolute;left:15%;right:15%;top:40%;height:3px;background:rgba(0,0,0,.3);border-radius:2px}
+  .pp-obj-locker{width:clamp(32px,9vw,44px);height:clamp(64px,18vw,88px);background:linear-gradient(90deg,#4a5060,#2a3040 50%,#3a4050);border:2px solid #6a7080;border-radius:4px;box-shadow:0 8px 18px rgba(0,0,0,.5)}
+  .pp-obj-locker::before{content:'';position:absolute;right:6px;top:50%;width:6px;height:6px;background:#888;border-radius:50%}
+  .pp-obj-door{width:clamp(44px,12vw,60px);height:clamp(76px,20vw,100px);background:linear-gradient(180deg,#3a2838,#1a1018);border:3px solid #ff4d8d;border-radius:6px 6px 0 0;box-shadow:0 0 20px rgba(255,77,141,.3),inset 0 0 30px rgba(0,0,0,.5)}
+  .pp-obj-door.locked{border-color:#4a4058;box-shadow:none;opacity:.5}
+  .pp-obj-console{width:clamp(36px,10vw,50px);height:clamp(48px,12vw,64px);background:linear-gradient(180deg,#1a3040,#0a1820);border:2px solid #4a8090;border-radius:4px;box-shadow:0 0 12px rgba(80,180,200,.2)}
+  .pp-obj-console::after{content:'';position:absolute;left:20%;top:25%;width:60%;height:8px;background:#3fa34d;border-radius:2px;box-shadow:0 0 8px #3fa34d}
+  .pp-obj-console.done::after{background:#666;box-shadow:none}
+  .pp-obj-lever{width:clamp(28px,8vw,38px);height:clamp(52px,14vw,68px);background:linear-gradient(180deg,#3a3848,#1a1820);border:2px solid #5a5868;border-radius:4px}
+  .pp-obj-lever::before{content:'';position:absolute;top:8px;left:50%;transform:translateX(-50%);width:8px;height:28px;background:#ff4d8d;border-radius:4px}
+  .pp-obj-label{position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:8px;letter-spacing:.08em;color:#ffb8d4;white-space:nowrap;text-transform:uppercase}
+  .pp-player-wrap{position:absolute;left:50%;bottom:8%;transform:translateX(-50%);z-index:5;will-change:transform}
+  .pp-floor{position:absolute;left:-30%;right:-30%;bottom:0;height:52%;transform:rotateX(62deg);transform-origin:bottom;
+    background:linear-gradient(180deg,#221a2a,#0a0810);
+    background-image:repeating-linear-gradient(90deg,rgba(255,100,160,.09) 0 64px,transparent 64px 128px),
+      repeating-linear-gradient(0deg,rgba(255,100,160,.06) 0 64px,transparent 64px 128px);
+    box-shadow:0 -30px 80px rgba(255,77,141,.06) inset}
+  .pp-wall.left,.pp-wall.right{bottom:14%;height:66%}
+  .pp-back-wall{bottom:24%;height:48%;transition:opacity .2s}
+  .pp-dpad button.pp-hold-active{background:rgba(255,77,141,.45)!important;transform:scale(.95)}
+  .pp-progress{position:absolute;top:46px;left:10px;right:10px;z-index:6;height:5px;background:rgba(0,0,0,.5);border-radius:999px;overflow:hidden}
+  .pp-progress-fill{height:100%;background:linear-gradient(90deg,#ff4d8d,#ff7eb3);transition:width .3s}
+  .pp-toast{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10;font-family:var(--mono);font-size:13px;background:rgba(0,0,0,.75);border:1px solid rgba(255,77,141,.4);padding:10px 18px;border-radius:10px;color:#ffb8d4;pointer-events:none;animation:ppToast .8s ease-out forwards}
+  @keyframes ppToast{0%{opacity:0;transform:translate(-50%,-40%)}15%{opacity:1}85%{opacity:1}100%{opacity:0;transform:translate(-50%,-60%)}}
 
   /* ===== NIGHT SHIFT AT THE GEM FACTORY ===== */
   #nightshift{position:fixed;inset:0;z-index:9999;background:#0a0a10;display:flex;align-items:center;justify-content:center;padding:12px}
@@ -2759,7 +2790,7 @@
  <section class="poppy-wrap">
  <div class="eyebrow">Toy Factory Horror Adventure</div>
  <h1>Poppy <em>Playtime</em></h1>
- <p class="lede">Enter the abandoned toy factory. <b>Hide. Grab. Run.</b> Something hunts you in every room — survive all <b>10 chapters</b> or don't survive at all.</p>
+ <p class="lede">Walk through the toy factory in <b>3rd person</b> — your character stays on screen, the world scrolls around you. Grab items, hide from toys, run for the exit. <b>10 chapters.</b></p>
  <div class="poppy-char-preview" id="poppy-char-preview"></div>
  <div class="poppy-device" id="poppy-device"></div>
  <div class="poppy-grid" id="poppy-grid"></div>
@@ -9727,18 +9758,33 @@ if(!hasEmeraldGift()) setTimeout(()=>grantEmeraldGuardianGift(), 900);
 const POPPY_KEY='lithos_poppy_progress_v1';
 const POPPY_DEVICE_KEY='lithos_poppy_device_v1';
 const POPPY_CHAPTERS=[
- {n:1,name:'The Lobby',emoji:'🏭',desc:'Grab parts… something is watching.',decor:'lobby',mode:'explore',intro:'The factory is DEAD silent. Grab 3 toy parts — fast. You feel watched…',props:[{id:'c1',x:24,type:'crate',item:true},{id:'c2',x:46,type:'crate',item:true,jumpscare:true},{id:'c3',x:68,type:'crate',item:true,jumpscare:true},{id:'exit',x:93,type:'door',needs:3}],scareAt:2},
- {n:2,name:'Toy Hall',emoji:'🧸',desc:'It patrols. Hide or die.',decor:'hall',mode:'patrol',intro:'FOOTSTEPS. Something MASSIVE walks these halls. Hide in lockers or it WILL see you.',props:[{id:'h1',x:30,type:'hide'},{id:'h2',x:58,type:'hide'},{id:'exit',x:93,type:'door',needs:0}],monster:{x:82,dir:-1,speed:2.2,range:22,name:'Stuffy',alert:false}},
- {n:3,name:'Power Room',emoji:'⚡',desc:'Dark. Pull levers. Don\'t stop.',decor:'power',mode:'explore',intro:'Total blackout. Restore power — something screams in the vents when the lights flicker…',props:[{id:'lev',x:38,type:'lever'},{id:'fuse',x:62,type:'lever',needsLever:true,jumpscare:true},{id:'exit',x:93,type:'door',needs:0}],scareAt:1,monster:{x:5,speed:2.5,name:'Stuffy'}},
- {n:4,name:'Storage Bay',emoji:'📦',desc:'Two toys. Zero mercy.',decor:'storage',mode:'patrol',intro:'They hunt in pairs now. Stay in the shadows. RUN if they spot you.',props:[{id:'h1',x:22,type:'hide'},{id:'h2',x:48,type:'hide'},{id:'h3',x:72,type:'hide'},{id:'exit',x:93,type:'door',needs:0}],monster:{x:15,dir:1,speed:2.6,range:20,name:'Stuffy'},monster2:{x:70,dir:-1,speed:2.3,range:18,name:'Stuffy'}},
- {n:5,name:'Vent Shaft',emoji:'🕳️',desc:'CLAWED. RUN. NOW.',decor:'vent',mode:'chase',intro:'IT FOUND YOU. Claws on metal. RUN RUN RUN — don\'t you DARE look back!',props:[{id:'exit',x:93,type:'door',needs:0}],monster:{x:2,speed:3.8,name:'Stuffy'}},
- {n:6,name:'The Lab',emoji:'🔬',desc:'Activate consoles. It wakes up.',decor:'lab',mode:'explore',intro:'Each console you activate… it groans louder. Activate all 4 and RUN.',props:[{id:'p1',x:22,type:'console'},{id:'p2',x:38,type:'console',jumpscare:true},{id:'p3',x:54,type:'console'},{id:'p4',x:70,type:'console',jumpscare:true},{id:'exit',x:93,type:'door',needs:4}],scareAt:3,monster:{x:4,speed:3,name:'Stuffy'}},
- {n:7,name:'Music Room',emoji:'🎵',desc:'It dances. Then it HUNTS.',decor:'music',mode:'patrol',intro:'Music plays by itself. When it STOPS — hide. When it turns — you\'re dead.',props:[{id:'h1',x:35,type:'hide'},{id:'h2',x:65,type:'hide'},{id:'exit',x:93,type:'door',needs:0}],monster:{x:75,dir:-1,speed:2.8,range:26,name:'Stuffy',dance:true}},
- {n:8,name:'Loading Dock',emoji:'🚢',desc:'Door closing. Sprint or die.',decor:'dock',mode:'chase',intro:'ALARM BLARING. The dock door is SLAMMING shut. SPRINT!',props:[{id:'exit',x:93,type:'door',needs:0}],monster:{x:5,speed:4.2,name:'Stuffy'}},
- {n:9,name:'Elevator Shaft',emoji:'🛗',desc:'Pull cables. It climbs.',decor:'elevator',mode:'explore',intro:'You hear it CLIMBING the shaft behind you. Pull all 3 switches — FAST.',props:[{id:'s1',x:28,type:'lever'},{id:'s2',x:50,type:'lever'},{id:'s3',x:72,type:'lever',jumpscare:true},{id:'exit',x:93,type:'door',needs:3}],scareAt:2,monster:{x:3,speed:3.4,name:'Stuffy'}},
- {n:10,name:'Final Escape',emoji:'🏁',desc:'ESCAPE OR BE EATEN.',decor:'escape',mode:'chase',intro:'THIS IS IT. The gate. It\'s RIGHT BEHIND YOU. RUN FOR YOUR LIFE!!!',props:[{id:'exit',x:93,type:'door',needs:0}],monster:{x:1,speed:4.8,name:'Stuffy'}}
+ {n:1,name:'The Lobby',emoji:'🏭',desc:'Grab 3 parts. Reach the exit.',decor:'lobby',mode:'explore',intro:'The factory is silent. Grab all 3 toy parts, then get to the exit door. Take your time — first room, no chase yet.',props:[{id:'c1',x:24,type:'crate',item:true},{id:'c2',x:46,type:'crate',item:true},{id:'c3',x:68,type:'crate',item:true},{id:'exit',x:93,type:'door',needs:3}]},
+ {n:2,name:'Toy Hall',emoji:'🧸',desc:'It patrols. Hide in lockers!',decor:'hall',mode:'patrol',intro:'Footsteps echo… When it gets close, tap HIDE next to a locker (🗄️). You have time — then reach the exit.',props:[{id:'h1',x:30,type:'hide'},{id:'h2',x:58,type:'hide'},{id:'exit',x:93,type:'door',needs:0}],monster:{x:82,dir:-1,speed:1.5,range:16,name:'Stuffy',alert:false}},
+ {n:3,name:'Power Room',emoji:'⚡',desc:'Pull both levers. Escape.',decor:'power',mode:'explore',intro:'Pull the main lever, then the fuse box. Exit unlocks — no rush until you\'re done.',props:[{id:'lev',x:38,type:'lever'},{id:'fuse',x:62,type:'lever',needsLever:true},{id:'exit',x:93,type:'door',needs:0}]},
+ {n:4,name:'Storage Bay',emoji:'📦',desc:'Sneak past. Hide in lockers.',decor:'storage',mode:'patrol',intro:'One toy patrols the storage bay. Hide when it\'s near, then dash to the exit.',props:[{id:'h1',x:22,type:'hide'},{id:'h2',x:48,type:'hide'},{id:'h3',x:72,type:'hide'},{id:'exit',x:93,type:'door',needs:0}],monster:{x:15,dir:1,speed:1.7,range:16,name:'Stuffy'}},
+ {n:5,name:'Vent Shaft',emoji:'🕳️',desc:'RUN! 3 second head start.',decor:'vent',mode:'chase',intro:'It\'s chasing you! You get a HEAD START — mash Run ▶ and get to the exit door!',props:[{id:'exit',x:93,type:'door',needs:0}],monster:{x:2,speed:2.4,name:'Stuffy'}},
+ {n:6,name:'The Lab',emoji:'🔬',desc:'Activate 4 consoles. Then run.',decor:'lab',mode:'explore',intro:'Activate all 4 consoles. AFTER that, it wakes up — run to the exit!',props:[{id:'p1',x:22,type:'console'},{id:'p2',x:38,type:'console'},{id:'p3',x:54,type:'console'},{id:'p4',x:70,type:'console'},{id:'exit',x:93,type:'door',needs:4}]},
+ {n:7,name:'Music Room',emoji:'🎵',desc:'Hide when the music stops.',decor:'music',mode:'patrol',intro:'When you see 👁️ IT SEES YOU — hide in a locker! You get 2+ seconds. Then reach the exit.',props:[{id:'h1',x:35,type:'hide'},{id:'h2',x:65,type:'hide'},{id:'exit',x:93,type:'door',needs:0}],monster:{x:75,dir:-1,speed:1.8,range:17,name:'Stuffy',dance:true}},
+ {n:8,name:'Loading Dock',emoji:'🚢',desc:'Sprint to the door!',decor:'dock',mode:'chase',intro:'Head start! Sprint to the exit — you\'re faster if you keep tapping Run!',props:[{id:'exit',x:93,type:'door',needs:0}],monster:{x:3,speed:2.6,name:'Stuffy'}},
+ {n:9,name:'Elevator Shaft',emoji:'🛗',desc:'Pull 3 switches. Then escape.',decor:'elevator',mode:'explore',intro:'Pull all 3 cable switches first. Chase only starts once they\'re all done.',props:[{id:'s1',x:28,type:'lever'},{id:'s2',x:50,type:'lever'},{id:'s3',x:72,type:'lever'},{id:'exit',x:93,type:'door',needs:3}]},
+ {n:10,name:'Final Escape',emoji:'🏁',desc:'RUN — you CAN win this!',decor:'escape',mode:'chase',intro:'Final chase! Big head start, keep tapping Run ▶ — you\'re faster than it!',props:[{id:'exit',x:93,type:'door',needs:0}],monster:{x:2,speed:2.8,name:'Stuffy'}}
 ];
 let ppGame=null;
+function poppyUnlockLevel(){try{return Math.max(1,parseInt(localStorage.getItem(POPPY_KEY)||'1',10)||1);}catch(_){return 1;}}
+function poppySaveLevel(n){try{localStorage.setItem(POPPY_KEY,String(Math.max(poppyUnlockLevel(),n)));}catch(_){}}
+function ppPlayerSVG(size,pose){
+ size=size||88;pose=pose||'idle';
+ const walk=pose==='walk'||pose==='run',crouch=pose==='crouch',grab=pose==='grab';
+ const legL=walk?`<ellipse cx="34" cy="78" rx="8" ry="11" fill="#1a4a8a" transform="rotate(${pose==='run'?-22:14} 34 78)"/>`:'<ellipse cx="32" cy="78" rx="8" ry="11" fill="#1a4a8a"/>';
+ const legR=walk?`<ellipse cx="54" cy="78" rx="8" ry="11" fill="#1a4a8a" transform="rotate(${pose==='run'?22:-14} 54 78)"/>`:'<ellipse cx="56" cy="78" rx="8" ry="11" fill="#1a4a8a"/>';
+ const arm=grab?`<path d="M58 40 L88 28 L86 34 L58 46 Z" fill="#2a6ab8"/>`:crouch?`<path d="M58 42 L72 58 L68 62 L54 48 Z" fill="#2a6ab8"/>`:`<path d="M58 38 L78 ${pose==='run'?30:42} L74 ${pose==='run'?36:46} L56 44 Z" fill="#2a6ab8"/>`;
+ return `<svg viewBox="0 0 88 92" width="${size}" height="${size*1.05}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${legL}${legR}<ellipse cx="44" cy="52" rx="18" ry="22" fill="#2563b8"/><rect x="28" y="36" width="32" height="24" rx="6" fill="#3b82f6"/>${arm}<circle cx="44" cy="24" r="16" fill="#f5c99a"/><path d="M28 18 Q44 6 60 18 L56 24 Q44 14 32 24 Z" fill="#ffd34e"/><rect x="36" y="20" width="16" height="5" rx="2" fill="#333"/><circle cx="38" cy="24" r="2" fill="#111"/><circle cx="50" cy="24" r="2" fill="#111"/><path d="M72 ${grab?32:crouch?50:40} L84 ${grab?24:crouch?54:36}" stroke="#ff4d8d" stroke-width="5" stroke-linecap="round"/><circle cx="84" cy="${grab?24:crouch?54:36}" r="5" fill="#ff7eb3"/></svg>`;
+}
+function ppMonsterSVG(chasing,size,eyes){
+ size=size||(chasing?80:58);
+ const eyeCls=eyes?' class="pp-eye"':'';
+ return `<svg viewBox="0 0 80 100" width="${size}" height="${size*1.25}"><rect x="14" y="18" width="52" height="58" rx="12" fill="#2a1040" stroke="${chasing?'#ff0040':'#4a2060'}" stroke-width="2"/><rect x="20" y="30" width="16" height="16" rx="5" fill="#0a0a0a"/><rect x="44" y="30" width="16" height="16" rx="5" fill="#0a0a0a"/><circle cx="28" cy="38" r="5" fill="#ff0040"${eyeCls}/><circle cx="52" cy="38" r="5" fill="#ff0040"${eyeCls}/><path d="M22 62 Q40 78 58 62" stroke="#111" stroke-width="4" fill="none"/><path d="M6 10 L24 34 M74 10 L56 34" stroke="#2a1040" stroke-width="8" stroke-linecap="round"/>${chasing?'<path d="M40 4 L46 18 L34 18 Z" fill="#ff0040"/>':''}</svg>`;
+}
 const ppAudio=(()=>{
  let ctx=null;
  function ac(){if(!ctx)try{ctx=new(window.AudioContext||window.webkitAudioContext)();}catch(_){}return ctx;}
@@ -9788,52 +9834,184 @@ function ppHint(m,c){return ppIsMobile()?m:c;}
 function ppKeyboardHint(){return `<div class="pp-keys"><span>← → walk</span><span>Space grab</span><span>Shift hide</span><span>Hold → run</span></div>`;}
 function ppOnKey(e){
  if(!ppGame||ppGame.won||ppGame.lost||ppGame.intro||ppIsMobile())return;
+ if(!ppGame.keys)ppGame.keys={left:false,right:false,run:false};
  if(['ArrowLeft','ArrowRight','ArrowDown',' '].includes(e.key))e.preventDefault();
- if(e.key==='ArrowLeft'||e.key==='a'||e.key==='A')ppMove(-1);
- else if(e.key==='ArrowRight'||e.key==='d'||e.key==='D')ppMove(1,e.shiftKey||ppGame.cfg.mode==='chase');
- else if(e.key===' '||e.key==='Enter')ppGrab();
- else if(e.key==='Shift'||e.key==='ArrowDown'||e.key==='s'||e.key==='S')ppToggleCrouch(true);
+ if(e.type==='keydown'){
+  if(e.key==='ArrowLeft'||e.key==='a'||e.key==='A')ppGame.keys.left=true;
+  if(e.key==='ArrowRight'||e.key==='d'||e.key==='D'){ppGame.keys.right=true;ppGame.keys.run=e.shiftKey||ppGame.chaseActive;}
+  if(e.key===' '||e.key==='Enter')ppGrab();
+  if(e.key==='Shift'||e.key==='ArrowDown'||e.key==='s'||e.key==='S')ppToggleCrouch(true);
+ }else{
+  if(e.key==='ArrowLeft'||e.key==='a'||e.key==='A')ppGame.keys.left=false;
+  if(e.key==='ArrowRight'||e.key==='d'||e.key==='D'){ppGame.keys.right=false;ppGame.keys.run=false;}
+  if(e.key==='Shift'||e.key==='ArrowDown'||e.key==='s'||e.key==='S')ppToggleCrouch(false);
+ }
 }
-function ppOnKeyUp(e){
- if(!ppGame||ppIsMobile())return;
- if(e.key==='Shift'||e.key==='ArrowDown'||e.key==='s'||e.key==='S')ppToggleCrouch(false);
+function ppOnKeyUp(e){ppOnKey(e);}
+function ppWorldScreen(x){if(!ppGame)return'50%';return `calc(50% + ${(x-ppGame.state.x)*0.85}%)`;}
+function ppObjBottom(type){return type==='hide'?'30%':type==='door'?'26%':'32%';}
+function ppCanUseDoor(p){
+ const c=ppGame.cfg,s=ppGame.state;
+ const crates=c.props.filter(x=>x.type==='crate');
+ const consoles=c.props.filter(x=>x.type==='console');
+ const levers=c.props.filter(x=>x.type==='lever');
+ if(consoles.length)return consoles.every(x=>x.done);
+ if(levers.length)return levers.every(x=>x.done);
+ if(crates.length)return s.parts>=(p.needs||crates.length);
+ return true;
 }
-function poppyUnlockLevel(){try{return Math.max(1,parseInt(localStorage.getItem(POPPY_KEY)||'1',10)||1);}catch(_){return 1;}}
-function poppySaveLevel(n){try{localStorage.setItem(POPPY_KEY,String(Math.max(poppyUnlockLevel(),n)));}catch(_){}}
-function ppPlayerSVG(size,pose){
- size=size||88;pose=pose||'idle';
- const walk=pose==='walk'||pose==='run',crouch=pose==='crouch',grab=pose==='grab';
- const legL=walk?`<ellipse cx="34" cy="78" rx="8" ry="11" fill="#1a4a8a" transform="rotate(${pose==='run'?-22:14} 34 78)"/>`:'<ellipse cx="32" cy="78" rx="8" ry="11" fill="#1a4a8a"/>';
- const legR=walk?`<ellipse cx="54" cy="78" rx="8" ry="11" fill="#1a4a8a" transform="rotate(${pose==='run'?22:-14} 54 78)"/>`:'<ellipse cx="56" cy="78" rx="8" ry="11" fill="#1a4a8a"/>';
- const arm=grab?`<path d="M58 40 L88 28 L86 34 L58 46 Z" fill="#2a6ab8"/>`:crouch?`<path d="M58 42 L72 58 L68 62 L54 48 Z" fill="#2a6ab8"/>`:`<path d="M58 38 L78 ${pose==='run'?30:42} L74 ${pose==='run'?36:46} L56 44 Z" fill="#2a6ab8"/>`;
- return `<svg viewBox="0 0 88 92" width="${size}" height="${size*1.05}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${legL}${legR}<ellipse cx="44" cy="52" rx="18" ry="22" fill="#2563b8"/><rect x="28" y="36" width="32" height="24" rx="6" fill="#3b82f6"/>${arm}<circle cx="44" cy="24" r="16" fill="#f5c99a"/><path d="M28 18 Q44 6 60 18 L56 24 Q44 14 32 24 Z" fill="#ffd34e"/><rect x="36" y="20" width="16" height="5" rx="2" fill="#333"/><circle cx="38" cy="24" r="2" fill="#111"/><circle cx="50" cy="24" r="2" fill="#111"/><path d="M72 ${grab?32:crouch?50:40} L84 ${grab?24:crouch?54:36}" stroke="#ff4d8d" stroke-width="5" stroke-linecap="round"/><circle cx="84" cy="${grab?24:crouch?54:36}" r="5" fill="#ff7eb3"/></svg>`;
+function ppPropHTML(p,s){
+ const dist=Math.abs(s.x-p.x);
+ const near=dist<18;
+ const sl=ppWorldScreen(p.x);
+ const bot=ppObjBottom(p.type);
+ if(p.type==='crate'){
+  if(p.done)return `<div class="pp-obj" style="left:${sl};bottom:${bot}"><div class="pp-obj-crate" style="opacity:.4"></div></div>`;
+  return `<button type="button" class="pp-obj${near?' glow':''}" style="left:${sl};bottom:${bot}" onclick="ppGrabProp('${p.id}')"><div class="pp-obj-crate"></div>${near?'<span class="pp-obj-label">Grab</span>':''}</button>`;
+ }
+ if(p.type==='hide')return `<div class="pp-obj" style="left:${sl};bottom:${bot}"><div class="pp-obj-locker"></div><span class="pp-obj-label">Hide</span></div>`;
+ if(p.type==='console'){
+  return `<button type="button" class="pp-obj${near&&!p.done?' glow':''}" style="left:${sl};bottom:${bot}" onclick="ppGrabProp('${p.id}')" ${p.done?'disabled':''}><div class="pp-obj-console${p.done?' done':''}"></div>${near&&!p.done?'<span class="pp-obj-label">Activate</span>':''}</button>`;
+ }
+ if(p.type==='lever'){
+  return `<button type="button" class="pp-obj${near&&!p.done?' glow':''}" style="left:${sl};bottom:${bot}" onclick="ppGrabProp('${p.id}')" ${p.done?'disabled':''}><div class="pp-obj-lever"></div>${near&&!p.done?'<span class="pp-obj-label">Pull</span>':''}</button>`;
+ }
+ if(p.type==='door'){
+  const ok=ppCanUseDoor(p);
+  return `<button type="button" class="pp-obj${ok?' glow':''}" style="left:${sl};bottom:${bot}" onclick="ppGrabProp('${p.id}')"><div class="pp-obj-door${ok?'':' locked'}"></div><span class="pp-obj-label">${ok?'Exit':'Locked'}</span></button>`;
+ }
+ return'';
 }
-function ppMonsterSVG(chasing,size,eyes){
- size=size||(chasing?80:58);
- const eyeCls=eyes?' class="pp-eye"':'';
- return `<svg viewBox="0 0 80 100" width="${size}" height="${size*1.25}"><rect x="14" y="18" width="52" height="58" rx="12" fill="#2a1040" stroke="${chasing?'#ff0040':'#4a2060'}" stroke-width="2"/><rect x="20" y="30" width="16" height="16" rx="5" fill="#0a0a0a"/><rect x="44" y="30" width="16" height="16" rx="5" fill="#0a0a0a"/><circle cx="28" cy="38" r="5" fill="#ff0040"${eyeCls}/><circle cx="52" cy="38" r="5" fill="#ff0040"${eyeCls}/><path d="M22 62 Q40 78 58 62" stroke="#111" stroke-width="4" fill="none"/><path d="M6 10 L24 34 M74 10 L56 34" stroke="#2a1040" stroke-width="8" stroke-linecap="round"/>${chasing?'<path d="M40 4 L46 18 L34 18 Z" fill="#ff0040"/><text x="40" y="95" text-anchor="middle" fill="#ff0040" font-size="8" font-family="monospace">RUN</text>':''}</svg>`;
+function ppDecorHTML(c){
+ const pipes=[12,35,58,78].map((p,i)=>`<div class="pp-pipe" style="left:${ppWorldScreen(p)};top:${14+i%2*4}%;width:${60+i*10}px"></div>`).join('');
+ return pipes;
 }
-function ppMonsterHTML(m,chasing,alert){
- if(!m)return'';
- const dist=ppGame?Math.abs(ppGame.state.x-(m.x||0)):50;
- const threat=chasing?Math.min(100,Math.max(20,100-dist)):Math.max(0,40-dist);
- const scale=.35+threat/100*1.5;
- const bottom=(22+threat*.2)+'%';
- const mx=m.x??50;
- return `<div class="pp-monster-far${chasing?' close':''}${alert?' alert':''}" style="left:${mx}%;bottom:${bottom};transform:translateX(-50%) scale(${scale});z-index:${threat>45?5:2}">${ppMonsterSVG(chasing||threat>50,40+threat*.5,alert||chasing)}</div>`;
+function ppRenderWorld(){
+ const g=ppGame,s=g.state,c=g.cfg;
+ const chasing=c.mode==='chase'||g.chaseActive;
+ const props=c.props.map(p=>ppPropHTML(p,s)).join('');
+ let monsterHTML='';
+ if(s.monster){
+  const dist=s.x-s.monster.x;
+  const threat=chasing?Math.min(1.6,.5+Math.max(0,30-dist)/20):Math.max(.4,.8-Math.abs(s.x-s.monster.x)/80);
+  monsterHTML=`<div class="pp-monster-far${chasing?' close':''}${s.monster.alert?' alert':''}" style="left:${ppWorldScreen(s.monster.x)};bottom:${26+threat*8}%;transform:translateX(-50%) scale(${threat});z-index:4">${ppMonsterSVG(chasing,dist<25?90:60,s.monster.alert||chasing)}</div>`;
+ }
+ const near=ppNearProp();
+ const grabHint=near&&!near.done&&Math.abs(s.x-near.x)<18?`<div class="pp-grab-prompt">[ GrabPack ] ${near.type==='door'?'Open Exit':near.type==='crate'?'Search':near.type==='console'?'Activate':'Pull'}</div>`:'';
+ const prog=c.props.filter(x=>['crate','console','lever'].includes(x.type));
+ const doneCt=prog.filter(x=>x.done).length;
+ const progPct=prog.length?Math.round(doneCt/prog.length*100):Math.round(s.x);
+ const msgCls=chasing?' scary':'';
+ return `<div class="pp-world"><div class="pp-scene ${chasing?'chase':''} pp-decor-${c.decor||'lobby'}"><div class="pp-corridor"><div class="pp-corridor-bg"></div><div class="pp-ceiling"></div>${ppDecorHTML(c)}<div class="pp-hall"><div class="pp-wall left"></div><div class="pp-wall right"></div><div class="pp-back-wall"></div><div class="pp-floor"></div>${props}${monsterHTML}</div><div class="pp-player-shadow" style="left:50%"></div><div class="pp-player-wrap ${ppPlayerAnimClass()}">${ppPlayerSVG(96,ppPose())}</div>${grabHint}<div class="pp-progress"><div class="pp-progress-fill" style="width:${Math.max(progPct,s.x)}%"></div></div><div class="pp-hud"><span class="pp-hud-pill">${c.emoji} ${c.name}</span><span class="pp-hud-pill">${chasing?'RUN → Exit':c.mode==='patrol'?'Sneak to exit':'Explore forward'}</span></div></div></div></div>`;
+}
+function ppHold(dir,run,on){
+ if(!ppGame)return;
+ if(dir<0)ppGame.keys.left=on; else if(dir>0){ppGame.keys.right=on;ppGame.keys.run=run&&on;}
+ if(!on&&dir>0)ppGame.keys.run=false;
+}
+function ppDpad(){
+ return `<div class="pp-dpad">
+  <button type="button" onmousedown="ppHold(-1,0,1)" onmouseup="ppHold(-1,0,0)" onmouseleave="ppHold(-1,0,0)" ontouchstart="ppHold(-1,0,1)" ontouchend="ppHold(-1,0,0)">◀ Walk</button>
+  <button type="button" class="pp-action" onclick="ppGrab()">Grab</button>
+  <button type="button" onmousedown="ppHold(1,1,1)" onmouseup="ppHold(1,1,0)" onmouseleave="ppHold(1,1,0)" ontouchstart="ppHold(1,1,1)" ontouchend="ppHold(1,1,0)">Run ▶</button>
+  <button type="button" onmousedown="ppHold(-1,0,1)" onmouseup="ppHold(-1,0,0)" ontouchstart="ppHold(-1,0,1)" ontouchend="ppHold(-1,0,0)">◀</button>
+  <button type="button" onclick="ppToggleCrouch(true)">Hide</button>
+  <button type="button" onmousedown="ppHold(1,0,1)" onmouseup="ppHold(1,0,0)" ontouchstart="ppHold(1,0,1)" ontouchend="ppHold(1,0,0)">▶ Walk</button>
+ </div>`;
+}
+function ppToast(txt){
+ if(!ppGame)return;
+ ppGame.toast=txt;ppGame.toastT=Date.now();renderPoppyPlay();
+}
+function ppSetPose(p){if(ppGame){ppGame.state.pose=p;if(p!=='idle')setTimeout(()=>{if(ppGame&&ppGame.state.pose===p)ppGame.state.pose='idle';},350);}}
+function ppToggleCrouch(on){
+ if(!ppGame||ppGame.won||ppGame.lost)return;
+ ppGame.state.crouch=!!on;
+ ppGame.state.pose=on?'crouch':'idle';
+ ppGame.msg=on?(ppIsSafe()?'Hiding… safe for now.':'Stand next to a locker and hide!'):(ppGame.chaseActive?'Run to the exit!':'Keep exploring.');
+}
+function ppGrabProp(id){const p=ppGame?.cfg.props.find(x=>x.id===id);if(p)ppGrab(p);}
+function ppGrab(forcedProp){
+ if(!ppGame||ppGame.won||ppGame.lost)return;
+ const s=ppGame.state,c=ppGame.cfg;
+ const p=forcedProp||ppNearProp();
+ if(!p||Math.abs(s.x-p.x)>18){ppGame.msg='Walk closer to interact.';return;}
+ ppSetPose('grab');ppSfx('grab');
+ if(p.type==='crate'){p.done=true;s.parts++;ppToast('Part found!');ppGame.msg=`Parts: ${s.parts}/${c.props.find(x=>x.type==='door')?.needs||3} — keep going!`;}
+ else if(p.type==='lever'||p.type==='console'){
+  if(p.needsLever&&!c.props.find(x=>x.id==='lev')?.done){ppGame.msg='Pull the main lever first!';return;}
+  p.done=true;s.parts++;ppToast('Activated!');
+  if(ppCheckObjectiveDone()&&!ppGame.chaseActive&&c.n>1&&c.n!==3){setTimeout(()=>ppTriggerChase(),1500);ppGame.msg='You did it — now RUN to the exit!';}
+  else ppGame.msg=ppCheckObjectiveDone()?'All done! Go to the exit door.':'Keep going…';
+ }else if(p.type==='door'){
+  if(!ppCanUseDoor(p)){ppGame.msg='Not ready yet — finish your tasks first!';return;}
+  if(ppGame.chaseActive&&Math.abs(s.x-p.x)>18){ppGame.msg='Run to the exit door!';return;}
+  ppWinChapter();return;
+ }
 }
 function ppTriggerChase(){
  if(!ppGame||ppGame.chaseActive)return;
- ppGame.chaseActive=true;
- ppGame.cfg.mode='chase';
+ ppGame.chaseActive=true;ppGame.cfg.mode='chase';
  const s=ppGame.state;
- if(!s.monster)s.monster={x:Math.max(2,s.x-25),speed:ppGame.cfg.monster?.speed||3.5,closeness:0};
- s.monster.x=Math.min(s.x-8,s.monster.x);
- s.monster.speed=(ppGame.cfg.monster?.speed||3)+1;
- ppGame.msg='💀 IT\'S COMING — RUN TO THE EXIT!!!';
- ppJumpscare();
+ if(!s.monster)s.monster={x:Math.max(2,s.x-45),speed:ppGame.cfg.monster?.speed||2};
+ s.monster.x=Math.max(2,s.x-40);
+ s.monster.speed=ppGame.cfg.monster?.speed||2;
+ ppGame.chaseGraceUntil=Date.now()+3500;
+ ppGame.msg='It\'s chasing you — RUN to the glowing exit! (head start)';
  ppSfx('roar');
 }
+function ppGameLoop(ts){
+ if(!ppGame||ppGame.won||ppGame.lost||ppGame.intro)return;
+ if(!ppGame.lastT)ppGame.lastT=ts;
+ const dt=Math.min(3,(ts-ppGame.lastT)/16);
+ ppGame.lastT=ts;
+ const s=ppGame.state,c=ppGame.cfg;
+ const chasing=c.mode==='chase'||ppGame.chaseActive;
+ let moving=false;
+ const spd=(ppGame.keys.run||chasing)?1.4:0.75;
+ if(ppGame.keys.left&&!s.crouch){s.x=Math.max(5,s.x-spd*dt);s.pose=ppGame.keys.run||chasing?'run':'walk';moving=true;}
+ if(ppGame.keys.right&&!s.crouch){s.x=Math.min(96,s.x+spd*dt);s.pose=ppGame.keys.run||chasing?'run':'walk';moving=true;}
+ if(!moving&&!s.crouch)s.pose='idle';
+ if(chasing&&s.monster){
+  const grace=ppGame.chaseGraceUntil&&Date.now()<ppGame.chaseGraceUntil;
+  if(!grace){
+   s.monster.x+=s.monster.speed*0.14*dt;
+   const gap=s.x-s.monster.x;
+   if(gap<3){ppGame.lost=true;ppGame.msg='Caught! Try again — hold Run ▶ to escape.';ppSfx('caught');ppStopLoop();renderPoppyPlay();return;}
+   if(s.x>=88){ppWinChapter();return;}
+  }
+ }else if(c.mode==='patrol'&&s.monster){
+  const m=s.monster;
+  m.x+=m.dir*m.speed*0.28*dt;
+  if(m.x<8){m.x=8;m.dir=1;}if(m.x>92){m.x=92;m.dir=-1;}
+  const dist=Math.abs(s.x-m.x);
+  if(dist<(m.range||14)){
+   m.alert=true;
+   if(!ppIsSafe()){
+    if(!m.alertTimer)m.alertTimer=Date.now();
+    const left=3000-(Date.now()-m.alertTimer);
+    if(left<=0)ppTriggerChase();
+    else ppGame.msg=`Hide in locker! ${Math.ceil(left/1000)}s`;
+   }else{ppGame.msg='Hidden… wait for it to pass.';m.alertTimer=0;}
+  }else{m.alert=false;m.alertTimer=0;if(dist<22)ppGame.msg='Toy nearby — hide if it turns!';else ppGame.msg='Sneak to the exit door →';}
+ }
+ if(moving&&Math.random()<.04)ppSfx('step');
+ if(ppGame.toast&&Date.now()-ppGame.toastT>900)ppGame.toast=null;
+ renderPoppyPlay();
+ ppGame.raf=requestAnimationFrame(ppGameLoop);
+}
+function ppStopLoop(){
+ if(ppGame?.raf)cancelAnimationFrame(ppGame.raf);
+ if(ppGame?.loop)clearInterval(ppGame.loop);
+ ppGame.raf=null;ppGame.loop=null;
+}
+function ppStartLoop(){
+ ppStopLoop();
+ ppGame.lastT=0;
+ ppGame.keys={left:false,right:false,run:false};
+ ppGame.raf=requestAnimationFrame(ppGameLoop);
+}
+function ppTick(){/* legacy noop — rAF handles everything */}
 function ppCheckObjectiveDone(){
  if(!ppGame||ppGame.chaseActive)return false;
  const c=ppGame.cfg,s=ppGame.state;
@@ -9850,7 +10028,7 @@ function ppPose(){
  const s=ppGame.state;
  if(s.pose)return s.pose;
  if(s.crouch)return'crouch';
- if(ppGame.cfg.mode==='chase')return'run';
+ if(ppGame.chaseActive||ppGame.cfg.mode==='chase')return'run';
  return'idle';
 }
 function ppPlayerAnimClass(){const p=ppPose();return p==='idle'?'':p;}
@@ -9860,201 +10038,14 @@ function ppNearProp(){
  let best=null,bd=99;
  g.props.forEach(p=>{
   if(p.done&&p.type!=='door')return;
-  if(p.type==='door'&&p.done)return;
   const d=Math.abs(s.x-p.x);
-  if(d<14&&d<bd){best=p;bd=d;}
+  if(d<18&&d<bd){best=p;bd=d;}
  });
  return best;
 }
 function ppIsSafe(){
  if(!ppGame||!ppGame.state.crouch)return false;
- const s=ppGame.state;
- return ppGame.cfg.props.some(p=>p.type==='hide'&&Math.abs(s.x-p.x)<12);
-}
-function ppDecorClass(d){
- return d||'lobby';
-}
-function ppPropHTML(p,s){
- const near=Math.abs(s.x-p.x)<14;
- if(p.type==='crate'){
-  if(p.done)return `<div class="pp-prop" style="left:${p.x}%">📭</div>`;
-  return `<button type="button" class="pp-prop${near?' glow':''}" style="left:${p.x}%" onclick="ppGrabProp('${p.id}')">📦</button>`;
- }
- if(p.type==='hide')return `<div class="pp-locker" style="left:${p.x}%">🗄️</div>`;
- if(p.type==='lever'||p.type==='console'){
-  if(p.done)return `<div class="pp-prop" style="left:${p.x}%">✅</div>`;
-  return `<button type="button" class="pp-prop${near?' glow':''}" style="left:${p.x}%" onclick="ppGrabProp('${p.id}')">${p.type==='console'?'🖥️':'⚡'}</button>`;
- }
- if(p.type==='door'){
-  const crates=ppGame.cfg.props.filter(x=>x.type==='crate');
-  const consoles=ppGame.cfg.props.filter(x=>x.type==='console');
-  const levers=ppGame.cfg.props.filter(x=>x.type==='lever');
-  let canExit=!!(p.needs?s.parts>=(p.needs||0):true);
-  if(consoles.length)canExit=consoles.every(x=>x.done);
-  else if(levers.length)canExit=levers.every(x=>x.done);
-  else if(crates.length)canExit=s.parts>=(p.needs||crates.length);
-  return `<button type="button" class="pp-prop${canExit?' pp-door-glow':''}" style="left:${p.x}%;opacity:${canExit?1:.45}" onclick="ppGrabProp('${p.id}')">🚪</button>`;
- }
- return'';
-}
-function ppRenderWorld(){
- const g=ppGame,s=g.state,c=g.cfg;
- const px=s.x;
- const props=c.props.map(p=>ppPropHTML(p,s)).join('');
- const chasing=c.mode==='chase'||g.chaseActive;
- let monsterHTML='';
- if(s.monster)monsterHTML=ppMonsterHTML(s.monster,chasing,s.monster.alert);
- if(s.monster2)monsterHTML+=ppMonsterHTML(s.monster2,chasing,s.monster2.alert);
- const near=ppNearProp();
- const grabHint=near&&!near.done?`<div class="pp-grab-prompt">⚡ GRAB → ${near.type==='crate'?'Search crate':near.type==='door'?'Open door':near.type==='console'?'Activate':'Pull lever'}</div>`:'';
- const cnt=c.props.filter(p=>p.type==='crate'||p.type==='console'||p.type==='lever').length;
- const partsHUD=cnt?`<div class="pp-part-count">${c.props.some(p=>p.type==='console')?'Consoles':c.props.some(p=>p.type==='lever')?'Switches':'Parts'}: ${s.parts}/${c.props.find(p=>p.type==='door')?.needs||cnt}</div>`:'';
- const danger=ppDangerLevel();
- const fearPct=Math.min(100,s.fear||0);
- const fearBar=`<div class="pp-fear-bar"><div class="pp-fear-fill" style="width:${fearPct}%"></div></div>`;
- const chasePct=chasing&&s.monster?Math.min(100,Math.max(0,(s.monster.x/(s.x||1))*100)):0;
- const chaseBar=chasing?`<div class="pp-chase-bar-wrap"><div class="pp-chase-bar" style="width:${chasePct}%"></div></div>`:'';
- const heartbeat=fearPct>25||chasing?`<div class="pp-heartbeat on" style="animation-duration:${Math.max(.35,1-fearPct/120)}s"></div>`:'';
- const objective=chasing?'💀 RUN TO THE EXIT!!!':c.mode==='patrol'?'👀 SNEAK — hide or die!':'🔦 Grab what you need… stay quiet';
- return `<div class="pp-world"><div class="pp-scene ${chasing?'chase':''} danger-${danger} pp-decor-${ppDecorClass(c.decor)}">${heartbeat}<div class="pp-scene-lights${danger>0||c.n>1?' flicker':''}"></div><div class="pp-hall"><div class="pp-wall left"></div><div class="pp-wall right"></div><div class="pp-back-wall"></div><div class="pp-floor"></div>${props}${monsterHTML}</div><div class="pp-player-shadow"></div><div class="pp-player-wrap ${ppPlayerAnimClass()}" style="left:${px}%">${ppPlayerSVG(92,ppPose())}</div>${grabHint}${partsHUD}${fearBar}${chaseBar}<div class="pp-hud"><span class="pp-hud-pill">${c.emoji} ${c.name}</span><span class="pp-hud-pill">${objective}</span></div></div></div>`;
-}
-function ppDpad(){
- return `<div class="pp-dpad"><button type="button" onclick="ppMove(-1)">◀</button><button type="button" class="pp-action" onclick="ppGrab()">Grab</button><button type="button" onclick="ppMove(1,true)">▶</button><button type="button" onclick="ppMove(-1)">↖</button><button type="button" onclick="ppToggleCrouch(true)">Hide</button><button type="button" onclick="ppMove(1,true)">Run ▶</button></div>`;
-}
-function ppMove(dir,run){
- if(!ppGame||ppGame.won||ppGame.lost||ppGame.intro)return;
- const s=ppGame.state,c=ppGame.cfg;
- const chasing=c.mode==='chase'||ppGame.chaseActive;
- const spd=run||chasing?11:5;
- s.x=Math.max(8,Math.min(96,s.x+dir*spd));
- s.pose=run||chasing?'run':'walk';
- if(chasing&&s.monster){
-  s.monster.x+=s.monster.speed*.55;
-  s.fear=Math.min(100,(s.fear||0)+2);
- }else if(!s.crouch){
-  s.fear=Math.max(0,(s.fear||0)-1);
- }
- if(Math.random()<.3)ppSfx('step');
- renderPoppyPlay();
- clearTimeout(ppGame.walkT);
- ppGame.walkT=setTimeout(()=>{if(ppGame){ppGame.state.pose=s.crouch?'crouch':'idle';renderPoppyPlay();}},260);
-}
-function ppToggleCrouch(on){
- if(!ppGame||ppGame.won||ppGame.lost)return;
- ppGame.state.crouch=!!on;
- ppGame.state.pose=on?'crouch':'idle';
- if(on&&ppIsSafe()){ppGame.msg='🤫 Hiding… don\'t breathe…';ppGame.state.fear=Math.max(0,(ppGame.state.fear||0)-15);}
- else if(on)ppGame.msg='Get behind a locker NOW!';
- else ppGame.msg=ppGame.chaseActive?'RUN!!!':'Stay quiet…';
- renderPoppyPlay();
-}
-function ppGrabProp(id){
- if(!ppGame)return;
- const p=ppGame.cfg.props.find(x=>x.id===id);
- if(!p)return;
- ppGrab(p);
-}
-function ppGrab(forcedProp){
- if(!ppGame||ppGame.won||ppGame.lost)return;
- const s=ppGame.state,c=ppGame.cfg;
- const p=forcedProp||ppNearProp();
- if(!p){ppGame.msg='Nothing to grab — walk closer!';renderPoppyPlay();return;}
- if(Math.abs(s.x-p.x)>14&&!forcedProp){ppGame.msg='Walk closer first!';renderPoppyPlay();return;}
- s.pose='grab';
- ppSfx('grab');
- if(p.type==='crate'){
-  p.done=true;s.parts++;
-  s.fear=Math.min(100,(s.fear||0)+12);
-  if(p.jumpscare||Math.random()<.25){ppJumpscare();ppGame.msg='😱 SOMETHING IN THE CRATE!!!';}
-  else ppGame.msg=s.parts>=3?'Got it! The exit… if you make it.':'Toy part found. Keep moving.';
-  if(c.scareAt&&s.parts>=c.scareAt&&!ppGame.chaseActive)setTimeout(()=>ppTriggerChase(),800);
-  else if(!c.scareAt&&s.parts>=(c.props.find(x=>x.type==='door')?.needs||3)&&!ppGame.chaseActive)setTimeout(()=>ppTriggerChase(),600);
- }else if(p.type==='lever'||p.type==='console'){
-  if(p.needsLever&&!c.props.find(x=>x.id==='lev')?.done){ppGame.msg='Pull the main lever first!';renderPoppyPlay();return;}
-  p.done=true;s.parts++;
-  s.fear=Math.min(100,(s.fear||0)+15);
-  if(p.jumpscare){ppJumpscare();ppSfx('roar');ppGame.msg='⚡ POWER SURGE — IT HEARD THAT!!!';}
-  else ppGame.msg=p.type==='console'?'Console ON. Did something move…?':'Power restored. Run.';
-  const levers=c.props.filter(x=>x.type==='lever'||x.type==='console');
-  if(c.scareAt&&levers.filter(x=>x.done).length>=c.scareAt&&!ppGame.chaseActive)setTimeout(()=>ppTriggerChase(),700);
-  else if(ppCheckObjectiveDone()&&!ppGame.chaseActive)setTimeout(()=>ppTriggerChase(),500);
- }else if(p.type==='door'){
-  if(ppGame.chaseActive&&Math.abs(s.x-p.x)>14){ppGame.msg='💀 GET TO THE EXIT DOOR!!!';renderPoppyPlay();return;}
-  const crates=c.props.filter(x=>x.type==='crate');
-  const consoles=c.props.filter(x=>x.type==='console');
-  const levers=c.props.filter(x=>x.type==='lever');
-  let ready=false;
-  if(consoles.length)ready=consoles.every(x=>x.done);
-  else if(levers.length)ready=levers.every(x=>x.done);
-  else if(crates.length)ready=s.parts>=(p.needs||crates.length);
-  else ready=true;
-  if(!ready){ppGame.msg=consoles.length?'Activate all consoles!':levers.length?'Pull all switches!':`Need ${p.needs} parts!`;renderPoppyPlay();return;}
-  ppWinChapter();return;
- }
- renderPoppyPlay();
- setTimeout(()=>{if(ppGame){ppGame.state.pose='idle';renderPoppyPlay();}},400);
-}
-function ppTick(){
- if(!ppGame||ppGame.won||ppGame.lost||ppGame.intro)return;
- const s=ppGame.state,c=ppGame.cfg;
- const chasing=c.mode==='chase'||ppGame.chaseActive;
- if(ppGame.flashDanger>0){ppGame.flashDanger--;if(ppGame.flashDanger===0)renderPoppyPlay();}
- if(chasing&&s.monster){
-  s.monster.x+=s.monster.speed*(c.n>=8?0.55:0.48);
-  s.monster.closeness=Math.min(30,Math.floor((s.monster.x/(s.x||1))*15));
-  const gap=s.x-s.monster.x;
-  s.fear=Math.min(100,(s.fear||0)+3);
-  if(gap<6&&!ppIsSafe()){
-   ppGame.lost=true;ppGame.msg='💀 IT GOT YOU.';ppSfx('caught');ppJumpscare();
-   if(ppGame.loop)clearInterval(ppGame.loop);
-  }else if(s.x>=90){
-   ppWinChapter();return;
-  }else if(gap<15){
-   ppGame.msg='💀 IT\'S RIGHT BEHIND YOU — RUN!!!';
-   if(Math.random()<.4)ppSfx('chase');
-  }else ppGame.msg='RUN RUN RUN!!!';
-  if(Math.random()<.15)ppSfx('heartbeat');
-  renderPoppyPlay();return;
- }
- function patrolOne(m){
-  if(!m)return;
-  m.x+=m.dir*m.speed*0.4;
-  if(m.x<10){m.x=10;m.dir=1;}
-  if(m.x>90){m.x=90;m.dir=-1;}
-  const dist=Math.abs(s.x-m.x);
-  if(dist<m.range){
-   m.alert=true;
-   if(!ppIsSafe()){
-    if(!m.alertTimer)m.alertTimer=Date.now();
-    if(Date.now()-m.alertTimer>900){
-     ppTriggerChase();m.alertTimer=0;
-     ppSfx('roar');
-    }else{
-     ppGame.msg='👁️ IT SEES YOU — HIDE NOW!!!';
-     s.fear=Math.min(100,(s.fear||0)+8);
-     if(Math.random()<.3)ppSfx('alert');
-    }
-   }else{m.alert=false;m.alertTimer=0;ppGame.msg='🤫 It\'s looking… stay hidden…';}
-  }else{
-   m.alert=false;m.alertTimer=0;
-   if(dist<m.range+12){ppGame.msg='👀 Footsteps… HIDE!';s.fear=Math.min(100,(s.fear||0)+4);if(Math.random()<.2)ppSfx('heartbeat');}
-   else if(!ppGame.chaseActive)ppGame.msg='Reach the exit. Move quietly.';
-  }
- }
- if(c.mode==='patrol'){
-  patrolOne(s.monster);
-  patrolOne(s.monster2);
-  if(Math.random()<.08)ppSfx('step');
- }else if(c.mode==='explore'&&s.monster){
-  s.monster.x+=s.monster.speed*0.15;
-  s.fear=Math.min(100,(s.fear||0)+1);
-  if(s.monster.x>s.x-20&&!ppGame.chaseActive){
-   ppGame.msg='You hear it getting closer…';
-   if(Math.random()<.12)ppSfx('heartbeat');
-  }
- }
- if((s.fear||0)>30&&Math.random()<.06)ppSfx('heartbeat');
- renderPoppyPlay();
+ return ppGame.cfg.props.some(p=>p.type==='hide'&&Math.abs(ppGame.state.x-p.x)<22);
 }
 function buildPoppyHub(){
  const grid=document.getElementById('poppy-grid');
@@ -10075,7 +10066,7 @@ function buildPoppyHub(){
  grid.querySelectorAll('.poppy-ch:not(.locked)').forEach(btn=>{btn.onclick=()=>playPoppyChapter(+btn.dataset.ch);});
 }
 function closePoppyPlay(){
- if(ppGame&&ppGame.loop)clearInterval(ppGame.loop);
+ ppStopLoop();
  document.removeEventListener('keydown',ppOnKey);
  document.removeEventListener('keyup',ppOnKeyUp);
  ppGame=null;
@@ -10083,13 +10074,15 @@ function closePoppyPlay(){
  document.body.style.overflow='';
 }
 function ppInitState(cfg){
- return{x:12,pose:'idle',crouch:false,parts:0,fear:cfg.n>3?15:5,monster:cfg.monster?{...cfg.monster,closeness:0,alert:false}:null,monster2:cfg.monster2?{...cfg.monster2,closeness:0,alert:false}:null};
+ const startX=12;
+ const m=cfg.monster?{...cfg.monster,closeness:0,alert:false,x:Math.max(2,startX-45)}:null;
+ return{x:startX,pose:'idle',crouch:false,parts:0,fear:0,monster:m};
 }
 function playPoppyChapter(n){
  const cfg=POPPY_CHAPTERS.find(c=>c.n===n);
  if(!cfg||n>poppyUnlockLevel())return;
  closePoppyPlay();
- ppGame={cfg:{...cfg,props:cfg.props.map(p=>({...p}))},state:ppInitState(cfg),won:false,lost:false,intro:true,chaseActive:cfg.mode==='chase',flashDanger:0,msg:cfg.intro};
+ ppGame={cfg:{...cfg,props:cfg.props.map(p=>({...p}))},state:ppInitState(cfg),won:false,lost:false,intro:true,chaseActive:cfg.mode==='chase',chaseGraceUntil:0,keys:{left:false,right:false,run:false},msg:cfg.intro};
  const wrap=document.createElement('div');
  wrap.id='poppyplay';
  wrap.innerHTML='<div class="pp-screen" id="pp-screen"></div>';
@@ -10103,17 +10096,18 @@ function ppStartChapter(){
  if(!ppGame)return;
  ppGame.intro=false;
  ppGame.msg=ppGame.cfg.intro;
- ppSfx('ambient');
  if(ppGame.cfg.mode==='chase'){
-  setTimeout(()=>{ppJumpscare();ppSfx('roar');},400);
+  ppGame.chaseGraceUntil=Date.now()+3500;
+  if(ppGame.state.monster)ppGame.state.monster.x=Math.max(2,ppGame.state.x-45);
+  ppGame.msg='Hold Run ▶ or press → — head start, then sprint to the exit!';
  }
- ppGame.loop=setInterval(ppTick,90);
+ ppStartLoop();
  renderPoppyPlay();
 }
 function ppWinChapter(){
  if(!ppGame)return;
  ppGame.won=true;
- if(ppGame.loop)clearInterval(ppGame.loop);
+ ppStopLoop();
  ppSfx('win');
  poppySaveLevel(ppGame.cfg.n+1);
  renderPoppyPlay();
@@ -10123,19 +10117,19 @@ function renderPoppyPlay(){
  if(!scr||!ppGame)return;
  const g=ppGame,c=g.cfg;
  if(g.intro){
-  scr.innerHTML=`<div class="pp-end pp-intro-card"><div style="margin:0 auto">${ppPlayerSVG(100,'idle')}</div><div style="font-size:40px;margin:8px 0">${c.emoji}</div><h2>Chapter ${c.n}: ${c.name}</h2><p>${c.intro}</p><p style="font-size:13px;color:#888">${ppHint('D-pad: walk, Grab, Hide, Run','Keys: ← → walk · Space grab · Shift hide')}</p><button type="button" class="pp-btn wide" onclick="ppStartChapter()">Enter the Factory</button><button type="button" class="pp-btn wide ghost" onclick="closePoppyPlay();switchView('poppy')">Back</button></div>`;
+  scr.innerHTML=`<div class="pp-end pp-intro-card"><div style="margin:0 auto">${ppPlayerSVG(100,'idle')}</div><div style="font-size:40px;margin:8px 0">${c.emoji}</div><h2>Chapter ${c.n}: ${c.name}</h2><p>${c.intro}</p><p style="font-size:13px;color:#888">${ppHint('Hold Walk/Run buttons · Grab to interact · Hide at lockers','Hold ← → to walk · Space grab · Shift hide at lockers')}</p><button type="button" class="pp-btn wide" onclick="ppStartChapter()">Enter the Factory</button><button type="button" class="pp-btn wide ghost" onclick="closePoppyPlay();switchView('poppy')">Back</button></div>`;
   return;
  }
  if(g.won){
-  scr.innerHTML=`<div class="pp-end" style="padding:40px 20px"><div class="pp-player-wrap" style="position:relative;left:auto;transform:none;margin:0 auto 16px">${ppPlayerSVG(100,'idle')}</div><div class="big">🎉</div><h2>Chapter ${c.n} — Escaped!</h2><p class="pp-msg">${c.n<10?'You made it out… but the factory has more horrors.':'YOU ESCAPED THE FACTORY!'}</p><button type="button" class="pp-btn wide" onclick="closePoppyPlay();buildPoppyHub();switchView('poppy')">Back to Chapters</button>${c.n<10?`<button type="button" class="pp-btn wide ghost" onclick="playPoppyChapter(${c.n+1})">Chapter ${c.n+1} →</button>`:''}</div>`;
+  scr.innerHTML=`<div class="pp-end" style="padding:40px 20px"><div class="pp-player-wrap" style="position:relative;left:auto;transform:none;margin:0 auto 16px">${ppPlayerSVG(100,'idle')}</div><div class="big">🎉</div><h2>Chapter ${c.n} — Escaped!</h2><p class="pp-msg">${c.n<10?'You made it! Next chapter unlocked.':'YOU ESCAPED THE FACTORY!'}</p><button type="button" class="pp-btn wide" onclick="closePoppyPlay();buildPoppyHub();switchView('poppy')">Back to Chapters</button>${c.n<10?`<button type="button" class="pp-btn wide ghost" onclick="playPoppyChapter(${c.n+1})">Chapter ${c.n+1} →</button>`:''}</div>`;
   return;
  }
  if(g.lost){
-  scr.innerHTML=`<div class="pp-end" style="padding:40px 20px;background:linear-gradient(180deg,#200010,#07060c)">${ppMonsterSVG(true,110,true)}<h2 style="color:#ff0040">YOU DIED</h2><p class="pp-msg scary">${g.msg}</p><button type="button" class="pp-btn wide" onclick="playPoppyChapter(${c.n})">Try Again</button><button type="button" class="pp-btn wide ghost" onclick="closePoppyPlay();switchView('poppy')">Quit</button></div>`;
+  scr.innerHTML=`<div class="pp-end" style="padding:40px 20px">${ppMonsterSVG(true,90,true)}<h2 style="color:#ff6080">Caught!</h2><p class="pp-msg">${g.msg}</p><button type="button" class="pp-btn wide" onclick="playPoppyChapter(${c.n})">Try Again</button><button type="button" class="pp-btn wide ghost" onclick="closePoppyPlay();switchView('poppy')">Quit</button></div>`;
   return;
  }
- const scary=g.chaseActive||ppDangerLevel()>=2;
- scr.innerHTML=`<div class="pp-top"><span>Ch.${c.n}/10 · ${g.chaseActive?'💀 CHASE':c.mode==='patrol'?'👀 SNEAK':'🔦 EXPLORE'} · Fear ${Math.round(g.state.fear||0)}%</span><button type="button" class="pp-btn ghost" style="padding:8px 12px;min-height:auto" onclick="closePoppyPlay();switchView('poppy')">✕</button></div>${ppRenderWorld()}<div class="pp-overlay"><div class="pp-title">${c.emoji} ${c.name}</div><div class="pp-msg${scary?' scary':''}">${g.msg}</div>${ppIsMobile()?ppDpad():ppKeyboardHint()}</div>`;
+ const toast=g.toast?`<div class="pp-toast">${g.toast}</div>`:'';
+ scr.innerHTML=`<div class="pp-top"><span>Ch.${c.n}/10 · ${g.chaseActive?'🏃 CHASE':c.mode==='patrol'?'👀 SNEAK':'🔦 EXPLORE'}</span><button type="button" class="pp-btn ghost" style="padding:8px 12px;min-height:auto" onclick="closePoppyPlay();switchView('poppy')">✕</button></div>${ppRenderWorld()}${toast}<div class="pp-overlay"><div class="pp-title">${c.emoji} ${c.name}</div><div class="pp-msg">${g.msg}</div>${ppIsMobile()?ppDpad():ppKeyboardHint()}</div>`;
 }
 
 (function openHashView(){
