@@ -3620,15 +3620,25 @@ const views={
  video:document.getElementById('view-video'),
  parts:document.getElementById('view-parts')
 };
-const navBtns=[...document.querySelectorAll('nav.top button')];
+const navBtns=[...document.querySelectorAll('nav.top button[data-view]')];
 let learnBuilt=false;
 let classLessonsBuilt=false;
+function closeSiteOverlays(){
+ try{closeDrawer();}catch(_){}
+ try{closePoppyPlay();}catch(_){}
+ try{nsCloseGame();}catch(_){}
+ try{
+  brMaze=null;
+  const br=document.getElementById('brmaze');
+  if(br)br.remove();
+ }catch(_){}
+}
 function switchView(name){
  const gemHunt=name==='gemhunt';
  if(gemHunt) name='battlefield';
  if(!views[name])name='catalog';
- closePoppyPlay();
- Object.entries(views).forEach(([k,el])=>el.hidden=(k!==name));
+ closeSiteOverlays();
+ Object.entries(views).forEach(([k,el])=>{if(el)el.hidden=(k!==name);});
  navBtns.forEach(b=>b.classList.toggle('on',b.dataset.view===(gemHunt?'gemhunt':name)));
  syncMobileNav(gemHunt?'gemhunt':name);
  document.body.classList.toggle('in-game',name==='battlefield'||name==='game');
@@ -3654,12 +3664,17 @@ function switchView(name){
  if(name==='video'){buildVideoPlatform();}
  if(name==='parts'){buildParts();}
 }
-navBtns.forEach(b=>b.addEventListener('click',()=>switchView(b.dataset.view)));
-document.querySelectorAll('.mobile-bar button').forEach(b=>{
- b.addEventListener('click',()=>{
-  const v=b.dataset.mnav;
-  if(v) switchView(v);
- });
+document.querySelector('nav.top')?.addEventListener('click',e=>{
+ const btn=e.target.closest('button[data-view]');
+ if(!btn)return;
+ e.preventDefault();
+ switchView(btn.dataset.view);
+});
+document.querySelector('.mobile-bar')?.addEventListener('click',e=>{
+ const btn=e.target.closest('button[data-mnav]');
+ if(!btn||!btn.dataset.mnav)return;
+ e.preventDefault();
+ switchView(btn.dataset.mnav);
 });
 function syncMobileNav(name){
  document.querySelectorAll('.mobile-bar button').forEach(b=>{
@@ -10441,8 +10456,9 @@ function ppGameLoop(ts){
  ppGame.raf=requestAnimationFrame(ppGameLoop);
 }
 function ppStopLoop(){
- if(ppGame?.raf)cancelAnimationFrame(ppGame.raf);
- if(ppGame?.loop)clearInterval(ppGame.loop);
+ if(!ppGame)return;
+ if(ppGame.raf)cancelAnimationFrame(ppGame.raf);
+ if(ppGame.loop)clearInterval(ppGame.loop);
  ppGame.raf=null;ppGame.loop=null;
 }
 function ppStartLoop(){
