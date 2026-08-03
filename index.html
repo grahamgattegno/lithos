@@ -629,7 +629,7 @@
   .lesson .l-toggle{font-family:var(--mono);font-size:20px;color:var(--text-dim);transition:transform .3s}
   .lesson.open .l-toggle{transform:rotate(45deg)}
   .lesson .l-body{max-height:0;overflow:hidden;transition:max-height .4s ease}
-  .lesson.open .l-body{max-height:5000px}
+  .lesson.open .l-body{max-height:12000px}
   .lesson .l-inner{padding:0 36px 34px 96px;max-width:760px}
   .lesson-video{margin:0 0 24px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#050508}
   .lesson-video-stage{aspect-ratio:16/9;position:relative;background:#000}
@@ -637,6 +637,13 @@
   .lesson-video-cap{margin:0;padding:10px 14px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--text-faint);line-height:1.5}
   .lesson-video-cap a{color:var(--gold);text-decoration:none}
   .lesson-video-cap a:hover{text-decoration:underline}
+  .lesson-videos{display:flex;flex-direction:column;gap:18px;margin:0 0 24px}
+  .claw-quest-library{max-width:var(--site-max);margin:0 auto;padding:20px 40px 100px}
+  .claw-quest-library h2{font-family:var(--serif);font-weight:300;font-size:clamp(28px,4vw,44px);line-height:1.1;margin:12px 0 14px}
+  .claw-quest-library h2 em{font-style:italic;color:var(--gold)}
+  .claw-quest-library .lede{max-width:640px;font-size:15px;line-height:1.6;color:var(--text-dim);margin-bottom:28px}
+  .claw-quest-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:18px}
+  .claw-quest-card .lesson-video-cap{font-size:10px;line-height:1.45}
   .lesson .l-inner p{font-size:15.5px;line-height:1.75;color:var(--text);margin-bottom:16px}
   .lesson .l-inner p:last-child{margin-bottom:0}
   .lesson .l-inner strong{color:var(--gold);font-weight:500}
@@ -2702,10 +2709,16 @@
  <section class="learn-hero">
  <div class="eyebrow">The Fundamentals</div>
  <h1>How to <em>read</em> a gemstone</h1>
- <p class="lede">Five short lessons on what makes a stone a gem — each one opens with a <b>Claw Quest</b> video (click play for sound). Then test yourself in the Quiz.</p>
+ <p class="lede">Five short lessons on what makes a stone a gem — each includes multiple <b>Claw Quest</b> videos. Scroll down for the <b>full library (all 30 videos)</b>. Then test yourself in the Quiz.</p>
  <p class="partner-learn">Studying corundum or colored gems? Browse <a data-partner="gemsny" data-partner-path="gems" href="https://www.gemsny.com/gems" target="_blank" rel="sponsored noopener noreferrer">certified loose gemstones at GemsNY</a> — partner for natural sapphires, rubies, and emeralds (up to 5% affiliate commission).</p>
  </section>
  <div class="lessons" id="lessons"></div>
+ <section class="claw-quest-library">
+  <div class="eyebrow">Watch &amp; Learn</div>
+  <h2>All <em>Claw Quest</em> gem hunts</h2>
+  <p class="lede" id="claw-quest-lede">Every Claw Quest video on Lithos — privacy-enhanced embeds (nocookie mode, no related channels at end). Click play for sound.</p>
+  <div class="claw-quest-grid" id="claw-quest-grid"></div>
+ </section>
 </div><!-- /view-learn -->
 
 <div class="view" id="view-quiz" hidden>
@@ -3836,21 +3849,60 @@ window.addEventListener('hashchange',()=>{
 
 /* ---------- Lessons ---------- */
 const CLAW_QUEST='https://www.youtube.com/@clawquest';
+const CLAW_EMBED_QUERY='rel=0&modestbranding=1&iv_load_policy=3&playsinline=1';
+const CLAW_QUEST_VIDEOS=[
+ {id:'0eVAorqsMJY',title:'My College Apartment Tour! *IN FLORIDA*'},
+ {id:'5BRznrcws7U',title:'New York To Florida Road Trip! *Gone Wrong*'},
+ {id:'5gF6xZBm7zw',title:'Angry Man Broke Our Camera *LA VLOG*'},
+ {id:'6EhHsX0GOJQ',title:'I Bought 5 Abandoned Storage Units And Found...'},
+ {id:'CL7K45sJJxU',title:'Sneaking Snacks Into The Movie Theater.. *Challenge*'},
+ {id:'Dp_q9mO1Exw',title:'We put Two Pools into a MOVING Truck!'},
+ {id:'GLDroEC_JK8',title:"World's Largest Bowl Of Halloween Candy!"},
+ {id:'Gy4_t0JT-Xo',title:'I DoorDashed For 24 Hours Without Stopping..*Challenge*'},
+ {id:'HsIUL0ttCD0',title:'I Bought $5,000 Of Dirt To Find Gold!'},
+ {id:'JB7PIX7Ur0Y',title:'I Made the Largest Halloween Candy Bowl in History!'},
+ {id:'Stz3S3yAuws',title:'Facing My Biggest Fear.. *Florida Vlog*'},
+ {id:'TaXziyIjfHo',title:'I Found Treasure In Places Nobody Would Ever Look!'},
+ {id:'V4i97LZhq_8',title:'I Surprised BrentTV With A Custom Claw Machine!'},
+ {id:'VpU_9Ulnyyg',title:'I Searched For 3 Lost Treasures Across America!'},
+ {id:'Yfvnw_g7w2A',title:'Will it float? Testing Minecraft Boat in Real Life..'},
+ {id:'bC0Lt_ALURM',title:'Buying My Dream Car At Age 18..(Van Life Ep.1)'},
+ {id:'cGcO-fhVbnE',title:'Attempting to Break 24 World Records in 24 Hours!'},
+ {id:'d8_J8YgxxLQ',title:'I Mined A Real Emerald!'},
+ {id:'fHAfo4KtAYY',title:'I Found Treasure In The Hardest Place To Reach!'},
+ {id:'fkRSSShAT0M',title:'Saying Goodbye To The Love Of My Life!'},
+ {id:'fralcukz5hE',title:"Stealing a Famous YouTuber's Gold Play Button! (Van Life Ep.2)"},
+ {id:'hhQ75oZ-ngY',title:'I Made Money Grow On Trees! *Social Experiment*'},
+ {id:'lrc17cbsi_Y',title:'Buying Illegal Fireworks And Trying To Fly..'},
+ {id:'oN3e2EGiUrw',title:'I Found Treasure Under 100 Bridges'},
+ {id:'pzAyazQjVWE',title:'I Found Gold In Places Nobody Would Ever Look!'},
+ {id:'qm_4eAatnFI',title:'Overnight Challenge In a ZORB BALL On The Lake!'},
+ {id:'s8hTN4pAy1c',title:'I Found Lost Treasure Underwater Metal Detecting!'},
+ {id:'sVGLfB7damU',title:'I Bought $1,000 Of Dirt To Find Gold!'},
+ {id:'scGArR4kF7A',title:'I Found Diamonds In New York City Sidewalk Cracks!'},
+ {id:'yMbbR2EXkUQ',title:"Overnight In The World's Cheapest Hotel.."}
+];
+function clawQuestEmbedSrc(id){
+ return `https://www.youtube-nocookie.com/embed/${id}?${CLAW_EMBED_QUERY}`;
+}
+function clawQuestVideoCard(v,extraClass){
+ return `<div class="lesson-video${extraClass?(' '+extraClass):''}"><div class="lesson-video-stage"><iframe src="${clawQuestEmbedSrc(v.id)}" title="${v.title.replace(/"/g,'&quot;')}" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe></div><p class="lesson-video-cap"><a href="${CLAW_QUEST}" target="_blank" rel="noopener noreferrer">Claw Quest</a> · ${v.title} · click play for sound</p></div>`;
+}
 const LESSONS=[
  {title:"What makes a rock a gem",sub:"Beauty, durability, and rarity",
- video:{id:'scGArR4kF7A',title:'I Found Diamonds In New York City Sidewalk Cracks!'},body:`
+ videos:[CLAW_QUEST_VIDEOS[28],CLAW_QUEST_VIDEOS[24],CLAW_QUEST_VIDEOS[13]],body:`
  <p>Thousands of minerals exist, but only a few dozen are cut as gemstones. Three qualities decide which make the cut: <strong>beauty</strong> — colour, transparency, and the way light behaves inside the stone; <strong>durability</strong> — the ability to survive being worn without scratching or shattering; and <strong>rarity</strong> — scarcity is what turns a pretty crystal into a valuable one.</p>
  <p>A gem is almost always a <strong>crystal</strong>: atoms locked into a repeating three-dimensional pattern. That internal order is what produces flat faces, sharp angles, and the optical effects we prize. A few gems — opal and amber among them — are <strong>amorphous</strong>, with no ordered lattice at all, and are called mineraloids rather than true minerals.</p>
  <p>Colour usually comes not from the main ingredients but from trace impurities. The same mineral, corundum, is <strong>ruby</strong> when chromium sneaks in and <strong>sapphire</strong> when it's iron and titanium. Emerald and aquamarine are likewise the very same species — beryl — coloured by different elements.</p>`,
  tip:`Open Catalog and filter to Gemstones. Pick one stone you love and one you’d never wear — write one sentence for each on beauty, durability, and rarity. Then ask the AI Rock Teacher: “Compare [stone A] and [stone B].”`},
  {title:"How gemstones form",sub:"Heat, pressure, water, and deep time",
- video:{id:'d8_J8YgxxLQ',title:'I Mined A Real Emerald!'},body:`
+ videos:[CLAW_QUEST_VIDEOS[17],CLAW_QUEST_VIDEOS[8],CLAW_QUEST_VIDEOS[27]],body:`
  <p>Most gems are born in one of three settings. <strong>Igneous</strong> stones crystallize as molten rock cools — slowly enough, deep underground, for large clean crystals to grow. Diamond forms this way, over a hundred kilometres down, then rides to the surface in violent volcanic pipes.</p>
  <p><strong>Metamorphic</strong> gems form when existing rock is cooked and squeezed by heat and pressure without melting — ruby, sapphire, and jade come from this slow transformation. <strong>Hydrothermal</strong> gems grow from hot mineral-rich water seeping through cracks, which is where much emerald and amethyst comes from.</p>
  <p>A handful are outliers: <strong>opal</strong> settles out of silica-laden water near the surface, <strong>peridot</strong> rises from the deep mantle and even arrives in meteorites, and <strong>amber</strong> and <strong>ammolite</strong> are organic — fossilized resin and shell. The common thread is time: most of these processes take millions of years.</p>`,
  tip:`In Catalog, open diamond, emerald, and opal. For each, note formation style (igneous, hydrothermal, or near-surface). Ask the AI Rock Teacher “How do hydrothermal gems form?” and check your notes against the answer.`},
  {title:"The Mohs scale of hardness",sub:"Why diamond scratches everything",
- video:{id:'HsIUL0ttCD0',title:'I Bought $5,000 Of Dirt To Find Gold!'},body:`
+ videos:[CLAW_QUEST_VIDEOS[8],CLAW_QUEST_VIDEOS[27],CLAW_QUEST_VIDEOS[23]],body:`
  <p>Hardness measures resistance to scratching, ranked 1 to 10 on the <strong>Mohs scale</strong>. It's a ranking, not a measurement — the jumps aren't even. Diamond at 10 is roughly four times harder than corundum at 9, which is itself far harder than anything at 8.</p>
  <p>The rule is simple: a mineral can scratch anything softer than itself and be scratched by anything harder. This matters for jewellery. Stones under about 7 are softer than everyday dust (which contains quartz, hardness 7), so a soft gem worn daily slowly abrades to a dull surface.</p>
  <div class="scale">
@@ -3865,7 +3917,7 @@ const LESSONS=[
  <p>One caution: hardness is not toughness. <strong>Jade</strong> is only about 6.5 but is exceptionally tough — hard to break — because of its interlocking fibrous structure. Diamond is the hardest thing there is, yet it can cleave in two from a sharp knock along the right plane.</p>`,
  tip:`Ask the AI Rock Teacher for “Mohs 7 gems,” then find three catalog stones near Mohs 7. Rank them softest → hardest. Bonus: explain why jade can outlast a harder stone in a knock.`},
  {title:"The Four Cs",sub:"How value is judged",
- video:{id:'pzAyazQjVWE',title:'I Found Gold In Places Nobody Would Ever Look!'},body:`
+ videos:[CLAW_QUEST_VIDEOS[24],CLAW_QUEST_VIDEOS[11],CLAW_QUEST_VIDEOS[18]],body:`
  <p>The diamond trade standardized four factors that now shape how nearly all gems are valued.</p>
  <div class="cc-grid">
  <div class="cc"><h4>Colour</h4><p>For coloured stones, the single biggest value driver. The ideal is a pure, saturated hue that's neither too dark nor too pale. For diamonds, the opposite — the less colour, the rarer.</p></div>
@@ -3876,16 +3928,27 @@ const LESSONS=[
  <p>For coloured gemstones, most experts rank them <strong>colour first</strong>, then clarity and cut. For diamonds, cut is often considered the most important of the four, because it's what makes a diamond sparkle.</p>`,
  tip:`Pick a colored gem and a diamond from the catalog. Rank the Four Cs for each (1–4). Ask the AI Rock Teacher which C usually matters most for colored stones — see if you agree.`},
  {title:"Treatments and imposters",sub:"What you're really buying",
- video:{id:'sVGLfB7damU',title:'I Bought $1,000 Of Dirt To Find Gold!'},body:`
+ videos:[CLAW_QUEST_VIDEOS[27],CLAW_QUEST_VIDEOS[3],CLAW_QUEST_VIDEOS[26],CLAW_QUEST_VIDEOS[12]],body:`
  <p>Most gems on the market have been <strong>treated</strong> to improve appearance, and much of it is accepted trade practice — as long as it's disclosed. <strong>Heating</strong> deepens or clarifies colour in sapphire, ruby, and tanzanite and is extremely common. <strong>Irradiation</strong> turns colourless topaz vivid blue. Emeralds are routinely <strong>oil-filled</strong> to mask surface fractures.</p>
  <p>The value gap between treated and genuinely untreated stones can be enormous, which is why a reputable lab report matters. An untreated, certified Burmese ruby is worth many times a heated one of the same look.</p>
  <p>Then there are <strong>simulants</strong> and <strong>synthetics</strong> — two different things. A synthetic has the same chemistry as the natural stone but is grown in a lab (lab-grown diamond is real diamond). A simulant merely imitates the look — <strong>cubic zirconia</strong> and <strong>moissanite</strong> stand in for diamond but are entirely different materials. Neither is a scam if sold honestly; the problem is only ever non-disclosure.</p>`,
  tip:`Write two sentences: one that correctly describes a heated sapphire, one that correctly describes moissanite. Then quiz a grown-up — or ask the AI Rock Teacher “What is the difference between synthetic and simulant?”`}
 ];
 function lessonVideoHtml(l){
- if(!l.video) return '';
- const v=l.video;
- return `<div class="lesson-video"><div class="lesson-video-stage"><iframe src="https://www.youtube-nocookie.com/embed/${v.id}?rel=0" title="${v.title}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe></div><p class="lesson-video-cap"><a href="${CLAW_QUEST}" target="_blank" rel="noopener noreferrer">Claw Quest</a> · ${v.title} · click play for sound</p></div>`;
+ const vids=l.videos||(l.video?[l.video]:[]);
+ if(!vids.length) return '';
+ return `<div class="lesson-videos">${vids.map(v=>clawQuestVideoCard(v)).join('')}</div>`;
+}
+function buildClawQuestLibrary(){
+ const wrap=document.getElementById('claw-quest-grid');
+ if(!wrap) return;
+ wrap.innerHTML=CLAW_QUEST_VIDEOS.map(v=>clawQuestVideoCard(v,'claw-quest-card')).join('');
+ const lede=document.getElementById('claw-quest-lede');
+ if(lede) lede.innerHTML=`All <b>${CLAW_QUEST_VIDEOS.length}</b> Claw Quest videos on Lithos — privacy-enhanced embeds (nocookie mode, no related channels at end). <a href="${CLAW_QUEST}" target="_blank" rel="noopener noreferrer" style="color:var(--gold)">Subscribe on YouTube</a>. Click play for sound.`;
+}
+function lessonVidBadge(l){
+ const n=(l.videos||[]).length||(l.video?1:0);
+ return n?`<span class="l-vid-badge">▶ ${n} Claw Quest</span>`:'';
 }
 function bindLessonToggles(wrap){
  wrap.querySelectorAll('.lesson').forEach(les=>{
@@ -3901,7 +3964,7 @@ function buildLessons(){
  <div class="lesson">
  <button class="l-head" aria-expanded="false">
  <span class="l-num">${String(i+1).padStart(2,'0')}</span>
- <span style="flex:1"><span class="l-title">${l.title}</span>${l.video?'<span class="l-vid-badge">▶ Claw Quest</span>':''}<span class="l-sub">${l.sub}</span></span>
+ <span style="flex:1"><span class="l-title">${l.title}</span>${lessonVidBadge(l)}<span class="l-sub">${l.sub}</span></span>
  <span class="l-toggle">+</span>
  </button>
  <div class="l-body"><div class="l-inner">${lessonVideoHtml(l)}${l.body}</div></div>
@@ -3909,6 +3972,7 @@ function buildLessons(){
  bindLessonToggles(wrap);
  const first=wrap.querySelector('.lesson');
  if(first){first.classList.add('open');first.querySelector('.l-head').setAttribute('aria-expanded','true');}
+ buildClawQuestLibrary();
 }
 function buildClassLessons(){
  const wrap=document.getElementById('class-lessons');
@@ -3917,7 +3981,7 @@ function buildClassLessons(){
  <div class="lesson">
  <button class="l-head" aria-expanded="false">
  <span class="l-num">${String(i+1).padStart(2,'0')}</span>
- <span style="flex:1"><span class="l-title">${l.title}</span>${l.video?'<span class="l-vid-badge">▶ Claw Quest</span>':''}<span class="l-sub">${l.sub}</span></span>
+ <span style="flex:1"><span class="l-title">${l.title}</span>${lessonVidBadge(l)}<span class="l-sub">${l.sub}</span></span>
  <span class="l-toggle">+</span>
  </button>
  <div class="l-body"><div class="l-inner">${lessonVideoHtml(l)}${l.body}${l.tip?`<div class="member-tip"><div class="tip-label">Member tip</div><p>${l.tip}</p></div>`:''}</div></div>
