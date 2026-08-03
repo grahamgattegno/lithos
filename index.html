@@ -1239,7 +1239,7 @@
   }
   .mobile-bar button.on,.mobile-bar button:active{color:var(--gold);background:rgba(201,169,79,.1)}
 
-  /* ===== Poppy Playtime chapters ===== */
+  /* ===== Gem Factory chapters ===== */
   .poppy-wrap{max-width:1200px;margin:0 auto;padding:90px var(--content-pad) 80px}
   .poppy-wrap .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:#ff4d8d;margin-bottom:20px;text-align:center}
   .poppy-wrap h1{font-family:var(--serif);font-weight:300;font-size:clamp(36px,6vw,72px);line-height:1;text-align:center}
@@ -1342,38 +1342,40 @@
   .pp-end .big{font-size:56px;margin-bottom:12px}
   .pp-end h2{font-family:var(--serif);font-size:28px;color:#ff7eb3;margin-bottom:10px}
   #poppyplay{align-items:stretch;padding:0}
-  .pp-screen{width:100%;max-width:720px;height:100%;display:flex;flex-direction:column;color:#ece6f2;font-family:var(--sans);margin:0 auto}
+  .pp-screen{width:100%;max-width:720px;height:100%;display:flex;flex-direction:column;color:#ece6f2;font-family:var(--sans);margin:0 auto;min-height:0}
   .pp-top{flex:0 0 auto;padding:10px 14px 0}
-  .pp-world{flex:1;display:flex;flex-direction:column;min-height:0;position:relative}
-  .pp-scene{flex:1;position:relative;overflow:hidden;border-radius:0;background:radial-gradient(ellipse at 50% 20%,#1e1630,#07060c 70%);min-height:280px}
+  #pp-world-mount{flex:1 1 auto;min-height:280px;position:relative;overflow:hidden;pointer-events:auto;touch-action:manipulation}
+  #pp-toast-mount{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);pointer-events:none;z-index:20}
+  .pp-world{position:absolute;inset:0;display:flex;flex-direction:column;min-height:0;pointer-events:auto}
+  .pp-scene{flex:1;position:relative;overflow:hidden;border-radius:0;background:radial-gradient(ellipse at 50% 20%,#1a1030,#07060c 70%);min-height:280px}
   .pp-scene::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.015) 0 1px,transparent 1px 3px);pointer-events:none;z-index:5;opacity:.5}
-  .pp-scene-lights{position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(255,120,180,.12),transparent 55%);pointer-events:none}
+  .pp-scene-lights{position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(124,58,237,.14),transparent 55%);pointer-events:none}
   .pp-hall{position:absolute;inset:0;perspective:420px;perspective-origin:50% 38%}
   .pp-floor{position:absolute;left:-20%;right:-20%;bottom:0;height:58%;transform:rotateX(68deg);transform-origin:bottom;
-    background:linear-gradient(180deg,#1a1424,#0a0810);
-    background-image:repeating-linear-gradient(90deg,rgba(255,100,160,.07) 0 48px,transparent 48px 96px),
-      repeating-linear-gradient(0deg,rgba(255,100,160,.05) 0 48px,transparent 48px 96px);
-    box-shadow:0 -20px 60px rgba(255,77,141,.08) inset}
-  .pp-wall{position:absolute;bottom:18%;width:28%;height:62%;background:linear-gradient(180deg,#221a30,#0e0c14);border:1px solid rgba(255,120,180,.12)}
-  .pp-wall.left{left:0;transform:skewY(3deg);border-right:2px solid rgba(255,77,141,.15)}
-  .pp-wall.right{right:0;transform:skewY(-3deg);border-left:2px solid rgba(255,77,141,.15)}
-  .pp-back-wall{position:absolute;left:18%;right:18%;bottom:28%;height:42%;background:linear-gradient(180deg,#2a2038,#12101a);border:1px solid rgba(255,120,180,.1);border-radius:4px 4px 0 0}
+    background:linear-gradient(180deg,#141028,#080612);
+    background-image:repeating-linear-gradient(90deg,rgba(124,58,237,.08) 0 48px,transparent 48px 96px),
+      repeating-linear-gradient(0deg,rgba(16,185,129,.06) 0 48px,transparent 48px 96px);
+    box-shadow:0 -20px 60px rgba(124,58,237,.1) inset}
+  .pp-wall{position:absolute;bottom:18%;width:28%;height:62%;background:linear-gradient(180deg,#1e1440,#0c0818);border:1px solid rgba(124,58,237,.15)}
+  .pp-wall.left{left:0;transform:skewY(3deg);border-right:2px solid rgba(16,185,129,.18)}
+  .pp-wall.right{right:0;transform:skewY(-3deg);border-left:2px solid rgba(59,130,246,.18)}
+  .pp-back-wall{position:absolute;left:18%;right:18%;bottom:28%;height:42%;background:linear-gradient(180deg,#221838,#0e0c18);border:1px solid rgba(167,139,250,.12);border-radius:4px 4px 0 0}
   .pp-prop{position:absolute;transform:translateX(-50%);bottom:32%;font-size:clamp(28px,8vw,44px);filter:drop-shadow(0 8px 12px rgba(0,0,0,.5));transition:left .25s ease,transform .2s;z-index:2;cursor:pointer;touch-action:manipulation;border:none;background:none;padding:0}
   .pp-prop:active{transform:translateX(-50%) scale(.94)}
   .pp-prop.glow{animation:ppGlow 1s ease-in-out infinite}
   @keyframes ppGlow{0%,100%{filter:drop-shadow(0 0 8px rgba(255,77,141,.5))}50%{filter:drop-shadow(0 0 18px rgba(255,77,141,.9))}}
-  .pp-monster-far{position:absolute;left:50%;bottom:38%;transform:translateX(-50%);z-index:1;transition:transform .3s,opacity .3s}
-  .pp-monster-far.close{transform:translateX(-50%) scale(1.35);filter:drop-shadow(0 0 20px rgba(255,50,100,.6))}
-  .pp-player-wrap{position:absolute;left:50%;bottom:6%;transform:translateX(-50%);z-index:4;transition:left .22s ease}
+  .pp-monster-far{position:absolute;left:50%;bottom:38%;transform:translateX(-50%);z-index:4;transition:transform .3s,opacity .3s;pointer-events:none}
+  .pp-monster-far.close{transform:translateX(-50%) scale(1.35);filter:drop-shadow(0 0 20px rgba(124,58,237,.6))}
+  .pp-player-wrap{position:absolute;left:50%;bottom:6%;transform:translateX(-50%);z-index:4;transition:left .22s ease;pointer-events:none}
   .pp-player-wrap.walk{animation:ppWalkBob .35s ease-in-out infinite}
   .pp-player-wrap.crouch{transform:translateX(-50%) scale(.88) translateY(8px)}
   .pp-player-wrap.run{animation:ppRunBob .2s ease-in-out infinite}
   @keyframes ppWalkBob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-5px)}}
   @keyframes ppRunBob{0%,100%{transform:translateX(-50%) translateY(0) scale(1)}50%{transform:translateX(-50%) translateY(-8px) scale(1.02)}}
-  .pp-player-shadow{position:absolute;left:50%;bottom:4%;width:80px;height:16px;background:radial-gradient(ellipse,rgba(0,0,0,.55),transparent 70%);transform:translateX(-50%);z-index:3;border-radius:50%}
+  .pp-player-shadow{position:absolute;left:50%;bottom:4%;width:80px;height:16px;background:radial-gradient(ellipse,rgba(0,0,0,.55),transparent 70%);transform:translateX(-50%);z-index:3;border-radius:50%;pointer-events:none}
   .pp-hud{position:absolute;top:10px;left:10px;right:10px;z-index:6;display:flex;justify-content:space-between;gap:8px;pointer-events:none}
-  .pp-hud-pill{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;background:rgba(0,0,0,.55);border:1px solid rgba(255,120,180,.25);padding:6px 10px;border-radius:20px;color:#ffb8d4}
-  .pp-overlay{position:relative;z-index:7;background:rgba(8,6,12,.82);border-top:1px solid rgba(255,120,180,.2);padding:14px 14px calc(14px + env(safe-area-inset-bottom,0px));backdrop-filter:blur(8px)}
+  .pp-hud-pill{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;background:rgba(0,0,0,.55);border:1px solid rgba(124,58,237,.35);padding:6px 10px;border-radius:20px;color:#c4b5fd}
+  .pp-overlay{flex:0 0 auto;position:relative;z-index:7;background:rgba(8,6,12,.82);border-top:1px solid rgba(124,58,237,.25);padding:14px 14px calc(14px + env(safe-area-inset-bottom,0px));backdrop-filter:blur(8px);pointer-events:auto}
   .pp-dpad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:280px;margin:12px auto 0}
   .pp-dpad button{min-height:52px;font-size:20px;border-radius:12px;background:rgba(255,77,141,.15);border:1px solid rgba(255,120,180,.35);color:#fff;touch-action:manipulation}
   .pp-dpad button:active{background:rgba(255,77,141,.35)}
@@ -1404,7 +1406,7 @@
   .pp-heartbeat{position:absolute;inset:0;pointer-events:none;z-index:9;background:radial-gradient(ellipse at center,transparent 40%,rgba(255,0,30,.08) 100%);animation:ppHeartPulse 1s ease-in-out infinite;opacity:0}
   .pp-heartbeat.on{opacity:1}
   @keyframes ppHeartPulse{0%,100%{transform:scale(1);opacity:.3}50%{transform:scale(1.04);opacity:.7}}
-  .pp-fear-bar{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:min(200px,60%);height:6px;background:rgba(0,0,0,.6);border-radius:999px;overflow:hidden;z-index:6;border:1px solid rgba(255,50,80,.3)}
+  .pp-fear-bar{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:min(200px,60%);height:6px;background:rgba(0,0,0,.6);border-radius:999px;overflow:hidden;z-index:6;border:1px solid rgba(255,50,80,.3);pointer-events:none}
   .pp-fear-fill{height:100%;background:linear-gradient(90deg,#660022,#ff0040);transition:width .2s}
   .pp-jumpscare{position:fixed;inset:0;z-index:10001;background:#000;display:flex;align-items:center;justify-content:center;animation:ppJumpFlash .5s ease-out forwards;pointer-events:none}
   @keyframes ppJumpFlash{0%{background:#fff;opacity:1}15%{background:#200010;opacity:1}100%{opacity:0}}
@@ -1417,29 +1419,57 @@
   @keyframes ppStompFlash{from{opacity:1}to{opacity:0}}
   .pp-msg.scary{color:#ff6080;font-weight:700;text-shadow:0 0 12px rgba(255,0,60,.5);animation:ppMsgPulse .5s ease-in-out infinite alternate}
   @keyframes ppMsgPulse{from{opacity:.85}to{opacity:1}}
-  .pp-chase-bar-wrap{position:absolute;top:42px;left:10px;right:10px;z-index:6;height:8px;background:rgba(0,0,0,.5);border-radius:999px;overflow:hidden;border:1px solid rgba(255,50,80,.3)}
+  .pp-chase-bar-wrap{position:absolute;top:42px;left:10px;right:10px;z-index:6;height:8px;background:rgba(0,0,0,.5);border-radius:999px;overflow:hidden;border:1px solid rgba(255,50,80,.3);pointer-events:none}
   .pp-chase-bar{height:100%;background:linear-gradient(90deg,#ff0040,#ff6080);transition:width .15s}
   .pp-footprint{position:absolute;bottom:30%;font-size:18px;opacity:.25;pointer-events:none;animation:ppFadePrint 2s ease-out forwards}
   @keyframes ppFadePrint{to{opacity:0;transform:translateY(-10px)}}
-  .pp-corridor{position:absolute;inset:0;overflow:hidden}
-  .pp-corridor-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 30%,rgba(255,100,160,.08),transparent 70%)}
-  .pp-ceiling{position:absolute;left:-10%;right:-10%;top:0;height:22%;background:linear-gradient(180deg,#1a1424,#0a0810);border-bottom:2px solid rgba(255,77,141,.1)}
+  .pp-corridor{position:absolute;inset:0;overflow:hidden;pointer-events:auto}
+  .pp-corridor-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 30%,rgba(124,58,237,.1),transparent 70%);pointer-events:none}
+  .pp-ceiling{position:absolute;left:-10%;right:-10%;top:0;height:22%;background:linear-gradient(180deg,#1a1424,#0a0810);border-bottom:2px solid rgba(124,58,237,.15);pointer-events:none}
+  .pp-floor,.pp-wall,.pp-back-wall{pointer-events:none}
   .pp-pipe{position:absolute;height:8px;background:linear-gradient(180deg,#4a5060,#2a3040);border-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,.4)}
-  .pp-obj{position:absolute;transform:translateX(-50%);z-index:3;cursor:pointer;touch-action:manipulation;border:none;background:none;padding:0;transition:filter .15s}
-  .pp-obj.glow{filter:drop-shadow(0 0 14px rgba(255,77,141,.9))}
-  .pp-obj-crate{width:clamp(40px,11vw,56px);height:clamp(36px,9vw,48px);background:linear-gradient(165deg,#7a5840 0%,#4a3828 40%,#2a2018 100%);border:2px solid #5a4838;border-radius:5px;box-shadow:0 10px 20px rgba(0,0,0,.55),inset 0 2px 0 rgba(255,255,255,.08)}
-  .pp-obj-crate::after{content:'';position:absolute;left:15%;right:15%;top:40%;height:3px;background:rgba(0,0,0,.3);border-radius:2px}
-  .pp-obj-locker{width:clamp(32px,9vw,44px);height:clamp(64px,18vw,88px);background:linear-gradient(90deg,#4a5060,#2a3040 50%,#3a4050);border:2px solid #6a7080;border-radius:4px;box-shadow:0 8px 18px rgba(0,0,0,.5)}
-  .pp-obj-locker::before{content:'';position:absolute;right:6px;top:50%;width:6px;height:6px;background:#888;border-radius:50%}
-  .pp-obj-door{width:clamp(44px,12vw,60px);height:clamp(76px,20vw,100px);background:linear-gradient(180deg,#3a2838,#1a1018);border:3px solid #ff4d8d;border-radius:6px 6px 0 0;box-shadow:0 0 20px rgba(255,77,141,.3),inset 0 0 30px rgba(0,0,0,.5)}
+  .pp-obj{position:absolute;transform:translateX(-50%);z-index:15;cursor:pointer;touch-action:manipulation;border:none;background:transparent;padding:4px;transition:filter .15s;pointer-events:auto;min-width:48px;min-height:48px;display:flex;align-items:flex-end;justify-content:center}
+  .pp-obj.glow{filter:drop-shadow(0 0 14px rgba(16,185,129,.95))}
+  .pp-obj-crate{width:clamp(40px,11vw,56px);height:clamp(36px,9vw,48px);position:relative;
+    background:linear-gradient(165deg,#4a3868 0%,#2a2048 35%,#1a1430 100%);
+    border:2px solid #7c3aed;border-radius:5px;
+    box-shadow:0 10px 20px rgba(0,0,0,.55),inset 0 2px 0 rgba(167,139,250,.15),0 0 12px rgba(124,58,237,.2)}
+  .pp-obj-crate::after{content:'';position:absolute;left:15%;right:15%;top:40%;height:3px;background:rgba(251,191,36,.35);border-radius:2px}
+  .pp-obj-locker{width:clamp(32px,9vw,44px);height:clamp(64px,18vw,88px);position:relative;
+    background:linear-gradient(180deg,rgba(124,58,237,.35),rgba(30,20,50,.85));
+    border:2px solid rgba(167,139,250,.5);border-radius:8px;
+    box-shadow:0 8px 18px rgba(0,0,0,.5),inset 0 0 20px rgba(124,58,237,.15)}
+  .pp-obj-locker::before{content:'';position:absolute;inset:4px;border:1px solid rgba(16,185,129,.25);border-radius:6px}
+  .pp-obj-locker::after{content:'';position:absolute;right:6px;top:50%;width:6px;height:6px;background:#10b981;border-radius:50%;box-shadow:0 0 8px rgba(16,185,129,.6)}
+  .pp-obj-door{width:clamp(44px,12vw,60px);height:clamp(76px,20vw,100px);position:relative;
+    background:linear-gradient(180deg,#1a2838,#0a1018);
+    border:3px solid #10b981;border-radius:6px 6px 0 0;
+    box-shadow:0 0 20px rgba(16,185,129,.35),inset 0 0 30px rgba(0,0,0,.5)}
   .pp-obj-door.locked{border-color:#4a4058;box-shadow:none;opacity:.5}
-  .pp-obj-console{width:clamp(36px,10vw,50px);height:clamp(48px,12vw,64px);background:linear-gradient(180deg,#1a3040,#0a1820);border:2px solid #4a8090;border-radius:4px;box-shadow:0 0 12px rgba(80,180,200,.2)}
-  .pp-obj-console::after{content:'';position:absolute;left:20%;top:25%;width:60%;height:8px;background:#3fa34d;border-radius:2px;box-shadow:0 0 8px #3fa34d}
+  .pp-obj-console{width:clamp(36px,10vw,50px);height:clamp(48px,12vw,64px);position:relative;
+    background:linear-gradient(180deg,#1a2840,#0a1420);border:2px solid #3b82f6;border-radius:6px;
+    box-shadow:0 0 12px rgba(59,130,246,.25),inset 0 0 16px rgba(59,130,246,.08)}
+  .pp-obj-console::after{content:'';position:absolute;left:20%;top:25%;width:60%;height:8px;background:#10b981;border-radius:2px;box-shadow:0 0 8px #10b981}
   .pp-obj-console.done::after{background:#666;box-shadow:none}
-  .pp-obj-lever{width:clamp(28px,8vw,38px);height:clamp(52px,14vw,68px);background:linear-gradient(180deg,#3a3848,#1a1820);border:2px solid #5a5868;border-radius:4px}
-  .pp-obj-lever::before{content:'';position:absolute;top:8px;left:50%;transform:translateX(-50%);width:8px;height:28px;background:#ff4d8d;border-radius:4px}
-  .pp-obj-label{position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:8px;letter-spacing:.08em;color:#ffb8d4;white-space:nowrap;text-transform:uppercase}
-  .pp-player-wrap{position:absolute;left:50%;bottom:8%;transform:translateX(-50%);z-index:5;will-change:transform}
+  .pp-obj-lever{width:clamp(28px,8vw,38px);height:clamp(52px,14vw,68px);position:relative;
+    background:linear-gradient(180deg,#2a2040,#121020);border:2px solid #7c3aed;border-radius:4px;
+    box-shadow:0 10px 22px rgba(0,0,0,.55)}
+  .pp-obj-lever::before{content:'';position:absolute;top:8px;left:50%;transform:translateX(-50%);width:8px;height:28px;background:linear-gradient(180deg,#a78bfa,#7c3aed);border-radius:4px;box-shadow:0 0 10px rgba(124,58,237,.5)}
+  .pp-obj-label{position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:8px;letter-spacing:.08em;color:#a7f3d0;white-space:nowrap;text-transform:uppercase;pointer-events:none}
+  .pp-hall{z-index:10}
+  .pp-obj-obstacle{position:absolute;transform:translateX(-50%);z-index:11;pointer-events:none}
+  .pp-obs-block .pp-obs-crystal{width:clamp(36px,10vw,52px);height:clamp(48px,13vw,68px);background:linear-gradient(165deg,#6366f1,#312e81);border:2px solid #818cf8;border-radius:4px;box-shadow:0 8px 20px rgba(99,102,241,.4),inset 0 0 16px rgba(167,139,250,.2);transform:perspective(120px) rotateX(8deg)}
+  .pp-obs-laser .pp-obs-laser-beam{width:clamp(8px,2vw,12px);height:clamp(64px,18vw,88px);background:linear-gradient(180deg,rgba(239,68,68,.9),rgba(239,68,68,.2));box-shadow:0 0 20px rgba(239,68,68,.7);animation:ppLaserPulse 1.2s ease-in-out infinite}
+  .pp-obs-laser.safe .pp-obs-laser-beam{opacity:.25;animation:none}
+  @keyframes ppLaserPulse{0%,100%{opacity:1}50%{opacity:.5}}
+  .pp-obs-gate .pp-obs-gate-door{width:clamp(40px,11vw,56px);height:clamp(72px,20vw,96px);background:linear-gradient(180deg,#374151,#111827);border:3px solid #ef4444;border-radius:4px 4px 0 0;box-shadow:0 0 16px rgba(239,68,68,.4);transition:transform .4s,opacity .4s}
+  .pp-obs-gate.open .pp-obs-gate-door{transform:translateY(-80%);opacity:.2}
+  .pp-obs-collapse .pp-obs-rubble{width:clamp(44px,12vw,60px);height:clamp(28px,8vw,40px);background:linear-gradient(180deg,#4b5563,#1f2937);border-radius:4px;box-shadow:0 6px 16px rgba(0,0,0,.6);border:1px solid #6b7280}
+  .pp-obs-shard{width:clamp(32px,9vw,44px);height:clamp(20px,6vw,28px);background:radial-gradient(ellipse,rgba(124,58,237,.7),rgba(16,185,129,.3));border-radius:40% 60% 50% 40%;opacity:.7}
+  .pp-gore-vignette{position:absolute;inset:0;pointer-events:none;z-index:3;background:radial-gradient(ellipse at 50% 100%,rgba(139,0,80,.25),transparent 60%)}
+  .pp-boss-phase{position:absolute;top:38px;left:50%;transform:translateX(-50%);z-index:6;font-family:var(--mono);font-size:9px;letter-spacing:.16em;color:#ff6080;text-transform:uppercase;pointer-events:none}
+  .pp-gate-timer{position:absolute;top:38px;right:10px;z-index:6;font-family:var(--mono);font-size:10px;color:#ff4040;background:rgba(0,0,0,.6);padding:4px 10px;border-radius:8px;border:1px solid rgba(255,64,64,.4);pointer-events:none}
+  .pp-player-wrap{position:absolute;left:50%;bottom:8%;transform:translateX(-50%);z-index:5;will-change:transform;pointer-events:none}
   .pp-floor{position:absolute;left:-30%;right:-30%;bottom:0;height:52%;transform:rotateX(62deg);transform-origin:bottom;
     background:linear-gradient(180deg,#221a2a,#0a0810);
     background-image:repeating-linear-gradient(90deg,rgba(255,100,160,.09) 0 64px,transparent 64px 128px),
@@ -1448,20 +1478,20 @@
   .pp-wall.left,.pp-wall.right{bottom:14%;height:66%}
   .pp-back-wall{bottom:24%;height:48%;transition:opacity .2s}
   .pp-dpad button.pp-hold-active{background:rgba(255,77,141,.45)!important;transform:scale(.95)}
-  .pp-progress{position:absolute;top:46px;left:10px;right:10px;z-index:6;height:5px;background:rgba(0,0,0,.5);border-radius:999px;overflow:hidden}
+  .pp-progress{position:absolute;top:46px;left:10px;right:10px;z-index:6;height:5px;background:rgba(0,0,0,.5);border-radius:999px;overflow:hidden;pointer-events:none}
   .pp-progress-fill{height:100%;background:linear-gradient(90deg,#ff4d8d,#ff7eb3);transition:width .3s}
   .pp-toast{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10;font-family:var(--mono);font-size:13px;background:rgba(0,0,0,.75);border:1px solid rgba(255,77,141,.4);padding:10px 18px;border-radius:10px;color:#ffb8d4;pointer-events:none;animation:ppToast .8s ease-out forwards}
   @keyframes ppToast{0%{opacity:0;transform:translate(-50%,-40%)}15%{opacity:1}85%{opacity:1}100%{opacity:0;transform:translate(-50%,-60%)}}
   .pp-fog{position:absolute;inset:0;pointer-events:none;z-index:1;background:linear-gradient(90deg,rgba(0,0,0,.35),transparent 20%,transparent 80%,rgba(0,0,0,.35))}
   .pp-grain{position:absolute;inset:0;pointer-events:none;z-index:4;opacity:.06;background-image:repeating-linear-gradient(0deg,#fff 0 1px,transparent 1px 2px);mix-blend-mode:overlay}
-  .pp-mood{position:absolute;top:56px;left:50%;transform:translateX(-50%);z-index:6;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;padding:5px 12px;border-radius:20px;background:rgba(0,0,0,.5);border:1px solid rgba(255,120,180,.2);white-space:nowrap}
+  .pp-mood{position:absolute;top:56px;left:50%;transform:translateX(-50%);z-index:6;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;padding:5px 12px;border-radius:20px;background:rgba(0,0,0,.5);border:1px solid rgba(124,58,237,.25);white-space:nowrap;pointer-events:none}
   .pp-spark{position:absolute;width:6px;height:6px;background:#ff7eb3;border-radius:50%;pointer-events:none;z-index:8;animation:ppSpark .5s ease-out forwards}
   @keyframes ppSpark{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:translate(var(--dx,0),var(--dy,-30px)) scale(0)}}
   .pp-chase-pulse{position:absolute;inset:0;pointer-events:none;z-index:2;background:radial-gradient(circle at 50% 80%,rgba(255,0,50,.12),transparent 60%);animation:ppHeartPulse .6s ease-in-out infinite}
   .pp-music-glow{position:absolute;inset:0;pointer-events:none;z-index:1;background:radial-gradient(circle at 50% 40%,rgba(120,80,255,.12),transparent 55%);animation:ppMusicPulse 2s ease-in-out infinite alternate}
   @keyframes ppMusicPulse{from{opacity:.3}to{opacity:.8}}
   .pp-whisper{position:absolute;bottom:52%;left:50%;transform:translateX(-50%);z-index:6;font-family:var(--serif);font-style:italic;font-size:14px;color:rgba(255,150,180,.7);pointer-events:none;animation:ppFadePrint 3s ease-out forwards;text-align:center;max-width:90%}
-  /* Playtime Co — VHS, gore, branding */
+  /* Gem Factory — VHS, gore, branding */
   .pp-vhs{position:fixed;inset:0;z-index:10002;background:#0a0810;display:flex;flex-direction:column;align-items:center;justify-content:center;animation:ppVhsOut 2.8s ease-out forwards}
   @keyframes ppVhsOut{0%,75%{opacity:1}100%{opacity:0;pointer-events:none}}
   .pp-vhs-static{position:absolute;inset:0;opacity:.12;background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(255,255,255,.4) 2px 3px);animation:ppVhsStatic .08s steps(4) infinite}
@@ -1471,7 +1501,10 @@
   .pp-vhs-rec{color:#ff0040;font-size:12px;margin-top:16px;animation:ppRecBlink 1s steps(2) infinite;z-index:1}
   @keyframes ppRecBlink{50%{opacity:0}}
   .pp-playtime-sign{position:absolute;top:18%;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:9px;letter-spacing:.25em;color:rgba(255,215,0,.35);z-index:2;white-space:nowrap}
-  .pp-blood{position:absolute;pointer-events:none;z-index:2;opacity:.55}
+  .pp-blood{position:absolute;pointer-events:none;z-index:2;opacity:.55;
+    background:radial-gradient(ellipse,rgba(124,58,237,.5),rgba(16,185,129,.2));border-radius:40% 60% 50% 40%}
+  .pp-blood.pp-shard-1{width:48px;height:28px;bottom:34%;transform:rotate(-15deg)}
+  .pp-blood.pp-shard-2{width:36px;height:22px;bottom:32%;transform:rotate(20deg)}
   .pp-blood-1{left:8%;bottom:38%;width:40px;height:50px;background:radial-gradient(ellipse,#8b0000 30%,transparent 70%);transform:rotate(-15deg)}
   .pp-blood-2{right:12%;bottom:42%;width:30px;height:40px;background:radial-gradient(ellipse,#6b0000 40%,transparent 70%)}
   .pp-blood-3{left:45%;bottom:35%;width:24px;height:30px;background:radial-gradient(ellipse,#5a0000 50%,transparent 70%);opacity:.35}
@@ -1561,67 +1594,98 @@
   .pp-rplayer.grab .pp-rgrabpack{transform:rotate(-35deg) scale(1.05)}
   .pp-rplayer .pp-rgrab-arm{height:100%;background:linear-gradient(90deg,#2a3848,#1a2838);border-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,.5);position:relative}
   .pp-rplayer .pp-rgrab-arm::after{content:'';position:absolute;right:-18%;top:50%;transform:translateY(-50%);width:22%;height:140%;
-    background:linear-gradient(180deg,#3a90e8,#1565b8);border-radius:50%;box-shadow:0 0 12px rgba(60,140,220,.4),inset 0 -4px 8px rgba(0,0,0,.3)}
+    background:linear-gradient(180deg,#34d399,#10b981);border-radius:50%;box-shadow:0 0 12px rgba(16,185,129,.5),inset 0 -4px 8px rgba(0,0,0,.3)}
   .pp-rplayer.crouch{transform:scale(.88) translateY(10%)}
   .pp-rplayer.crouch .pp-rtorso{height:32%}
 
-  /* Huggy Wuggy — realistic fuzzy toy */
-  .pp-rhuggy{width:var(--pp-msz,80px);height:calc(var(--pp-msz,80px)*1.6);position:relative;filter:drop-shadow(0 16px 30px rgba(0,0,0,.8))}
+  /* Crystal Stalker — gem golem monster (huggy type) */
+  .pp-rhuggy{width:var(--pp-msz,80px);height:calc(var(--pp-msz,80px)*1.6);position:relative;filter:drop-shadow(0 16px 30px rgba(124,58,237,.5))}
   .pp-rhuggy .pp-rh-body{position:absolute;bottom:18%;left:50%;transform:translateX(-50%);width:55%;height:55%;
-    background:radial-gradient(ellipse at 35% 25%,#4a8ae8,#2560b0 40%,#1a4080 100%);
-    border-radius:40% 40% 35% 35%;
-    box-shadow:inset 0 -8px 20px rgba(0,0,0,.4),inset 0 4px 12px rgba(100,160,255,.2),0 8px 20px rgba(0,0,0,.5);
-    background-image:repeating-radial-gradient(circle at 20% 30%,rgba(255,255,255,.06) 0 2px,transparent 2px 6px)}
+    background:radial-gradient(ellipse at 35% 25%,#6ee7b7,#10b981 35%,#065f46 100%);
+    border-radius:30% 30% 25% 25%;
+    box-shadow:inset 0 -8px 20px rgba(0,0,0,.4),inset 0 4px 12px rgba(167,243,208,.2),0 8px 20px rgba(0,0,0,.5);
+    background-image:repeating-linear-gradient(125deg,rgba(255,255,255,.08) 0 2px,transparent 2px 8px)}
   .pp-rhuggy .pp-rh-head{position:absolute;top:8%;left:50%;transform:translateX(-50%);width:48%;height:38%;
-    background:radial-gradient(ellipse at 40% 30%,#5a9af0,#2868c0 50%,#1a4890);
-    border-radius:45% 45% 40% 40%;box-shadow:inset 0 -6px 16px rgba(0,0,0,.35),0 6px 16px rgba(0,0,0,.5);
-    background-image:repeating-radial-gradient(circle at 30% 40%,rgba(255,255,255,.07) 0 1px,transparent 1px 5px)}
+    background:radial-gradient(ellipse at 40% 30%,#a7f3d0,#34d399 45%,#047857);
+    border-radius:40% 40% 35% 35%;box-shadow:inset 0 -6px 16px rgba(0,0,0,.35),0 6px 16px rgba(0,0,0,.5);
+    background-image:repeating-linear-gradient(115deg,rgba(255,255,255,.1) 0 1px,transparent 1px 6px)}
   .pp-rhuggy .pp-rh-eye{position:absolute;top:38%;width:14%;height:12%;background:#0a0a0a;border-radius:50%;box-shadow:inset 0 0 6px #000}
   .pp-rhuggy .pp-rh-eye-l{left:22%}.pp-rhuggy .pp-rh-eye-r{right:22%}
-  .pp-rhuggy .pp-rh-pupil{position:absolute;top:25%;left:25%;width:50%;height:50%;background:#ff0020;border-radius:50%;box-shadow:0 0 8px rgba(255,0,40,.8)}
+  .pp-rhuggy .pp-rh-pupil{position:absolute;top:25%;left:25%;width:50%;height:50%;background:#7c3aed;border-radius:50%;box-shadow:0 0 8px rgba(124,58,237,.9)}
   .pp-rhuggy.alert .pp-rh-pupil,.pp-rhuggy.chase .pp-rh-pupil{animation:ppEyeGlow .4s ease-in-out infinite alternate}
   .pp-rhuggy .pp-rh-mouth{position:absolute;bottom:18%;left:50%;transform:translateX(-50%);width:50%;height:16%;overflow:hidden}
-  .pp-rhuggy .pp-rh-mouth-inner{width:100%;height:100%;background:#1a0810;border-radius:0 0 40% 40%;border:2px solid #0a0408}
+  .pp-rhuggy .pp-rh-mouth-inner{width:100%;height:100%;background:#0f172a;border-radius:0 0 40% 40%;border:2px solid #064e3b}
   .pp-rhuggy.chase .pp-rh-teeth{position:absolute;bottom:0;left:0;right:0;height:60%;display:flex;justify-content:center;gap:2px;padding:0 8%}
-  .pp-rhuggy.chase .pp-rh-teeth span{display:block;width:8%;height:100%;background:linear-gradient(180deg,#eee,#aaa);clip-path:polygon(50% 0,0 100%,100% 100%)}
-  .pp-rhuggy .pp-rh-hand{position:absolute;bottom:28%;width:18%;height:22%;background:radial-gradient(ellipse,#ffd700,#cc9900);border-radius:50%;box-shadow:0 4px 10px rgba(0,0,0,.5)}
+  .pp-rhuggy.chase .pp-rh-teeth span{display:block;width:8%;height:100%;background:linear-gradient(180deg,#e2e8f0,#94a3b8);clip-path:polygon(50% 0,0 100%,100% 100%)}
+  .pp-rhuggy .pp-rh-hand{position:absolute;bottom:28%;width:18%;height:22%;background:radial-gradient(ellipse,#a78bfa,#7c3aed);border-radius:30%;box-shadow:0 4px 10px rgba(124,58,237,.4)}
   .pp-rhuggy .pp-rh-hand-l{left:-4%}.pp-rhuggy .pp-rh-hand-r{right:-4%}
-  .pp-rhuggy .pp-rh-foot{position:absolute;bottom:0;width:20%;height:14%;background:radial-gradient(ellipse,#ffd700,#aa7700);border-radius:50% 50% 40% 40%;box-shadow:0 4px 8px rgba(0,0,0,.5)}
+  .pp-rhuggy .pp-rh-foot{position:absolute;bottom:0;width:20%;height:14%;background:radial-gradient(ellipse,#6ee7b7,#059669);border-radius:50% 50% 40% 40%;box-shadow:0 4px 8px rgba(0,0,0,.5)}
   .pp-rhuggy .pp-rh-foot-l{left:18%}.pp-rhuggy .pp-rh-foot-r{right:18%}
-  .pp-rhuggy .pp-rh-limb{position:absolute;background:radial-gradient(ellipse at 30% 30%,#4a8ae8,#2560b0);border-radius:40%;box-shadow:inset 0 -4px 8px rgba(0,0,0,.3)}
+  .pp-rhuggy .pp-rh-limb{position:absolute;background:linear-gradient(180deg,#34d399,#047857);border-radius:40%;box-shadow:inset 0 -4px 8px rgba(0,0,0,.3)}
   .pp-rhuggy .pp-rh-limb-tl{top:0;left:-8%;width:14%;height:35%;transform:rotate(-25deg)}
   .pp-rhuggy .pp-rh-limb-tr{top:0;right:-8%;width:14%;height:35%;transform:rotate(25deg)}
 
-  /* Mommy Long Legs */
-  .pp-rmommy{width:var(--pp-msz,70px);height:calc(var(--pp-msz,70px)*2);position:relative;filter:drop-shadow(0 16px 30px rgba(0,0,0,.8))}
+  /* Gem Golem — tall sapphire crystal boss */
+  .pp-rgolem{width:var(--pp-msz,80px);height:calc(var(--pp-msz,80px)*2.1);position:relative;filter:drop-shadow(0 20px 36px rgba(59,130,246,.55))}
+  .pp-rgolem .pp-rg-crown{position:absolute;top:0;left:50%;transform:translateX(-50%);width:60%;height:12%;background:linear-gradient(180deg,#93c5fd,#3b82f6);clip-path:polygon(50% 0,0 100%,25% 70%,50% 100%,75% 70%,100% 100%)}
+  .pp-rgolem .pp-rg-head{position:absolute;top:10%;left:50%;transform:translateX(-50%);width:50%;height:22%;background:linear-gradient(180deg,#60a5fa,#1d4ed8);border-radius:8px 8px 4px 4px;box-shadow:inset 0 -4px 12px rgba(0,0,0,.4)}
+  .pp-rgolem .pp-rg-eye{position:absolute;top:35%;width:16%;height:14%;background:#0a0a0a;border-radius:50%}
+  .pp-rgolem .pp-rg-eye-l{left:20%}.pp-rgolem .pp-rg-eye-r{right:20%}
+  .pp-rgolem .pp-rg-pupil{position:absolute;top:20%;left:20%;width:60%;height:60%;background:#38bdf8;border-radius:50%;box-shadow:0 0 10px rgba(56,189,248,.9)}
+  .pp-rgolem.chase .pp-rg-pupil,.pp-rgolem.alert .pp-rg-pupil{animation:ppEyeGlow .4s ease-in-out infinite alternate}
+  .pp-rgolem .pp-rg-body{position:absolute;top:30%;left:50%;transform:translateX(-50%);width:58%;height:42%;background:linear-gradient(180deg,#3b82f6,#1e3a8a);border-radius:6px;box-shadow:inset 0 0 20px rgba(147,197,253,.2)}
+  .pp-rgolem .pp-rg-arm{position:absolute;top:32%;width:16%;height:38%;background:linear-gradient(180deg,#60a5fa,#2563eb);border-radius:4px}
+  .pp-rgolem .pp-rg-arm-l{left:8%;transform:rotate(-8deg)}.pp-rgolem .pp-rg-arm-r{right:8%;transform:rotate(8deg)}
+  .pp-rgolem .pp-rg-leg{position:absolute;bottom:0;width:18%;height:28%;background:linear-gradient(180deg,#2563eb,#1e40af);border-radius:4px 4px 8px 8px}
+  .pp-rgolem .pp-rg-leg-l{left:26%}.pp-rgolem .pp-rg-leg-r{right:26%}
+
+  /* Crystal King — ultimate multi-crystal boss */
+  .pp-rking{width:var(--pp-msz,80px);height:calc(var(--pp-msz,80px)*2.4);position:relative;filter:drop-shadow(0 24px 40px rgba(124,58,237,.7))}
+  .pp-rking .pp-rk-crown{position:absolute;top:-2%;left:50%;transform:translateX(-50%);width:80%;height:14%;background:linear-gradient(180deg,#fcd34d,#f59e0b);clip-path:polygon(10% 100%,20% 0,35% 80%,50% 10%,65% 80%,80% 0,90% 100%)}
+  .pp-rking .pp-rk-shard{position:absolute;width:14%;height:18%;background:linear-gradient(135deg,#a78bfa,#7c3aed);border-radius:2px}
+  .pp-rking .pp-rk-s1{top:18%;left:-6%;transform:rotate(-20deg)}.pp-rking .pp-rk-s2{top:22%;right:-6%;transform:rotate(20deg)}
+  .pp-rking .pp-rk-head{position:absolute;top:12%;left:50%;transform:translateX(-50%);width:55%;height:24%;background:radial-gradient(ellipse,#c4b5fd,#6d28d9);border-radius:10px 10px 6px 6px}
+  .pp-rking .pp-rk-eye-l,.pp-rking .pp-rk-eye-r{position:absolute;top:38%;width:18%;height:14%;background:#111;border-radius:50%}
+  .pp-rking .pp-rk-eye-l{left:18%}.pp-rking .pp-rk-eye-r{right:18%}
+  .pp-rking .pp-rk-mouth{position:absolute;bottom:12%;left:50%;transform:translateX(-50%);width:55%;height:18%;background:#0f172a;border-radius:0 0 40% 40%;overflow:hidden}
+  .pp-rking.chase .pp-rk-teeth{height:100%;display:flex;gap:2px;justify-content:center;padding:0 10%}
+  .pp-rking.chase .pp-rk-teeth::before,.pp-rking.chase .pp-rk-teeth::after{content:'';width:8%;height:80%;background:linear-gradient(180deg,#e2e8f0,#94a3b8);clip-path:polygon(50% 0,0 100%,100% 100%)}
+  .pp-rking .pp-rk-body{position:absolute;top:34%;left:50%;transform:translateX(-50%);width:65%;height:38%;background:linear-gradient(180deg,#7c3aed,#4c1d95);border-radius:8px;box-shadow:0 0 30px rgba(124,58,237,.5)}
+  .pp-rking .pp-rk-hand-l,.pp-rking .pp-rk-hand-r{position:absolute;top:36%;width:20%;height:28%;background:linear-gradient(180deg,#a78bfa,#7c3aed);border-radius:30%}
+  .pp-rking .pp-rk-hand-l{left:2%}.pp-rking .pp-rk-hand-r{right:2%}
+  .pp-rking.chase{animation:ppKingPulse .3s ease-in-out infinite alternate}
+  @keyframes ppKingPulse{from{filter:drop-shadow(0 24px 40px rgba(124,58,237,.7))}to{filter:drop-shadow(0 24px 50px rgba(255,0,80,.8))}}
+
+  /* Amethyst Weaver (mommy type) */
+  .pp-rmommy{width:var(--pp-msz,70px);height:calc(var(--pp-msz,70px)*2);position:relative;filter:drop-shadow(0 16px 30px rgba(124,58,237,.6))}
   .pp-rmommy .pp-rm-body{position:absolute;top:18%;left:50%;transform:translateX(-50%);width:35%;height:28%;
-    background:radial-gradient(ellipse,#e878a8,#c04070);border-radius:50%;box-shadow:inset 0 -6px 12px rgba(0,0,0,.3)}
+    background:radial-gradient(ellipse,#c4b5fd,#7c3aed);border-radius:50%;box-shadow:inset 0 -6px 12px rgba(0,0,0,.3)}
   .pp-rmommy .pp-rm-head{position:absolute;top:0;left:50%;transform:translateX(-50%);width:30%;height:20%;
-    background:radial-gradient(ellipse,#f088b8,#d05080);border-radius:50%}
+    background:radial-gradient(ellipse,#ddd6fe,#8b5cf6);border-radius:50%}
   .pp-rmommy .pp-rm-eye{position:absolute;top:35%;width:18%;height:14%;background:#111;border-radius:50%}
   .pp-rmommy .pp-rm-eye-l{left:18%}.pp-rmommy .pp-rm-eye-r{right:18%}
-  .pp-rmommy .pp-rm-pupil{position:absolute;top:20%;left:20%;width:60%;height:60%;background:#ff0040;border-radius:50%;box-shadow:0 0 6px rgba(255,0,60,.8)}
-  .pp-rmommy .pp-rm-limb{position:absolute;width:8%;background:linear-gradient(180deg,#e878a8,#a03060);border-radius:999px;box-shadow:0 4px 10px rgba(0,0,0,.4)}
+  .pp-rmommy .pp-rm-pupil{position:absolute;top:20%;left:20%;width:60%;height:60%;background:#10b981;border-radius:50%;box-shadow:0 0 6px rgba(16,185,129,.8)}
+  .pp-rmommy .pp-rm-limb{position:absolute;width:8%;background:linear-gradient(180deg,#a78bfa,#5b21b6);border-radius:999px;box-shadow:0 4px 10px rgba(124,58,237,.4)}
   .pp-rmommy .pp-rm-l1{bottom:0;left:10%;height:55%;transform:rotate(-12deg)}
   .pp-rmommy .pp-rm-l2{bottom:0;left:28%;height:62%;transform:rotate(-4deg)}
   .pp-rmommy .pp-rm-l3{bottom:0;right:28%;height:58%;transform:rotate(4deg)}
   .pp-rmommy .pp-rm-l4{bottom:0;right:10%;height:52%;transform:rotate(12deg)}
 
-  /* Boxy Boo */
-  .pp-rboxy{width:var(--pp-msz,72px);height:var(--pp-msz,72px);position:relative;filter:drop-shadow(0 14px 24px rgba(0,0,0,.8))}
-  .pp-rboxy .pp-rb-box{width:100%;height:100%;background:linear-gradient(145deg,#8a6840,#5a4028 50%,#3a2818);
-    border:3px solid #4a3828;border-radius:4px;box-shadow:inset 0 4px 8px rgba(255,220,180,.1),0 8px 16px rgba(0,0,0,.6);
+  /* Geode Box (boxy type) */
+  .pp-rboxy{width:var(--pp-msz,72px);height:var(--pp-msz,72px);position:relative;filter:drop-shadow(0 14px 24px rgba(124,58,237,.5))}
+  .pp-rboxy .pp-rb-box{width:100%;height:100%;background:linear-gradient(145deg,#57534e,#292524 50%,#1c1917);
+    border:3px solid #7c3aed;border-radius:4px;box-shadow:inset 0 4px 12px rgba(167,139,250,.15),0 8px 16px rgba(0,0,0,.6);
     transform:perspective(120px) rotateX(5deg)}
-  .pp-rboxy .pp-rb-eye{position:absolute;top:30%;width:22%;height:18%;background:#111;border-radius:4px;border:2px solid #333}
+  .pp-rboxy .pp-rb-eye{position:absolute;top:30%;width:22%;height:18%;background:#111;border-radius:4px;border:2px solid #5b21b6}
   .pp-rboxy .pp-rb-eye-l{left:18%}.pp-rboxy .pp-rb-eye-r{right:18%}
-  .pp-rboxy .pp-rb-pupil{position:absolute;top:15%;left:15%;width:70%;height:70%;background:#ff0040;border-radius:2px}
-  .pp-rboxy.chase .pp-rb-jaw{position:absolute;bottom:8%;left:50%;transform:translateX(-50%);width:60%;height:20%;background:#1a0810;border-radius:0 0 8px 8px;border-top:3px solid #333}
+  .pp-rboxy .pp-rb-pupil{position:absolute;top:15%;left:15%;width:70%;height:70%;background:#10b981;border-radius:2px;box-shadow:0 0 6px rgba(16,185,129,.8)}
+  .pp-rboxy.chase .pp-rb-jaw{position:absolute;bottom:8%;left:50%;transform:translateX(-50%);width:60%;height:20%;background:#1e1b4b;border-radius:0 0 8px 8px;border-top:3px solid #7c3aed}
 
   .pp-monster-far{filter:drop-shadow(0 12px 24px rgba(0,0,0,.7))}
   .pp-monster-far.alert{filter:drop-shadow(0 0 40px rgba(255,0,60,.6)) drop-shadow(0 12px 24px rgba(0,0,0,.7))}
   .pp-player-shadow{width:clamp(60px,18vw,100px);height:clamp(10px,3vw,18px);background:radial-gradient(ellipse,rgba(0,0,0,.65),transparent 72%)}
   .pp-mood-text-only{font-size:10px}
-  .pp-jumpscare .pp-rhuggy,.pp-jumpscare .pp-rmommy,.pp-jumpscare .pp-rboxy{--pp-msz:180px;animation:ppJumpLunge .4s ease-out}
+  .pp-jumpscare .pp-rhuggy,.pp-jumpscare .pp-rmommy,.pp-jumpscare .pp-rboxy,.pp-jumpscare .pp-rgolem,.pp-jumpscare .pp-rking{--pp-msz:180px;animation:ppJumpLunge .4s ease-out}
 
   #nightshift{position:fixed;inset:0;z-index:9999;background:#0a0a10;display:flex;align-items:center;justify-content:center;padding:12px}
   .ns-screen{width:min(96vw,720px);color:#d8d0e0;font-family:var(--sans,sans-serif)}
@@ -2414,7 +2478,7 @@
  <button data-view="game" id="game-nav-btn">Gem Arena</button>
  <button data-view="battlefield">Battlefield</button>
  <button data-view="gemhunt">Gem Hunt</button>
- <button data-view="poppy">Poppy Playtime</button>
+ <button data-view="poppy">Gem Factory</button>
  <button data-view="parade">Gem Warriors</button>
  <button data-view="codes">Codes</button>
  <button data-view="auras">Auras</button>
@@ -2440,7 +2504,7 @@
  <button type="button" class="primary" onclick="switchView('battlefield')">⚔ Battlefield</button>
  <button type="button" onclick="switchView('game')">Gem Arena</button>
  <button type="button" onclick="switchView('gemhunt')">Gem Hunt</button>
- <button type="button" onclick="switchView('poppy')">Poppy Playtime</button>
+ <button type="button" onclick="switchView('poppy')">Gem Factory</button>
  </div>
 </section>
 
@@ -3021,9 +3085,9 @@
 
 <div class="view" id="view-poppy" hidden>
  <section class="poppy-wrap">
- <div class="eyebrow">Playtime Co. — Factory Horror</div>
- <h1>Poppy <em>Playtime</em></h1>
- <p class="lede"><b>Desktop horror adventure.</b> Built for keyboard + mouse — WASD or arrow keys to move, Space to grab, Shift to hide, click objects to interact. Sneak, grab, hide, and <b>RUN FOR YOUR LIFE</b> through 10 factory chapters on your computer.</p>
+ <div class="eyebrow">Gem Factory — Horror Adventure</div>
+ <h1>Gem <em>Factory</em></h1>
+ <p class="lede"><b>Gem Factory</b> — a desktop horror adventure. Built for keyboard + mouse — WASD or arrow keys to move, Space to grab, Shift to hide, click objects to interact. Sneak, grab, hide, and <b>RUN FOR YOUR LIFE</b> through 10 factory chapters.</p>
  <div class="poppy-char-preview" id="poppy-char-preview"></div>
  <div class="poppy-device" id="poppy-device"></div>
  <div class="poppy-grid" id="poppy-grid"></div>
@@ -3201,7 +3265,7 @@
  <a href="#careers" onclick="switchView('careers');return false;">Work at Lithos</a>
  <a href="#video" onclick="switchView('video');return false;">Owner TV</a>
  <a href="#battlefield" onclick="switchView('battlefield');return false;">Battlefield</a>
- <a href="#poppy" onclick="switchView('poppy');return false;">Poppy Playtime</a>
+ <a href="#poppy" onclick="switchView('poppy');return false;">Gem Factory</a>
  <span class="partner-disclosure">Partner link · Lithos may earn commission</span>
  </div>
  <span>Hardness on the Mohs scale · Origins by prominence · Prices are approximate retail</span>
@@ -3209,7 +3273,7 @@
 
 <nav class="mobile-bar" aria-label="Quick navigation">
  <button type="button" data-mnav="catalog" class="on">Home</button>
- <button type="button" data-mnav="poppy">Poppy</button>
+ <button type="button" data-mnav="poppy">Factory</button>
  <button type="button" data-mnav="battlefield">Mine</button>
  <button type="button" data-mnav="game">Arena</button>
  <button type="button" data-mnav="codes">Codes</button>
@@ -10004,20 +10068,69 @@ function showEmeraldGiftNotification(){
 }
 if(!hasEmeraldGift()) setTimeout(()=>grantEmeraldGuardianGift(), 900);
 
-/* ===== Poppy Playtime — unified factory explorer (walk, grab, hide, run) ===== */
+/* ===== Gem Factory — unified factory explorer (walk, grab, hide, run) ===== */
 const POPPY_KEY='lithos_poppy_progress_v1';
 const POPPY_DEVICE_KEY='lithos_poppy_device_v1';
 const POPPY_CHAPTERS=[
- {n:1,name:'A Tight Squeeze',emoji:'🏭',desc:'GrabPack tutorial — no monsters.',decor:'lobby',mode:'explore',noChase:true,intro:'PLAYTIME CO. — GrabPack tutorial. Grab 3 toy parts from the crates, then walk to the glowing EXIT door. No chase — take your time.',props:[{id:'c1',x:24,type:'crate',item:true},{id:'c2',x:46,type:'crate',item:true},{id:'c3',x:68,type:'crate',item:true},{id:'exit',x:88,type:'door',needs:3}]},
- {n:2,name:'Huggy Wuggy',emoji:'💙',desc:'He sees you. HIDE.',decor:'hall',mode:'patrol',monsterType:'huggy',intro:'HUGGY WUGGY patrols the toy hall. Blue fur. Yellow hands. Sharp teeth. Hide in lockers when he turns — then RUN.',props:[{id:'h1',x:30,type:'hide'},{id:'h2',x:58,type:'hide'},{id:'exit',x:93,type:'door',needs:0}],monster:{x:82,dir:-1,speed:1.5,range:16,name:'Huggy Wuggy',type:'huggy',alert:false}},
- {n:3,name:'Power Outage',emoji:'⚡',desc:'Darkness. Pull levers. Escape.',decor:'power',mode:'explore',monsterType:'huggy',intro:'The lights die. Something scraped against the wall. Restore power — fast.',props:[{id:'lev',x:38,type:'lever'},{id:'fuse',x:62,type:'lever',needsLever:true},{id:'exit',x:93,type:'door',needs:0}]},
- {n:4,name:'Blood Storage',emoji:'🩸',desc:'Gore everywhere. Sneak past.',decor:'storage',mode:'patrol',monsterType:'huggy',intro:'Blood on the crates. Claw marks on the walls. Huggy hunts here. Don\'t let him see you.',props:[{id:'h1',x:22,type:'hide'},{id:'h2',x:48,type:'hide'},{id:'h3',x:72,type:'hide'},{id:'exit',x:93,type:'door',needs:0}],monster:{x:15,dir:1,speed:1.7,range:16,name:'Huggy Wuggy',type:'huggy'}},
- {n:5,name:'Vent Chase',emoji:'🕳️',desc:'CLANG CLANG — RUN!!!',decor:'vent',mode:'chase',monsterType:'huggy',intro:'HUGGY IN THE VENTS! Claws on metal! HEAD START — sprint to the exit or he EATS you!',props:[{id:'exit',x:93,type:'door',needs:0}],monster:{x:2,speed:2.4,name:'Huggy Wuggy',type:'huggy'}},
- {n:6,name:'Experiment Lab',emoji:'🔬',desc:'Wake the monster. RUN.',decor:'lab',mode:'explore',monsterType:'mommy',intro:'Failed experiments line the walls. Activate all consoles — Mommy Long Legs is waking up…',props:[{id:'p1',x:22,type:'console'},{id:'p2',x:38,type:'console'},{id:'p3',x:54,type:'console'},{id:'p4',x:70,type:'console'},{id:'exit',x:93,type:'door',needs:4}]},
- {n:7,name:'Music Room',emoji:'🎵',desc:'Dance… then DIE.',decor:'music',mode:'patrol',monsterType:'mommy',intro:'🎵 "Mommy knows best…" Music stops. Eyes glow RED. Hide or be torn apart.',props:[{id:'h1',x:35,type:'hide'},{id:'h2',x:65,type:'hide'},{id:'exit',x:93,type:'door',needs:0}],monster:{x:75,dir:-1,speed:1.8,range:17,name:'Mommy Long Legs',type:'mommy',dance:true}},
- {n:8,name:'Loading Dock',emoji:'🚢',desc:'ALARM — sprint or die.',decor:'dock',mode:'chase',monsterType:'huggy',intro:'FACTORY ALARM! Huggy breaks through the crates! RUN RUN RUN!',props:[{id:'exit',x:93,type:'door',needs:0}],monster:{x:3,speed:2.6,name:'Huggy Wuggy',type:'huggy'}},
- {n:9,name:'Elevator Shaft',emoji:'🛗',desc:'It climbs toward you.',decor:'elevator',mode:'explore',monsterType:'boxy',intro:'You hear it CLIMBING. Pull all 3 switches — then race up before Boxy Boo catches you.',props:[{id:'s1',x:28,type:'lever'},{id:'s2',x:50,type:'lever'},{id:'s3',x:72,type:'lever'},{id:'exit',x:93,type:'door',needs:3}]},
- {n:10,name:'Final Escape',emoji:'💀',desc:'RUN FOR YOUR LIFE.',decor:'escape',mode:'chase',monsterType:'huggy',intro:'THE GATE. Huggy Wuggy — full speed — teeth out — THIS IS THE END. RUN!!!',props:[{id:'exit',x:93,type:'door',needs:0}],monster:{x:2,speed:2.8,name:'Huggy Wuggy',type:'huggy'}}
+ {n:1,name:'Crystal Entry',emoji:'💎',desc:'Blocks, shards, sentinel scare.',decor:'lobby',mode:'explore',gore:false,
+  intro:'GEM FACTORY — Crystal Entry. Fallen gem crates block your path. Collect 3 shards from ore carts, then sprint to the vault before the GEM SENTINEL wakes…',
+  boss:{name:'Gem Sentinel',type:'golem',phases:1},
+  obstacles:[{id:'b1',x:30,type:'block'},{id:'b2',x:50,type:'block'},{id:'g1',x:76,type:'gate'}],
+  props:[{id:'c1',x:18,type:'crate'},{id:'c2',x:42,type:'crate'},{id:'c3',x:64,type:'crate'},{id:'exit',x:90,type:'door',needs:3}],
+  monster:{x:88,dir:-1,speed:1.4,range:18,name:'Gem Sentinel',type:'golem',sleeping:true}},
+ {n:2,name:'Gem Golem Hall',emoji:'🗿',desc:'Crystal pillars. Hide from Golem.',decor:'hall',mode:'patrol',gore:true,
+  intro:'The GEM GOLEM patrols the hall — a towering sapphire brute. Crystal pillars block your path. Hide in pods when its facets glow, then slip past.',
+  boss:{name:'Gem Golem',type:'golem',phases:2},
+  obstacles:[{id:'p1',x:28,type:'block'},{id:'p2',x:52,type:'block'},{id:'p3',x:74,type:'block'}],
+  props:[{id:'h1',x:22,type:'hide'},{id:'h2',x:48,type:'hide'},{id:'h3',x:70,type:'hide'},{id:'exit',x:93,type:'door',needs:0}],
+  monster:{x:80,dir:-1,speed:1.5,range:16,name:'Gem Golem',type:'golem'}},
+ {n:3,name:'Power Cavern',emoji:'⚡',desc:'Lasers, dark zones, Spark Golem.',decor:'power',mode:'explore',gore:true,
+  intro:'Total blackout. Spark arcs crackle in the dark. Flip crystal switches to restore power — but the SPARK GOLEM stirs when the grid comes alive…',
+  boss:{name:'Spark Golem',type:'golem',phases:2},
+  obstacles:[{id:'l1',x:32,type:'laser'},{id:'l2',x:55,type:'laser'},{id:'g1',x:72,type:'gate'}],
+  props:[{id:'lev',x:36,type:'lever'},{id:'fuse',x:58,type:'lever',needsLever:true},{id:'exit',x:93,type:'door',needs:0}],
+  monster:{x:8,dir:1,speed:1.8,range:14,name:'Spark Golem',type:'golem',sleeping:true}},
+ {n:4,name:'Blood Geode Bay',emoji:'🔮',desc:'Gore shards. Stalker hunts.',decor:'storage',mode:'patrol',gore:true,
+  intro:'Crystal blood pools on the floor. Shattered geodes everywhere. Claw marks on the walls. The CRYSTAL STALKER hunts here — hide or be torn apart.',
+  boss:{name:'Crystal Stalker',type:'stalker',phases:2},
+  obstacles:[{id:'s1',x:26,type:'shard'},{id:'s2',x:44,type:'shard'},{id:'b1',x:58,type:'block'},{id:'s3',x:76,type:'shard'}],
+  props:[{id:'h1',x:20,type:'hide'},{id:'h2',x:46,type:'hide'},{id:'h3',x:68,type:'hide'},{id:'exit',x:93,type:'door',needs:0}],
+  monster:{x:14,dir:1,speed:1.7,range:16,name:'Crystal Stalker',type:'huggy'}},
+ {n:5,name:'Vent Chase',emoji:'🕳️',desc:'Collapsing vents. Full chase.',decor:'vent',mode:'chase',gore:true,
+  intro:'CLANG CLANG CLANG! The GEM GOLEM tears through the vents! Collapsing crystal rubble blocks the path — RUN or be crushed!!!',
+  boss:{name:'Gem Golem',type:'golem',phases:2},
+  obstacles:[{id:'c1',x:35,type:'collapse'},{id:'c2',x:55,type:'collapse'},{id:'c3',x:72,type:'collapse'}],
+  props:[{id:'exit',x:93,type:'door',needs:0}],
+  monster:{x:2,speed:2.3,name:'Gem Golem',type:'golem'}},
+ {n:6,name:'Experiment Pit',emoji:'🔬',desc:'4 nodes, lasers, Weaver boss.',decor:'lab',mode:'explore',gore:true,
+  intro:'Failed gem experiments drip crystal blood. Activate all 4 power nodes — gem lasers guard each one. The AMETHYST WEAVER is waking up…',
+  boss:{name:'Amethyst Weaver',type:'weaver',phases:2},
+  obstacles:[{id:'l1',x:26,type:'laser'},{id:'l2',x:42,type:'laser'},{id:'l3',x:58,type:'laser'},{id:'l4',x:74,type:'laser'}],
+  props:[{id:'p1',x:22,type:'console'},{id:'p2',x:38,type:'console'},{id:'p3',x:54,type:'console'},{id:'p4',x:70,type:'console'},{id:'exit',x:93,type:'door',needs:4}]},
+ {n:7,name:'Music Cavern',emoji:'🎵',desc:'Silence = death zones.',decor:'music',mode:'patrol',gore:true,
+  intro:'Crystal harmonics fill the cavern… then SILENCE. When the music stops, danger zones activate. The AMETHYST WEAVER hunts in the quiet.',
+  boss:{name:'Amethyst Weaver',type:'weaver',phases:2},
+  obstacles:[{id:'l1',x:30,type:'laser'},{id:'l2',x:50,type:'laser'},{id:'l3',x:70,type:'laser'}],
+  props:[{id:'h1',x:24,type:'hide'},{id:'h2',x:52,type:'hide'},{id:'h3',x:74,type:'hide'},{id:'exit',x:93,type:'door',needs:0}],
+  monster:{x:78,dir:-1,speed:1.8,range:17,name:'Amethyst Weaver',type:'mommy',dance:true}},
+ {n:8,name:'Loading Dock',emoji:'🚢',desc:'Gate timer. Crusher chase.',decor:'dock',mode:'chase',gore:true,gateTimer:50,
+  intro:'FACTORY ALARM! The GEODE CRUSHER smashes through ore carts! A massive gate is CLOSING — sprint before it seals you in forever!!!',
+  boss:{name:'Geode Crusher',type:'geode',phases:2},
+  obstacles:[{id:'g1',x:85,type:'gate'}],
+  props:[{id:'exit',x:93,type:'door',needs:0}],
+  monster:{x:3,speed:2.5,name:'Geode Crusher',type:'boxy'}},
+ {n:9,name:'Elevator Shaft',emoji:'🛗',desc:'Falling gems. Box climbs.',decor:'elevator',mode:'explore',gore:true,
+  intro:'You hear it CLIMBING — crystal scraping on metal. Pull all 3 switches while dodging falling gem shards. Race up before the GEODE BOX catches you!',
+  boss:{name:'Geode Box',type:'geode',phases:2},
+  obstacles:[{id:'f1',x:34,type:'block'},{id:'f2',x:56,type:'block'},{id:'f3',x:78,type:'block'}],
+  props:[{id:'s1',x:26,type:'lever'},{id:'s2',x:48,type:'lever'},{id:'s3',x:70,type:'lever'},{id:'exit',x:93,type:'door',needs:3}],
+  monster:{x:6,dir:1,speed:1.6,range:12,name:'Geode Box',type:'boxy',climbing:true}},
+ {n:10,name:'Crystal King',emoji:'👑',desc:'Ultimate boss. Run or die.',decor:'escape',mode:'chase',gore:true,
+  intro:'THE VAULT GATE. All obstacles. All horror. The CRYSTAL KING — massive, multi-faceted, merciless — hunts you at full speed. THIS IS THE END. RUN!!!',
+  boss:{name:'Crystal King',type:'king',phases:3},
+  obstacles:[{id:'b1',x:22,type:'block'},{id:'l1',x:38,type:'laser'},{id:'c1',x:52,type:'collapse'},{id:'s1',x:64,type:'shard'},{id:'l2',x:76,type:'laser'}],
+  props:[{id:'exit',x:93,type:'door',needs:0}],
+  monster:{x:2,speed:2.4,name:'Crystal King',type:'king'}}
 ];
 let ppGame=null;
 function poppyUnlockLevel(){try{return Math.max(1,parseInt(localStorage.getItem(POPPY_KEY)||'1',10)||1);}catch(_){return 1;}}
@@ -10032,6 +10145,32 @@ function poppyPickChapter(btn){
  if(n>=1&&n<=POPPY_CHAPTERS.length)playPoppyChapter(n);
 }
 let poppyGridBound=false;
+let ppWorldBound=false;
+function bindPpWorld(){
+ if(ppWorldBound)return;
+ ppWorldBound=true;
+ const onProp=e=>{
+  try{
+   if(!ppGame||ppGame.intro||ppGame.won||ppGame.lost)return;
+   const root=document.getElementById('poppyplay');
+   if(!root||!root.contains(e.target))return;
+   const btn=e.target.closest('[data-pp-prop]');
+   if(btn&&!btn.disabled){e.preventDefault();e.stopPropagation();ppGrabProp(btn.dataset.ppProp);}
+  }catch(err){console.error('Gem Factory click:',err);}
+ };
+ document.addEventListener('pointerdown',onProp,true);
+ document.addEventListener('click',onProp);
+ document.addEventListener('touchend',e=>{
+  try{
+   if(!ppGame||ppGame.intro||ppGame.won||ppGame.lost)return;
+   const t=e.changedTouches?.[0];if(!t)return;
+   const el=document.elementFromPoint(t.clientX,t.clientY);
+   const btn=el?.closest?.('[data-pp-prop]');
+   const mount=document.getElementById('pp-world-mount');
+   if(btn&&!btn.disabled&&mount?.contains(btn)){e.preventDefault();ppGrabProp(btn.dataset.ppProp);}
+  }catch(err){console.error('Gem Factory touch:',err);}
+ },{passive:false});
+}
 function bindPoppyGrid(){
  const grid=document.getElementById('poppy-grid');
  if(!grid||poppyGridBound)return;
@@ -10070,6 +10209,10 @@ function ppPlayerHTML(size,pose){
 function ppPlayerSVG(size,pose){return ppPlayerHTML(size,pose);}
 function ppMonsterType(m,c){
  if(m?.type)return m.type;
+ if(c?.boss?.type){
+  const map={golem:'golem',weaver:'mommy',geode:'boxy',stalker:'huggy',king:'king'};
+  return map[c.boss.type]||c.boss.type;
+ }
  if(c?.monsterType)return c.monsterType;
  return'huggy';
 }
@@ -10077,6 +10220,12 @@ function ppMonsterHTML(type,chasing,size,alert){
  size=size||80;type=type||'huggy';
  const chase=chasing?' chase':'';
  const al=alert?' alert':'';
+ if(type==='golem'){
+  return `<div class="pp-rgolem${chase}${al}" style="--pp-msz:${size}px"><div class="pp-rg-crown"></div><div class="pp-rg-head"><div class="pp-rg-eye pp-rg-eye-l"><div class="pp-rg-pupil"></div></div><div class="pp-rg-eye pp-rg-eye-r"><div class="pp-rg-pupil"></div></div></div><div class="pp-rg-body"></div><div class="pp-rg-arm pp-rg-arm-l"></div><div class="pp-rg-arm pp-rg-arm-r"></div><div class="pp-rg-leg pp-rg-leg-l"></div><div class="pp-rg-leg pp-rg-leg-r"></div></div>`;
+ }
+ if(type==='king'){
+  return `<div class="pp-rking${chase}${al}" style="--pp-msz:${size}px"><div class="pp-rk-crown"></div><div class="pp-rk-shard pp-rk-s1"></div><div class="pp-rk-shard pp-rk-s2"></div><div class="pp-rk-head"><div class="pp-rk-eye-l"></div><div class="pp-rk-eye-r"></div><div class="pp-rk-mouth">${chasing?'<div class="pp-rk-teeth"></div>':''}</div></div><div class="pp-rk-body"></div><div class="pp-rk-hand-l"></div><div class="pp-rk-hand-r"></div></div>`;
+ }
  if(type==='mommy'){
   return `<div class="pp-rmommy${chase}${al}" style="--pp-msz:${size}px"><div class="pp-rm-head"><div class="pp-rm-eye pp-rm-eye-l"><div class="pp-rm-pupil"></div></div><div class="pp-rm-eye pp-rm-eye-r"><div class="pp-rm-pupil"></div></div></div><div class="pp-rm-body"></div><div class="pp-rm-limb pp-rm-l1"></div><div class="pp-rm-limb pp-rm-l2"></div><div class="pp-rm-limb pp-rm-l3"></div><div class="pp-rm-limb pp-rm-l4"></div></div>`;
  }
@@ -10190,7 +10339,7 @@ function setPoppyDevice(mode){
  if(ppGame&&!ppGame.intro&&!ppGame.won&&!ppGame.lost){ppGame.shellBuilt=false;renderPoppyPlay();}
 }
 function ppHint(m,c){return ppUseKeyboard()?c:m;}
-function ppKeyboardHint(){return `<div class="pp-keys pp-keys-bar"><span>A / D / ← → — Walk</span><span>Shift + → — Run</span><span>Space — Grab</span><span>Shift / S — Hide</span><span>Click — Interact</span><span>Esc — Quit</span></div>`;}
+function ppKeyboardHint(){return `<div class="pp-keys pp-keys-bar"><span>A / D / ← → — Walk</span><span>Shift + → — Run</span><span>Space — Gem Grab</span><span>Shift / S — Hide</span><span>Click — Interact</span><span>Esc — Quit</span></div>`;}
 function ppGameKeys(e){return['ArrowLeft','ArrowRight','ArrowDown','ArrowUp',' ','a','A','d','D','w','W','s','S','Shift','Enter','Escape'].includes(e.key);}
 function ppQuitChapter(){
  closePoppyPlay();
@@ -10259,6 +10408,65 @@ function ppCanReachProp(p){
  const reach=p.type==='door'?24:18;
  return ppDoorReach(p)<=reach;
 }
+function ppOpenGates(){
+ if(!ppGame?.cfg.obstacles)return;
+ ppGame.cfg.obstacles.forEach(o=>{if(o.type==='gate')o.open=true;});
+}
+function ppBlockedAt(x){
+ if(!ppGame?.cfg.obstacles)return false;
+ return ppGame.cfg.obstacles.some(o=>{
+  if(o.type==='gate')return !o.open&&Math.abs(x-o.x)<5;
+  if(o.type==='block'||o.type==='collapse'||o.type==='shard')return Math.abs(x-o.x)<5;
+  return false;
+ });
+}
+function ppCheckLasers(){
+ if(!ppGame?.cfg.obstacles)return;
+ const s=ppGame.state,c=ppGame.cfg;
+ ppGame.cfg.obstacles.forEach(o=>{
+  if(o.type!=='laser')return;
+  const active=c.n===7?!!ppGame.musicOff:true;
+  if(active&&Math.abs(s.x-o.x)<6&&!s.crouch){
+   s.fear=Math.min(100,(s.fear||0)+1.8);
+   if(Math.random()<.015)ppGame.msg='⚡ LASER GRID — CROUCH OR DODGE!!!';
+  }
+ });
+}
+function ppObstacleHTML(o,s){
+ const sl=ppWorldScreen(o.x);
+ if(o.type==='block')return `<div class="pp-obj-obstacle pp-obs-block" style="left:${sl};bottom:30%"><div class="pp-obs-crystal"></div></div>`;
+ if(o.type==='laser')return `<div class="pp-obj-obstacle pp-obs-laser${s.crouch?' safe':''}" style="left:${sl};bottom:34%"><div class="pp-obs-laser-beam"></div></div>`;
+ if(o.type==='gate')return `<div class="pp-obj-obstacle pp-obs-gate${o.open?' open':''}" style="left:${sl};bottom:26%"><div class="pp-obs-gate-door"></div></div>`;
+ if(o.type==='collapse')return `<div class="pp-obj-obstacle pp-obs-collapse" style="left:${sl};bottom:28%"><div class="pp-obs-rubble"></div></div>`;
+ if(o.type==='shard')return `<div class="pp-obj-obstacle pp-obs-shard" style="left:${sl};bottom:32%"></div>`;
+ return'';
+}
+function ppBossName(){return ppGame?.cfg?.boss?.name||ppGame?.state?.monster?.name||'IT';}
+function ppTriggerSentinelWake(){
+ if(!ppGame||ppGame.chaseActive||ppGame.cfg.n!==1)return;
+ const s=ppGame.state,c=ppGame.cfg;
+ ppGame.chaseActive=true;c.mode='chase';
+ if(s.monster){s.monster.sleeping=false;s.monster.x=Math.max(2,s.x-32);s.monster.type='golem';}
+ ppGame.chaseGraceUntil=Date.now()+4500;
+ ppGame.msg='💀 GEM SENTINEL AWAKENS — SPRINT TO THE VAULT!!!';
+ ppSfx('roar');setTimeout(()=>ppJumpscare(),300);
+ ppOpenGates();
+}
+function ppAdvanceBossPhase(){
+ if(!ppGame||!ppGame.chaseActive)return;
+ const c=ppGame.cfg,s=ppGame.state,m=s.monster;
+ if(!m||!c.boss)return;
+ const phases=c.boss.phases||1;
+ if(c.n===10){
+  if(s.x>50&&ppGame.bossPhase<2){ppGame.bossPhase=2;m.speed=(c.monster?.speed||2.4)+0.5;ppGame.msg='👑 PHASE 2 — CRYSTAL KING ACCELERATES!!!';ppSfx('roar');}
+  if(s.x>75&&ppGame.bossPhase<3){ppGame.bossPhase=3;m.speed=(c.monster?.speed||2.4)+1;ppGame.msg='💀 PHASE 3 — FINAL FORM — RUN FOR YOUR LIFE!!!';ppSfx('roar');setTimeout(()=>ppJumpscare(),150);}
+ }else if(ppGame.bossPhase<phases&&s.x>55){
+  ppGame.bossPhase++;
+  m.speed=(m.speed||2)+0.3;
+  ppGame.msg=`💀 ${ppBossName()} — PHASE ${ppGame.bossPhase} — FASTER!!!`;
+  ppSfx('alert');
+ }
+}
 function ppPropHTML(p,s){
  const dist=Math.abs(s.x-p.x);
  const reach=p.type==='door'?24:18;
@@ -10267,44 +10475,51 @@ function ppPropHTML(p,s){
  const bot=ppObjBottom(p.type);
  if(p.type==='crate'){
   if(p.done)return `<div class="pp-obj" style="left:${sl};bottom:${bot}"><div class="pp-obj-crate" style="opacity:.4"></div></div>`;
-  return `<button type="button" class="pp-obj${near?' glow':''}" style="left:${sl};bottom:${bot}" onclick="ppGrabProp('${p.id}')"><div class="pp-obj-crate"></div>${near?'<span class="pp-obj-label">GrabPack</span>':''}</button>`;
+  return `<button type="button" class="pp-obj${near?' glow':''}" style="left:${sl};bottom:${bot}" data-pp-prop="${p.id}"><div class="pp-obj-crate"></div>${near?'<span class="pp-obj-label">Gem Grab</span>':''}</button>`;
  }
- if(p.type==='hide')return `<div class="pp-obj" style="left:${sl};bottom:${bot}"><div class="pp-obj-locker"></div><span class="pp-obj-label">Hide</span></div>`;
+ if(p.type==='hide')return `<div class="pp-obj" style="left:${sl};bottom:${bot}"><div class="pp-obj-locker"></div><span class="pp-obj-label">Crystal Pod</span></div>`;
  if(p.type==='console'){
-  return `<button type="button" class="pp-obj${near&&!p.done?' glow':''}" style="left:${sl};bottom:${bot}" onclick="ppGrabProp('${p.id}')" ${p.done?'disabled':''}><div class="pp-obj-console${p.done?' done':''}"></div>${near&&!p.done?'<span class="pp-obj-label">Activate</span>':''}</button>`;
+  return `<button type="button" class="pp-obj${near&&!p.done?' glow':''}" style="left:${sl};bottom:${bot}" data-pp-prop="${p.id}" ${p.done?'disabled':''}><div class="pp-obj-console${p.done?' done':''}"></div>${near&&!p.done?'<span class="pp-obj-label">Power Node</span>':''}</button>`;
  }
  if(p.type==='lever'){
-  return `<button type="button" class="pp-obj${near&&!p.done?' glow':''}" style="left:${sl};bottom:${bot}" onclick="ppGrabProp('${p.id}')" ${p.done?'disabled':''}><div class="pp-obj-lever"></div>${near&&!p.done?'<span class="pp-obj-label">Pull</span>':''}</button>`;
+  return `<button type="button" class="pp-obj${near&&!p.done?' glow':''}" style="left:${sl};bottom:${bot}" data-pp-prop="${p.id}" ${p.done?'disabled':''}><div class="pp-obj-lever"></div>${near&&!p.done?'<span class="pp-obj-label">Crystal Switch</span>':''}</button>`;
  }
  if(p.type==='door'){
   const ok=ppCanUseDoor(p);
-  return `<button type="button" class="pp-obj${ok?' glow pp-door-glow':''}" style="left:${sl};bottom:${bot}" onclick="ppGrabProp('${p.id}')"><div class="pp-obj-door${ok?'':' locked'}"></div><span class="pp-obj-label">${ok?'EXIT — Grab / Walk In':'Locked ('+ppGame.state.parts+'/'+ppDoorNeeds()+')'}</span></button>`;
+  return `<button type="button" class="pp-obj${ok?' glow pp-door-glow':''}" style="left:${sl};bottom:${bot}" data-pp-prop="${p.id}"><div class="pp-obj-door${ok?'':' locked'}"></div><span class="pp-obj-label">${ok?'VAULT — Walk In':'Locked ('+ppGame.state.parts+'/'+ppDoorNeeds()+')'}</span></button>`;
  }
  return'';
 }
 function ppDecorHTML(c){
  const pipes=[12,35,58,78].map((p,i)=>`<div class="pp-pipe" style="left:${ppWorldScreen(p)};top:${14+i%2*4}%;width:${60+i*10}px"></div>`).join('');
- const sign=`<div class="pp-playtime-sign" style="left:${ppWorldScreen(50)}">PLAYTIME CO.</div>`;
- const blood=c.decor==='storage'?`<div class="pp-blood pp-blood-1" style="left:${ppWorldScreen(28)}"></div><div class="pp-blood pp-blood-2" style="left:${ppWorldScreen(62)}"></div><div class="pp-scratch" style="left:${ppWorldScreen(40)};bottom:36%"></div>`:'';
- return sign+pipes+blood;
+ const sign=`<div class="pp-playtime-sign" style="left:${ppWorldScreen(50)}">GEM FACTORY</div>`;
+ let gore='';
+ if(c.gore){
+  gore=[22,38,55,72].map((p,i)=>`<div class="pp-blood pp-shard-${(i%2)+1}" style="left:${ppWorldScreen(p)}"></div>`).join('');
+  gore+=`<div class="pp-scratch" style="left:${ppWorldScreen(44)};bottom:36%"></div><div class="pp-gore-vignette"></div>`;
+ }
+ return sign+pipes+gore;
 }
 function ppRenderWorld(){
  const g=ppGame,s=g.state,c=g.cfg;
  const chasing=c.mode==='chase'||g.chaseActive;
  const tension=ppTension();
  const danger=ppDangerLevel();
+ const obstacles=(c.obstacles||[]).map(o=>ppObstacleHTML(o,s)).join('');
  const props=c.props.map(p=>ppPropHTML(p,s)).join('');
  let monsterHTML='';
- if(s.monster){
+ if(s.monster&&!s.monster.sleeping){
   const dist=s.x-s.monster.x;
   const threat=chasing?Math.min(1.7,.55+Math.max(0,32-dist)/18):Math.max(.45,.85-Math.abs(s.x-s.monster.x)/70);
   const mtype=ppMonsterType(s.monster,c);
   const msize=(ppUseKeyboard()?50:40)+threat*(ppUseKeyboard()?65:55);
-  const mname=s.monster.name||'Unknown';
-  monsterHTML=`<div class="pp-monster-far${chasing?' close':''}${s.monster.alert?' alert':''}" style="left:${ppWorldScreen(s.monster.x)};bottom:${24+threat*10}%;transform:translateX(-50%) scale(${threat});z-index:4">${ppMonsterHTML(mtype,chasing||dist<28,msize,s.monster.alert||chasing||dist<20)}<span class="pp-monster-name">${mname}</span></div>`;
+  const mname=s.monster.name||ppBossName();
+  monsterHTML=`<div class="pp-monster-far${chasing?' close':''}${s.monster.alert?' alert':''}" style="left:${ppWorldScreen(s.monster.x)};bottom:${24+threat*10}%;transform:translateX(-50%) scale(${threat});z-index:14">${ppMonsterHTML(mtype,chasing||dist<28,msize,s.monster.alert||chasing||dist<20)}<span class="pp-monster-name">${mname}</span></div>`;
+ }else if(s.monster?.sleeping&&c.n===1){
+  monsterHTML=`<div class="pp-monster-far" style="left:${ppWorldScreen(s.monster.x)};bottom:28%;transform:translateX(-50%) scale(.6);opacity:.45;z-index:14">${ppMonsterHTML('golem',false,40,false)}<span class="pp-monster-name">Gem Sentinel (dormant)</span></div>`;
  }
  const near=ppNearProp();
- const grabHint=near&&ppCanReachProp(near)?`<div class="pp-grab-prompt">GRABPACK — ${near.type==='door'?(ppCanUseDoor(near)?'OPEN EXIT':'LOCKED'):near.type==='crate'&&!near.done?'SEARCH CRATE':near.type==='console'&&!near.done?'ACTIVATE':'PULL LEVER'}</div>`:'';
+ const grabHint=near&&ppCanReachProp(near)?`<div class="pp-grab-prompt">GEM GRAB — ${near.type==='door'?(ppCanUseDoor(near)?'OPEN VAULT':'LOCKED'):near.type==='crate'&&!near.done?'SEARCH ORE CART':near.type==='console'&&!near.done?'ACTIVATE NODE':'FLIP SWITCH'}</div>`:'';
  const prog=c.props.filter(x=>['crate','console','lever'].includes(x.type));
  const doneCt=prog.filter(x=>x.done).length;
  const progPct=prog.length?Math.round(doneCt/prog.length*100):Math.round(s.x);
@@ -10315,7 +10530,13 @@ function ppRenderWorld(){
  const fearBar=`<div class="pp-fear-bar"><div class="pp-fear-fill" style="width:${tension}%"></div></div>`;
  const chaseGap=s.monster?Math.max(0,Math.min(100,(s.x-s.monster.x)*3)):0;
  const chaseBar=chasing?`<div class="pp-chase-bar-wrap"><div class="pp-chase-bar" style="width:${100-chaseGap}%"></div></div>`:'';
- return `<div class="pp-world"><div class="pp-scene ${chasing?'chase':''} danger-${danger} pp-decor-${c.decor||'lobby'}"><div class="pp-corridor"><div class="pp-corridor-bg"></div><div class="pp-spotlight"></div><div class="pp-fog"></div><div class="pp-grain"></div>${musicGlow}${chasePulse}${heartbeat}<div class="pp-scene-lights${tension>15||c.n>1?' flicker':''}"></div><div class="pp-ceiling"></div>${ppDecorHTML(c)}<div class="pp-hall"><div class="pp-wall left"></div><div class="pp-wall right"></div><div class="pp-back-wall"></div><div class="pp-floor"></div>${props}${monsterHTML}</div><div class="pp-player-shadow" style="left:50%"></div><div class="pp-player-wrap ${ppPlayerAnimClass()}">${ppPlayerHTML(ppPlayerSize(),ppPose())}</div>${grabHint}${whisper}<div class="pp-mood pp-mood-text-only">${ppMoodText()}</div>${fearBar}${chaseBar}<div class="pp-progress"><div class="pp-progress-fill" style="width:${Math.max(progPct,s.x)}%"></div></div><div class="pp-hud"><span class="pp-hud-pill">${c.name}</span><span class="pp-hud-pill">${chasing?'EXIT AHEAD':c.mode==='patrol'?'HIDE · SNEAK · RUN':'WALK · GRAB · EXPLORE'}</span></div></div></div></div>`;
+ const bossPhase=(g.bossPhase||1)>1?`<div class="pp-boss-phase">BOSS PHASE ${g.bossPhase||1}</div>`:'';
+ let gateTimer='';
+ if(c.gateTimer&&g.chaseActive&&g.gateCloseAt){
+  const left=Math.max(0,Math.ceil((g.gateCloseAt-Date.now())/1000));
+  gateTimer=`<div class="pp-gate-timer">GATE ${left}s</div>`;
+ }
+ return `<div class="pp-world"><div class="pp-scene ${chasing?'chase':''} danger-${danger} pp-decor-${c.decor||'lobby'}${c.gore?' pp-gore':''}"><div class="pp-corridor"><div class="pp-corridor-bg"></div><div class="pp-spotlight"></div><div class="pp-fog"></div><div class="pp-grain"></div>${musicGlow}${chasePulse}${heartbeat}<div class="pp-scene-lights${tension>15||c.n>1?' flicker':''}"></div><div class="pp-ceiling"></div>${ppDecorHTML(c)}<div class="pp-hall"><div class="pp-wall left"></div><div class="pp-wall right"></div><div class="pp-back-wall"></div><div class="pp-floor"></div>${obstacles}${props}${monsterHTML}</div><div class="pp-player-shadow" style="left:50%"></div><div class="pp-player-wrap ${ppPlayerAnimClass()}">${ppPlayerHTML(ppPlayerSize(),ppPose())}</div>${grabHint}${whisper}${bossPhase}${gateTimer}<div class="pp-mood pp-mood-text-only">${ppMoodText()}</div>${fearBar}${chaseBar}<div class="pp-progress"><div class="pp-progress-fill" style="width:${Math.max(progPct,s.x)}%"></div></div><div class="pp-hud"><span class="pp-hud-pill">${c.name}</span><span class="pp-hud-pill">${chasing?'RUN — '+ppBossName():c.mode==='patrol'?'HIDE · SNEAK · RUN':'WALK · GRAB · EXPLORE'}</span></div></div></div></div>`;
 }
 function ppHold(dir,run,on){
  if(!ppGame)return;
@@ -10325,7 +10546,7 @@ function ppHold(dir,run,on){
 function ppDpad(){
  return `<div class="pp-dpad">
   <button type="button" onmousedown="ppHold(-1,0,1)" onmouseup="ppHold(-1,0,0)" onmouseleave="ppHold(-1,0,0)" ontouchstart="ppHold(-1,0,1)" ontouchend="ppHold(-1,0,0)">◀ Walk</button>
-  <button type="button" class="pp-action" onclick="ppGrab()">Grab</button>
+  <button type="button" class="pp-action" onclick="ppGrab()">Gem Grab</button>
   <button type="button" onmousedown="ppHold(1,1,1)" onmouseup="ppHold(1,1,0)" onmouseleave="ppHold(1,1,0)" ontouchstart="ppHold(1,1,1)" ontouchend="ppHold(1,1,0)">Run ▶</button>
   <button type="button" onmousedown="ppHold(-1,0,1)" onmouseup="ppHold(-1,0,0)" ontouchstart="ppHold(-1,0,1)" ontouchend="ppHold(-1,0,0)">◀</button>
   <button type="button" onclick="ppToggleCrouch(true)">Hide</button>
@@ -10356,7 +10577,7 @@ function ppToggleCrouch(on){
  if(!ppGame||ppGame.won||ppGame.lost)return;
  ppGame.state.crouch=!!on;
  ppGame.state.pose=on?'crouch':'idle';
- ppGame.msg=on?(ppIsSafe()?'Hiding… safe for now.':'Stand next to a locker and hide!'):(ppGame.chaseActive?'Run to the exit!':'Keep exploring.');
+ ppGame.msg=on?(ppIsSafe()?'Hiding in crystal pod… safe for now.':'Stand next to a crystal pod and hide!'):(ppGame.chaseActive?'Run to the vault!':'Keep exploring the gem mine.');
  if(ppGame.shellBuilt)ppUpdateWorld();
 }
 function ppGrabProp(id){const p=ppGame?.cfg.props.find(x=>x.id===id);if(p)ppGrab(p);}
@@ -10364,36 +10585,48 @@ function ppGrab(forcedProp){
  if(!ppGame||ppGame.won||ppGame.lost)return;
  const s=ppGame.state,c=ppGame.cfg;
  const p=forcedProp||ppNearProp();
- if(!p||!ppCanReachProp(p)){ppGame.msg=p?.type==='door'&&ppCanUseDoor(p)?'Walk closer to the exit door.':'Walk closer to interact.';return;}
+ if(!p||!ppCanReachProp(p)){ppGame.msg=p?.type==='door'&&ppCanUseDoor(p)?'Walk closer to the exit door.':'Walk closer to interact.';if(ppGame.shellBuilt)ppUpdateWorld();return;}
  ppSetPose('grab');ppSfx('grab');
- if(p.type==='crate'){p.done=true;s.parts++;ppSparks();ppSfx('ding');ppToast('🧩 Part found!');
+ if(p.type==='crate'){p.done=true;s.parts++;ppSparks();ppSfx('ding');ppToast('💎 Gem shard found!');
   const need=ppDoorNeeds();
-  if(ppCheckObjectiveDone()){ppToast('Exit unlocked — walk right');ppGame.msg=c.noChase?'All parts found! Walk to the glowing EXIT →':'Exit door is open — GO!';}
+  if(ppCheckObjectiveDone()){ppOpenGates();ppToast('Exit unlocked — walk right');
+   if(c.n===1&&!ppGame.chaseActive){ppGame.msg='You hear crystal grinding… THE SENTINEL IS WAKING!!!';setTimeout(()=>ppTriggerSentinelWake(),900);}
+   else ppGame.msg=ppGame.chaseActive?'All parts — RUN TO THE VAULT!!!':'All parts found! Walk to the glowing EXIT →';}
   else ppGame.msg=`Parts ${s.parts}/${need} — keep searching!`;}
  else if(p.type==='lever'||p.type==='console'){
-  if(p.needsLever&&!c.props.find(x=>x.id==='lev')?.done){ppGame.msg='Pull the main lever first!';return;}
+  if(p.needsLever&&!c.props.find(x=>x.id==='lev')?.done){ppGame.msg='Pull the main lever first!';if(ppGame.shellBuilt)ppUpdateWorld();return;}
   p.done=true;s.parts++;ppSparks();ppSfx('ding');ppToast('⚡ Activated!');
   s.fear=Math.min(100,(s.fear||0)+8);
-  if(ppCheckObjectiveDone()&&!ppGame.chaseActive&&!c.noChase&&c.n>1){
-   setTimeout(()=>{ppTriggerChase(true);},1400);
-   ppGame.msg='Something woke up… RUN to the exit!!!';
-  }else ppGame.msg=ppCheckObjectiveDone()?'Exit door is open — GO!':'Keep going…';
+  if(ppCheckObjectiveDone()){
+   ppOpenGates();
+   if(c.n===3&&s.monster?.sleeping){s.monster.sleeping=false;s.monster.x=Math.max(2,s.x-30);ppGame.msg='⚡ POWER RESTORED — SPARK GOLEM ONLINE!!!';setTimeout(()=>ppTriggerChase(true),1200);}
+   else if(c.n===9&&!ppGame.chaseActive){ppGame.msg='🔊 Switches live — IT\'S CLIMBING FASTER!!!';setTimeout(()=>ppTriggerChase(true),1000);}
+   else if(!ppGame.chaseActive&&c.n>1&&c.n!==3){setTimeout(()=>{ppTriggerChase(true);},1400);ppGame.msg=`${ppBossName()} is waking up… RUN!!!`;}
+   else ppGame.msg='Exit door is open — GO!';
+  }else ppGame.msg='Keep going…';
  }else if(p.type==='door'){
-  if(!ppCanUseDoor(p)){ppGame.msg=`Not ready — need ${ppDoorNeeds()-s.parts} more part(s)!`;return;}
+  if(!ppCanUseDoor(p)){ppGame.msg=`Not ready — need ${ppDoorNeeds()-s.parts} more part(s)!`;if(ppGame.shellBuilt)ppUpdateWorld();return;}
+  if(c.n===10&&ppGame.chaseActive){ppJumpscare();ppSfx('win');}
   ppWinChapter();return;
  }
  if(ppGame.shellBuilt)ppUpdateWorld();
 }
 function ppTriggerChase(withScare){
- if(!ppGame||ppGame.chaseActive||ppGame.cfg.noChase||ppGame.cfg.n===1)return;
- ppGame.chaseActive=true;ppGame.cfg.mode='chase';
- const s=ppGame.state;
- if(!s.monster)s.monster={x:Math.max(2,s.x-45),speed:ppGame.cfg.monster?.speed||2,type:ppMonsterType(null,ppGame.cfg),name:ppGame.cfg.monster?.name||(ppGame.cfg.monsterType==='mommy'?'Mommy Long Legs':ppGame.cfg.monsterType==='boxy'?'Boxy Boo':'Huggy Wuggy')};
+ if(!ppGame||ppGame.chaseActive)return;
+ if(ppGame.cfg.n===1)return;
+ const c=ppGame.cfg,s=ppGame.state;
+ ppGame.chaseActive=true;c.mode='chase';
+ const bname=ppBossName();
+ if(!s.monster)s.monster={x:Math.max(2,s.x-45),speed:c.monster?.speed||2,type:ppMonsterType(null,c),name:bname};
+ s.monster.sleeping=false;
  s.monster.x=Math.max(2,s.x-40);
- s.monster.speed=ppGame.cfg.monster?.speed||2;
+ s.monster.speed=c.monster?.speed||2;
+ s.monster.type=ppMonsterType(s.monster,c);
  ppGame.chaseGraceUntil=Date.now()+3500;
+ ppGame.bossPhase=1;
+ if(c.gateTimer)ppGame.gateCloseAt=Date.now()+c.gateTimer*1000;
  s.fear=Math.max(s.fear||0,50);
- ppGame.msg='💀 IT\'S CHASING YOU — HOLD Run ▶ to the exit!!!';
+ ppGame.msg=`💀 ${bname} IS CHASING YOU — HOLD Run ▶ to the exit!!!`;
  ppSfx('roar');
  if(withScare)setTimeout(()=>ppJumpscare(),200);
 }
@@ -10407,10 +10640,17 @@ function ppGameLoop(ts){
  const chasing=c.mode==='chase'||ppGame.chaseActive;
  let moving=false;
  const spd=(ppGame.keys.run||chasing)?1.45:0.78;
- if(ppGame.keys.left&&!s.crouch){s.x=Math.max(5,s.x-spd*dt);s.pose=ppGame.keys.run||chasing?'run':'walk';moving=true;}
- if(ppGame.keys.right&&!s.crouch){s.x=Math.min(96,s.x+spd*dt);s.pose=ppGame.keys.run||chasing?'run':'walk';moving=true;}
+ if(c.n===7)ppGame.musicOff=Math.floor(ts/4000)%2===1;
+ if(ppGame.chaseActive)ppAdvanceBossPhase();
+ ppCheckLasers();
+ if(ppCheckObjectiveDone())ppOpenGates();
+ let nx=s.x;
+ if(ppGame.keys.left&&!s.crouch){nx=Math.max(5,s.x-spd*dt);s.pose=ppGame.keys.run||chasing?'run':'walk';moving=true;}
+ if(ppGame.keys.right&&!s.crouch){nx=Math.min(96,s.x+spd*dt);s.pose=ppGame.keys.run||chasing?'run':'walk';moving=true;}
+ if(nx!==s.x&&ppBlockedAt(nx))nx=s.x;
+ s.x=nx;
  if(!moving&&!s.crouch)s.pose='idle';
- if(chasing&&s.monster){
+ if(chasing&&s.monster&&!s.monster.sleeping){
   const grace=ppGame.chaseGraceUntil&&Date.now()<ppGame.chaseGraceUntil;
   if(grace)ppGame.msg='🏃 HEAD START — RUN!!!';
   if(!grace){
@@ -10419,11 +10659,19 @@ function ppGameLoop(ts){
    const gap=s.x-s.monster.x;
    if(gap<3){ppGame.lost=true;ppGame.msg='Caught! So close — hold Run next time!';ppSfx('caught');ppJumpscare();ppStopLoop();renderPoppyPlay();return;}
    if(s.x>=88){ppWinChapter();return;}
-   if(gap<12){ppGame.msg='💀 RIGHT BEHIND YOU — RUN!!!';if(Math.random()<.08)ppSfx('chase');}
-   else ppGame.msg='RUN to the glowing exit door!';
+   if(gap<12){ppGame.msg=`💀 ${ppBossName()} RIGHT BEHIND YOU — RUN!!!`;if(Math.random()<.08)ppSfx('chase');}
+   else ppGame.msg=`RUN from ${ppBossName()} — vault ahead!!!`;
    if(Math.random()<.06)ppSfx('heartbeat');
   }
- }else if(c.mode==='patrol'&&s.monster){
+  if(c.gateTimer&&ppGame.gateCloseAt){
+   const gateObs=c.obstacles?.find(o=>o.type==='gate');
+   if(gateObs&&!gateObs.open){
+    gateObs.x=Math.max(82,gateObs.x-0.04*dt);
+    if(s.x>=gateObs.x-3){ppGame.lost=true;ppGame.msg='CRUSHED BY THE CLOSING GATE!!!';ppSfx('caught');ppStopLoop();renderPoppyPlay();return;}
+   }
+   if(Date.now()>ppGame.gateCloseAt&&s.x<85){ppGame.lost=true;ppGame.msg='THE GATE SEALED — TOO SLOW!!!';ppSfx('caught');ppStopLoop();renderPoppyPlay();return;}
+  }
+ }else if(c.mode==='patrol'&&s.monster&&!s.monster.sleeping){
   const m=s.monster;
   m.x+=m.dir*m.speed*0.28*dt;
   if(m.x<8){m.x=8;m.dir=1;}if(m.x>92){m.x=92;m.dir=-1;}
@@ -10434,12 +10682,16 @@ function ppGameLoop(ts){
     if(!m.alertTimer)m.alertTimer=Date.now();
     const left=3000-(Date.now()-m.alertTimer);
     if(left<=0)ppTriggerChase(true);
-    else{ppGame.msg=`👁️ IT SEES YOU — Hide! (${Math.ceil(left/1000)}s)`;if(Math.random()<.05)ppSfx('alert');}
+    else{ppGame.msg=`👁️ ${ppBossName()} SEES YOU — Hide! (${Math.ceil(left/1000)}s)`;if(Math.random()<.05)ppSfx('alert');}
    }else{ppGame.msg='🤫 Hidden… don\'t move…';m.alertTimer=0;s.fear=Math.max(0,(s.fear||0)-2*dt);}
   }else{m.alert=false;m.alertTimer=0;
    if(dist<24){ppGame.msg='👣 Footsteps nearby…';s.fear=Math.min(100,(s.fear||0)+0.5*dt);if(Math.random()<.03)ppSfx('step');}
-   else{s.fear=Math.max(0,(s.fear||0)-0.3*dt);ppGame.msg=c.decor==='music'?'🎵 Music playing… stay alert.':'Sneak to the exit →';}}
+   else{s.fear=Math.max(0,(s.fear||0)-0.3*dt);ppGame.msg=c.decor==='music'?(ppGame.musicOff?'🔇 SILENCE — DANGER ZONES ACTIVE!!!':'🎵 Music playing… stay alert.'):'Sneak past the boss →';}}
   if(c.decor==='music'&&Math.random()<.002)ppSfx('whisper');
+ }else if(s.monster?.climbing&&!ppGame.chaseActive){
+  s.monster.x+=s.monster.speed*0.08*dt;
+  if(s.monster.x>=s.x-8)ppTriggerChase(true);
+  else if(Math.random()<.02)ppGame.msg='🛗 You hear it climbing… faster!!!';
  }else{
   const door=c.props.find(x=>x.type==='door');
   if(c.mode==='explore'&&!ppGame.chaseActive&&door&&ppCanUseDoor(door)&&s.x>=door.x-20){
@@ -10543,14 +10795,19 @@ function closePoppyPlay(){
 }
 function ppInitState(cfg){
  const startX=12;
- const m=cfg.monster?{...cfg.monster,closeness:0,alert:false,x:Math.max(2,startX-45)}:null;
+ let m=null;
+ if(cfg.monster){
+  const mtype=ppMonsterType(null,cfg);
+  m={...cfg.monster,closeness:0,alert:false,type:mtype,x:cfg.monster.x??Math.max(2,startX-45),dir:cfg.monster.dir??-1};
+ }
  return{x:startX,pose:'idle',crouch:false,parts:0,fear:0,monster:m};
 }
 function playPoppyChapter(n){
  const cfg=POPPY_CHAPTERS.find(c=>c.n===n);
  if(!cfg||n>poppyUnlockLevel())return;
  closePoppyPlay();
- ppGame={cfg:{...cfg,props:cfg.props.map(p=>({...p}))},state:ppInitState(cfg),won:false,lost:false,intro:true,shellBuilt:false,chaseActive:cfg.mode==='chase',chaseGraceUntil:0,keys:{left:false,right:false,run:false},msg:cfg.intro};
+ const obstacles=cfg.obstacles?cfg.obstacles.map(o=>({...o})):null;
+ ppGame={cfg:{...cfg,props:cfg.props.map(p=>({...p})),obstacles},state:ppInitState(cfg),won:false,lost:false,intro:true,shellBuilt:false,chaseActive:cfg.mode==='chase',chaseGraceUntil:0,bossPhase:1,musicOff:false,keys:{left:false,right:false,run:false},msg:cfg.intro};
  const wrap=document.createElement('div');
  wrap.id='poppyplay';
  wrap.className=ppUseKeyboard()?'pp-computer':'pp-mobile';
@@ -10585,14 +10842,17 @@ function ppStartChapter(){
  if(!ppGame)return;
  ppGame.intro=false;
  ppGame.msg=ppGame.cfg.intro;
- if(ppGame.cfg.mode==='chase'&&!ppGame.cfg.noChase){
+ if(ppGame.cfg.mode==='chase'){
   ppGame.chaseGraceUntil=Date.now()+3500;
   if(ppGame.state.monster)ppGame.state.monster.x=Math.max(2,ppGame.state.x-45);
-  ppGame.msg='💀 HEAD START — then HOLD Run ▶ all the way!!!';
+  if(ppGame.cfg.gateTimer)ppGame.gateCloseAt=Date.now()+ppGame.cfg.gateTimer*1000;
+  ppGame.msg=`💀 HEAD START — ${ppBossName()} is coming!!! HOLD Run ▶`;
   ppSfx('roar');
   setTimeout(()=>ppJumpscare(),500);
- }else if(ppGame.cfg.n===1||ppGame.cfg.noChase){
-  ppGame.msg='Grab 3 parts, then walk to the glowing EXIT door →';
+ }else if(ppGame.cfg.n===1){
+  ppGame.msg='Collect 3 gem shards — dodge crystal blocks — then RUN before the Sentinel wakes!';
+ }else{
+  ppGame.msg=ppGame.cfg.intro.split('.')[0]+'.';
  }
  if(ppGame.cfg.n>1)ppSfx('drone');
  ppStartLoop();
@@ -10611,7 +10871,7 @@ function renderPoppyPlay(){
  if(!scr||!ppGame)return;
  const g=ppGame,c=g.cfg;
  if(g.intro){
-  scr.innerHTML=`<div class="pp-end pp-intro-card"><div style="margin:0 auto">${ppPlayerHTML(100,'idle')}</div><h2>Chapter ${c.n}: ${c.name}</h2><p>${c.intro}</p><p style="font-size:13px;color:#888">${ppHint('Tap Enter the Factory to begin','WASD / arrows walk · Space grab · Shift/S hide · Click objects · Enter to start · Esc to quit')}</p><button type="button" class="pp-btn wide" onclick="ppStartChapter()">Enter the Factory</button><button type="button" class="pp-btn wide ghost" onclick="ppQuitChapter()">Back</button></div>`;
+  scr.innerHTML=`<div class="pp-end pp-intro-card"><div style="margin:0 auto">${ppPlayerHTML(100,'idle')}</div><h2>Chapter ${c.n}: ${c.name}</h2><p>${c.intro}</p><p style="font-size:13px;color:#888">${ppHint('Tap Enter the Factory to begin','WASD / arrows walk · Space Gem Grab · Shift/S hide · Click props · Enter start · Esc quit')}</p><button type="button" class="pp-btn wide" onclick="ppStartChapter()">Enter Gem Factory</button><button type="button" class="pp-btn wide ghost" onclick="ppQuitChapter()">Back</button></div>`;
   return;
  }
  if(g.won){
@@ -10632,6 +10892,8 @@ function renderPoppyPlay(){
 }
 
 (function openHashView(){
+ bindPpWorld();
+ bindPoppyGrid();
  const name=(location.hash||'').replace(/^#/,'').trim();
  if(name==='gemhunt'){switchView('gemhunt');return;}
  if(name&&views[name])switchView(name);
