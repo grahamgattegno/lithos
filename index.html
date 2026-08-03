@@ -625,11 +625,18 @@
   .lesson .l-num{font-family:var(--mono);font-size:12px;color:var(--gold);letter-spacing:.1em;min-width:34px}
   .lesson .l-title{font-family:var(--serif);font-size:28px;font-weight:400;letter-spacing:-.01em;flex:1}
   .lesson .l-sub{font-size:13px;color:var(--text-faint);margin-top:8px;font-family:var(--sans)}
+  .lesson .l-vid-badge{display:inline-block;margin-left:10px;padding:3px 8px;font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);border:1px solid rgba(201,169,79,.35);border-radius:3px;vertical-align:middle}
   .lesson .l-toggle{font-family:var(--mono);font-size:20px;color:var(--text-dim);transition:transform .3s}
   .lesson.open .l-toggle{transform:rotate(45deg)}
   .lesson .l-body{max-height:0;overflow:hidden;transition:max-height .4s ease}
-  .lesson.open .l-body{max-height:2000px}
+  .lesson.open .l-body{max-height:5000px}
   .lesson .l-inner{padding:0 36px 34px 96px;max-width:760px}
+  .lesson-video{margin:0 0 24px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#050508}
+  .lesson-video-stage{aspect-ratio:16/9;position:relative;background:#000}
+  .lesson-video-stage iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
+  .lesson-video-cap{margin:0;padding:10px 14px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--text-faint);line-height:1.5}
+  .lesson-video-cap a{color:var(--gold);text-decoration:none}
+  .lesson-video-cap a:hover{text-decoration:underline}
   .lesson .l-inner p{font-size:15.5px;line-height:1.75;color:var(--text);margin-bottom:16px}
   .lesson .l-inner p:last-child{margin-bottom:0}
   .lesson .l-inner strong{color:var(--gold);font-weight:500}
@@ -2650,7 +2657,7 @@
  <section class="learn-hero">
  <div class="eyebrow">The Fundamentals</div>
  <h1>How to <em>read</em> a gemstone</h1>
- <p class="lede">Five short lessons on what makes a stone a gem — how they form, how we measure them, and how to tell a fine one from a merely pretty one. Then test yourself in the Quiz.</p>
+ <p class="lede">Five short lessons on what makes a stone a gem — each one opens with a <b>Claw Quest</b> video (click play for sound). Then test yourself in the Quiz.</p>
  <p class="partner-learn">Studying corundum or colored gems? Browse <a data-partner="gemsny" data-partner-path="gems" href="https://www.gemsny.com/gems" target="_blank" rel="sponsored noopener noreferrer">certified loose gemstones at GemsNY</a> — partner for natural sapphires, rubies, and emeralds (up to 5% affiliate commission).</p>
  </section>
  <div class="lessons" id="lessons"></div>
@@ -3764,18 +3771,22 @@ window.addEventListener('hashchange',()=>{
 });
 
 /* ---------- Lessons ---------- */
+const CLAW_QUEST='https://www.youtube.com/@clawquest';
 const LESSONS=[
- {title:"What makes a rock a gem",sub:"Beauty, durability, and rarity",body:`
+ {title:"What makes a rock a gem",sub:"Beauty, durability, and rarity",
+ video:{id:'scGArR4kF7A',title:'I Found Diamonds In New York City Sidewalk Cracks!'},body:`
  <p>Thousands of minerals exist, but only a few dozen are cut as gemstones. Three qualities decide which make the cut: <strong>beauty</strong> — colour, transparency, and the way light behaves inside the stone; <strong>durability</strong> — the ability to survive being worn without scratching or shattering; and <strong>rarity</strong> — scarcity is what turns a pretty crystal into a valuable one.</p>
  <p>A gem is almost always a <strong>crystal</strong>: atoms locked into a repeating three-dimensional pattern. That internal order is what produces flat faces, sharp angles, and the optical effects we prize. A few gems — opal and amber among them — are <strong>amorphous</strong>, with no ordered lattice at all, and are called mineraloids rather than true minerals.</p>
  <p>Colour usually comes not from the main ingredients but from trace impurities. The same mineral, corundum, is <strong>ruby</strong> when chromium sneaks in and <strong>sapphire</strong> when it's iron and titanium. Emerald and aquamarine are likewise the very same species — beryl — coloured by different elements.</p>`,
  tip:`Open Catalog and filter to Gemstones. Pick one stone you love and one you’d never wear — write one sentence for each on beauty, durability, and rarity. Then ask the AI Rock Teacher: “Compare [stone A] and [stone B].”`},
- {title:"How gemstones form",sub:"Heat, pressure, water, and deep time",body:`
+ {title:"How gemstones form",sub:"Heat, pressure, water, and deep time",
+ video:{id:'d8_J8YgxxLQ',title:'I Mined A Real Emerald!'},body:`
  <p>Most gems are born in one of three settings. <strong>Igneous</strong> stones crystallize as molten rock cools — slowly enough, deep underground, for large clean crystals to grow. Diamond forms this way, over a hundred kilometres down, then rides to the surface in violent volcanic pipes.</p>
  <p><strong>Metamorphic</strong> gems form when existing rock is cooked and squeezed by heat and pressure without melting — ruby, sapphire, and jade come from this slow transformation. <strong>Hydrothermal</strong> gems grow from hot mineral-rich water seeping through cracks, which is where much emerald and amethyst comes from.</p>
  <p>A handful are outliers: <strong>opal</strong> settles out of silica-laden water near the surface, <strong>peridot</strong> rises from the deep mantle and even arrives in meteorites, and <strong>amber</strong> and <strong>ammolite</strong> are organic — fossilized resin and shell. The common thread is time: most of these processes take millions of years.</p>`,
  tip:`In Catalog, open diamond, emerald, and opal. For each, note formation style (igneous, hydrothermal, or near-surface). Ask the AI Rock Teacher “How do hydrothermal gems form?” and check your notes against the answer.`},
- {title:"The Mohs scale of hardness",sub:"Why diamond scratches everything",body:`
+ {title:"The Mohs scale of hardness",sub:"Why diamond scratches everything",
+ video:{id:'HsIUL0ttCD0',title:'I Bought $5,000 Of Dirt To Find Gold!'},body:`
  <p>Hardness measures resistance to scratching, ranked 1 to 10 on the <strong>Mohs scale</strong>. It's a ranking, not a measurement — the jumps aren't even. Diamond at 10 is roughly four times harder than corundum at 9, which is itself far harder than anything at 8.</p>
  <p>The rule is simple: a mineral can scratch anything softer than itself and be scratched by anything harder. This matters for jewellery. Stones under about 7 are softer than everyday dust (which contains quartz, hardness 7), so a soft gem worn daily slowly abrades to a dull surface.</p>
  <div class="scale">
@@ -3789,7 +3800,8 @@ const LESSONS=[
  </div>
  <p>One caution: hardness is not toughness. <strong>Jade</strong> is only about 6.5 but is exceptionally tough — hard to break — because of its interlocking fibrous structure. Diamond is the hardest thing there is, yet it can cleave in two from a sharp knock along the right plane.</p>`,
  tip:`Ask the AI Rock Teacher for “Mohs 7 gems,” then find three catalog stones near Mohs 7. Rank them softest → hardest. Bonus: explain why jade can outlast a harder stone in a knock.`},
- {title:"The Four Cs",sub:"How value is judged",body:`
+ {title:"The Four Cs",sub:"How value is judged",
+ video:{id:'pzAyazQjVWE',title:'I Found Gold In Places Nobody Would Ever Look!'},body:`
  <p>The diamond trade standardized four factors that now shape how nearly all gems are valued.</p>
  <div class="cc-grid">
  <div class="cc"><h4>Colour</h4><p>For coloured stones, the single biggest value driver. The ideal is a pure, saturated hue that's neither too dark nor too pale. For diamonds, the opposite — the less colour, the rarer.</p></div>
@@ -3799,12 +3811,18 @@ const LESSONS=[
  </div>
  <p>For coloured gemstones, most experts rank them <strong>colour first</strong>, then clarity and cut. For diamonds, cut is often considered the most important of the four, because it's what makes a diamond sparkle.</p>`,
  tip:`Pick a colored gem and a diamond from the catalog. Rank the Four Cs for each (1–4). Ask the AI Rock Teacher which C usually matters most for colored stones — see if you agree.`},
- {title:"Treatments and imposters",sub:"What you're really buying",body:`
+ {title:"Treatments and imposters",sub:"What you're really buying",
+ video:{id:'sVGLfB7damU',title:'I Bought $1,000 Of Dirt To Find Gold!'},body:`
  <p>Most gems on the market have been <strong>treated</strong> to improve appearance, and much of it is accepted trade practice — as long as it's disclosed. <strong>Heating</strong> deepens or clarifies colour in sapphire, ruby, and tanzanite and is extremely common. <strong>Irradiation</strong> turns colourless topaz vivid blue. Emeralds are routinely <strong>oil-filled</strong> to mask surface fractures.</p>
  <p>The value gap between treated and genuinely untreated stones can be enormous, which is why a reputable lab report matters. An untreated, certified Burmese ruby is worth many times a heated one of the same look.</p>
  <p>Then there are <strong>simulants</strong> and <strong>synthetics</strong> — two different things. A synthetic has the same chemistry as the natural stone but is grown in a lab (lab-grown diamond is real diamond). A simulant merely imitates the look — <strong>cubic zirconia</strong> and <strong>moissanite</strong> stand in for diamond but are entirely different materials. Neither is a scam if sold honestly; the problem is only ever non-disclosure.</p>`,
  tip:`Write two sentences: one that correctly describes a heated sapphire, one that correctly describes moissanite. Then quiz a grown-up — or ask the AI Rock Teacher “What is the difference between synthetic and simulant?”`}
 ];
+function lessonVideoHtml(l){
+ if(!l.video) return '';
+ const v=l.video;
+ return `<div class="lesson-video"><div class="lesson-video-stage"><iframe src="https://www.youtube-nocookie.com/embed/${v.id}?rel=0" title="${v.title}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe></div><p class="lesson-video-cap"><a href="${CLAW_QUEST}" target="_blank" rel="noopener noreferrer">Claw Quest</a> · ${v.title} · click play for sound</p></div>`;
+}
 function bindLessonToggles(wrap){
  wrap.querySelectorAll('.lesson').forEach(les=>{
  les.querySelector('.l-head').addEventListener('click',()=>{
@@ -3819,12 +3837,14 @@ function buildLessons(){
  <div class="lesson">
  <button class="l-head" aria-expanded="false">
  <span class="l-num">${String(i+1).padStart(2,'0')}</span>
- <span style="flex:1"><span class="l-title">${l.title}</span><span class="l-sub">${l.sub}</span></span>
+ <span style="flex:1"><span class="l-title">${l.title}</span>${l.video?'<span class="l-vid-badge">▶ Claw Quest</span>':''}<span class="l-sub">${l.sub}</span></span>
  <span class="l-toggle">+</span>
  </button>
- <div class="l-body"><div class="l-inner">${l.body}</div></div>
+ <div class="l-body"><div class="l-inner">${lessonVideoHtml(l)}${l.body}</div></div>
  </div>`).join('');
  bindLessonToggles(wrap);
+ const first=wrap.querySelector('.lesson');
+ if(first){first.classList.add('open');first.querySelector('.l-head').setAttribute('aria-expanded','true');}
 }
 function buildClassLessons(){
  const wrap=document.getElementById('class-lessons');
@@ -3833,10 +3853,10 @@ function buildClassLessons(){
  <div class="lesson">
  <button class="l-head" aria-expanded="false">
  <span class="l-num">${String(i+1).padStart(2,'0')}</span>
- <span style="flex:1"><span class="l-title">${l.title}</span><span class="l-sub">${l.sub}</span></span>
+ <span style="flex:1"><span class="l-title">${l.title}</span>${l.video?'<span class="l-vid-badge">▶ Claw Quest</span>':''}<span class="l-sub">${l.sub}</span></span>
  <span class="l-toggle">+</span>
  </button>
- <div class="l-body"><div class="l-inner">${l.body}${l.tip?`<div class="member-tip"><div class="tip-label">Member tip</div><p>${l.tip}</p></div>`:''}</div></div>
+ <div class="l-body"><div class="l-inner">${lessonVideoHtml(l)}${l.body}${l.tip?`<div class="member-tip"><div class="tip-label">Member tip</div><p>${l.tip}</p></div>`:''}</div></div>
  </div>`).join('');
  bindLessonToggles(wrap);
 }
