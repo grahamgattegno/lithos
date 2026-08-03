@@ -644,6 +644,18 @@
   .claw-quest-library .lede{max-width:640px;font-size:15px;line-height:1.6;color:var(--text-dim);margin-bottom:28px}
   .claw-quest-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:18px}
   .claw-quest-card .lesson-video-cap{font-size:10px;line-height:1.45}
+  .claw-quest-search-wrap{max-width:420px;margin:0 0 24px}
+  .claw-quest-search{width:100%;background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:14px 16px;font-family:var(--sans);font-size:15px}
+  .claw-quest-search:focus{outline:none;border-color:var(--gold)}
+  .claw-quest-count{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin:0 0 16px}
+  .claw-quest-thumb{display:block;position:relative;width:100%;padding:0;border:0;background:#000;cursor:pointer;border-radius:10px 10px 0 0;overflow:hidden;aspect-ratio:16/9}
+  .claw-quest-thumb img{width:100%;height:100%;object-fit:cover;display:block;opacity:.88;transition:opacity .2s,transform .25s}
+  .claw-quest-thumb:hover img{opacity:1;transform:scale(1.03)}
+  .claw-quest-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#fff;background:rgba(0,0,0,.35);transition:background .2s}
+  .claw-quest-thumb:hover .claw-quest-play{background:rgba(0,0,0,.5)}
+  .claw-quest-title{margin:0;padding:10px 12px 12px;font-size:13px;line-height:1.45;color:var(--text-dim);background:var(--ink-2);border:1px solid var(--line);border-top:0;border-radius:0 0 10px 10px}
+  .claw-quest-card{background:var(--ink-2);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .learn-loading{text-align:center;padding:40px 20px;color:var(--text-faint);font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase}
   .lesson .l-inner p{font-size:15.5px;line-height:1.75;color:var(--text);margin-bottom:16px}
   .lesson .l-inner p:last-child{margin-bottom:0}
   .lesson .l-inner strong{color:var(--gold);font-weight:500}
@@ -2417,6 +2429,14 @@
   .video-channel-head h3{font-family:var(--serif);font-size:24px;font-weight:400}
   .video-channel-more{display:block;margin:16px auto 0;background:transparent;color:#9b7bff;border:1px solid var(--line);cursor:pointer;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:12px 20px;border-radius:8px}
   .video-channel-more:hover{border-color:#9b7bff}
+  .video-channels-saved{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 20px}
+  .video-ch-chip{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:10px 16px;border-radius:24px;border:1px solid var(--line);background:var(--panel);color:var(--text-dim);cursor:pointer;transition:border-color .15s,color .15s,background .15s}
+  .video-ch-chip:hover,.video-ch-chip.on{border-color:#9b7bff;color:#c4a8ff;background:rgba(125,90,255,.12)}
+  .video-ch-chip .ch-x{margin-left:8px;opacity:.55;font-size:14px}
+  .video-ch-add-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+  .video-ch-add-row input{flex:1;min-width:180px;background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:12px 14px;font-size:15px}
+  .video-ch-add-row input:focus{outline:none;border-color:#9b7bff}
+  .video-ch-add-row button{background:linear-gradient(135deg,#7d5aff,#9b7bff);color:#fff;border:none;cursor:pointer;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;padding:12px 18px;border-radius:8px}
   .bf-side-title{text-shadow:0 1px 4px rgba(0,0,0,.7)}
   .bf-hp-text{text-shadow:0 1px 3px rgba(0,0,0,.7)}
   .bf-log{position:relative;z-index:1}
@@ -2709,14 +2729,18 @@
  <section class="learn-hero">
  <div class="eyebrow">The Fundamentals</div>
  <h1>How to <em>read</em> a gemstone</h1>
- <p class="lede">Five short lessons on what makes a stone a gem — each includes multiple <b>Claw Quest</b> videos. Scroll down for the <b>full library (all 30 videos)</b>. Then test yourself in the Quiz.</p>
+ <p class="lede">Five short lessons on what makes a stone a gem — each includes Claw Quest videos. Scroll down for <b>every Claw Quest video</b> on the channel. Then test yourself in the Quiz.</p>
  <p class="partner-learn">Studying corundum or colored gems? Browse <a data-partner="gemsny" data-partner-path="gems" href="https://www.gemsny.com/gems" target="_blank" rel="sponsored noopener noreferrer">certified loose gemstones at GemsNY</a> — partner for natural sapphires, rubies, and emeralds (up to 5% affiliate commission).</p>
  </section>
  <div class="lessons" id="lessons"></div>
  <section class="claw-quest-library">
   <div class="eyebrow">Watch &amp; Learn</div>
   <h2>All <em>Claw Quest</em> gem hunts</h2>
-  <p class="lede" id="claw-quest-lede">Every Claw Quest video on Lithos — privacy-enhanced embeds (nocookie mode, no related channels at end). Click play for sound.</p>
+  <p class="lede" id="claw-quest-lede">Loading every Claw Quest video…</p>
+  <div class="claw-quest-search-wrap">
+   <input class="claw-quest-search" id="claw-quest-search" type="search" placeholder="Search all Claw Quest videos…" autocomplete="off">
+  </div>
+  <p class="claw-quest-count" id="claw-quest-count"></p>
   <div class="claw-quest-grid" id="claw-quest-grid"></div>
  </section>
 </div><!-- /view-learn -->
@@ -3291,13 +3315,13 @@
   <div class="video-locked-box">
    <div class="lock-icon">🔒</div>
    <p class="lede">This area is for the Lithos owner only. Go to <button type="button" class="collab-link" onclick="switchView('codes')">Secret Codes</button> and enter the owner code to unlock your private video library.</p>
-   <p class="lede" style="margin-top:12px;font-size:14px">Once unlocked, you can add YouTube, Vimeo, or MP4 links — anything you want, not just gems.</p>
+   <p class="lede" style="margin-top:12px;font-size:14px">Once unlocked, pick YouTube channels like <b>@clawquest</b> — videos load automatically. No URL pasting needed.</p>
   </div>
  </div>
  <div id="video-platform" hidden>
   <div class="eyebrow">Owner private stream</div>
   <h1>Owner <em>TV</em></h1>
-  <p class="lede">Your personal video library — or type a YouTube channel name and explore their videos. Not limited to gems.</p>
+  <p class="lede">Pick a saved YouTube channel — videos load automatically. No need to paste URLs. Default: <b>@clawquest</b>.</p>
 
   <div class="video-stage" id="video-stage">
    <div class="video-stage-empty" id="video-stage-empty">Pick a video below to start watching</div>
@@ -3306,22 +3330,13 @@
    <div class="vp-title" id="video-playing-title"></div>
   </div>
 
-  <details class="video-add">
-   <summary>+ Add a video</summary>
-   <form class="video-add-form" id="video-add-form">
-    <label class="fb-label" for="video-add-url">Video URL (YouTube, Vimeo, or .mp4)</label>
-    <input id="video-add-url" type="url" placeholder="https://www.youtube.com/watch?v=..." required>
-    <label class="fb-label" for="video-add-title">Title</label>
-    <input id="video-add-title" type="text" placeholder="Auto-fills when you paste a link" required>
-    <button type="submit">Add to library</button>
-   </form>
-  </details>
-
+  <div class="video-section-head" style="margin-top:0">Your channels</div>
+  <div class="video-channels-saved" id="video-channels-saved"></div>
   <div class="video-channel-box">
-   <label class="fb-label" for="video-channel-input">Explore a YouTube channel</label>
-   <div class="video-channel-row">
-    <input id="video-channel-input" type="text" placeholder="@mkbhd, PewDiePie, or paste a channel link" autocomplete="off">
-    <button type="button" id="video-channel-go">Explore</button>
+   <label class="fb-label" for="video-channel-add-input">Add a YouTube channel</label>
+   <div class="video-ch-add-row">
+    <input id="video-channel-add-input" type="text" placeholder="@clawquest or channel name" autocomplete="off">
+    <button type="button" id="video-channel-add-btn">Add channel</button>
    </div>
    <div class="video-channel-status" id="video-channel-status" aria-live="polite"></div>
   </div>
@@ -3329,9 +3344,20 @@
   <div class="video-grid" id="video-channel-grid"></div>
   <button type="button" class="video-channel-more" id="video-channel-more" hidden>Load more videos</button>
 
-  <div class="video-section-head">My library</div>
+  <details class="video-add">
+   <summary>Advanced: paste a single video URL</summary>
+   <form class="video-add-form" id="video-add-form">
+    <label class="fb-label" for="video-add-url">Video URL (YouTube, Vimeo, or .mp4)</label>
+    <input id="video-add-url" type="url" placeholder="https://www.youtube.com/watch?v=..." required>
+    <label class="fb-label" for="video-add-title">Title</label>
+    <input id="video-add-title" type="text" placeholder="Auto-fills when you paste a link" required>
+    <button type="submit">Add to my library</button>
+   </form>
+  </details>
+
+  <div class="video-section-head">My saved videos</div>
   <div class="video-toolbar">
-   <input type="search" id="video-search" placeholder="Search by title…" autocomplete="off">
+   <input type="search" id="video-search" placeholder="Search saved videos…" autocomplete="off">
   </div>
   <div class="video-grid" id="video-grid"></div>
  </div>
@@ -3803,7 +3829,7 @@ function switchView(name){
  const hash=gemHunt?'#gemhunt':(name==='catalog'?'':('#'+name));
  if(location.hash!==hash)history.replaceState(null,'',hash||location.pathname+location.search);
  window.scrollTo({top:0,behavior:'instant' in window?'instant':'auto'});
- if(name==='learn'&&!learnBuilt){buildLessons();learnBuilt=true;}
+ if(name==='learn'&&!learnBuilt){learnBuilt=true;buildLearnPage();}
  if(name==='class-lessons'){refreshClassLessons();}
  if(name==='quiz')startQuiz();
  if(name==='classes'){refreshClassAI();refreshClassLessonsEntry();setTimeout(()=>{const s=document.getElementById('class-ai');if(s)s.scrollIntoView({behavior:'smooth',block:'start'});},80);}
@@ -3850,59 +3876,49 @@ window.addEventListener('hashchange',()=>{
 /* ---------- Lessons ---------- */
 const CLAW_QUEST='https://www.youtube.com/@clawquest';
 const CLAW_EMBED_QUERY='rel=0&modestbranding=1&iv_load_policy=3&playsinline=1';
-const CLAW_QUEST_VIDEOS=[
- {id:'0eVAorqsMJY',title:'My College Apartment Tour! *IN FLORIDA*'},
- {id:'5BRznrcws7U',title:'New York To Florida Road Trip! *Gone Wrong*'},
- {id:'5gF6xZBm7zw',title:'Angry Man Broke Our Camera *LA VLOG*'},
- {id:'6EhHsX0GOJQ',title:'I Bought 5 Abandoned Storage Units And Found...'},
- {id:'CL7K45sJJxU',title:'Sneaking Snacks Into The Movie Theater.. *Challenge*'},
- {id:'Dp_q9mO1Exw',title:'We put Two Pools into a MOVING Truck!'},
- {id:'GLDroEC_JK8',title:"World's Largest Bowl Of Halloween Candy!"},
- {id:'Gy4_t0JT-Xo',title:'I DoorDashed For 24 Hours Without Stopping..*Challenge*'},
- {id:'HsIUL0ttCD0',title:'I Bought $5,000 Of Dirt To Find Gold!'},
- {id:'JB7PIX7Ur0Y',title:'I Made the Largest Halloween Candy Bowl in History!'},
- {id:'Stz3S3yAuws',title:'Facing My Biggest Fear.. *Florida Vlog*'},
- {id:'TaXziyIjfHo',title:'I Found Treasure In Places Nobody Would Ever Look!'},
- {id:'V4i97LZhq_8',title:'I Surprised BrentTV With A Custom Claw Machine!'},
- {id:'VpU_9Ulnyyg',title:'I Searched For 3 Lost Treasures Across America!'},
- {id:'Yfvnw_g7w2A',title:'Will it float? Testing Minecraft Boat in Real Life..'},
- {id:'bC0Lt_ALURM',title:'Buying My Dream Car At Age 18..(Van Life Ep.1)'},
- {id:'cGcO-fhVbnE',title:'Attempting to Break 24 World Records in 24 Hours!'},
- {id:'d8_J8YgxxLQ',title:'I Mined A Real Emerald!'},
- {id:'fHAfo4KtAYY',title:'I Found Treasure In The Hardest Place To Reach!'},
- {id:'fkRSSShAT0M',title:'Saying Goodbye To The Love Of My Life!'},
- {id:'fralcukz5hE',title:"Stealing a Famous YouTuber's Gold Play Button! (Van Life Ep.2)"},
- {id:'hhQ75oZ-ngY',title:'I Made Money Grow On Trees! *Social Experiment*'},
- {id:'lrc17cbsi_Y',title:'Buying Illegal Fireworks And Trying To Fly..'},
- {id:'oN3e2EGiUrw',title:'I Found Treasure Under 100 Bridges'},
- {id:'pzAyazQjVWE',title:'I Found Gold In Places Nobody Would Ever Look!'},
- {id:'qm_4eAatnFI',title:'Overnight Challenge In a ZORB BALL On The Lake!'},
- {id:'s8hTN4pAy1c',title:'I Found Lost Treasure Underwater Metal Detecting!'},
- {id:'sVGLfB7damU',title:'I Bought $1,000 Of Dirt To Find Gold!'},
- {id:'scGArR4kF7A',title:'I Found Diamonds In New York City Sidewalk Cracks!'},
- {id:'yMbbR2EXkUQ',title:"Overnight In The World's Cheapest Hotel.."}
-];
+let CLAW_QUEST_VIDEOS=[];
+let clawQuestLoaded=false;
+let clawQuestSearchQuery='';
+async function loadClawQuestVideos(){
+ if(clawQuestLoaded) return CLAW_QUEST_VIDEOS;
+ try{
+ const res=await fetch('data/claw-quest-videos.json');
+ if(res.ok) CLAW_QUEST_VIDEOS=await res.json();
+ }catch(e){}
+ clawQuestLoaded=true;
+ return CLAW_QUEST_VIDEOS;
+}
+function clawQuestById(id){ return CLAW_QUEST_VIDEOS.find(v=>v.id===id); }
 function clawQuestEmbedSrc(id){
  return `https://www.youtube-nocookie.com/embed/${id}?${CLAW_EMBED_QUERY}`;
 }
+function cqEsc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 function clawQuestVideoCard(v,extraClass){
- return `<div class="lesson-video${extraClass?(' '+extraClass):''}"><div class="lesson-video-stage"><iframe src="${clawQuestEmbedSrc(v.id)}" title="${v.title.replace(/"/g,'&quot;')}" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe></div><p class="lesson-video-cap"><a href="${CLAW_QUEST}" target="_blank" rel="noopener noreferrer">Claw Quest</a> · ${v.title} · click play for sound</p></div>`;
+ if(!v) return '';
+ return `<div class="lesson-video${extraClass?(' '+extraClass):''}"><div class="lesson-video-stage"><iframe src="${clawQuestEmbedSrc(v.id)}" title="${cqEsc(v.title)}" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe></div><p class="lesson-video-cap"><a href="${CLAW_QUEST}" target="_blank" rel="noopener noreferrer">Claw Quest</a> · ${cqEsc(v.title)} · click play for sound</p></div>`;
+}
+function clawQuestThumbCard(v){
+ return `<div class="claw-quest-card" data-cq-id="${v.id}"><button type="button" class="claw-quest-thumb" aria-label="Play ${cqEsc(v.title)}"><img src="https://img.youtube.com/vi/${v.id}/hqdefault.jpg" alt="" loading="lazy"><span class="claw-quest-play">▶ Play with sound</span></button><p class="claw-quest-title">${cqEsc(v.title)}</p></div>`;
+}
+function lessonVideos(l){
+ const ids=l.videoIds||[];
+ return ids.map(clawQuestById).filter(Boolean);
 }
 const LESSONS=[
  {title:"What makes a rock a gem",sub:"Beauty, durability, and rarity",
- videos:[CLAW_QUEST_VIDEOS[28],CLAW_QUEST_VIDEOS[24],CLAW_QUEST_VIDEOS[13]],body:`
+ videoIds:['scGArR4kF7A','pzAyazQjVWE','VpU_9Ulnyyg'],body:`
  <p>Thousands of minerals exist, but only a few dozen are cut as gemstones. Three qualities decide which make the cut: <strong>beauty</strong> — colour, transparency, and the way light behaves inside the stone; <strong>durability</strong> — the ability to survive being worn without scratching or shattering; and <strong>rarity</strong> — scarcity is what turns a pretty crystal into a valuable one.</p>
  <p>A gem is almost always a <strong>crystal</strong>: atoms locked into a repeating three-dimensional pattern. That internal order is what produces flat faces, sharp angles, and the optical effects we prize. A few gems — opal and amber among them — are <strong>amorphous</strong>, with no ordered lattice at all, and are called mineraloids rather than true minerals.</p>
  <p>Colour usually comes not from the main ingredients but from trace impurities. The same mineral, corundum, is <strong>ruby</strong> when chromium sneaks in and <strong>sapphire</strong> when it's iron and titanium. Emerald and aquamarine are likewise the very same species — beryl — coloured by different elements.</p>`,
  tip:`Open Catalog and filter to Gemstones. Pick one stone you love and one you’d never wear — write one sentence for each on beauty, durability, and rarity. Then ask the AI Rock Teacher: “Compare [stone A] and [stone B].”`},
  {title:"How gemstones form",sub:"Heat, pressure, water, and deep time",
- videos:[CLAW_QUEST_VIDEOS[17],CLAW_QUEST_VIDEOS[8],CLAW_QUEST_VIDEOS[27]],body:`
+ videoIds:['d8_J8YgxxLQ','HsIUL0ttCD0','sVGLfB7damU'],body:`
  <p>Most gems are born in one of three settings. <strong>Igneous</strong> stones crystallize as molten rock cools — slowly enough, deep underground, for large clean crystals to grow. Diamond forms this way, over a hundred kilometres down, then rides to the surface in violent volcanic pipes.</p>
  <p><strong>Metamorphic</strong> gems form when existing rock is cooked and squeezed by heat and pressure without melting — ruby, sapphire, and jade come from this slow transformation. <strong>Hydrothermal</strong> gems grow from hot mineral-rich water seeping through cracks, which is where much emerald and amethyst comes from.</p>
  <p>A handful are outliers: <strong>opal</strong> settles out of silica-laden water near the surface, <strong>peridot</strong> rises from the deep mantle and even arrives in meteorites, and <strong>amber</strong> and <strong>ammolite</strong> are organic — fossilized resin and shell. The common thread is time: most of these processes take millions of years.</p>`,
  tip:`In Catalog, open diamond, emerald, and opal. For each, note formation style (igneous, hydrothermal, or near-surface). Ask the AI Rock Teacher “How do hydrothermal gems form?” and check your notes against the answer.`},
  {title:"The Mohs scale of hardness",sub:"Why diamond scratches everything",
- videos:[CLAW_QUEST_VIDEOS[8],CLAW_QUEST_VIDEOS[27],CLAW_QUEST_VIDEOS[23]],body:`
+ videoIds:['HsIUL0ttCD0','sVGLfB7damU','oN3e2EGiUrw'],body:`
  <p>Hardness measures resistance to scratching, ranked 1 to 10 on the <strong>Mohs scale</strong>. It's a ranking, not a measurement — the jumps aren't even. Diamond at 10 is roughly four times harder than corundum at 9, which is itself far harder than anything at 8.</p>
  <p>The rule is simple: a mineral can scratch anything softer than itself and be scratched by anything harder. This matters for jewellery. Stones under about 7 are softer than everyday dust (which contains quartz, hardness 7), so a soft gem worn daily slowly abrades to a dull surface.</p>
  <div class="scale">
@@ -3917,7 +3933,7 @@ const LESSONS=[
  <p>One caution: hardness is not toughness. <strong>Jade</strong> is only about 6.5 but is exceptionally tough — hard to break — because of its interlocking fibrous structure. Diamond is the hardest thing there is, yet it can cleave in two from a sharp knock along the right plane.</p>`,
  tip:`Ask the AI Rock Teacher for “Mohs 7 gems,” then find three catalog stones near Mohs 7. Rank them softest → hardest. Bonus: explain why jade can outlast a harder stone in a knock.`},
  {title:"The Four Cs",sub:"How value is judged",
- videos:[CLAW_QUEST_VIDEOS[24],CLAW_QUEST_VIDEOS[11],CLAW_QUEST_VIDEOS[18]],body:`
+ videoIds:['pzAyazQjVWE','TaXziyIjfHo','fHAfo4KtAYY'],body:`
  <p>The diamond trade standardized four factors that now shape how nearly all gems are valued.</p>
  <div class="cc-grid">
  <div class="cc"><h4>Colour</h4><p>For coloured stones, the single biggest value driver. The ideal is a pure, saturated hue that's neither too dark nor too pale. For diamonds, the opposite — the less colour, the rarer.</p></div>
@@ -3928,27 +3944,69 @@ const LESSONS=[
  <p>For coloured gemstones, most experts rank them <strong>colour first</strong>, then clarity and cut. For diamonds, cut is often considered the most important of the four, because it's what makes a diamond sparkle.</p>`,
  tip:`Pick a colored gem and a diamond from the catalog. Rank the Four Cs for each (1–4). Ask the AI Rock Teacher which C usually matters most for colored stones — see if you agree.`},
  {title:"Treatments and imposters",sub:"What you're really buying",
- videos:[CLAW_QUEST_VIDEOS[27],CLAW_QUEST_VIDEOS[3],CLAW_QUEST_VIDEOS[26],CLAW_QUEST_VIDEOS[12]],body:`
+ videoIds:['sVGLfB7damU','6EhHsX0GOJQ','s8hTN4pAy1c','V4i97LZhq_8'],body:`
  <p>Most gems on the market have been <strong>treated</strong> to improve appearance, and much of it is accepted trade practice — as long as it's disclosed. <strong>Heating</strong> deepens or clarifies colour in sapphire, ruby, and tanzanite and is extremely common. <strong>Irradiation</strong> turns colourless topaz vivid blue. Emeralds are routinely <strong>oil-filled</strong> to mask surface fractures.</p>
  <p>The value gap between treated and genuinely untreated stones can be enormous, which is why a reputable lab report matters. An untreated, certified Burmese ruby is worth many times a heated one of the same look.</p>
  <p>Then there are <strong>simulants</strong> and <strong>synthetics</strong> — two different things. A synthetic has the same chemistry as the natural stone but is grown in a lab (lab-grown diamond is real diamond). A simulant merely imitates the look — <strong>cubic zirconia</strong> and <strong>moissanite</strong> stand in for diamond but are entirely different materials. Neither is a scam if sold honestly; the problem is only ever non-disclosure.</p>`,
  tip:`Write two sentences: one that correctly describes a heated sapphire, one that correctly describes moissanite. Then quiz a grown-up — or ask the AI Rock Teacher “What is the difference between synthetic and simulant?”`}
 ];
 function lessonVideoHtml(l){
- const vids=l.videos||(l.video?[l.video]:[]);
+ const vids=lessonVideos(l);
  if(!vids.length) return '';
  return `<div class="lesson-videos">${vids.map(v=>clawQuestVideoCard(v)).join('')}</div>`;
 }
-function buildClawQuestLibrary(){
+function filteredClawQuestVideos(){
+ const q=clawQuestSearchQuery.trim().toLowerCase();
+ if(!q) return CLAW_QUEST_VIDEOS.slice();
+ return CLAW_QUEST_VIDEOS.filter(v=>(v.title||'').toLowerCase().includes(q));
+}
+function bindClawQuestLibrary(wrap){
+ wrap.querySelectorAll('.claw-quest-thumb').forEach(btn=>{
+ btn.addEventListener('click',()=>{
+ const card=btn.closest('.claw-quest-card');
+ if(!card||card.dataset.cqPlaying) return;
+ const v=clawQuestById(card.dataset.cqId);
+ if(!v) return;
+ card.dataset.cqPlaying='1';
+ card.outerHTML=clawQuestVideoCard(v,'claw-quest-card');
+ });
+ });
+}
+function renderClawQuestLibrary(){
  const wrap=document.getElementById('claw-quest-grid');
  if(!wrap) return;
- wrap.innerHTML=CLAW_QUEST_VIDEOS.map(v=>clawQuestVideoCard(v,'claw-quest-card')).join('');
+ const videos=filteredClawQuestVideos();
+ const countEl=document.getElementById('claw-quest-count');
+ if(countEl) countEl.textContent=videos.length===CLAW_QUEST_VIDEOS.length?`${CLAW_QUEST_VIDEOS.length} videos`:`Showing ${videos.length} of ${CLAW_QUEST_VIDEOS.length}`;
+ if(!videos.length){
+ wrap.innerHTML='<p class="learn-loading">No videos match your search.</p>';
+ return;
+ }
+ wrap.innerHTML=videos.map(v=>clawQuestThumbCard(v)).join('');
+ bindClawQuestLibrary(wrap);
+}
+function buildClawQuestLibrary(){
  const lede=document.getElementById('claw-quest-lede');
- if(lede) lede.innerHTML=`All <b>${CLAW_QUEST_VIDEOS.length}</b> Claw Quest videos on Lithos — privacy-enhanced embeds (nocookie mode, no related channels at end). <a href="${CLAW_QUEST}" target="_blank" rel="noopener noreferrer" style="color:var(--gold)">Subscribe on YouTube</a>. Click play for sound.`;
+ if(lede) lede.innerHTML=`All <b>${CLAW_QUEST_VIDEOS.length}</b> Claw Quest videos on Lithos — privacy-enhanced embeds (nocookie mode). Tap a thumbnail to play with sound. <a href="${CLAW_QUEST}" target="_blank" rel="noopener noreferrer" style="color:var(--gold)">Subscribe on YouTube</a>.`;
+ renderClawQuestLibrary();
+ const search=document.getElementById('claw-quest-search');
+ if(search&&!search.dataset.cqWired){
+ search.dataset.cqWired='1';
+ search.addEventListener('input',()=>{clawQuestSearchQuery=search.value;renderClawQuestLibrary();});
+ }
 }
 function lessonVidBadge(l){
- const n=(l.videos||[]).length||(l.video?1:0);
+ const n=(l.videoIds||[]).length;
  return n?`<span class="l-vid-badge">▶ ${n} Claw Quest</span>`:'';
+}
+async function buildLearnPage(){
+ const lessonsWrap=document.getElementById('lessons');
+ const grid=document.getElementById('claw-quest-grid');
+ if(lessonsWrap) lessonsWrap.innerHTML='<p class="learn-loading">Loading Claw Quest videos…</p>';
+ if(grid) grid.innerHTML='<p class="learn-loading">Loading…</p>';
+ await loadClawQuestVideos();
+ buildLessons();
+ buildClawQuestLibrary();
 }
 function bindLessonToggles(wrap){
  wrap.querySelectorAll('.lesson').forEach(les=>{
@@ -3972,7 +4030,6 @@ function buildLessons(){
  bindLessonToggles(wrap);
  const first=wrap.querySelector('.lesson');
  if(first){first.classList.add('open');first.querySelector('.l-head').setAttribute('aria-expanded','true');}
- buildClawQuestLibrary();
 }
 function buildClassLessons(){
  const wrap=document.getElementById('class-lessons');
@@ -4000,7 +4057,9 @@ function refreshClassLessons(){
  const unlocked=hasClassAccess();
  locked.hidden=unlocked;
  open.hidden=!unlocked;
- if(unlocked&&!classLessonsBuilt){buildClassLessons();classLessonsBuilt=true;}
+ if(unlocked&&!classLessonsBuilt){
+ loadClawQuestVideos().then(()=>{buildClassLessons();classLessonsBuilt=true;});
+ }
  try{
  if(!unlocked&&localStorage.getItem(CLASS_CHECKOUT_PENDING)){
  const btn=document.getElementById('class-lessons-unlock-btn');
@@ -9069,9 +9128,54 @@ const BATTLE_PARTS=[
 ];
 /* ---------- Owner video platform ---------- */
 const VIDEO_STORAGE_KEY='lithos_owner_videos_v1';
+const OWNER_CHANNELS_KEY='lithos_owner_channels_v1';
+const OWNER_ACTIVE_CHANNEL_KEY='lithos_owner_active_channel';
+const CLAWQUEST_CHANNEL_ID='UCGfY_UIx0l-tJs_4ob0ODLg';
+const DEFAULT_OWNER_CHANNELS=[{handle:'clawquest',name:'Claw Quest',id:CLAWQUEST_CHANNEL_ID}];
+const CHANNEL_PAGE_SIZE=30;
 let videoSearchQuery='';
 let videoPlayingId=null;
 let videoTitleFetchTimer=null;
+let activeChannelHandle=null;
+function loadOwnerChannels(){
+ try{
+  const raw=localStorage.getItem(OWNER_CHANNELS_KEY);
+  if(raw){
+   const list=JSON.parse(raw);
+   if(Array.isArray(list)&&list.length) return list;
+  }
+ }catch(_){}
+ return DEFAULT_OWNER_CHANNELS.map(c=>({...c}));
+}
+function saveOwnerChannels(list){
+ try{localStorage.setItem(OWNER_CHANNELS_KEY,JSON.stringify(list));}catch(_){}
+}
+function loadActiveChannelHandle(){
+ try{return localStorage.getItem(OWNER_ACTIVE_CHANNEL_KEY)||'';}catch(_){return '';}
+}
+function saveActiveChannelHandle(handle){
+ try{
+  if(handle) localStorage.setItem(OWNER_ACTIVE_CHANNEL_KEY,handle);
+  else localStorage.removeItem(OWNER_ACTIVE_CHANNEL_KEY);
+ }catch(_){}
+}
+function normalizeChannelHandle(h){return String(h||'').trim().replace(/^@/,'').toLowerCase();}
+async function loadClawQuestVideoCatalog(){
+ try{
+  const res=await fetch('data/claw-quest-videos.json');
+  if(res.ok) return await res.json();
+ }catch(_){}
+ return [];
+}
+function mapJsonVideos(list,start,count){
+ return list.slice(start,start+count).map(v=>({
+  videoId:v.id,
+  title:v.title||'Untitled',
+  thumb:`https://img.youtube.com/vi/${v.id}/hqdefault.jpg`,
+  url:`https://www.youtube.com/watch?v=${v.id}`,
+  published:''
+ }));
+}
 async function fetchVideoTitleFromUrl(url){
  try{
   const r=await fetch(`https://noembed.com/embed?url=${encodeURIComponent(url)}`);
@@ -9105,7 +9209,7 @@ function parseVideoUrl(raw){
  const url=(raw||'').trim();
  if(!url) return null;
  let m=url.match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([\w-]{11})/i);
- if(m) return {type:'youtube', id:m[1], embed:`https://www.youtube-nocookie.com/embed/${m[1]}?rel=0`, thumb:`https://img.youtube.com/vi/${m[1]}/hqdefault.jpg`};
+ if(m) return {type:'youtube', id:m[1], embed:`https://www.youtube-nocookie.com/embed/${m[1]}?rel=0&modestbranding=1&iv_load_policy=3`, thumb:`https://img.youtube.com/vi/${m[1]}/hqdefault.jpg`};
  m=url.match(/vimeo\.com\/(?:video\/)?(\d+)/i);
  if(m) return {type:'vimeo', id:m[1], embed:`https://player.vimeo.com/video/${m[1]}`, thumb:''};
  if(/^https?:\/\/.+\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(url)) return {type:'direct', id:url, embed:url, thumb:''};
@@ -9228,7 +9332,7 @@ const INVIDIOUS_HOSTS=[
  'https://inv.tux.pizza',
  'https://invidious.nerdvpn.de'
 ];
-let channelBrowse={id:null,name:'',avatar:'',videos:[],page:0,hasMore:true,loading:false};
+let channelBrowse={id:null,handle:'',name:'',avatar:'',videos:[],page:0,hasMore:true,loading:false,localCatalog:null};
 async function invidiousFetch(path){
  let lastErr=null;
  for(const host of INVIDIOUS_HOSTS){
@@ -9257,34 +9361,111 @@ function parseChannelQuery(raw){
  return {kind:'search',value:q.replace(/^@/,'')};
 }
 async function resolveYouTubeChannel(parsed){
+ if(parsed.kind==='handle'&&normalizeChannelHandle(parsed.value)==='clawquest'){
+  return {id:CLAWQUEST_CHANNEL_ID,name:'Claw Quest',avatar:'',handle:'clawquest'};
+ }
  if(parsed.kind==='id'){
   const info=await invidiousFetch(`/api/v1/channels/${encodeURIComponent(parsed.value)}`);
-  return {id:info.authorId||parsed.value,name:info.author||parsed.value,avatar:(info.authorThumbnails||[]).slice(-1)[0]?.url||''};
+  return {id:info.authorId||parsed.value,name:info.author||parsed.value,avatar:(info.authorThumbnails||[]).slice(-1)[0]?.url||'',handle:normalizeChannelHandle(info.authorId||'')};
  }
  if(parsed.kind==='handle'){
   try{
    const info=await invidiousFetch(`/api/v1/channels/@${encodeURIComponent(parsed.value)}`);
-   return {id:info.authorId,name:info.author,avatar:(info.authorThumbnails||[]).slice(-1)[0]?.url||''};
-  }catch(_){}
+   return {id:info.authorId,name:info.author,avatar:(info.authorThumbnails||[]).slice(-1)[0]?.url||'',handle:normalizeChannelHandle(parsed.value)};
+  }catch(_){
+   if(normalizeChannelHandle(parsed.value)==='clawquest'){
+    return {id:CLAWQUEST_CHANNEL_ID,name:'Claw Quest',avatar:'',handle:'clawquest'};
+   }
+  }
  }
  const q=parsed.kind==='handle'?('@'+parsed.value):parsed.value;
  const results=await invidiousFetch(`/api/v1/search?q=${encodeURIComponent(q)}&type=channel`);
  const ch=(Array.isArray(results)?results:[]).find(r=>r.type==='channel');
  if(!ch) throw new Error('Channel not found — try @handle or full channel URL');
- return {id:ch.authorId,name:ch.author||q,avatar:(ch.authorThumbnails||[]).slice(-1)[0]?.url||''};
+ return {id:ch.authorId,name:ch.author||q,avatar:(ch.authorThumbnails||[]).slice(-1)[0]?.url||'',handle:normalizeChannelHandle(ch.author||q)};
 }
-function mapChannelVideos(items){
- return (items||[]).filter(v=>v.videoId).map(v=>({
-  videoId:v.videoId,
-  title:v.title||'Untitled',
-  thumb:(v.videoThumbnails||[]).find(t=>/medium|high|default/i.test(t.quality||''))?.url||`https://img.youtube.com/vi/${v.videoId}/hqdefault.jpg`,
-  url:`https://www.youtube.com/watch?v=${v.videoId}`,
-  published:v.publishedText||v.published||''
- }));
+async function fetchYouTubeChannelPage(channelId,page,handle){
+ const h=normalizeChannelHandle(handle);
+ try{
+  const data=await invidiousFetch(`/api/v1/channels/${encodeURIComponent(channelId)}/videos?page=${page}&sort_by=newest`);
+  return mapChannelVideos(Array.isArray(data)?data:(data.videos||[]));
+ }catch(err){
+  if(h==='clawquest'||channelId===CLAWQUEST_CHANNEL_ID){
+   if(!channelBrowse.localCatalog) channelBrowse.localCatalog=await loadClawQuestVideoCatalog();
+   const batch=mapJsonVideos(channelBrowse.localCatalog,(page-1)*CHANNEL_PAGE_SIZE,CHANNEL_PAGE_SIZE);
+   if(!batch.length) throw err;
+   return batch;
+  }
+  throw err;
+ }
 }
-async function fetchYouTubeChannelPage(channelId,page){
- const data=await invidiousFetch(`/api/v1/channels/${encodeURIComponent(channelId)}/videos?page=${page}&sort_by=newest`);
- return mapChannelVideos(Array.isArray(data)?data:(data.videos||[]));
+function renderSavedChannels(){
+ const wrap=document.getElementById('video-channels-saved');
+ if(!wrap) return;
+ const channels=loadOwnerChannels();
+ if(!channels.length){wrap.innerHTML='';return;}
+ wrap.innerHTML=channels.map(ch=>{
+  const handle=normalizeChannelHandle(ch.handle||ch.name||'');
+  const on=activeChannelHandle===handle?' on':'';
+  return `<button type="button" class="video-ch-chip${on}" data-handle="${escapeHtml(handle)}">${escapeHtml(ch.name||('@'+handle))}${handle!=='clawquest'?`<span class="ch-x" data-rm="${escapeHtml(handle)}" title="Remove">×</span>`:''}</button>`;
+ }).join('');
+ wrap.querySelectorAll('.video-ch-chip').forEach(btn=>{
+  btn.addEventListener('click',e=>{
+   if(e.target.closest('.ch-x')) return;
+   selectOwnerChannel(btn.dataset.handle);
+  });
+ });
+ wrap.querySelectorAll('.ch-x').forEach(x=>{
+  x.addEventListener('click',e=>{
+   e.stopPropagation();
+   removeOwnerChannel(x.dataset.rm);
+  });
+ });
+}
+function upsertOwnerChannel(entry){
+ const handle=normalizeChannelHandle(entry.handle||entry.name);
+ if(!handle) return;
+ const list=loadOwnerChannels();
+ if(!list.some(c=>normalizeChannelHandle(c.handle)===handle)){
+  list.push({handle,name:entry.name||handle,id:entry.id||''});
+  saveOwnerChannels(list);
+ }
+}
+function removeOwnerChannel(handle){
+ const h=normalizeChannelHandle(handle);
+ if(h==='clawquest') return;
+ saveOwnerChannels(loadOwnerChannels().filter(c=>normalizeChannelHandle(c.handle)!==h));
+ if(activeChannelHandle===h){
+  activeChannelHandle='clawquest';
+  saveActiveChannelHandle('clawquest');
+  exploreYouTubeChannel(1);
+ }
+ renderSavedChannels();
+}
+async function addOwnerChannelFromInput(){
+ const input=document.getElementById('video-channel-add-input');
+ const q=(input?.value||'').trim();
+ const parsed=parseChannelQuery(q);
+ if(!parsed){setChannelStatus('Type @handle or a channel name.',true);return;}
+ setChannelStatus('Adding channel…');
+ try{
+  const ch=await resolveYouTubeChannel(parsed);
+  upsertOwnerChannel(ch);
+  if(input) input.value='';
+  renderSavedChannels();
+  await selectOwnerChannel(ch.handle||normalizeChannelHandle(parsed.value));
+  setChannelStatus(`Added ${ch.name}. Videos loading…`);
+ }catch(err){
+  setChannelStatus((err&&err.message)||'Could not add that channel.',true);
+ }
+}
+async function selectOwnerChannel(handle){
+ const h=normalizeChannelHandle(handle);
+ if(!h) return;
+ activeChannelHandle=h;
+ saveActiveChannelHandle(h);
+ renderSavedChannels();
+ await exploreYouTubeChannel(1,h);
 }
 function setChannelStatus(msg,isError){
  const el=document.getElementById('video-channel-status');
@@ -9325,41 +9506,60 @@ function renderChannelGrid(){
  });
  if(moreBtn) moreBtn.hidden=!channelBrowse.hasMore;
 }
-async function exploreYouTubeChannel(page=1){
+async function exploreYouTubeChannel(page=1,handleOverride){
  if(!isOwner||channelBrowse.loading) return;
- const input=document.getElementById('video-channel-input');
- const q=(input?.value||'').trim();
- const parsed=parseChannelQuery(q);
- if(!parsed){setChannelStatus('Type a channel name, @handle, or YouTube channel link.',true);return;}
- const goBtn=document.getElementById('video-channel-go');
+ const handle=normalizeChannelHandle(handleOverride||activeChannelHandle||'');
+ const channels=loadOwnerChannels();
+ const saved=channels.find(c=>normalizeChannelHandle(c.handle)===handle);
+ const parsed=handle?{kind:'handle',value:handle}:null;
+ if(!parsed){setChannelStatus('Add a channel above — try @clawquest',true);return;}
+ const goBtn=document.getElementById('video-channel-add-btn');
  const moreBtn=document.getElementById('video-channel-more');
  channelBrowse.loading=true;
  if(goBtn) goBtn.disabled=true;
  if(moreBtn) moreBtn.disabled=true;
- setChannelStatus(page===1?'Looking up channel…':'Loading more videos…');
+ setChannelStatus(page===1?'Loading channel videos…':'Loading more videos…');
  try{
   if(page===1){
-   const ch=await resolveYouTubeChannel(parsed);
-   channelBrowse={id:ch.id,name:ch.name,avatar:ch.avatar,videos:[],page:0,hasMore:true,loading:true};
+   let ch=null;
+   if(saved&&saved.id){
+    ch={id:saved.id,name:saved.name||handle,avatar:'',handle};
+   }else{
+    ch=await resolveYouTubeChannel(parsed);
+    upsertOwnerChannel(ch);
+   }
+   channelBrowse={id:ch.id,handle:ch.handle||handle,name:ch.name,avatar:ch.avatar||'',videos:[],page:0,hasMore:true,loading:true,localCatalog:null};
+   activeChannelHandle=ch.handle||handle;
+   saveActiveChannelHandle(activeChannelHandle);
+   renderSavedChannels();
    renderChannelHead();
   }
   if(!channelBrowse.id) throw new Error('Channel not found');
-  const batch=await fetchYouTubeChannelPage(channelBrowse.id,page);
+  const batch=await fetchYouTubeChannelPage(channelBrowse.id,page,channelBrowse.handle);
   if(page===1) channelBrowse.videos=batch;
   else channelBrowse.videos=channelBrowse.videos.concat(batch);
   channelBrowse.page=page;
-  channelBrowse.hasMore=batch.length>=20;
+  channelBrowse.hasMore=batch.length>=CHANNEL_PAGE_SIZE;
   renderChannelGrid();
   setChannelStatus(`${channelBrowse.videos.length} video${channelBrowse.videos.length===1?'':'s'} from ${channelBrowse.name}`);
-  if(page===1&&channelBrowse.videos.length) document.getElementById('video-channel-grid')?.scrollIntoView({behavior:'smooth',block:'start'});
+  if(page===1&&channelBrowse.videos.length) document.getElementById('video-channel-grid')?.scrollIntoView({behavior:'smooth',block:'nearest'});
  }catch(err){
-  setChannelStatus((err&&err.message)||'Could not load that channel. Try another name or @handle.',true);
-  if(page===1){channelBrowse={id:null,name:'',avatar:'',videos:[],page:0,hasMore:true,loading:false};renderChannelHead();renderChannelGrid();}
+  setChannelStatus((err&&err.message)||'Could not load that channel. Try @clawquest or add another handle.',true);
+  if(page===1){channelBrowse={id:null,handle:'',name:'',avatar:'',videos:[],page:0,hasMore:true,loading:false,localCatalog:null};renderChannelHead();renderChannelGrid();}
  }finally{
   channelBrowse.loading=false;
   if(goBtn) goBtn.disabled=false;
   if(moreBtn) moreBtn.disabled=false;
  }
+}
+function mapChannelVideos(items){
+ return (items||[]).filter(v=>v.videoId).map(v=>({
+  videoId:v.videoId,
+  title:v.title||'Untitled',
+  thumb:(v.videoThumbnails||[]).find(t=>/medium|high|default/i.test(t.quality||''))?.url||`https://img.youtube.com/vi/${v.videoId}/hqdefault.jpg`,
+  url:`https://www.youtube.com/watch?v=${v.videoId}`,
+  published:v.publishedText||v.published||''
+ }));
 }
 async function submitVideoAdd(e){
  e.preventDefault();
@@ -9397,13 +9597,16 @@ function buildVideoPlatform(){
   urlInput.addEventListener('input',scheduleVideoTitleLookup);
   urlInput.addEventListener('paste',()=>setTimeout(scheduleVideoTitleLookup,0));
   titleInput.addEventListener('input',()=>{delete titleInput.dataset.autoFilled;});
-  document.getElementById('video-channel-go').addEventListener('click',()=>exploreYouTubeChannel(1));
-  document.getElementById('video-channel-input').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();exploreYouTubeChannel(1);}});
+  document.getElementById('video-channel-add-btn').addEventListener('click',addOwnerChannelFromInput);
+  document.getElementById('video-channel-add-input').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addOwnerChannelFromInput();}});
   document.getElementById('video-channel-more').addEventListener('click',()=>exploreYouTubeChannel(channelBrowse.page+1));
   videoPlatformBuilt=true;
  }
+ renderSavedChannels();
  renderVideoGrid();
  renderChannelGrid();
+ activeChannelHandle=loadActiveChannelHandle()||normalizeChannelHandle(loadOwnerChannels()[0]?.handle)||'clawquest';
+ if(!channelBrowse.videos.length) exploreYouTubeChannel(1,activeChannelHandle);
  if(videoPlayingId){
   const v=loadOwnerVideos().find(x=>x.id===videoPlayingId);
   if(v) playOwnerVideo(v);
