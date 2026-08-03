@@ -724,8 +724,30 @@
   .class-ai-badge{display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink);background:var(--gold);padding:6px 12px;border-radius:2px;margin-bottom:14px}
   .class-ai-mode{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-faint);margin:12px 0 0;text-align:center}
   .class-ai-mode b{color:var(--gold);font-weight:500}
-  .msg.thinking{opacity:.7;font-style:italic}
+  .msg.thinking{opacity:1;font-style:normal;border-color:rgba(201,169,79,.35)}
   .msg .ai-tag{display:block;font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;opacity:.85}
+  .chat-premium-wrap{position:relative;border-radius:14px;overflow:hidden;border:1px solid rgba(201,169,79,.45);box-shadow:0 12px 40px -16px rgba(201,169,79,.25)}
+  .chat-premium-bg{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+  .chat-premium-bg iframe,.chat-premium-bg video{position:absolute;top:50%;left:50%;width:140%;height:140%;transform:translate(-50%,-50%);border:0;object-fit:cover}
+  .chat-premium-bg-dim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,5,8,.55),rgba(5,5,8,.88));backdrop-filter:blur(1px)}
+  .chat.chat-premium{position:relative;z-index:1;background:rgba(8,8,14,.78);backdrop-filter:blur(10px);border:none;border-radius:0;min-height:300px;max-height:460px}
+  .gem-thinking{display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+  .gem-think-wrap{display:flex;align-items:center;gap:14px;width:100%}
+  .gem-think-orbit{width:56px;height:56px;position:relative;flex-shrink:0}
+  .gem-think-core{position:absolute;inset:18%;border-radius:4px;transform:rotate(45deg);background:linear-gradient(135deg,#fff8dc,#c9a94f 45%,#7c5cbf 100%);box-shadow:0 0 18px rgba(201,169,79,.65);animation:gemCorePulse 1.1s ease-in-out infinite}
+  .gem-particle{position:absolute;width:14px;height:14px;border-radius:3px;transform:rotate(45deg);animation:gemOrbit 1.8s linear infinite}
+  .gem-particle.g1{top:0;left:50%;margin-left:-7px;background:linear-gradient(135deg,#fde68a,#f59e0b);animation-delay:0s}
+  .gem-particle.g2{right:0;top:50%;margin-top:-7px;background:linear-gradient(135deg,#a7f3d0,#10b981);animation-delay:-.45s}
+  .gem-particle.g3{bottom:0;left:50%;margin-left:-7px;background:linear-gradient(135deg,#fbcfe8,#ec4899);animation-delay:-.9s}
+  .gem-particle.g4{left:0;top:50%;margin-top:-7px;background:linear-gradient(135deg,#bfdbfe,#3b82f6);animation-delay:-1.35s}
+  @keyframes gemOrbit{0%{transform:rotate(45deg) translate(0,-22px) rotate(-45deg)}100%{transform:rotate(405deg) translate(0,-22px) rotate(-405deg)}}
+  @keyframes gemCorePulse{0%,100%{transform:rotate(45deg) scale(1);filter:brightness(1)}50%{transform:rotate(45deg) scale(1.12);filter:brightness(1.25)}}
+  .gem-think-label{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);animation:gemLabelPulse 1.4s ease-in-out infinite}
+  @keyframes gemLabelPulse{0%,100%{opacity:.65}50%{opacity:1}}
+  @media (prefers-reduced-motion:reduce){
+    .chat-premium-bg iframe,.chat-premium-bg video{display:none}
+    .gem-particle,.gem-think-core,.gem-think-label{animation:none}
+  }
 
   /* ---------- Rock Teacher chat ---------- */
   .teacher-wrap{max-width:760px;margin:0 auto;padding:110px 40px 120px}
@@ -2723,8 +2745,14 @@
 
  <div id="class-ai-open" hidden>
  <div style="text-align:center"><span class="class-ai-badge">Unlocked</span></div>
- <div class="chat" id="class-chat">
- <div class="msg bot" id="class-ai-welcome"><span class="ai-tag">Class member</span>Welcome! Ask about any gem in the catalog, Mohs hardness, crystal systems, birthstones, or how stones form.</div>
+ <div class="chat-premium-wrap">
+  <div class="chat-premium-bg" aria-hidden="true">
+   <iframe src="https://www.youtube-nocookie.com/embed/scGArR4kF7A?autoplay=1&mute=1&loop=1&playlist=scGArR4kF7A&controls=0&playsinline=1&rel=0&modestbranding=1&iv_load_policy=3" title="Gem background" allow="autoplay; encrypted-media" loading="lazy"></iframe>
+   <div class="chat-premium-bg-dim"></div>
+  </div>
+  <div class="chat chat-premium" id="class-chat">
+   <div class="msg bot" id="class-ai-welcome"><span class="ai-tag">Class member</span>Welcome! Ask about any gem in the catalog, Mohs hardness, crystal systems, birthstones, or how stones form.</div>
+  </div>
  </div>
  <div class="chat-voice-bar" id="class-voice-gold" hidden>
   <button type="button" class="voice-toggle" id="class-voice-toggle" aria-pressed="false" title="Speak Rock Teacher replies aloud">
@@ -4676,6 +4704,27 @@ function addClassMsg(text,who,tag){
  c.scrollTop=c.scrollHeight;
  return d;
 }
+const GEM_THINK_LABELS=['Polishing an answer…','Consulting the catalog…','Faceting facts…','Sorting the crystals…'];
+function addClassThinkingMsg(){
+ const c=document.getElementById('class-chat');
+ const d=document.createElement('div');
+ d.className='msg bot thinking gem-thinking';
+ const tag=document.createElement('span');
+ tag.className='ai-tag';
+ tag.textContent='Rock Teacher';
+ d.appendChild(tag);
+ const wrap=document.createElement('div');
+ wrap.className='gem-think-wrap';
+ wrap.innerHTML='<div class="gem-think-orbit"><i class="gem-particle g1"></i><i class="gem-particle g2"></i><i class="gem-particle g3"></i><i class="gem-particle g4"></i><div class="gem-think-core"></div></div>';
+ const label=document.createElement('span');
+ label.className='gem-think-label';
+ label.textContent=GEM_THINK_LABELS[Math.floor(Math.random()*GEM_THINK_LABELS.length)];
+ wrap.appendChild(label);
+ d.appendChild(wrap);
+ c.appendChild(d);
+ c.scrollTop=c.scrollHeight;
+ return d;
+}
 function findGemInQuestion(s){
  // Prefer longer names so "rose quartz" beats "quartz"
  const ranked=[...GEMS].sort((a,b)=>b.name.length-a.name.length);
@@ -4821,11 +4870,7 @@ async function sendClassChat(){
  classAiBusy=true;
  const cfg=getAiConfig();
  const goldLive=isGoldMember()&&!!cfg.key;
- let thinking=null;
- if(goldLive){
- thinking=addClassMsg('Thinking…','bot thinking');
- thinking.classList.add('thinking');
- }
+ const thinking=addClassThinkingMsg();
  try{
  let answer=null;
  let tag='Catalog teacher';
@@ -4838,7 +4883,7 @@ async function sendClassChat(){
  tag='Catalog fallback';
  }
  }else{
- await new Promise(r=>setTimeout(r,280));
+ await new Promise(r=>setTimeout(r,650));
  answer=classLocalAnswer(q);
  tag=isSilverMember()?'Silver · Catalog teacher':'Class · Catalog teacher';
  }
