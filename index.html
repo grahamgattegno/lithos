@@ -3315,13 +3315,13 @@
   <div class="video-locked-box">
    <div class="lock-icon">🔒</div>
    <p class="lede">This area is for the Lithos owner only. Go to <button type="button" class="collab-link" onclick="switchView('codes')">Secret Codes</button> and enter the owner code to unlock your private video library.</p>
-   <p class="lede" style="margin-top:12px;font-size:14px">Once unlocked, pick YouTube channels like <b>@clawquest</b> — videos load automatically. No URL pasting needed.</p>
+   <p class="lede" style="margin-top:12px;font-size:14px">Once unlocked, pick YouTube channels like <b>Claw Quest</b> — videos load automatically. No URL pasting needed.</p>
   </div>
  </div>
  <div id="video-platform" hidden>
   <div class="eyebrow">Owner private stream</div>
   <h1>Owner <em>TV</em></h1>
-  <p class="lede">Pick a saved YouTube channel — videos load automatically. No need to paste URLs. Default: <b>@clawquest</b>.</p>
+  <p class="lede">Pick a saved YouTube channel — videos load automatically. No need to paste URLs. Default: <b>Claw Quest</b>.</p>
 
   <div class="video-stage" id="video-stage">
    <div class="video-stage-empty" id="video-stage-empty">Pick a video below to start watching</div>
@@ -3335,7 +3335,7 @@
   <div class="video-channel-box">
    <label class="fb-label" for="video-channel-add-input">Add a YouTube channel</label>
    <div class="video-ch-add-row">
-    <input id="video-channel-add-input" type="text" placeholder="@clawquest or channel name" autocomplete="off">
+    <input id="video-channel-add-input" type="text" placeholder="clawquest or Claw Quest" autocomplete="off">
     <button type="button" id="video-channel-add-btn">Add channel</button>
    </div>
    <div class="video-channel-status" id="video-channel-status" aria-live="polite"></div>
@@ -9358,6 +9358,7 @@ function parseChannelQuery(raw){
  if(m) return {kind:'search',value:m[1]};
  if(q.startsWith('@')) return {kind:'handle',value:q.slice(1)};
  if(/^UC[\w-]{10,}$/.test(q)) return {kind:'id',value:q};
+ if(/^[\w.-]+$/.test(q)) return {kind:'handle',value:q};
  return {kind:'search',value:q.replace(/^@/,'')};
 }
 async function resolveYouTubeChannel(parsed){
@@ -9381,7 +9382,7 @@ async function resolveYouTubeChannel(parsed){
  const q=parsed.kind==='handle'?('@'+parsed.value):parsed.value;
  const results=await invidiousFetch(`/api/v1/search?q=${encodeURIComponent(q)}&type=channel`);
  const ch=(Array.isArray(results)?results:[]).find(r=>r.type==='channel');
- if(!ch) throw new Error('Channel not found — try @handle or full channel URL');
+ if(!ch) throw new Error('Channel not found — try clawquest or the channel name');
  return {id:ch.authorId,name:ch.author||q,avatar:(ch.authorThumbnails||[]).slice(-1)[0]?.url||'',handle:normalizeChannelHandle(ch.author||q)};
 }
 async function fetchYouTubeChannelPage(channelId,page,handle){
@@ -9407,7 +9408,7 @@ function renderSavedChannels(){
  wrap.innerHTML=channels.map(ch=>{
   const handle=normalizeChannelHandle(ch.handle||ch.name||'');
   const on=activeChannelHandle===handle?' on':'';
-  return `<button type="button" class="video-ch-chip${on}" data-handle="${escapeHtml(handle)}">${escapeHtml(ch.name||('@'+handle))}${handle!=='clawquest'?`<span class="ch-x" data-rm="${escapeHtml(handle)}" title="Remove">×</span>`:''}</button>`;
+  return `<button type="button" class="video-ch-chip${on}" data-handle="${escapeHtml(handle)}">${escapeHtml(ch.name||handle)}${handle!=='clawquest'?`<span class="ch-x" data-rm="${escapeHtml(handle)}" title="Remove">×</span>`:''}</button>`;
  }).join('');
  wrap.querySelectorAll('.video-ch-chip').forEach(btn=>{
   btn.addEventListener('click',e=>{
@@ -9446,7 +9447,7 @@ async function addOwnerChannelFromInput(){
  const input=document.getElementById('video-channel-add-input');
  const q=(input?.value||'').trim();
  const parsed=parseChannelQuery(q);
- if(!parsed){setChannelStatus('Type @handle or a channel name.',true);return;}
+ if(!parsed){setChannelStatus('Type a channel name — e.g. clawquest or Claw Quest',true);return;}
  setChannelStatus('Adding channel…');
  try{
   const ch=await resolveYouTubeChannel(parsed);
@@ -9512,7 +9513,7 @@ async function exploreYouTubeChannel(page=1,handleOverride){
  const channels=loadOwnerChannels();
  const saved=channels.find(c=>normalizeChannelHandle(c.handle)===handle);
  const parsed=handle?{kind:'handle',value:handle}:null;
- if(!parsed){setChannelStatus('Add a channel above — try @clawquest',true);return;}
+ if(!parsed){setChannelStatus('Add a channel above — try clawquest',true);return;}
  const goBtn=document.getElementById('video-channel-add-btn');
  const moreBtn=document.getElementById('video-channel-more');
  channelBrowse.loading=true;
@@ -9544,7 +9545,7 @@ async function exploreYouTubeChannel(page=1,handleOverride){
   setChannelStatus(`${channelBrowse.videos.length} video${channelBrowse.videos.length===1?'':'s'} from ${channelBrowse.name}`);
   if(page===1&&channelBrowse.videos.length) document.getElementById('video-channel-grid')?.scrollIntoView({behavior:'smooth',block:'nearest'});
  }catch(err){
-  setChannelStatus((err&&err.message)||'Could not load that channel. Try @clawquest or add another handle.',true);
+  setChannelStatus((err&&err.message)||'Could not load that channel. Try clawquest or another channel name.',true);
   if(page===1){channelBrowse={id:null,handle:'',name:'',avatar:'',videos:[],page:0,hasMore:true,loading:false,localCatalog:null};renderChannelHead();renderChannelGrid();}
  }finally{
   channelBrowse.loading=false;
