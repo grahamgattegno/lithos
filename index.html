@@ -1215,6 +1215,80 @@
   .brm-btn:active{background:#e8d97a;transform:scale(.94)}
   .brm-exit-btn{background:none;border:1px solid #8a7a3a;color:#c9b458;border-radius:10px;padding:10px 18px;cursor:pointer;font-weight:700;margin-top:6px}
   .brm-exit-btn:hover{background:rgba(201,180,88,.15)}
+  .games-launch button.primary:hover{filter:brightness(1.05)}
+
+  /* ===== Mobile bottom bar ===== */
+  .mobile-bar{
+    display:none;position:fixed;left:0;right:0;bottom:0;z-index:45;
+    background:rgba(10,11,15,.94);backdrop-filter:blur(12px);
+    border-top:1px solid var(--line);
+    padding:8px 6px calc(8px + env(safe-area-inset-bottom,0px));
+    grid-template-columns:repeat(5,1fr);gap:4px;
+  }
+  .mobile-bar button{
+    background:transparent;border:none;color:var(--text-dim);cursor:pointer;
+    font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;
+    padding:8px 4px;border-radius:8px;line-height:1.2;
+  }
+  .mobile-bar button.on,.mobile-bar button:active{color:var(--gold);background:rgba(201,169,79,.1)}
+
+  /* ===== Poppy Playtime chapters ===== */
+  .poppy-wrap{max-width:1000px;margin:0 auto;padding:90px 24px 120px}
+  .poppy-wrap .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:#ff4d8d;margin-bottom:20px;text-align:center}
+  .poppy-wrap h1{font-family:var(--serif);font-weight:300;font-size:clamp(36px,6vw,72px);line-height:1;text-align:center}
+  .poppy-wrap h1 em{font-style:italic;color:#ff7eb3;font-weight:400}
+  .poppy-wrap .lede{text-align:center;max-width:560px;margin:20px auto 0;font-size:16px;line-height:1.6;color:var(--text-dim)}
+  .poppy-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-top:32px}
+  .poppy-ch{
+    background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 14px;
+    text-align:center;cursor:pointer;transition:transform .15s,border-color .15s;position:relative;
+  }
+  .poppy-ch:hover:not(.locked){transform:translateY(-3px);border-color:#ff4d8d}
+  .poppy-ch.locked{opacity:.45;cursor:not-allowed}
+  .poppy-ch.done{border-color:#3fa34d}
+  .poppy-ch .ch-num{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:#ff4d8d;margin-bottom:6px}
+  .poppy-ch .ch-emoji{font-size:32px;margin-bottom:8px}
+  .poppy-ch .ch-name{font-family:var(--serif);font-size:17px;margin-bottom:4px}
+  .poppy-ch .ch-desc{font-size:11px;line-height:1.4;color:var(--text-dim)}
+  .poppy-ch .ch-badge{position:absolute;top:8px;right:8px;font-size:14px}
+  #poppyplay{position:fixed;inset:0;z-index:10000;background:#07060c;display:flex;align-items:center;justify-content:center;padding:12px;padding-bottom:calc(12px + env(safe-area-inset-bottom,0px))}
+  .pp-screen{width:min(96vw,520px);color:#ece6f2;font-family:var(--sans)}
+  .pp-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#ff7eb3}
+  .pp-room{background:linear-gradient(180deg,#12101a,#08070e);border:2px solid #2a2038;border-radius:14px;padding:20px 16px;min-height:280px;position:relative;overflow:hidden}
+  .pp-title{font-family:var(--serif);font-size:24px;text-align:center;margin-bottom:8px}
+  .pp-msg{text-align:center;font-size:14px;line-height:1.55;color:#b8b0c8;margin-bottom:16px;min-height:42px}
+  .pp-spots{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}
+  .pp-spot{background:#1a1524;border:1px solid #3a3048;border-radius:10px;padding:20px 10px;font-size:28px;cursor:pointer;transition:transform .12s,border-color .12s;touch-action:manipulation}
+  .pp-spot:active{transform:scale(.96)}
+  .pp-spot.found{border-color:#3fa34d;background:rgba(63,163,77,.12)}
+  .pp-spot.empty{opacity:.5}
+  .pp-wires{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:16px 0}
+  .pp-wire{border:none;border-radius:8px;padding:18px 8px;font-size:22px;cursor:pointer;touch-action:manipulation}
+  .pp-wire.sel{outline:3px solid #fff;transform:scale(1.05)}
+  .pp-wire.done{opacity:.35}
+  .pp-bar-wrap{background:#1a1524;border-radius:999px;height:18px;overflow:hidden;margin:16px 0;border:1px solid #3a3048}
+  .pp-bar{height:100%;background:linear-gradient(90deg,#ff4d8d,#ff7eb3);transition:width .2s}
+  .pp-monster{font-size:48px;text-align:center;margin:8px 0;transition:transform .2s}
+  .pp-monster.close{transform:scale(1.2);filter:drop-shadow(0 0 12px #ff4d8d)}
+  .pp-maze{display:grid;gap:4px;margin:12px auto;max-width:260px}
+  .pp-maze button{background:#1a1524;border:1px solid #3a3048;border-radius:6px;aspect-ratio:1;font-size:16px;touch-action:manipulation}
+  .pp-maze button.you{background:#ff4d8d;color:#fff;border-color:#ff7eb3}
+  .pp-maze button.wall{background:#0a0810;opacity:.5;cursor:default}
+  .pp-maze button.goal{background:#3fa34d}
+  .pp-controls{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+  .pp-btn{background:linear-gradient(135deg,#ff4d8d,#c42d6b);color:#fff;border:none;border-radius:10px;padding:16px 10px;font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;touch-action:manipulation;min-height:48px}
+  .pp-btn.ghost{background:transparent;border:1px solid #4a4058;color:#d8d0e0}
+  .pp-btn:active{transform:scale(.97)}
+  .pp-btn.wide{grid-column:1/-1}
+  .pp-code{display:flex;justify-content:center;gap:10px;margin:16px 0}
+  .pp-code button{width:52px;height:52px;border-radius:50%;border:2px solid #4a4058;font-size:20px;cursor:pointer;touch-action:manipulation}
+  .pp-timing{position:relative;height:28px;background:#1a1524;border-radius:999px;margin:20px 0;border:1px solid #3a3048;overflow:hidden}
+  .pp-timing .zone{position:absolute;top:0;bottom:0;background:rgba(63,163,77,.45)}
+  .pp-timing .needle{position:absolute;top:0;bottom:0;width:4px;background:#fff;box-shadow:0 0 8px #fff}
+  .pp-end{text-align:center;padding:20px 10px}
+  .pp-end .big{font-size:56px;margin-bottom:12px}
+  .pp-end h2{font-family:var(--serif);font-size:28px;color:#ff7eb3;margin-bottom:10px}
+
   /* ===== NIGHT SHIFT AT THE GEM FACTORY ===== */
   #nightshift{position:fixed;inset:0;z-index:9999;background:#0a0a10;display:flex;align-items:center;justify-content:center;padding:12px}
   .ns-screen{width:min(96vw,720px);color:#d8d0e0;font-family:var(--sans,sans-serif)}
@@ -1899,7 +1973,19 @@
     nav.top button[data-view="battlefield"],
     nav.top button[data-view="gemhunt"],
     nav.top button[data-view="game"],
+    nav.top button[data-view="poppy"],
     nav.top button[data-view="video"]{display:inline-block}
+    .mobile-bar{display:grid}
+    body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
+    .games-launch{width:100%}
+    .games-launch button{flex:1 1 calc(50% - 6px);min-width:140px}
+    .poppy-wrap{padding:80px 16px 100px}
+    .poppy-grid{grid-template-columns:repeat(2,1fr)}
+    .bf-wrap{padding:80px 16px 40px}
+    .gem-slideshow{margin-bottom:28px}
+    .hero h1{font-size:clamp(40px,12vw,72px)}
+    .hero .meta-row{gap:20px}
+    .hero .stat .n{font-size:clamp(28px,8vw,40px)}
     body.is-owner nav.top button[data-view="parts"]{display:inline-block}
     .hero{padding:70px 20px 40px}
     .controls,.grid{padding-left:20px;padding-right:20px}
@@ -1974,6 +2060,7 @@
  <button data-view="game" id="game-nav-btn">Gem Arena</button>
  <button data-view="battlefield">Battlefield</button>
  <button data-view="gemhunt">Gem Hunt</button>
+ <button data-view="poppy">Poppy Playtime</button>
  <button data-view="parade">Gem Warriors</button>
  <button data-view="codes">Codes</button>
  <button data-view="auras">Auras</button>
@@ -1999,6 +2086,7 @@
  <button type="button" class="primary" onclick="switchView('battlefield')">⚔ Battlefield</button>
  <button type="button" onclick="switchView('game')">Gem Arena</button>
  <button type="button" onclick="switchView('gemhunt')">Gem Hunt</button>
+ <button type="button" onclick="switchView('poppy')">Poppy Playtime</button>
  </div>
 </section>
 
@@ -2577,6 +2665,15 @@
  <section class="game-wrap" id="game-wrap"></section>
 </div><!-- /view-game -->
 
+<div class="view" id="view-poppy" hidden>
+ <section class="poppy-wrap">
+ <div class="eyebrow">Toy Factory Horror Adventure</div>
+ <h1>Poppy <em>Playtime</em></h1>
+ <p class="lede">Escape the abandoned toy factory — beat all <b>10 chapters</b>. Tap a chapter to play. Works great on phone with big touch buttons!</p>
+ <div class="poppy-grid" id="poppy-grid"></div>
+ </section>
+</div><!-- /view-poppy -->
+
 <div class="view" id="view-parade" hidden>
  <section class="parade-wrap">
  <div class="eyebrow">The Gem Warriors Come Alive</div>
@@ -2747,10 +2844,19 @@
  <a href="#careers" onclick="switchView('careers');return false;">Work at Lithos</a>
  <a href="#video" onclick="switchView('video');return false;">Owner TV</a>
  <a href="#battlefield" onclick="switchView('battlefield');return false;">Battlefield</a>
+ <a href="#poppy" onclick="switchView('poppy');return false;">Poppy Playtime</a>
  <span class="partner-disclosure">Partner link · Lithos may earn commission</span>
  </div>
  <span>Hardness on the Mohs scale · Origins by prominence · Prices are approximate retail</span>
 </footer>
+
+<nav class="mobile-bar" aria-label="Quick navigation">
+ <button type="button" data-mnav="catalog" class="on">Home</button>
+ <button type="button" data-mnav="poppy">Poppy</button>
+ <button type="button" data-mnav="battlefield">Mine</button>
+ <button type="button" data-mnav="game">Arena</button>
+ <button type="button" data-mnav="codes">Codes</button>
+</nav>
 
 <script src="ai-config.js"></script>
 <script src="gems-data.js"></script>
@@ -3147,6 +3253,7 @@ const views={
  crafts:document.getElementById('view-crafts'),
  memberships:document.getElementById('view-memberships'),
  game:document.getElementById('view-game'),
+ poppy:document.getElementById('view-poppy'),
  parade:document.getElementById('view-parade'),
  codes:document.getElementById('view-codes'),
  auras:document.getElementById('view-auras'),
@@ -3165,6 +3272,7 @@ function switchView(name){
  if(!views[name])name='catalog';
  Object.entries(views).forEach(([k,el])=>el.hidden=(k!==name));
  navBtns.forEach(b=>b.classList.toggle('on',b.dataset.view===(gemHunt?'gemhunt':name)));
+ syncMobileNav(gemHunt?'gemhunt':name);
  document.body.classList.toggle('in-game',name==='battlefield'||name==='game');
  const hash=gemHunt?'#gemhunt':(name==='catalog'?'':('#'+name));
  if(location.hash!==hash)history.replaceState(null,'',hash||location.pathname+location.search);
@@ -3179,6 +3287,7 @@ function switchView(name){
  if(name==='careers'&&!careersBuilt){buildCareers();careersBuilt=true;}
  if(name==='crafts'&&!craftsBuilt){buildCrafts();craftsBuilt=true;}
  if(name==='game'){buildGame();}
+ if(name==='poppy'){buildPoppyHub();}
  if(name==='parade'){buildParade();}
  if(name==='codes'){buildCodes();}
  if(name==='auras'){buildAuras();}
@@ -3188,6 +3297,19 @@ function switchView(name){
  if(name==='parts'){buildParts();}
 }
 navBtns.forEach(b=>b.addEventListener('click',()=>switchView(b.dataset.view)));
+document.querySelectorAll('.mobile-bar button').forEach(b=>{
+ b.addEventListener('click',()=>{
+  const v=b.dataset.mnav;
+  if(v) switchView(v);
+ });
+});
+function syncMobileNav(name){
+ document.querySelectorAll('.mobile-bar button').forEach(b=>{
+  const target=b.dataset.mnav;
+  const on=target==='battlefield'?(name==='battlefield'||name==='gemhunt'):(target===name);
+  b.classList.toggle('on',on);
+ });
+}
 window.addEventListener('hashchange',()=>{
  const name=(location.hash||'').replace(/^#/,'').trim();
  if(name==='gemhunt'){switchView('gemhunt');return;}
@@ -9508,6 +9630,283 @@ function showEmeraldGiftNotification(){
  setTimeout(()=>{ const g=document.getElementById('gift-notif'); if(g){ g.classList.add('gift-hide'); setTimeout(()=>g.remove(),600); } }, 12000);
 }
 if(!hasEmeraldGift()) setTimeout(()=>grantEmeraldGuardianGift(), 900);
+
+/* ===== Poppy Playtime — Chapters 1–10 (mobile-friendly) ===== */
+const POPPY_KEY='lithos_poppy_progress_v1';
+const POPPY_CHAPTERS=[
+ {n:1,name:'The Lobby',emoji:'🏭',desc:'Search the lobby for 3 toy parts.',type:'search',need:3,spots:6},
+ {n:2,name:'Power Room',emoji:'⚡',desc:'Match the colored wires.',type:'wire'},
+ {n:3,name:'Assembly Line',emoji:'🧸',desc:'Sneak when the toy looks away.',type:'sneak',steps:6},
+ {n:4,name:'Storage Bay',emoji:'📦',desc:'Find the exit in the crate maze.',type:'maze'},
+ {n:5,name:'Vent Chase',emoji:'🕳️',desc:'Run right — jump the gaps!',type:'run'},
+ {n:6,name:'The Lab',emoji:'🔬',desc:'Repeat the color code.',type:'code'},
+ {n:7,name:'Music Room',emoji:'🎵',desc:'Memorize the light pattern.',type:'memory'},
+ {n:8,name:'Loading Dock',emoji:'🚢',desc:'Tap when the needle hits green.',type:'timing',need:3},
+ {n:9,name:'Elevator',emoji:'🛗',desc:'Press floors in the right order.',type:'order'},
+ {n:10,name:'Final Escape',emoji:'🏁',desc:'Mash RUN to escape!',type:'chase',need:22}
+];
+const PP_COLORS=['#ff4d8d','#4da6ff','#ffd34e','#3fa34d'];
+let ppGame=null;
+function poppyUnlockLevel(){ try{return Math.max(1,parseInt(localStorage.getItem(POPPY_KEY)||'1',10)||1);}catch(_){return 1;} }
+function poppySaveLevel(n){ try{localStorage.setItem(POPPY_KEY,String(Math.max(poppyUnlockLevel(),n)));}catch(_){} }
+function buildPoppyHub(){
+ const grid=document.getElementById('poppy-grid');
+ if(!grid) return;
+ const unlock=poppyUnlockLevel();
+ grid.innerHTML=POPPY_CHAPTERS.map(ch=>{
+  const locked=ch.n>unlock;
+  const done=ch.n<unlock;
+  return `<button type="button" class="poppy-ch${locked?' locked':''}${done?' done':''}" data-ch="${ch.n}" ${locked?'disabled':''}>
+   <span class="ch-badge">${done?'✓':locked?'🔒':''}</span>
+   <div class="ch-num">Chapter ${ch.n}</div>
+   <div class="ch-emoji">${ch.emoji}</div>
+   <div class="ch-name">${ch.name}</div>
+   <div class="ch-desc">${ch.desc}</div>
+  </button>`;
+ }).join('');
+ grid.querySelectorAll('.poppy-ch:not(.locked)').forEach(btn=>{
+  btn.onclick=()=>playPoppyChapter(+btn.dataset.ch);
+ });
+}
+function closePoppyPlay(){
+ ppGame=null;
+ const w=document.getElementById('poppyplay'); if(w) w.remove();
+ document.body.style.overflow='';
+}
+function playPoppyChapter(n){
+ const cfg=POPPY_CHAPTERS.find(c=>c.n===n);
+ if(!cfg||n>poppyUnlockLevel()) return;
+ closePoppyPlay();
+ ppGame={cfg,state:{},won:false,lost:false,msg:'',tick:0};
+ if(cfg.type==='search'){
+  const items=new Set(); while(items.size<cfg.need){ items.add(Math.floor(Math.random()*cfg.spots)); }
+  ppGame.state={found:new Set(),items,spots:cfg.spots};
+  ppGame.msg='Tap boxes to search for toy parts!';
+ }else if(cfg.type==='wire'){
+  const cols=PP_COLORS.slice(); const pool=[...cols,...cols].sort(()=>Math.random()-.5);
+  ppGame.state={pool,sel:null,matched:0,first:null};
+  ppGame.msg='Tap two wires of the same color!';
+ }else if(cfg.type==='sneak'){
+  ppGame.state={step:0,steps:cfg.steps,looking:Math.random()<.5};
+  ppGame.msg='Tap MOVE when the toy is looking away!';
+ }else if(cfg.type==='maze'){
+  ppGame.state={x:0,y:0,maze:[
+   'S...','.#..','...#','#..G'
+  ]};
+  ppGame.msg='Tap arrows to reach the green exit!';
+ }else if(cfg.type==='run'){
+  ppGame.state={x:8,obst:30+Math.floor(Math.random()*50),jump:false};
+  ppGame.msg='Tap RUN — JUMP over gaps!';
+ }else if(cfg.type==='code'){
+  ppGame.state={seq:Array.from({length:4},()=>Math.floor(Math.random()*4)),input:[]};
+  ppGame.msg='Watch the code, then repeat it!';
+ }else if(cfg.type==='memory'){
+  ppGame.state={seq:[Math.floor(Math.random()*4)],show:0,phase:'show',input:[]};
+  ppGame.msg='Remember the pattern!';
+  setTimeout(ppMemoryShow,600);
+ }else if(cfg.type==='timing'){
+  ppGame.state={hits:0,need:cfg.need,needle:0,dir:1,zone:20+Math.random()*50};
+  ppGame.loop=setInterval(ppTimingTick,40);
+  ppGame.msg='Tap STOP in the green zone!';
+ }else if(cfg.type==='order'){
+  ppGame.state={order:[2,0,3,1].sort(()=>Math.random()-.5),step:0};
+  ppGame.msg='Press floors: '+ppGame.state.order.map(i=>i+1).join(' → ');
+ }else if(cfg.type==='chase'){
+  ppGame.state={run:0,need:cfg.need,monster:0};
+  ppGame.loop=setInterval(()=>{ if(!ppGame||ppGame.won||ppGame.lost) return; ppGame.state.monster+=1.2; if(ppGame.state.monster>=100){ ppGame.lost=true; ppGame.msg='Caught! Try again!'; renderPoppyPlay(); } },200);
+  ppGame.msg='Mash RUN to escape!';
+ }
+ const wrap=document.createElement('div');
+ wrap.id='poppyplay';
+ wrap.innerHTML='<div class="pp-screen" id="pp-screen"></div>';
+ document.body.appendChild(wrap);
+ document.body.style.overflow='hidden';
+ renderPoppyPlay();
+}
+function ppWinChapter(){
+ if(!ppGame) return;
+ ppGame.won=true;
+ if(ppGame.loop) clearInterval(ppGame.loop);
+ const next=ppGame.cfg.n+1;
+ poppySaveLevel(next);
+ ppGame.msg='Chapter complete!';
+ renderPoppyPlay();
+}
+function ppMemoryShow(){
+ if(!ppGame||ppGame.cfg.type!=='memory') return;
+ const s=ppGame.state;
+ if(s.phase==='show'){
+  if(s.show<s.seq.length){
+   s.flash=s.seq[s.show]; s.show++; renderPoppyPlay();
+   setTimeout(ppMemoryShow,700);
+  }else{
+   s.phase='input'; s.flash=null; s.input=[]; ppGame.msg='Your turn — repeat it!';
+   renderPoppyPlay();
+  }
+ }else s.flash=null;
+}
+function ppTimingTick(){
+ if(!ppGame||ppGame.cfg.type!=='timing'||ppGame.won||ppGame.lost) return;
+ const s=ppGame.state;
+ s.needle+=s.dir*2.5;
+ if(s.needle>=100){s.needle=100;s.dir=-1;}
+ if(s.needle<=0){s.needle=0;s.dir=1;}
+ renderPoppyPlay();
+}
+function ppTapSpot(i){
+ if(!ppGame||ppGame.cfg.type!=='search'||ppGame.won) return;
+ const s=ppGame.state;
+ if(s.found.has(i)) return;
+ s.found.add(i);
+ if(s.items.has(i)) ppGame.msg='Found a part!';
+ else ppGame.msg='Empty box…';
+ if([...s.items].every(x=>s.found.has(x))) ppWinChapter();
+ renderPoppyPlay();
+}
+function ppTapWire(i){
+ if(!ppGame||ppGame.cfg.type!=='wire'||ppGame.won) return;
+ const s=ppGame.state;
+ if(s.pool[i]==='done') return;
+ if(s.first===null){ s.first=i; s.sel=i; renderPoppyPlay(); return; }
+ if(s.first===i){ s.first=null; s.sel=null; renderPoppyPlay(); return; }
+ if(s.pool[s.first]===s.pool[i]){
+  s.pool[s.first]='done'; s.pool[i]='done'; s.matched++; s.first=null; s.sel=null;
+  if(s.matched>=4) ppWinChapter();
+  else ppGame.msg='Match!';
+ }else{ s.first=null; s.sel=null; ppGame.msg='Wrong pair — try again!'; }
+ renderPoppyPlay();
+}
+function ppSneakMove(){
+ if(!ppGame||ppGame.cfg.type!=='sneak'||ppGame.won||ppGame.lost) return;
+ const s=ppGame.state;
+ if(s.looking){ ppGame.lost=true; ppGame.msg='It saw you!'; renderPoppyPlay(); return; }
+ s.step++;
+ s.looking=Math.random()<.55;
+ if(s.step>=s.steps) ppWinChapter();
+ else ppGame.msg=s.looking?'It turned around — HIDE!':'Quick — MOVE!';
+ renderPoppyPlay();
+}
+function ppSneakHide(){
+ if(!ppGame||ppGame.cfg.type!=='sneak') return;
+ ppGame.msg='You hide in the shadows…';
+ sLookingFlip();
+ renderPoppyPlay();
+}
+function sLookingFlip(){
+ if(!ppGame||ppGame.cfg.type!=='sneak') return;
+ ppGame.state.looking=Math.random()<.5;
+}
+function ppMazeMove(dx,dy){
+ if(!ppGame||ppGame.cfg.type!=='maze'||ppGame.won) return;
+ const s=ppGame.state;
+ const nx=s.x+dx, ny=s.y+dy;
+ if(ny<0||ny>=s.maze.length||nx<0||nx>=s.maze[0].length) return;
+ const cell=s.maze[ny][nx];
+ if(cell==='#') return;
+ s.x=nx; s.y=ny;
+ if(cell==='G') ppWinChapter();
+ renderPoppyPlay();
+}
+function ppRunAdvance(){
+ if(!ppGame||ppGame.cfg.type!=='run'||ppGame.won||ppGame.lost) return;
+ const s=ppGame.state;
+ if(Math.abs(s.x-s.obst)<8&&!s.jump){ ppGame.lost=true; ppGame.msg='You fell in a gap!'; renderPoppyPlay(); return; }
+ s.x=Math.min(92,s.x+6); s.jump=false;
+ if(s.x>=88) ppWinChapter();
+ else if(Math.random()<.35) s.obst=20+Math.floor(Math.random()*65);
+ renderPoppyPlay();
+}
+function ppJump(){ if(ppGame&&ppGame.cfg.type==='run'){ ppGame.state.jump=true; ppGame.msg='Jump!'; renderPoppyPlay(); } }
+function ppTapColor(c){
+ if(!ppGame||ppGame.cfg.type!=='code'||ppGame.won) return;
+ const s=ppGame.state;
+ s.input.push(c);
+ if(s.input[s.input.length-1]!==s.seq[s.input.length-1]){ ppGame.lost=true; ppGame.msg='Wrong code!'; renderPoppyPlay(); return; }
+ if(s.input.length>=s.seq.length) ppWinChapter();
+ renderPoppyPlay();
+}
+function ppTapMem(c){
+ if(!ppGame||ppGame.cfg.type!=='memory'||ppGame.state.phase!=='input'||ppGame.won) return;
+ const s=ppGame.state;
+ s.input.push(c);
+ if(s.input[s.input.length-1]!==s.seq[s.input.length-1]){ ppGame.lost=true; ppGame.msg='Wrong pattern!'; renderPoppyPlay(); return; }
+  if(s.input.length>=s.seq.length){
+   if(s.seq.length>=3){ ppWinChapter(); renderPoppyPlay(); return; }
+   s.seq.push(Math.floor(Math.random()*4));
+  s.show=0; s.phase='show'; s.input=[]; ppGame.msg='Next round!';
+  renderPoppyPlay();
+  setTimeout(ppMemoryShow,600);
+ }
+ renderPoppyPlay();
+}
+function ppTimingStop(){
+ if(!ppGame||ppGame.cfg.type!=='timing'||ppGame.won||ppGame.lost) return;
+ const s=ppGame.state;
+ const inZone=s.needle>=s.zone&&s.needle<=s.zone+18;
+ if(inZone){ s.hits++; ppGame.msg=`Nice! ${s.hits}/${s.need}`; if(s.hits>=s.need){ if(ppGame.loop)clearInterval(ppGame.loop); ppWinChapter(); } else s.zone=15+Math.random()*55; }
+ else{ ppGame.lost=true; ppGame.msg='Missed!'; if(ppGame.loop)clearInterval(ppGame.loop); }
+ renderPoppyPlay();
+}
+function ppOrderFloor(f){
+ if(!ppGame||ppGame.cfg.type!=='order'||ppGame.won||ppGame.lost) return;
+ const s=ppGame.state;
+ if(s.order[s.step]===f){ s.step++; ppGame.msg=`Floor ${f+1} ✓`; if(s.step>=s.order.length) ppWinChapter(); }
+ else{ ppGame.lost=true; ppGame.msg='Wrong floor!'; }
+ renderPoppyPlay();
+}
+function ppChaseRun(){
+ if(!ppGame||ppGame.cfg.type!=='chase'||ppGame.won||ppGame.lost) return;
+ ppGame.state.run++;
+ ppGame.state.monster=Math.max(0,ppGame.state.monster-4);
+ if(ppGame.state.run>=ppGame.state.need){ if(ppGame.loop)clearInterval(ppGame.loop); ppWinChapter(); }
+ renderPoppyPlay();
+}
+function renderPoppyPlay(){
+ const scr=document.getElementById('pp-screen');
+ if(!scr||!ppGame) return;
+ const g=ppGame,c=g.cfg,s=g.state;
+ if(g.won){
+  scr.innerHTML=`<div class="pp-end"><div class="big">🎉</div><h2>Chapter ${c.n} Complete!</h2><p class="pp-msg">${c.n<10?'Next chapter unlocked.':'You beat all 10 chapters!'}</p><button type="button" class="pp-btn wide" onclick="closePoppyPlay();buildPoppyHub();switchView('poppy')">Back to Chapters</button>${c.n<10?`<button type="button" class="pp-btn wide ghost" onclick="playPoppyChapter(${c.n+1})">Chapter ${c.n+1} →</button>`:''}</div>`;
+  return;
+ }
+ if(g.lost){
+  scr.innerHTML=`<div class="pp-end"><div class="big">😱</div><h2>Chapter Failed</h2><p class="pp-msg">${g.msg}</p><button type="button" class="pp-btn wide" onclick="playPoppyChapter(${c.n})">Try Again</button><button type="button" class="pp-btn wide ghost" onclick="closePoppyPlay();switchView('poppy')">Quit</button></div>`;
+  return;
+ }
+ let body='';
+ if(c.type==='search'){
+  body=`<div class="pp-spots">${Array.from({length:s.spots},(_,i)=>`<button type="button" class="pp-spot${s.found.has(i)?(s.items.has(i)?' found':' empty'):''}" onclick="ppTapSpot(${i})">${s.found.has(i)?(s.items.has(i)?'🧩':'—'):'📦'}</button>`).join('')}</div><p style="text-align:center;font-size:13px">Parts: ${[...s.items].filter(i=>s.found.has(i)).length}/${c.need}</p>`;
+ }else if(c.type==='wire'){
+  body=`<div class="pp-wires">${s.pool.map((col,i)=>col==='done'?`<div class="pp-wire done">✓</div>`:`<button type="button" class="pp-wire${s.sel===i?' sel':''}" style="background:${col}" onclick="ppTapWire(${i})">⚡</button>`).join('')}</div>`;
+ }else if(c.type==='sneak'){
+  body=`<div class="pp-monster${s.looking?' close':''}">🧸</div><p style="text-align:center">${s.looking?'👀 Looking!':'😴 Distracted'}</p><div class="pp-bar-wrap"><div class="pp-bar" style="width:${(s.step/s.steps)*100}%"></div></div><div class="pp-controls"><button type="button" class="pp-btn" onclick="ppSneakHide()">Hide</button><button type="button" class="pp-btn" onclick="ppSneakMove()">Move</button></div>`;
+ }else if(c.type==='maze'){
+  const rows=s.maze.map((row,y)=>row.split('').map((cell,x)=>{
+   if(cell==='#') return `<button type="button" class="wall" disabled> </button>`;
+   const cls=(s.x===x&&s.y===y)?'you':(cell==='G'?'goal':'');
+   return `<button type="button" class="${cls}" onclick="${cls==='you'||cell==='G'?'':''}">${cell==='G'?'🚪':cell==='S'?'':''}</button>`;
+  }).join('')).join('');
+  body=`<div class="pp-maze" style="grid-template-columns:repeat(${s.maze[0].length},1fr)">${s.maze.map((row,y)=>row.split('').map((cell,x)=>{
+   if(cell==='#') return `<button type="button" class="wall" disabled></button>`;
+   const isYou=s.x===x&&s.y===y;
+   return `<button type="button" class="${isYou?'you':cell==='G'?'goal':''}">${cell==='G'?'🚪':isYou?'🏃':'·'}</button>`;
+  }).join('')).join('')}</div><div class="pp-controls"><button type="button" class="pp-btn" onclick="ppMazeMove(-1,0)">←</button><button type="button" class="pp-btn" onclick="ppMazeMove(0,-1)">↑</button><button type="button" class="pp-btn" onclick="ppMazeMove(0,1)">↓</button><button type="button" class="pp-btn" onclick="ppMazeMove(1,0)">→</button></div>`;
+ }else if(c.type==='run'){
+  body=`<div class="pp-bar-wrap"><div class="pp-bar" style="width:${s.x}%"></div></div><p style="text-align:center">Gap at ${Math.round(s.obst)}%</p><div class="pp-controls"><button type="button" class="pp-btn" onclick="ppJump()">Jump</button><button type="button" class="pp-btn" onclick="ppRunAdvance()">Run ▶</button></div>`;
+ }else if(c.type==='code'){
+  body=`<div class="pp-code">${PP_COLORS.map((col,i)=>`<button type="button" style="background:${col}" onclick="ppTapColor(${i})"></button>`).join('')}</div><p style="text-align:center;font-size:12px">Code length: ${s.input.length}/${s.seq.length}</p>`;
+ }else if(c.type==='memory'){
+  body=`<div class="pp-code">${PP_COLORS.map((col,i)=>`<button type="button" style="background:${col};opacity:${s.flash===i?1:.35}" onclick="ppTapMem(${i})"></button>`).join('')}</div>`;
+ }else if(c.type==='timing'){
+  body=`<div class="pp-timing"><div class="zone" style="left:${s.zone}%;width:18%"></div><div class="needle" style="left:${s.needle}%"></div></div><button type="button" class="pp-btn wide" onclick="ppTimingStop()">STOP!</button><p style="text-align:center">${s.hits}/${s.need} hits</p>`;
+ }else if(c.type==='order'){
+  body=`<div class="pp-controls">${[0,1,2,3].map(i=>`<button type="button" class="pp-btn" onclick="ppOrderFloor(${i})">Floor ${i+1}</button>`).join('')}</div>`;
+ }else if(c.type==='chase'){
+  body=`<div class="pp-monster close" style="transform:scale(${1+s.monster/80})">👹</div><div class="pp-bar-wrap"><div class="pp-bar" style="width:${(s.run/s.need)*100}%"></div></div><button type="button" class="pp-btn wide" onclick="ppChaseRun()">RUN!!!</button>`;
+ }
+ scr.innerHTML=`<div class="pp-top"><span>Chapter ${c.n}/10</span><button type="button" class="pp-btn ghost" style="padding:8px 12px;min-height:auto" onclick="closePoppyPlay();switchView('poppy')">✕</button></div><div class="pp-room"><div class="pp-title">${c.emoji} ${c.name}</div><div class="pp-msg">${g.msg}</div>${body}</div>`;
+}
+
 (function openHashView(){
  const name=(location.hash||'').replace(/^#/,'').trim();
  if(name==='gemhunt'){switchView('gemhunt');return;}
