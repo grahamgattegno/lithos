@@ -726,11 +726,30 @@
   .class-ai-mode b{color:var(--gold);font-weight:500}
   .msg.thinking{opacity:1;font-style:normal;border-color:rgba(201,169,79,.35)}
   .msg .ai-tag{display:block;font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;opacity:.85}
-  .chat-premium-wrap{position:relative;border-radius:14px;overflow:hidden;border:1px solid rgba(201,169,79,.45);box-shadow:0 12px 40px -16px rgba(201,169,79,.25)}
-  .chat-premium-bg{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
-  .chat-premium-bg iframe,.chat-premium-bg video{position:absolute;top:50%;left:50%;width:140%;height:140%;transform:translate(-50%,-50%);border:0;object-fit:cover}
-  .chat-premium-bg-dim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,5,8,.55),rgba(5,5,8,.88));backdrop-filter:blur(1px)}
-  .chat.chat-premium{position:relative;z-index:1;background:rgba(8,8,14,.78);backdrop-filter:blur(10px);border:none;border-radius:0;min-height:300px;max-height:460px}
+  .class-ai-stage{position:relative;border-radius:16px;overflow:hidden;border:1px solid rgba(201,169,79,.5);box-shadow:0 16px 48px -20px rgba(201,169,79,.35)}
+  .class-ai-stage-inner{position:relative;z-index:2;padding:28px 24px 32px}
+  .class-ai-lock.class-ai-stage-inner{background:rgba(8,8,14,.72);backdrop-filter:blur(8px);border:none;border-radius:0;text-align:center}
+  .gem-stage-bg{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+  .gem-bg-slides img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;animation:gemSlideFade 20s infinite}
+  .gem-bg-slides img:nth-child(1){animation-delay:0s}
+  .gem-bg-slides img:nth-child(2){animation-delay:5s}
+  .gem-bg-slides img:nth-child(3){animation-delay:10s}
+  .gem-bg-slides img:nth-child(4){animation-delay:15s}
+  @keyframes gemSlideFade{0%,2%{opacity:.92;transform:scale(1.04)}22%,25%{opacity:0;transform:scale(1.08)}100%{opacity:0;transform:scale(1.08)}}
+  .gem-bg-floats span{position:absolute;width:18px;height:18px;border-radius:4px;transform:rotate(45deg);opacity:.55;animation:gemFloat 6s ease-in-out infinite}
+  .gem-bg-floats .gf1{top:12%;left:8%;background:linear-gradient(135deg,#fde68a,#f59e0b);animation-delay:0s}
+  .gem-bg-floats .gf2{top:22%;right:12%;background:linear-gradient(135deg,#fbcfe8,#ec4899);animation-delay:-1.2s;width:14px;height:14px}
+  .gem-bg-floats .gf3{bottom:18%;left:16%;background:linear-gradient(135deg,#bfdbfe,#3b82f6);animation-delay:-2.4s}
+  .gem-bg-floats .gf4{bottom:28%;right:10%;background:linear-gradient(135deg,#a7f3d0,#10b981);animation-delay:-3.6s;width:22px;height:22px}
+  .gem-bg-floats .gf5{top:48%;left:4%;background:linear-gradient(135deg,#e9d5ff,#a855f7);animation-delay:-4.8s;width:12px;height:12px}
+  .gem-bg-floats .gf6{top:62%;right:6%;background:linear-gradient(135deg,#fff8dc,#c9a94f);animation-delay:-5.5s}
+  @keyframes gemFloat{0%,100%{transform:rotate(45deg) translateY(0)}50%{transform:rotate(45deg) translateY(-14px)}}
+  .gem-bg-dim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,5,8,.18),rgba(5,5,8,.72))}
+  .class-ai-premium-label{position:absolute;top:10px;right:12px;z-index:3;font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:rgba(201,169,79,.85);background:rgba(0,0,0,.45);padding:5px 8px;border-radius:4px;border:1px solid rgba(201,169,79,.25)}
+  .chat-premium-wrap{position:relative;border-radius:12px;overflow:hidden;border:1px solid rgba(201,169,79,.35)}
+  .chat.chat-premium{position:relative;z-index:1;background:rgba(8,8,14,.45);backdrop-filter:blur(6px);border:none;border-radius:0;min-height:300px;max-height:460px}
+  .chat.chat-premium .msg.bot{background:rgba(16,16,24,.88);border-color:rgba(201,169,79,.22)}
+  .chat.chat-premium .msg.user{box-shadow:0 4px 16px rgba(201,169,79,.25)}
   .gem-thinking{display:flex;flex-direction:column;gap:10px;align-items:flex-start}
   .gem-think-wrap{display:flex;align-items:center;gap:14px;width:100%}
   .gem-think-orbit{width:56px;height:56px;position:relative;flex-shrink:0}
@@ -745,8 +764,9 @@
   .gem-think-label{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);animation:gemLabelPulse 1.4s ease-in-out infinite}
   @keyframes gemLabelPulse{0%,100%{opacity:.65}50%{opacity:1}}
   @media (prefers-reduced-motion:reduce){
-    .chat-premium-bg iframe,.chat-premium-bg video{display:none}
-    .gem-particle,.gem-think-core,.gem-think-label{animation:none}
+    .gem-bg-slides img{animation:none;opacity:.35}
+    .gem-bg-slides img:first-child{opacity:.35}
+    .gem-bg-floats span,.gem-particle,.gem-think-core,.gem-think-label{animation:none}
   }
 
   /* ---------- Rock Teacher chat ---------- */
@@ -2732,28 +2752,49 @@
  <section class="class-ai" id="class-ai">
  <div class="eyebrow">Class Member Perk</div>
  <h2>AI <em>Rock Teacher</em></h2>
- <p class="lede">Ask geology questions grounded in the Lithos catalog — Mohs hardness, crystal systems, gem facts, and lesson topics. Unlocks after you buy a class or membership. <b>Gold</b> members get live Gemini AI + voice; Silver and class buyers get the deeper catalog teacher.</p>
+ <p class="lede">Ask geology questions grounded in the Lithos catalog — Mohs hardness, crystal systems, gem facts, and lesson topics. Unlocks after you buy a class or membership. Look for the <b>gem slideshow</b> behind the chat on this page (not Rock Teacher). <b>Gold</b> members get live Gemini AI + voice.</p>
 
- <div id="class-ai-locked" class="class-ai-lock">
- <div class="lock-ico">Locked · Members &amp; class buyers</div>
- <p>Purchase a class plan or membership, then tap unlock. This site can’t verify Founders Weekends payments automatically, so a grown-up confirms purchase on this device.</p>
- <div class="class-ai-actions">
- <a class="plan-btn" href="#memberships" onclick="switchView('memberships');return false;">See memberships</a>
- <button type="button" class="plan-btn ghost" id="class-ai-unlock-btn">I’ve purchased — unlock</button>
- </div>
- </div>
-
- <div id="class-ai-open" hidden>
- <div style="text-align:center"><span class="class-ai-badge">Unlocked</span></div>
- <div class="chat-premium-wrap">
-  <div class="chat-premium-bg" aria-hidden="true">
-   <iframe src="https://www.youtube-nocookie.com/embed/scGArR4kF7A?autoplay=1&mute=1&loop=1&playlist=scGArR4kF7A&controls=0&playsinline=1&rel=0&modestbranding=1&iv_load_policy=3" title="Gem background" allow="autoplay; encrypted-media" loading="lazy"></iframe>
-   <div class="chat-premium-bg-dim"></div>
+ <div id="class-ai-locked" class="class-ai-stage">
+  <div class="gem-stage-bg" aria-hidden="true">
+   <div class="gem-bg-slides">
+    <img src="images/diamond.jpg" alt="">
+    <img src="images/ruby.jpg" alt="">
+    <img src="images/emerald.jpg" alt="">
+    <img src="images/sapphire.jpg" alt="">
+   </div>
+   <div class="gem-bg-floats"><span class="gf1"></span><span class="gf2"></span><span class="gf3"></span><span class="gf4"></span><span class="gf5"></span><span class="gf6"></span></div>
+   <div class="gem-bg-dim"></div>
   </div>
+  <span class="class-ai-premium-label">Member preview</span>
+  <div class="class-ai-lock class-ai-stage-inner">
+  <div class="lock-ico">Locked · Members &amp; class buyers</div>
+  <p>Purchase a class plan or membership, then tap unlock. You’ll get the gem video backdrop, crystal thinking animation, and the full catalog teacher.</p>
+  <div class="class-ai-actions">
+   <a class="plan-btn" href="#memberships" onclick="switchView('memberships');return false;">See memberships</a>
+   <button type="button" class="plan-btn ghost" id="class-ai-unlock-btn">I’ve purchased — unlock</button>
+  </div>
+  </div>
+ </div>
+
+ <div id="class-ai-open" hidden class="class-ai-stage">
+  <div class="gem-stage-bg" aria-hidden="true">
+   <div class="gem-bg-slides">
+    <img src="images/diamond.jpg" alt="">
+    <img src="images/amethyst.jpg" alt="">
+    <img src="images/opal.jpg" alt="">
+    <img src="images/topaz.jpg" alt="">
+   </div>
+   <div class="gem-bg-floats"><span class="gf1"></span><span class="gf2"></span><span class="gf3"></span><span class="gf4"></span><span class="gf5"></span><span class="gf6"></span></div>
+   <div class="gem-bg-dim"></div>
+  </div>
+  <span class="class-ai-premium-label">Premium gem backdrop</span>
+  <div class="class-ai-stage-inner">
+  <div style="text-align:center"><span class="class-ai-badge">Unlocked</span></div>
+  <div class="chat-premium-wrap">
   <div class="chat chat-premium" id="class-chat">
-   <div class="msg bot" id="class-ai-welcome"><span class="ai-tag">Class member</span>Welcome! Ask about any gem in the catalog, Mohs hardness, crystal systems, birthstones, or how stones form.</div>
+   <div class="msg bot" id="class-ai-welcome"><span class="ai-tag">Class member</span>Welcome! Ask about any gem in the catalog — watch the gem slideshow behind the chat and the crystal spinner while I think.</div>
   </div>
- </div>
+  </div>
  <div class="chat-voice-bar" id="class-voice-gold" hidden>
   <button type="button" class="voice-toggle" id="class-voice-toggle" aria-pressed="false" title="Speak Rock Teacher replies aloud">
    <span class="voice-dot" aria-hidden="true"></span>
@@ -2775,6 +2816,7 @@
  </div>
  <div class="chat-chips" id="class-chat-chips"></div>
  <p class="class-ai-mode" id="class-ai-mode">Mode: <b>Local catalog teacher</b></p>
+  </div>
  </div>
  </section>
 </div><!-- /view-classes -->
@@ -3751,7 +3793,7 @@ function switchView(name){
  if(name==='learn'&&!learnBuilt){buildLessons();learnBuilt=true;}
  if(name==='class-lessons'){refreshClassLessons();}
  if(name==='quiz')startQuiz();
- if(name==='classes'){refreshClassAI();refreshClassLessonsEntry();}
+ if(name==='classes'){refreshClassAI();refreshClassLessonsEntry();setTimeout(()=>{const s=document.getElementById('class-ai');if(s)s.scrollIntoView({behavior:'smooth',block:'start'});},80);}
  if(name==='teacher'&&!teacherBuilt){buildTeacher();teacherBuilt=true;}
  if(name==='feedback'&&!feedbackBuilt){buildFeedback();feedbackBuilt=true;}
  if(name==='collaborate'&&!collabBuilt){buildCollaborate();collabBuilt=true;}
@@ -4871,6 +4913,8 @@ async function sendClassChat(){
  const cfg=getAiConfig();
  const goldLive=isGoldMember()&&!!cfg.key;
  const thinking=addClassThinkingMsg();
+ const thinkStart=Date.now();
+ const MIN_THINK_MS=1600;
  try{
  let answer=null;
  let tag='Catalog teacher';
@@ -4883,10 +4927,11 @@ async function sendClassChat(){
  tag='Catalog fallback';
  }
  }else{
- await new Promise(r=>setTimeout(r,650));
  answer=classLocalAnswer(q);
  tag=isSilverMember()?'Silver · Catalog teacher':'Class · Catalog teacher';
  }
+ const wait=Math.max(0,MIN_THINK_MS-(Date.now()-thinkStart));
+ if(wait) await new Promise(r=>setTimeout(r,wait));
  if(thinking) thinking.remove();
  addClassMsg(answer,'bot',tag);
  classAiHistory.push({role:'assistant',content:answer});
