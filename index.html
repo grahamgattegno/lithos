@@ -1238,7 +1238,8 @@
   .poppy-wrap h1{font-family:var(--serif);font-weight:300;font-size:clamp(36px,6vw,72px);line-height:1;text-align:center}
   .poppy-wrap h1 em{font-style:italic;color:#ff7eb3;font-weight:400}
   .poppy-wrap .lede{text-align:center;max-width:560px;margin:20px auto 0;font-size:16px;line-height:1.6;color:var(--text-dim)}
-  .poppy-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-top:32px}
+  .poppy-char-preview{text-align:center;margin:24px auto 8px;filter:drop-shadow(0 8px 24px rgba(255,77,141,.25))}
+  .poppy-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-top:24px}
   .poppy-ch{
     background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 14px;
     text-align:center;cursor:pointer;transition:transform .15s,border-color .15s;position:relative;
@@ -1288,6 +1289,43 @@
   .pp-end{text-align:center;padding:20px 10px}
   .pp-end .big{font-size:56px;margin-bottom:12px}
   .pp-end h2{font-family:var(--serif);font-size:28px;color:#ff7eb3;margin-bottom:10px}
+  #poppyplay{align-items:stretch;padding:0}
+  .pp-screen{width:100%;max-width:720px;height:100%;display:flex;flex-direction:column;color:#ece6f2;font-family:var(--sans);margin:0 auto}
+  .pp-top{flex:0 0 auto;padding:10px 14px 0}
+  .pp-world{flex:1;display:flex;flex-direction:column;min-height:0;position:relative}
+  .pp-scene{flex:1;position:relative;overflow:hidden;border-radius:0;background:radial-gradient(ellipse at 50% 20%,#1e1630,#07060c 70%);min-height:280px}
+  .pp-scene::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.015) 0 1px,transparent 1px 3px);pointer-events:none;z-index:5;opacity:.5}
+  .pp-scene-lights{position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(255,120,180,.12),transparent 55%);pointer-events:none}
+  .pp-hall{position:absolute;inset:0;perspective:420px;perspective-origin:50% 38%}
+  .pp-floor{position:absolute;left:-20%;right:-20%;bottom:0;height:58%;transform:rotateX(68deg);transform-origin:bottom;
+    background:linear-gradient(180deg,#1a1424,#0a0810);
+    background-image:repeating-linear-gradient(90deg,rgba(255,100,160,.07) 0 48px,transparent 48px 96px),
+      repeating-linear-gradient(0deg,rgba(255,100,160,.05) 0 48px,transparent 48px 96px);
+    box-shadow:0 -20px 60px rgba(255,77,141,.08) inset}
+  .pp-wall{position:absolute;bottom:18%;width:28%;height:62%;background:linear-gradient(180deg,#221a30,#0e0c14);border:1px solid rgba(255,120,180,.12)}
+  .pp-wall.left{left:0;transform:skewY(3deg);border-right:2px solid rgba(255,77,141,.15)}
+  .pp-wall.right{right:0;transform:skewY(-3deg);border-left:2px solid rgba(255,77,141,.15)}
+  .pp-back-wall{position:absolute;left:18%;right:18%;bottom:28%;height:42%;background:linear-gradient(180deg,#2a2038,#12101a);border:1px solid rgba(255,120,180,.1);border-radius:4px 4px 0 0}
+  .pp-prop{position:absolute;transform:translateX(-50%);bottom:32%;font-size:clamp(28px,8vw,44px);filter:drop-shadow(0 8px 12px rgba(0,0,0,.5));transition:left .25s ease,transform .2s;z-index:2;cursor:pointer;touch-action:manipulation;border:none;background:none;padding:0}
+  .pp-prop:active{transform:translateX(-50%) scale(.94)}
+  .pp-prop.glow{animation:ppGlow 1s ease-in-out infinite}
+  @keyframes ppGlow{0%,100%{filter:drop-shadow(0 0 8px rgba(255,77,141,.5))}50%{filter:drop-shadow(0 0 18px rgba(255,77,141,.9))}}
+  .pp-monster-far{position:absolute;left:50%;bottom:38%;transform:translateX(-50%);z-index:1;transition:transform .3s,opacity .3s}
+  .pp-monster-far.close{transform:translateX(-50%) scale(1.35);filter:drop-shadow(0 0 20px rgba(255,50,100,.6))}
+  .pp-player-wrap{position:absolute;left:50%;bottom:6%;transform:translateX(-50%);z-index:4;transition:left .22s ease}
+  .pp-player-wrap.walk{animation:ppWalkBob .35s ease-in-out infinite}
+  .pp-player-wrap.crouch{transform:translateX(-50%) scale(.88) translateY(8px)}
+  .pp-player-wrap.run{animation:ppRunBob .2s ease-in-out infinite}
+  @keyframes ppWalkBob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-5px)}}
+  @keyframes ppRunBob{0%,100%{transform:translateX(-50%) translateY(0) scale(1)}50%{transform:translateX(-50%) translateY(-8px) scale(1.02)}}
+  .pp-player-shadow{position:absolute;left:50%;bottom:4%;width:80px;height:16px;background:radial-gradient(ellipse,rgba(0,0,0,.55),transparent 70%);transform:translateX(-50%);z-index:3;border-radius:50%}
+  .pp-hud{position:absolute;top:10px;left:10px;right:10px;z-index:6;display:flex;justify-content:space-between;gap:8px;pointer-events:none}
+  .pp-hud-pill{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;background:rgba(0,0,0,.55);border:1px solid rgba(255,120,180,.25);padding:6px 10px;border-radius:20px;color:#ffb8d4}
+  .pp-overlay{position:relative;z-index:7;background:rgba(8,6,12,.82);border-top:1px solid rgba(255,120,180,.2);padding:14px 14px calc(14px + env(safe-area-inset-bottom,0px));backdrop-filter:blur(8px)}
+  .pp-dpad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:280px;margin:12px auto 0}
+  .pp-dpad button{min-height:52px;font-size:20px;border-radius:12px;background:rgba(255,77,141,.15);border:1px solid rgba(255,120,180,.35);color:#fff;touch-action:manipulation}
+  .pp-dpad button:active{background:rgba(255,77,141,.35)}
+  .pp-dpad .pp-action{background:linear-gradient(135deg,#ff4d8d,#c42d6b);border:none;font-family:var(--mono);font-size:11px;letter-spacing:.08em}
 
   /* ===== NIGHT SHIFT AT THE GEM FACTORY ===== */
   #nightshift{position:fixed;inset:0;z-index:9999;background:#0a0a10;display:flex;align-items:center;justify-content:center;padding:12px}
@@ -2669,7 +2707,8 @@
  <section class="poppy-wrap">
  <div class="eyebrow">Toy Factory Horror Adventure</div>
  <h1>Poppy <em>Playtime</em></h1>
- <p class="lede">Escape the abandoned toy factory — beat all <b>10 chapters</b>. Tap a chapter to play. Works great on phone with big touch buttons!</p>
+ <p class="lede">Escape the abandoned toy factory in <b>3rd person</b> — see your character walk, run, and hide! Beat all <b>10 chapters</b> with the on-screen D-pad.</p>
+ <div class="poppy-char-preview" id="poppy-char-preview"></div>
  <div class="poppy-grid" id="poppy-grid"></div>
  </section>
 </div><!-- /view-poppy -->
@@ -9631,26 +9670,146 @@ function showEmeraldGiftNotification(){
 }
 if(!hasEmeraldGift()) setTimeout(()=>grantEmeraldGuardianGift(), 900);
 
-/* ===== Poppy Playtime — Chapters 1–10 (mobile-friendly) ===== */
+/* ===== Poppy Playtime — 3rd-person factory explorer, Chapters 1–10 ===== */
 const POPPY_KEY='lithos_poppy_progress_v1';
-const POPPY_CHAPTERS=[
- {n:1,name:'The Lobby',emoji:'🏭',desc:'Search the lobby for 3 toy parts.',type:'search',need:3,spots:6},
- {n:2,name:'Power Room',emoji:'⚡',desc:'Match the colored wires.',type:'wire'},
- {n:3,name:'Assembly Line',emoji:'🧸',desc:'Sneak when the toy looks away.',type:'sneak',steps:6},
- {n:4,name:'Storage Bay',emoji:'📦',desc:'Find the exit in the crate maze.',type:'maze'},
- {n:5,name:'Vent Chase',emoji:'🕳️',desc:'Run right — jump the gaps!',type:'run'},
- {n:6,name:'The Lab',emoji:'🔬',desc:'Repeat the color code.',type:'code'},
- {n:7,name:'Music Room',emoji:'🎵',desc:'Memorize the light pattern.',type:'memory'},
- {n:8,name:'Loading Dock',emoji:'🚢',desc:'Tap when the needle hits green.',type:'timing',need:3},
- {n:9,name:'Elevator',emoji:'🛗',desc:'Press floors in the right order.',type:'order'},
- {n:10,name:'Final Escape',emoji:'🏁',desc:'Mash RUN to escape!',type:'chase',need:22}
-];
 const PP_COLORS=['#ff4d8d','#4da6ff','#ffd34e','#3fa34d'];
+const POPPY_CHAPTERS=[
+ {n:1,name:'The Lobby',emoji:'🏭',desc:'Walk & search crates for toy parts.',type:'search',need:3,spots:5},
+ {n:2,name:'Power Room',emoji:'⚡',desc:'Fix the wires while you explore.',type:'wire'},
+ {n:3,name:'Assembly Line',emoji:'🧸',desc:'Sneak past the toy — crouch & move!',type:'sneak',steps:6},
+ {n:4,name:'Storage Bay',emoji:'📦',desc:'Navigate the crate maze.',type:'maze'},
+ {n:5,name:'Vent Chase',emoji:'🕳️',desc:'Run & jump through the vents!',type:'run'},
+ {n:6,name:'The Lab',emoji:'🔬',desc:'Enter the color code.',type:'code'},
+ {n:7,name:'Music Room',emoji:'🎵',desc:'Repeat the light pattern.',type:'memory'},
+ {n:8,name:'Loading Dock',emoji:'🚢',desc:'Hit the green zone!',type:'timing',need:3},
+ {n:9,name:'Elevator',emoji:'🛗',desc:'Floors in the right order.',type:'order'},
+ {n:10,name:'Final Escape',emoji:'🏁',desc:'RUN — the monster is chasing!',type:'chase',need:22}
+];
 let ppGame=null;
 function poppyUnlockLevel(){ try{return Math.max(1,parseInt(localStorage.getItem(POPPY_KEY)||'1',10)||1);}catch(_){return 1;} }
 function poppySaveLevel(n){ try{localStorage.setItem(POPPY_KEY,String(Math.max(poppyUnlockLevel(),n)));}catch(_){} }
+function ppPlayerSVG(size,pose){
+ size=size||88; pose=pose||'idle';
+ const walk=pose==='walk'||pose==='run';
+ const crouch=pose==='crouch';
+ const legL=walk?`<ellipse cx="34" cy="78" rx="8" ry="11" fill="#1a4a8a" transform="rotate(${pose==='run'?-18:12} 34 78)"/>`:'<ellipse cx="32" cy="78" rx="8" ry="11" fill="#1a4a8a"/>';
+ const legR=walk?`<ellipse cx="54" cy="78" rx="8" ry="11" fill="#1a4a8a" transform="rotate(${pose==='run'?18:-12} 54 78)"/>`:'<ellipse cx="56" cy="78" rx="8" ry="11" fill="#1a4a8a"/>';
+ const arm=crouch?`<path d="M58 42 L72 58 L68 62 L54 48 Z" fill="#2a6ab8"/>`:`<path d="M58 38 L78 ${pose==='run'?32:42} L74 ${pose==='run'?38:46} L56 44 Z" fill="#2a6ab8"/>`;
+ return `<svg viewBox="0 0 88 92" width="${size}" height="${size*1.05}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  ${legL}${legR}
+  <ellipse cx="44" cy="52" rx="18" ry="22" fill="#2563b8"/>
+  <rect x="28" y="36" width="32" height="24" rx="6" fill="#3b82f6"/>
+  ${arm}
+  <circle cx="44" cy="24" r="16" fill="#f5c99a"/>
+  <path d="M28 18 Q44 6 60 18 L56 24 Q44 14 32 24 Z" fill="#ffd34e"/>
+  <rect x="36" y="20" width="16" height="5" rx="2" fill="#333"/>
+  <circle cx="38" cy="24" r="2" fill="#111"/><circle cx="50" cy="24" r="2" fill="#111"/>
+  <path d="M72 ${crouch?50:40} L84 ${crouch?54:36}" stroke="#ff4d8d" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="84" cy="${crouch?54:36}" r="5" fill="#ff7eb3"/>
+ </svg>`;
+}
+function ppMonsterSVG(name,size){
+ size=size||64;
+ if(name==='chase') return `<svg viewBox="0 0 80 100" width="${size}" height="${size*1.25}"><rect x="20" y="30" width="40" height="50" rx="8" fill="#4a2060"/><circle cx="30" cy="45" r="8" fill="#ff0040"/><circle cx="50" cy="45" r="8" fill="#ff0040"/><path d="M28 60 Q40 72 52 60" stroke="#ff0040" stroke-width="3" fill="none"/><path d="M10 20 L20 35 M70 20 L60 35" stroke="#4a2060" stroke-width="6" stroke-linecap="round"/></svg>`;
+ return `<svg viewBox="0 0 80 90" width="${size}" height="${size*1.12}"><rect x="18" y="25" width="44" height="48" rx="10" fill="#3a2850"/><circle cx="32" cy="42" r="7" fill="#111"/><circle cx="48" cy="42" r="7" fill="#111"/><circle cx="33" cy="43" r="3" fill="#ff0040"/><circle cx="49" cy="43" r="3" fill="#ff0040"/><path d="M30 58 Q40 68 50 58" stroke="#222" stroke-width="2" fill="none"/></svg>`;
+}
+function ppPose(){
+ if(!ppGame) return 'idle';
+ const s=ppGame.state;
+ if(s.pose) return s.pose;
+ if(ppGame.cfg.type==='sneak'&&s.hiding) return 'crouch';
+ if(ppGame.cfg.type==='run') return s.jump?'run':'run';
+ return 'idle';
+}
+function ppPlayerAnimClass(){
+ const p=ppPose();
+ if(p==='walk') return 'walk';
+ if(p==='run') return 'run';
+ if(p==='crouch') return 'crouch';
+ return '';
+}
+function ppRenderWorld(){
+ const g=ppGame, s=g.state, c=g.cfg;
+ const px=s.px??50;
+ const props=[];
+ if(c.type==='search'){
+  for(let i=0;i<(s.spots||5);i++){
+   const x=15+i*17;
+   const found=s.found&&s.found.has(i);
+   const has=s.items&&s.items.has(i);
+   props.push(`<button type="button" class="pp-prop${!found&&has?' glow':''}" style="left:${x}%" onclick="ppTapSpot(${i})">${found?(has?'🧩':'📦'):'📦'}</button>`);
+  }
+ }else if(c.type==='sneak'){
+  props.push(`<div class="pp-monster-far${s.looking?' close':''}" style="left:${55+s.step*4}%">${ppMonsterSVG('toy',48+s.step*4)}</div>`);
+ }else if(c.type==='chase'){
+  props.push(`<div class="pp-monster-far close" style="left:${Math.max(35,88-s.run*2)}%;opacity:${.5+s.monster/120}">${ppMonsterSVG('chase',56+s.monster/8)}</div>`);
+ }else if(c.type==='run'){
+  props.push(`<div class="pp-prop" style="left:${s.obst}%">🕳️</div>`);
+ }
+ const objective=c.type==='search'?`Parts ${s.found?[...s.items].filter(i=>s.found.has(i)).length:0}/${c.need}`:
+  c.type==='sneak'?`Progress ${s.step}/${s.steps}`:
+  c.type==='chase'?`Escape ${s.run}/${s.need}`:
+  c.type==='run'?`Run! ${Math.round(s.x)}%`:`Chapter ${c.n}`;
+ return `<div class="pp-world">
+  <div class="pp-scene">
+   <div class="pp-scene-lights"></div>
+   <div class="pp-hall">
+    <div class="pp-wall left"></div>
+    <div class="pp-wall right"></div>
+    <div class="pp-back-wall"></div>
+    <div class="pp-floor"></div>
+    ${props.join('')}
+   </div>
+   <div class="pp-player-shadow"></div>
+   <div class="pp-player-wrap ${ppPlayerAnimClass()}" style="left:${px}%">${ppPlayerSVG(92,ppPose())}</div>
+   <div class="pp-hud">
+    <span class="pp-hud-pill">${c.emoji} ${c.name}</span>
+    <span class="pp-hud-pill">${objective}</span>
+   </div>
+  </div>
+ </div>`;
+}
+function ppDpad(){
+ return `<div class="pp-dpad">
+  <button type="button" onclick="ppWalk(-1)">◀</button>
+  <button type="button" class="pp-action" onclick="ppAction()">${ppGame&&ppGame.cfg.type==='sneak'?'Move':ppGame&&ppGame.cfg.type==='run'?'Jump':'Search'}</button>
+  <button type="button" onclick="ppWalk(1)">▶</button>
+  <button type="button" onclick="ppWalk(-1);ppSetPose('walk')">↖</button>
+  <button type="button" onclick="ppCrouch()">${ppGame&&ppGame.cfg.type==='sneak'?'Hide':'Crouch'}</button>
+  <button type="button" onclick="ppWalk(1);ppSetPose('walk')">↗</button>
+ </div>`;
+}
+function ppSetPose(p){ if(ppGame){ ppGame.state.pose=p; renderPoppyPlay(); setTimeout(()=>{ if(ppGame&&ppGame.state.pose===p) ppGame.state.pose='idle'; renderPoppyPlay(); },400); } }
+function ppWalk(dir){
+ if(!ppGame||ppGame.won||ppGame.lost) return;
+ const s=ppGame.state;
+ s.px=Math.max(18,Math.min(82,(s.px??50)+dir*8));
+ s.pose='walk';
+ if(ppGame.cfg.type==='run') ppRunAdvance();
+ renderPoppyPlay();
+ setTimeout(()=>{ if(ppGame){ ppGame.state.pose='idle'; renderPoppyPlay(); } },300);
+}
+function ppCrouch(){
+ if(!ppGame) return;
+ if(ppGame.cfg.type==='sneak') ppSneakHide();
+ else ppSetPose('crouch');
+}
+function ppAction(){
+ if(!ppGame) return;
+ const t=ppGame.cfg.type;
+ if(t==='sneak') ppSneakMove();
+ else if(t==='run') ppJump();
+ else if(t==='chase') ppChaseRun();
+ else if(t==='search'){
+  const i=[...Array(ppGame.state.spots||5).keys()].find(j=>!ppGame.state.found.has(j)&&ppGame.state.items.has(j));
+  if(i!=null) ppTapSpot(i); else ppGame.msg='Walk to a glowing crate!';
+  renderPoppyPlay();
+ }
+}
 function buildPoppyHub(){
  const grid=document.getElementById('poppy-grid');
+ const prev=document.getElementById('poppy-char-preview');
+ if(prev) prev.innerHTML=ppPlayerSVG(110,'idle');
  if(!grid) return;
  const unlock=poppyUnlockLevel();
  grid.innerHTML=POPPY_CHAPTERS.map(ch=>{
@@ -9669,6 +9828,7 @@ function buildPoppyHub(){
  });
 }
 function closePoppyPlay(){
+ if(ppGame&&ppGame.loop) clearInterval(ppGame.loop);
  ppGame=null;
  const w=document.getElementById('poppyplay'); if(w) w.remove();
  document.body.style.overflow='';
@@ -9677,44 +9837,43 @@ function playPoppyChapter(n){
  const cfg=POPPY_CHAPTERS.find(c=>c.n===n);
  if(!cfg||n>poppyUnlockLevel()) return;
  closePoppyPlay();
- ppGame={cfg,state:{},won:false,lost:false,msg:'',tick:0};
+ ppGame={cfg,state:{px:50,pose:'idle',hiding:false},won:false,lost:false,msg:'',tick:0};
+ const s=ppGame.state;
  if(cfg.type==='search'){
   const items=new Set(); while(items.size<cfg.need){ items.add(Math.floor(Math.random()*cfg.spots)); }
-  ppGame.state={found:new Set(),items,spots:cfg.spots};
-  ppGame.msg='Tap boxes to search for toy parts!';
+  s.found=new Set(); s.items=items; s.spots=cfg.spots;
+  ppGame.msg='Walk to glowing crates — tap Search or the crate!';
  }else if(cfg.type==='wire'){
-  const cols=PP_COLORS.slice(); const pool=[...cols,...cols].sort(()=>Math.random()-.5);
-  ppGame.state={pool,sel:null,matched:0,first:null};
-  ppGame.msg='Tap two wires of the same color!';
+  const pool=[...PP_COLORS,...PP_COLORS].sort(()=>Math.random()-.5);
+  s.pool=pool; s.sel=null; s.matched=0; s.first=null;
+  ppGame.msg='Match the wire colors below!';
  }else if(cfg.type==='sneak'){
-  ppGame.state={step:0,steps:cfg.steps,looking:Math.random()<.5};
-  ppGame.msg='Tap MOVE when the toy is looking away!';
+  s.step=0; s.steps=cfg.steps; s.looking=Math.random()<.5;
+  ppGame.msg='Crouch to HIDE — tap Move when it looks away!';
  }else if(cfg.type==='maze'){
-  ppGame.state={x:0,y:0,maze:[
-   'S...','.#..','...#','#..G'
-  ]};
-  ppGame.msg='Tap arrows to reach the green exit!';
+  s.x=0; s.y=0; s.maze=['S...','.#..','...#','#..G'];
+  ppGame.msg='Use arrows — see your character move!';
  }else if(cfg.type==='run'){
-  ppGame.state={x:8,obst:30+Math.floor(Math.random()*50),jump:false};
-  ppGame.msg='Tap RUN — JUMP over gaps!';
+  s.x=8; s.obst=30+Math.floor(Math.random()*50); s.jump=false;
+  ppGame.msg='D-pad to run — center button JUMPS gaps!';
  }else if(cfg.type==='code'){
-  ppGame.state={seq:Array.from({length:4},()=>Math.floor(Math.random()*4)),input:[]};
-  ppGame.msg='Watch the code, then repeat it!';
+  s.seq=Array.from({length:4},()=>Math.floor(Math.random()*4)); s.input=[];
+  ppGame.msg='Enter the color code!';
  }else if(cfg.type==='memory'){
-  ppGame.state={seq:[Math.floor(Math.random()*4)],show:0,phase:'show',input:[]};
-  ppGame.msg='Remember the pattern!';
+  s.seq=[Math.floor(Math.random()*4)]; s.show=0; s.phase='show'; s.input=[];
+  ppGame.msg='Watch the lights!';
   setTimeout(ppMemoryShow,600);
  }else if(cfg.type==='timing'){
-  ppGame.state={hits:0,need:cfg.need,needle:0,dir:1,zone:20+Math.random()*50};
+  s.hits=0; s.need=cfg.need; s.needle=0; s.dir=1; s.zone=20+Math.random()*50;
   ppGame.loop=setInterval(ppTimingTick,40);
   ppGame.msg='Tap STOP in the green zone!';
  }else if(cfg.type==='order'){
-  ppGame.state={order:[2,0,3,1].sort(()=>Math.random()-.5),step:0};
-  ppGame.msg='Press floors: '+ppGame.state.order.map(i=>i+1).join(' → ');
+  s.order=[2,0,3,1].sort(()=>Math.random()-.5); s.step=0;
+  ppGame.msg='Floors: '+s.order.map(i=>i+1).join(' → ');
  }else if(cfg.type==='chase'){
-  ppGame.state={run:0,need:cfg.need,monster:0};
-  ppGame.loop=setInterval(()=>{ if(!ppGame||ppGame.won||ppGame.lost) return; ppGame.state.monster+=1.2; if(ppGame.state.monster>=100){ ppGame.lost=true; ppGame.msg='Caught! Try again!'; renderPoppyPlay(); } },200);
-  ppGame.msg='Mash RUN to escape!';
+  s.run=0; s.need=cfg.need; s.monster=0;
+  ppGame.loop=setInterval(()=>{ if(!ppGame||ppGame.won||ppGame.lost) return; ppGame.state.monster+=1.3; if(ppGame.state.monster>=100){ ppGame.lost=true; ppGame.msg='Caught!'; renderPoppyPlay(); } else renderPoppyPlay(); },200);
+  ppGame.msg='Tap RUN or mash the center button!';
  }
  const wrap=document.createElement('div');
  wrap.id='poppyplay';
@@ -9727,8 +9886,7 @@ function ppWinChapter(){
  if(!ppGame) return;
  ppGame.won=true;
  if(ppGame.loop) clearInterval(ppGame.loop);
- const next=ppGame.cfg.n+1;
- poppySaveLevel(next);
+ poppySaveLevel(ppGame.cfg.n+1);
  ppGame.msg='Chapter complete!';
  renderPoppyPlay();
 }
@@ -9736,13 +9894,8 @@ function ppMemoryShow(){
  if(!ppGame||ppGame.cfg.type!=='memory') return;
  const s=ppGame.state;
  if(s.phase==='show'){
-  if(s.show<s.seq.length){
-   s.flash=s.seq[s.show]; s.show++; renderPoppyPlay();
-   setTimeout(ppMemoryShow,700);
-  }else{
-   s.phase='input'; s.flash=null; s.input=[]; ppGame.msg='Your turn — repeat it!';
-   renderPoppyPlay();
-  }
+  if(s.show<s.seq.length){ s.flash=s.seq[s.show]; s.show++; renderPoppyPlay(); setTimeout(ppMemoryShow,700); }
+  else{ s.phase='input'; s.flash=null; s.input=[]; ppGame.msg='Your turn!'; renderPoppyPlay(); }
  }else s.flash=null;
 }
 function ppTimingTick(){
@@ -9757,9 +9910,9 @@ function ppTapSpot(i){
  if(!ppGame||ppGame.cfg.type!=='search'||ppGame.won) return;
  const s=ppGame.state;
  if(s.found.has(i)) return;
- s.found.add(i);
+ s.found.add(i); s.pose='crouch';
  if(s.items.has(i)) ppGame.msg='Found a part!';
- else ppGame.msg='Empty box…';
+ else ppGame.msg='Empty crate…';
  if([...s.items].every(x=>s.found.has(x))) ppWinChapter();
  renderPoppyPlay();
 }
@@ -9769,59 +9922,54 @@ function ppTapWire(i){
  if(s.pool[i]==='done') return;
  if(s.first===null){ s.first=i; s.sel=i; renderPoppyPlay(); return; }
  if(s.first===i){ s.first=null; s.sel=null; renderPoppyPlay(); return; }
- if(s.pool[s.first]===s.pool[i]){
-  s.pool[s.first]='done'; s.pool[i]='done'; s.matched++; s.first=null; s.sel=null;
-  if(s.matched>=4) ppWinChapter();
-  else ppGame.msg='Match!';
- }else{ s.first=null; s.sel=null; ppGame.msg='Wrong pair — try again!'; }
+ if(s.pool[s.first]===s.pool[i]){ s.pool[s.first]='done'; s.pool[i]='done'; s.matched++; s.first=null; s.sel=null; if(s.matched>=4) ppWinChapter(); else ppGame.msg='Match!'; }
+ else{ s.first=null; s.sel=null; ppGame.msg='Wrong pair!'; }
  renderPoppyPlay();
 }
 function ppSneakMove(){
  if(!ppGame||ppGame.cfg.type!=='sneak'||ppGame.won||ppGame.lost) return;
  const s=ppGame.state;
  if(s.looking){ ppGame.lost=true; ppGame.msg='It saw you!'; renderPoppyPlay(); return; }
- s.step++;
+ s.step++; s.px=Math.min(78,42+s.step*5); s.pose='walk';
  s.looking=Math.random()<.55;
  if(s.step>=s.steps) ppWinChapter();
- else ppGame.msg=s.looking?'It turned around — HIDE!':'Quick — MOVE!';
+ else ppGame.msg=s.looking?'👀 It turned — HIDE!':'Go go go!';
  renderPoppyPlay();
 }
 function ppSneakHide(){
  if(!ppGame||ppGame.cfg.type!=='sneak') return;
- ppGame.msg='You hide in the shadows…';
- sLookingFlip();
+ ppGame.state.hiding=true; ppGame.state.pose='crouch';
+ ppGame.msg='Hiding…';
+ ppGame.state.looking=Math.random()<.45;
+ setTimeout(()=>{ if(ppGame){ ppGame.state.hiding=false; renderPoppyPlay(); } },500);
  renderPoppyPlay();
-}
-function sLookingFlip(){
- if(!ppGame||ppGame.cfg.type!=='sneak') return;
- ppGame.state.looking=Math.random()<.5;
 }
 function ppMazeMove(dx,dy){
  if(!ppGame||ppGame.cfg.type!=='maze'||ppGame.won) return;
  const s=ppGame.state;
  const nx=s.x+dx, ny=s.y+dy;
  if(ny<0||ny>=s.maze.length||nx<0||nx>=s.maze[0].length) return;
- const cell=s.maze[ny][nx];
- if(cell==='#') return;
- s.x=nx; s.y=ny;
- if(cell==='G') ppWinChapter();
+ if(s.maze[ny][nx]==='#') return;
+ s.x=nx; s.y=ny; s.px=20+nx*18; s.pose='walk';
+ if(s.maze[ny][nx]==='G') ppWinChapter();
  renderPoppyPlay();
+ setTimeout(()=>{ if(ppGame) ppGame.state.pose='idle'; renderPoppyPlay(); },250);
 }
 function ppRunAdvance(){
  if(!ppGame||ppGame.cfg.type!=='run'||ppGame.won||ppGame.lost) return;
  const s=ppGame.state;
- if(Math.abs(s.x-s.obst)<8&&!s.jump){ ppGame.lost=true; ppGame.msg='You fell in a gap!'; renderPoppyPlay(); return; }
- s.x=Math.min(92,s.x+6); s.jump=false;
+ if(Math.abs(s.x-s.obst)<8&&!s.jump){ ppGame.lost=true; ppGame.msg='Fell in the gap!'; renderPoppyPlay(); return; }
+ s.x=Math.min(92,s.x+6); s.px=18+s.x*.65; s.pose='run'; s.jump=false;
  if(s.x>=88) ppWinChapter();
  else if(Math.random()<.35) s.obst=20+Math.floor(Math.random()*65);
  renderPoppyPlay();
 }
-function ppJump(){ if(ppGame&&ppGame.cfg.type==='run'){ ppGame.state.jump=true; ppGame.msg='Jump!'; renderPoppyPlay(); } }
+function ppJump(){ if(ppGame&&ppGame.cfg.type==='run'){ ppGame.state.jump=true; ppGame.state.pose='run'; ppGame.msg='Jump!'; ppRunAdvance(); } }
 function ppTapColor(c){
  if(!ppGame||ppGame.cfg.type!=='code'||ppGame.won) return;
  const s=ppGame.state;
  s.input.push(c);
- if(s.input[s.input.length-1]!==s.seq[s.input.length-1]){ ppGame.lost=true; ppGame.msg='Wrong code!'; renderPoppyPlay(); return; }
+ if(s.input[s.input.length-1]!==s.seq[s.input.length-1]){ ppGame.lost=true; ppGame.msg='Wrong!'; renderPoppyPlay(); return; }
  if(s.input.length>=s.seq.length) ppWinChapter();
  renderPoppyPlay();
 }
@@ -9829,22 +9977,19 @@ function ppTapMem(c){
  if(!ppGame||ppGame.cfg.type!=='memory'||ppGame.state.phase!=='input'||ppGame.won) return;
  const s=ppGame.state;
  s.input.push(c);
- if(s.input[s.input.length-1]!==s.seq[s.input.length-1]){ ppGame.lost=true; ppGame.msg='Wrong pattern!'; renderPoppyPlay(); return; }
-  if(s.input.length>=s.seq.length){
-   if(s.seq.length>=3){ ppWinChapter(); renderPoppyPlay(); return; }
-   s.seq.push(Math.floor(Math.random()*4));
-  s.show=0; s.phase='show'; s.input=[]; ppGame.msg='Next round!';
-  renderPoppyPlay();
-  setTimeout(ppMemoryShow,600);
+ if(s.input[s.input.length-1]!==s.seq[s.input.length-1]){ ppGame.lost=true; ppGame.msg='Wrong!'; renderPoppyPlay(); return; }
+ if(s.input.length>=s.seq.length){
+  if(s.seq.length>=3){ ppWinChapter(); renderPoppyPlay(); return; }
+  s.seq.push(Math.floor(Math.random()*4)); s.show=0; s.phase='show'; s.input=[]; renderPoppyPlay(); setTimeout(ppMemoryShow,600);
  }
  renderPoppyPlay();
 }
 function ppTimingStop(){
  if(!ppGame||ppGame.cfg.type!=='timing'||ppGame.won||ppGame.lost) return;
  const s=ppGame.state;
- const inZone=s.needle>=s.zone&&s.needle<=s.zone+18;
- if(inZone){ s.hits++; ppGame.msg=`Nice! ${s.hits}/${s.need}`; if(s.hits>=s.need){ if(ppGame.loop)clearInterval(ppGame.loop); ppWinChapter(); } else s.zone=15+Math.random()*55; }
- else{ ppGame.lost=true; ppGame.msg='Missed!'; if(ppGame.loop)clearInterval(ppGame.loop); }
+ const ok=s.needle>=s.zone&&s.needle<=s.zone+18;
+ if(ok){ s.hits++; ppGame.msg=`Hit! ${s.hits}/${s.need}`; if(s.hits>=s.need){ clearInterval(ppGame.loop); ppWinChapter(); } else s.zone=15+Math.random()*55; }
+ else{ ppGame.lost=true; ppGame.msg='Missed!'; clearInterval(ppGame.loop); }
  renderPoppyPlay();
 }
 function ppOrderFloor(f){
@@ -9856,55 +10001,44 @@ function ppOrderFloor(f){
 }
 function ppChaseRun(){
  if(!ppGame||ppGame.cfg.type!=='chase'||ppGame.won||ppGame.lost) return;
- ppGame.state.run++;
- ppGame.state.monster=Math.max(0,ppGame.state.monster-4);
- if(ppGame.state.run>=ppGame.state.need){ if(ppGame.loop)clearInterval(ppGame.loop); ppWinChapter(); }
+ const s=ppGame.state;
+ s.run++; s.monster=Math.max(0,s.monster-4); s.px=Math.min(75,35+s.run*1.8); s.pose='run';
+ if(s.run>=s.need){ clearInterval(ppGame.loop); ppWinChapter(); }
  renderPoppyPlay();
+}
+function ppPuzzleOverlay(c,s){
+ if(c.type==='wire') return `<div class="pp-wires">${s.pool.map((col,i)=>col==='done'?`<div class="pp-wire done">✓</div>`:`<button type="button" class="pp-wire${s.sel===i?' sel':''}" style="background:${col}" onclick="ppTapWire(${i})">⚡</button>`).join('')}</div>`;
+ if(c.type==='maze') return `<div class="pp-maze" style="grid-template-columns:repeat(${s.maze[0].length},1fr)">${s.maze.map((row,y)=>row.split('').map((cell,x)=>`<button type="button" class="${s.x===x&&s.y===y?'you':cell==='G'?'goal':cell==='#'?'wall':''}" ${cell==='#'?'disabled':''}>${cell==='G'?'🚪':s.x===x&&s.y===y?'':'·'}</button>`).join('')).join('')}</div><div class="pp-controls"><button type="button" class="pp-btn" onclick="ppMazeMove(-1,0)">←</button><button type="button" class="pp-btn" onclick="ppMazeMove(0,-1)">↑</button><button type="button" class="pp-btn" onclick="ppMazeMove(0,1)">↓</button><button type="button" class="pp-btn" onclick="ppMazeMove(1,0)">→</button></div>`;
+ if(c.type==='code') return `<div class="pp-code">${PP_COLORS.map((col,i)=>`<button type="button" style="background:${col}" onclick="ppTapColor(${i})"></button>`).join('')}</div>`;
+ if(c.type==='memory') return `<div class="pp-code">${PP_COLORS.map((col,i)=>`<button type="button" style="background:${col};opacity:${s.flash===i?1:.35}" onclick="ppTapMem(${i})"></button>`).join('')}</div>`;
+ if(c.type==='timing') return `<div class="pp-timing"><div class="zone" style="left:${s.zone}%;width:18%"></div><div class="needle" style="left:${s.needle}%"></div></div><button type="button" class="pp-btn wide" onclick="ppTimingStop()">STOP!</button>`;
+ if(c.type==='order') return `<div class="pp-controls">${[0,1,2,3].map(i=>`<button type="button" class="pp-btn" onclick="ppOrderFloor(${i})">Floor ${i+1}</button>`).join('')}</div>`;
+ if(c.type==='chase') return `<div class="pp-bar-wrap"><div class="pp-bar" style="width:${(s.run/s.need)*100}%"></div></div><button type="button" class="pp-btn wide" onclick="ppChaseRun()">RUN!!!</button>`;
+ if(c.type==='run') return `<button type="button" class="pp-btn wide" onclick="ppRunAdvance()">Run ▶</button>`;
+ if(c.type==='sneak') return `<div class="pp-controls"><button type="button" class="pp-btn" onclick="ppSneakHide()">Hide</button><button type="button" class="pp-btn" onclick="ppSneakMove()">Move</button></div>`;
+ return '';
 }
 function renderPoppyPlay(){
  const scr=document.getElementById('pp-screen');
  if(!scr||!ppGame) return;
  const g=ppGame,c=g.cfg,s=g.state;
  if(g.won){
-  scr.innerHTML=`<div class="pp-end"><div class="big">🎉</div><h2>Chapter ${c.n} Complete!</h2><p class="pp-msg">${c.n<10?'Next chapter unlocked.':'You beat all 10 chapters!'}</p><button type="button" class="pp-btn wide" onclick="closePoppyPlay();buildPoppyHub();switchView('poppy')">Back to Chapters</button>${c.n<10?`<button type="button" class="pp-btn wide ghost" onclick="playPoppyChapter(${c.n+1})">Chapter ${c.n+1} →</button>`:''}</div>`;
+  scr.innerHTML=`<div class="pp-end" style="padding:40px 20px"><div class="pp-player-wrap" style="position:relative;left:auto;transform:none;margin:0 auto 16px">${ppPlayerSVG(100,'idle')}</div><div class="big">🎉</div><h2>Chapter ${c.n} Complete!</h2><p class="pp-msg">${c.n<10?'Next chapter unlocked!':'You escaped all 10 chapters!'}</p><button type="button" class="pp-btn wide" onclick="closePoppyPlay();buildPoppyHub();switchView('poppy')">Back to Chapters</button>${c.n<10?`<button type="button" class="pp-btn wide ghost" onclick="playPoppyChapter(${c.n+1})">Chapter ${c.n+1} →</button>`:''}</div>`;
   return;
  }
  if(g.lost){
-  scr.innerHTML=`<div class="pp-end"><div class="big">😱</div><h2>Chapter Failed</h2><p class="pp-msg">${g.msg}</p><button type="button" class="pp-btn wide" onclick="playPoppyChapter(${c.n})">Try Again</button><button type="button" class="pp-btn wide ghost" onclick="closePoppyPlay();switchView('poppy')">Quit</button></div>`;
+  scr.innerHTML=`<div class="pp-end" style="padding:40px 20px">${ppMonsterSVG(c.type==='chase'?'chase':'toy',90)}<h2>Chapter Failed</h2><p class="pp-msg">${g.msg}</p><button type="button" class="pp-btn wide" onclick="playPoppyChapter(${c.n})">Try Again</button><button type="button" class="pp-btn wide ghost" onclick="closePoppyPlay();switchView('poppy')">Quit</button></div>`;
   return;
  }
- let body='';
- if(c.type==='search'){
-  body=`<div class="pp-spots">${Array.from({length:s.spots},(_,i)=>`<button type="button" class="pp-spot${s.found.has(i)?(s.items.has(i)?' found':' empty'):''}" onclick="ppTapSpot(${i})">${s.found.has(i)?(s.items.has(i)?'🧩':'—'):'📦'}</button>`).join('')}</div><p style="text-align:center;font-size:13px">Parts: ${[...s.items].filter(i=>s.found.has(i)).length}/${c.need}</p>`;
- }else if(c.type==='wire'){
-  body=`<div class="pp-wires">${s.pool.map((col,i)=>col==='done'?`<div class="pp-wire done">✓</div>`:`<button type="button" class="pp-wire${s.sel===i?' sel':''}" style="background:${col}" onclick="ppTapWire(${i})">⚡</button>`).join('')}</div>`;
- }else if(c.type==='sneak'){
-  body=`<div class="pp-monster${s.looking?' close':''}">🧸</div><p style="text-align:center">${s.looking?'👀 Looking!':'😴 Distracted'}</p><div class="pp-bar-wrap"><div class="pp-bar" style="width:${(s.step/s.steps)*100}%"></div></div><div class="pp-controls"><button type="button" class="pp-btn" onclick="ppSneakHide()">Hide</button><button type="button" class="pp-btn" onclick="ppSneakMove()">Move</button></div>`;
- }else if(c.type==='maze'){
-  const rows=s.maze.map((row,y)=>row.split('').map((cell,x)=>{
-   if(cell==='#') return `<button type="button" class="wall" disabled> </button>`;
-   const cls=(s.x===x&&s.y===y)?'you':(cell==='G'?'goal':'');
-   return `<button type="button" class="${cls}" onclick="${cls==='you'||cell==='G'?'':''}">${cell==='G'?'🚪':cell==='S'?'':''}</button>`;
-  }).join('')).join('');
-  body=`<div class="pp-maze" style="grid-template-columns:repeat(${s.maze[0].length},1fr)">${s.maze.map((row,y)=>row.split('').map((cell,x)=>{
-   if(cell==='#') return `<button type="button" class="wall" disabled></button>`;
-   const isYou=s.x===x&&s.y===y;
-   return `<button type="button" class="${isYou?'you':cell==='G'?'goal':''}">${cell==='G'?'🚪':isYou?'🏃':'·'}</button>`;
-  }).join('')).join('')}</div><div class="pp-controls"><button type="button" class="pp-btn" onclick="ppMazeMove(-1,0)">←</button><button type="button" class="pp-btn" onclick="ppMazeMove(0,-1)">↑</button><button type="button" class="pp-btn" onclick="ppMazeMove(0,1)">↓</button><button type="button" class="pp-btn" onclick="ppMazeMove(1,0)">→</button></div>`;
- }else if(c.type==='run'){
-  body=`<div class="pp-bar-wrap"><div class="pp-bar" style="width:${s.x}%"></div></div><p style="text-align:center">Gap at ${Math.round(s.obst)}%</p><div class="pp-controls"><button type="button" class="pp-btn" onclick="ppJump()">Jump</button><button type="button" class="pp-btn" onclick="ppRunAdvance()">Run ▶</button></div>`;
- }else if(c.type==='code'){
-  body=`<div class="pp-code">${PP_COLORS.map((col,i)=>`<button type="button" style="background:${col}" onclick="ppTapColor(${i})"></button>`).join('')}</div><p style="text-align:center;font-size:12px">Code length: ${s.input.length}/${s.seq.length}</p>`;
- }else if(c.type==='memory'){
-  body=`<div class="pp-code">${PP_COLORS.map((col,i)=>`<button type="button" style="background:${col};opacity:${s.flash===i?1:.35}" onclick="ppTapMem(${i})"></button>`).join('')}</div>`;
- }else if(c.type==='timing'){
-  body=`<div class="pp-timing"><div class="zone" style="left:${s.zone}%;width:18%"></div><div class="needle" style="left:${s.needle}%"></div></div><button type="button" class="pp-btn wide" onclick="ppTimingStop()">STOP!</button><p style="text-align:center">${s.hits}/${s.need} hits</p>`;
- }else if(c.type==='order'){
-  body=`<div class="pp-controls">${[0,1,2,3].map(i=>`<button type="button" class="pp-btn" onclick="ppOrderFloor(${i})">Floor ${i+1}</button>`).join('')}</div>`;
- }else if(c.type==='chase'){
-  body=`<div class="pp-monster close" style="transform:scale(${1+s.monster/80})">👹</div><div class="pp-bar-wrap"><div class="pp-bar" style="width:${(s.run/s.need)*100}%"></div></div><button type="button" class="pp-btn wide" onclick="ppChaseRun()">RUN!!!</button>`;
- }
- scr.innerHTML=`<div class="pp-top"><span>Chapter ${c.n}/10</span><button type="button" class="pp-btn ghost" style="padding:8px 12px;min-height:auto" onclick="closePoppyPlay();switchView('poppy')">✕</button></div><div class="pp-room"><div class="pp-title">${c.emoji} ${c.name}</div><div class="pp-msg">${g.msg}</div>${body}</div>`;
+ const puzzle=ppPuzzleOverlay(c,s);
+ scr.innerHTML=`<div class="pp-top"><span>Chapter ${c.n}/10</span><button type="button" class="pp-btn ghost" style="padding:8px 12px;min-height:auto" onclick="closePoppyPlay();switchView('poppy')">✕</button></div>
+ ${ppRenderWorld()}
+ <div class="pp-overlay">
+  <div class="pp-title">${c.emoji} ${c.name}</div>
+  <div class="pp-msg">${g.msg}</div>
+  ${puzzle}
+  ${ppDpad()}
+ </div>`;
 }
 
 (function openHashView(){
