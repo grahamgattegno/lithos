@@ -1248,6 +1248,17 @@
   .poppy-device-hint{font-size:12px;line-height:1.5;color:var(--text-dim);margin:12px 0 0}
   .pp-keys{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:12px auto 0;max-width:360px}
   .pp-keys span{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;background:rgba(255,77,141,.12);border:1px solid rgba(255,120,180,.25);padding:8px 10px;border-radius:8px;color:#ffb8d4}
+  @media (min-width:768px){
+    #poppyplay .pp-screen{max-width:960px}
+    #poppyplay .pp-scene{min-height:420px}
+    #poppyplay.pp-computer .pp-dpad{display:none!important}
+    #poppyplay.pp-computer .pp-keys{display:flex!important}
+    #poppyplay.pp-computer .pp-overlay{padding:16px 24px 20px}
+    #poppyplay.pp-computer .pp-hud-pill{font-size:11px;padding:7px 12px}
+    .pp-keys span{font-size:11px;padding:10px 14px}
+  }
+  #poppyplay.pp-mobile .pp-keys{display:none}
+  #poppyplay.pp-computer .pp-dpad{display:none}
   .poppy-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-top:24px}
   .poppy-ch{
     background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 14px;
@@ -1418,8 +1429,168 @@
   .pp-music-glow{position:absolute;inset:0;pointer-events:none;z-index:1;background:radial-gradient(circle at 50% 40%,rgba(120,80,255,.12),transparent 55%);animation:ppMusicPulse 2s ease-in-out infinite alternate}
   @keyframes ppMusicPulse{from{opacity:.3}to{opacity:.8}}
   .pp-whisper{position:absolute;bottom:52%;left:50%;transform:translateX(-50%);z-index:6;font-family:var(--serif);font-style:italic;font-size:14px;color:rgba(255,150,180,.7);pointer-events:none;animation:ppFadePrint 3s ease-out forwards;text-align:center;max-width:90%}
+  /* Playtime Co — VHS, gore, branding */
+  .pp-vhs{position:fixed;inset:0;z-index:10002;background:#0a0810;display:flex;flex-direction:column;align-items:center;justify-content:center;animation:ppVhsOut 2.8s ease-out forwards}
+  @keyframes ppVhsOut{0%,75%{opacity:1}100%{opacity:0;pointer-events:none}}
+  .pp-vhs-static{position:absolute;inset:0;opacity:.12;background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(255,255,255,.4) 2px 3px);animation:ppVhsStatic .08s steps(4) infinite}
+  @keyframes ppVhsStatic{0%{transform:translateY(0)}100%{transform:translateY(4px)}}
+  .pp-vhs-logo{font-family:var(--mono);font-size:clamp(28px,8vw,42px);font-weight:900;color:#ffd700;letter-spacing:.2em;text-shadow:0 0 20px rgba(255,215,0,.5),2px 2px 0 #c0392b;z-index:1}
+  .pp-vhs-sub{font-family:var(--mono);font-size:11px;color:#888;letter-spacing:.3em;margin-top:8px;z-index:1}
+  .pp-vhs-rec{color:#ff0040;font-size:12px;margin-top:16px;animation:ppRecBlink 1s steps(2) infinite;z-index:1}
+  @keyframes ppRecBlink{50%{opacity:0}}
+  .pp-playtime-sign{position:absolute;top:18%;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:9px;letter-spacing:.25em;color:rgba(255,215,0,.35);z-index:2;white-space:nowrap}
+  .pp-blood{position:absolute;pointer-events:none;z-index:2;opacity:.55}
+  .pp-blood-1{left:8%;bottom:38%;width:40px;height:50px;background:radial-gradient(ellipse,#8b0000 30%,transparent 70%);transform:rotate(-15deg)}
+  .pp-blood-2{right:12%;bottom:42%;width:30px;height:40px;background:radial-gradient(ellipse,#6b0000 40%,transparent 70%)}
+  .pp-blood-3{left:45%;bottom:35%;width:24px;height:30px;background:radial-gradient(ellipse,#5a0000 50%,transparent 70%);opacity:.35}
+  .pp-scratch{position:absolute;pointer-events:none;z-index:2;opacity:.25}
+  .pp-scratch::before,.pp-scratch::after{content:'';position:absolute;width:2px;height:40px;background:linear-gradient(180deg,#4a2020,transparent);transform:rotate(25deg)}
+  .pp-scratch::after{transform:rotate(-18deg);left:8px;height:30px}
+  .pp-gore-overlay{position:absolute;inset:0;pointer-events:none;z-index:10;background:radial-gradient(ellipse at center,rgba(139,0,0,.7) 0%,rgba(80,0,0,.85) 40%,rgba(20,0,0,.95) 100%);opacity:0;transition:opacity .3s}
+  .pp-gore-overlay.on{opacity:1}
+  .pp-death-screen{background:linear-gradient(180deg,#1a0008,#0a0004)!important}
+  .pp-death-screen .pp-death-blood{position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cellipse cx='100' cy='100' rx='90' ry='80' fill='%238b0000' opacity='.6'/%3E%3Cellipse cx='60' cy='80' rx='30' ry='25' fill='%236b0000'/%3E%3Cellipse cx='140' cy='90' rx='35' ry='28' fill='%237a0000'/%3E%3C/svg%3E") center/cover;opacity:.5}
+  .pp-death-title{font-family:var(--mono);font-size:clamp(32px,10vw,48px);color:#ff0040;text-shadow:0 0 30px rgba(255,0,60,.8);letter-spacing:.15em;margin:16px 0}
+  .pp-death-sub{color:#aa6060;font-size:14px;line-height:1.6}
+  .pp-monster-name{position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:8px;letter-spacing:.12em;color:#ff6080;white-space:nowrap;text-transform:uppercase}
+  .pp-scene.chase .pp-playtime-sign{color:rgba(255,0,60,.5)}
+  .pp-action-flash{position:absolute;inset:0;pointer-events:none;z-index:11;background:rgba(255,255,255,.15);animation:ppStompFlash .15s ease-out forwards}
 
-  /* ===== NIGHT SHIFT AT THE GEM FACTORY ===== */
+  /* ===== REALISTIC 3D VISUALS ===== */
+  .pp-r3d{position:relative;transform-style:preserve-3d}
+  .pp-spotlight{position:absolute;top:0;left:50%;transform:translateX(-50%);width:120%;height:55%;background:radial-gradient(ellipse 45% 80% at 50% 0%,rgba(255,230,180,.14),transparent 70%);pointer-events:none;z-index:2}
+  .pp-scene-lights{background:radial-gradient(ellipse 60% 45% at 50% 0%,rgba(255,220,160,.1),transparent 65%),linear-gradient(180deg,rgba(0,0,0,.2),transparent 40%)}
+  .pp-floor{background:linear-gradient(180deg,#3a3a42 0%,#1a1a22 35%,#0c0c12 100%);
+    background-image:
+      repeating-linear-gradient(90deg,rgba(255,255,255,.04) 0 1px,transparent 1px 64px),
+      repeating-linear-gradient(0deg,rgba(255,255,255,.03) 0 1px,transparent 1px 64px),
+      radial-gradient(circle at 20% 30%,rgba(80,80,90,.15),transparent 40%);
+    box-shadow:0 -40px 100px rgba(0,0,0,.6) inset,0 -8px 30px rgba(255,200,120,.04) inset}
+  .pp-wall{background:linear-gradient(180deg,#2a2a32 0%,#14141a 55%,#0a0a10 100%);
+    box-shadow:inset -8px 0 24px rgba(0,0,0,.5),inset 8px 0 24px rgba(0,0,0,.3);
+    background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.02) 0 48px,transparent 48px 96px)}
+  .pp-back-wall{background:linear-gradient(180deg,#32323c,#181820 60%,#0e0e14);
+    box-shadow:inset 0 -20px 60px rgba(0,0,0,.7),0 0 40px rgba(0,0,0,.4);
+    background-image:linear-gradient(90deg,rgba(0,0,0,.15) 0%,transparent 20%,transparent 80%,rgba(0,0,0,.15))}
+  .pp-ceiling{background:linear-gradient(180deg,#0e0e14,#1a1a22);border-bottom:3px solid #2a2a34;
+    box-shadow:0 8px 30px rgba(0,0,0,.8);background-image:repeating-linear-gradient(90deg,rgba(255,255,255,.03) 0 80px,transparent 80px 160px)}
+  .pp-pipe{background:linear-gradient(180deg,#6a6a72,#3a3a42 40%,#2a2a32);box-shadow:0 4px 12px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.15)}
+
+  /* Realistic props */
+  .pp-obj-crate{width:clamp(44px,12vw,62px);height:clamp(38px,10vw,52px);position:relative;
+    background:linear-gradient(145deg,#9a7a52 0%,#6a5038 25%,#4a3828 60%,#2a2018 100%);
+    border:1px solid #3a2a18;border-radius:3px;
+    box-shadow:0 14px 28px rgba(0,0,0,.65),inset 0 2px 4px rgba(255,220,180,.12),inset 0 -4px 8px rgba(0,0,0,.4);
+    transform:perspective(200px) rotateX(8deg)}
+  .pp-obj-crate::before{content:'';position:absolute;inset:8px 6px;border:2px solid rgba(0,0,0,.25);border-radius:2px}
+  .pp-obj-crate::after{content:'';position:absolute;left:10%;right:10%;top:46%;height:4px;background:rgba(0,0,0,.35);box-shadow:0 8px 0 rgba(0,0,0,.2)}
+  .pp-obj-locker{width:clamp(36px,10vw,48px);height:clamp(72px,20vw,96px);position:relative;
+    background:linear-gradient(90deg,#5a6068 0%,#3a4048 35%,#2a3038 65%,#4a5058 100%);
+    border:2px solid #6a7078;border-radius:3px;
+    box-shadow:0 16px 32px rgba(0,0,0,.6),inset 2px 0 8px rgba(255,255,255,.08),inset -2px 0 8px rgba(0,0,0,.3);
+    transform:perspective(180px) rotateY(-5deg)}
+  .pp-obj-locker::before{content:'';position:absolute;left:50%;top:12%;bottom:12%;width:2px;background:rgba(0,0,0,.3);transform:translateX(-50%)}
+  .pp-obj-locker::after{content:'';position:absolute;right:8px;top:50%;width:8px;height:8px;background:radial-gradient(circle,#aaa,#666);border-radius:50%;box-shadow:inset 0 1px 2px rgba(0,0,0,.5)}
+  .pp-obj-door{width:clamp(48px,13vw,68px);height:clamp(82px,22vw,110px);position:relative;
+    background:linear-gradient(180deg,#4a4a54 0%,#2a2a32 40%,#1a1a22 100%);
+    border:3px solid #ffd700;border-radius:4px 4px 0 0;
+    box-shadow:0 0 30px rgba(255,215,0,.25),0 12px 28px rgba(0,0,0,.6),inset 0 0 40px rgba(0,0,0,.5);
+    transform:perspective(200px) rotateX(5deg)}
+  .pp-obj-door::before{content:'';position:absolute;inset:8px;border:1px solid rgba(255,215,0,.2);border-radius:2px}
+  .pp-obj-door::after{content:'';position:absolute;right:10px;top:50%;width:10px;height:10px;background:radial-gradient(circle,#ffd700,#aa8800);border-radius:50%;box-shadow:0 0 8px rgba(255,215,0,.5)}
+  .pp-obj-door.locked{border-color:#4a4a54;box-shadow:0 8px 20px rgba(0,0,0,.5);opacity:.55}
+  .pp-obj-door.locked::after{background:#555;box-shadow:none}
+  .pp-obj-console{background:linear-gradient(180deg,#2a3840,#141c22);border:2px solid #5a8090;
+    box-shadow:0 8px 20px rgba(0,0,0,.55),inset 0 0 20px rgba(80,180,200,.08),0 0 15px rgba(80,180,200,.1)}
+  .pp-obj-lever{background:linear-gradient(180deg,#3a3848,#181820);box-shadow:0 10px 22px rgba(0,0,0,.55),inset 0 2px 0 rgba(255,255,255,.06)}
+  .pp-obj-lever::before{background:linear-gradient(180deg,#cc2244,#881133);box-shadow:0 0 10px rgba(255,50,80,.4)}
+
+  /* Realistic player — 3rd person from behind */
+  .pp-rplayer{width:var(--pp-sz,96px);height:calc(var(--pp-sz,96px)*1.35);position:relative;filter:drop-shadow(0 12px 20px rgba(0,0,0,.7))}
+  .pp-rplayer .pp-rlegs{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:70%;height:38%;display:flex;justify-content:center;gap:8%}
+  .pp-rplayer .pp-rleg{width:22%;height:100%;background:linear-gradient(90deg,#1a2840,#243858 50%,#1a2840);border-radius:4px 4px 6px 6px;box-shadow:inset 0 2px 0 rgba(255,255,255,.06),0 4px 8px rgba(0,0,0,.5)}
+  .pp-rplayer.run .pp-rleg-left{transform:rotate(-18deg);transform-origin:top center}
+  .pp-rplayer.run .pp-rleg-right{transform:rotate(18deg);transform-origin:top center}
+  .pp-rplayer.walk .pp-rleg-left{transform:rotate(10deg);transform-origin:top center}
+  .pp-rplayer.walk .pp-rleg-right{transform:rotate(-10deg);transform-origin:top center}
+  .pp-rplayer .pp-rtorso{position:absolute;bottom:32%;left:50%;transform:translateX(-50%);width:52%;height:38%;
+    background:linear-gradient(180deg,#2a4060 0%,#1a3050 40%,#142840 100%);border-radius:8px 8px 6px 6px;
+    box-shadow:inset 0 3px 6px rgba(255,255,255,.08),0 6px 14px rgba(0,0,0,.5)}
+  .pp-rplayer .pp-rbackpack{position:absolute;top:8%;left:50%;transform:translateX(-50%);width:60%;height:55%;
+    background:linear-gradient(180deg,#3a4858,#2a3848);border-radius:6px;border:2px solid #4a5868;
+    box-shadow:inset 0 2px 4px rgba(255,255,255,.1),0 4px 10px rgba(0,0,0,.4)}
+  .pp-rplayer .pp-rhead{position:absolute;top:0;left:50%;transform:translateX(-50%);width:36%;height:22%;
+    background:radial-gradient(ellipse at 40% 35%,#e8c8a8,#c8a888);border-radius:50% 50% 45% 45%;
+    box-shadow:0 4px 10px rgba(0,0,0,.4),inset 0 -2px 4px rgba(0,0,0,.15)}
+  .pp-rplayer .pp-rhelmet{position:absolute;top:-4%;left:50%;transform:translateX(-50%);width:42%;height:14%;
+    background:linear-gradient(180deg,#ffd700,#cc9900);border-radius:50% 50% 0 0;opacity:.85}
+  .pp-rplayer .pp-rarm-l{position:absolute;bottom:38%;left:8%;width:14%;height:32%;background:linear-gradient(90deg,#243858,#1a2840);border-radius:4px;transform:rotate(12deg);box-shadow:0 4px 8px rgba(0,0,0,.4)}
+  .pp-rplayer .pp-rgrabpack{position:absolute;bottom:42%;right:-8%;width:55%;height:12%;transform-origin:left center;transform:rotate(-8deg)}
+  .pp-rplayer.grab .pp-rgrabpack{transform:rotate(-35deg) scale(1.05)}
+  .pp-rplayer .pp-rgrab-arm{height:100%;background:linear-gradient(90deg,#2a3848,#1a2838);border-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,.5);position:relative}
+  .pp-rplayer .pp-rgrab-arm::after{content:'';position:absolute;right:-18%;top:50%;transform:translateY(-50%);width:22%;height:140%;
+    background:linear-gradient(180deg,#3a90e8,#1565b8);border-radius:50%;box-shadow:0 0 12px rgba(60,140,220,.4),inset 0 -4px 8px rgba(0,0,0,.3)}
+  .pp-rplayer.crouch{transform:scale(.88) translateY(10%)}
+  .pp-rplayer.crouch .pp-rtorso{height:32%}
+
+  /* Huggy Wuggy — realistic fuzzy toy */
+  .pp-rhuggy{width:var(--pp-msz,80px);height:calc(var(--pp-msz,80px)*1.6);position:relative;filter:drop-shadow(0 16px 30px rgba(0,0,0,.8))}
+  .pp-rhuggy .pp-rh-body{position:absolute;bottom:18%;left:50%;transform:translateX(-50%);width:55%;height:55%;
+    background:radial-gradient(ellipse at 35% 25%,#4a8ae8,#2560b0 40%,#1a4080 100%);
+    border-radius:40% 40% 35% 35%;
+    box-shadow:inset 0 -8px 20px rgba(0,0,0,.4),inset 0 4px 12px rgba(100,160,255,.2),0 8px 20px rgba(0,0,0,.5);
+    background-image:repeating-radial-gradient(circle at 20% 30%,rgba(255,255,255,.06) 0 2px,transparent 2px 6px)}
+  .pp-rhuggy .pp-rh-head{position:absolute;top:8%;left:50%;transform:translateX(-50%);width:48%;height:38%;
+    background:radial-gradient(ellipse at 40% 30%,#5a9af0,#2868c0 50%,#1a4890);
+    border-radius:45% 45% 40% 40%;box-shadow:inset 0 -6px 16px rgba(0,0,0,.35),0 6px 16px rgba(0,0,0,.5);
+    background-image:repeating-radial-gradient(circle at 30% 40%,rgba(255,255,255,.07) 0 1px,transparent 1px 5px)}
+  .pp-rhuggy .pp-rh-eye{position:absolute;top:38%;width:14%;height:12%;background:#0a0a0a;border-radius:50%;box-shadow:inset 0 0 6px #000}
+  .pp-rhuggy .pp-rh-eye-l{left:22%}.pp-rhuggy .pp-rh-eye-r{right:22%}
+  .pp-rhuggy .pp-rh-pupil{position:absolute;top:25%;left:25%;width:50%;height:50%;background:#ff0020;border-radius:50%;box-shadow:0 0 8px rgba(255,0,40,.8)}
+  .pp-rhuggy.alert .pp-rh-pupil,.pp-rhuggy.chase .pp-rh-pupil{animation:ppEyeGlow .4s ease-in-out infinite alternate}
+  .pp-rhuggy .pp-rh-mouth{position:absolute;bottom:18%;left:50%;transform:translateX(-50%);width:50%;height:16%;overflow:hidden}
+  .pp-rhuggy .pp-rh-mouth-inner{width:100%;height:100%;background:#1a0810;border-radius:0 0 40% 40%;border:2px solid #0a0408}
+  .pp-rhuggy.chase .pp-rh-teeth{position:absolute;bottom:0;left:0;right:0;height:60%;display:flex;justify-content:center;gap:2px;padding:0 8%}
+  .pp-rhuggy.chase .pp-rh-teeth span{display:block;width:8%;height:100%;background:linear-gradient(180deg,#eee,#aaa);clip-path:polygon(50% 0,0 100%,100% 100%)}
+  .pp-rhuggy .pp-rh-hand{position:absolute;bottom:28%;width:18%;height:22%;background:radial-gradient(ellipse,#ffd700,#cc9900);border-radius:50%;box-shadow:0 4px 10px rgba(0,0,0,.5)}
+  .pp-rhuggy .pp-rh-hand-l{left:-4%}.pp-rhuggy .pp-rh-hand-r{right:-4%}
+  .pp-rhuggy .pp-rh-foot{position:absolute;bottom:0;width:20%;height:14%;background:radial-gradient(ellipse,#ffd700,#aa7700);border-radius:50% 50% 40% 40%;box-shadow:0 4px 8px rgba(0,0,0,.5)}
+  .pp-rhuggy .pp-rh-foot-l{left:18%}.pp-rhuggy .pp-rh-foot-r{right:18%}
+  .pp-rhuggy .pp-rh-limb{position:absolute;background:radial-gradient(ellipse at 30% 30%,#4a8ae8,#2560b0);border-radius:40%;box-shadow:inset 0 -4px 8px rgba(0,0,0,.3)}
+  .pp-rhuggy .pp-rh-limb-tl{top:0;left:-8%;width:14%;height:35%;transform:rotate(-25deg)}
+  .pp-rhuggy .pp-rh-limb-tr{top:0;right:-8%;width:14%;height:35%;transform:rotate(25deg)}
+
+  /* Mommy Long Legs */
+  .pp-rmommy{width:var(--pp-msz,70px);height:calc(var(--pp-msz,70px)*2);position:relative;filter:drop-shadow(0 16px 30px rgba(0,0,0,.8))}
+  .pp-rmommy .pp-rm-body{position:absolute;top:18%;left:50%;transform:translateX(-50%);width:35%;height:28%;
+    background:radial-gradient(ellipse,#e878a8,#c04070);border-radius:50%;box-shadow:inset 0 -6px 12px rgba(0,0,0,.3)}
+  .pp-rmommy .pp-rm-head{position:absolute;top:0;left:50%;transform:translateX(-50%);width:30%;height:20%;
+    background:radial-gradient(ellipse,#f088b8,#d05080);border-radius:50%}
+  .pp-rmommy .pp-rm-eye{position:absolute;top:35%;width:18%;height:14%;background:#111;border-radius:50%}
+  .pp-rmommy .pp-rm-eye-l{left:18%}.pp-rmommy .pp-rm-eye-r{right:18%}
+  .pp-rmommy .pp-rm-pupil{position:absolute;top:20%;left:20%;width:60%;height:60%;background:#ff0040;border-radius:50%;box-shadow:0 0 6px rgba(255,0,60,.8)}
+  .pp-rmommy .pp-rm-limb{position:absolute;width:8%;background:linear-gradient(180deg,#e878a8,#a03060);border-radius:999px;box-shadow:0 4px 10px rgba(0,0,0,.4)}
+  .pp-rmommy .pp-rm-l1{bottom:0;left:10%;height:55%;transform:rotate(-12deg)}
+  .pp-rmommy .pp-rm-l2{bottom:0;left:28%;height:62%;transform:rotate(-4deg)}
+  .pp-rmommy .pp-rm-l3{bottom:0;right:28%;height:58%;transform:rotate(4deg)}
+  .pp-rmommy .pp-rm-l4{bottom:0;right:10%;height:52%;transform:rotate(12deg)}
+
+  /* Boxy Boo */
+  .pp-rboxy{width:var(--pp-msz,72px);height:var(--pp-msz,72px);position:relative;filter:drop-shadow(0 14px 24px rgba(0,0,0,.8))}
+  .pp-rboxy .pp-rb-box{width:100%;height:100%;background:linear-gradient(145deg,#8a6840,#5a4028 50%,#3a2818);
+    border:3px solid #4a3828;border-radius:4px;box-shadow:inset 0 4px 8px rgba(255,220,180,.1),0 8px 16px rgba(0,0,0,.6);
+    transform:perspective(120px) rotateX(5deg)}
+  .pp-rboxy .pp-rb-eye{position:absolute;top:30%;width:22%;height:18%;background:#111;border-radius:4px;border:2px solid #333}
+  .pp-rboxy .pp-rb-eye-l{left:18%}.pp-rboxy .pp-rb-eye-r{right:18%}
+  .pp-rboxy .pp-rb-pupil{position:absolute;top:15%;left:15%;width:70%;height:70%;background:#ff0040;border-radius:2px}
+  .pp-rboxy.chase .pp-rb-jaw{position:absolute;bottom:8%;left:50%;transform:translateX(-50%);width:60%;height:20%;background:#1a0810;border-radius:0 0 8px 8px;border-top:3px solid #333}
+
+  .pp-monster-far{filter:drop-shadow(0 12px 24px rgba(0,0,0,.7))}
+  .pp-monster-far.alert{filter:drop-shadow(0 0 40px rgba(255,0,60,.6)) drop-shadow(0 12px 24px rgba(0,0,0,.7))}
+  .pp-player-shadow{width:clamp(60px,18vw,100px);height:clamp(10px,3vw,18px);background:radial-gradient(ellipse,rgba(0,0,0,.65),transparent 72%)}
+  .pp-mood-text-only{font-size:10px}
+  .pp-jumpscare .pp-rhuggy,.pp-jumpscare .pp-rmommy,.pp-jumpscare .pp-rboxy{--pp-msz:180px;animation:ppJumpLunge .4s ease-out}
+
   #nightshift{position:fixed;inset:0;z-index:9999;background:#0a0a10;display:flex;align-items:center;justify-content:center;padding:12px}
   .ns-screen{width:min(96vw,720px);color:#d8d0e0;font-family:var(--sans,sans-serif)}
   .ns-topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-weight:800;font-size:15px}
@@ -2797,9 +2968,9 @@
 
 <div class="view" id="view-poppy" hidden>
  <section class="poppy-wrap">
- <div class="eyebrow">Toy Factory Horror Adventure</div>
+ <div class="eyebrow">Playtime Co. — Factory Horror</div>
  <h1>Poppy <em>Playtime</em></h1>
- <p class="lede"><b>Fun + chills + everything.</b> Walk the factory in 3rd person, grab with your GrabPack, hide from toys, and sprint through epic chases. Fair, scary, and actually playable — <b>10 chapters</b>.</p>
+ <p class="lede"><b>Scary. Gory. Action.</b> Just like the real game — GrabPack hands, Huggy Wuggy chases, VHS factory horror. Sneak, grab, hide, and <b>RUN FOR YOUR LIFE</b> through 10 chapters.</p>
  <div class="poppy-char-preview" id="poppy-char-preview"></div>
  <div class="poppy-device" id="poppy-device"></div>
  <div class="poppy-grid" id="poppy-grid"></div>
@@ -9767,32 +9938,60 @@ if(!hasEmeraldGift()) setTimeout(()=>grantEmeraldGuardianGift(), 900);
 const POPPY_KEY='lithos_poppy_progress_v1';
 const POPPY_DEVICE_KEY='lithos_poppy_device_v1';
 const POPPY_CHAPTERS=[
- {n:1,name:'The Lobby',emoji:'🏭',desc:'Tutorial — grab parts, find the exit.',decor:'lobby',mode:'explore',intro:'Playcare Factory. Grab 3 toy parts from the crates, then reach the glowing exit. Something feels… off.',props:[{id:'c1',x:24,type:'crate',item:true},{id:'c2',x:46,type:'crate',item:true,whisper:true},{id:'c3',x:68,type:'crate',item:true},{id:'exit',x:93,type:'door',needs:3}]},
- {n:2,name:'Toy Hall',emoji:'🧸',desc:'Sneak past the patrol toy.',decor:'hall',mode:'patrol',intro:'You hear it before you see it. Footsteps. Hide in the lockers when it gets close — then sprint to the exit.',props:[{id:'h1',x:30,type:'hide'},{id:'h2',x:58,type:'hide'},{id:'exit',x:93,type:'door',needs:0}],monster:{x:82,dir:-1,speed:1.5,range:16,name:'Stuffy',alert:false}},
- {n:3,name:'Power Room',emoji:'⚡',desc:'Restore power. Get out.',decor:'power',mode:'explore',intro:'Total darkness. Pull the lever, then the fuse box. The exit glows when you\'re ready.',props:[{id:'lev',x:38,type:'lever'},{id:'fuse',x:62,type:'lever',needsLever:true},{id:'exit',x:93,type:'door',needs:0}]},
- {n:4,name:'Storage Bay',emoji:'📦',desc:'Hide. Move. Escape.',decor:'storage',mode:'patrol',intro:'Crates everywhere. It hunts here. Crouch at a locker when those red eyes turn toward you.',props:[{id:'h1',x:22,type:'hide'},{id:'h2',x:48,type:'hide'},{id:'h3',x:72,type:'hide'},{id:'exit',x:93,type:'door',needs:0}],monster:{x:15,dir:1,speed:1.7,range:16,name:'Stuffy'}},
- {n:5,name:'Vent Shaft',emoji:'🕳️',desc:'Epic chase — RUN!',decor:'vent',mode:'chase',intro:'CLANG CLANG CLANG — claws on metal! Head start, then HOLD Run ▶ all the way to the exit!',props:[{id:'exit',x:93,type:'door',needs:0}],monster:{x:2,speed:2.4,name:'Stuffy'}},
- {n:6,name:'The Lab',emoji:'🔬',desc:'Activate consoles. Then RUN.',decor:'lab',mode:'explore',intro:'Each console you activate… it groans louder. Hit all 4, then RUN before it fully wakes up!',props:[{id:'p1',x:22,type:'console'},{id:'p2',x:38,type:'console'},{id:'p3',x:54,type:'console'},{id:'p4',x:70,type:'console'},{id:'exit',x:93,type:'door',needs:4}]},
- {n:7,name:'Music Room',emoji:'🎵',desc:'Dance of death — hide!',decor:'music',mode:'patrol',intro:'🎵 Music plays… then STOPS. When the eyes glow — HIDE. When it passes — RUN to the exit.',props:[{id:'h1',x:35,type:'hide'},{id:'h2',x:65,type:'hide'},{id:'exit',x:93,type:'door',needs:0}],monster:{x:75,dir:-1,speed:1.8,range:17,name:'Stuffy',dance:true}},
- {n:8,name:'Loading Dock',emoji:'🚢',desc:'Sprint or be caught.',decor:'dock',mode:'chase',intro:'ALARM! The dock door is closing! Head start — sprint through before it\'s too late!',props:[{id:'exit',x:93,type:'door',needs:0}],monster:{x:3,speed:2.6,name:'Stuffy'}},
- {n:9,name:'Elevator Shaft',emoji:'🛗',desc:'Pull switches. Climb. Escape.',decor:'elevator',mode:'explore',intro:'You hear it CLIMBING below. Pull all 3 switches fast — then race to the exit!',props:[{id:'s1',x:28,type:'lever'},{id:'s2',x:50,type:'lever'},{id:'s3',x:72,type:'lever'},{id:'exit',x:93,type:'door',needs:3}]},
- {n:10,name:'Final Escape',emoji:'🏁',desc:'The ultimate chase.',decor:'escape',mode:'chase',intro:'THIS IS IT. Everything led here. Head start — RUN FOR YOUR LIFE to the gate!',props:[{id:'exit',x:93,type:'door',needs:0}],monster:{x:2,speed:2.8,name:'Stuffy'}}
+ {n:1,name:'A Tight Squeeze',emoji:'🏭',desc:'GrabPack tutorial — no monsters.',decor:'lobby',mode:'explore',noChase:true,intro:'PLAYTIME CO. — GrabPack tutorial. Grab 3 toy parts from the crates, then walk to the glowing EXIT door. No chase — take your time.',props:[{id:'c1',x:24,type:'crate',item:true},{id:'c2',x:46,type:'crate',item:true},{id:'c3',x:68,type:'crate',item:true},{id:'exit',x:88,type:'door',needs:3}]},
+ {n:2,name:'Huggy Wuggy',emoji:'💙',desc:'He sees you. HIDE.',decor:'hall',mode:'patrol',monsterType:'huggy',intro:'HUGGY WUGGY patrols the toy hall. Blue fur. Yellow hands. Sharp teeth. Hide in lockers when he turns — then RUN.',props:[{id:'h1',x:30,type:'hide'},{id:'h2',x:58,type:'hide'},{id:'exit',x:93,type:'door',needs:0}],monster:{x:82,dir:-1,speed:1.5,range:16,name:'Huggy Wuggy',type:'huggy',alert:false}},
+ {n:3,name:'Power Outage',emoji:'⚡',desc:'Darkness. Pull levers. Escape.',decor:'power',mode:'explore',monsterType:'huggy',intro:'The lights die. Something scraped against the wall. Restore power — fast.',props:[{id:'lev',x:38,type:'lever'},{id:'fuse',x:62,type:'lever',needsLever:true},{id:'exit',x:93,type:'door',needs:0}]},
+ {n:4,name:'Blood Storage',emoji:'🩸',desc:'Gore everywhere. Sneak past.',decor:'storage',mode:'patrol',monsterType:'huggy',intro:'Blood on the crates. Claw marks on the walls. Huggy hunts here. Don\'t let him see you.',props:[{id:'h1',x:22,type:'hide'},{id:'h2',x:48,type:'hide'},{id:'h3',x:72,type:'hide'},{id:'exit',x:93,type:'door',needs:0}],monster:{x:15,dir:1,speed:1.7,range:16,name:'Huggy Wuggy',type:'huggy'}},
+ {n:5,name:'Vent Chase',emoji:'🕳️',desc:'CLANG CLANG — RUN!!!',decor:'vent',mode:'chase',monsterType:'huggy',intro:'HUGGY IN THE VENTS! Claws on metal! HEAD START — sprint to the exit or he EATS you!',props:[{id:'exit',x:93,type:'door',needs:0}],monster:{x:2,speed:2.4,name:'Huggy Wuggy',type:'huggy'}},
+ {n:6,name:'Experiment Lab',emoji:'🔬',desc:'Wake the monster. RUN.',decor:'lab',mode:'explore',monsterType:'mommy',intro:'Failed experiments line the walls. Activate all consoles — Mommy Long Legs is waking up…',props:[{id:'p1',x:22,type:'console'},{id:'p2',x:38,type:'console'},{id:'p3',x:54,type:'console'},{id:'p4',x:70,type:'console'},{id:'exit',x:93,type:'door',needs:4}]},
+ {n:7,name:'Music Room',emoji:'🎵',desc:'Dance… then DIE.',decor:'music',mode:'patrol',monsterType:'mommy',intro:'🎵 "Mommy knows best…" Music stops. Eyes glow RED. Hide or be torn apart.',props:[{id:'h1',x:35,type:'hide'},{id:'h2',x:65,type:'hide'},{id:'exit',x:93,type:'door',needs:0}],monster:{x:75,dir:-1,speed:1.8,range:17,name:'Mommy Long Legs',type:'mommy',dance:true}},
+ {n:8,name:'Loading Dock',emoji:'🚢',desc:'ALARM — sprint or die.',decor:'dock',mode:'chase',monsterType:'huggy',intro:'FACTORY ALARM! Huggy breaks through the crates! RUN RUN RUN!',props:[{id:'exit',x:93,type:'door',needs:0}],monster:{x:3,speed:2.6,name:'Huggy Wuggy',type:'huggy'}},
+ {n:9,name:'Elevator Shaft',emoji:'🛗',desc:'It climbs toward you.',decor:'elevator',mode:'explore',monsterType:'boxy',intro:'You hear it CLIMBING. Pull all 3 switches — then race up before Boxy Boo catches you.',props:[{id:'s1',x:28,type:'lever'},{id:'s2',x:50,type:'lever'},{id:'s3',x:72,type:'lever'},{id:'exit',x:93,type:'door',needs:3}]},
+ {n:10,name:'Final Escape',emoji:'💀',desc:'RUN FOR YOUR LIFE.',decor:'escape',mode:'chase',monsterType:'huggy',intro:'THE GATE. Huggy Wuggy — full speed — teeth out — THIS IS THE END. RUN!!!',props:[{id:'exit',x:93,type:'door',needs:0}],monster:{x:2,speed:2.8,name:'Huggy Wuggy',type:'huggy'}}
 ];
 let ppGame=null;
 function poppyUnlockLevel(){try{return Math.max(1,parseInt(localStorage.getItem(POPPY_KEY)||'1',10)||1);}catch(_){return 1;}}
 function poppySaveLevel(n){try{localStorage.setItem(POPPY_KEY,String(Math.max(poppyUnlockLevel(),n)));}catch(_){}}
-function ppPlayerSVG(size,pose){
- size=size||88;pose=pose||'idle';
- const walk=pose==='walk'||pose==='run',crouch=pose==='crouch',grab=pose==='grab';
- const legL=walk?`<ellipse cx="34" cy="78" rx="8" ry="11" fill="#1a4a8a" transform="rotate(${pose==='run'?-22:14} 34 78)"/>`:'<ellipse cx="32" cy="78" rx="8" ry="11" fill="#1a4a8a"/>';
- const legR=walk?`<ellipse cx="54" cy="78" rx="8" ry="11" fill="#1a4a8a" transform="rotate(${pose==='run'?22:-14} 54 78)"/>`:'<ellipse cx="56" cy="78" rx="8" ry="11" fill="#1a4a8a"/>';
- const arm=grab?`<path d="M58 40 L88 28 L86 34 L58 46 Z" fill="#2a6ab8"/>`:crouch?`<path d="M58 42 L72 58 L68 62 L54 48 Z" fill="#2a6ab8"/>`:`<path d="M58 38 L78 ${pose==='run'?30:42} L74 ${pose==='run'?36:46} L56 44 Z" fill="#2a6ab8"/>`;
- return `<svg viewBox="0 0 88 92" width="${size}" height="${size*1.05}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${legL}${legR}<ellipse cx="44" cy="52" rx="18" ry="22" fill="#2563b8"/><rect x="28" y="36" width="32" height="24" rx="6" fill="#3b82f6"/>${arm}<circle cx="44" cy="24" r="16" fill="#f5c99a"/><path d="M28 18 Q44 6 60 18 L56 24 Q44 14 32 24 Z" fill="#ffd34e"/><rect x="36" y="20" width="16" height="5" rx="2" fill="#333"/><circle cx="38" cy="24" r="2" fill="#111"/><circle cx="50" cy="24" r="2" fill="#111"/><path d="M72 ${grab?32:crouch?50:40} L84 ${grab?24:crouch?54:36}" stroke="#ff4d8d" stroke-width="5" stroke-linecap="round"/><circle cx="84" cy="${grab?24:crouch?54:36}" r="5" fill="#ff7eb3"/></svg>`;
+function ppPlayerHTML(size,pose){
+ size=size||96;pose=pose||'idle';
+ const cls=['pp-rplayer',pose].filter(Boolean).join(' ');
+ return `<div class="${cls}" style="--pp-sz:${size}px" aria-hidden="true">
+  <div class="pp-rhead"><div class="pp-rhelmet"></div></div>
+  <div class="pp-rtorso"><div class="pp-rbackpack"></div></div>
+  <div class="pp-rarm-l"></div>
+  <div class="pp-rgrabpack"><div class="pp-rgrab-arm"></div></div>
+  <div class="pp-rlegs"><div class="pp-rleg pp-rleg-left"></div><div class="pp-rleg pp-rleg-right"></div></div>
+ </div>`;
 }
-function ppMonsterSVG(chasing,size,eyes){
- size=size||(chasing?80:58);
- const eyeCls=eyes?' class="pp-eye"':'';
- return `<svg viewBox="0 0 80 100" width="${size}" height="${size*1.25}"><rect x="14" y="18" width="52" height="58" rx="12" fill="#2a1040" stroke="${chasing?'#ff0040':'#4a2060'}" stroke-width="2"/><rect x="20" y="30" width="16" height="16" rx="5" fill="#0a0a0a"/><rect x="44" y="30" width="16" height="16" rx="5" fill="#0a0a0a"/><circle cx="28" cy="38" r="5" fill="#ff0040"${eyeCls}/><circle cx="52" cy="38" r="5" fill="#ff0040"${eyeCls}/><path d="M22 62 Q40 78 58 62" stroke="#111" stroke-width="4" fill="none"/><path d="M6 10 L24 34 M74 10 L56 34" stroke="#2a1040" stroke-width="8" stroke-linecap="round"/>${chasing?'<path d="M40 4 L46 18 L34 18 Z" fill="#ff0040"/>':''}</svg>`;
+function ppPlayerSVG(size,pose){return ppPlayerHTML(size,pose);}
+function ppMonsterType(m,c){
+ if(m?.type)return m.type;
+ if(c?.monsterType)return c.monsterType;
+ return'huggy';
+}
+function ppMonsterHTML(type,chasing,size,alert){
+ size=size||80;type=type||'huggy';
+ const chase=chasing?' chase':'';
+ const al=alert?' alert':'';
+ if(type==='mommy'){
+  return `<div class="pp-rmommy${chase}${al}" style="--pp-msz:${size}px"><div class="pp-rm-head"><div class="pp-rm-eye pp-rm-eye-l"><div class="pp-rm-pupil"></div></div><div class="pp-rm-eye pp-rm-eye-r"><div class="pp-rm-pupil"></div></div></div><div class="pp-rm-body"></div><div class="pp-rm-limb pp-rm-l1"></div><div class="pp-rm-limb pp-rm-l2"></div><div class="pp-rm-limb pp-rm-l3"></div><div class="pp-rm-limb pp-rm-l4"></div></div>`;
+ }
+ if(type==='boxy'){
+  return `<div class="pp-rboxy${chase}${al}" style="--pp-msz:${size}px"><div class="pp-rb-box"><div class="pp-rb-eye pp-rb-eye-l"><div class="pp-rb-pupil"></div></div><div class="pp-rb-eye pp-rb-eye-r"><div class="pp-rb-pupil"></div></div>${chasing?'<div class="pp-rb-jaw"></div>':''}</div></div>`;
+ }
+ const teeth=chasing?`<div class="pp-rh-teeth">${'<span></span>'.repeat(7)}</div>`:'';
+ return `<div class="pp-rhuggy${chase}${al}" style="--pp-msz:${size}px">
+  <div class="pp-rh-limb pp-rh-limb-tl"></div><div class="pp-rh-limb pp-rh-limb-tr"></div>
+  <div class="pp-rh-head"><div class="pp-rh-eye pp-rh-eye-l"><div class="pp-rh-pupil"></div></div><div class="pp-rh-eye pp-rh-eye-r"><div class="pp-rh-pupil"></div></div><div class="pp-rh-mouth"><div class="pp-rh-mouth-inner">${teeth}</div></div></div>
+  <div class="pp-rh-body"></div>
+  <div class="pp-rh-hand pp-rh-hand-l"></div><div class="pp-rh-hand pp-rh-hand-r"></div>
+  <div class="pp-rh-foot pp-rh-foot-l"></div><div class="pp-rh-foot pp-rh-foot-r"></div>
+ </div>`;
+}
+function ppMonsterSVG(chasing,size,eyes,type){
+ const m=ppGame?.state?.monster;
+ const c=ppGame?.cfg;
+ return ppMonsterHTML(ppMonsterType(m,c),chasing,size,eyes);
 }
 const ppAudio=(()=>{
  let ctx=null;
@@ -9831,12 +10030,12 @@ function ppTension(){
 }
 function ppMoodText(){
  const t=ppTension();
- if(t>=80)return'💀 RUN!!!';
- if(t>=55)return'😰 It\'s close…';
- if(t>=30)return'👀 Something\'s near…';
- if(ppGame?.chaseActive)return'🏃 CHASE!';
- if(ppGame?.cfg.mode==='patrol')return'🤫 Sneak…';
- return'🔦 Explore';
+ if(t>=80)return'RUN — NOW';
+ if(t>=55)return'IT\'S CLOSE';
+ if(t>=30)return'SOMETHING NEARBY';
+ if(ppGame?.chaseActive)return'CHASE ACTIVE';
+ if(ppGame?.cfg.mode==='patrol')return'SNEAK MODE';
+ return'EXPLORE';
 }
 function ppSparks(){
  if(!ppGame)return;
@@ -9845,9 +10044,12 @@ function ppSparks(){
 function ppJumpscare(light){
  if(light)return;
  ppSfx('jumpscare');
+ const m=ppGame?.state?.monster;
+ const c=ppGame?.cfg;
+ const type=ppMonsterType(m,c);
  const j=document.createElement('div');
  j.className='pp-jumpscare';
- j.innerHTML=ppMonsterSVG(true,140,true);
+ j.innerHTML=ppMonsterHTML(type,true,180,true);
  document.body.appendChild(j);
  setTimeout(()=>j.remove(),550);
  if(ppGame)ppGame.state.fear=Math.min(100,(ppGame.state.fear||0)+25);
@@ -9866,48 +10068,91 @@ function ppDangerLevel(){
 }
 function ppDeviceMode(){
  try{const v=localStorage.getItem(POPPY_DEVICE_KEY);if(v==='mobile'||v==='computer')return v;}catch(_){}
- return (matchMedia('(pointer: coarse)').matches||innerWidth<768)?'mobile':'computer';
+ const fine=matchMedia('(pointer: fine)').matches;
+ const wide=innerWidth>=768;
+ if(fine||wide)return'computer';
+ return (matchMedia('(pointer: coarse)').matches&&innerWidth<768)?'mobile':'computer';
 }
 function ppIsMobile(){return ppDeviceMode()==='mobile';}
-function setPoppyDevice(mode){if(mode!=='mobile'&&mode!=='computer')return;try{localStorage.setItem(POPPY_DEVICE_KEY,mode);}catch(_){}buildPoppyHub();}
-function ppHint(m,c){return ppIsMobile()?m:c;}
-function ppKeyboardHint(){return `<div class="pp-keys"><span>← → walk</span><span>Space grab</span><span>Shift hide</span><span>Hold → run</span></div>`;}
+function ppUseKeyboard(){return ppDeviceMode()==='computer';}
+function setPoppyDevice(mode){
+ if(mode!=='mobile'&&mode!=='computer')return;
+ try{localStorage.setItem(POPPY_DEVICE_KEY,mode);}catch(_){}
+ buildPoppyHub();
+ const w=document.getElementById('poppyplay');
+ if(w)w.className=ppUseKeyboard()?'pp-computer':'pp-mobile';
+ if(ppGame&&!ppGame.intro&&!ppGame.won&&!ppGame.lost){ppGame.shellBuilt=false;renderPoppyPlay();}
+}
+function ppHint(m,c){return ppUseKeyboard()?c:m;}
+function ppKeyboardHint(){return `<div class="pp-keys"><span>← → / A D — Walk</span><span>Shift + → — Run</span><span>Space — Grab</span><span>Shift / S — Hide</span></div>`;}
+function ppGameKeys(e){return['ArrowLeft','ArrowRight','ArrowDown','ArrowUp',' ','a','A','d','D','s','S','Shift','Enter'].includes(e.key);}
 function ppOnKey(e){
- if(!ppGame||ppGame.won||ppGame.lost||ppGame.intro||ppIsMobile())return;
+ if(!ppGame||ppGame.won||ppGame.lost)return;
+ const kb=ppUseKeyboard();
+ if(ppGame.intro){
+  if(kb&&e.type==='keydown'&&(e.key==='Enter'||e.key===' ')){e.preventDefault();ppStartChapter();}
+  return;
+ }
+ if(!kb)return;
  if(!ppGame.keys)ppGame.keys={left:false,right:false,run:false};
- if(['ArrowLeft','ArrowRight','ArrowDown',' '].includes(e.key))e.preventDefault();
+ if(ppGameKeys(e))e.preventDefault();
  if(e.type==='keydown'){
   if(e.key==='ArrowLeft'||e.key==='a'||e.key==='A')ppGame.keys.left=true;
-  if(e.key==='ArrowRight'||e.key==='d'||e.key==='D'){ppGame.keys.right=true;ppGame.keys.run=e.shiftKey||ppGame.chaseActive;}
+  if(e.key==='ArrowRight'||e.key==='d'||e.key==='D'){ppGame.keys.right=true;ppGame.keys.run=e.shiftKey||ppGame.chaseActive;if(e.shiftKey&&ppGame.state.crouch)ppToggleCrouch(false);}
+  if(e.key==='Shift'&&ppGame.keys.right)ppGame.keys.run=true;
   if(e.key===' '||e.key==='Enter')ppGrab();
-  if(e.key==='Shift'||e.key==='ArrowDown'||e.key==='s'||e.key==='S')ppToggleCrouch(true);
+  if((e.key==='ArrowDown'||e.key==='s'||e.key==='S'||(e.key==='Shift'&&!ppGame.keys.right))&&!ppGame.keys.run)ppToggleCrouch(true);
  }else{
   if(e.key==='ArrowLeft'||e.key==='a'||e.key==='A')ppGame.keys.left=false;
   if(e.key==='ArrowRight'||e.key==='d'||e.key==='D'){ppGame.keys.right=false;ppGame.keys.run=false;}
-  if(e.key==='Shift'||e.key==='ArrowDown'||e.key==='s'||e.key==='S')ppToggleCrouch(false);
+  if(e.key==='ArrowDown'||e.key==='s'||e.key==='S'||e.key==='Shift')ppToggleCrouch(false);
  }
 }
 function ppOnKeyUp(e){ppOnKey(e);}
 function ppWorldScreen(x){if(!ppGame)return'50%';return `calc(50% + ${(x-ppGame.state.x)*0.85}%)`;}
 function ppObjBottom(type){return type==='hide'?'30%':type==='door'?'26%':'32%';}
-function ppCanUseDoor(p){
- const c=ppGame.cfg,s=ppGame.state;
+function ppDoorNeeds(){
+ if(!ppGame)return 0;
+ const c=ppGame.cfg;
+ const door=c.props.find(x=>x.type==='door');
+ if(door?.needs!=null)return door.needs;
  const crates=c.props.filter(x=>x.type==='crate');
+ if(crates.length)return crates.length;
+ const consoles=c.props.filter(x=>x.type==='console');
+ if(consoles.length)return consoles.length;
+ const levers=c.props.filter(x=>x.type==='lever');
+ if(levers.length)return levers.length;
+ return 0;
+}
+function ppCanUseDoor(p){
+ if(!ppGame)return false;
+ const c=ppGame.cfg,s=ppGame.state;
  const consoles=c.props.filter(x=>x.type==='console');
  const levers=c.props.filter(x=>x.type==='lever');
+ const crates=c.props.filter(x=>x.type==='crate');
  if(consoles.length)return consoles.every(x=>x.done);
  if(levers.length)return levers.every(x=>x.done);
- if(crates.length)return s.parts>=(p.needs||crates.length);
+ if(crates.length)return s.parts>=ppDoorNeeds();
  return true;
+}
+function ppDoorReach(p){
+ if(!ppGame||!p)return 99;
+ return Math.abs(ppGame.state.x-p.x);
+}
+function ppCanReachProp(p){
+ if(!p)return false;
+ const reach=p.type==='door'?24:18;
+ return ppDoorReach(p)<=reach;
 }
 function ppPropHTML(p,s){
  const dist=Math.abs(s.x-p.x);
- const near=dist<18;
+ const reach=p.type==='door'?24:18;
+ const near=dist<reach;
  const sl=ppWorldScreen(p.x);
  const bot=ppObjBottom(p.type);
  if(p.type==='crate'){
   if(p.done)return `<div class="pp-obj" style="left:${sl};bottom:${bot}"><div class="pp-obj-crate" style="opacity:.4"></div></div>`;
-  return `<button type="button" class="pp-obj${near?' glow':''}" style="left:${sl};bottom:${bot}" onclick="ppGrabProp('${p.id}')"><div class="pp-obj-crate"></div>${near?'<span class="pp-obj-label">Grab</span>':''}</button>`;
+  return `<button type="button" class="pp-obj${near?' glow':''}" style="left:${sl};bottom:${bot}" onclick="ppGrabProp('${p.id}')"><div class="pp-obj-crate"></div>${near?'<span class="pp-obj-label">GrabPack</span>':''}</button>`;
  }
  if(p.type==='hide')return `<div class="pp-obj" style="left:${sl};bottom:${bot}"><div class="pp-obj-locker"></div><span class="pp-obj-label">Hide</span></div>`;
  if(p.type==='console'){
@@ -9918,13 +10163,15 @@ function ppPropHTML(p,s){
  }
  if(p.type==='door'){
   const ok=ppCanUseDoor(p);
-  return `<button type="button" class="pp-obj${ok?' glow':''}" style="left:${sl};bottom:${bot}" onclick="ppGrabProp('${p.id}')"><div class="pp-obj-door${ok?'':' locked'}"></div><span class="pp-obj-label">${ok?'Exit':'Locked'}</span></button>`;
+  return `<button type="button" class="pp-obj${ok?' glow pp-door-glow':''}" style="left:${sl};bottom:${bot}" onclick="ppGrabProp('${p.id}')"><div class="pp-obj-door${ok?'':' locked'}"></div><span class="pp-obj-label">${ok?'EXIT — Grab / Walk In':'Locked ('+ppGame.state.parts+'/'+ppDoorNeeds()+')'}</span></button>`;
  }
  return'';
 }
 function ppDecorHTML(c){
  const pipes=[12,35,58,78].map((p,i)=>`<div class="pp-pipe" style="left:${ppWorldScreen(p)};top:${14+i%2*4}%;width:${60+i*10}px"></div>`).join('');
- return pipes;
+ const sign=`<div class="pp-playtime-sign" style="left:${ppWorldScreen(50)}">PLAYTIME CO.</div>`;
+ const blood=c.decor==='storage'?`<div class="pp-blood pp-blood-1" style="left:${ppWorldScreen(28)}"></div><div class="pp-blood pp-blood-2" style="left:${ppWorldScreen(62)}"></div><div class="pp-scratch" style="left:${ppWorldScreen(40)};bottom:36%"></div>`:'';
+ return sign+pipes+blood;
 }
 function ppRenderWorld(){
  const g=ppGame,s=g.state,c=g.cfg;
@@ -9936,10 +10183,13 @@ function ppRenderWorld(){
  if(s.monster){
   const dist=s.x-s.monster.x;
   const threat=chasing?Math.min(1.7,.55+Math.max(0,32-dist)/18):Math.max(.45,.85-Math.abs(s.x-s.monster.x)/70);
-  monsterHTML=`<div class="pp-monster-far${chasing?' close':''}${s.monster.alert?' alert':''}" style="left:${ppWorldScreen(s.monster.x)};bottom:${24+threat*10}%;transform:translateX(-50%) scale(${threat});z-index:4">${ppMonsterSVG(chasing||dist<28,40+threat*55,s.monster.alert||chasing||dist<20)}</div>`;
+  const mtype=ppMonsterType(s.monster,c);
+  const msize=40+threat*55;
+  const mname=s.monster.name||'Unknown';
+  monsterHTML=`<div class="pp-monster-far${chasing?' close':''}${s.monster.alert?' alert':''}" style="left:${ppWorldScreen(s.monster.x)};bottom:${24+threat*10}%;transform:translateX(-50%) scale(${threat});z-index:4">${ppMonsterHTML(mtype,chasing||dist<28,msize,s.monster.alert||chasing||dist<20)}<span class="pp-monster-name">${mname}</span></div>`;
  }
  const near=ppNearProp();
- const grabHint=near&&!near.done&&Math.abs(s.x-near.x)<18?`<div class="pp-grab-prompt">⚡ GRABPACK — ${near.type==='door'?'Open Exit!':near.type==='crate'?'Search Crate':near.type==='console'?'Activate':'Pull Lever'}</div>`:'';
+ const grabHint=near&&ppCanReachProp(near)?`<div class="pp-grab-prompt">GRABPACK — ${near.type==='door'?(ppCanUseDoor(near)?'OPEN EXIT':'LOCKED'):near.type==='crate'&&!near.done?'SEARCH CRATE':near.type==='console'&&!near.done?'ACTIVATE':'PULL LEVER'}</div>`:'';
  const prog=c.props.filter(x=>['crate','console','lever'].includes(x.type));
  const doneCt=prog.filter(x=>x.done).length;
  const progPct=prog.length?Math.round(doneCt/prog.length*100):Math.round(s.x);
@@ -9950,7 +10200,7 @@ function ppRenderWorld(){
  const fearBar=`<div class="pp-fear-bar"><div class="pp-fear-fill" style="width:${tension}%"></div></div>`;
  const chaseGap=s.monster?Math.max(0,Math.min(100,(s.x-s.monster.x)*3)):0;
  const chaseBar=chasing?`<div class="pp-chase-bar-wrap"><div class="pp-chase-bar" style="width:${100-chaseGap}%"></div></div>`:'';
- return `<div class="pp-world"><div class="pp-scene ${chasing?'chase':''} danger-${danger} pp-decor-${c.decor||'lobby'}"><div class="pp-corridor"><div class="pp-corridor-bg"></div><div class="pp-fog"></div><div class="pp-grain"></div>${musicGlow}${chasePulse}${heartbeat}<div class="pp-scene-lights${tension>15||c.n>1?' flicker':''}"></div><div class="pp-ceiling"></div>${ppDecorHTML(c)}<div class="pp-hall"><div class="pp-wall left"></div><div class="pp-wall right"></div><div class="pp-back-wall"></div><div class="pp-floor"></div>${props}${monsterHTML}</div><div class="pp-player-shadow" style="left:50%"></div><div class="pp-player-wrap ${ppPlayerAnimClass()}">${ppPlayerSVG(96,ppPose())}</div>${grabHint}${whisper}<div class="pp-mood">${ppMoodText()}</div>${fearBar}${chaseBar}<div class="pp-progress"><div class="pp-progress-fill" style="width:${Math.max(progPct,s.x)}%"></div></div><div class="pp-hud"><span class="pp-hud-pill">${c.emoji} ${c.name}</span><span class="pp-hud-pill">${chasing?'→ EXIT DOOR':c.mode==='patrol'?'Hide · Sneak · Run':'Walk · Grab · Explore'}</span></div></div></div></div>`;
+ return `<div class="pp-world"><div class="pp-scene ${chasing?'chase':''} danger-${danger} pp-decor-${c.decor||'lobby'}"><div class="pp-corridor"><div class="pp-corridor-bg"></div><div class="pp-spotlight"></div><div class="pp-fog"></div><div class="pp-grain"></div>${musicGlow}${chasePulse}${heartbeat}<div class="pp-scene-lights${tension>15||c.n>1?' flicker':''}"></div><div class="pp-ceiling"></div>${ppDecorHTML(c)}<div class="pp-hall"><div class="pp-wall left"></div><div class="pp-wall right"></div><div class="pp-back-wall"></div><div class="pp-floor"></div>${props}${monsterHTML}</div><div class="pp-player-shadow" style="left:50%"></div><div class="pp-player-wrap ${ppPlayerAnimClass()}">${ppPlayerHTML(96,ppPose())}</div>${grabHint}${whisper}<div class="pp-mood pp-mood-text-only">${ppMoodText()}</div>${fearBar}${chaseBar}<div class="pp-progress"><div class="pp-progress-fill" style="width:${Math.max(progPct,s.x)}%"></div></div><div class="pp-hud"><span class="pp-hud-pill">${c.name}</span><span class="pp-hud-pill">${chasing?'EXIT AHEAD':c.mode==='patrol'?'HIDE · SNEAK · RUN':'WALK · GRAB · EXPLORE'}</span></div></div></div></div>`;
 }
 function ppHold(dir,run,on){
  if(!ppGame)return;
@@ -9967,9 +10217,24 @@ function ppDpad(){
   <button type="button" onmousedown="ppHold(1,0,1)" onmouseup="ppHold(1,0,0)" ontouchstart="ppHold(1,0,1)" ontouchend="ppHold(1,0,0)">▶ Walk</button>
  </div>`;
 }
+function ppUpdateWorld(){
+ if(!ppGame||ppGame.intro||ppGame.won||ppGame.lost)return;
+ const mount=document.getElementById('pp-world-mount');
+ if(mount)mount.innerHTML=ppRenderWorld();
+ const topM=document.getElementById('pp-top-mood');
+ if(topM)topM.textContent=`Ch.${ppGame.cfg.n}/10 · ${ppMoodText()}`;
+ const msgEl=document.getElementById('pp-msg-el');
+ if(msgEl){
+  const scary=ppTension()>40||ppGame.chaseActive;
+  msgEl.className='pp-msg'+(scary?' scary':'');
+  msgEl.textContent=ppGame.msg;
+ }
+ const toastM=document.getElementById('pp-toast-mount');
+ if(toastM)toastM.innerHTML=ppGame.toast?`<div class="pp-toast">${ppGame.toast}</div>`:'';
+}
 function ppToast(txt){
  if(!ppGame)return;
- ppGame.toast=txt;ppGame.toastT=Date.now();renderPoppyPlay();
+ ppGame.toast=txt;ppGame.toastT=Date.now();ppUpdateWorld();
 }
 function ppSetPose(p){if(ppGame){ppGame.state.pose=p;if(p!=='idle')setTimeout(()=>{if(ppGame&&ppGame.state.pose===p)ppGame.state.pose='idle';},350);}}
 function ppToggleCrouch(on){
@@ -9977,36 +10242,38 @@ function ppToggleCrouch(on){
  ppGame.state.crouch=!!on;
  ppGame.state.pose=on?'crouch':'idle';
  ppGame.msg=on?(ppIsSafe()?'Hiding… safe for now.':'Stand next to a locker and hide!'):(ppGame.chaseActive?'Run to the exit!':'Keep exploring.');
+ if(ppGame.shellBuilt)ppUpdateWorld();
 }
 function ppGrabProp(id){const p=ppGame?.cfg.props.find(x=>x.id===id);if(p)ppGrab(p);}
 function ppGrab(forcedProp){
  if(!ppGame||ppGame.won||ppGame.lost)return;
  const s=ppGame.state,c=ppGame.cfg;
  const p=forcedProp||ppNearProp();
- if(!p||Math.abs(s.x-p.x)>18){ppGame.msg='Walk closer to interact.';return;}
+ if(!p||!ppCanReachProp(p)){ppGame.msg=p?.type==='door'&&ppCanUseDoor(p)?'Walk closer to the exit door.':'Walk closer to interact.';return;}
  ppSetPose('grab');ppSfx('grab');
  if(p.type==='crate'){p.done=true;s.parts++;ppSparks();ppSfx('ding');ppToast('🧩 Part found!');
-  if(p.whisper){ppGame.whisper='…did something move?';ppSfx('whisper');s.fear=Math.min(100,(s.fear||0)+15);setTimeout(()=>{if(ppGame)ppGame.whisper=null;},3000);}
-  ppGame.msg=`Parts ${s.parts}/${c.props.find(x=>x.type==='door')?.needs||3} — ${s.parts>=3?'exit is glowing!':'keep searching!'}`;}
+  const need=ppDoorNeeds();
+  if(ppCheckObjectiveDone()){ppToast('Exit unlocked — walk right');ppGame.msg=c.noChase?'All parts found! Walk to the glowing EXIT →':'Exit door is open — GO!';}
+  else ppGame.msg=`Parts ${s.parts}/${need} — keep searching!`;}
  else if(p.type==='lever'||p.type==='console'){
   if(p.needsLever&&!c.props.find(x=>x.id==='lev')?.done){ppGame.msg='Pull the main lever first!';return;}
   p.done=true;s.parts++;ppSparks();ppSfx('ding');ppToast('⚡ Activated!');
   s.fear=Math.min(100,(s.fear||0)+8);
-  if(ppCheckObjectiveDone()&&!ppGame.chaseActive&&c.n>1){
+  if(ppCheckObjectiveDone()&&!ppGame.chaseActive&&!c.noChase&&c.n>1){
    setTimeout(()=>{ppTriggerChase(true);},1400);
    ppGame.msg='Something woke up… RUN to the exit!!!';
   }else ppGame.msg=ppCheckObjectiveDone()?'Exit door is open — GO!':'Keep going…';
  }else if(p.type==='door'){
-  if(!ppCanUseDoor(p)){ppGame.msg='Not ready yet — finish your tasks first!';return;}
-  if(ppGame.chaseActive&&Math.abs(s.x-p.x)>18){ppGame.msg='Run to the exit door!';return;}
+  if(!ppCanUseDoor(p)){ppGame.msg=`Not ready — need ${ppDoorNeeds()-s.parts} more part(s)!`;return;}
   ppWinChapter();return;
  }
+ if(ppGame.shellBuilt)ppUpdateWorld();
 }
 function ppTriggerChase(withScare){
- if(!ppGame||ppGame.chaseActive)return;
+ if(!ppGame||ppGame.chaseActive||ppGame.cfg.noChase||ppGame.cfg.n===1)return;
  ppGame.chaseActive=true;ppGame.cfg.mode='chase';
  const s=ppGame.state;
- if(!s.monster)s.monster={x:Math.max(2,s.x-45),speed:ppGame.cfg.monster?.speed||2};
+ if(!s.monster)s.monster={x:Math.max(2,s.x-45),speed:ppGame.cfg.monster?.speed||2,type:ppMonsterType(null,ppGame.cfg),name:ppGame.cfg.monster?.name||(ppGame.cfg.monsterType==='mommy'?'Mommy Long Legs':ppGame.cfg.monsterType==='boxy'?'Boxy Boo':'Huggy Wuggy')};
  s.monster.x=Math.max(2,s.x-40);
  s.monster.speed=ppGame.cfg.monster?.speed||2;
  ppGame.chaseGraceUntil=Date.now()+3500;
@@ -10017,6 +10284,7 @@ function ppTriggerChase(withScare){
 }
 function ppGameLoop(ts){
  if(!ppGame||ppGame.won||ppGame.lost||ppGame.intro)return;
+ if(!ppGame.keys)ppGame.keys={left:false,right:false,run:false};
  if(!ppGame.lastT)ppGame.lastT=ts;
  const dt=Math.min(3,(ts-ppGame.lastT)/16);
  ppGame.lastT=ts;
@@ -10034,7 +10302,7 @@ function ppGameLoop(ts){
    s.monster.x+=s.monster.speed*0.13*dt;
    s.fear=Math.min(100,(s.fear||0)+0.8*dt);
    const gap=s.x-s.monster.x;
-   if(gap<3){ppGame.lost=true;ppGame.msg='Caught! So close — hold Run ▶ next time!';ppSfx('caught');ppJumpscare();ppStopLoop();renderPoppyPlay();return;}
+   if(gap<3){ppGame.lost=true;ppGame.msg='Caught! So close — hold Run next time!';ppSfx('caught');ppJumpscare();ppStopLoop();renderPoppyPlay();return;}
    if(s.x>=88){ppWinChapter();return;}
    if(gap<12){ppGame.msg='💀 RIGHT BEHIND YOU — RUN!!!';if(Math.random()<.08)ppSfx('chase');}
    else ppGame.msg='RUN to the glowing exit door!';
@@ -10058,14 +10326,18 @@ function ppGameLoop(ts){
    else{s.fear=Math.max(0,(s.fear||0)-0.3*dt);ppGame.msg=c.decor==='music'?'🎵 Music playing… stay alert.':'Sneak to the exit →';}}
   if(c.decor==='music'&&Math.random()<.002)ppSfx('whisper');
  }else{
-  if(moving&&c.n===1)s.fear=Math.min(15,(s.fear||0)+0.1*dt);
-  else s.fear=Math.max(0,(s.fear||0)-0.2*dt);
+  const door=c.props.find(x=>x.type==='door');
+  if(c.mode==='explore'&&!ppGame.chaseActive&&door&&ppCanUseDoor(door)&&s.x>=door.x-20){
+   ppWinChapter();return;
+  }
+  if(c.n===1)s.fear=Math.max(0,(s.fear||0)-0.5*dt);
+  else if(moving)s.fear=Math.max(0,(s.fear||0)-0.2*dt);
  }
  if(!ppGame.ambT||ts-ppGame.ambT>8000){ppSfx('drone');ppGame.ambT=ts;}
  if(moving&&Math.random()<.035)ppSfx('step');
  if(ppGame.toast&&Date.now()-ppGame.toastT>900)ppGame.toast=null;
  if(ppGame.whisperT&&Date.now()>ppGame.whisperT){ppGame.whisper=null;ppGame.whisperT=0;}
- renderPoppyPlay();
+ ppUpdateWorld();
  ppGame.raf=requestAnimationFrame(ppGameLoop);
 }
 function ppStopLoop(){
@@ -10088,7 +10360,7 @@ function ppCheckObjectiveDone(){
  const levers=c.props.filter(x=>x.type==='lever');
  if(consoles.length)return consoles.every(x=>x.done);
  if(levers.length)return levers.every(x=>x.done);
- if(crates.length)return s.parts>=(c.props.find(x=>x.type==='door')?.needs||crates.length);
+ if(crates.length)return s.parts>=ppDoorNeeds();
  return false;
 }
 function ppPose(){
@@ -10107,7 +10379,8 @@ function ppNearProp(){
  g.props.forEach(p=>{
   if(p.done&&p.type!=='door')return;
   const d=Math.abs(s.x-p.x);
-  if(d<18&&d<bd){best=p;bd=d;}
+  const reach=p.type==='door'?24:18;
+  if(d<reach&&d<bd){best=p;bd=d;}
  });
  return best;
 }
@@ -10119,10 +10392,10 @@ function buildPoppyHub(){
  const grid=document.getElementById('poppy-grid');
  const prev=document.getElementById('poppy-char-preview');
  const dev=document.getElementById('poppy-device');
- if(prev)prev.innerHTML=ppPlayerSVG(110,'idle');
+ if(prev)prev.innerHTML=ppPlayerHTML(110,'idle');
  if(dev){
   const mode=ppDeviceMode();
-  dev.innerHTML=`<div class="poppy-device-label">How are you playing?</div><div class="poppy-device-btns"><button type="button" class="poppy-device-btn${mode==='mobile'?' active':''}" data-device="mobile">📱 Mobile</button><button type="button" class="poppy-device-btn${mode==='computer'?' active':''}" data-device="computer">🖥️ Computer</button></div><p class="poppy-device-hint">${mode==='mobile'?'Walk, Grab, Hide, Run — all on the D-pad!':'Arrow keys to walk, Space to grab, Shift to hide.'}</p>`;
+  dev.innerHTML=`<div class="poppy-device-label">How are you playing?</div><div class="poppy-device-btns"><button type="button" class="poppy-device-btn${mode==='mobile'?' active':''}" data-device="mobile">Mobile (touch)</button><button type="button" class="poppy-device-btn${mode==='computer'?' active':''}" data-device="computer">Computer (keyboard)</button></div><p class="poppy-device-hint">${mode==='mobile'?'Use the on-screen D-pad to walk, grab, hide, and run.':'Use arrow keys / WASD, Space to grab, Shift to hide, Shift+→ to run. Click objects too!'}</p>`;
   dev.querySelectorAll('[data-device]').forEach(btn=>{btn.onclick=()=>setPoppyDevice(btn.dataset.device);});
  }
  if(!grid)return;
@@ -10150,9 +10423,10 @@ function playPoppyChapter(n){
  const cfg=POPPY_CHAPTERS.find(c=>c.n===n);
  if(!cfg||n>poppyUnlockLevel())return;
  closePoppyPlay();
- ppGame={cfg:{...cfg,props:cfg.props.map(p=>({...p}))},state:ppInitState(cfg),won:false,lost:false,intro:true,chaseActive:cfg.mode==='chase',chaseGraceUntil:0,keys:{left:false,right:false,run:false},msg:cfg.intro};
+ ppGame={cfg:{...cfg,props:cfg.props.map(p=>({...p}))},state:ppInitState(cfg),won:false,lost:false,intro:true,shellBuilt:false,chaseActive:cfg.mode==='chase',chaseGraceUntil:0,keys:{left:false,right:false,run:false},msg:cfg.intro};
  const wrap=document.createElement('div');
  wrap.id='poppyplay';
+ wrap.className=ppUseKeyboard()?'pp-computer':'pp-mobile';
  wrap.innerHTML='<div class="pp-screen" id="pp-screen"></div>';
  document.body.appendChild(wrap);
  document.body.style.overflow='hidden';
@@ -10164,14 +10438,16 @@ function ppStartChapter(){
  if(!ppGame)return;
  ppGame.intro=false;
  ppGame.msg=ppGame.cfg.intro;
- if(ppGame.cfg.mode==='chase'){
+ if(ppGame.cfg.mode==='chase'&&!ppGame.cfg.noChase){
   ppGame.chaseGraceUntil=Date.now()+3500;
   if(ppGame.state.monster)ppGame.state.monster.x=Math.max(2,ppGame.state.x-45);
   ppGame.msg='💀 HEAD START — then HOLD Run ▶ all the way!!!';
   ppSfx('roar');
   setTimeout(()=>ppJumpscare(),500);
+ }else if(ppGame.cfg.n===1||ppGame.cfg.noChase){
+  ppGame.msg='Grab 3 parts, then walk to the glowing EXIT door →';
  }
- ppSfx('drone');
+ if(ppGame.cfg.n>1)ppSfx('drone');
  ppStartLoop();
  renderPoppyPlay();
 }
@@ -10188,20 +10464,24 @@ function renderPoppyPlay(){
  if(!scr||!ppGame)return;
  const g=ppGame,c=g.cfg;
  if(g.intro){
-  scr.innerHTML=`<div class="pp-end pp-intro-card"><div style="margin:0 auto">${ppPlayerSVG(100,'idle')}</div><div style="font-size:40px;margin:8px 0">${c.emoji}</div><h2>Chapter ${c.n}: ${c.name}</h2><p>${c.intro}</p><p style="font-size:13px;color:#888">${ppHint('Hold Walk/Run buttons · Grab to interact · Hide at lockers','Hold ← → to walk · Space grab · Shift hide at lockers')}</p><button type="button" class="pp-btn wide" onclick="ppStartChapter()">Enter the Factory</button><button type="button" class="pp-btn wide ghost" onclick="closePoppyPlay();switchView('poppy')">Back</button></div>`;
+  scr.innerHTML=`<div class="pp-end pp-intro-card"><div style="margin:0 auto">${ppPlayerHTML(100,'idle')}</div><h2>Chapter ${c.n}: ${c.name}</h2><p>${c.intro}</p><p style="font-size:13px;color:#888">${ppHint('Hold Walk/Run · GrabPack to interact · Hide at lockers','Hold ← → walk · Space grab · Shift hide')}</p><button type="button" class="pp-btn wide" onclick="ppStartChapter()">Enter the Factory</button><button type="button" class="pp-btn wide ghost" onclick="closePoppyPlay();switchView('poppy')">Back</button></div>`;
   return;
  }
  if(g.won){
-  scr.innerHTML=`<div class="pp-end" style="padding:40px 20px"><div class="pp-player-wrap" style="position:relative;left:auto;transform:none;margin:0 auto 16px">${ppPlayerSVG(100,'idle')}</div><div class="big">🎉</div><h2>Chapter ${c.n} — Escaped!</h2><p class="pp-msg">${c.n<10?'You made it! Next chapter unlocked.':'YOU ESCAPED THE FACTORY!'}</p><button type="button" class="pp-btn wide" onclick="closePoppyPlay();buildPoppyHub();switchView('poppy')">Back to Chapters</button>${c.n<10?`<button type="button" class="pp-btn wide ghost" onclick="playPoppyChapter(${c.n+1})">Chapter ${c.n+1} →</button>`:''}</div>`;
+  scr.innerHTML=`<div class="pp-end" style="padding:40px 20px"><div class="pp-player-wrap" style="position:relative;left:auto;transform:none;margin:0 auto 16px">${ppPlayerHTML(100,'idle')}</div><h2 style="color:#ffd700">Chapter ${c.n} — Escaped</h2><p class="pp-msg">${c.n<10?'You made it out alive. Next chapter unlocked.':'YOU ESCAPED THE FACTORY.'}</p><button type="button" class="pp-btn wide" onclick="closePoppyPlay();buildPoppyHub();switchView('poppy')">Back to Chapters</button>${c.n<10?`<button type="button" class="pp-btn wide ghost" onclick="playPoppyChapter(${c.n+1})">Chapter ${c.n+1} →</button>`:''}</div>`;
   return;
  }
  if(g.lost){
-  scr.innerHTML=`<div class="pp-end" style="padding:40px 20px">${ppMonsterSVG(true,90,true)}<h2 style="color:#ff6080">Caught!</h2><p class="pp-msg">${g.msg}</p><button type="button" class="pp-btn wide" onclick="playPoppyChapter(${c.n})">Try Again</button><button type="button" class="pp-btn wide ghost" onclick="closePoppyPlay();switchView('poppy')">Quit</button></div>`;
+  const mtype=ppMonsterType(g.state?.monster,g.cfg);
+  scr.innerHTML=`<div class="pp-end pp-death-screen" style="padding:40px 20px;position:relative"><div class="pp-death-blood"></div>${ppMonsterHTML(mtype,true,100,true)}<div class="pp-death-title">YOU DIED</div><p class="pp-death-sub">${g.state?.monster?.name||'The toy'} got you.</p><p class="pp-msg">${g.msg}</p><button type="button" class="pp-btn wide" onclick="playPoppyChapter(${c.n})">Try Again</button><button type="button" class="pp-btn wide ghost" onclick="closePoppyPlay();switchView('poppy')">Quit</button></div>`;
   return;
  }
- const toast=g.toast?`<div class="pp-toast">${g.toast}</div>`:'';
- const scary=ppTension()>40||g.chaseActive;
- scr.innerHTML=`<div class="pp-top"><span>Ch.${c.n}/10 · ${ppMoodText()}</span><button type="button" class="pp-btn ghost" style="padding:8px 12px;min-height:auto" onclick="closePoppyPlay();switchView('poppy')">✕</button></div>${ppRenderWorld()}${toast}<div class="pp-overlay"><div class="pp-title">${c.emoji} ${c.name}</div><div class="pp-msg${scary?' scary':''}">${g.msg}</div>${ppIsMobile()?ppDpad():ppKeyboardHint()}</div>`;
+ if(!g.shellBuilt){
+  const scary=ppTension()>40||g.chaseActive;
+  scr.innerHTML=`<div class="pp-top"><span id="pp-top-mood">Ch.${c.n}/10 · ${ppMoodText()}</span><button type="button" class="pp-btn ghost" style="padding:8px 12px;min-height:auto" onclick="closePoppyPlay();switchView('poppy')">✕</button></div><div id="pp-world-mount"></div><div id="pp-toast-mount"></div><div class="pp-overlay"><div class="pp-title">${c.name}</div><div id="pp-msg-el" class="pp-msg${scary?' scary':''}">${g.msg}</div>${ppUseKeyboard()?ppKeyboardHint():ppDpad()}</div>`;
+  g.shellBuilt=true;
+ }
+ ppUpdateWorld();
 }
 
 (function openHashView(){
