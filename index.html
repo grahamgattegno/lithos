@@ -10072,65 +10072,66 @@ if(!hasEmeraldGift()) setTimeout(()=>grantEmeraldGuardianGift(), 900);
 const POPPY_KEY='lithos_poppy_progress_v1';
 const POPPY_DEVICE_KEY='lithos_poppy_device_v1';
 const POPPY_CHAPTERS=[
- {n:1,name:'Crystal Entry',emoji:'💎',desc:'Blocks, shards, sentinel scare.',decor:'lobby',mode:'explore',gore:false,
-  intro:'GEM FACTORY — Crystal Entry. Fallen gem crates block your path. Collect 3 shards from ore carts, then sprint to the vault before the GEM SENTINEL wakes…',
+ {n:1,name:'Crystal Entry',emoji:'💎',desc:'5 shards · sentinel chase.',decor:'lobby',mode:'explore',worldMax:120,gore:false,
+  intro:'GEM FACTORY — Crystal Entry. The tunnel is long. Collect 5 gem shards from ore carts spread through the cavern, then reach the vault before the GEM SENTINEL wakes.',
   boss:{name:'Gem Sentinel',type:'golem',phases:1},
-  obstacles:[{id:'b1',x:28,type:'block'},{id:'b2',x:52,type:'block'},{id:'g1',x:82,type:'gate'}],
-  props:[{id:'c1',x:20,type:'crate'},{id:'c2',x:44,type:'crate'},{id:'c3',x:66,type:'crate'},{id:'exit',x:92,type:'door',needs:3}],
-  monster:{x:88,dir:-1,speed:1.4,range:18,name:'Gem Sentinel',type:'golem',sleeping:true}},
- {n:2,name:'Gem Golem Hall',emoji:'🗿',desc:'Crystal pillars. Hide from Golem.',decor:'hall',mode:'patrol',gore:false,
-  intro:'The GEM GOLEM patrols the hall — a towering sapphire brute. Crystal pillars block your path. Hide in pods when its facets glow, then slip past.',
+  obstacles:[{id:'b1',x:32,type:'block'},{id:'b2',x:58,type:'block'},{id:'b3',x:84,type:'block'},{id:'g1',x:102,type:'gate'}],
+  props:[{id:'c1',x:16,type:'crate'},{id:'c2',x:34,type:'crate'},{id:'c3',x:52,type:'crate'},{id:'c4',x:70,type:'crate'},{id:'c5',x:88,type:'crate'},{id:'exit',x:115,type:'door',needs:5}],
+  monster:{x:108,dir:-1,speed:1.4,range:18,name:'Gem Sentinel',type:'golem',sleeping:true}},
+ {n:2,name:'Gem Golem Hall',emoji:'🗿',desc:'Collect 4 · hide · escape.',decor:'hall',mode:'patrol',worldMax:125,gore:false,
+  intro:'Long gem hall. Collect 4 crystal shards from the carts FIRST — the vault stays locked until you do. The GEM GOLEM patrols the whole tunnel. Hide in pods when it gets close.',
   boss:{name:'Gem Golem',type:'golem',phases:2},
-  obstacles:[{id:'p1',x:28,type:'block'},{id:'p2',x:52,type:'block'},{id:'p3',x:74,type:'block'}],
-  props:[{id:'h1',x:22,type:'hide'},{id:'h2',x:48,type:'hide'},{id:'h3',x:70,type:'hide'},{id:'exit',x:93,type:'door',needs:0}],
-  monster:{x:80,dir:-1,speed:1.5,range:16,name:'Gem Golem',type:'golem'}},
- {n:3,name:'Power Cavern',emoji:'⚡',desc:'Lasers, dark zones, Spark Golem.',decor:'power',mode:'explore',gore:false,
-  intro:'Total blackout. Spark arcs crackle in the dark. Flip crystal switches to restore power — but the SPARK GOLEM stirs when the grid comes alive…',
+  obstacles:[{id:'p1',x:38,type:'block'},{id:'p2',x:62,type:'block'},{id:'p3',x:86,type:'block'}],
+  props:[{id:'k1',x:18,type:'crate'},{id:'k2',x:42,type:'crate'},{id:'k3',x:66,type:'crate'},{id:'k4',x:90,type:'crate'},{id:'h1',x:28,type:'hide'},{id:'h2',x:52,type:'hide'},{id:'h3',x:76,type:'hide'},{id:'h4',x:98,type:'hide'},{id:'exit',x:120,type:'door',needs:4}],
+  monster:{x:95,dir:-1,speed:1.5,range:16,name:'Gem Golem',type:'golem'}},
+ {n:3,name:'Power Cavern',emoji:'⚡',desc:'4 switches · Spark Golem.',decor:'power',mode:'explore',worldMax:125,gore:false,
+  intro:'Massive power cavern. Flip 4 crystal switches along the full length of the tunnel to restore the grid. The SPARK GOLEM wakes when the last switch throws…',
   boss:{name:'Spark Golem',type:'golem',phases:2},
-  obstacles:[{id:'l1',x:32,type:'laser'},{id:'l2',x:55,type:'laser'},{id:'g1',x:72,type:'gate'}],
-  props:[{id:'lev',x:36,type:'lever'},{id:'fuse',x:58,type:'lever',needsLever:true},{id:'exit',x:93,type:'door',needs:0}],
-  monster:{x:8,dir:1,speed:1.8,range:14,name:'Spark Golem',type:'golem',sleeping:true}},
- {n:4,name:'Geode Bay',emoji:'🔮',desc:'Crystal shards. Stalker hunts.',decor:'storage',mode:'patrol',gore:false,
-  intro:'Shattered geodes glitter on the floor. Crystal dust hangs in the air. The CRYSTAL STALKER patrols here — hide in a pod when it gets close.',
+  obstacles:[{id:'l1',x:28,type:'laser'},{id:'l2',x:48,type:'laser'},{id:'l3',x:68,type:'laser'},{id:'l4',x:88,type:'laser'},{id:'g1',x:102,type:'gate'}],
+  props:[{id:'lev',x:22,type:'lever'},{id:'s2',x:42,type:'lever'},{id:'s3',x:62,type:'lever'},{id:'s4',x:82,type:'lever'},{id:'exit',x:118,type:'door',needs:0}],
+  monster:{x:10,dir:1,speed:1.8,range:14,name:'Spark Golem',type:'golem',sleeping:true}},
+ {n:4,name:'Geode Bay',emoji:'🔮',desc:'5 shards · stalker hunt.',decor:'storage',mode:'patrol',worldMax:128,gore:false,
+  intro:'Huge storage bay. Gather 5 gem shards from the ore piles — vault locked until all 5. The CRYSTAL STALKER roams the full bay. Hide, grab, repeat.',
   boss:{name:'Crystal Stalker',type:'stalker',phases:2},
-  obstacles:[{id:'s1',x:26,type:'shard'},{id:'s2',x:44,type:'shard'},{id:'b1',x:58,type:'block'},{id:'s3',x:76,type:'shard'}],
-  props:[{id:'h1',x:20,type:'hide'},{id:'h2',x:46,type:'hide'},{id:'h3',x:68,type:'hide'},{id:'exit',x:93,type:'door',needs:0}],
-  monster:{x:14,dir:1,speed:1.7,range:16,name:'Crystal Stalker',type:'huggy'}},
- {n:5,name:'Vent Chase',emoji:'🕳️',desc:'Collapsing vents. Full chase.',decor:'vent',mode:'chase',gore:false,
-  intro:'CLANG CLANG CLANG! The GEM GOLEM tears through the vents! Collapsing crystal rubble everywhere — RUN to the vault!!!',
+  obstacles:[{id:'s1',x:30,type:'shard'},{id:'s2',x:50,type:'shard'},{id:'b1',x:70,type:'block'},{id:'s3',x:90,type:'shard'},{id:'s4',x:108,type:'shard'}],
+  props:[{id:'k1',x:16,type:'crate'},{id:'k2',x:36,type:'crate'},{id:'k3',x:56,type:'crate'},{id:'k4',x:76,type:'crate'},{id:'k5',x:96,type:'crate'},{id:'h1',x:24,type:'hide'},{id:'h2',x:48,type:'hide'},{id:'h3',x:72,type:'hide'},{id:'h4',x:96,type:'hide'},{id:'exit',x:122,type:'door',needs:5}],
+  monster:{x:18,dir:1,speed:1.7,range:16,name:'Crystal Stalker',type:'huggy'}},
+ {n:5,name:'Vent Chase',emoji:'🕳️',desc:'Grab 3 · then RUN.',decor:'vent',mode:'chase',worldMax:135,gore:false,
+  intro:'Long vent tunnel. FIRST: grab 3 emergency power cells from the wall mounts (walk the full vent). THEN the GEM GOLEM breaks in — sprint the rest of the tunnel!',
   boss:{name:'Gem Golem',type:'golem',phases:2},
-  obstacles:[{id:'c1',x:35,type:'collapse'},{id:'c2',x:55,type:'collapse'},{id:'c3',x:72,type:'collapse'}],
-  props:[{id:'exit',x:93,type:'door',needs:0}],
-  monster:{x:2,speed:2.3,name:'Gem Golem',type:'golem'}},
- {n:6,name:'Experiment Pit',emoji:'🔬',desc:'4 nodes, lasers, Weaver boss.',decor:'lab',mode:'explore',gore:false,
-  intro:'Failed gem experiments flicker in the dark. Activate all 4 power nodes — gem lasers guard each one. The AMETHYST WEAVER is waking up…',
+  obstacles:[{id:'c1',x:45,type:'collapse'},{id:'c2',x:72,type:'collapse'},{id:'c3',x:98,type:'collapse'},{id:'c4',x:118,type:'collapse'}],
+  props:[{id:'k1',x:22,type:'crate'},{id:'k2',x:48,type:'crate'},{id:'k3',x:74,type:'crate'},{id:'exit',x:130,type:'door',needs:3}],
+  monster:{x:4,speed:2.3,name:'Gem Golem',type:'golem',sleeping:true}},
+ {n:6,name:'Experiment Pit',emoji:'🔬',desc:'6 nodes · Weaver wakes.',decor:'lab',mode:'explore',worldMax:130,gore:false,
+  intro:'Deep experiment pit. Activate all 6 power nodes spread across the pit floor. Gem lasers guard each one. The AMETHYST WEAVER wakes when the last node goes live…',
   boss:{name:'Amethyst Weaver',type:'weaver',phases:2},
-  obstacles:[{id:'l1',x:26,type:'laser'},{id:'l2',x:42,type:'laser'},{id:'l3',x:58,type:'laser'},{id:'l4',x:74,type:'laser'}],
-  props:[{id:'p1',x:22,type:'console'},{id:'p2',x:38,type:'console'},{id:'p3',x:54,type:'console'},{id:'p4',x:70,type:'console'},{id:'exit',x:93,type:'door',needs:4}]},
- {n:7,name:'Music Cavern',emoji:'🎵',desc:'Silence = danger zones.',decor:'music',mode:'patrol',gore:false,
-  intro:'Crystal harmonics fill the cavern… then SILENCE. When the music stops, danger zones activate. The AMETHYST WEAVER hunts in the quiet.',
+  obstacles:[{id:'l1',x:22,type:'laser'},{id:'l2',x:38,type:'laser'},{id:'l3',x:54,type:'laser'},{id:'l4',x:70,type:'laser'},{id:'l5',x:86,type:'laser'},{id:'l6',x:102,type:'laser'}],
+  props:[{id:'p1',x:18,type:'console'},{id:'p2',x:34,type:'console'},{id:'p3',x:50,type:'console'},{id:'p4',x:66,type:'console'},{id:'p5',x:82,type:'console'},{id:'p6',x:98,type:'console'},{id:'exit',x:125,type:'door',needs:6}],
+  monster:{x:8,dir:1,speed:2,name:'Amethyst Weaver',type:'mommy',sleeping:true}},
+ {n:7,name:'Music Cavern',emoji:'🎵',desc:'4 nodes · silence hunt.',decor:'music',mode:'patrol',worldMax:128,gore:false,
+  intro:'Activate 4 harmonic nodes along the cavern FIRST. Then when the music stops, danger zones flare — hide from the AMETHYST WEAVER and reach the far vault.',
   boss:{name:'Amethyst Weaver',type:'weaver',phases:2},
-  obstacles:[{id:'l1',x:30,type:'laser'},{id:'l2',x:50,type:'laser'},{id:'l3',x:70,type:'laser'}],
-  props:[{id:'h1',x:24,type:'hide'},{id:'h2',x:52,type:'hide'},{id:'h3',x:74,type:'hide'},{id:'exit',x:93,type:'door',needs:0}],
-  monster:{x:78,dir:-1,speed:1.8,range:17,name:'Amethyst Weaver',type:'mommy',dance:true}},
- {n:8,name:'Loading Dock',emoji:'🚢',desc:'Gate timer. Crusher chase.',decor:'dock',mode:'chase',gore:false,gateTimer:50,
-  intro:'FACTORY ALARM! The GEODE CRUSHER smashes through ore carts! A massive gate is CLOSING — sprint before it seals you in forever!!!',
+  obstacles:[{id:'l1',x:32,type:'laser'},{id:'l2',x:56,type:'laser'},{id:'l3',x:80,type:'laser'},{id:'l4',x:104,type:'laser'}],
+  props:[{id:'n1',x:20,type:'console'},{id:'n2',x:44,type:'console'},{id:'n3',x:68,type:'console'},{id:'n4',x:92,type:'console'},{id:'h1',x:28,type:'hide'},{id:'h2',x:52,type:'hide'},{id:'h3',x:76,type:'hide'},{id:'h4',x:100,type:'hide'},{id:'exit',x:122,type:'door',needs:4}],
+  monster:{x:85,dir:-1,speed:1.8,range:17,name:'Amethyst Weaver',type:'mommy',dance:true}},
+ {n:8,name:'Loading Dock',emoji:'🚢',desc:'2 keys · gate chase.',decor:'dock',mode:'chase',worldMax:140,gore:false,gateTimer:65,
+  intro:'Massive loading dock. Grab 2 vault keys from the ore loaders at each end of the dock, THEN the alarm triggers — GEODE CRUSHER chase + closing gate!',
   boss:{name:'Geode Crusher',type:'geode',phases:2},
-  obstacles:[{id:'g1',x:85,type:'gate'}],
-  props:[{id:'exit',x:93,type:'door',needs:0}],
-  monster:{x:3,speed:2.5,name:'Geode Crusher',type:'boxy'}},
- {n:9,name:'Elevator Shaft',emoji:'🛗',desc:'Falling gems. Box climbs.',decor:'elevator',mode:'explore',gore:false,
-  intro:'You hear it CLIMBING — crystal scraping on metal. Pull all 3 switches while dodging falling gem shards. Race up before the GEODE BOX catches you!',
+  obstacles:[{id:'c1',x:38,type:'collapse'},{id:'c2',x:68,type:'collapse'},{id:'c3',x:98,type:'collapse'},{id:'g1',x:118,type:'gate'}],
+  props:[{id:'k1',x:24,type:'crate'},{id:'k2',x:72,type:'crate'},{id:'exit',x:135,type:'door',needs:2}],
+  monster:{x:3,speed:2.5,name:'Geode Crusher',type:'boxy',sleeping:true}},
+ {n:9,name:'Elevator Shaft',emoji:'🛗',desc:'5 switches · box climbs.',decor:'elevator',mode:'explore',worldMax:130,gore:false,
+  intro:'Tall elevator shaft — pull all 5 cable switches as you climb. The GEODE BOX scrabbles up below you. Finish every switch before it catches you!',
   boss:{name:'Geode Box',type:'geode',phases:2},
-  obstacles:[{id:'f1',x:34,type:'block'},{id:'f2',x:56,type:'block'},{id:'f3',x:78,type:'block'}],
-  props:[{id:'s1',x:26,type:'lever'},{id:'s2',x:48,type:'lever'},{id:'s3',x:70,type:'lever'},{id:'exit',x:93,type:'door',needs:3}],
+  obstacles:[{id:'f1',x:28,type:'block'},{id:'f2',x:48,type:'block'},{id:'f3',x:68,type:'block'},{id:'f4',x:88,type:'block'},{id:'f5',x:108,type:'block'}],
+  props:[{id:'s1',x:20,type:'lever'},{id:'s2',x:38,type:'lever'},{id:'s3',x:56,type:'lever'},{id:'s4',x:74,type:'lever'},{id:'s5',x:92,type:'lever'},{id:'exit',x:125,type:'door',needs:5}],
   monster:{x:6,dir:1,speed:1.6,range:12,name:'Geode Box',type:'boxy',climbing:true}},
- {n:10,name:'Crystal King',emoji:'👑',desc:'Ultimate boss. Run!',decor:'escape',mode:'chase',gore:false,
-  intro:'THE VAULT GATE. Every obstacle. The CRYSTAL KING — massive, multi-faceted, merciless — hunts you at full speed. THIS IS THE END. RUN!!!',
+ {n:10,name:'Crystal King',emoji:'👑',desc:'4 shards · king chase.',decor:'escape',mode:'chase',worldMax:145,gore:false,
+  intro:'The longest tunnel in the factory. Grab 4 crown shards from the vault floor, THEN the CRYSTAL KING hunts you through every obstacle type to the final gate.',
   boss:{name:'Crystal King',type:'king',phases:3},
-  obstacles:[{id:'b1',x:22,type:'block'},{id:'l1',x:38,type:'laser'},{id:'c1',x:52,type:'collapse'},{id:'s1',x:64,type:'shard'},{id:'l2',x:76,type:'laser'}],
-  props:[{id:'exit',x:93,type:'door',needs:0}],
-  monster:{x:2,speed:2.4,name:'Crystal King',type:'king'}}
+  obstacles:[{id:'b1',x:28,type:'block'},{id:'l1',x:44,type:'laser'},{id:'c1',x:60,type:'collapse'},{id:'s1',x:76,type:'shard'},{id:'l2',x:92,type:'laser'},{id:'b2',x:108,type:'block'},{id:'c2',x:124,type:'collapse'}],
+  props:[{id:'k1',x:20,type:'crate'},{id:'k2',x:45,type:'crate'},{id:'k3',x:70,type:'crate'},{id:'k4',x:95,type:'crate'},{id:'exit',x:140,type:'door',needs:4}],
+  monster:{x:2,speed:2.4,name:'Crystal King',type:'king',sleeping:true}}
 ];
 let ppGame=null;
 function poppyUnlockLevel(){try{return Math.max(1,parseInt(localStorage.getItem(POPPY_KEY)||'1',10)||1);}catch(_){return 1;}}
@@ -10373,7 +10374,8 @@ function ppOnKey(e){
  }
 }
 function ppOnKeyUp(e){ppOnKey(e);}
-function ppWorldScreen(x){if(!ppGame)return'50%';return `calc(50% + ${(x-ppGame.state.x)*0.85}%)`;}
+function ppWorldMax(){return ppGame?.cfg?.worldMax||128;}
+function ppWorldScreen(x){if(!ppGame)return'50%';return `calc(50% + ${(x-ppGame.state.x)*0.72}%)`;}
 function ppObjBottom(type){return type==='hide'?'30%':type==='door'?'26%':'32%';}
 function ppDoorNeeds(){
  if(!ppGame)return 0;
@@ -10467,9 +10469,9 @@ function ppAdvanceBossPhase(){
  if(!m||!c.boss)return;
  const phases=c.boss.phases||1;
  if(c.n===10){
-  if(s.x>50&&ppGame.bossPhase<2){ppGame.bossPhase=2;m.speed=(c.monster?.speed||2.4)+0.5;ppGame.msg='👑 PHASE 2 — CRYSTAL KING ACCELERATES!!!';ppSfx('roar');}
-  if(s.x>75&&ppGame.bossPhase<3){ppGame.bossPhase=3;m.speed=(c.monster?.speed||2.4)+1;ppGame.msg='💀 PHASE 3 — FINAL FORM — RUN FOR YOUR LIFE!!!';ppSfx('roar');setTimeout(()=>ppJumpscare(),150);}
- }else if(ppGame.bossPhase<phases&&s.x>55){
+  if(s.x>65&&ppGame.bossPhase<2){ppGame.bossPhase=2;m.speed=(c.monster?.speed||2.4)+0.5;ppGame.msg='👑 PHASE 2 — CRYSTAL KING ACCELERATES!!!';ppSfx('roar');}
+  if(s.x>100&&ppGame.bossPhase<3){ppGame.bossPhase=3;m.speed=(c.monster?.speed||2.4)+1;ppGame.msg='💀 PHASE 3 — FINAL FORM — RUN FOR YOUR LIFE!!!';ppSfx('roar');setTimeout(()=>ppJumpscare(),150);}
+ }else if(ppGame.bossPhase<phases&&s.x>75){
   ppGame.bossPhase++;
   m.speed=(m.speed||2)+0.3;
   ppGame.msg=`💀 ${ppBossName()} — PHASE ${ppGame.bossPhase} — FASTER!!!`;
@@ -10591,25 +10593,30 @@ function ppGrab(forcedProp){
  const p=forcedProp||ppNearProp();
  if(!p||!ppCanReachProp(p)){ppGame.msg=p?.type==='door'&&ppCanUseDoor(p)?'Walk closer to the exit door.':'Walk closer to interact.';if(ppGame.shellBuilt)ppUpdateWorld();return;}
  ppSetPose('grab');ppSfx('grab');
- if(p.type==='crate'){p.done=true;s.parts++;ppSparks();ppSfx('ding');ppToast('💎 Gem shard found!');
+ if(p.type==='crate'){
+  p.done=true;s.parts++;ppSparks();ppSfx('ding');ppToast('💎 Gem shard found!');
   const need=ppDoorNeeds();
-  if(ppCheckObjectiveDone()){ppOpenGates();ppToast('Exit unlocked — walk right');
+  if(ppCheckObjectiveDone()){ppOpenGates();ppToast('Objectives complete!');
    if(c.n===1&&!ppGame.chaseActive){ppGame.msg='You hear crystal grinding… THE SENTINEL IS WAKING!!!';setTimeout(()=>ppTriggerSentinelWake(),900);}
+   else if(c.mode==='chase'&&!ppGame.chaseActive){ppGame.msg=`All collected — ${ppBossName()} incoming!!!`;setTimeout(()=>ppTriggerChase(true),900);}
+   else if(c.mode==='patrol')ppGame.msg='Vault unlocked — sneak past the boss to the exit →';
    else ppGame.msg=ppGame.chaseActive?'All parts — RUN TO THE VAULT!!!':'All parts found! Walk to the glowing EXIT →';}
-  else ppGame.msg=`Parts ${s.parts}/${need} — keep searching!`;}
+  else ppGame.msg=`Parts ${s.parts}/${need} — keep exploring the tunnel!`;}
  else if(p.type==='lever'||p.type==='console'){
   if(p.needsLever&&!c.props.find(x=>x.id==='lev')?.done){ppGame.msg='Pull the main lever first!';if(ppGame.shellBuilt)ppUpdateWorld();return;}
-  p.done=true;s.parts++;ppSparks();ppSfx('ding');ppToast('⚡ Activated!');
+  p.done=true;s.parts++;ppSparks();ppSfx('ding');ppToast(p.type==='console'?'⚡ Node online!':'🔧 Switch flipped!');
   s.fear=Math.min(100,(s.fear||0)+8);
   if(ppCheckObjectiveDone()){
    ppOpenGates();
    if(c.n===3&&s.monster?.sleeping){s.monster.sleeping=false;s.monster.x=Math.max(2,s.x-30);ppGame.msg='⚡ POWER RESTORED — SPARK GOLEM ONLINE!!!';setTimeout(()=>ppTriggerChase(true),1200);}
-   else if(c.n===9&&!ppGame.chaseActive){ppGame.msg='🔊 Switches live — IT\'S CLIMBING FASTER!!!';setTimeout(()=>ppTriggerChase(true),1000);}
-   else if(!ppGame.chaseActive&&c.n>1&&c.n!==3){setTimeout(()=>{ppTriggerChase(true);},1400);ppGame.msg=`${ppBossName()} is waking up… RUN!!!`;}
+   else if(c.n===9&&!ppGame.chaseActive){ppGame.msg='🔊 All switches live — IT\'S CLIMBING FASTER!!!';setTimeout(()=>ppTriggerChase(true),1000);}
+   else if(c.mode==='chase'&&!ppGame.chaseActive){ppGame.msg=`All set — ${ppBossName()} is breaking in!!!`;setTimeout(()=>ppTriggerChase(true),900);}
+   else if(!ppGame.chaseActive&&c.n>1&&c.n!==3&&c.n!==9){setTimeout(()=>{ppTriggerChase(true);},1400);ppGame.msg=`${ppBossName()} is waking up… RUN!!!`;}
+   else if(c.mode==='patrol')ppGame.msg='Vault unlocked — sneak to the exit door →';
    else ppGame.msg='Exit door is open — GO!';
-  }else ppGame.msg='Keep going…';
+  }else ppGame.msg=`${s.parts}/${ppDoorNeeds()} done — keep going deeper into the tunnel!`;
  }else if(p.type==='door'){
-  if(!ppCanUseDoor(p)){ppGame.msg=`Not ready — need ${ppDoorNeeds()-s.parts} more part(s)!`;if(ppGame.shellBuilt)ppUpdateWorld();return;}
+  if(!ppCanUseDoor(p)){ppGame.msg=`Not ready — need ${Math.max(0,ppDoorNeeds()-s.parts)} more!`;if(ppGame.shellBuilt)ppUpdateWorld();return;}
   if(c.n===10&&ppGame.chaseActive){ppJumpscare();ppSfx('win');}
   ppWinChapter();return;
  }
@@ -10648,9 +10655,10 @@ function ppGameLoop(ts){
  if(ppGame.chaseActive)ppAdvanceBossPhase();
  ppCheckLasers();
  if(ppCheckObjectiveDone())ppOpenGates();
+ const wmax=ppWorldMax();
  let nx=s.x;
  if(ppGame.keys.left&&!s.crouch){nx=Math.max(5,s.x-spd*dt);s.pose=ppGame.keys.run||chasing?'run':'walk';moving=true;}
- if(ppGame.keys.right&&!s.crouch){nx=Math.min(96,s.x+spd*dt);s.pose=ppGame.keys.run||chasing?'run':'walk';moving=true;}
+ if(ppGame.keys.right&&!s.crouch){nx=Math.min(wmax,s.x+spd*dt);s.pose=ppGame.keys.run||chasing?'run':'walk';moving=true;}
  if(nx!==s.x){
   if(ppBlockedAt(nx)){
    nx=s.x;
@@ -10675,7 +10683,8 @@ function ppGameLoop(ts){
    s.fear=Math.min(100,(s.fear||0)+0.8*dt);
    const gap=s.x-s.monster.x;
    if(gap<3){ppGame.lost=true;ppGame.msg='Caught! So close — hold Run next time!';ppSfx('caught');ppJumpscare();ppStopLoop();renderPoppyPlay();return;}
-   if(s.x>=88){ppWinChapter();return;}
+   const exitX=c.props.find(x=>x.type==='door')?.x||wmax-5;
+   if(s.x>=exitX-6){ppWinChapter();return;}
    if(gap<12){ppGame.msg=`💀 ${ppBossName()} RIGHT BEHIND YOU — RUN!!!`;if(Math.random()<.08)ppSfx('chase');}
    else ppGame.msg=`RUN from ${ppBossName()} — vault ahead!!!`;
    if(Math.random()<.06)ppSfx('heartbeat');
@@ -10710,12 +10719,15 @@ function ppGameLoop(ts){
   if(s.monster.x>=s.x-8)ppTriggerChase(true);
   else if(Math.random()<.02)ppGame.msg='🛗 You hear it climbing… faster!!!';
  }else{
-  const door=c.props.find(x=>x.type==='door');
-  if(c.mode==='explore'&&!ppGame.chaseActive&&door&&ppCanUseDoor(door)&&s.x>=door.x-20){
-   ppWinChapter();return;
+  if(moving){
+   const pct=Math.floor(s.x/wmax*100);
+   const ms=ppGame.lastMilestone||0;
+   if(pct>=25&&ms<25){ppGame.lastMilestone=25;ppToast('📍 25% through the tunnel');}
+   else if(pct>=50&&ms<50){ppGame.lastMilestone=50;ppToast('📍 Halfway there!');}
+   else if(pct>=75&&ms<75){ppGame.lastMilestone=75;ppToast('📍 Almost at the vault!');}
+   if(c.n===1)s.fear=Math.max(0,(s.fear||0)-0.5*dt);
+   else s.fear=Math.max(0,(s.fear||0)-0.2*dt);
   }
-  if(c.n===1)s.fear=Math.max(0,(s.fear||0)-0.5*dt);
-  else if(moving)s.fear=Math.max(0,(s.fear||0)-0.2*dt);
  }
  if(!ppGame.ambT||ts-ppGame.ambT>8000){ppSfx('drone');ppGame.ambT=ts;}
  if(moving&&Math.random()<.035)ppSfx('step');
@@ -10824,7 +10836,8 @@ function playPoppyChapter(n){
  if(!cfg||n>poppyUnlockLevel())return;
  closePoppyPlay();
  const obstacles=cfg.obstacles?cfg.obstacles.map(o=>({...o})):null;
- ppGame={cfg:{...cfg,props:cfg.props.map(p=>({...p})),obstacles},state:ppInitState(cfg),won:false,lost:false,intro:true,shellBuilt:false,chaseActive:cfg.mode==='chase',chaseGraceUntil:0,bossPhase:1,musicOff:false,keys:{left:false,right:false,run:false},msg:cfg.intro};
+ const preCollect=cfg.props.some(p=>['crate','console','lever'].includes(p.type));
+ ppGame={cfg:{...cfg,props:cfg.props.map(p=>({...p})),obstacles},state:ppInitState(cfg),won:false,lost:false,intro:true,shellBuilt:false,chaseActive:cfg.mode==='chase'&&!preCollect,chaseGraceUntil:0,bossPhase:1,musicOff:false,lastMilestone:0,keys:{left:false,right:false,run:false},msg:cfg.intro};
  const wrap=document.createElement('div');
  wrap.id='poppyplay';
  wrap.className=ppUseKeyboard()?'pp-computer':'pp-mobile';
@@ -10858,20 +10871,24 @@ document.addEventListener('keydown',poppyHubOnKey);
 function ppStartChapter(){
  if(!ppGame)return;
  ppGame.intro=false;
- ppGame.msg=ppGame.cfg.intro;
- if(ppGame.cfg.mode==='chase'){
+ ppGame.lastMilestone=0;
+ const c=ppGame.cfg;
+ const preCollect=c.props.some(p=>['crate','console','lever'].includes(p.type));
+ if(c.mode==='chase'&&ppGame.chaseActive){
   ppGame.chaseGraceUntil=Date.now()+3500;
-  if(ppGame.state.monster)ppGame.state.monster.x=Math.max(2,ppGame.state.x-45);
-  if(ppGame.cfg.gateTimer)ppGame.gateCloseAt=Date.now()+ppGame.cfg.gateTimer*1000;
+  if(ppGame.state.monster){ppGame.state.monster.x=Math.max(2,ppGame.state.x-45);ppGame.state.monster.sleeping=false;}
+  if(c.gateTimer)ppGame.gateCloseAt=Date.now()+c.gateTimer*1000;
   ppGame.msg=`💀 HEAD START — ${ppBossName()} is coming!!! HOLD Run ▶`;
   ppSfx('roar');
   setTimeout(()=>ppJumpscare(),500);
- }else if(ppGame.cfg.n===1){
-  ppGame.msg='Collect 3 gem shards — dodge crystal blocks — then RUN before the Sentinel wakes!';
+ }else if(c.mode==='chase'&&preCollect){
+  ppGame.msg='Explore the tunnel — grab ALL objectives first. The boss breaks in when you\'re done!';
+ }else if(c.n===1){
+  ppGame.msg='Collect 5 gem shards along the tunnel — then RUN before the Sentinel wakes!';
  }else{
-  ppGame.msg=ppGame.cfg.intro.split('.')[0]+'.';
+  ppGame.msg=c.intro.split('.')[0]+'.';
  }
- if(ppGame.cfg.n>1)ppSfx('drone');
+ if(c.n>1)ppSfx('drone');
  ppStartLoop();
  renderPoppyPlay();
 }
