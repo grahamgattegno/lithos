@@ -39,7 +39,8 @@
   /* ---------- Header ---------- */
   header.site{
     position:sticky;top:0;z-index:40;
-    display:flex;align-items:center;justify-content:space-between;
+    display:grid;grid-template-columns:minmax(0,auto) minmax(0,1fr);
+    align-items:center;gap:16px 24px;
     padding:20px 40px;
     background:rgba(10,11,15,.72);
     backdrop-filter:blur(14px);
@@ -54,14 +55,16 @@
     font-family:var(--mono);font-size:10.5px;letter-spacing:.28em;
     text-transform:uppercase;color:var(--text-faint);
   }
-  nav.top{display:flex;gap:34px;align-items:center;flex-wrap:wrap;justify-content:flex-end;max-width:100%}
+  nav.top{display:flex;gap:18px;align-items:center;flex-wrap:nowrap;justify-content:flex-start;max-width:100%;min-width:0;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px;scrollbar-width:thin}
   nav.top button{
+    flex:0 0 auto;white-space:nowrap;
     background:none;border:none;color:var(--text-dim);cursor:pointer;
     font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;
     padding:6px 0;transition:color .2s;
   }
   nav.top button:hover,nav.top button.on{color:var(--text)}
   nav.top .buy-cta{
+    flex:0 0 auto;white-space:nowrap;
     background:var(--gold);color:var(--ink);text-decoration:none;
     font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;
     padding:10px 16px;border-radius:4px;transition:transform .15s,filter .15s;
@@ -91,6 +94,15 @@
     margin-top:52px;display:flex;gap:52px;flex-wrap:wrap;
     padding-top:30px;border-top:1px solid var(--line);
   }
+  .games-launch{margin-top:28px;display:flex;flex-wrap:wrap;gap:12px}
+  .games-launch button{
+    background:var(--panel);border:1px solid var(--line);color:var(--text);cursor:pointer;
+    font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;
+    padding:14px 20px;border-radius:8px;transition:transform .15s,border-color .15s,background .15s;
+  }
+  .games-launch button:hover{transform:translateY(-2px);border-color:var(--gold);background:rgba(201,169,79,.08)}
+  .games-launch button.primary{background:var(--gold);color:var(--ink);border-color:var(--gold)}
+  .games-launch button.primary:hover{filter:brightness(1.05)}
   .hero .meta-row .stat .n{
     font-family:var(--serif);font-size:38px;font-weight:400;line-height:1;
   }
@@ -1877,7 +1889,7 @@
     .donate-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
   }
   @media(max-width:640px){
-    header.site{padding:16px 20px}
+    header.site{padding:16px 20px;grid-template-columns:1fr;gap:12px}
     nav.top{display:flex;gap:10px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%;padding-bottom:4px;scrollbar-width:thin}
     nav.top button{display:none}
     /* Keep Catalog + Donate reachable — other views stay desktop-nav only */
@@ -1982,6 +1994,11 @@
  <div class="stat"><div class="n">4.5–10</div><div class="l">Mohs Range</div></div>
  <div class="stat"><div class="n">30+</div><div class="l">Source Regions</div></div>
  <div class="stat"><div class="n">9</div><div class="l">Crystal Systems</div></div>
+ </div>
+ <div class="games-launch" aria-label="Play Lithos games">
+ <button type="button" class="primary" onclick="switchView('battlefield')">⚔ Battlefield</button>
+ <button type="button" onclick="switchView('game')">Gem Arena</button>
+ <button type="button" onclick="switchView('gemhunt')">Gem Hunt</button>
  </div>
 </section>
 
@@ -7022,7 +7039,12 @@ function renderExpedition(){
 }
 function startArmyBattle(){
  stopExpLoop(); exp=null;
- const unlocked=WARRIORS.filter(w=>warriorUnlocked(w));
+ const unlocked=WARRIORS.filter((w,i)=>warriorUnlocked(w,i));
+ if(!unlocked.length){
+  alert('Unlock a gem warrior in Gem Arena first — beat Crystal Lords or use a secret code!');
+  switchView('game');
+  return;
+ }
  const hero=unlocked.reduce((a,b)=>b.power>a.power?b:a);
  const aura=AURAS[equippedAura]||AURAS[0];
  const baseHP=hero.plasma?hero.hp:100;
@@ -8181,6 +8203,8 @@ document.addEventListener('click',e=>{
   return;
  }
  if(btn.id==='stage-quiz-go'){ bf&&bf.quizActive?closeStageQuiz():(arenaQuiz&&arenaQuiz.active?closeArenaStageQuiz():null); return; }
+ if(btn.id==='bf-start'){ startArmyBattle(); return; }
+ if(btn.id==='bf-expedition'){ startExpedition(); return; }
  if(btn.id==='stage-quiz-retry'){
   if(bf&&bf.quizActive){ bf.quizResult=null; renderBattlefieldFrame(); return; }
   if(arenaQuiz&&arenaQuiz.active){ arenaQuiz.result=null; renderStageQuizOverlay(getActiveStageQuiz()); return; }
