@@ -1118,6 +1118,11 @@
   .gm-pick-btn:hover{border-color:var(--gold);color:var(--text)}
   .gm-pick-btn.on{border-color:var(--gold);background:rgba(201,169,79,.12);color:var(--gold);box-shadow:0 0 0 1px rgba(201,169,79,.25)}
   .gm-pick-btn .gm-pick-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;vertical-align:middle}
+  .gm-pick-btn.locked{opacity:.42;filter:grayscale(.65);cursor:not-allowed;border-style:dashed;position:relative}
+  .gm-pick-btn.locked:hover{border-color:var(--line-2);color:var(--text-dim);transform:none}
+  .gm-pick-btn .gm-owner-badge{display:inline-block;font-size:7px;letter-spacing:.1em;padding:1px 4px;border-radius:3px;margin-left:3px;vertical-align:middle;background:linear-gradient(135deg,rgba(201,169,79,.35),rgba(224,66,79,.25));color:var(--gold);border:1px solid rgba(201,169,79,.5)}
+  .gm-pick-btn .gm-lock-icon{opacity:.75;margin-right:2px;font-size:9px}
+  .gm-armory-hint{font-size:12px;color:var(--text-faint);margin-top:8px;font-style:italic;line-height:1.45}
   .gm-hud-loadout{display:flex;flex-wrap:wrap;gap:8px 14px;font-size:10px;margin-top:4px;padding-top:10px;border-top:1px solid var(--line-2)}
   .gm-hud-loadout span{color:var(--text-faint)}
   .gm-hud-loadout b{color:var(--text);font-weight:500}
@@ -3450,6 +3455,7 @@
  <div class="code-result" id="code-result"></div>
  <div class="code-hint">
  <p>Secret codes unlock special powers — including one that makes you the <b>owner</b> of the whole game. Paid for a membership? Try your receipt code (e.g. <b>GOLDHOME45</b>).</p>
+ <p style="margin-top:14px"><b>Weaponary codes</b> unlock Motion Hunt gear — weapons, shields, powers, and avatars in the <a href="#gemmotion" onclick="switchView('gemmotion');return false;" style="color:var(--gold)">Gem Armory</a>. Owner-tier codes need owner status or the correct weaponary code.</p>
  <p style="margin-top:14px"><a href="#video" onclick="switchView('video');return false;" style="color:var(--gold)">Owner TV</a> — private video platform (owner code required).</p>
  </div>
  </section>
@@ -6018,6 +6024,8 @@ function restoreOwnerUnlocks(){
  if(typeof setMemberTier==='function') setMemberTier('gold');
  if(!hasPlasmaMace){ WEAPONS.push(PLASMA_MACE); hasPlasmaMace=true; }
  if(!hasPlasmaTitan){ WARRIORS.push(PLASMA_TITAN); hasPlasmaTitan=true; }
+ gmSetOwnerArmory();
+ gmUnlockOwnerArmoryItems();
  updateOwnerNav();
 }
 function updateOwnerNav(){
@@ -10583,7 +10591,10 @@ function tryCode(){
  updateGameLock();
  const partsBtn=document.getElementById('parts-nav-btn'); if(partsBtn)partsBtn.style.display='';
  updateOwnerNav();
+ gmSetOwnerArmory();
+ const armUnlocked=gmUnlockOwnerArmoryItems();
  if(typeof buildAuras==='function' && document.getElementById('auras-grid')) buildAuras();
+ const armList=armUnlocked.length?`<br><br><b>Weaponary unlocked:</b> ${armUnlocked.map(gmItemLabel).join(', ')} — see Gem Armory!`:'';
  res.innerHTML=`<div class="owner">
  <div class="crown"></div>
  <b>WELCOME, OWNER!</b><br><br>
@@ -10595,11 +10606,23 @@ function tryCode(){
  The <b>AI Rock Teacher</b> on the Classes page<br>
  You can play freely!<br>
  NEW: a <b>Parts</b> button appeared in the menu — jump to ANY part of the adventure!<br>
- NEW: <b>Owner TV</b> — your private video platform for anything you want to watch!<br><br>
- <button type="button" class="game-btn" onclick="switchView('video')" style="margin-top:8px">Open Owner TV now</button><br><br>
+ NEW: <b>Owner TV</b> — your private video platform for anything you want to watch!<br>
+ NEW: All <b>Motion Hunt weaponary</b> — owner blades, shields, powers &amp; avatars!${armList}<br><br>
+ <button type="button" class="game-btn" onclick="switchView('video')" style="margin-top:8px">Open Owner TV now</button>
+ <button type="button" class="game-btn" onclick="switchView('gemmotion')" style="margin-top:8px;margin-left:8px">Open Gem Armory</button><br><br>
  Go to the Gem Arena and check it out!
  </div>`;
  return;
+ }
+
+ // WEAPONARY CODES — unlock Motion Hunt armory gear
+ const wCode=gmUnlockByCode(rawInput);
+ if(wCode){
+  const names=wCode.labels.join(', ');
+  const tier=wCode.owner?`<span class="gm-owner-badge">OWNER</span> `:'';
+  if(document.getElementById('gm-wrap'))buildGemMotion();
+  res.innerHTML=`<div class="win">${tier}<b>Weaponary unlocked!</b><br><br>${names}<br><br>Go to <button type="button" class="collab-link" onclick="switchView('gemmotion')">Motion Hunt → Gem Armory</button> to equip your new gear!</div>`;
+  return;
  }
 
  // NIGHT SHIFT AT THE GEM FACTORY — a spooky survive-the-night game!
@@ -12137,29 +12160,104 @@ const GM_AVATARS=[
  {id:'emerald-hunter',name:'Emerald Hunter',color:'#3ecf8a',glow:'rgba(62,207,138,.65)',joint:'#5eeaa8'},
  {id:'amethyst-mage',name:'Amethyst Mage',color:'#9b6fd4',glow:'rgba(155,111,212,.65)',joint:'#c49bff'},
  {id:'diamond-paladin',name:'Diamond Paladin',color:'#e8f4ff',glow:'rgba(232,244,255,.55)',joint:'#ffffff'},
- {id:'topaz-ranger',name:'Topaz Ranger',color:'#f0b429',glow:'rgba(240,180,41,.65)',joint:'#ffd45a'}
+ {id:'topaz-ranger',name:'Topaz Ranger',color:'#f0b429',glow:'rgba(240,180,41,.65)',joint:'#ffd45a'},
+ {id:'owner-gem',name:'Owner Gem',color:'#ffd700',glow:'rgba(255,215,0,.75)',joint:'#fff8dc',ownerOnly:true},
+ {id:'glitched-aura',name:'Glitched Aura',color:'#39ff14',glow:'rgba(57,255,20,.65)',joint:'#ff00cc',ownerOnly:true,code:'GLITCHARMOR'}
 ];
 const GM_WEAPONS=[
  {id:'ruby-blade',name:'Ruby Blade',desc:'+35% hand radius',handMul:1.35},
  {id:'sapphire-spear',name:'Sapphire Spear',desc:'+25% head reach',headMul:1.25},
  {id:'emerald-gauntlets',name:'Emerald Gauntlets',desc:'+12% hand magnet',magnet:0.12},
  {id:'garnet-claws',name:'Garnet Claws',desc:'+20% all radii',allMul:1.2},
+ {id:'ruby-edge',name:'Ruby Edge',desc:'+55% hand + magnet',handMul:1.55,magnet:0.2,code:'RUBYEDGE'},
+ {id:'infinity-blade',name:'Infinity Blade',desc:'OP catch + magnet',allMul:2,headMul:1.6,handMul:1.6,magnet:0.3,ownerOnly:true,code:'OWNERBLADE'},
+ {id:'glitch-claw',name:'Glitch Claw',desc:'Glitch magnet claw',allMul:2.5,magnet:0.45,ownerOnly:true,code:'GLITCHARMOR'},
+ {id:'owners-scepter',name:"Owner's Scepter",desc:'Max head + hand reach',headMul:2.5,handMul:2,magnet:0.35,ownerOnly:true},
  {id:'none',name:'Bare Hands',desc:'Standard catch zones'}
 ];
 const GM_SHIELDS=[
  {id:'diamond-shield',name:'Diamond Shield',desc:'Block 1 bad gem per life',perLife:true},
  {id:'quartz-barrier',name:'Quartz Barrier',desc:'Block bad gems (25s CD)',cooldown:25000},
+ {id:'shield-forge',name:'Shield Forge',desc:'Block 3 bad gems per life',perLife:true,uses:3,code:'SHIELDFORGE'},
+ {id:'diamond-fortress',name:'Diamond Fortress',desc:'Block ALL bad gems',blockAll:true,ownerOnly:true,code:'DIAMONDGUARD'},
+ {id:'owner-aegis',name:'Owner Aegis',desc:'Block all (8s CD)',blockAll:true,cooldown:8000,ownerOnly:true},
  {id:'none',name:'No Shield',desc:'Take full damage'}
 ];
 const GM_POWERS=[
  {id:'gem-burst',name:'Gem Burst',desc:'Collect all gems',cooldown:35000,duration:0},
  {id:'magnet-pull',name:'Magnet Pull',desc:'Pull gems 3s',cooldown:22000,duration:3000},
- {id:'time-slow',name:'Time Slow',desc:'Slow falls 4s',cooldown:28000,duration:4000}
+ {id:'time-slow',name:'Time Slow',desc:'Slow falls 4s',cooldown:28000,duration:4000},
+ {id:'gem-storm',name:'Gem Storm',desc:'Super magnet 5s',cooldown:24000,duration:5000,magnetBoost:0.22,code:'GEMSTORM'},
+ {id:'gem-apocalypse',name:'Gem Apocalypse',desc:'Collect all + 2× score',cooldown:20000,duration:0,scoreMul:2,ownerOnly:true,code:'INFINITYSTRIKE'},
+ {id:'time-freeze',name:'Time Freeze',desc:'Freeze falls 6s',cooldown:18000,duration:6000,freezeMul:0.2,ownerOnly:true},
+ {id:'owner-burst',name:'Owner Burst',desc:'Mega collect burst',cooldown:16000,duration:0,scoreMul:3,ownerOnly:true},
+ {id:'none',name:'No Power',desc:'Powers disabled',cooldown:999999,duration:0}
 ];
 const GM_LOADOUT_KEY='lithos-gm-loadout';
+const ARMORY_UNLOCKS_KEY='lithos_armory_unlocks';
+const ARMORY_OWNER_KEY='lithos_armory_owner';
+const WEAPONARY_CODES={
+ ownerblade:{items:['infinity-blade'],labels:['Infinity Blade'],owner:true},
+ diamondguard:{items:['diamond-fortress'],labels:['Diamond Fortress'],owner:true},
+ infinitystrike:{items:['gem-apocalypse'],labels:['Gem Apocalypse'],owner:true},
+ glitcharmor:{items:['glitch-claw','glitched-aura'],labels:['Glitch Claw','Glitched Aura avatar'],owner:true},
+ rubyedge:{items:['ruby-edge'],labels:['Ruby Edge']},
+ shieldforge:{items:['shield-forge'],labels:['Shield Forge']},
+ gemstorm:{items:['gem-storm'],labels:['Gem Storm']}
+};
+function isSiteOwner(){return!!isOwner;}
+function gmLoadUnlocks(){
+ try{const u=JSON.parse(localStorage.getItem(ARMORY_UNLOCKS_KEY)||'[]');return Array.isArray(u)?u:[];}
+ catch(_){return[];}
+}
+function gmSaveUnlocks(list){try{localStorage.setItem(ARMORY_UNLOCKS_KEY,JSON.stringify(list));}catch(_){}}
+function gmHasOwnerArmory(){return isOwner||localStorage.getItem(ARMORY_OWNER_KEY)==='1';}
+function gmSetOwnerArmory(){try{localStorage.setItem(ARMORY_OWNER_KEY,'1');}catch(_){}}
+function gmAllArmoryItems(){
+ return [...GM_AVATARS,...GM_WEAPONS,...GM_SHIELDS,...GM_POWERS].filter(x=>x.id!=='none');
+}
+function gmUnlockOwnerArmoryItems(){
+ const unlocks=gmLoadUnlocks(),add=[];
+ gmAllArmoryItems().forEach(it=>{
+  if(it.ownerOnly&&!unlocks.includes(it.id)){unlocks.push(it.id);add.push(it.id);}
+ });
+ if(add.length)gmSaveUnlocks(unlocks);
+ return add;
+}
+function gmIsItemUnlocked(item){
+ if(!item||item.id==='none')return true;
+ if(!item.code&&!item.ownerOnly)return true;
+ if(isOwner)return true;
+ if(item.ownerOnly&&gmHasOwnerArmory())return true;
+ if(item.code)return gmLoadUnlocks().includes(item.id);
+ return true;
+}
+function gmUnlockByCode(raw){
+ const key=secretCodeKey(raw);
+ const entry=WEAPONARY_CODES[key];
+ if(!entry)return null;
+ const unlocks=gmLoadUnlocks(),added=[];
+ entry.items.forEach(id=>{if(!unlocks.includes(id)){unlocks.push(id);added.push(id);}});
+ if(entry.owner)gmSetOwnerArmory();
+ gmSaveUnlocks(unlocks);
+ return{labels:entry.labels,added,owner:!!entry.owner};
+}
+function gmItemLabel(id){
+ const it=gmAllArmoryItems().find(x=>x.id===id);
+ return it?it.name:id;
+}
+function gmSanitizeLoadout(lo){
+ const d=gmDefaultLoadout(),out={...d,...lo};
+ ['avatar','weapon','shield','power'].forEach(k=>{
+  const list={avatar:GM_AVATARS,weapon:GM_WEAPONS,shield:GM_SHIELDS,power:GM_POWERS}[k];
+  const it=gmFind(list,out[k]);
+  if(!gmIsItemUnlocked(it))out[k]=d[k];
+ });
+ return out;
+}
 function gmDefaultLoadout(){return{avatar:'ruby-knight',weapon:'ruby-blade',shield:'diamond-shield',power:'gem-burst'};}
 function gmLoadLoadout(){
- try{const s=JSON.parse(localStorage.getItem(GM_LOADOUT_KEY)||'');if(s&&s.avatar)return{...gmDefaultLoadout(),...s};}
+ try{const s=JSON.parse(localStorage.getItem(GM_LOADOUT_KEY)||'');if(s&&s.avatar)return gmSanitizeLoadout({...gmDefaultLoadout(),...s});}
  catch(_){}
  return gmDefaultLoadout();
 }
@@ -12211,7 +12309,13 @@ function buildGemMotion(){
  if(!wrap)return;
  const hi=gmHi();
  const lo=gmLoadLoadout();
- const pickBtns=(list,key,field)=>list.map(o=>`<button type="button" class="gm-pick-btn${lo[key]===o.id?' on':''}" data-gm-pick="${key}" data-id="${o.id}">${field==='color'?`<span class="gm-pick-dot" style="background:${o.color}"></span>`:''}${o.name}</button>`).join('');
+ const pickBtns=(list,key,field)=>list.map(o=>{
+  const unlocked=gmIsItemUnlocked(o);
+  const locked=!unlocked;
+  const badge=o.ownerOnly?`<span class="gm-owner-badge">${locked?'🔐':'OWNER'}</span>`:'';
+  const lockHint=locked?`<span class="gm-lock-icon" title="Enter weaponary code">🔒</span>`:'';
+  return `<button type="button" class="gm-pick-btn${lo[key]===o.id?' on':''}${locked?' locked':''}" data-gm-pick="${key}" data-id="${o.id}"${locked?' disabled title="Enter weaponary code in Secret Codes"':''}>${lockHint}${field==='color'?`<span class="gm-pick-dot" style="background:${o.color}"></span>`:''}${o.name}${badge}</button>`;
+ }).join('');
  wrap.innerHTML=`
  <div class="eyebrow">Body Tracker · Collect the Gems</div>
  <h1>Gem <em>Motion Hunt</em></h1>
@@ -12222,6 +12326,7 @@ function buildGemMotion(){
    <div>
     <h2 class="gm-armory-title">Gem Armory</h2>
     <p class="gm-armory-sub">Pick your gear before you start</p>
+    <p class="gm-armory-hint">🔐 Owner gear needs a weaponary code on the Secret Codes page — or owner status.</p>
    </div>
   </div>
   <div class="gm-loadout-scroll">
@@ -12272,12 +12377,14 @@ function buildGemMotion(){
  document.getElementById('gm-power-btn').onclick=()=>{if(gmState&&gmState.activatePower)gmState.activatePower();};
  wrap.querySelectorAll('[data-gm-pick]').forEach(btn=>{
   btn.onclick=()=>{
+   if(btn.disabled||btn.classList.contains('locked'))return;
    const key=btn.dataset.gmPick,id=btn.dataset.id;
+   const list={avatar:GM_AVATARS,weapon:GM_WEAPONS,shield:GM_SHIELDS,power:GM_POWERS}[key];
+   if(!gmIsItemUnlocked(gmFind(list,id)))return;
    lo[key]=id;gmSaveLoadout(lo);
    btn.parentElement.querySelectorAll('.gm-pick-btn').forEach(b=>b.classList.toggle('on',b.dataset.id===id));
-   const map={avatar:GM_AVATARS,weapon:GM_WEAPONS,shield:GM_SHIELDS,power:GM_POWERS};
    const el=document.getElementById('gm-hud-'+key);
-   if(el)el.textContent=gmFind(map[key],id).name;
+   if(el)el.textContent=gmFind(list,id).name;
    gmUpdateGearStrip(lo);
   };
  });
@@ -12303,7 +12410,7 @@ async function startGemMotion(){
  const shield=gmFind(GM_SHIELDS,loadout.shield);
  const power=gmFind(GM_POWERS,loadout.power);
  let score=0,lives=3,combo=0,spawnT=0,lastT=0;
- let shieldUses=shield.perLife?1:0,shieldReadyAt=0,shieldActiveT=0;
+ let shieldUses=shield.perLife?(shield.uses||1):0,shieldReadyAt=0,shieldActiveT=0;
  let powerReadyAt=0,powerActiveT=0,powerActiveId=null,lastBurstScore=0,handsRaisedT=0;
  const falling=[];
  gmState={running:true,raf:null,videoStream:null,pose:null,camera:null,landmarks:null,frameImage:null};
@@ -12423,7 +12530,7 @@ async function startGemMotion(){
   if(roll<0.22)g=GM_GEMS[6];
   else if(roll<0.38)g=GM_GEMS[7];
   else g=GM_GEMS[Math.floor(Math.random()*6)];
-  const slow=powerActiveId==='time-slow'?0.55:1;
+  const slow=powerActiveId==='time-slow'?0.55:(powerActiveId==='time-freeze'?0.2:1);
   falling.push({
    x:30+Math.random()*(W-60),y:-24,r:14+Math.random()*6,
    vy:(1.8+Math.random()*1.4+score*0.008)*slow,
@@ -12453,7 +12560,8 @@ async function startGemMotion(){
   return false;
  }
  function magnetPull(gem,points,dt){
-  if(!weapon.magnet&&!powerActiveId)return;
+  const magOn=weapon.magnet||powerActiveId==='magnet-pull'||powerActiveId==='gem-storm';
+  if(!magOn&&!powerActiveId)return;
   const hands=points.filter(p=>p.idx===15||p.idx===16);
   if(!hands.length)return;
   let best=null,bestD=99999;
@@ -12463,23 +12571,35 @@ async function startGemMotion(){
    if(d<reach&&d<bestD){best=h;bestD=d;}
   }
   if(!best)return;
-  const strength=powerActiveId==='magnet-pull'?0.14:(weapon.magnet||0)*0.5;
+  let strength=0.14;
+  if(powerActiveId==='gem-storm')strength=(power.magnetBoost||0.22)+0.08;
+  else if(powerActiveId==='magnet-pull')strength=0.14;
+  else strength=(weapon.magnet||0)*0.5;
   gem.x+=(best.x-gem.x)*strength*(dt/16);
   gem.y+=(best.y-gem.y)*strength*(dt/16);
  }
  function tryBlockBadGem(){
   if(shield.id==='none')return false;
+  if(shield.blockAll){
+   if(shield.perLife&&shieldUses>0){shieldUses--;shieldActiveT=900;return true;}
+   if(shield.cooldown&&t>=shieldReadyAt){shieldReadyAt=t+shield.cooldown;shieldActiveT=900;return true;}
+   if(!shield.perLife&&!shield.cooldown){shieldActiveT=900;return true;}
+   return false;
+  }
   if(shield.perLife&&shieldUses>0){shieldUses--;shieldActiveT=900;return true;}
   if(shield.cooldown&&t>=shieldReadyAt){shieldReadyAt=t+shield.cooldown;shieldActiveT=900;return true;}
   return false;
  }
+ function collectAllGems(mul){
+  for(const f of falling){if(f.gem.good){combo++;score+=Math.round(f.gem.points*(1+Math.floor(combo/5)*0.5)*mul);}}
+  falling.length=0;
+ }
  function activatePower(){
   if(t<powerReadyAt||powerActiveT>0)return;
   powerActiveId=power.id;powerActiveT=power.duration||800;powerReadyAt=t+power.cooldown;
-  if(power.id==='gem-burst'){
-   for(const f of falling){if(f.gem.good){combo++;score+=Math.round(f.gem.points*(1+Math.floor(combo/5)*0.5));}}
-   falling.length=0;powerActiveT=600;
-  }
+  if(power.id==='gem-burst'){collectAllGems(1);powerActiveT=600;}
+  else if(power.id==='gem-apocalypse'||power.id==='owner-burst'){collectAllGems(power.scoreMul||2);powerActiveT=600;}
+  else if(power.id==='gem-storm'){powerActiveId='gem-storm';}
  }
  gmState.activatePower=activatePower;
  function updatePowerUI(){
@@ -12513,7 +12633,7 @@ async function startGemMotion(){
   const dt=Math.min(32,t-lastT);lastT=t;
   if(powerActiveT>0)powerActiveT=Math.max(0,powerActiveT-dt);
   if(shieldActiveT>0)shieldActiveT=Math.max(0,shieldActiveT-dt);
-  if(powerActiveT===0&&powerActiveId&&power.id!=='gem-burst')powerActiveId=null;
+  if(powerActiveT===0&&powerActiveId&&power.id!=='gem-burst'&&power.id!=='gem-apocalypse'&&power.id!=='owner-burst')powerActiveId=null;
 
   spawnT+=dt;
   const interval=Math.max(420,900-score*3);
@@ -12535,9 +12655,9 @@ async function startGemMotion(){
 
   for(let i=falling.length-1;i>=0;i--){
    const f=falling[i];
-   const fallMul=powerActiveId==='time-slow'?0.45:1;
+   const fallMul=powerActiveId==='time-slow'?0.45:(powerActiveId==='time-freeze'?0.18:1);
    f.y+=f.vy*fallMul*(dt/16);f.spin+=0.04;
-   if(weapon.magnet||powerActiveId==='magnet-pull')magnetPull(f,points,dt);
+   if(weapon.magnet||powerActiveId==='magnet-pull'||powerActiveId==='gem-storm')magnetPull(f,points,dt);
    drawGem(f.gem,f.x,f.y,f.r,f.spin);
    if(points.length&&gemHitsBody(f,points)){
     if(f.gem.good){
@@ -12547,6 +12667,7 @@ async function startGemMotion(){
      falling.splice(i,1);continue;
     }else{
      lives--;combo=0;falling.splice(i,1);
+     if(shield.perLife)shieldUses=shield.uses||1;
      if(lives<=0){document.getElementById('gm-lives').textContent='0';gameOver();return;}
     }
    }else if(f.y-f.r>H){falling.splice(i,1);if(f.gem.good)combo=0;}
