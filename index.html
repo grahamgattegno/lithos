@@ -3655,7 +3655,7 @@
  <button type="button" class="lithos-device-switch" id="lithos-device-switch">Switch layout</button>
 </footer>
 
-<button type="button" id="lithos-music-btn" onclick="lithos8bitToggle()" aria-label="Toggle 8-bit music" hidden><span class="music-icon">🎵</span><span class="music-label">Music</span></button>
+<button type="button" id="lithos-music-btn" onclick="lithos8bitToggle()" aria-label="Toggle 8-bit music"><span class="music-icon">🎵</span><span class="music-label">Music</span></button>
 
 <nav class="mobile-bar" aria-label="Quick navigation">
  <button type="button" data-mnav="catalog" class="on">Home</button>
@@ -4127,6 +4127,7 @@ function closeGamesHub(opts={}){
   const h=activeView==='catalog'?'':('#'+activeView);
   history.replaceState(null,'',location.pathname+location.search+h);
  }
+ lithos8bitSync();
 }
 document.getElementById('lithos-games-hub')?.addEventListener('click',e=>{
  if(e.target.id==='lithos-games-hub')closeGamesHub();
@@ -4223,8 +4224,6 @@ const lithos8bit=(()=>{
  }
  function sync(){
   document.body.classList.toggle('lithos-games-music',inContext());
-  const btn=document.getElementById('lithos-music-btn');
-  if(btn)btn.hidden=!inContext();
   if(inContext()&&!muted&&userReady)startLoop();
   else stopLoop();
   updateBtns();
@@ -4323,6 +4322,7 @@ function switchView(name){
  if(name==='moneygoal'){buildMoneyGoal();}
  if(name==='video'){buildVideoPlatform();}
  if(name==='parts'){buildParts();}
+ lithos8bitSync();
 }
 document.querySelector('nav.top')?.addEventListener('click',e=>{
  const btn=e.target.closest('button[data-view]');
