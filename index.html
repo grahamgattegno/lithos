@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- lithos-v:accuracy-3 -->
+<!-- lithos-v:visual-realism-1 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -2310,7 +2310,12 @@
   .exp-done{text-align:center;padding:20px}
   .exp-done h3{font-family:var(--serif);font-size:28px;color:var(--gold);margin-bottom:10px}
   .exp-tunnel{position:absolute;right:0;top:0;bottom:38%;width:18%;background:radial-gradient(ellipse at left,#000 0%,transparent 70%);z-index:0;opacity:.5}
-  .exp-mine-wall{position:absolute;left:0;right:0;top:0;bottom:38%;background:repeating-linear-gradient(90deg,rgba(0,0,0,.08) 0 40px,transparent 40px 80px);z-index:0;pointer-events:none}
+  .exp-mine-wall{position:absolute;left:0;right:0;top:0;bottom:38%;
+    background:
+      repeating-linear-gradient(90deg,rgba(0,0,0,.12) 0 2px,transparent 2px 48px),
+      repeating-linear-gradient(0deg,rgba(255,255,255,.04) 0 1px,transparent 1px 32px),
+      linear-gradient(180deg,rgba(40,28,16,.85),rgba(20,14,8,.95));
+    z-index:0;pointer-events:none;box-shadow:inset 0 -20px 40px rgba(0,0,0,.35)}
   /* lab rescue scene */
   .bf-tube{position:absolute;z-index:1;line-height:0;padding:4px 4px 0;border-radius:10px 10px 4px 4px;
     background:linear-gradient(180deg, rgba(120,200,255,.25), rgba(90,160,220,.12));
@@ -2602,6 +2607,139 @@
   .view[hidden]{display:none!important}
   body.in-game footer{display:none}
   body.in-game .site .tag{opacity:0}
+  /* ===== Cinematic in-game atmosphere ===== */
+  body.in-game::before{
+    content:"";position:fixed;inset:0;z-index:180;pointer-events:none;
+    background:radial-gradient(ellipse 72% 58% at 50% 42%,transparent 42%,rgba(0,0,0,.72) 100%);
+    mix-blend-mode:multiply;
+  }
+  body.in-game::after{
+    content:"";position:fixed;inset:0;z-index:179;pointer-events:none;
+    background:
+      radial-gradient(ellipse 55% 40% at 18% 82%,rgba(201,169,79,.12),transparent 65%),
+      radial-gradient(ellipse 45% 35% at 82% 18%,rgba(120,90,200,.08),transparent 60%);
+  }
+  body.in-game header.site{background:rgba(6,7,10,.88);box-shadow:0 8px 32px rgba(0,0,0,.45)}
+  .game-cinema{perspective:1200px;perspective-origin:50% 30%}
+  .glass-panel{
+    background:linear-gradient(165deg,rgba(21,23,31,.92),rgba(14,15,20,.88));
+    backdrop-filter:blur(16px) saturate(1.15);
+    border:1px solid rgba(255,255,255,.1);
+    box-shadow:
+      0 24px 64px rgba(0,0,0,.55),
+      0 1px 0 rgba(255,255,255,.06) inset,
+      0 -1px 0 rgba(0,0,0,.35) inset;
+    transform-style:preserve-3d;
+  }
+  .game-wrap,.bf-wrap,.gm-wrap,.exp-wrap,.poppy-wrap{position:relative;z-index:1}
+  .arena,.gm-panel,.bf-field,.exp-field,.arsenal{
+    background:linear-gradient(165deg,rgba(21,23,31,.88),rgba(10,11,15,.82));
+    backdrop-filter:blur(12px) saturate(1.1);
+    box-shadow:0 28px 72px rgba(0,0,0,.5),0 1px 0 rgba(255,255,255,.07) inset,0 0 0 1px rgba(201,169,79,.08);
+    transform:rotateX(.6deg);
+    transform-origin:center top;
+  }
+  .arena:hover,.bf-field:hover,.exp-field:hover{transform:rotateX(.4deg) translateY(-2px);transition:transform .35s cubic-bezier(.22,1,.36,1)}
+  .fighter .f-gem,.warrior .w-gem{
+    position:relative;border-radius:50%;
+    background:
+      radial-gradient(circle at 28% 22%,rgba(255,255,255,.85),transparent 38%),
+      radial-gradient(circle at 72% 78%,rgba(0,0,0,.45),transparent 55%),
+      radial-gradient(circle at 50% 55%,var(--wc),var(--wc));
+    box-shadow:
+      0 10px 28px -6px var(--wc),
+      0 0 0 1px rgba(255,255,255,.12) inset,
+      0 -4px 12px rgba(0,0,0,.35) inset;
+  }
+  .fighter .f-gem::after,.warrior .w-gem::after{
+    content:"";position:absolute;inset:8%;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.55),transparent 52%);
+    pointer-events:none;
+  }
+  .fighter .f-body svg,.warrior .w-body svg,.bf-char svg,.exp-char svg{
+    filter:drop-shadow(0 10px 18px rgba(0,0,0,.55)) drop-shadow(0 0 12px color-mix(in srgb,var(--wc,var(--gold)) 25%,transparent));
+  }
+  /* Motion Hunt — cinematic camera stage */
+  .gm-stage-wrap{
+    box-shadow:0 20px 60px rgba(0,0,0,.65),0 0 0 1px rgba(201,169,79,.15);
+    transform-style:preserve-3d;
+  }
+  .gm-stage-wrap::before,.gm-stage-wrap::after{
+    content:"";position:absolute;left:0;right:0;z-index:4;pointer-events:none;
+    background:linear-gradient(180deg,#000,rgba(0,0,0,.92));
+  }
+  .gm-stage-wrap::before{top:0;height:9%}
+  .gm-stage-wrap::after{bottom:0;height:9%}
+  .gm-stage-wrap.gm-live::before,.gm-stage-wrap.gm-live::after{opacity:.92}
+  .gm-fx-layer{
+    position:absolute;inset:0;z-index:3;pointer-events:none;
+    background:
+      repeating-linear-gradient(0deg,rgba(0,0,0,.04) 0 1px,transparent 1px 3px),
+      radial-gradient(ellipse 80% 70% at 50% 50%,transparent 35%,rgba(0,0,0,.28) 100%);
+    mix-blend-mode:overlay;opacity:.55;
+  }
+  .gm-canvas{filter:saturate(1.08) contrast(1.04)}
+  /* Games hub — 3D tilt cards with scene previews */
+  .lithos-games-grid{perspective:900px}
+  .lithos-game-card{
+    position:relative;overflow:hidden;transform-style:preserve-3d;
+    transition:transform .22s cubic-bezier(.22,1,.36,1),border-color .18s,box-shadow .22s;
+    box-shadow:0 8px 28px rgba(0,0,0,.35);
+  }
+  .lithos-game-card::before{
+    content:"";position:absolute;inset:0;z-index:0;opacity:.88;
+    background:var(--g-preview,linear-gradient(135deg,#1a1520,#0a0b0f));
+    transition:opacity .2s,transform .3s;
+  }
+  .lithos-game-card::after{
+    content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+    background:linear-gradient(180deg,transparent 40%,rgba(10,11,15,.92) 100%);
+  }
+  .lithos-game-card:hover{
+    transform:translateY(-6px) rotateX(6deg) rotateY(-4deg);
+    box-shadow:0 22px 48px rgba(0,0,0,.5),0 0 24px rgba(201,169,79,.12);
+  }
+  .lithos-game-card:hover::before{opacity:1;transform:scale(1.06)}
+  .lithos-game-card .g-icon,.lithos-game-card .g-name,.lithos-game-card .g-desc{position:relative;z-index:2}
+  .lithos-game-card .g-preview-tag{
+    position:relative;z-index:2;display:block;font-family:var(--mono);font-size:8px;
+    letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:10px;
+  }
+  /* Battlefield dust motes */
+  .bf-dust{
+    position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;
+  }
+  .bf-dust i{
+    position:absolute;width:3px;height:3px;border-radius:50%;background:rgba(255,230,180,.35);
+    animation:bfDustDrift linear infinite;opacity:0;
+  }
+  @keyframes bfDustDrift{
+    0%{transform:translateY(100%) translateX(0);opacity:0}
+    10%{opacity:.7}90%{opacity:.5}
+    100%{transform:translateY(-20%) translateX(24px);opacity:0}
+  }
+  .bf-atmo{
+    background:
+      radial-gradient(ellipse 70% 60% at 50% 45%,transparent 38%,rgba(0,0,0,.5) 100%),
+      radial-gradient(ellipse 40% 30% at 70% 20%,rgba(255,211,78,.06),transparent 70%);
+  }
+  /* Gem Factory — stronger depth */
+  .pp-corridor-bg{
+    background:
+      radial-gradient(ellipse 90% 70% at 50% 25%,rgba(255,220,160,.08),transparent 65%),
+      radial-gradient(ellipse 60% 40% at 20% 80%,rgba(124,58,237,.12),transparent 55%);
+  }
+  .pp-player-shadow{
+    width:clamp(70px,20vw,110px);height:clamp(12px,3.5vw,20px);
+    background:radial-gradient(ellipse,rgba(0,0,0,.72),transparent 72%);
+    filter:blur(2px);
+    transition:width .22s ease,opacity .22s ease;
+  }
+  .pp-player-wrap.run+.pp-player-shadow,.pp-player-wrap.walk+.pp-player-shadow{width:clamp(85px,22vw,120px);opacity:.85}
+  .pp-obj-crate,.pp-obj-locker,.pp-obj-door{
+    box-shadow:0 14px 28px rgba(0,0,0,.65),0 0 18px rgba(255,200,120,.06);
+  }
+  .pp-hall{transform:translateZ(0);will-change:transform}
 
   /* ===== Site device mode (mobile vs computer) ===== */
   #lithos-device-picker{
@@ -2649,10 +2787,10 @@
   .lithos-games-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
   .lithos-game-card{
     background:var(--panel-2);border:1px solid var(--line-2);border-radius:12px;padding:16px 14px;
-    cursor:pointer;text-align:left;transition:border-color .15s,background .15s,transform .12s;
+    cursor:pointer;text-align:left;
     font-family:inherit;color:inherit;
   }
-  .lithos-game-card:hover{border-color:var(--gold);transform:translateY(-2px);background:rgba(201,169,79,.08)}
+  .lithos-game-card:hover{border-color:var(--gold);background:rgba(201,169,79,.08)}
   .lithos-game-card .g-icon{font-size:28px;line-height:1;margin-bottom:8px}
   .lithos-game-card .g-name{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
   .lithos-game-card .g-desc{font-size:13px;line-height:1.45;color:var(--text-dim)}
@@ -3449,11 +3587,11 @@
 </div><!-- /view-memberships -->
 
 <div class="view" id="view-game" hidden>
- <section class="game-wrap" id="game-wrap"></section>
+ <section class="game-wrap game-cinema" id="game-wrap"></section>
 </div><!-- /view-game -->
 
 <div class="view" id="view-poppy" hidden>
- <section class="poppy-wrap">
+ <section class="poppy-wrap game-cinema">
  <div class="eyebrow">Gem Factory — Crystal Adventure</div>
  <h1>Gem <em>Factory</em></h1>
  <p class="lede"><b>Gem Factory</b> — max action crystal adventure. RUN fast, grab combos, dodge bosses, chain speed boosts. WASD / arrows to sprint, Space to grab, Shift turbo, click to interact — <b>10 epic chapters</b>.</p>
@@ -3504,11 +3642,11 @@
 </div><!-- /view-auras -->
 
 <div class="view" id="view-battlefield" hidden>
- <section class="bf-wrap" id="bf-wrap"></section>
+ <section class="bf-wrap game-cinema" id="bf-wrap"></section>
 </div><!-- /view-battlefield -->
 
 <div class="view" id="view-gemmotion" hidden>
- <section class="gm-wrap" id="gm-wrap"></section>
+ <section class="gm-wrap game-cinema" id="gm-wrap"></section>
 </div><!-- /view-gemmotion -->
 
 <div class="view" id="view-donate" hidden>
@@ -4043,15 +4181,15 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDrawer();close
 
 /* ---------- Games hub ---------- */
 const LITHOS_GAMES=[
- {id:'game',icon:'💎',name:'Gem Arena',desc:'Battle rogue gems and unlock crystal weapons.'},
- {id:'battlefield',icon:'⚔',name:'Battlefield',desc:'Mine gems, fight monsters, explore the map.'},
- {id:'gemhunt',icon:'🗺',name:'Gem Hunt',desc:'Expedition scavenger hunt through the mine.'},
- {id:'poppy',icon:'🏭',name:'Gem Factory',desc:'10-chapter crystal adventure — run, dodge, survive.'},
- {id:'parade',icon:'👑',name:'Gem Warriors',desc:'Pick your warrior and parade to the Arena.'},
- {id:'gemmotion',icon:'📷',name:'Motion Hunt',desc:'Gem Armory + body-tracker gem catching.'},
- {id:'auras',icon:'✨',name:'Auras',desc:'Power up warriors with health and attack boosts.'},
- {id:'codes',icon:'🔐',name:'Secret Codes',desc:'Enter codes to unlock powers and memberships.'},
- {id:'quiz',icon:'❓',name:'Mineral Quiz',desc:'Test your geology knowledge.',activity:true}
+ {id:'game',icon:'💎',name:'Gem Arena',desc:'Battle rogue gems and unlock crystal weapons.',preview:'radial-gradient(ellipse at 55% 35%,rgba(201,169,79,.45),transparent 55%),radial-gradient(circle at 30% 70%,rgba(125,90,200,.35),transparent 50%),linear-gradient(160deg,#1a1428,#0a0b0f)'},
+ {id:'battlefield',icon:'⚔',name:'Battlefield',desc:'Mine gems, fight monsters, explore the map.',preview:'radial-gradient(ellipse at 70% 25%,rgba(255,180,80,.35),transparent 50%),linear-gradient(180deg,#2a3a5c 0%,#1a2340 45%,#3a4a2e 100%)'},
+ {id:'gemhunt',icon:'🗺',name:'Gem Hunt',desc:'Expedition scavenger hunt through the mine.',preview:'radial-gradient(circle at 40% 30%,rgba(135,206,235,.4),transparent 55%),linear-gradient(180deg,#6a9a4a,#2a4828)'},
+ {id:'poppy',icon:'🏭',name:'Gem Factory',desc:'10-chapter crystal adventure — run, dodge, survive.',preview:'radial-gradient(circle at 50% 20%,rgba(255,77,141,.35),transparent 55%),linear-gradient(180deg,#1a1030,#07060c)'},
+ {id:'parade',icon:'👑',name:'Gem Warriors',desc:'Pick your warrior and parade to the Arena.',preview:'radial-gradient(ellipse at 50% 80%,rgba(201,169,79,.3),transparent 60%),linear-gradient(180deg,#15171f,#0a0b0f)'},
+ {id:'gemmotion',icon:'📷',name:'Motion Hunt',desc:'Gem Armory + body-tracker gem catching.',preview:'radial-gradient(circle at 50% 40%,rgba(62,207,138,.25),transparent 50%),linear-gradient(135deg,#0d1218,#1a2030)'},
+ {id:'auras',icon:'✨',name:'Auras',desc:'Power up warriors with health and attack boosts.',preview:'radial-gradient(circle at 35% 40%,rgba(201,169,79,.4),transparent 45%),radial-gradient(circle at 70% 60%,rgba(160,106,255,.35),transparent 50%),#0a0b0f'},
+ {id:'codes',icon:'🔐',name:'Secret Codes',desc:'Enter codes to unlock powers and memberships.',preview:'linear-gradient(135deg,rgba(201,169,79,.2),rgba(18,138,86,.12)),linear-gradient(180deg,#15171f,#0a0b0f)'},
+ {id:'quiz',icon:'❓',name:'Mineral Quiz',desc:'Test your geology knowledge.',activity:true,preview:'radial-gradient(circle at 50% 30%,rgba(78,168,255,.3),transparent 55%),linear-gradient(180deg,#121820,#0a0b0f)'}
 ];
 let gamesHubBuilt=false;
 let gamesHubOpen=false;
@@ -4090,7 +4228,8 @@ function buildGamesHub(){
  const grid=document.getElementById('lithos-games-grid');
  if(!grid)return;
  grid.innerHTML=LITHOS_GAMES.map(g=>`
-  <button type="button" class="lithos-game-card${g.activity?' activity':''}" data-game="${g.id}">
+  <button type="button" class="lithos-game-card${g.activity?' activity':''}" data-game="${g.id}" style="--g-preview:${g.preview||'linear-gradient(135deg,#1a1520,#0a0b0f)'}">
+   <span class="g-preview-tag">Play</span>
    <div class="g-icon">${g.icon}</div>
    <div class="g-name">${g.name}</div>
    <div class="g-desc">${g.desc}</div>
@@ -6696,8 +6835,9 @@ function gemShade(hex, t){
 function gem3DDefs(uid, color){
  const hi=gemShade(color,0.45), mid=color, lo=gemShade(color,-0.3), deep=gemShade(color,-0.5);
  return `<defs>
- <filter id="${uid}-sh" x="-25%" y="-12%" width="150%" height="145%">
- <feDropShadow dx="0" dy="3" stdDeviation="2.4" flood-color="#000" flood-opacity=".44"/>
+ <filter id="${uid}-sh" x="-30%" y="-15%" width="160%" height="150%">
+  <feDropShadow dx="0" dy="4" stdDeviation="3.2" flood-color="#000" flood-opacity=".5"/>
+  <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="${mid}" flood-opacity=".25"/>
  </filter>
  <linearGradient id="${uid}-gem" x1="0.1" y1="0" x2="0.9" y2="1">
  <stop offset="0%" stop-color="#fff" stop-opacity=".78"/>
@@ -6984,10 +7124,16 @@ function huntGemSVG(size,color){
  size=size||32;
  const uid='hg'+Math.random().toString(36).slice(2,6);
  const base=color||'#7d43b3';
- return `<svg viewBox="0 0 40 48" width="${size}" height="${size*1.2}" xmlns="http://www.w3.org/2000/svg">
- <defs><linearGradient id="${uid}g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${gemShade(base,.4)}"/><stop offset="100%" stop-color="${gemShade(base,-.3)}"/></linearGradient></defs>
- <polygon points="20,2 34,16 28,44 12,44 6,16" fill="url(#${uid}g)" stroke="${gemShade(base,.5)}" stroke-width="1.2"/>
- <polygon points="20,2 34,16 20,24" fill="#fff" opacity=".35"/>
+ const hi=gemShade(base,.45), lo=gemShade(base,-.35), deep=gemShade(base,-.5);
+ return `<svg viewBox="0 0 40 48" width="${size}" height="${size*1.2}" xmlns="http://www.w3.org/2000/svg" style="overflow:visible;filter:drop-shadow(0 4px 8px rgba(0,0,0,.45))">
+ ${gem3DDefs(uid,base)}
+ <g filter="url(#${uid}-sh)">
+ <polygon points="20,2 34,16 28,44 12,44 6,16" fill="url(#${uid}-gem)" stroke="${hi}" stroke-width="1.2"/>
+ <polygon points="20,2 34,16 20,24" fill="#fff" opacity=".42"/>
+ <polygon points="20,2 12,44 20,24" fill="${deep}" opacity=".32"/>
+ <path d="M14,14 Q20,10 26,14 L22,22 Q18,18 14,20 Z" fill="url(#${uid}-spec)"/>
+ <line x1="20" y1="2" x2="20" y2="44" stroke="rgba(255,255,255,.35)" stroke-width=".8"/>
+ </g>
  </svg>`;
 }
 function pickaxeSVG(size){
@@ -9599,6 +9745,7 @@ function renderBattlefieldFrame(){
  const factoryClass = (bf.phase==="escape"||bf.phase==="escaped")?" collapsing" : (isUnder?" underground" : "");
  document.getElementById('bf-wrap').innerHTML=`
  <div id="bf-arena"><div class="bf-field bf-factory${factoryClass}${bf.fpv?' fpv':''}">
+ <div class="bf-dust" aria-hidden="true">${Array.from({length:14},(_,i)=>`<i style="left:${8+(i*6.5)%88}%;animation-duration:${6+(i%5)*2}s;animation-delay:${-i*1.3}s;width:${2+(i%3)}px;height:${2+(i%3)}px"></i>`).join('')}</div>
  <div class="bf-pipes"></div>
  <div class="bf-lights"></div>
  <div class="bf-floor"></div>
@@ -12602,6 +12749,7 @@ function buildGemMotion(){
   </div>
   <div class="gm-stage-wrap" id="gm-stage">
    <canvas class="gm-canvas" id="gm-canvas" width="640" height="480" aria-label="Gem Motion Hunt play area"></canvas>
+   <div class="gm-fx-layer" id="gm-fx-layer" hidden aria-hidden="true"></div>
    <video class="gm-video" id="gm-video" playsinline muted autoplay></video>
    <div class="gm-gear-strip" id="gm-gear-strip" aria-label="Equipped gear">
     <span class="gm-gear-chip" id="gm-gear-avatar"></span>
@@ -12661,6 +12809,7 @@ async function startGemMotion(){
  let shieldUses=shield.perLife?(shield.uses||1):0,shieldReadyAt=0,shieldActiveT=0;
  let powerReadyAt=0,powerActiveT=0,powerActiveId=null,lastBurstScore=0,handsRaisedT=0;
  const falling=[];
+ const catchTrails=new Map();
  gmState={running:true,raf:null,videoStream:null,pose:null,camera:null,landmarks:null,frameImage:null};
 
  overlayTitle.textContent='Loading body tracker…';
@@ -12702,6 +12851,10 @@ async function startGemMotion(){
  }
 
  overlay.hidden=true;
+ const gmStage=document.getElementById('gm-stage');
+ const gmFx=document.getElementById('gm-fx-layer');
+ if(gmStage)gmStage.classList.add('gm-live');
+ if(gmFx){gmFx.hidden=false;}
  if(trackStatus){trackStatus.textContent='Tracking';trackStatus.classList.add('on');}
 
  function lmX(p){return(1-p.x)*W;}
@@ -12741,7 +12894,15 @@ async function startGemMotion(){
   ctx.save();ctx.translate(W,0);ctx.scale(-1,1);
   ctx.drawImage(img,0,0,W,H);
   ctx.restore();
-  ctx.fillStyle='rgba(10,11,15,.28)';ctx.fillRect(0,0,W,H);
+  // cinematic color grade + edge vignette (depth-of-field feel)
+  const vig=ctx.createRadialGradient(W*.5,H*.48,Math.min(W,H)*.22,W*.5,H*.48,Math.max(W,H)*.72);
+  vig.addColorStop(0,'rgba(10,11,15,0)');vig.addColorStop(.72,'rgba(10,11,15,.18)');vig.addColorStop(1,'rgba(10,11,15,.55)');
+  ctx.fillStyle=vig;ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='rgba(201,169,79,.04)';ctx.fillRect(0,0,W,H);
+  // subtle scanlines
+  ctx.save();ctx.globalAlpha=.06;
+  for(let y=0;y<H;y+=3){ctx.fillStyle=y%6===0?'rgba(255,255,255,.12)':'transparent';ctx.fillRect(0,y,W,1);}
+  ctx.restore();
  }
  function gmRainbowHue(t,offset){return((t/350+offset*40)%360+360)%360;}
  function gmRainbowColor(t,offset,l,s){return`hsl(${gmRainbowHue(t,offset)},${s||90}%,${l||62}%)`;}
@@ -12788,9 +12949,33 @@ async function startGemMotion(){
  }
  function drawCatchZones(points){
   for(const pt of points){
+   const key=pt.idx;
+   let trail=catchTrails.get(key);
+   if(!trail)trail=[]; 
+   trail.push({x:pt.x,y:pt.y,r:pt.r,t});
+   if(trail.length>8)trail.shift();
+   catchTrails.set(key,trail);
+   // motion trail — fading ghost rings
+   for(let i=0;i<trail.length-1;i++){
+    const tr=trail[i],fade=(i+1)/trail.length;
+    ctx.beginPath();ctx.arc(tr.x,tr.y,tr.r*(.85+fade*.15),0,Math.PI*2);
+    ctx.strokeStyle=avatar.glow.replace(/[\d.]+\)$/,(fade*.22)+')');
+    ctx.lineWidth=1.5;ctx.stroke();
+   }
+   // bloom glow
+   ctx.save();ctx.shadowColor=avatar.color;ctx.shadowBlur=18;
+   ctx.beginPath();ctx.arc(pt.x,pt.y,pt.r*.65,0,Math.PI*2);
+   ctx.fillStyle=avatar.glow.replace(/[\d.]+\)$/,'.22)');ctx.fill();
+   ctx.restore();
    ctx.beginPath();ctx.arc(pt.x,pt.y,pt.r,0,Math.PI*2);
-   ctx.strokeStyle=avatar.glow.replace(/[\d.]+\)$/,'.35)');ctx.lineWidth=2;ctx.setLineDash([6,8]);ctx.stroke();ctx.setLineDash([]);
-   ctx.fillStyle=avatar.glow.replace(/[\d.]+\)$/,'.1)');ctx.fill();
+   ctx.strokeStyle=avatar.glow.replace(/[\d.]+\)$/,'.55)');ctx.lineWidth=2.5;ctx.setLineDash([8,6]);ctx.stroke();ctx.setLineDash([]);
+   ctx.fillStyle=avatar.glow.replace(/[\d.]+\)$/,'.12)');ctx.fill();
+  }
+  // fade stale trails
+  for(const [k,trail] of catchTrails){
+   if(points.some(p=>p.idx===k))continue;
+   if(trail.length<=1)catchTrails.delete(k);
+   else trail.shift();
   }
  }
  function drawShieldBubble(torso){
@@ -12824,8 +13009,10 @@ async function startGemMotion(){
  }
  function drawGem(g,x,y,r,spin){
   ctx.save();ctx.translate(x,y);ctx.rotate(spin);
-  const grd=ctx.createRadialGradient(-r*.3,-r*.3,0,0,0,r);
-  grd.addColorStop(0,'rgba(255,255,255,.55)');grd.addColorStop(.45,g.color);grd.addColorStop(1,'rgba(0,0,0,.35)');
+  // drop shadow + bloom under gem
+  ctx.shadowColor=g.color;ctx.shadowBlur=22;ctx.shadowOffsetY=4;
+  const grd=ctx.createRadialGradient(-r*.35,-r*.35,0,0,0,r*1.05);
+  grd.addColorStop(0,'rgba(255,255,255,.75)');grd.addColorStop(.32,g.color);grd.addColorStop(.72,g.color);grd.addColorStop(1,'rgba(0,0,0,.45)');
   ctx.fillStyle=grd;
   ctx.beginPath();
   for(let i=0;i<6;i++){
@@ -12834,7 +13021,27 @@ async function startGemMotion(){
    i?ctx.lineTo(px,py):ctx.moveTo(px,py);
   }
   ctx.closePath();ctx.fill();
-  ctx.strokeStyle='rgba(255,255,255,.25)';ctx.lineWidth=1;ctx.stroke();
+  ctx.shadowBlur=0;ctx.shadowOffsetY=0;
+  // inner refraction facet
+  ctx.beginPath();
+  for(let i=0;i<6;i++){
+   const a=i/6*Math.PI*2-Math.PI/2;
+   const px=Math.cos(a)*r*.55,py=Math.sin(a)*r*.55;
+   i?ctx.lineTo(px,py):ctx.moveTo(px,py);
+  }
+  ctx.closePath();ctx.fillStyle='rgba(255,255,255,.12)';ctx.fill();
+  // specular highlight
+  ctx.beginPath();ctx.ellipse(-r*.28,-r*.32,r*.22,r*.14,-.4,0,Math.PI*2);
+  ctx.fillStyle='rgba(255,255,255,.65)';ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,.35)';ctx.lineWidth=1.2;ctx.stroke();
+  // outer rim
+  ctx.beginPath();
+  for(let i=0;i<6;i++){
+   const a=i/6*Math.PI*2-Math.PI/2;
+   const px=Math.cos(a)*r,py=Math.sin(a)*r;
+   i?ctx.lineTo(px,py):ctx.moveTo(px,py);
+  }
+  ctx.closePath();ctx.strokeStyle='rgba(255,255,255,.28)';ctx.lineWidth=1;ctx.stroke();
   ctx.restore();
  }
  function gemHitsBody(gem,points){
