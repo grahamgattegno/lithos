@@ -2727,7 +2727,8 @@
  var KEY='lithos_device_mode';
  try{
   var m=localStorage.getItem(KEY);
-  if(m==='mobile'||m==='computer') document.documentElement.classList.add('lithos-'+m);
+  if(m!=='mobile'&&m!=='computer') m=window.matchMedia('(max-width:767px)').matches?'mobile':'computer';
+  document.documentElement.classList.add('lithos-'+m);
  }catch(e){}
 })();
 </script>
@@ -12083,6 +12084,9 @@ function getLithosDeviceMode(){
  try{const v=localStorage.getItem(LITHOS_DEVICE_KEY);if(v==='mobile'||v==='computer')return v;}catch(_){}
  return '';
 }
+function detectLithosDeviceMode(){
+ return window.matchMedia('(max-width:767px)').matches?'mobile':'computer';
+}
 function setLithosDeviceMode(mode){
  if(mode!=='mobile'&&mode!=='computer') return;
  try{localStorage.setItem(LITHOS_DEVICE_KEY,mode);}catch(_){}
@@ -12127,12 +12131,7 @@ function initLithosDeviceMode(){
  });
  const sw=document.getElementById('lithos-device-switch');
  if(sw) sw.addEventListener('click',openLithosDevicePicker);
- const mode=getLithosDeviceMode();
- if(mode){
-  setLithosDeviceMode(mode);
-  return;
- }
- openLithosDevicePicker();
+ setLithosDeviceMode(getLithosDeviceMode()||detectLithosDeviceMode());
 }
 function pickLithosDevice(mode){
  setLithosDeviceMode(mode);
