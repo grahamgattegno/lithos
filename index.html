@@ -6597,8 +6597,6 @@ function restoreGlitchPack(){
   hasGlitchItems=true;
  }
 }
-restoreRainbowPack();
-restoreGlitchPack();
 function refreshCodeUnlockUI(){
  if(typeof buildGame==='function'&&document.getElementById('view-game')&&!document.getElementById('view-game').hidden) buildGame();
  if(typeof buildAuras==='function'&&document.getElementById('auras-grid')) buildAuras();
@@ -6660,6 +6658,8 @@ const AURAS=[
 ];
 let equippedAura=0; // start with No Aura
 let equippedWeapon=-1; // which weapon is equipped (-1 = none)
+restoreRainbowPack();
+restoreGlitchPack();
 
 // 3D gem shading helpers — light from top-left, shadow bottom-right
 function gemParse(hex){
