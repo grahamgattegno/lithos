@@ -2915,7 +2915,7 @@
     <h2 id="lithos-games-title">All Games</h2>
    </div>
    <div class="lithos-games-head-actions">
-    <button type="button" class="lithos-games-music-inline" id="lithos-music-hub" onclick="lithos8bitToggle()" aria-label="Toggle music"><span class="music-icon">🎵</span> Music</button>
+    <button type="button" class="lithos-games-music-inline" id="lithos-music-hub" onclick="lithos8bitToggle(event)" aria-label="Toggle music"><span class="music-icon">🎵</span><span class="music-label">Music</span></button>
     <button type="button" class="lithos-games-close" onclick="closeGamesHub()" aria-label="Close">✕ Close</button>
    </div>
   </div>
@@ -3794,7 +3794,7 @@
  <button type="button" class="lithos-device-switch" id="lithos-device-switch">Switch layout</button>
 </footer>
 
-<button type="button" id="lithos-music-btn" onclick="lithos8bitToggle()" aria-label="Toggle 8-bit music"><span class="music-icon">🎵</span><span class="music-label">Music</span></button>
+<button type="button" id="lithos-music-btn" onclick="lithos8bitToggle(event)" aria-label="Toggle 8-bit music"><span class="music-icon">🎵</span><span class="music-label">Music</span></button>
 
 <nav class="mobile-bar" aria-label="Quick navigation">
  <button type="button" data-mnav="catalog" class="on">Home</button>
@@ -4343,15 +4343,19 @@ const lithos8bit=(()=>{
   if(stepTimer){clearInterval(stepTimer);stepTimer=null;}
   playing=false;updateBtns();
  }
- function ensureReady(){
+ function ensureReady(e){
   userReady=true;
   ac();if(ctx&&ctx.state==='suspended')ctx.resume();
   if(master)master.gain.value=muted?0:.32;
+  if(e&&e.target&&e.target.closest('#lithos-music-btn,#lithos-music-hub,.lithos-games-music-inline'))return;
   if(!playing&&!muted&&inContext())startLoop();
  }
- function toggle(){
-  ensureReady();
-  if(!playing&&!muted&&inContext()){startLoop();return;}
+ function toggle(e){
+  if(e){e.stopPropagation();}
+  ensureReady(e);
+  if(!playing&&!muted){
+   if(inContext()){startLoop();return;}
+  }
   muted=!muted;saveMute();
   if(master)master.gain.value=muted?0:.32;
   if(muted)stopLoop();
@@ -4383,7 +4387,7 @@ const lithos8bit=(()=>{
  document.addEventListener('keydown',ensureReady,{once:false,capture:true});
  return{toggle,sync,ensureReady};
 })();
-function lithos8bitToggle(){lithos8bit.toggle();}
+function lithos8bitToggle(e){lithos8bit.toggle(e);}
 function lithos8bitSync(){lithos8bit.sync();}
 
 document.getElementById('q').addEventListener('input',e=>{query=e.target.value.trim().toLowerCase();render();});
