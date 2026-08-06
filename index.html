@@ -4207,6 +4207,7 @@ const lithos8bit=(()=>{
   userReady=true;
   ac();if(ctx&&ctx.state==='suspended')ctx.resume();
   if(master)master.gain.value=muted?0:.32;
+  if(!playing&&!muted&&inContext())startLoop();
  }
  function toggle(){
   ensureReady();
@@ -6214,9 +6215,12 @@ function restoreOwnerUnlocks(){
  if(typeof setMemberTier==='function') setMemberTier('gold');
  if(!hasPlasmaMace){ WEAPONS.push(PLASMA_MACE); hasPlasmaMace=true; }
  if(!hasPlasmaTitan){ WARRIORS.push(PLASMA_TITAN); hasPlasmaTitan=true; }
+ updateOwnerNav();
+}
+function restoreOwnerArmoryUnlocks(){
+ if(!isOwner) return;
  gmSetOwnerArmory();
  gmUnlockOwnerArmoryItems();
- updateOwnerNav();
 }
 function updateOwnerNav(){
  document.body.classList.toggle('is-owner',!!isOwner);
@@ -6658,8 +6662,25 @@ const AURAS=[
 ];
 let equippedAura=0; // start with No Aura
 let equippedWeapon=-1; // which weapon is equipped (-1 = none)
-restoreRainbowPack();
-restoreGlitchPack();
+function safeRestoreCodePacks(){
+ try{
+  restoreRainbowPack();
+  restoreGlitchPack();
+ }catch(e){
+  console.error('Code pack restore failed, clearing saved unlocks',e);
+  try{
+   localStorage.removeItem(GLITCH_PACK_KEY);
+   localStorage.removeItem(RAINBOW_PACK_KEY);
+  }catch(_){}
+  hasGlitchItems=false;
+  hasRainbowItems=false;
+  equippedAura=0;
+  equippedWeapon=-1;
+  equippedShield=-1;
+  try{ restoreRainbowPack(); restoreGlitchPack(); }catch(e2){ console.error('Code pack restore retry failed',e2); }
+ }
+}
+safeRestoreCodePacks();
 
 // 3D gem shading helpers — light from top-left, shadow bottom-right
 function gemParse(hex){
@@ -7894,12 +7915,7 @@ function armySize(){
  let n = 3 + Math.floor(Math.log10(Math.max(10,p)) * 2); // grows with power
  return Math.min(30, Math.max(3, n));
 }
-function buildBattlefield(){
- const wrap=document.getElementById('bf-wrap');
- if(!wrap) return;
- stopBFLoop(); stopExpLoop(); bf=null; exp=null;
- document.body.classList.remove('in-game');
- try{
+function renderBattlefieldHub(wrap){
  const power=playerPower();
  const size=armySize();
  wrap.innerHTML=`
@@ -7918,9 +7934,19 @@ function buildBattlefield(){
  <div id="bf-arena"></div>`;
  document.getElementById('bf-start').onclick=startArmyBattle;
  document.getElementById('bf-expedition').onclick=startExpedition;
+}
+function buildBattlefield(){
+ const wrap=document.getElementById('bf-wrap');
+ if(!wrap) return;
+ stopBFLoop(); stopExpLoop(); bf=null; exp=null;
+ document.body.classList.remove('in-game');
+ try{
+ renderBattlefieldHub(wrap);
  }catch(err){
- wrap.innerHTML=`<div class="eyebrow">Gem Mine Expedition</div><h1>The <em>Battlefield</em></h1><p class="bf-intro">Something went wrong loading the mine. Refresh and try again.</p><div class="bf-btns"><button class="game-btn" id="bf-reload">Reload Battlefield</button></div>`;
  console.error(err);
+ equippedAura=0; equippedWeapon=-1; equippedShield=-1;
+ try{ renderBattlefieldHub(wrap); return; }catch(retryErr){ console.error(retryErr); }
+ wrap.innerHTML=`<div class="eyebrow">Gem Mine Expedition</div><h1>The <em>Battlefield</em></h1><p class="bf-intro">Something went wrong loading the mine. Refresh and try again.</p><div class="bf-btns"><button class="game-btn" id="bf-reload">Reload Battlefield</button></div>`;
  }
 }
 /* ---------- Gem Hunt Expedition: billboard → 12 gems → gold mine → leave ---------- */
@@ -12459,7 +12485,11 @@ function gmSyncPackArmoryUnlocks(){
  if(localStorage.getItem(RAINBOW_PACK_KEY)==='1')gmUnlockByKey('rainbow');
  if(localStorage.getItem(GLITCH_PACK_KEY)==='1')gmUnlockByKey('codebreaker');
 }
-gmSyncPackArmoryUnlocks();
+function restoreDeferredUnlocks(){
+ restoreOwnerArmoryUnlocks();
+ gmSyncPackArmoryUnlocks();
+}
+restoreDeferredUnlocks();
 function gmItemLabel(id){
  const it=gmAllArmoryItems().find(x=>x.id===id);
  return it?it.name:id;
@@ -12956,6 +12986,7 @@ async function startGemMotion(){
 }
 
 (function openHashView(){
+ try{ restoreDeferredUnlocks(); }catch(e){ console.error('Deferred unlock restore failed',e); }
  cleanCacheBustParam();
  bindPpWorld();
  bindPoppyGrid();
