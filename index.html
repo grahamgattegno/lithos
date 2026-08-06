@@ -1080,6 +1080,31 @@
   .game-btn:disabled{opacity:.4;cursor:default;transform:none}
   .game-btn.ghost{background:none;color:var(--text-dim);border:1px solid var(--line-2)}
   .game-hint{text-align:center;color:var(--text-faint);font-size:13px;margin-top:18px}
+  /* ---------- Gem Motion Hunt ---------- */
+  .gm-wrap{max-width:720px;margin:0 auto;padding:90px var(--content-pad) 100px;text-align:center}
+  .gm-wrap .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:var(--gold);margin-bottom:22px}
+  .gm-wrap h1{font-family:var(--serif);font-weight:300;font-size:clamp(34px,5.5vw,64px);line-height:1;letter-spacing:-.02em}
+  .gm-wrap h1 em{font-style:italic;color:var(--gold);font-weight:400}
+  .gm-wrap .lede{margin:22px auto 0;max-width:540px;font-size:16px;line-height:1.6;color:var(--text-dim)}
+  .gm-panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;margin-top:28px;text-align:left}
+  .gm-hud{display:flex;flex-wrap:wrap;gap:12px 20px;justify-content:space-between;align-items:center;margin-bottom:14px;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim)}
+  .gm-hud b{color:var(--gold);font-size:14px;letter-spacing:.06em}
+  .gm-stage-wrap{position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--line-2);background:var(--ink-2);touch-action:none}
+  .gm-canvas{display:block;width:100%;height:auto;aspect-ratio:4/3;background:radial-gradient(ellipse at 50% 0%,rgba(201,169,79,.08),transparent 55%),var(--ink-2)}
+  .gm-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:rgba(10,11,15,.88);padding:24px;text-align:center;z-index:2}
+  .gm-overlay[hidden]{display:none!important}
+  .gm-overlay h2{font-family:var(--serif);font-weight:400;font-size:clamp(24px,4vw,34px);color:var(--text)}
+  .gm-overlay p{font-size:14px;line-height:1.55;color:var(--text-dim);max-width:360px}
+  .gm-mode-btns{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:6px}
+  .gm-mode-btn{background:var(--panel-2);border:1px solid var(--line-2);color:var(--text);font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;padding:12px 16px;border-radius:8px;cursor:pointer;transition:border-color .15s,background .15s}
+  .gm-mode-btn:hover,.gm-mode-btn.on{border-color:var(--gold);background:rgba(201,169,79,.1);color:var(--gold)}
+  .gm-instructions{font-size:13px;line-height:1.55;color:var(--text-faint);margin-top:18px;text-align:center}
+  .gm-instructions b{color:var(--gold);font-weight:500}
+  .gm-video{display:none;position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+  .gm-overlay .game-btn{min-height:54px;padding:16px 36px;font-size:13px;letter-spacing:.18em}
+  .gm-status{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint)}
+  .gm-status.on{color:#3ecf8a}
+  @media(max-width:767px){.gm-wrap{padding:80px 16px 100px}}
   /* Arsenal */
   .arsenal{background:var(--ink-2);border:1px solid var(--line);border-radius:14px;padding:24px;margin-top:30px}
   .arsenal-head{text-align:center;font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:20px}
@@ -1301,11 +1326,11 @@
     background:rgba(10,11,15,.94);backdrop-filter:blur(12px);
     border-top:1px solid var(--line);
     padding:8px 6px calc(8px + env(safe-area-inset-bottom,0px));
-    grid-template-columns:repeat(5,1fr);gap:4px;
+    grid-template-columns:repeat(6,1fr);gap:2px;
   }
   .mobile-bar button{
     background:transparent;border:none;color:var(--text-dim);cursor:pointer;
-    font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;
+    font-family:var(--mono);font-size:8px;letter-spacing:.06em;text-transform:uppercase;
     padding:8px 4px;border-radius:8px;line-height:1.2;
   }
   .mobile-bar button.on,.mobile-bar button:active{color:var(--gold);background:rgba(201,169,79,.1)}
@@ -2475,12 +2500,14 @@
     nav.top button{display:none}
     /* Mobile quick nav — subset of views */
     nav.top button[data-view="catalog"],
+    nav.top button#games-nav-btn,
     nav.top button[data-view="classes"],
     nav.top button[data-view="donate"],
     nav.top button[data-view="battlefield"],
     nav.top button[data-view="gemhunt"],
     nav.top button[data-view="game"],
     nav.top button[data-view="poppy"],
+    nav.top button[data-view="gemmotion"],
     nav.top button[data-view="video"]{display:inline-block}
     .mobile-bar{display:grid}
     body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
@@ -2543,9 +2570,164 @@
   .view[hidden]{display:none!important}
   body.in-game footer{display:none}
   body.in-game .site .tag{opacity:0}
+
+  /* ===== Site device mode (mobile vs computer) ===== */
+  #lithos-device-picker{
+    position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;
+    background:rgba(6,7,10,.94);backdrop-filter:blur(14px);padding:24px;
+  }
+  #lithos-device-picker[hidden]{display:none!important}
+  .lithos-device-card{
+    max-width:440px;width:100%;text-align:center;background:var(--panel);border:1px solid var(--line);
+    border-radius:16px;padding:28px 22px;box-shadow:0 24px 80px rgba(0,0,0,.45);
+  }
+  .lithos-device-card .eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
+  .lithos-device-card h2{font-family:var(--serif);font-weight:300;font-size:clamp(28px,5vw,38px);line-height:1.1;margin-bottom:10px}
+  .lithos-device-card .lede{font-size:15px;line-height:1.55;color:var(--text-dim);margin-bottom:22px}
+  .lithos-device-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .lithos-device-btn{
+    background:var(--panel-2);border:2px solid var(--line-2);border-radius:12px;padding:18px 12px;
+    font-family:var(--sans);font-size:15px;color:var(--text);cursor:pointer;touch-action:manipulation;
+    transition:border-color .15s,background .15s,transform .12s;
+  }
+  .lithos-device-btn:hover{border-color:var(--gold);transform:translateY(-2px);background:rgba(201,169,79,.08)}
+  .lithos-device-btn em{display:block;font-style:normal;font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-faint);margin-top:6px}
+  .lithos-device-switch{background:none;border:none;color:var(--gold);cursor:pointer;font:inherit;font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:0}
+  .lithos-device-switch:hover{color:var(--text)}
+  .lithos-reload-wrap{display:flex;flex-direction:column;align-items:flex-start;gap:4px;max-width:min(100%,340px)}
+  .lithos-reload-hint{font-family:var(--sans);font-size:10px;letter-spacing:.02em;text-transform:none;color:var(--text-faint);line-height:1.45;font-weight:400}
+
+  /* ===== Games hub overlay ===== */
+  #lithos-games-hub{
+    position:fixed;inset:0;z-index:190;display:flex;align-items:flex-start;justify-content:center;
+    background:rgba(6,7,10,.94);backdrop-filter:blur(14px);padding:24px;overflow-y:auto;
+  }
+  #lithos-games-hub[hidden]{display:none!important}
+  .lithos-games-card{
+    max-width:720px;width:100%;background:var(--panel);border:1px solid var(--line);
+    border-radius:16px;padding:28px 22px 22px;margin:auto;box-shadow:0 24px 80px rgba(0,0,0,.45);
+  }
+  .lithos-games-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:20px}
+  .lithos-games-head h2{font-family:var(--serif);font-weight:300;font-size:clamp(28px,5vw,38px);line-height:1.1}
+  .lithos-games-close{
+    background:none;border:1px solid var(--line-2);color:var(--text-dim);border-radius:8px;padding:8px 12px;
+    cursor:pointer;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;flex-shrink:0;
+  }
+  .lithos-games-close:hover{border-color:var(--gold);color:var(--gold)}
+  .lithos-games-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+  .lithos-game-card{
+    background:var(--panel-2);border:1px solid var(--line-2);border-radius:12px;padding:16px 14px;
+    cursor:pointer;text-align:left;transition:border-color .15s,background .15s,transform .12s;
+    font-family:inherit;color:inherit;
+  }
+  .lithos-game-card:hover{border-color:var(--gold);transform:translateY(-2px);background:rgba(201,169,79,.08)}
+  .lithos-game-card .g-icon{font-size:28px;line-height:1;margin-bottom:8px}
+  .lithos-game-card .g-name{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+  .lithos-game-card .g-desc{font-size:13px;line-height:1.45;color:var(--text-dim)}
+  .lithos-game-card.activity{border-style:dashed}
+  nav.top button#games-nav-btn{background:rgba(201,169,79,.12);border:1px solid var(--gold);color:var(--gold)}
+  nav.top button#games-nav-btn:hover{background:rgba(201,169,79,.2)}
+  @media(max-width:767px){
+    .lithos-games-grid{grid-template-columns:1fr 1fr}
+    .lithos-games-card{padding:20px 16px;margin:0}
+  }
+
+  html.lithos-mobile body{--content-pad:20px;padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
+  html.lithos-mobile .mobile-bar{display:grid}
+  html.lithos-mobile nav.top{display:flex;gap:10px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%;padding-bottom:4px;scrollbar-width:thin}
+  html.lithos-mobile nav.top button{display:none}
+  html.lithos-mobile nav.top button[data-view="catalog"],
+  html.lithos-mobile nav.top button#games-nav-btn,
+  html.lithos-mobile nav.top button[data-view="classes"],
+  html.lithos-mobile nav.top button[data-view="donate"],
+  html.lithos-mobile nav.top button[data-view="battlefield"],
+  html.lithos-mobile nav.top button[data-view="gemhunt"],
+  html.lithos-mobile nav.top button[data-view="game"],
+  html.lithos-mobile nav.top button[data-view="poppy"],
+  html.lithos-mobile nav.top button[data-view="gemmotion"],
+  html.lithos-mobile nav.top button[data-view="video"]{display:inline-block}
+  html.lithos-mobile body.is-owner nav.top button[data-view="parts"]{display:inline-block}
+  html.lithos-mobile header.site{padding:16px var(--content-pad);grid-template-columns:1fr;gap:12px;max-width:none}
+  html.lithos-computer .mobile-bar{display:none!important}
+  html.lithos-computer nav.top button{display:inline-block}
+  html.lithos-computer body{padding-bottom:0}
+  html.lithos-computer header.site{padding:22px max(var(--content-pad), calc((100% - var(--site-max)) / 2 + var(--content-pad)))}
+
+  /* ===== Purchase pending banner + success toast ===== */
+  #lithos-purchase-banner{
+    position:fixed;top:0;left:0;right:0;z-index:55;
+    display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px 16px;
+    padding:10px 16px;background:linear-gradient(90deg,rgba(201,169,79,.18),rgba(18,138,86,.12));
+    border-bottom:1px solid rgba(201,169,79,.35);font-size:14px;line-height:1.4;color:var(--text);
+  }
+  #lithos-purchase-banner[hidden]{display:none!important}
+  body.lithos-purchase-pending{padding-top:52px}
+  body.lithos-purchase-pending header.site{top:52px}
+  #lithos-purchase-banner button{
+    background:var(--gold);color:var(--ink);border:none;border-radius:8px;padding:8px 16px;
+    font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;
+  }
+  #lithos-purchase-banner button:hover{filter:brightness(1.06)}
+  #lithos-toast{
+    position:fixed;left:50%;bottom:calc(80px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(12px);
+    z-index:60;max-width:min(92vw,520px);padding:14px 20px;border-radius:12px;
+    background:rgba(10,11,15,.94);border:1px solid rgba(201,169,79,.45);color:var(--text);
+    font-size:14px;line-height:1.45;text-align:center;pointer-events:none;opacity:0;
+    transition:opacity .25s,transform .25s;box-shadow:0 12px 40px rgba(0,0,0,.4);
+  }
+  #lithos-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  body.lithos-computer #lithos-toast{bottom:32px}
+  .mem-recovery{
+    max-width:720px;margin:24px auto 0;padding:18px 20px;text-align:center;
+    background:var(--panel);border:1px solid var(--line);border-radius:10px;font-size:14px;line-height:1.55;color:var(--text-dim);
+  }
+  .mem-recovery input{
+    margin:0 6px;padding:8px 12px;border-radius:8px;border:1px solid var(--line-2);
+    background:var(--ink-2);color:var(--text);font-family:var(--mono);font-size:13px;max-width:180px;
+  }
+  .mem-recovery button{
+    margin-top:8px;background:transparent;border:1px solid var(--gold);color:var(--gold);border-radius:8px;
+    padding:8px 14px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;
+  }
 </style>
+<script>
+(function(){
+ var KEY='lithos_device_mode';
+ try{
+  var m=localStorage.getItem(KEY);
+  if(m==='mobile'||m==='computer') document.documentElement.classList.add('lithos-'+m);
+ }catch(e){}
+})();
+</script>
 </head>
 <body>
+<div id="lithos-device-picker" hidden>
+ <div class="lithos-device-card">
+  <div class="eyebrow">Welcome to Lithos</div>
+  <h2>How are you using Lithos?</h2>
+  <p class="lede">Pick a layout — you can switch anytime from the footer.</p>
+  <div class="lithos-device-btns">
+   <button type="button" class="lithos-device-btn" data-lithos-device="mobile">Mobile<em>Touch-friendly</em></button>
+   <button type="button" class="lithos-device-btn" data-lithos-device="computer">Computer<em>Full nav + keyboard</em></button>
+  </div>
+ </div>
+</div>
+<div id="lithos-games-hub" hidden>
+ <div class="lithos-games-card" role="dialog" aria-modal="true" aria-labelledby="lithos-games-title">
+  <div class="lithos-games-head">
+   <div>
+    <div class="eyebrow">Lithos Play</div>
+    <h2 id="lithos-games-title">All Games</h2>
+   </div>
+   <button type="button" class="lithos-games-close" onclick="closeGamesHub()" aria-label="Close">✕ Close</button>
+  </div>
+  <div class="lithos-games-grid" id="lithos-games-grid"></div>
+ </div>
+</div>
+<div id="lithos-purchase-banner" hidden>
+ <span>Finished paying? Tap here to unlock your membership.</span>
+ <button type="button" id="lithos-purchase-unlock">Unlock now</button>
+</div>
 
 <header class="site">
  <div class="brand">
@@ -2564,6 +2746,7 @@
  <button data-view="crafts">Crafts</button>
  <button data-view="memberships">Memberships</button>
  <a class="buy-cta" href="#memberships" onclick="switchView('memberships');return false;">Join — from $67.50</a>
+ <button type="button" id="games-nav-btn" onclick="openGamesHub()">Games</button>
  <button data-view="game" id="game-nav-btn">Gem Arena</button>
  <button data-view="battlefield">Battlefield</button>
  <button data-view="gemhunt">Gem Hunt</button>
@@ -2571,6 +2754,7 @@
  <button data-view="parade">Gem Warriors</button>
  <button data-view="codes">Codes</button>
  <button data-view="auras">Auras</button>
+ <button data-view="gemmotion">Motion Hunt</button>
  <button data-view="donate">Donate</button>
  <button data-view="moneygoal">Money Goal</button>
  <button data-view="parts" id="parts-nav-btn" style="display:none">Parts</button>
@@ -2590,7 +2774,9 @@
  <div class="stat"><div class="n">9</div><div class="l">Crystal Systems</div></div>
  </div>
  <div class="games-launch" aria-label="Play Lithos games">
- <button type="button" class="primary" onclick="switchView('battlefield')">⚔ Battlefield</button>
+ <button type="button" class="primary" onclick="openGamesHub()">🎮 All Games</button>
+ <button type="button" onclick="switchView('battlefield')">⚔ Battlefield</button>
+ <button type="button" onclick="switchView('gemmotion')" style="border-color:var(--gold)">Motion Hunt</button>
  <button type="button" onclick="switchView('game')">Gem Arena</button>
  <button type="button" onclick="switchView('gemhunt')">Gem Hunt</button>
  <button type="button" onclick="switchView('poppy')">Gem Factory</button>
@@ -3194,7 +3380,13 @@
  </div>
  </div>
  </div>
- <p class="mem-note">All four membership checkouts are live — a grown-up should complete the payment. After checkout, open Classes and tap “I’ve purchased — unlock” for the AI Rock Teacher.</p>
+ <div class="mem-recovery">
+  <p>Already paid but still locked? Enter your unlock code from your receipt (or ask the grown-up who paid).</p>
+  <input id="mem-recovery-code" type="text" placeholder="e.g. GOLDHOME45" autocomplete="off" aria-label="Unlock code">
+  <button type="button" id="mem-recovery-btn">Unlock with code</button>
+  <p style="margin-top:12px;font-size:13px">Or go to <button type="button" class="collab-link" onclick="switchView('codes')">Secret Codes</button>.</p>
+ </div>
+ <p class="mem-note">All four membership checkouts are live — a grown-up should complete the payment. After checkout you’ll return here automatically; if not, use the banner at the top or tap unlock on Classes.</p>
 </div><!-- /view-memberships -->
 
 <div class="view" id="view-game" hidden>
@@ -3233,7 +3425,7 @@
  </div>
  <div class="code-result" id="code-result"></div>
  <div class="code-hint">
- <p>Secret codes unlock special powers — including one that makes you the <b>owner</b> of the whole game.</p>
+ <p>Secret codes unlock special powers — including one that makes you the <b>owner</b> of the whole game. Paid for a membership? Try your receipt code (e.g. <b>GOLDHOME45</b>).</p>
  <p style="margin-top:14px"><a href="#video" onclick="switchView('video');return false;" style="color:var(--gold)">Owner TV</a> — private video platform (owner code required).</p>
  </div>
  </section>
@@ -3253,6 +3445,10 @@
 <div class="view" id="view-battlefield" hidden>
  <section class="bf-wrap" id="bf-wrap"></section>
 </div><!-- /view-battlefield -->
+
+<div class="view" id="view-gemmotion" hidden>
+ <section class="gm-wrap" id="gm-wrap"></section>
+</div><!-- /view-gemmotion -->
 
 <div class="view" id="view-donate" hidden>
  <section class="donate-wrap">
@@ -3342,7 +3538,7 @@
   </div>
   <div id="video-channel-head" hidden></div>
   <div class="video-grid" id="video-channel-grid"></div>
-  <button type="button" class="video-channel-more" id="video-channel-more" hidden>Load more videos</button>
+  <button type="button" class="video-channel-more" id="video-channel-more" hidden>Show more vids</button>
 
   <details class="video-add">
    <summary>Advanced: paste a single video URL</summary>
@@ -3384,11 +3580,18 @@
  <a href="#collaborate" onclick="switchView('collaborate');return false;">Business collaboration</a>
  <a href="#careers" onclick="switchView('careers');return false;">Work at Lithos</a>
  <a href="#video" onclick="switchView('video');return false;">Owner TV</a>
+ <a href="#games" onclick="openGamesHub();return false;">All Games</a>
  <a href="#battlefield" onclick="switchView('battlefield');return false;">Battlefield</a>
+ <a href="#gemmotion" onclick="switchView('gemmotion');return false;">Motion Hunt</a>
  <a href="#poppy" onclick="switchView('poppy');return false;">Gem Factory</a>
  <span class="partner-disclosure">Partner link · Lithos may earn commission</span>
  </div>
  <span>Hardness on the Mohs scale · Origins by prominence · Prices are approximate retail</span>
+ <div class="lithos-reload-wrap">
+  <button type="button" class="lithos-device-switch" id="lithos-hard-refresh" onclick="lithosHardRefresh()">↻ Reload latest</button>
+  <span class="lithos-reload-hint">Mac Safari: use this button instead of keyboard shortcuts if Hide Distracting Items opens.</span>
+ </div>
+ <button type="button" class="lithos-device-switch" id="lithos-device-switch">Switch layout</button>
 </footer>
 
 <nav class="mobile-bar" aria-label="Quick navigation">
@@ -3396,7 +3599,8 @@
  <button type="button" data-mnav="poppy">Factory</button>
  <button type="button" data-mnav="battlefield">Mine</button>
  <button type="button" data-mnav="game">Arena</button>
- <button type="button" data-mnav="codes">Codes</button>
+ <button type="button" data-mnav="gemmotion">Motion</button>
+ <button type="button" data-mnav="games">Games</button>
 </nav>
 
 <script src="ai-config.js"></script>
@@ -3772,7 +3976,53 @@ function openDrawer(i){
 }
 function closeDrawer(){overlay.classList.remove('open');document.body.style.overflow='';}
 overlay.onclick=e=>{if(e.target===overlay)closeDrawer();};
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDrawer();closeGamesHub();}});
+
+/* ---------- Games hub ---------- */
+const LITHOS_GAMES=[
+ {id:'game',icon:'💎',name:'Gem Arena',desc:'Battle rogue gems and unlock crystal weapons.'},
+ {id:'battlefield',icon:'⚔',name:'Battlefield',desc:'Mine gems, fight monsters, explore the map.'},
+ {id:'gemhunt',icon:'🗺',name:'Gem Hunt',desc:'Expedition scavenger hunt through the mine.'},
+ {id:'poppy',icon:'🏭',name:'Gem Factory',desc:'10-chapter crystal adventure — run, dodge, survive.'},
+ {id:'parade',icon:'👑',name:'Gem Warriors',desc:'Pick your warrior and parade to the Arena.'},
+ {id:'gemmotion',icon:'📷',name:'Motion Hunt',desc:'Catch gems with your body — webcam tracking.'},
+ {id:'auras',icon:'✨',name:'Auras',desc:'Power up warriors with health and attack boosts.'},
+ {id:'codes',icon:'🔐',name:'Secret Codes',desc:'Enter codes to unlock powers and memberships.'},
+ {id:'quiz',icon:'❓',name:'Mineral Quiz',desc:'Test your geology knowledge.',activity:true}
+];
+let gamesHubBuilt=false;
+function buildGamesHub(){
+ if(gamesHubBuilt)return;
+ const grid=document.getElementById('lithos-games-grid');
+ if(!grid)return;
+ grid.innerHTML=LITHOS_GAMES.map(g=>`
+  <button type="button" class="lithos-game-card${g.activity?' activity':''}" data-game="${g.id}">
+   <div class="g-icon">${g.icon}</div>
+   <div class="g-name">${g.name}</div>
+   <div class="g-desc">${g.desc}</div>
+  </button>`).join('');
+ grid.addEventListener('click',e=>{
+  const card=e.target.closest('[data-game]');
+  if(!card)return;
+  closeGamesHub();
+  switchView(card.dataset.game);
+ });
+ gamesHubBuilt=true;
+}
+function openGamesHub(){
+ buildGamesHub();
+ const hub=document.getElementById('lithos-games-hub');
+ if(hub)hub.hidden=false;
+ document.body.style.overflow='hidden';
+}
+function closeGamesHub(){
+ const hub=document.getElementById('lithos-games-hub');
+ if(hub)hub.hidden=true;
+ document.body.style.overflow='';
+}
+document.getElementById('lithos-games-hub')?.addEventListener('click',e=>{
+ if(e.target.id==='lithos-games-hub')closeGamesHub();
+});
 
 document.getElementById('q').addEventListener('input',e=>{query=e.target.value.trim().toLowerCase();render();});
 initGemSlideshow();
@@ -3799,6 +4049,7 @@ const views={
  codes:document.getElementById('view-codes'),
  auras:document.getElementById('view-auras'),
  battlefield:document.getElementById('view-battlefield'),
+ gemmotion:document.getElementById('view-gemmotion'),
  donate:document.getElementById('view-donate'),
  moneygoal:document.getElementById('view-moneygoal'),
  video:document.getElementById('view-video'),
@@ -3809,8 +4060,10 @@ let learnBuilt=false;
 let classLessonsBuilt=false;
 function closeSiteOverlays(){
  try{closeDrawer();}catch(_){}
+ try{closeGamesHub();}catch(_){}
  try{closePoppyPlay();}catch(_){}
  try{nsCloseGame();}catch(_){}
+ try{stopGemMotion();}catch(_){}
  try{
   brMaze=null;
   const br=document.getElementById('brmaze');
@@ -3825,7 +4078,7 @@ function switchView(name){
  Object.entries(views).forEach(([k,el])=>{if(el)el.hidden=(k!==name);});
  navBtns.forEach(b=>b.classList.toggle('on',b.dataset.view===(gemHunt?'gemhunt':name)));
  syncMobileNav(gemHunt?'gemhunt':name);
- document.body.classList.toggle('in-game',name==='battlefield'||name==='game');
+ document.body.classList.toggle('in-game',name==='battlefield'||name==='game'||name==='gemmotion');
  const hash=gemHunt?'#gemhunt':(name==='catalog'?'':('#'+name));
  if(location.hash!==hash)history.replaceState(null,'',hash||location.pathname+location.search);
  window.scrollTo({top:0,behavior:'instant' in window?'instant':'auto'});
@@ -3839,6 +4092,7 @@ function switchView(name){
  if(name==='careers'&&!careersBuilt){buildCareers();careersBuilt=true;}
  if(name==='crafts'&&!craftsBuilt){buildCrafts();craftsBuilt=true;}
  if(name==='game'){buildGame();}
+ if(name==='gemmotion'){buildGemMotion();}
  if(name==='poppy'){buildPoppyHub();}
  if(name==='parade'){buildParade();}
  if(name==='codes'){buildCodes();}
@@ -3858,6 +4112,7 @@ document.querySelector('.mobile-bar')?.addEventListener('click',e=>{
  const btn=e.target.closest('button[data-mnav]');
  if(!btn||!btn.dataset.mnav)return;
  e.preventDefault();
+ if(btn.dataset.mnav==='games'){openGamesHub();return;}
  switchView(btn.dataset.mnav);
 });
 function syncMobileNav(name){
@@ -4789,13 +5044,87 @@ function markClassCheckoutPending(plan){
  if(/^gold-/i.test(p)) setMemberTier('gold');
  else if(/^silver-/i.test(p)) setMemberTier('silver');
 }
+function lithosPurchaseReturnUrl(plan){
+ const path=location.pathname.endsWith('/')?location.pathname:(location.pathname.replace(/\/[^/]*$/,'')+'/');
+ return location.origin+path+'?purchase=success&plan='+encodeURIComponent(plan||'class')+'#classes';
+}
+function wireClassCheckoutLinks(){
+ document.querySelectorAll('.class-buy').forEach(a=>{
+  const plan=a.dataset.plan||'class';
+  try{
+   const u=new URL(a.href);
+   u.searchParams.set('return_url',lithosPurchaseReturnUrl(plan));
+   a.href=u.toString();
+  }catch(e){}
+ });
+}
+function cleanPurchaseParams(){
+ try{
+  const u=new URL(location.href);
+  if(!u.searchParams.has('purchase')&&!u.searchParams.has('unlocked')&&!u.searchParams.has('plan')) return;
+  u.searchParams.delete('purchase');
+  u.searchParams.delete('unlocked');
+  u.searchParams.delete('plan');
+  const q=u.searchParams.toString();
+  history.replaceState(null,'',u.pathname+(q?'?'+q:'')+(u.hash||''));
+ }catch(e){}
+}
+function showLithosToast(msg,ms){
+ let t=document.getElementById('lithos-toast');
+ if(!t){ t=document.createElement('div'); t.id='lithos-toast'; document.body.appendChild(t); }
+ t.textContent=msg;
+ t.classList.add('show');
+ clearTimeout(t._tm);
+ t._tm=setTimeout(()=>t.classList.remove('show'),ms||6000);
+}
+function refreshPurchaseBanner(){
+ const banner=document.getElementById('lithos-purchase-banner');
+ if(!banner) return;
+ let pending=false;
+ try{ pending=!!localStorage.getItem(CLASS_CHECKOUT_PENDING)&&!hasClassAccess(); }catch(e){}
+ banner.hidden=!pending;
+ document.body.classList.toggle('lithos-purchase-pending',pending);
+}
+function unlockViaRecoveryCode(code){
+ const raw=(code||'').trim().toUpperCase();
+ const MAP={
+  GOLDHOME45:()=>({tier:'gold',label:'Gold Home membership ($45)'}),
+  SILVER6750:()=>({tier:'silver',label:'Silver membership ($67.50)'}),
+  LITHOSTHANKS:()=>({tier:'gold',label:'Lithos thank-you access'})
+ };
+ const fn=MAP[raw];
+ if(!fn) return null;
+ const info=fn();
+ setMemberTier(info.tier);
+ unlockClassAccess(false);
+ return info;
+}
+function handlePurchaseReturn(){
+ let plan='';
+ try{
+  const params=new URLSearchParams(location.search);
+  const success=params.get('purchase')==='success'||params.get('unlocked')==='1';
+  plan=params.get('plan')||'';
+  if(!plan) try{ plan=localStorage.getItem(CLASS_CHECKOUT_PENDING)||''; }catch(e){}
+  if(success){
+   if(plan) markClassCheckoutPending(plan);
+   unlockClassAccess(false);
+   cleanPurchaseParams();
+   showLithosToast('Welcome! Your membership is unlocked — enjoy class lessons and the AI Rock Teacher.');
+   return true;
+  }
+ }catch(e){}
+ refreshPurchaseBanner();
+ return false;
+}
 function unlockClassAccess(fromBtn){
  if(fromBtn){
- const ok=confirm('Did a grown-up finish paying for a Lithos class or membership?\n\nTap OK to unlock class lessons and the AI Rock Teacher on this device.');
- if(!ok) return;
+  const ok=confirm('Did a grown-up finish paying for a Lithos class or membership?\n\nTap OK to unlock class lessons and the AI Rock Teacher on this device.');
+  if(!ok) return;
  }
  setClassAccess(true);
  try{ localStorage.removeItem(CLASS_CHECKOUT_PENDING); }catch(e){}
+ refreshPurchaseBanner();
  if(isGoldMember()){
  try{ localStorage.setItem(VOICE_PREF_KEY,'1'); }catch(e){}
  lithosVoiceOn=true;
@@ -5154,13 +5483,34 @@ async function classAiOpenAIAnswer(q, cfg, system, context, history){
 }
 // Checkout → pending unlock; unlock button; wire once
 (function initClassAccessUI(){
+ wireClassCheckoutLinks();
  document.querySelectorAll('.class-buy').forEach(a=>{
- a.addEventListener('click',()=>markClassCheckoutPending(a.dataset.plan||'class'));
+  a.addEventListener('click',()=>{
+   markClassCheckoutPending(a.dataset.plan||'class');
+   refreshPurchaseBanner();
+   showLithosToast('After paying, you\'ll return here automatically. If not, go to Classes and tap Unlock — or use your code on the Codes page.');
+  });
  });
  const btn=document.getElementById('class-ai-unlock-btn');
  if(btn) btn.addEventListener('click',()=>unlockClassAccess(true));
  const lessonsBtn=document.getElementById('class-lessons-unlock-btn');
  if(lessonsBtn) lessonsBtn.addEventListener('click',()=>unlockClassAccess(true));
+ const bannerUnlock=document.getElementById('lithos-purchase-unlock');
+ if(bannerUnlock) bannerUnlock.addEventListener('click',()=>unlockClassAccess(false));
+ const memRecoveryBtn=document.getElementById('mem-recovery-btn');
+ const memRecoveryInput=document.getElementById('mem-recovery-code');
+ if(memRecoveryBtn&&memRecoveryInput){
+  const runMemRecovery=()=>{
+   const info=unlockViaRecoveryCode(memRecoveryInput.value);
+   if(info){
+    showLithosToast('Unlocked: '+info.label);
+    memRecoveryInput.value='';
+   }else alert('That code didn\'t work. Check your receipt or try Secret Codes.');
+  };
+  memRecoveryBtn.addEventListener('click',runMemRecovery);
+  memRecoveryInput.addEventListener('keydown',e=>{if(e.key==='Enter')runMemRecovery();});
+ }
+ handlePurchaseReturn();
  refreshClassAI();
  refreshClassLessons();
  initLithosVoiceUI();
@@ -9394,7 +9744,7 @@ const CORS_PROXY_PREFIXES=[
 const CORS_PROXY=(url)=>CORS_PROXY_PREFIXES[0](url);
 const API_TIMEOUT_MS=3500;
 const PROXY_TIMEOUT_MS=12000;
-let channelBrowse={id:null,handle:'',name:'',avatar:'',videos:[],page:0,hasMore:false,loading:false,localCatalog:null,scrapedCatalog:null,loadSource:''};
+let channelBrowse={id:null,handle:'',name:'',avatar:'',videos:[],page:0,hasMore:false,loading:false,localCatalog:null,scrapedCatalog:null,loadSource:'',totalVideos:0};
 let channelLoadGen=0;
 async function apiFetchJson(url,timeoutMs=API_TIMEOUT_MS){
  const ctrl=new AbortController();
@@ -9611,14 +9961,17 @@ async function resolveYouTubeChannel(parsed){
 }
 async function fetchYouTubeChannelPage(channelId,page,handle){
  const h=normalizeChannelHandle(handle);
+ const start=(page-1)*CHANNEL_PAGE_SIZE;
  const isClaw=h==='clawquest'||channelId===CLAWQUEST_CHANNEL_ID;
  if(isClaw){
   if(!channelBrowse.localCatalog) channelBrowse.localCatalog=await loadClawQuestVideoCatalog();
   const list=channelBrowse.localCatalog||[];
   if(list.length){
    channelBrowse.loadSource='catalog';
-   return mapJsonVideos(list,0,list.length);
+   channelBrowse.totalVideos=list.length;
+   return mapJsonVideos(list,start,CHANNEL_PAGE_SIZE);
   }
+  channelBrowse.totalVideos=0;
   return [];
  }
  if(page===1&&!channelBrowse.scrapedCatalog){
@@ -9626,18 +9979,21 @@ async function fetchYouTubeChannelPage(channelId,page,handle){
  }
  if(channelBrowse.scrapedCatalog&&channelBrowse.scrapedCatalog.length){
   channelBrowse.loadSource='scrape';
-  return channelBrowse.scrapedCatalog.slice();
+  channelBrowse.totalVideos=channelBrowse.scrapedCatalog.length;
+  return channelBrowse.scrapedCatalog.slice(start,start+CHANNEL_PAGE_SIZE);
  }
  if(page===1){
   try{
    const parsed=await fetchRssChannelVideos(channelId);
    if(parsed.videos.length){
     channelBrowse.loadSource='rss';
+    channelBrowse.totalVideos=parsed.videos.length;
     if(parsed.channelName) channelBrowse.name=channelBrowse.name||parsed.channelName;
-    return parsed.videos;
+    return parsed.videos.slice(0,CHANNEL_PAGE_SIZE);
    }
   }catch(_){}
  }
+ channelBrowse.totalVideos=0;
  return [];
 }
 function renderSavedChannels(){
@@ -9782,7 +10138,7 @@ async function exploreYouTubeChannel(page=1,handleOverride,force=false){
     if(gen!==channelLoadGen) return;
     upsertOwnerChannel(ch);
    }
-   channelBrowse={id:ch.id,handle:ch.handle||handle,name:ch.name,avatar:ch.avatar||'',videos:[],page:0,hasMore:false,loading:true,localCatalog:null,scrapedCatalog:null,loadSource:''};
+   channelBrowse={id:ch.id,handle:ch.handle||handle,name:ch.name,avatar:ch.avatar||'',videos:[],page:0,hasMore:false,loading:true,localCatalog:null,scrapedCatalog:null,loadSource:'',totalVideos:0};
    activeChannelHandle=ch.handle||handle;
    saveActiveChannelHandle(activeChannelHandle);
    renderSavedChannels();
@@ -9795,9 +10151,12 @@ async function exploreYouTubeChannel(page=1,handleOverride,force=false){
   const batch=await fetchYouTubeChannelPage(channelBrowse.id,page,channelBrowse.handle);
   if(gen!==channelLoadGen) return;
   if(page===1) channelBrowse.videos=batch;
-  else channelBrowse.videos=channelBrowse.videos.concat(batch);
+  else{
+   const seen=new Set(channelBrowse.videos.map(v=>v.videoId));
+   channelBrowse.videos=channelBrowse.videos.concat(batch.filter(v=>!seen.has(v.videoId)));
+  }
   channelBrowse.page=page;
-  channelBrowse.hasMore=false;
+  channelBrowse.hasMore=channelBrowse.videos.length<(channelBrowse.totalVideos||0);
   renderChannelGrid();
   if(channelBrowse.videos.length){
    const src=channelBrowse.loadSource==='rss'?' (latest via YouTube feed)':channelBrowse.loadSource==='scrape'?' (via YouTube)':channelBrowse.loadSource==='catalog'?' (full catalog)':'';
@@ -9815,7 +10174,7 @@ async function exploreYouTubeChannel(page=1,handleOverride,force=false){
    setChannelStatus(`${channelBrowse.videos.length} video${channelBrowse.videos.length===1?'':'s'} from ${channelBrowse.name} — could not load more`);
   }else{
    setChannelStatus((err&&err.message)||'Could not load that channel. Try clawquest or another channel name.',true);
-   if(page===1){channelBrowse={id:null,handle:'',name:'',avatar:'',videos:[],page:0,hasMore:false,loading:false,localCatalog:null,scrapedCatalog:null,loadSource:''};renderChannelHead();renderChannelGrid();}
+   if(page===1){channelBrowse={id:null,handle:'',name:'',avatar:'',videos:[],page:0,hasMore:false,loading:false,localCatalog:null,scrapedCatalog:null,loadSource:'',totalVideos:0};renderChannelHead();renderChannelGrid();}
   }
  }finally{
   if(gen===channelLoadGen){
@@ -10054,9 +10413,16 @@ function buildAuras(){
  });
 }
 function tryCode(){
- const raw=document.getElementById('code-input').value.trim().toLowerCase();
+ const rawInput=document.getElementById('code-input').value.trim();
+ const raw=rawInput.toLowerCase();
  const res=document.getElementById('code-result');
  if(!raw){res.innerHTML=`<div class="fail">Type a code first! </div>`;return;}
+
+ const recovery=unlockViaRecoveryCode(rawInput);
+ if(recovery){
+  res.innerHTML=`<div class="win"><b>Unlocked!</b> ${recovery.label} — class lessons and the AI Rock Teacher are ready on this device.</div>`;
+  return;
+ }
 
  // LOGAN'S TOP SECRET — plays a funny bathroom cutscene! 
  if(raw==="logans top secret coded"){
@@ -11607,9 +11973,333 @@ function renderPoppyPlay(){
  ppUpdateWorld();
 }
 
+/* ---------- Site-wide device mode (mobile vs computer) ---------- */
+const LITHOS_DEVICE_KEY='lithos_device_mode';
+function getLithosDeviceMode(){
+ try{const v=localStorage.getItem(LITHOS_DEVICE_KEY);if(v==='mobile'||v==='computer')return v;}catch(_){}
+ return '';
+}
+function setLithosDeviceMode(mode){
+ if(mode!=='mobile'&&mode!=='computer') return;
+ try{localStorage.setItem(LITHOS_DEVICE_KEY,mode);}catch(_){}
+ document.documentElement.classList.remove('lithos-mobile','lithos-computer');
+ document.body.classList.remove('lithos-mobile','lithos-computer');
+ document.documentElement.classList.add('lithos-'+mode);
+ document.body.classList.add('lithos-'+mode);
+ const sw=document.getElementById('lithos-device-switch');
+ if(sw) sw.textContent=mode==='mobile'?'Switch to Computer layout':'Switch to Mobile layout';
+}
+function openLithosDevicePicker(){
+ const picker=document.getElementById('lithos-device-picker');
+ if(picker) picker.hidden=false;
+}
+function cleanCacheBustParam(){
+ try{
+  const u=new URL(location.href);
+  if(!u.searchParams.has('_')) return;
+  u.searchParams.delete('_');
+  const q=u.searchParams.toString();
+  history.replaceState(null,'',u.pathname+(q?'?'+q:'')+(u.hash||''));
+ }catch(e){}
+}
+function lithosHardRefresh(){
+ showLithosToast('Loading latest version…',2000);
+ setTimeout(async ()=>{
+  try{
+   if('caches' in window){
+    const keys=await caches.keys();
+    await Promise.all(keys.map(k=>caches.delete(k)));
+   }
+  }catch(_){}
+  const hash=location.hash||'';
+  const u=new URL(location.href);
+  u.searchParams.set('_',String(Date.now()));
+  location.href=u.pathname+u.search+hash;
+ },350);
+}
+function initLithosDeviceMode(){
+ document.querySelectorAll('[data-lithos-device]').forEach(btn=>{
+  btn.addEventListener('click',()=>pickLithosDevice(btn.dataset.lithosDevice));
+ });
+ const sw=document.getElementById('lithos-device-switch');
+ if(sw) sw.addEventListener('click',openLithosDevicePicker);
+ const mode=getLithosDeviceMode();
+ if(mode){
+  setLithosDeviceMode(mode);
+  return;
+ }
+ openLithosDevicePicker();
+}
+function pickLithosDevice(mode){
+ setLithosDeviceMode(mode);
+ const picker=document.getElementById('lithos-device-picker');
+ if(picker) picker.hidden=true;
+}
+
+/* ---------- Gem Motion Hunt (webcam body tracking) ---------- */
+const GM_GEMS=[
+ {name:'Ruby',color:'#e0424f',points:10,good:true},
+ {name:'Sapphire',color:'#4a7fd4',points:10,good:true},
+ {name:'Emerald',color:'#3ecf8a',points:15,good:true},
+ {name:'Amethyst',color:'#9b6fd4',points:8,good:true},
+ {name:'Topaz',color:'#f0b429',points:8,good:true},
+ {name:'Garnet',color:'#9b2335',points:12,good:true},
+ {name:'Obsidian',color:'#3a3a48',points:0,good:false},
+ {name:'Pyrite',color:'#b8960c',points:0,good:false}
+];
+const GM_SKELETON=[[11,12],[11,13],[13,15],[12,14],[14,16],[11,23],[12,24],[23,24],[0,11],[0,12]];
+const GM_JOINTS=[0,11,12,13,14,15,16,23,24];
+const GM_CATCH=[
+ {idx:0,r:44,label:'head'},
+ {idx:15,r:40,label:'L hand'},
+ {idx:16,r:40,label:'R hand'},
+ {idx:11,r:34,label:'L shoulder'},
+ {idx:12,r:34,label:'R shoulder'},
+ {idx:23,r:30,label:'L hip'},
+ {idx:24,r:30,label:'R hip'}
+];
+let gmState=null,gmLibsReady=null;
+function gmHi(){return+(localStorage.getItem('lithos-gm-hi')||0);}
+function gmSetHi(s){if(s>gmHi())localStorage.setItem('lithos-gm-hi',String(s));}
+function gmLoadScript(src){
+ return new Promise((res,rej)=>{
+  if(document.querySelector(`script[src="${src}"]`))return res();
+  const s=document.createElement('script');
+  s.src=src;s.crossOrigin='anonymous';
+  s.onload=res;s.onerror=()=>rej(new Error('load '+src));
+  document.head.appendChild(s);
+ });
+}
+function loadGemMotionLibs(){
+ if(gmLibsReady)return gmLibsReady;
+ gmLibsReady=(async()=>{
+  await gmLoadScript('https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js');
+  await gmLoadScript('https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js');
+ })();
+ return gmLibsReady;
+}
+function stopGemMotion(){
+ if(!gmState)return;
+ gmState.running=false;
+ if(gmState.raf)cancelAnimationFrame(gmState.raf);
+ if(gmState.camera){try{gmState.camera.stop();}catch(_){}}
+ if(gmState.pose){try{gmState.pose.close();}catch(_){}}
+ if(gmState.videoStream){gmState.videoStream.getTracks().forEach(t=>t.stop());gmState.videoStream=null;}
+ gmState=null;
+}
+function buildGemMotion(){
+ stopGemMotion();
+ const wrap=document.getElementById('gm-wrap');
+ if(!wrap)return;
+ const hi=gmHi();
+ wrap.innerHTML=`
+ <div class="eyebrow">Body Tracker · Collect the Gems</div>
+ <h1>Gem <em>Motion Hunt</em></h1>
+ <p class="lede">Stand in front of your camera and catch falling gems with your head, hands, and body — like VR motion tracking, no tilting required.</p>
+ <div class="gm-panel">
+  <div class="gm-hud">
+   <span>Score <b id="gm-score">0</b></span>
+   <span>Lives <b id="gm-lives">3</b></span>
+   <span>Best <b id="gm-hi">${hi}</b></span>
+   <span class="gm-status" id="gm-track-status">Camera off</span>
+  </div>
+  <div class="gm-stage-wrap" id="gm-stage">
+   <canvas class="gm-canvas" id="gm-canvas" width="640" height="480" aria-label="Gem Motion Hunt play area"></canvas>
+   <video class="gm-video" id="gm-video" playsinline muted autoplay></video>
+   <div class="gm-overlay" id="gm-overlay">
+    <h2 id="gm-overlay-title">Ready to hunt?</h2>
+    <p id="gm-overlay-msg">Allow camera access to play. Your body is tracked on screen — catch gems with your head and hands.</p>
+    <button type="button" class="game-btn" id="gm-start-btn">Start with camera</button>
+   </div>
+  </div>
+  <div class="game-btns" style="margin-top:16px">
+   <button type="button" class="game-btn ghost" id="gm-restart-btn">Restart</button>
+  </div>
+ </div>
+ <p class="gm-instructions"><b>Ruby, Sapphire, Emerald</b> and friends are worth points. <b>Obsidian</b> and <b>Pyrite</b> cost a life. Combo streaks boost your score!</p>`;
+ document.getElementById('gm-restart-btn').onclick=()=>buildGemMotion();
+ document.getElementById('gm-start-btn').onclick=()=>startGemMotion();
+}
+async function startGemMotion(){
+ stopGemMotion();
+ const canvas=document.getElementById('gm-canvas');
+ const overlay=document.getElementById('gm-overlay');
+ const trackStatus=document.getElementById('gm-track-status');
+ const overlayTitle=document.getElementById('gm-overlay-title');
+ const overlayMsg=document.getElementById('gm-overlay-msg');
+ if(!canvas||!overlay)return;
+ const ctx=canvas.getContext('2d');
+ const W=canvas.width,H=canvas.height;
+ const video=document.getElementById('gm-video');
+ let score=0,lives=3,combo=0,spawnT=0,lastT=0;
+ const falling=[];
+ gmState={running:true,raf:null,videoStream:null,pose:null,camera:null,landmarks:null,frameImage:null};
+
+ overlayTitle.textContent='Loading body tracker…';
+ overlayMsg.textContent='Fetching pose models — one moment.';
+ try{await loadGemMotionLibs();}
+ catch(e){
+  overlayTitle.textContent='Could not load tracker';
+  overlayMsg.textContent='Check your connection and try again.';
+  stopGemMotion();return;
+ }
+
+ overlayTitle.textContent='Starting camera…';
+ overlayMsg.textContent='Allow camera access when prompted. HTTPS required on mobile.';
+ try{
+  const pose=new Pose({locateFile:(file)=>`https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`});
+  pose.setOptions({modelComplexity:0,smoothLandmarks:true,minDetectionConfidence:0.5,minTrackingConfidence:0.5});
+  pose.onResults((results)=>{
+   if(!gmState)return;
+   gmState.landmarks=results.poseLandmarks||null;
+   gmState.frameImage=results.image||null;
+  });
+  gmState.pose=pose;
+  const camera=new Camera(video,{
+   onFrame:async()=>{if(gmState&&gmState.running)await pose.send({image:video});},
+   width:640,height:480
+  });
+  gmState.camera=camera;
+  await camera.start();
+  if(video.srcObject)gmState.videoStream=video.srcObject;
+ }catch(e){
+  overlayTitle.textContent='Camera required';
+  overlayMsg.textContent='Allow camera access to play. Motion Hunt uses your webcam to track your body — no tilting required.';
+  stopGemMotion();return;
+ }
+
+ overlay.hidden=true;
+ if(trackStatus){trackStatus.textContent='Tracking';trackStatus.classList.add('on');}
+
+ function lmX(p){return(1-p.x)*W;}
+ function lmY(p){return p.y*H;}
+ function visible(p){return p&&p.visibility>0.45;}
+ function catchPoints(landmarks){
+  if(!landmarks)return [];
+  return GM_CATCH.filter(c=>visible(landmarks[c.idx])).map(c=>({x:lmX(landmarks[c.idx]),y:lmY(landmarks[c.idx]),r:c.r,label:c.label}));
+ }
+ function drawVideo(){
+  const img=gmState.frameImage||video;
+  if(!img||(img.videoWidth!==undefined&&!img.videoWidth))return;
+  ctx.save();ctx.translate(W,0);ctx.scale(-1,1);
+  ctx.drawImage(img,0,0,W,H);
+  ctx.restore();
+  ctx.fillStyle='rgba(10,11,15,.28)';ctx.fillRect(0,0,W,H);
+ }
+ function drawSkeleton(landmarks){
+  if(!landmarks)return;
+  ctx.lineCap='round';
+  ctx.strokeStyle='rgba(201,169,79,.62)';ctx.lineWidth=4;
+  for(const [a,b] of GM_SKELETON){
+   const pa=landmarks[a],pb=landmarks[b];
+   if(!visible(pa)||!visible(pb))continue;
+   ctx.beginPath();ctx.moveTo(lmX(pa),lmY(pa));ctx.lineTo(lmX(pb),lmY(pb));ctx.stroke();
+  }
+  for(const idx of GM_JOINTS){
+   const p=landmarks[idx];
+   if(!visible(p))continue;
+   const x=lmX(p),y=lmY(p),r=idx===0?9:idx>=15?7:6;
+   ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);
+   ctx.fillStyle=idx===0?'#c9a94f':'rgba(62,207,138,.92)';ctx.fill();
+   ctx.strokeStyle='rgba(255,255,255,.35)';ctx.lineWidth=1;ctx.stroke();
+  }
+ }
+ function drawCatchZones(points){
+  for(const pt of points){
+   ctx.beginPath();ctx.arc(pt.x,pt.y,pt.r,0,Math.PI*2);
+   ctx.strokeStyle='rgba(201,169,79,.35)';ctx.lineWidth=2;ctx.setLineDash([6,8]);ctx.stroke();ctx.setLineDash([]);
+   ctx.fillStyle='rgba(201,169,79,.08)';ctx.fill();
+  }
+ }
+ function spawnGem(){
+  const roll=Math.random();
+  let g;
+  if(roll<0.22)g=GM_GEMS[6];
+  else if(roll<0.38)g=GM_GEMS[7];
+  else g=GM_GEMS[Math.floor(Math.random()*6)];
+  falling.push({
+   x:30+Math.random()*(W-60),y:-24,r:14+Math.random()*6,
+   vy:1.8+Math.random()*1.4+score*0.008,
+   gem:g,spin:Math.random()*Math.PI*2
+  });
+ }
+ function drawGem(g,x,y,r,spin){
+  ctx.save();ctx.translate(x,y);ctx.rotate(spin);
+  const grd=ctx.createRadialGradient(-r*.3,-r*.3,0,0,0,r);
+  grd.addColorStop(0,'rgba(255,255,255,.55)');grd.addColorStop(.45,g.color);grd.addColorStop(1,'rgba(0,0,0,.35)');
+  ctx.fillStyle=grd;
+  ctx.beginPath();
+  for(let i=0;i<6;i++){
+   const a=i/6*Math.PI*2-Math.PI/2;
+   const px=Math.cos(a)*r,py=Math.sin(a)*r;
+   i?ctx.lineTo(px,py):ctx.moveTo(px,py);
+  }
+  ctx.closePath();ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,.25)';ctx.lineWidth=1;ctx.stroke();
+  ctx.restore();
+ }
+ function gemHitsBody(gem,points){
+  for(const pt of points){
+   const dx=gem.x-pt.x,dy=gem.y-pt.y,d=gem.r+pt.r;
+   if(dx*dx+dy*dy<d*d)return true;
+  }
+  return false;
+ }
+ function gameOver(){
+  gmSetHi(score);
+  gmState.running=false;
+  overlay.hidden=false;
+  overlayTitle.textContent='Game over';
+  overlayMsg.textContent=`Score ${score}. Best: ${gmHi()}. Tap Start with camera to play again!`;
+  if(trackStatus){trackStatus.textContent='Camera off';trackStatus.classList.remove('on');}
+  const hiEl=document.getElementById('gm-hi');
+  if(hiEl)hiEl.textContent=gmHi();
+ }
+ function tick(t){
+  if(!gmState||!gmState.running)return;
+  if(!lastT)lastT=t;
+  const dt=Math.min(32,t-lastT);lastT=t;
+  spawnT+=dt;
+  const interval=Math.max(420,900-score*3);
+  if(spawnT>=interval){spawnT=0;spawnGem();}
+
+  const points=catchPoints(gmState.landmarks);
+  drawVideo();
+  drawSkeleton(gmState.landmarks);
+  drawCatchZones(points);
+
+  for(let i=falling.length-1;i>=0;i--){
+   const f=falling[i];
+   f.y+=f.vy*(dt/16);f.spin+=0.04;
+   drawGem(f.gem,f.x,f.y,f.r,f.spin);
+   if(points.length&&gemHitsBody(f,points)){
+    if(f.gem.good){
+     combo++;score+=Math.round(f.gem.points*(1+Math.floor(combo/5)*0.5));
+     falling.splice(i,1);continue;
+    }else{
+     lives--;combo=0;falling.splice(i,1);
+     if(lives<=0){document.getElementById('gm-lives').textContent='0';gameOver();return;}
+    }
+   }else if(f.y-f.r>H){falling.splice(i,1);if(f.gem.good)combo=0;}
+  }
+
+  if(!points.length){
+   ctx.fillStyle='rgba(201,169,79,.92)';ctx.font='600 14px Space Grotesk,system-ui,sans-serif';
+   ctx.textAlign='center';ctx.fillText('Step into frame — head & hands tracked',W/2,28);
+  }
+
+  document.getElementById('gm-score').textContent=score;
+  document.getElementById('gm-lives').textContent=lives;
+  gmState.raf=requestAnimationFrame(tick);
+ }
+ gmState.raf=requestAnimationFrame(tick);
+}
+
 (function openHashView(){
+ cleanCacheBustParam();
  bindPpWorld();
  bindPoppyGrid();
+ initLithosDeviceMode();
  const name=(location.hash||'').replace(/^#/,'').trim();
  if(name==='gemhunt'){switchView('gemhunt');return;}
  if(name&&views[name])switchView(name);
