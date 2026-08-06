@@ -4204,13 +4204,13 @@ const lithos8bit=(()=>{
   playing=false;updateBtns();
  }
  function ensureReady(){
-  if(userReady)return;
   userReady=true;
   ac();if(ctx&&ctx.state==='suspended')ctx.resume();
   if(master)master.gain.value=muted?0:.32;
  }
  function toggle(){
   ensureReady();
+  if(!playing&&!muted&&inContext()){startLoop();return;}
   muted=!muted;saveMute();
   if(master)master.gain.value=muted?0:.32;
   if(muted)stopLoop();
@@ -7897,6 +7897,8 @@ function armySize(){
 function buildBattlefield(){
  const wrap=document.getElementById('bf-wrap');
  if(!wrap) return;
+ stopBFLoop(); stopExpLoop(); bf=null; exp=null;
+ document.body.classList.remove('in-game');
  try{
  const power=playerPower();
  const size=armySize();
@@ -7917,7 +7919,7 @@ function buildBattlefield(){
  document.getElementById('bf-start').onclick=startArmyBattle;
  document.getElementById('bf-expedition').onclick=startExpedition;
  }catch(err){
- wrap.innerHTML=`<div class="eyebrow">Gem Mine Expedition</div><h1>The <em>Battlefield</em></h1><p class="bf-intro">Something went wrong loading the mine. Refresh and try again.</p><div class="bf-btns"><button class="game-btn" onclick="buildBattlefield()">Reload Battlefield</button></div>`;
+ wrap.innerHTML=`<div class="eyebrow">Gem Mine Expedition</div><h1>The <em>Battlefield</em></h1><p class="bf-intro">Something went wrong loading the mine. Refresh and try again.</p><div class="bf-btns"><button class="game-btn" id="bf-reload">Reload Battlefield</button></div>`;
  console.error(err);
  }
 }
@@ -9613,7 +9615,6 @@ function renderBattlefieldFrame(){
  </div>
  </div></div>`;
  // (button clicks are handled by the delegated listener below, which survives redraws)
- document.getElementById('bf-leave').onclick=()=>{stopBFLoop();buildBattlefield();};
 }
 // Event delegation: because the battlefield redraws constantly, buttons get
 // recreated each frame. Attaching one listener to the whole document keeps every
@@ -9628,6 +9629,7 @@ document.addEventListener('click',e=>{
   return;
  }
  if(btn.id==='stage-quiz-go'){ bf&&bf.quizActive?closeStageQuiz():(arenaQuiz&&arenaQuiz.active?closeArenaStageQuiz():null); return; }
+ if(btn.id==='bf-reload'||btn.id==='bf-leave'){ buildBattlefield(); return; }
  if(btn.id==='bf-start'){ startArmyBattle(); return; }
  if(btn.id==='bf-expedition'){ startExpedition(); return; }
  if(btn.id==='stage-quiz-retry'){
@@ -9688,7 +9690,7 @@ document.addEventListener('keydown',e=>{
  }
  if(views.battlefield.hidden)return;
  // L key leaves the factory (works even when the battle is over)
- if(e.key==='l'||e.key==='L'){stopBFLoop();buildBattlefield();e.preventDefault();return;}
+ if(e.key==='l'||e.key==='L'){buildBattlefield();e.preventDefault();return;}
  if(e.key==='f'||e.key==='F'){
  if(bf && bf.phase==="facescan"){ tryFaceScan(); }
  else if(bf){bf.fpv=true;renderBattlefieldFrame();}
