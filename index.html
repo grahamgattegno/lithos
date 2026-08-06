@@ -5695,15 +5695,21 @@ function hpPct(hp,maxhp){
 const BATTLE_POWER_CAP=9999;
 function battleNum(n,cap){
  cap=cap==null?BATTLE_POWER_CAP:cap;
- if(n==null||!isFinite(n)) return cap;
+ if(n==null) return cap;
+ if(n===Infinity) return Infinity;
+ if(n===-Infinity||!isFinite(n)) return 0;
  return Math.min(Math.max(0,n),cap);
 }
 function finiteHp(hp,fallback){
+ if(hp===Infinity) return Infinity;
  const n=battleNum(hp, fallback==null?9999:fallback);
+ if(n===Infinity) return Infinity;
  return Math.max(1, Math.round(n));
 }
 function dealDamage(hp,dmg){
+ if(hp===Infinity) return Infinity;
  hp=finiteHp(hp,9999);
+ if(dmg===Infinity) return 0;
  dmg=Math.max(1, Math.round(battleNum(dmg,9999)));
  return Math.max(0, hp-dmg);
 }
@@ -5981,7 +5987,7 @@ updateOwnerNav();
 const GLITCH_MACE={art:"glitch", name:"Glitched Jasper Mace", bonus:Infinity, glitch:true, codeOnly:true, fact:"Jasper comes in wild banded patterns — nature's own glitch art!"};
 const GLITCH_SHIELD={art:"glitch", name:"Glitched Fluorite Shield", block:Infinity, color:"#39ff14", glitch:true, codeOnly:true, fact:"Fluorite glows under UV light — nature's own glitch!"};
 const GLITCH_TITAN={name:"Glitched Gem Titan", color:"#39ff14", power:Infinity, need:0, titan:true, plasma:true, glitch:true, hp:Infinity, codeOnly:true};
-const GLITCH_AURA={name:"Glitched Aura", color:"#39ff14", hpMult:Infinity, atkMult:Infinity, label:"x1no", glitch:true, codeOnly:true};
+const GLITCH_AURA={name:"Glitched Aura", color:"#39ff14", hpMult:Infinity, atkMult:Infinity, label:"∞", glitch:true, codeOnly:true};
 function makeGlitchInfinite(){
  GLITCH_MACE.bonus=Infinity;
  GLITCH_SHIELD.block=Infinity;
@@ -5989,7 +5995,7 @@ function makeGlitchInfinite(){
  GLITCH_TITAN.hp=Infinity;
  GLITCH_AURA.hpMult=Infinity;
  GLITCH_AURA.atkMult=Infinity;
- GLITCH_AURA.label="x1no";
+ GLITCH_AURA.label="∞";
 }
 // ===== THE GEM WARRIOR GOD — rainbow legend (code: "rainbow") =====
 const RAINBOW_GOD={name:"Gem Warrior God", color:"#ff00cc", power:50000000, need:0, style:"rainbowgod", rainbowgod:true, hp:5e18, codeOnly:true};
@@ -10029,8 +10035,8 @@ function buildAuras(){
  ${locked?'<div class="a-lock">&#128274;</div>':''}
  <div class="a-orb ${a.glitch?'glitch-jit':''}"></div>
  <div class="a-name">${a.name}</div>
- <div class="a-stat"> Health: <b>${a.label}</b></div>
- <div class="a-stat"> Attack: <b>${a.label}</b></div>
+ <div class="a-stat"> Health: <b>${a.glitch||a.hpMult===Infinity?'∞':a.label}</b></div>
+ <div class="a-stat"> Attack: <b>${a.glitch||a.atkMult===Infinity?'∞':a.label}</b></div>
  ${locked?'<div class="a-locked-note">Owner only</div>':''}
  </div>`;
  }).join('');
