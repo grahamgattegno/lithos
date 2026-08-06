@@ -2721,6 +2721,29 @@
     margin-top:8px;background:transparent;border:1px solid var(--gold);color:var(--gold);border-radius:8px;
     padding:8px 14px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;
   }
+
+  /* ===== 8-bit games music toggle ===== */
+  #lithos-music-btn{
+    position:fixed;right:max(16px,var(--content-pad));bottom:calc(16px + env(safe-area-inset-bottom,0px));
+    z-index:195;display:none;align-items:center;gap:6px;
+    background:var(--panel);border:1px solid var(--line-2);color:var(--text-dim);border-radius:8px;
+    padding:8px 12px;cursor:pointer;font-family:var(--mono);font-size:11px;letter-spacing:.1em;
+    text-transform:uppercase;transition:border-color .15s,color .15s,background .15s,box-shadow .15s;
+    box-shadow:0 4px 20px rgba(0,0,0,.35);
+  }
+  body.lithos-games-music #lithos-music-btn{display:inline-flex}
+  html.lithos-mobile body.lithos-games-music #lithos-music-btn{bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+  #lithos-music-btn:hover{border-color:var(--gold);color:var(--text)}
+  #lithos-music-btn.playing{border-color:var(--gold);color:var(--gold);background:rgba(201,169,79,.1);box-shadow:0 0 16px rgba(201,169,79,.18)}
+  #lithos-music-btn .music-icon{font-size:14px;line-height:1}
+  .lithos-games-head-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+  .lithos-games-music-inline{
+    background:none;border:1px solid var(--line-2);color:var(--text-dim);border-radius:8px;padding:8px 12px;
+    cursor:pointer;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+    transition:border-color .15s,color .15s,background .15s;
+  }
+  .lithos-games-music-inline:hover{border-color:var(--gold);color:var(--gold)}
+  .lithos-games-music-inline.playing{border-color:var(--gold);color:var(--gold);background:rgba(201,169,79,.1)}
 </style>
 <script>
 (function(){
@@ -2752,7 +2775,10 @@
     <div class="eyebrow">Lithos Play</div>
     <h2 id="lithos-games-title">All Games</h2>
    </div>
-   <button type="button" class="lithos-games-close" onclick="closeGamesHub()" aria-label="Close">✕ Close</button>
+   <div class="lithos-games-head-actions">
+    <button type="button" class="lithos-games-music-inline" id="lithos-music-hub" onclick="lithos8bitToggle()" aria-label="Toggle music"><span class="music-icon">🎵</span> Music</button>
+    <button type="button" class="lithos-games-close" onclick="closeGamesHub()" aria-label="Close">✕ Close</button>
+   </div>
   </div>
   <div class="lithos-games-grid" id="lithos-games-grid"></div>
  </div>
@@ -3629,6 +3655,8 @@
  <button type="button" class="lithos-device-switch" id="lithos-device-switch">Switch layout</button>
 </footer>
 
+<button type="button" id="lithos-music-btn" onclick="lithos8bitToggle()" aria-label="Toggle 8-bit music" hidden><span class="music-icon">🎵</span><span class="music-label">Music</span></button>
+
 <nav class="mobile-bar" aria-label="Quick navigation">
  <button type="button" data-mnav="catalog" class="on">Home</button>
  <button type="button" data-mnav="poppy">Factory</button>
@@ -4007,9 +4035,9 @@ function openDrawer(i){
  ${partnerDrawerCta(g)}
  </div>`;
  overlay.classList.add('open');
- document.body.style.overflow='hidden';
+ syncBodyScrollLock();
 }
-function closeDrawer(){overlay.classList.remove('open');document.body.style.overflow='';}
+function closeDrawer(){overlay.classList.remove('open');syncBodyScrollLock();}
 overlay.onclick=e=>{if(e.target===overlay)closeDrawer();};
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDrawer();closeGamesHub();}});
 
@@ -4026,6 +4054,37 @@ const LITHOS_GAMES=[
  {id:'quiz',icon:'❓',name:'Mineral Quiz',desc:'Test your geology knowledge.',activity:true}
 ];
 let gamesHubBuilt=false;
+let gamesHubOpen=false;
+let activeView='catalog';
+function isGamesHubOpen(){
+ const hub=document.getElementById('lithos-games-hub');
+ return !!hub&&!hub.hidden;
+}
+function syncBodyScrollLock(){
+ const locked=overlay.classList.contains('open')
+  ||gamesHubOpen
+  ||!!document.getElementById('poppyplay')
+  ||document.body.classList.contains('pp-playing');
+ document.body.style.overflow=locked?'hidden':'';
+}
+function syncMobileNav(name){
+ document.querySelectorAll('.mobile-bar button').forEach(b=>{
+  const target=b.dataset.mnav;
+  let on=false;
+  if(name==='games') on=target==='games';
+  else if(target==='battlefield') on=name==='battlefield'||name==='gemhunt';
+  else on=target===name;
+  b.classList.toggle('on',on);
+ });
+}
+function syncNavHighlight(viewName){
+ const gemHunt=viewName==='gemhunt';
+ navBtns.forEach(b=>{
+  if(b.id==='games-nav-btn'){b.classList.toggle('on',gamesHubOpen);return;}
+  b.classList.toggle('on',!gamesHubOpen&&b.dataset.view===(gemHunt?'gemhunt':viewName));
+ });
+ syncMobileNav(gamesHubOpen?'games':viewName);
+}
 function buildGamesHub(){
  if(gamesHubBuilt)return;
  const grid=document.getElementById('lithos-games-grid');
@@ -4039,25 +4098,153 @@ function buildGamesHub(){
  grid.addEventListener('click',e=>{
   const card=e.target.closest('[data-game]');
   if(!card)return;
-  closeGamesHub();
   switchView(card.dataset.game);
  });
  gamesHubBuilt=true;
 }
-function openGamesHub(){
+function openGamesHub(opts={}){
+ if(isGamesHubOpen()){
+  if(!opts.fromHash)closeGamesHub();
+  return;
+ }
  buildGamesHub();
  const hub=document.getElementById('lithos-games-hub');
  if(hub)hub.hidden=false;
- document.body.style.overflow='hidden';
+ gamesHubOpen=true;
+ syncNavHighlight(activeView);
+ syncBodyScrollLock();
+ if(location.hash!=='#games')history.replaceState(null,'',location.pathname+location.search+'#games');
+ lithos8bitSync();
 }
-function closeGamesHub(){
+function closeGamesHub(opts={}){
  const hub=document.getElementById('lithos-games-hub');
- if(hub)hub.hidden=true;
- document.body.style.overflow='';
+ if(!hub||hub.hidden)return;
+ hub.hidden=true;
+ gamesHubOpen=false;
+ syncNavHighlight(activeView);
+ syncBodyScrollLock();
+ if(!opts.skipHash&&location.hash==='#games'){
+  const h=activeView==='catalog'?'':('#'+activeView);
+  history.replaceState(null,'',location.pathname+location.search+h);
+ }
 }
 document.getElementById('lithos-games-hub')?.addEventListener('click',e=>{
  if(e.target.id==='lithos-games-hub')closeGamesHub();
 });
+
+/* ---------- 8-bit chiptune (Web Audio API) ---------- */
+const LITHOS_8BIT_VIEWS=new Set(['battlefield','game','gemmotion','poppy','gemhunt']);
+const lithos8bit=(()=>{
+ const MUTE_KEY='lithos_8bit_mute';
+ const BPM=132;
+ const STEPS=16;
+ const stepMs=60000/BPM/4;
+ const melody=[72,0,72,74,76,0,74,72,69,0,72,0,74,76,79,0,79,0,76,74,72,0,74,76,79,0,81,0,79,76,74,72];
+ const bass=[48,0,48,0,43,0,43,0,45,0,45,0,48,0,48,0,41,0,41,0,43,0,43,0,45,0,45,0,48,0,48,0];
+ const kick=[1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0];
+ const snare=[0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0];
+ const hihat=[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0];
+ let ctx=null,master=null,stepTimer=null,stepIdx=0,playing=false,muted=false,userReady=false;
+ function loadMute(){try{muted=localStorage.getItem(MUTE_KEY)==='1';}catch(_){}}
+ function saveMute(){try{localStorage.setItem(MUTE_KEY,muted?'1':'0');}catch(_){}}
+ function midi(n){return n?440*Math.pow(2,(n-69)/12):0;}
+ function ac(){
+  if(!ctx){try{
+   ctx=new(window.AudioContext||window.webkitAudioContext)();
+   master=ctx.createGain();master.gain.value=muted?0:.32;master.connect(ctx.destination);
+  }catch(_){}}
+  return ctx;
+ }
+ function env(g,t,d,v){g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);}
+ function sq(freq,dur,vol){
+  const c=ac();if(!c||!freq||muted)return;
+  const t=c.currentTime,d=Math.min(dur,stepMs/1000*.95),o=c.createOscillator(),g=c.createGain();
+  o.type='square';o.frequency.value=freq;env(g,t,d,vol||.07);o.connect(g);g.connect(master);o.start(t);o.stop(t+d+.02);
+ }
+ function tri(freq,dur,vol){
+  const c=ac();if(!c||!freq||muted)return;
+  const t=c.currentTime,d=Math.min(dur,stepMs/1000*.95),o=c.createOscillator(),g=c.createGain();
+  o.type='triangle';o.frequency.value=freq;env(g,t,d,vol||.1);o.connect(g);g.connect(master);o.start(t);o.stop(t+d+.02);
+ }
+ function noise(dur,vol,hp){
+  const c=ac();if(!c||muted)return;
+  const t=c.currentTime,d=dur||.04,b=c.createBuffer(1,c.sampleRate*d,c.sampleRate),dta=b.getChannelData(0);
+  for(let i=0;i<dta.length;i++)dta[i]=Math.random()*2-1;
+  const src=c.createBufferSource();src.buffer=b;
+  const g=c.createGain(),f=c.createBiquadFilter();
+  f.type='highpass';f.frequency.value=hp||800;env(g,t,d,vol||.06);
+  src.connect(f);f.connect(g);g.connect(master);src.start(t);src.stop(t+d+.01);
+ }
+ function kickHit(){
+  const c=ac();if(!c||muted)return;
+  const t=c.currentTime,o=c.createOscillator(),g=c.createGain();
+  o.type='sine';o.frequency.setValueAtTime(150,t);o.frequency.exponentialRampToValueAtTime(42,t+.12);
+  env(g,t,.14,.22);o.connect(g);g.connect(master);o.start(t);o.stop(t+.16);
+ }
+ function playStep(i){
+  const si=i%STEPS,mi=i%melody.length,bi=i%bass.length;
+  if(melody[mi])sq(midi(melody[mi]),stepMs/1000*.85,.06);
+  if(bass[bi])tri(midi(bass[bi]),stepMs/1000*.9,.09);
+  if(kick[si])kickHit();
+  if(snare[si])noise(.07,.08,1200);
+  if(hihat[si])noise(.025,.035,6000);
+ }
+ function tick(){playStep(stepIdx++);}
+ function startLoop(){
+  if(playing||muted||!userReady)return;
+  ac();if(!ctx)return;
+  if(ctx.state==='suspended')ctx.resume();
+  playing=true;stepIdx=0;
+  tick();stepTimer=setInterval(tick,stepMs);
+  updateBtns();
+ }
+ function stopLoop(){
+  if(stepTimer){clearInterval(stepTimer);stepTimer=null;}
+  playing=false;updateBtns();
+ }
+ function ensureReady(){
+  if(userReady)return;
+  userReady=true;
+  ac();if(ctx&&ctx.state==='suspended')ctx.resume();
+  if(master)master.gain.value=muted?0:.32;
+ }
+ function toggle(){
+  ensureReady();
+  muted=!muted;saveMute();
+  if(master)master.gain.value=muted?0:.32;
+  if(muted)stopLoop();
+  else if(inContext())startLoop();
+  updateBtns();
+ }
+ function inContext(){
+  if(gamesHubOpen)return true;
+  const v=activeView==='gemhunt'?'battlefield':activeView;
+  return LITHOS_8BIT_VIEWS.has(v);
+ }
+ function sync(){
+  document.body.classList.toggle('lithos-games-music',inContext());
+  const btn=document.getElementById('lithos-music-btn');
+  if(btn)btn.hidden=!inContext();
+  if(inContext()&&!muted&&userReady)startLoop();
+  else stopLoop();
+  updateBtns();
+ }
+ function updateBtns(){
+  const on=playing&&!muted;
+  ['lithos-music-btn','lithos-music-hub'].forEach(id=>{
+   const el=document.getElementById(id);if(!el)return;
+   el.classList.toggle('playing',on);
+   const lbl=el.querySelector('.music-label');
+   if(lbl)lbl.textContent=muted?'Muted':'Music';
+  });
+ }
+ loadMute();
+ document.addEventListener('click',ensureReady,{once:false,capture:true});
+ document.addEventListener('keydown',ensureReady,{once:false,capture:true});
+ return{toggle,sync,ensureReady};
+})();
+function lithos8bitToggle(){lithos8bit.toggle();}
+function lithos8bitSync(){lithos8bit.sync();}
 
 document.getElementById('q').addEventListener('input',e=>{query=e.target.value.trim().toLowerCase();render();});
 initGemSlideshow();
@@ -4095,7 +4282,7 @@ let learnBuilt=false;
 let classLessonsBuilt=false;
 function closeSiteOverlays(){
  try{closeDrawer();}catch(_){}
- try{closeGamesHub();}catch(_){}
+ try{closeGamesHub({skipHash:true});}catch(_){}
  try{closePoppyPlay();}catch(_){}
  try{nsCloseGame();}catch(_){}
  try{stopGemMotion();}catch(_){}
@@ -4109,10 +4296,10 @@ function switchView(name){
  const gemHunt=name==='gemhunt';
  if(gemHunt) name='battlefield';
  if(!views[name])name='catalog';
+ activeView=gemHunt?'gemhunt':name;
  closeSiteOverlays();
  Object.entries(views).forEach(([k,el])=>{if(el)el.hidden=(k!==name);});
- navBtns.forEach(b=>b.classList.toggle('on',b.dataset.view===(gemHunt?'gemhunt':name)));
- syncMobileNav(gemHunt?'gemhunt':name);
+ syncNavHighlight(activeView);
  document.body.classList.toggle('in-game',name==='battlefield'||name==='game'||name==='gemmotion');
  const hash=gemHunt?'#gemhunt':(name==='catalog'?'':('#'+name));
  if(location.hash!==hash)history.replaceState(null,'',hash||location.pathname+location.search);
@@ -4150,18 +4337,16 @@ document.querySelector('.mobile-bar')?.addEventListener('click',e=>{
  if(btn.dataset.mnav==='games'){openGamesHub();return;}
  switchView(btn.dataset.mnav);
 });
-function syncMobileNav(name){
- document.querySelectorAll('.mobile-bar button').forEach(b=>{
-  const target=b.dataset.mnav;
-  const on=target==='battlefield'?(name==='battlefield'||name==='gemhunt'):(target===name);
-  b.classList.toggle('on',on);
- });
-}
-window.addEventListener('hashchange',()=>{
+function routeHashView(){
  const name=(location.hash||'').replace(/^#/,'').trim();
+ if(name==='games'){openGamesHub({fromHash:true});return;}
+ if(gamesHubOpen)closeGamesHub({skipHash:true});
+ const viewKey=name==='gemhunt'?'gemhunt':(name&&views[name]?name:'catalog');
+ if(viewKey===activeView){syncNavHighlight(activeView);return;}
  if(name==='gemhunt'){switchView('gemhunt');return;}
- switchView(name&&views[name]?name:'catalog');
-});
+ switchView(viewKey);
+}
+window.addEventListener('hashchange',routeHashView);
 
 /* ---------- Lessons ---------- */
 const CLAW_QUEST='https://www.youtube.com/@clawquest';
@@ -11972,8 +12157,8 @@ function closePoppyPlay(){
  document.removeEventListener('keyup',ppOnKeyUp);
  ppGame=null;
  const w=document.getElementById('poppyplay');if(w)w.remove();
- document.body.style.overflow='';
  document.body.classList.remove('pp-playing');
+ syncBodyScrollLock();
 }
 function ppInitState(cfg){
  const startX=12;
@@ -11996,8 +12181,8 @@ function playPoppyChapter(n){
  wrap.className=ppUseKeyboard()?'pp-computer':'pp-mobile';
  wrap.innerHTML='<div class="pp-screen" id="pp-screen"></div>';
  document.body.appendChild(wrap);
- document.body.style.overflow='hidden';
  document.body.classList.add('pp-playing');
+ syncBodyScrollLock();
  document.addEventListener('keydown',ppOnKey);
  document.addEventListener('keyup',ppOnKeyUp);
  renderPoppyPlay();
@@ -12454,6 +12639,11 @@ async function startGemMotion(){
   overlayMsg.textContent='Check your connection and try again.';
   stopGemMotion();return;
  }
+ if(typeof Pose==='undefined'||typeof Camera==='undefined'){
+  overlayTitle.textContent='Could not load tracker';
+  overlayMsg.textContent='Body-tracking libraries failed to load. Refresh and try again.';
+  stopGemMotion();return;
+ }
 
  overlayTitle.textContent='Starting camera…';
  overlayMsg.textContent='Allow camera access when prompted. HTTPS required on mobile.';
@@ -12694,6 +12884,7 @@ async function startGemMotion(){
  let t=0;
  function tick(now){
   if(!gmState||!gmState.running)return;
+  try{
   t=now;
   if(!lastT)lastT=t;
   const dt=Math.min(32,t-lastT);lastT=t;
@@ -12734,7 +12925,11 @@ async function startGemMotion(){
     }else{
      lives--;combo=0;falling.splice(i,1);
      if(shield.perLife)shieldUses=shield.uses||1;
-     if(lives<=0){document.getElementById('gm-lives').textContent='0';gameOver();return;}
+     if(lives<=0){
+      const livesEl=document.getElementById('gm-lives');
+      if(livesEl)livesEl.textContent='0';
+      gameOver();return;
+     }
     }
    }else if(f.y-f.r>H){falling.splice(i,1);if(f.gem.good)combo=0;}
   }
@@ -12744,10 +12939,16 @@ async function startGemMotion(){
    ctx.textAlign='center';ctx.fillText('Step into frame — head & hands tracked',W/2,28);
   }
 
-  document.getElementById('gm-score').textContent=score;
-  document.getElementById('gm-lives').textContent=lives;
+  const scoreEl=document.getElementById('gm-score');
+  const livesEl=document.getElementById('gm-lives');
+  if(scoreEl)scoreEl.textContent=score;
+  if(livesEl)livesEl.textContent=lives;
   updatePowerUI();
   gmState.raf=requestAnimationFrame(tick);
+  }catch(e){
+   console.error('Motion Hunt tick error',e);
+   stopGemMotion();
+  }
  }
  gmState.raf=requestAnimationFrame(tick);
 }
@@ -12757,9 +12958,7 @@ async function startGemMotion(){
  bindPpWorld();
  bindPoppyGrid();
  initLithosDeviceMode();
- const name=(location.hash||'').replace(/^#/,'').trim();
- if(name==='gemhunt'){switchView('gemhunt');return;}
- if(name&&views[name])switchView(name);
+ routeHashView();
 })();
 </script>
 </body>
