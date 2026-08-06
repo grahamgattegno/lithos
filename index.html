@@ -1104,13 +1104,17 @@
   .gm-overlay .game-btn{min-height:54px;padding:16px 36px;font-size:13px;letter-spacing:.18em}
   .gm-status{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint)}
   .gm-status.on{color:#3ecf8a}
-  .gm-loadout{margin-bottom:18px;padding:16px;border:1px solid var(--line-2);border-radius:12px;background:var(--panel-2)}
-  .gm-loadout-head{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;text-align:center}
+  .gm-armory{margin-top:24px;padding:18px 16px 16px;border:2px solid rgba(201,169,79,.45);border-radius:16px;background:linear-gradient(180deg,rgba(201,169,79,.1),var(--panel-2));text-align:left;box-shadow:0 8px 32px rgba(0,0,0,.18)}
+  .gm-armory-head{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+  .gm-armory-icon{font-size:32px;line-height:1;filter:drop-shadow(0 0 8px rgba(201,169,79,.45))}
+  .gm-armory-title{font-family:var(--serif);font-weight:400;font-size:clamp(22px,4vw,28px);color:var(--gold);margin:0;line-height:1.1}
+  .gm-armory-sub{font-size:13px;color:var(--text-dim);margin:4px 0 0}
+  .gm-loadout-scroll{overflow:visible}
   .gm-loadout-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
   .gm-loadout-row{grid-column:1/-1}
-  .gm-loadout-label{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-faint);margin-bottom:6px}
+  .gm-loadout-label{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-faint);margin-bottom:6px}
   .gm-pick{display:flex;flex-wrap:wrap;gap:6px}
-  .gm-pick-btn{background:var(--panel);border:1px solid var(--line-2);color:var(--text-dim);font-family:var(--mono);font-size:9px;letter-spacing:.08em;padding:8px 10px;border-radius:8px;cursor:pointer;transition:border-color .15s,background .15s,color .15s;flex:1 1 calc(50% - 6px);min-width:0;text-align:center;line-height:1.35}
+  .gm-pick-btn{background:var(--panel);border:1px solid var(--line-2);color:var(--text-dim);font-family:var(--mono);font-size:10px;letter-spacing:.08em;padding:10px 12px;border-radius:8px;cursor:pointer;transition:border-color .15s,background .15s,color .15s;flex:1 1 calc(50% - 6px);min-width:0;text-align:center;line-height:1.35}
   .gm-pick-btn:hover{border-color:var(--gold);color:var(--text)}
   .gm-pick-btn.on{border-color:var(--gold);background:rgba(201,169,79,.12);color:var(--gold);box-shadow:0 0 0 1px rgba(201,169,79,.25)}
   .gm-pick-btn .gm-pick-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;vertical-align:middle}
@@ -1121,7 +1125,10 @@
   .gm-power-btn:disabled{opacity:.45;cursor:not-allowed}
   .gm-power-btn.ready{animation:gmPulse 1.4s ease-in-out infinite}
   @keyframes gmPulse{0%,100%{box-shadow:0 0 0 0 rgba(201,169,79,.35)}50%{box-shadow:0 0 0 6px rgba(201,169,79,0)}}
-  @media(max-width:767px){.gm-wrap{padding:80px 16px 100px}.gm-pick-btn{flex:1 1 100%}}
+  .gm-gear-strip{position:absolute;top:8px;left:8px;z-index:3;display:flex;flex-wrap:wrap;gap:5px;pointer-events:none;max-width:calc(100% - 16px)}
+  .gm-gear-chip{display:inline-flex;align-items:center;gap:4px;background:rgba(10,11,15,.82);border:1px solid rgba(201,169,79,.4);border-radius:999px;padding:4px 9px;font-family:var(--mono);font-size:8px;letter-spacing:.06em;text-transform:uppercase;color:var(--text);backdrop-filter:blur(4px)}
+  .gm-gear-chip .gm-pick-dot{width:7px;height:7px;margin:0}
+  @media(max-width:767px){.gm-wrap{padding:72px 16px 100px}.gm-pick-btn{flex:1 1 100%}.gm-loadout-scroll{max-height:min(44vh,360px);overflow-y:auto;-webkit-overflow-scrolling:touch;padding-right:2px}.gm-armory{padding:14px 12px 12px}}
   /* Arsenal */
   .arsenal{background:var(--ink-2);border:1px solid var(--line);border-radius:14px;padding:24px;margin-top:30px}
   .arsenal-head{text-align:center;font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:20px}
@@ -4002,7 +4009,7 @@ const LITHOS_GAMES=[
  {id:'gemhunt',icon:'🗺',name:'Gem Hunt',desc:'Expedition scavenger hunt through the mine.'},
  {id:'poppy',icon:'🏭',name:'Gem Factory',desc:'10-chapter crystal adventure — run, dodge, survive.'},
  {id:'parade',icon:'👑',name:'Gem Warriors',desc:'Pick your warrior and parade to the Arena.'},
- {id:'gemmotion',icon:'📷',name:'Motion Hunt',desc:'Catch gems with your body — webcam tracking.'},
+ {id:'gemmotion',icon:'📷',name:'Motion Hunt',desc:'Gem Armory + body-tracker gem catching.'},
  {id:'auras',icon:'✨',name:'Auras',desc:'Power up warriors with health and attack boosts.'},
  {id:'codes',icon:'🔐',name:'Secret Codes',desc:'Enter codes to unlock powers and memberships.'},
  {id:'quiz',icon:'❓',name:'Mineral Quiz',desc:'Test your geology knowledge.',activity:true}
@@ -5962,6 +5969,8 @@ const WARRIORS=[
 const EMERALD_GUARDIAN_INDEX=3;
 const BOSSES_DEFEATED_KEY='lithos_bosses_defeated';
 const OWNER_FLAG_KEY='lithos_owner';
+const GLITCH_PACK_KEY='lithos_glitch_pack';
+const RAINBOW_PACK_KEY='lithos_rainbow_pack';
 const BOSS_PROGRESS_MIGRATION_KEY='lithos_boss_progress_v2';
 let bossesDefeated=0;
 let isOwner=false;
@@ -6370,6 +6379,53 @@ const RAINBOW_HAMMER={art:"rainbow", name:"Opal Hammer", bonus:5000000, rainbow:
 const RAINBOW_SHIELD={art:"rainbow", name:"Ammolite Aegis", block:95, color:"#ff00cc", rainbow:true, codeOnly:true, fact:"Ammolite shimmers like a rainbow — it's fossilized shell!"};
 let hasRainbowItems=false;
 let hasGlitchItems=false;
+function restoreRainbowPack(){
+ if(localStorage.getItem(RAINBOW_PACK_KEY)!=='1') return;
+ if(!hasRainbowItems){
+  WARRIORS.push(RAINBOW_GOD);
+  WEAPONS.push(RAINBOW_HAMMER);
+  SHIELDS.push(RAINBOW_SHIELD);
+  hasRainbowItems=true;
+ }
+}
+function restoreGlitchPack(){
+ if(localStorage.getItem(GLITCH_PACK_KEY)!=='1') return;
+ makeGlitchInfinite();
+ if(!hasGlitchItems){
+  WEAPONS.push(GLITCH_MACE);
+  SHIELDS.push(GLITCH_SHIELD);
+  WARRIORS.push(GLITCH_TITAN);
+  AURAS.push(GLITCH_AURA);
+  hasGlitchItems=true;
+ }
+}
+restoreRainbowPack();
+restoreGlitchPack();
+function refreshCodeUnlockUI(){
+ if(typeof buildGame==='function'&&document.getElementById('view-game')&&!document.getElementById('view-game').hidden) buildGame();
+ if(typeof buildAuras==='function'&&document.getElementById('auras-grid')) buildAuras();
+}
+function grantGlitchPack(){
+ makeGlitchInfinite();
+ if(!hasGlitchItems){
+  WEAPONS.push(GLITCH_MACE);
+  SHIELDS.push(GLITCH_SHIELD);
+  WARRIORS.push(GLITCH_TITAN);
+  AURAS.push(GLITCH_AURA);
+  hasGlitchItems=true;
+ }
+ try{ localStorage.setItem(GLITCH_PACK_KEY,'1'); }catch(e){}
+ const wi=WEAPONS.findIndex(w=>w.glitch);
+ const si=SHIELDS.findIndex(s=>s.glitch);
+ const ai=AURAS.findIndex(a=>a.glitch);
+ const ti=WARRIORS.findIndex(w=>w.glitch);
+ if(wi>=0) equippedWeapon=wi;
+ if(si>=0) equippedShield=si;
+ if(ai>=0) equippedAura=ai;
+ if(ti>=0) chosenWarrior=ti;
+ updateGameLock();
+ refreshCodeUnlockUI();
+}
 function weaponUnlocked(i){
  const wp=WEAPONS[i];
  if(!wp) return false;
@@ -6385,8 +6441,8 @@ function weaponUnlocked(i){
 function shieldUnlocked(i){
  const sh=SHIELDS[i];
  if(!sh) return false;
- if(sh.codeOnly||sh.glitch) return hasGlitchItems;
  if(sh.rainbow) return hasRainbowItems;
+ if(sh.glitch) return hasGlitchItems;
  if(isOwner||cheatBossBuster) return true;
  return i<effectiveBossProgress();
 }
@@ -10404,7 +10460,7 @@ function buildAuras(){
  const grid=document.getElementById('auras-grid');
  grid.innerHTML=AURAS.map((a,i)=>{
  const eq=equippedAura===i;
- const locked = (i!==0) && !isOwner;
+ const locked = (i!==0) && !isOwner && !(a.glitch && hasGlitchItems);
  return `<div class="aura-card ${eq?'equipped':''} ${a.dark?'darkmatter':''} ${a.glitch?'glitched':''} ${locked?'aura-locked':''}" data-a="${i}" style="--ac:${a.color}">
  <div class="a-glow"></div>
  ${eq?'<div class="a-eq">EQUIPPED</div>':''}
@@ -10419,7 +10475,7 @@ function buildAuras(){
  grid.querySelectorAll('.aura-card').forEach(el=>{
  el.onclick=()=>{
  const i=+el.dataset.a;
- if(i!==0 && !isOwner){
+ if(i!==0 && !isOwner && !(AURAS[i].glitch && hasGlitchItems)){
  const note=document.getElementById('auras-locked-msg');
  if(note){ note.style.display='block'; note.scrollIntoView({behavior:'smooth',block:'center'}); }
  return;
@@ -10429,9 +10485,18 @@ function buildAuras(){
  };
  });
 }
+function normalizeSecretCode(s){
+ return String(s||'').trim().toLowerCase().replace(/\s+/g,' ');
+}
+function secretCodeKey(s){
+ return normalizeSecretCode(s).replace(/[\s-]+/g,'');
+}
+function isCodeBreakerCode(s){
+ return secretCodeKey(s)==='codebreaker';
+}
 function tryCode(){
  const rawInput=document.getElementById('code-input').value.trim();
- const raw=rawInput.toLowerCase();
+ const raw=normalizeSecretCode(rawInput);
  const res=document.getElementById('code-result');
  if(!raw){res.innerHTML=`<div class="fail">Type a code first! </div>`;return;}
 
@@ -10462,11 +10527,13 @@ function tryCode(){
  WEAPONS.push(RAINBOW_HAMMER);
  SHIELDS.push(RAINBOW_SHIELD);
  hasRainbowItems=true;
+ try{ localStorage.setItem(RAINBOW_PACK_KEY,'1'); }catch(e){}
  }
  chosenWarrior=WARRIORS.length-1;
  equippedWeapon=WEAPONS.findIndex(w=>w.art==="rainbow");
  equippedShield=SHIELDS.findIndex(s=>s.art==="rainbow");
  updateGameLock();
+ refreshCodeUnlockUI();
  res.innerHTML=`<div class="owner" style="border-color:#ff00cc;background:linear-gradient(135deg,rgba(255,0,204,.12),rgba(51,85,255,.12))">
  <b>THE GEM WARRIOR GOD IS UNLOCKED!</b><br><br>
  <b>Gem Warrior God</b> — a rainbow legend with every warrior's crystal spinning around him! — equipped!<br>
@@ -10478,19 +10545,8 @@ function tryCode(){
  }
 
  // THE CODE BREAKER — unlocks the GLITCHED pack with infinite everything!
- if(raw==="code breaker"){
- makeGlitchInfinite();
- if(!hasGlitchItems){
- WEAPONS.push(GLITCH_MACE);
- SHIELDS.push(GLITCH_SHIELD);
- WARRIORS.push(GLITCH_TITAN);
- AURAS.push(GLITCH_AURA);
- hasGlitchItems=true;
- }
- equippedWeapon=WEAPONS.length-1; // equip the Glitched Jasper Mace
- equippedShield=SHIELDS.length-1; // equip the Glitched Fluorite Shield
- equippedAura=AURAS.length-1; // equip the Glitched Aura
- updateGameLock();
+ if(isCodeBreakerCode(rawInput)){
+ grantGlitchPack();
  res.innerHTML=`<div class="owner" style="border-color:#39ff14">
  <div class="crown"></div>
  <b>CODE BREAKER ACTIVATED!</b><br><br>
@@ -12109,6 +12165,17 @@ function gmLoadLoadout(){
 }
 function gmSaveLoadout(lo){localStorage.setItem(GM_LOADOUT_KEY,JSON.stringify(lo));}
 function gmFind(list,id){return list.find(x=>x.id===id)||list[0];}
+function gmUpdateGearStrip(lo){
+ const av=gmFind(GM_AVATARS,lo.avatar),wp=gmFind(GM_WEAPONS,lo.weapon),sh=gmFind(GM_SHIELDS,lo.shield),pw=gmFind(GM_POWERS,lo.power);
+ const avEl=document.getElementById('gm-gear-avatar');
+ const wpEl=document.getElementById('gm-gear-weapon');
+ const shEl=document.getElementById('gm-gear-shield');
+ const pwEl=document.getElementById('gm-gear-power');
+ if(avEl)avEl.innerHTML=`<span class="gm-pick-dot" style="background:${av.color}"></span>${av.name.split(' ')[0]}`;
+ if(wpEl)wpEl.textContent='⚔ '+wp.name.replace('Bare Hands','Hands');
+ if(shEl)shEl.textContent='🛡 '+sh.name.replace('No Shield','None');
+ if(pwEl)pwEl.textContent='✨ '+pw.name;
+}
 let gmState=null,gmLibsReady=null;
 function gmHi(){return+(localStorage.getItem('lithos-gm-hi')||0);}
 function gmSetHi(s){if(s>gmHi())localStorage.setItem('lithos-gm-hi',String(s));}
@@ -12148,10 +12215,16 @@ function buildGemMotion(){
  wrap.innerHTML=`
  <div class="eyebrow">Body Tracker · Collect the Gems</div>
  <h1>Gem <em>Motion Hunt</em></h1>
- <p class="lede">Pick your gemstone loadout, then catch falling gems with your head, hands, and body — no tilting required.</p>
- <div class="gm-panel">
-  <div class="gm-loadout" id="gm-loadout">
-   <div class="gm-loadout-head">Gemstone Loadout</div>
+ <p class="lede">Catch falling gems with your head, hands, and body — no tilting required.</p>
+ <div class="gm-armory" id="gm-armory">
+  <div class="gm-armory-head">
+   <span class="gm-armory-icon" aria-hidden="true">⚔</span>
+   <div>
+    <h2 class="gm-armory-title">Gem Armory</h2>
+    <p class="gm-armory-sub">Pick your gear before you start</p>
+   </div>
+  </div>
+  <div class="gm-loadout-scroll">
    <div class="gm-loadout-grid">
     <div class="gm-loadout-row"><div class="gm-loadout-label">Avatar</div><div class="gm-pick" id="gm-pick-avatar">${pickBtns(GM_AVATARS,'avatar','color')}</div></div>
     <div class="gm-loadout-row"><div class="gm-loadout-label">Weapon</div><div class="gm-pick" id="gm-pick-weapon">${pickBtns(GM_WEAPONS,'weapon')}</div></div>
@@ -12159,6 +12232,8 @@ function buildGemMotion(){
     <div class="gm-loadout-row"><div class="gm-loadout-label">Power</div><div class="gm-pick" id="gm-pick-power">${pickBtns(GM_POWERS,'power')}</div></div>
    </div>
   </div>
+ </div>
+ <div class="gm-panel">
   <div class="gm-hud">
    <span>Score <b id="gm-score">0</b></span>
    <span>Lives <b id="gm-lives">3</b></span>
@@ -12175,9 +12250,15 @@ function buildGemMotion(){
   <div class="gm-stage-wrap" id="gm-stage">
    <canvas class="gm-canvas" id="gm-canvas" width="640" height="480" aria-label="Gem Motion Hunt play area"></canvas>
    <video class="gm-video" id="gm-video" playsinline muted autoplay></video>
+   <div class="gm-gear-strip" id="gm-gear-strip" aria-label="Equipped gear">
+    <span class="gm-gear-chip" id="gm-gear-avatar"></span>
+    <span class="gm-gear-chip" id="gm-gear-weapon"></span>
+    <span class="gm-gear-chip" id="gm-gear-shield"></span>
+    <span class="gm-gear-chip" id="gm-gear-power"></span>
+   </div>
    <div class="gm-overlay" id="gm-overlay">
     <h2 id="gm-overlay-title">Ready to hunt?</h2>
-    <p id="gm-overlay-msg">Allow camera access to play. Raise both hands above your shoulders for Gem Burst!</p>
+    <p id="gm-overlay-msg">Pick your gear in the Gem Armory above, then allow camera access. Raise both hands for Gem Burst!</p>
     <button type="button" class="game-btn" id="gm-start-btn">Start with camera</button>
    </div>
   </div>
@@ -12197,8 +12278,11 @@ function buildGemMotion(){
    const map={avatar:GM_AVATARS,weapon:GM_WEAPONS,shield:GM_SHIELDS,power:GM_POWERS};
    const el=document.getElementById('gm-hud-'+key);
    if(el)el.textContent=gmFind(map[key],id).name;
+   gmUpdateGearStrip(lo);
   };
  });
+ gmUpdateGearStrip(lo);
+ requestAnimationFrame(()=>{const a=document.getElementById('gm-armory');if(a)a.scrollIntoView({behavior:'smooth',block:'nearest'});});
 }
 async function startGemMotion(){
  stopGemMotion();
@@ -12416,7 +12500,7 @@ async function startGemMotion(){
   gmState.running=false;
   overlay.hidden=false;
   overlayTitle.textContent='Game over';
-  overlayMsg.textContent=`Score ${score}. Best: ${gmHi()}. Adjust loadout above, then tap Start with camera!`;
+  overlayMsg.textContent=`Score ${score}. Best: ${gmHi()}. Change gear in the Gem Armory above, then tap Start with camera!`;
   if(trackStatus){trackStatus.textContent='Camera off';trackStatus.classList.remove('on');}
   const hiEl=document.getElementById('gm-hi');
   if(hiEl)hiEl.textContent=gmHi();
