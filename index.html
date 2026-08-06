@@ -1104,7 +1104,24 @@
   .gm-overlay .game-btn{min-height:54px;padding:16px 36px;font-size:13px;letter-spacing:.18em}
   .gm-status{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint)}
   .gm-status.on{color:#3ecf8a}
-  @media(max-width:767px){.gm-wrap{padding:80px 16px 100px}}
+  .gm-loadout{margin-bottom:18px;padding:16px;border:1px solid var(--line-2);border-radius:12px;background:var(--panel-2)}
+  .gm-loadout-head{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;text-align:center}
+  .gm-loadout-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  .gm-loadout-row{grid-column:1/-1}
+  .gm-loadout-label{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-faint);margin-bottom:6px}
+  .gm-pick{display:flex;flex-wrap:wrap;gap:6px}
+  .gm-pick-btn{background:var(--panel);border:1px solid var(--line-2);color:var(--text-dim);font-family:var(--mono);font-size:9px;letter-spacing:.08em;padding:8px 10px;border-radius:8px;cursor:pointer;transition:border-color .15s,background .15s,color .15s;flex:1 1 calc(50% - 6px);min-width:0;text-align:center;line-height:1.35}
+  .gm-pick-btn:hover{border-color:var(--gold);color:var(--text)}
+  .gm-pick-btn.on{border-color:var(--gold);background:rgba(201,169,79,.12);color:var(--gold);box-shadow:0 0 0 1px rgba(201,169,79,.25)}
+  .gm-pick-btn .gm-pick-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;vertical-align:middle}
+  .gm-hud-loadout{display:flex;flex-wrap:wrap;gap:8px 14px;font-size:10px;margin-top:4px;padding-top:10px;border-top:1px solid var(--line-2)}
+  .gm-hud-loadout span{color:var(--text-faint)}
+  .gm-hud-loadout b{color:var(--text);font-weight:500}
+  .gm-power-btn{background:rgba(201,169,79,.12);border:1px solid rgba(201,169,79,.4);color:var(--gold);font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:6px 10px;border-radius:6px;cursor:pointer;margin-left:auto}
+  .gm-power-btn:disabled{opacity:.45;cursor:not-allowed}
+  .gm-power-btn.ready{animation:gmPulse 1.4s ease-in-out infinite}
+  @keyframes gmPulse{0%,100%{box-shadow:0 0 0 0 rgba(201,169,79,.35)}50%{box-shadow:0 0 0 6px rgba(201,169,79,0)}}
+  @media(max-width:767px){.gm-wrap{padding:80px 16px 100px}.gm-pick-btn{flex:1 1 100%}}
   /* Arsenal */
   .arsenal{background:var(--ink-2);border:1px solid var(--line);border-radius:14px;padding:24px;margin-top:30px}
   .arsenal-head{text-align:center;font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:20px}
@@ -12050,14 +12067,48 @@ const GM_GEMS=[
 const GM_SKELETON=[[11,12],[11,13],[13,15],[12,14],[14,16],[11,23],[12,24],[23,24],[0,11],[0,12]];
 const GM_JOINTS=[0,11,12,13,14,15,16,23,24];
 const GM_CATCH=[
- {idx:0,r:44,label:'head'},
- {idx:15,r:40,label:'L hand'},
- {idx:16,r:40,label:'R hand'},
- {idx:11,r:34,label:'L shoulder'},
- {idx:12,r:34,label:'R shoulder'},
- {idx:23,r:30,label:'L hip'},
- {idx:24,r:30,label:'R hip'}
+ {idx:0,r:48,label:'head'},
+ {idx:15,r:46,label:'L hand'},
+ {idx:16,r:46,label:'R hand'},
+ {idx:11,r:38,label:'L shoulder'},
+ {idx:12,r:38,label:'R shoulder'},
+ {idx:23,r:34,label:'L hip'},
+ {idx:24,r:34,label:'R hip'}
 ];
+const GM_AVATARS=[
+ {id:'ruby-knight',name:'Ruby Knight',color:'#e0424f',glow:'rgba(224,66,79,.65)',joint:'#ff6b76'},
+ {id:'sapphire-guardian',name:'Sapphire Guardian',color:'#4a7fd4',glow:'rgba(74,127,212,.65)',joint:'#6ea3ff'},
+ {id:'emerald-hunter',name:'Emerald Hunter',color:'#3ecf8a',glow:'rgba(62,207,138,.65)',joint:'#5eeaa8'},
+ {id:'amethyst-mage',name:'Amethyst Mage',color:'#9b6fd4',glow:'rgba(155,111,212,.65)',joint:'#c49bff'},
+ {id:'diamond-paladin',name:'Diamond Paladin',color:'#e8f4ff',glow:'rgba(232,244,255,.55)',joint:'#ffffff'},
+ {id:'topaz-ranger',name:'Topaz Ranger',color:'#f0b429',glow:'rgba(240,180,41,.65)',joint:'#ffd45a'}
+];
+const GM_WEAPONS=[
+ {id:'ruby-blade',name:'Ruby Blade',desc:'+35% hand radius',handMul:1.35},
+ {id:'sapphire-spear',name:'Sapphire Spear',desc:'+25% head reach',headMul:1.25},
+ {id:'emerald-gauntlets',name:'Emerald Gauntlets',desc:'+12% hand magnet',magnet:0.12},
+ {id:'garnet-claws',name:'Garnet Claws',desc:'+20% all radii',allMul:1.2},
+ {id:'none',name:'Bare Hands',desc:'Standard catch zones'}
+];
+const GM_SHIELDS=[
+ {id:'diamond-shield',name:'Diamond Shield',desc:'Block 1 bad gem per life',perLife:true},
+ {id:'quartz-barrier',name:'Quartz Barrier',desc:'Block bad gems (25s CD)',cooldown:25000},
+ {id:'none',name:'No Shield',desc:'Take full damage'}
+];
+const GM_POWERS=[
+ {id:'gem-burst',name:'Gem Burst',desc:'Collect all gems',cooldown:35000,duration:0},
+ {id:'magnet-pull',name:'Magnet Pull',desc:'Pull gems 3s',cooldown:22000,duration:3000},
+ {id:'time-slow',name:'Time Slow',desc:'Slow falls 4s',cooldown:28000,duration:4000}
+];
+const GM_LOADOUT_KEY='lithos-gm-loadout';
+function gmDefaultLoadout(){return{avatar:'ruby-knight',weapon:'ruby-blade',shield:'diamond-shield',power:'gem-burst'};}
+function gmLoadLoadout(){
+ try{const s=JSON.parse(localStorage.getItem(GM_LOADOUT_KEY)||'');if(s&&s.avatar)return{...gmDefaultLoadout(),...s};}
+ catch(_){}
+ return gmDefaultLoadout();
+}
+function gmSaveLoadout(lo){localStorage.setItem(GM_LOADOUT_KEY,JSON.stringify(lo));}
+function gmFind(list,id){return list.find(x=>x.id===id)||list[0];}
 let gmState=null,gmLibsReady=null;
 function gmHi(){return+(localStorage.getItem('lithos-gm-hi')||0);}
 function gmSetHi(s){if(s>gmHi())localStorage.setItem('lithos-gm-hi',String(s));}
@@ -12092,23 +12143,41 @@ function buildGemMotion(){
  const wrap=document.getElementById('gm-wrap');
  if(!wrap)return;
  const hi=gmHi();
+ const lo=gmLoadLoadout();
+ const pickBtns=(list,key,field)=>list.map(o=>`<button type="button" class="gm-pick-btn${lo[key]===o.id?' on':''}" data-gm-pick="${key}" data-id="${o.id}">${field==='color'?`<span class="gm-pick-dot" style="background:${o.color}"></span>`:''}${o.name}</button>`).join('');
  wrap.innerHTML=`
  <div class="eyebrow">Body Tracker · Collect the Gems</div>
  <h1>Gem <em>Motion Hunt</em></h1>
- <p class="lede">Stand in front of your camera and catch falling gems with your head, hands, and body — like VR motion tracking, no tilting required.</p>
+ <p class="lede">Pick your gemstone loadout, then catch falling gems with your head, hands, and body — no tilting required.</p>
  <div class="gm-panel">
+  <div class="gm-loadout" id="gm-loadout">
+   <div class="gm-loadout-head">Gemstone Loadout</div>
+   <div class="gm-loadout-grid">
+    <div class="gm-loadout-row"><div class="gm-loadout-label">Avatar</div><div class="gm-pick" id="gm-pick-avatar">${pickBtns(GM_AVATARS,'avatar','color')}</div></div>
+    <div class="gm-loadout-row"><div class="gm-loadout-label">Weapon</div><div class="gm-pick" id="gm-pick-weapon">${pickBtns(GM_WEAPONS,'weapon')}</div></div>
+    <div class="gm-loadout-row"><div class="gm-loadout-label">Shield</div><div class="gm-pick" id="gm-pick-shield">${pickBtns(GM_SHIELDS,'shield')}</div></div>
+    <div class="gm-loadout-row"><div class="gm-loadout-label">Power</div><div class="gm-pick" id="gm-pick-power">${pickBtns(GM_POWERS,'power')}</div></div>
+   </div>
+  </div>
   <div class="gm-hud">
    <span>Score <b id="gm-score">0</b></span>
    <span>Lives <b id="gm-lives">3</b></span>
    <span>Best <b id="gm-hi">${hi}</b></span>
    <span class="gm-status" id="gm-track-status">Camera off</span>
+   <div class="gm-hud-loadout" id="gm-hud-loadout">
+    <span>Avatar <b id="gm-hud-avatar">${gmFind(GM_AVATARS,lo.avatar).name}</b></span>
+    <span>Weapon <b id="gm-hud-weapon">${gmFind(GM_WEAPONS,lo.weapon).name}</b></span>
+    <span>Shield <b id="gm-hud-shield">${gmFind(GM_SHIELDS,lo.shield).name}</b></span>
+    <span>Power <b id="gm-hud-power">${gmFind(GM_POWERS,lo.power).name}</b> <em id="gm-power-cd"></em></span>
+    <button type="button" class="gm-power-btn" id="gm-power-btn" disabled>Activate power</button>
+   </div>
   </div>
   <div class="gm-stage-wrap" id="gm-stage">
    <canvas class="gm-canvas" id="gm-canvas" width="640" height="480" aria-label="Gem Motion Hunt play area"></canvas>
    <video class="gm-video" id="gm-video" playsinline muted autoplay></video>
    <div class="gm-overlay" id="gm-overlay">
     <h2 id="gm-overlay-title">Ready to hunt?</h2>
-    <p id="gm-overlay-msg">Allow camera access to play. Your body is tracked on screen — catch gems with your head and hands.</p>
+    <p id="gm-overlay-msg">Allow camera access to play. Raise both hands above your shoulders for Gem Burst!</p>
     <button type="button" class="game-btn" id="gm-start-btn">Start with camera</button>
    </div>
   </div>
@@ -12116,9 +12185,20 @@ function buildGemMotion(){
    <button type="button" class="game-btn ghost" id="gm-restart-btn">Restart</button>
   </div>
  </div>
- <p class="gm-instructions"><b>Ruby, Sapphire, Emerald</b> and friends are worth points. <b>Obsidian</b> and <b>Pyrite</b> cost a life. Combo streaks boost your score!</p>`;
+ <p class="gm-instructions"><b>Good gems</b> score points — <b>Obsidian</b> and <b>Pyrite</b> cost a life unless your shield blocks them. Combo streaks boost score. Powers recharge over time.</p>`;
  document.getElementById('gm-restart-btn').onclick=()=>buildGemMotion();
  document.getElementById('gm-start-btn').onclick=()=>startGemMotion();
+ document.getElementById('gm-power-btn').onclick=()=>{if(gmState&&gmState.activatePower)gmState.activatePower();};
+ wrap.querySelectorAll('[data-gm-pick]').forEach(btn=>{
+  btn.onclick=()=>{
+   const key=btn.dataset.gmPick,id=btn.dataset.id;
+   lo[key]=id;gmSaveLoadout(lo);
+   btn.parentElement.querySelectorAll('.gm-pick-btn').forEach(b=>b.classList.toggle('on',b.dataset.id===id));
+   const map={avatar:GM_AVATARS,weapon:GM_WEAPONS,shield:GM_SHIELDS,power:GM_POWERS};
+   const el=document.getElementById('gm-hud-'+key);
+   if(el)el.textContent=gmFind(map[key],id).name;
+  };
+ });
 }
 async function startGemMotion(){
  stopGemMotion();
@@ -12127,11 +12207,20 @@ async function startGemMotion(){
  const trackStatus=document.getElementById('gm-track-status');
  const overlayTitle=document.getElementById('gm-overlay-title');
  const overlayMsg=document.getElementById('gm-overlay-msg');
+ const powerBtn=document.getElementById('gm-power-btn');
+ const powerCdEl=document.getElementById('gm-power-cd');
  if(!canvas||!overlay)return;
  const ctx=canvas.getContext('2d');
  const W=canvas.width,H=canvas.height;
  const video=document.getElementById('gm-video');
+ const loadout=gmLoadLoadout();
+ const avatar=gmFind(GM_AVATARS,loadout.avatar);
+ const weapon=gmFind(GM_WEAPONS,loadout.weapon);
+ const shield=gmFind(GM_SHIELDS,loadout.shield);
+ const power=gmFind(GM_POWERS,loadout.power);
  let score=0,lives=3,combo=0,spawnT=0,lastT=0;
+ let shieldUses=shield.perLife?1:0,shieldReadyAt=0,shieldActiveT=0;
+ let powerReadyAt=0,powerActiveT=0,powerActiveId=null,lastBurstScore=0,handsRaisedT=0;
  const falling=[];
  gmState={running:true,raf:null,videoStream:null,pose:null,camera:null,landmarks:null,frameImage:null};
 
@@ -12173,10 +12262,34 @@ async function startGemMotion(){
 
  function lmX(p){return(1-p.x)*W;}
  function lmY(p){return p.y*H;}
- function visible(p){return p&&p.visibility>0.45;}
+ function visible(p){return p&&(p.visibility==null||p.visibility>0.32);}
+ function catchRadius(c){
+  let r=c.r;
+  if(weapon.allMul)r*=weapon.allMul;
+  if(c.idx===0&&weapon.headMul)r*=weapon.headMul;
+  if((c.idx===15||c.idx===16)&&weapon.handMul)r*=weapon.handMul;
+  return r;
+ }
  function catchPoints(landmarks){
   if(!landmarks)return [];
-  return GM_CATCH.filter(c=>visible(landmarks[c.idx])).map(c=>({x:lmX(landmarks[c.idx]),y:lmY(landmarks[c.idx]),r:c.r,label:c.label}));
+  return GM_CATCH.filter(c=>visible(landmarks[c.idx])).map(c=>({
+   x:lmX(landmarks[c.idx]),y:lmY(landmarks[c.idx]),r:catchRadius(c),label:c.label,idx:c.idx
+  }));
+ }
+ function torsoCenter(landmarks){
+  if(!landmarks)return null;
+  const pts=[11,12,23,24].map(i=>landmarks[i]).filter(visible);
+  if(pts.length<2)return null;
+  const x=pts.reduce((s,p)=>s+lmX(p),0)/pts.length;
+  const y=pts.reduce((s,p)=>s+lmY(p),0)/pts.length;
+  return{x,y,r:72};
+ }
+ function handsRaised(landmarks){
+  if(!landmarks)return false;
+  const ls=landmarks[11],rs=landmarks[12],lh=landmarks[15],rh=landmarks[16];
+  if(!visible(ls)||!visible(rs)||!visible(lh)||!visible(rh))return false;
+  const shoulderY=(lmY(ls)+lmY(rs))/2;
+  return lmY(lh)<shoulderY-30&&lmY(rh)<shoulderY-30;
  }
  function drawVideo(){
   const img=gmState.frameImage||video;
@@ -12189,27 +12302,36 @@ async function startGemMotion(){
  function drawSkeleton(landmarks){
   if(!landmarks)return;
   ctx.lineCap='round';
-  ctx.strokeStyle='rgba(201,169,79,.62)';ctx.lineWidth=4;
+  ctx.strokeStyle=avatar.glow;ctx.lineWidth=4;
+  ctx.shadowColor=avatar.color;ctx.shadowBlur=8;
   for(const [a,b] of GM_SKELETON){
    const pa=landmarks[a],pb=landmarks[b];
    if(!visible(pa)||!visible(pb))continue;
    ctx.beginPath();ctx.moveTo(lmX(pa),lmY(pa));ctx.lineTo(lmX(pb),lmY(pb));ctx.stroke();
   }
+  ctx.shadowBlur=0;
   for(const idx of GM_JOINTS){
    const p=landmarks[idx];
    if(!visible(p))continue;
    const x=lmX(p),y=lmY(p),r=idx===0?9:idx>=15?7:6;
    ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);
-   ctx.fillStyle=idx===0?'#c9a94f':'rgba(62,207,138,.92)';ctx.fill();
+   ctx.fillStyle=idx===0?avatar.color:avatar.joint;ctx.fill();
    ctx.strokeStyle='rgba(255,255,255,.35)';ctx.lineWidth=1;ctx.stroke();
   }
  }
  function drawCatchZones(points){
   for(const pt of points){
    ctx.beginPath();ctx.arc(pt.x,pt.y,pt.r,0,Math.PI*2);
-   ctx.strokeStyle='rgba(201,169,79,.35)';ctx.lineWidth=2;ctx.setLineDash([6,8]);ctx.stroke();ctx.setLineDash([]);
-   ctx.fillStyle='rgba(201,169,79,.08)';ctx.fill();
+   ctx.strokeStyle=avatar.glow.replace(/[\d.]+\)$/,'.35)');ctx.lineWidth=2;ctx.setLineDash([6,8]);ctx.stroke();ctx.setLineDash([]);
+   ctx.fillStyle=avatar.glow.replace(/[\d.]+\)$/,'.1)');ctx.fill();
   }
+ }
+ function drawShieldBubble(torso){
+  if(!torso||shieldActiveT<=0)return;
+  const pulse=1+Math.sin(t/200)*0.06;
+  ctx.beginPath();ctx.arc(torso.x,torso.y,torso.r*pulse,0,Math.PI*2);
+  ctx.strokeStyle='rgba(232,244,255,.75)';ctx.lineWidth=3;ctx.setLineDash([10,6]);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='rgba(232,244,255,.12)';ctx.fill();
  }
  function spawnGem(){
   const roll=Math.random();
@@ -12217,9 +12339,10 @@ async function startGemMotion(){
   if(roll<0.22)g=GM_GEMS[6];
   else if(roll<0.38)g=GM_GEMS[7];
   else g=GM_GEMS[Math.floor(Math.random()*6)];
+  const slow=powerActiveId==='time-slow'?0.55:1;
   falling.push({
    x:30+Math.random()*(W-60),y:-24,r:14+Math.random()*6,
-   vy:1.8+Math.random()*1.4+score*0.008,
+   vy:(1.8+Math.random()*1.4+score*0.008)*slow,
    gem:g,spin:Math.random()*Math.PI*2
   });
  }
@@ -12240,41 +12363,103 @@ async function startGemMotion(){
  }
  function gemHitsBody(gem,points){
   for(const pt of points){
-   const dx=gem.x-pt.x,dy=gem.y-pt.y,d=gem.r+pt.r;
-   if(dx*dx+dy*dy<d*d)return true;
+   const dx=gem.x-pt.x,dy=gem.y-pt.y,d=gem.r+pt.r+4;
+   if(dx*dx+dy*dy<=d*d)return true;
   }
   return false;
+ }
+ function magnetPull(gem,points,dt){
+  if(!weapon.magnet&&!powerActiveId)return;
+  const hands=points.filter(p=>p.idx===15||p.idx===16);
+  if(!hands.length)return;
+  let best=null,bestD=99999;
+  for(const h of hands){
+   const dx=gem.x-h.x,dy=gem.y-h.y,d=Math.sqrt(dx*dx+dy*dy);
+   const reach=h.r+gem.r+90;
+   if(d<reach&&d<bestD){best=h;bestD=d;}
+  }
+  if(!best)return;
+  const strength=powerActiveId==='magnet-pull'?0.14:(weapon.magnet||0)*0.5;
+  gem.x+=(best.x-gem.x)*strength*(dt/16);
+  gem.y+=(best.y-gem.y)*strength*(dt/16);
+ }
+ function tryBlockBadGem(){
+  if(shield.id==='none')return false;
+  if(shield.perLife&&shieldUses>0){shieldUses--;shieldActiveT=900;return true;}
+  if(shield.cooldown&&t>=shieldReadyAt){shieldReadyAt=t+shield.cooldown;shieldActiveT=900;return true;}
+  return false;
+ }
+ function activatePower(){
+  if(t<powerReadyAt||powerActiveT>0)return;
+  powerActiveId=power.id;powerActiveT=power.duration||800;powerReadyAt=t+power.cooldown;
+  if(power.id==='gem-burst'){
+   for(const f of falling){if(f.gem.good){combo++;score+=Math.round(f.gem.points*(1+Math.floor(combo/5)*0.5));}}
+   falling.length=0;powerActiveT=600;
+  }
+ }
+ gmState.activatePower=activatePower;
+ function updatePowerUI(){
+  if(!powerBtn||!powerCdEl)return;
+  if(powerActiveT>0){
+   powerBtn.disabled=true;powerBtn.classList.remove('ready');
+   powerCdEl.textContent='(active)';
+  }else if(t>=powerReadyAt){
+   powerBtn.disabled=false;powerBtn.classList.add('ready');
+   powerCdEl.textContent='(ready)';
+  }else{
+   powerBtn.disabled=true;powerBtn.classList.remove('ready');
+   powerCdEl.textContent=`(${Math.ceil((powerReadyAt-t)/1000)}s)`;
+  }
  }
  function gameOver(){
   gmSetHi(score);
   gmState.running=false;
   overlay.hidden=false;
   overlayTitle.textContent='Game over';
-  overlayMsg.textContent=`Score ${score}. Best: ${gmHi()}. Tap Start with camera to play again!`;
+  overlayMsg.textContent=`Score ${score}. Best: ${gmHi()}. Adjust loadout above, then tap Start with camera!`;
   if(trackStatus){trackStatus.textContent='Camera off';trackStatus.classList.remove('on');}
   const hiEl=document.getElementById('gm-hi');
   if(hiEl)hiEl.textContent=gmHi();
  }
- function tick(t){
+ let t=0;
+ function tick(now){
   if(!gmState||!gmState.running)return;
+  t=now;
   if(!lastT)lastT=t;
   const dt=Math.min(32,t-lastT);lastT=t;
+  if(powerActiveT>0)powerActiveT=Math.max(0,powerActiveT-dt);
+  if(shieldActiveT>0)shieldActiveT=Math.max(0,shieldActiveT-dt);
+  if(powerActiveT===0&&powerActiveId&&power.id!=='gem-burst')powerActiveId=null;
+
   spawnT+=dt;
   const interval=Math.max(420,900-score*3);
   if(spawnT>=interval){spawnT=0;spawnGem();}
 
-  const points=catchPoints(gmState.landmarks);
+  const landmarks=gmState.landmarks;
+  const points=catchPoints(landmarks);
+  const torso=torsoCenter(landmarks);
+
+  if(power.id==='gem-burst'&&handsRaised(landmarks))handsRaisedT+=dt;
+  else handsRaisedT=0;
+  if(handsRaisedT>700&&t>=powerReadyAt){activatePower();handsRaisedT=0;}
+  if(power.id==='gem-burst'&&score-lastBurstScore>=100&&t>=powerReadyAt){activatePower();lastBurstScore=score;}
+
   drawVideo();
-  drawSkeleton(gmState.landmarks);
+  drawSkeleton(landmarks);
   drawCatchZones(points);
+  drawShieldBubble(torso);
 
   for(let i=falling.length-1;i>=0;i--){
    const f=falling[i];
-   f.y+=f.vy*(dt/16);f.spin+=0.04;
+   const fallMul=powerActiveId==='time-slow'?0.45:1;
+   f.y+=f.vy*fallMul*(dt/16);f.spin+=0.04;
+   if(weapon.magnet||powerActiveId==='magnet-pull')magnetPull(f,points,dt);
    drawGem(f.gem,f.x,f.y,f.r,f.spin);
    if(points.length&&gemHitsBody(f,points)){
     if(f.gem.good){
      combo++;score+=Math.round(f.gem.points*(1+Math.floor(combo/5)*0.5));
+     falling.splice(i,1);continue;
+    }else if(tryBlockBadGem()){
      falling.splice(i,1);continue;
     }else{
      lives--;combo=0;falling.splice(i,1);
@@ -12284,12 +12469,13 @@ async function startGemMotion(){
   }
 
   if(!points.length){
-   ctx.fillStyle='rgba(201,169,79,.92)';ctx.font='600 14px Space Grotesk,system-ui,sans-serif';
+   ctx.fillStyle=avatar.color;ctx.font='600 14px Space Grotesk,system-ui,sans-serif';
    ctx.textAlign='center';ctx.fillText('Step into frame — head & hands tracked',W/2,28);
   }
 
   document.getElementById('gm-score').textContent=score;
   document.getElementById('gm-lives').textContent=lives;
+  updatePowerUI();
   gmState.raf=requestAnimationFrame(tick);
  }
  gmState.raf=requestAnimationFrame(tick);
