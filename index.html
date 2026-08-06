@@ -1121,6 +1121,9 @@
   .gm-pick-btn.locked{opacity:.42;filter:grayscale(.65);cursor:not-allowed;border-style:dashed;position:relative}
   .gm-pick-btn.locked:hover{border-color:var(--line-2);color:var(--text-dim);transform:none}
   .gm-pick-btn .gm-owner-badge{display:inline-block;font-size:7px;letter-spacing:.1em;padding:1px 4px;border-radius:3px;margin-left:3px;vertical-align:middle;background:linear-gradient(135deg,rgba(201,169,79,.35),rgba(224,66,79,.25));color:var(--gold);border:1px solid rgba(201,169,79,.5)}
+  .gm-pick-btn .gm-tier-badge{display:inline-block;font-size:8px;margin-left:3px;vertical-align:middle;line-height:1}
+  .gm-pick-btn .gm-rainbow-badge{filter:drop-shadow(0 0 4px rgba(255,0,204,.55))}
+  .gm-pick-btn .gm-glitch-badge{filter:drop-shadow(0 0 4px rgba(57,255,20,.55))}
   .gm-pick-btn .gm-lock-icon{opacity:.75;margin-right:2px;font-size:9px}
   .gm-armory-hint{font-size:12px;color:var(--text-faint);margin-top:8px;font-style:italic;line-height:1.45}
   .gm-hud-loadout{display:flex;flex-wrap:wrap;gap:8px 14px;font-size:10px;margin-top:4px;padding-top:10px;border-top:1px solid var(--line-2)}
@@ -3456,6 +3459,7 @@
  <div class="code-hint">
  <p>Secret codes unlock special powers — including one that makes you the <b>owner</b> of the whole game. Paid for a membership? Try your receipt code (e.g. <b>GOLDHOME45</b>).</p>
  <p style="margin-top:14px"><b>Weaponary codes</b> unlock Motion Hunt gear — weapons, shields, powers, and avatars in the <a href="#gemmotion" onclick="switchView('gemmotion');return false;" style="color:var(--gold)">Gem Armory</a>. Owner-tier codes need owner status or the correct weaponary code.</p>
+ <p style="margin-top:14px"><b>Code breaker</b> (try <em>code breaker</em>) unlocks the glitched arena pack <b>and</b> ⚡ Glitch Claw, Glitch Shield, Glitch Burst &amp; Glitched Aura in the Gem Armory. <b>Rainbow</b> unlocks the Gem Warrior God <b>and</b> 🌈 Rainbow Blade, Rainbow Shield, Rainbow Burst &amp; Rainbow Gem avatar.</p>
  <p style="margin-top:14px"><a href="#video" onclick="switchView('video');return false;" style="color:var(--gold)">Owner TV</a> — private video platform (owner code required).</p>
  </div>
  </section>
@@ -10529,7 +10533,7 @@ function tryCode(){
  }
 
  // THE GEM WARRIOR GOD — rainbow legend with all crystals orbiting him! (code: rainbow)
- if(raw==="rainbow"){
+ if(secretCodeKey(rawInput)==='rainbow'){
  if(!hasRainbowItems){
  WARRIORS.push(RAINBOW_GOD);
  WEAPONS.push(RAINBOW_HAMMER);
@@ -10542,11 +10546,13 @@ function tryCode(){
  equippedShield=SHIELDS.findIndex(s=>s.art==="rainbow");
  updateGameLock();
  refreshCodeUnlockUI();
+ const rainbowArm=gmUnlockByKey('rainbow');
+ if(document.getElementById('gm-wrap'))buildGemMotion();
  res.innerHTML=`<div class="owner" style="border-color:#ff00cc;background:linear-gradient(135deg,rgba(255,0,204,.12),rgba(51,85,255,.12))">
  <b>THE GEM WARRIOR GOD IS UNLOCKED!</b><br><br>
  <b>Gem Warrior God</b> — a rainbow legend with every warrior's crystal spinning around him! — equipped!<br>
  <b>Opal Hammer</b> (+${fmtHP(RAINBOW_HAMMER.bonus)} power!) — equipped!<br>
- <b>Ammolite Aegis</b> (blocks ${RAINBOW_SHIELD.block}%!) — equipped!<br><br>
+ <b>Ammolite Aegis</b> (blocks ${RAINBOW_SHIELD.block}%!) — equipped!${gmArmoryUnlockHtml(rainbowArm)}<br><br>
  Go to the Warriors or Gem Arena to see the Gem Warrior God shine!
  </div>`;
  return;
@@ -10555,6 +10561,8 @@ function tryCode(){
  // THE CODE BREAKER — unlocks the GLITCHED pack with infinite everything!
  if(isCodeBreakerCode(rawInput)){
  grantGlitchPack();
+ const glitchArm=gmUnlockByKey('codebreaker');
+ if(document.getElementById('gm-wrap'))buildGemMotion();
  res.innerHTML=`<div class="owner" style="border-color:#39ff14">
  <div class="crown"></div>
  <b>CODE BREAKER ACTIVATED!</b><br><br>
@@ -10562,7 +10570,7 @@ function tryCode(){
  <b>Glitched Jasper Mace</b> — ∞ damage — equipped!<br>
  <b>Glitched Fluorite Shield</b> — ∞ block (0 damage taken) — equipped!<br>
  <b>Glitched Aura</b> — ∞ health &amp; attack multiplier — equipped!<br>
- <b>Glitched Gem Titan</b> — ∞ health &amp; power warrior<br><br>
+ <b>Glitched Gem Titan</b> — ∞ health &amp; power warrior${gmArmoryUnlockHtml(glitchArm)}<br><br>
  Go to the Gem Arena — you cannot be stopped!
  </div>`;
  return;
@@ -10619,7 +10627,7 @@ function tryCode(){
  const wCode=gmUnlockByCode(rawInput);
  if(wCode){
   const names=wCode.labels.join(', ');
-  const tier=wCode.owner?`<span class="gm-owner-badge">OWNER</span> `:'';
+  const tier=wCode.owner?`<span class="gm-owner-badge">OWNER</span> `:wCode.tier==='rainbow'?`<span class="gm-tier-badge gm-rainbow-badge">🌈</span> `:wCode.tier==='glitch'?`<span class="gm-tier-badge gm-glitch-badge">⚡</span> `:'';
   if(document.getElementById('gm-wrap'))buildGemMotion();
   res.innerHTML=`<div class="win">${tier}<b>Weaponary unlocked!</b><br><br>${names}<br><br>Go to <button type="button" class="collab-link" onclick="switchView('gemmotion')">Motion Hunt → Gem Armory</button> to equip your new gear!</div>`;
   return;
@@ -12162,7 +12170,8 @@ const GM_AVATARS=[
  {id:'diamond-paladin',name:'Diamond Paladin',color:'#e8f4ff',glow:'rgba(232,244,255,.55)',joint:'#ffffff'},
  {id:'topaz-ranger',name:'Topaz Ranger',color:'#f0b429',glow:'rgba(240,180,41,.65)',joint:'#ffd45a'},
  {id:'owner-gem',name:'Owner Gem',color:'#ffd700',glow:'rgba(255,215,0,.75)',joint:'#fff8dc',ownerOnly:true},
- {id:'glitched-aura',name:'Glitched Aura',color:'#39ff14',glow:'rgba(57,255,20,.65)',joint:'#ff00cc',ownerOnly:true,code:'GLITCHARMOR'}
+ {id:'glitched-aura',name:'Glitched Aura',color:'#39ff14',glow:'rgba(57,255,20,.65)',joint:'#ff00cc',ownerOnly:true,glitch:true,code:'GLITCHARMOR'},
+ {id:'rainbow-gem',name:'Rainbow Gem',color:'#ff00cc',glow:'rgba(255,0,204,.65)',joint:'#55aaff',rainbow:true,code:'RAINBOW'}
 ];
 const GM_WEAPONS=[
  {id:'ruby-blade',name:'Ruby Blade',desc:'+35% hand radius',handMul:1.35},
@@ -12171,7 +12180,8 @@ const GM_WEAPONS=[
  {id:'garnet-claws',name:'Garnet Claws',desc:'+20% all radii',allMul:1.2},
  {id:'ruby-edge',name:'Ruby Edge',desc:'+55% hand + magnet',handMul:1.55,magnet:0.2,code:'RUBYEDGE'},
  {id:'infinity-blade',name:'Infinity Blade',desc:'OP catch + magnet',allMul:2,headMul:1.6,handMul:1.6,magnet:0.3,ownerOnly:true,code:'OWNERBLADE'},
- {id:'glitch-claw',name:'Glitch Claw',desc:'Glitch magnet claw',allMul:2.5,magnet:0.45,ownerOnly:true,code:'GLITCHARMOR'},
+ {id:'glitch-claw',name:'Glitch Claw',desc:'Glitch magnet claw',allMul:2.5,magnet:0.45,ownerOnly:true,glitch:true,code:'GLITCHARMOR'},
+ {id:'rainbow-blade',name:'Rainbow Blade',desc:'Rainbow reach + magnet',allMul:1.8,headMul:1.5,handMul:1.5,magnet:0.28,rainbow:true,code:'RAINBOW'},
  {id:'owners-scepter',name:"Owner's Scepter",desc:'Max head + hand reach',headMul:2.5,handMul:2,magnet:0.35,ownerOnly:true},
  {id:'none',name:'Bare Hands',desc:'Standard catch zones'}
 ];
@@ -12181,6 +12191,8 @@ const GM_SHIELDS=[
  {id:'shield-forge',name:'Shield Forge',desc:'Block 3 bad gems per life',perLife:true,uses:3,code:'SHIELDFORGE'},
  {id:'diamond-fortress',name:'Diamond Fortress',desc:'Block ALL bad gems',blockAll:true,ownerOnly:true,code:'DIAMONDGUARD'},
  {id:'owner-aegis',name:'Owner Aegis',desc:'Block all (8s CD)',blockAll:true,cooldown:8000,ownerOnly:true},
+ {id:'glitch-shield',name:'Glitch Shield',desc:'Block all (6s CD)',blockAll:true,cooldown:6000,ownerOnly:true,glitch:true,code:'GLITCHARMOR'},
+ {id:'rainbow-shield',name:'Rainbow Shield',desc:'Block 2 bad gems/life',perLife:true,uses:2,rainbow:true,code:'RAINBOW'},
  {id:'none',name:'No Shield',desc:'Take full damage'}
 ];
 const GM_POWERS=[
@@ -12191,6 +12203,8 @@ const GM_POWERS=[
  {id:'gem-apocalypse',name:'Gem Apocalypse',desc:'Collect all + 2× score',cooldown:20000,duration:0,scoreMul:2,ownerOnly:true,code:'INFINITYSTRIKE'},
  {id:'time-freeze',name:'Time Freeze',desc:'Freeze falls 6s',cooldown:18000,duration:6000,freezeMul:0.2,ownerOnly:true},
  {id:'owner-burst',name:'Owner Burst',desc:'Mega collect burst',cooldown:16000,duration:0,scoreMul:3,ownerOnly:true},
+ {id:'glitch-burst',name:'Glitch Burst',desc:'Collect all + 2.5× score',cooldown:14000,duration:0,scoreMul:2.5,ownerOnly:true,glitch:true,code:'GLITCHARMOR'},
+ {id:'rainbow-burst',name:'Rainbow Burst',desc:'Super magnet + collect',cooldown:20000,duration:4000,magnetBoost:0.35,scoreMul:1.5,rainbow:true,code:'RAINBOW'},
  {id:'none',name:'No Power',desc:'Powers disabled',cooldown:999999,duration:0}
 ];
 const GM_LOADOUT_KEY='lithos-gm-loadout';
@@ -12200,11 +12214,24 @@ const WEAPONARY_CODES={
  ownerblade:{items:['infinity-blade'],labels:['Infinity Blade'],owner:true},
  diamondguard:{items:['diamond-fortress'],labels:['Diamond Fortress'],owner:true},
  infinitystrike:{items:['gem-apocalypse'],labels:['Gem Apocalypse'],owner:true},
- glitcharmor:{items:['glitch-claw','glitched-aura'],labels:['Glitch Claw','Glitched Aura avatar'],owner:true},
+ codebreaker:{items:['glitch-claw','glitched-aura','glitch-shield','glitch-burst'],labels:['Glitch Claw','Glitched Aura avatar','Glitch Shield','Glitch Burst'],owner:true,tier:'glitch'},
+ glitcharmor:{items:['glitch-claw','glitched-aura','glitch-shield','glitch-burst'],labels:['Glitch Claw','Glitched Aura avatar','Glitch Shield','Glitch Burst'],owner:true,tier:'glitch'},
+ rainbow:{items:['rainbow-gem','rainbow-blade','rainbow-shield','rainbow-burst'],labels:['Rainbow Gem avatar','Rainbow Blade','Rainbow Shield','Rainbow Burst'],tier:'rainbow'},
  rubyedge:{items:['ruby-edge'],labels:['Ruby Edge']},
  shieldforge:{items:['shield-forge'],labels:['Shield Forge']},
  gemstorm:{items:['gem-storm'],labels:['Gem Storm']}
 };
+function gmArmoryUnlockHtml(wCode){
+ if(!wCode||!wCode.labels.length)return '';
+ const tier=wCode.tier==='rainbow'?'🌈 ':wCode.tier==='glitch'?'⚡ ':'';
+ return `<br><br><b>Weaponary unlocked:</b> ${tier}${wCode.labels.join(', ')} — see <button type="button" class="collab-link" onclick="switchView('gemmotion')">Gem Armory</button>!`;
+}
+function gmTierBadge(o,locked){
+ if(o.rainbow)return `<span class="gm-tier-badge gm-rainbow-badge" title="Rainbow code">${locked?'🔒':'🌈'}</span>`;
+ if(o.glitch)return `<span class="gm-tier-badge gm-glitch-badge" title="Code breaker">${locked?'🔒':'⚡'}</span>`;
+ if(o.ownerOnly)return `<span class="gm-owner-badge">${locked?'🔐':'OWNER'}</span>`;
+ return '';
+}
 function isSiteOwner(){return!!isOwner;}
 function gmLoadUnlocks(){
  try{const u=JSON.parse(localStorage.getItem(ARMORY_UNLOCKS_KEY)||'[]');return Array.isArray(u)?u:[];}
@@ -12232,16 +12259,21 @@ function gmIsItemUnlocked(item){
  if(item.code)return gmLoadUnlocks().includes(item.id);
  return true;
 }
-function gmUnlockByCode(raw){
- const key=secretCodeKey(raw);
+function gmUnlockByKey(key){
  const entry=WEAPONARY_CODES[key];
  if(!entry)return null;
  const unlocks=gmLoadUnlocks(),added=[];
  entry.items.forEach(id=>{if(!unlocks.includes(id)){unlocks.push(id);added.push(id);}});
  if(entry.owner)gmSetOwnerArmory();
- gmSaveUnlocks(unlocks);
- return{labels:entry.labels,added,owner:!!entry.owner};
+ if(added.length||entry.owner)gmSaveUnlocks(unlocks);
+ return{labels:entry.labels,added,owner:!!entry.owner,tier:entry.tier||null};
 }
+function gmUnlockByCode(raw){return gmUnlockByKey(secretCodeKey(raw));}
+function gmSyncPackArmoryUnlocks(){
+ if(localStorage.getItem(RAINBOW_PACK_KEY)==='1')gmUnlockByKey('rainbow');
+ if(localStorage.getItem(GLITCH_PACK_KEY)==='1')gmUnlockByKey('codebreaker');
+}
+gmSyncPackArmoryUnlocks();
 function gmItemLabel(id){
  const it=gmAllArmoryItems().find(x=>x.id===id);
  return it?it.name:id;
@@ -12312,9 +12344,9 @@ function buildGemMotion(){
  const pickBtns=(list,key,field)=>list.map(o=>{
   const unlocked=gmIsItemUnlocked(o);
   const locked=!unlocked;
-  const badge=o.ownerOnly?`<span class="gm-owner-badge">${locked?'🔐':'OWNER'}</span>`:'';
-  const lockHint=locked?`<span class="gm-lock-icon" title="Enter weaponary code">🔒</span>`:'';
-  return `<button type="button" class="gm-pick-btn${lo[key]===o.id?' on':''}${locked?' locked':''}" data-gm-pick="${key}" data-id="${o.id}"${locked?' disabled title="Enter weaponary code in Secret Codes"':''}>${lockHint}${field==='color'?`<span class="gm-pick-dot" style="background:${o.color}"></span>`:''}${o.name}${badge}</button>`;
+  const badge=gmTierBadge(o,locked);
+  const lockHint=locked&&!o.rainbow&&!o.glitch?`<span class="gm-lock-icon" title="Enter weaponary code">🔒</span>`:'';
+  return `<button type="button" class="gm-pick-btn${lo[key]===o.id?' on':''}${locked?' locked':''}" data-gm-pick="${key}" data-id="${o.id}"${locked?' disabled title="Enter weaponary code in Secret Codes"':''}>${lockHint}${field==='color'?`<span class="gm-pick-dot" style="background:${o.rainbow?'linear-gradient(135deg,#ff00cc,#55aaff,#39ff14)':o.color}"></span>`:''}${o.name}${badge}</button>`;
  }).join('');
  wrap.innerHTML=`
  <div class="eyebrow">Body Tracker · Collect the Gems</div>
@@ -12326,7 +12358,7 @@ function buildGemMotion(){
    <div>
     <h2 class="gm-armory-title">Gem Armory</h2>
     <p class="gm-armory-sub">Pick your gear before you start</p>
-    <p class="gm-armory-hint">🔐 Owner gear needs a weaponary code on the Secret Codes page — or owner status.</p>
+    <p class="gm-armory-hint">🔐 Owner gear needs a weaponary code on the Secret Codes page — or owner status. ⚡ <b>Code breaker</b> unlocks glitch gear; 🌈 <b>rainbow</b> unlocks rainbow gear.</p>
    </div>
   </div>
   <div class="gm-loadout-scroll">
@@ -12490,23 +12522,46 @@ async function startGemMotion(){
   ctx.restore();
   ctx.fillStyle='rgba(10,11,15,.28)';ctx.fillRect(0,0,W,H);
  }
+ function gmRainbowHue(t,offset){return((t/350+offset*40)%360+360)%360;}
+ function gmRainbowColor(t,offset,l,s){return`hsl(${gmRainbowHue(t,offset)},${s||90}%,${l||62}%)`;}
+ function gmRainbowGlow(t,offset){const h=gmRainbowHue(t,offset);return`hsla(${h},90%,62%,.65)`;}
  function drawSkeleton(landmarks){
   if(!landmarks)return;
   ctx.lineCap='round';
-  ctx.strokeStyle=avatar.glow;ctx.lineWidth=4;
-  ctx.shadowColor=avatar.color;ctx.shadowBlur=8;
+  const isRainbow=!!(avatar.rainbow||weapon.rainbow||shield.rainbow||power.rainbow);
+  const isGlitch=!!(avatar.glitch||weapon.glitch||shield.glitch||power.glitch);
+  ctx.lineWidth=4;
+  let seg=0;
   for(const [a,b] of GM_SKELETON){
    const pa=landmarks[a],pb=landmarks[b];
    if(!visible(pa)||!visible(pb))continue;
-   ctx.beginPath();ctx.moveTo(lmX(pa),lmY(pa));ctx.lineTo(lmX(pb),lmY(pb));ctx.stroke();
+   let ax=lmX(pa),ay=lmY(pa),bx=lmX(pb),by=lmY(pb);
+   if(isGlitch){const j=Math.sin(t/50+a)*2.5;ax+=j;ay+=Math.cos(t/43+b)*2;bx+=Math.sin(t/47+b)*2;by+=j;}
+   if(isRainbow){
+    ctx.strokeStyle=gmRainbowGlow(t,seg*0.08);
+    ctx.shadowColor=gmRainbowColor(t,seg*0.08);
+    ctx.shadowBlur=10;
+   }else if(isGlitch){
+    ctx.strokeStyle=seg%2?'rgba(57,255,20,.75)':'rgba(255,42,212,.65)';
+    ctx.shadowColor=seg%2?'#39ff14':'#ff2ad4';
+    ctx.shadowBlur=12;
+   }else{
+    ctx.strokeStyle=avatar.glow;ctx.shadowColor=avatar.color;ctx.shadowBlur=8;
+   }
+   ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(bx,by);ctx.stroke();
+   seg++;
   }
   ctx.shadowBlur=0;
   for(const idx of GM_JOINTS){
    const p=landmarks[idx];
    if(!visible(p))continue;
-   const x=lmX(p),y=lmY(p),r=idx===0?9:idx>=15?7:6;
+   let x=lmX(p),y=lmY(p),r=idx===0?9:idx>=15?7:6;
+   if(isGlitch){x+=Math.sin(t/40+idx)*1.5;y+=Math.cos(t/36+idx)*1.5;}
    ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);
-   ctx.fillStyle=idx===0?avatar.color:avatar.joint;ctx.fill();
+   if(isRainbow)ctx.fillStyle=gmRainbowColor(t,idx*0.05,idx===0?68:58);
+   else if(isGlitch)ctx.fillStyle=idx%2?'#39ff14':'#ff2ad4';
+   else ctx.fillStyle=idx===0?avatar.color:avatar.joint;
+   ctx.fill();
    ctx.strokeStyle='rgba(255,255,255,.35)';ctx.lineWidth=1;ctx.stroke();
   }
  }
@@ -12521,8 +12576,17 @@ async function startGemMotion(){
   if(!torso||shieldActiveT<=0)return;
   const pulse=1+Math.sin(t/200)*0.06;
   ctx.beginPath();ctx.arc(torso.x,torso.y,torso.r*pulse,0,Math.PI*2);
-  ctx.strokeStyle='rgba(232,244,255,.75)';ctx.lineWidth=3;ctx.setLineDash([10,6]);ctx.stroke();ctx.setLineDash([]);
-  ctx.fillStyle='rgba(232,244,255,.12)';ctx.fill();
+  if(shield.rainbow||avatar.rainbow){
+   ctx.strokeStyle=gmRainbowGlow(t,0).replace('.65)','.8)');
+   ctx.fillStyle=gmRainbowGlow(t,0.2).replace('.65)','.14)');
+  }else if(shield.glitch||avatar.glitch){
+   ctx.strokeStyle=Math.sin(t/80)>0?'rgba(57,255,20,.8)':'rgba(255,42,212,.75)';
+   ctx.fillStyle='rgba(57,255,20,.1)';
+  }else{
+   ctx.strokeStyle='rgba(232,244,255,.75)';ctx.fillStyle='rgba(232,244,255,.12)';
+  }
+  ctx.lineWidth=3;ctx.setLineDash([10,6]);ctx.stroke();ctx.setLineDash([]);
+  ctx.fill();
  }
  function spawnGem(){
   const roll=Math.random();
@@ -12560,7 +12624,7 @@ async function startGemMotion(){
   return false;
  }
  function magnetPull(gem,points,dt){
-  const magOn=weapon.magnet||powerActiveId==='magnet-pull'||powerActiveId==='gem-storm';
+  const magOn=weapon.magnet||powerActiveId==='magnet-pull'||powerActiveId==='gem-storm'||powerActiveId==='rainbow-burst';
   if(!magOn&&!powerActiveId)return;
   const hands=points.filter(p=>p.idx===15||p.idx===16);
   if(!hands.length)return;
@@ -12573,6 +12637,7 @@ async function startGemMotion(){
   if(!best)return;
   let strength=0.14;
   if(powerActiveId==='gem-storm')strength=(power.magnetBoost||0.22)+0.08;
+  else if(powerActiveId==='rainbow-burst')strength=(power.magnetBoost||0.35)+0.1;
   else if(powerActiveId==='magnet-pull')strength=0.14;
   else strength=(weapon.magnet||0)*0.5;
   gem.x+=(best.x-gem.x)*strength*(dt/16);
@@ -12599,6 +12664,8 @@ async function startGemMotion(){
   powerActiveId=power.id;powerActiveT=power.duration||800;powerReadyAt=t+power.cooldown;
   if(power.id==='gem-burst'){collectAllGems(1);powerActiveT=600;}
   else if(power.id==='gem-apocalypse'||power.id==='owner-burst'){collectAllGems(power.scoreMul||2);powerActiveT=600;}
+  else if(power.id==='glitch-burst'){collectAllGems(power.scoreMul||2.5);powerActiveT=600;}
+  else if(power.id==='rainbow-burst'){collectAllGems(power.scoreMul||1.5);powerActiveId='rainbow-burst';powerActiveT=power.duration||4000;}
   else if(power.id==='gem-storm'){powerActiveId='gem-storm';}
  }
  gmState.activatePower=activatePower;
@@ -12633,7 +12700,7 @@ async function startGemMotion(){
   const dt=Math.min(32,t-lastT);lastT=t;
   if(powerActiveT>0)powerActiveT=Math.max(0,powerActiveT-dt);
   if(shieldActiveT>0)shieldActiveT=Math.max(0,shieldActiveT-dt);
-  if(powerActiveT===0&&powerActiveId&&power.id!=='gem-burst'&&power.id!=='gem-apocalypse'&&power.id!=='owner-burst')powerActiveId=null;
+  if(powerActiveT===0&&powerActiveId&&power.id!=='gem-burst'&&power.id!=='gem-apocalypse'&&power.id!=='owner-burst'&&power.id!=='glitch-burst')powerActiveId=null;
 
   spawnT+=dt;
   const interval=Math.max(420,900-score*3);
@@ -12657,7 +12724,7 @@ async function startGemMotion(){
    const f=falling[i];
    const fallMul=powerActiveId==='time-slow'?0.45:(powerActiveId==='time-freeze'?0.18:1);
    f.y+=f.vy*fallMul*(dt/16);f.spin+=0.04;
-   if(weapon.magnet||powerActiveId==='magnet-pull'||powerActiveId==='gem-storm')magnetPull(f,points,dt);
+   if(weapon.magnet||powerActiveId==='magnet-pull'||powerActiveId==='gem-storm'||powerActiveId==='rainbow-burst')magnetPull(f,points,dt);
    drawGem(f.gem,f.x,f.y,f.r,f.spin);
    if(points.length&&gemHitsBody(f,points)){
     if(f.gem.good){
