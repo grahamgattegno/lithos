@@ -2764,8 +2764,9 @@
   .lithos-device-btn em{display:block;font-style:normal;font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-faint);margin-top:6px}
   .lithos-device-switch{background:none;border:none;color:var(--gold);cursor:pointer;font:inherit;font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:0}
   .lithos-device-switch:hover{color:var(--text)}
-  .lithos-reload-wrap{display:flex;flex-direction:column;align-items:flex-start;gap:4px;max-width:min(100%,340px)}
+  .lithos-reload-wrap{display:flex;flex-direction:column;align-items:flex-start;gap:4px;max-width:min(100%,340px);position:relative;z-index:1;pointer-events:auto}
   .lithos-reload-hint{font-family:var(--sans);font-size:10px;letter-spacing:.02em;text-transform:none;color:var(--text-faint);line-height:1.45;font-weight:400}
+  #lithos-hard-refresh[disabled]{opacity:.55;cursor:wait;pointer-events:none}
 
   /* ===== Games hub overlay ===== */
   #lithos-games-hub{
@@ -12470,20 +12471,24 @@ function cleanCacheBustParam(){
   history.replaceState(null,'',u.pathname+(q?'?'+q:'')+(u.hash||''));
  }catch(e){}
 }
+let lithosHardRefreshBusy=false;
 function lithosHardRefresh(){
+ if(lithosHardRefreshBusy) return;
+ lithosHardRefreshBusy=true;
+ const btn=document.getElementById('lithos-hard-refresh');
+ if(btn){ btn.disabled=true; btn.setAttribute('aria-busy','true'); }
  showLithosToast('Loading latest version…',2000);
- setTimeout(async ()=>{
-  try{
-   if('caches' in window){
-    const keys=await caches.keys();
-    await Promise.all(keys.map(k=>caches.delete(k)));
-   }
-  }catch(_){}
-  const hash=location.hash||'';
-  const u=new URL(location.href);
-  u.searchParams.set('_',String(Date.now()));
-  location.href=u.pathname+u.search+hash;
- },350);
+ if('caches' in window){
+  Promise.race([
+   caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k)))),
+   new Promise(r=>setTimeout(r,400))
+  ]).catch(()=>{});
+ }
+ const hash=location.hash||'';
+ const u=new URL(location.href);
+ u.searchParams.delete('_');
+ u.searchParams.set('_',String(Date.now()));
+ location.assign(u.pathname+u.search+hash);
 }
 function initLithosDeviceMode(){
  document.querySelectorAll('[data-lithos-device]').forEach(btn=>{
