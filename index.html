@@ -3414,9 +3414,10 @@
 <section class="hero">
  <div class="eyebrow">Mineralogy · Gemstones + Reference Species · Hand-Checked Photos</div>
  <h1>A field catalog<br>of <em>crystalline</em> earth</h1>
- <p class="lede">A desktop-first field catalog — browse on a wide screen with keyboard and mouse. Start with the Gemstones filter for jewelry and collector stones with verified photos. Switch to All minerals for the full <span id="hero-lede-count">twelve hundred</span>-specimen reference set — each entry lists chemistry, hardness, crystal system, and provenance.</p>
+ <p class="lede">A desktop-first field catalog — browse on a wide screen with keyboard and mouse. The catalog opens on <b>Gemstones</b> (<span id="hero-gem-count-inline">199</span> jewelry and collector stones with verified photos). Switch to <b>All minerals</b> for the full <span id="hero-lede-count">four thousand eight hundred</span>-specimen reference set — each entry lists chemistry, hardness, crystal system, and provenance.</p>
  <div class="meta-row">
- <div class="stat"><div class="n" id="stat-count">1200</div><div class="l">Specimens</div></div>
+ <div class="stat"><div class="n" id="stat-gem-count">199</div><div class="l">Gemstones</div></div>
+ <div class="stat"><div class="n" id="stat-total-count">4800</div><div class="l">Total specimens</div></div>
  <div class="stat"><div class="n">4.5–10</div><div class="l">Mohs Range</div></div>
  <div class="stat"><div class="n">30+</div><div class="l">Source Regions</div></div>
  <div class="stat"><div class="n">9</div><div class="l">Crystal Systems</div></div>
@@ -3630,7 +3631,7 @@
  <div class="plan-price">$220<span>/ course</span></div>
  <ul class="plan-list">
  <li>Full set of geology lessons for a whole class</li>
- <li>Uses all <span id="plan-gem-count">199</span> catalog gemstones + 1,000+ reference minerals</li>
+ <li>Uses all <span id="plan-gem-count">199</span> catalog gemstones + <span id="plan-mineral-count">4,601</span> reference minerals</li>
  <li>Class lessons track + AI Rock Teacher</li>
  <li>Quizzes and activities included</li>
  </ul>
@@ -4564,14 +4565,35 @@ function catalogNumberWords(n){
 function syncHeroCounts(){
  const n=GEMS.length;
  const gemCount=GEMS.filter(g=>g.kind==='gem').length;
+ const mineralCount=n-gemCount;
  const words=catalogNumberWords(n);
  const wEl=document.getElementById('hero-count-words');
  const lEl=document.getElementById('hero-lede-count');
- const pEl=document.getElementById('plan-gem-count');
+ const gInline=document.getElementById('hero-gem-count-inline');
+ const gStat=document.getElementById('stat-gem-count');
+ const tStat=document.getElementById('stat-total-count');
+ const pGem=document.getElementById('plan-gem-count');
+ const pMin=document.getElementById('plan-mineral-count');
  if(wEl)wEl.textContent=words;
  if(lEl)lEl.textContent=words.charAt(0)+words.slice(1).toLowerCase();
- if(pEl)pEl.textContent=String(gemCount);
- document.getElementById('stat-count').textContent=n;
+ if(gInline)gInline.textContent=String(gemCount);
+ if(gStat)gStat.textContent=String(gemCount);
+ if(tStat)tStat.textContent=n.toLocaleString('en-US');
+ if(pGem)pGem.textContent=String(gemCount);
+ if(pMin)pMin.textContent=mineralCount.toLocaleString('en-US');
+}
+function syncCatalogCount(shown,total){
+ const filter=filterDefs[activeFilter];
+ const gemCount=GEMS.filter(g=>g.kind==='gem').length;
+ if(filter.label==='All minerals'&&!query){
+  countEl.textContent=`${total.toLocaleString('en-US')} specimens shown`;
+  return;
+ }
+ if(filter.label==='Gemstones'&&!query){
+  countEl.textContent=`${shown.toLocaleString('en-US')} gemstones shown · ${total.toLocaleString('en-US')} total — switch to All minerals for the full catalog`;
+  return;
+ }
+ countEl.textContent=`${shown.toLocaleString('en-US')} of ${total.toLocaleString('en-US')} shown · ${filter.label}${query?' · search: "'+query+'"':''}`;
 }
 
 let renderToken=0;
@@ -4610,7 +4632,7 @@ function render(){
  const list=GEMS.filter(matches);
  const token=++renderToken;
  grid.innerHTML='';
- countEl.textContent=`${String(list.length).padStart(2,'0')} / ${GEMS.length} shown`;
+ syncCatalogCount(list.length,GEMS.length);
  if(!list.length){
  grid.innerHTML=`<div class="empty"><h3>No specimen matches</h3><p>Try a different mineral class, colour, or origin.</p></div>`;
  return;
@@ -4870,8 +4892,13 @@ const lithos8bit=(()=>{
  const snare=[0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0];
  const hihat=[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0];
  let ctx=null,master=null,stepTimer=null,stepIdx=0,playing=false,muted=false,userReady=false;
- function loadMute(){try{muted=localStorage.getItem(MUTE_KEY)==='1';}catch(_){}}
- function saveMute(){try{localStorage.setItem(MUTE_KEY,muted?'1':'0');}catch(_){}}
+ function loadMute(){
+  try{
+   if(localStorage.getItem(MUTE_KEY)==='1')localStorage.removeItem(MUTE_KEY);
+   muted=sessionStorage.getItem(MUTE_KEY)==='1';
+  }catch(_){}
+ }
+ function saveMute(){try{sessionStorage.setItem(MUTE_KEY,muted?'1':'0');}catch(_){}}
  function midi(n){return n?440*Math.pow(2,(n-69)/12):0;}
  function ac(){
   if(!ctx){try{
@@ -4880,19 +4907,26 @@ const lithos8bit=(()=>{
   }catch(_){}}
   return ctx;
  }
+ async function resumeCtx(){
+  ac();if(!ctx)return false;
+  if(ctx.state==='suspended'){
+   try{await ctx.resume();}catch(_){return false;}
+  }
+  return ctx.state==='running';
+ }
  function env(g,t,d,v){g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);}
  function sq(freq,dur,vol){
-  const c=ac();if(!c||!freq||muted)return;
+  const c=ac();if(!c||!freq||muted||!master||ctx.state!=='running')return;
   const t=c.currentTime,d=Math.min(dur,stepMs/1000*.95),o=c.createOscillator(),g=c.createGain();
   o.type='square';o.frequency.value=freq;env(g,t,d,vol||.07);o.connect(g);g.connect(master);o.start(t);o.stop(t+d+.02);
  }
  function tri(freq,dur,vol){
-  const c=ac();if(!c||!freq||muted)return;
+  const c=ac();if(!c||!freq||muted||!master||ctx.state!=='running')return;
   const t=c.currentTime,d=Math.min(dur,stepMs/1000*.95),o=c.createOscillator(),g=c.createGain();
   o.type='triangle';o.frequency.value=freq;env(g,t,d,vol||.1);o.connect(g);g.connect(master);o.start(t);o.stop(t+d+.02);
  }
  function noise(dur,vol,hp){
-  const c=ac();if(!c||muted)return;
+  const c=ac();if(!c||muted||!master||ctx.state!=='running')return;
   const t=c.currentTime,d=dur||.04,b=c.createBuffer(1,c.sampleRate*d,c.sampleRate),dta=b.getChannelData(0);
   for(let i=0;i<dta.length;i++)dta[i]=Math.random()*2-1;
   const src=c.createBufferSource();src.buffer=b;
@@ -4901,7 +4935,7 @@ const lithos8bit=(()=>{
   src.connect(f);f.connect(g);g.connect(master);src.start(t);src.stop(t+d+.01);
  }
  function kickHit(){
-  const c=ac();if(!c||muted)return;
+  const c=ac();if(!c||muted||!master||ctx.state!=='running')return;
   const t=c.currentTime,o=c.createOscillator(),g=c.createGain();
   o.type='sine';o.frequency.setValueAtTime(150,t);o.frequency.exponentialRampToValueAtTime(42,t+.12);
   env(g,t,.14,.22);o.connect(g);g.connect(master);o.start(t);o.stop(t+.16);
@@ -4923,15 +4957,15 @@ const lithos8bit=(()=>{
   }catch(_){master.gain.value=0;}
  }
  function startLoop(){
-  if(playing||muted||!userReady)return false;
-  ac();if(!ctx)return false;
-  if(ctx.state==='suspended'){try{ctx.resume();}catch(_){}}
-  if(muted){silence();return false;}
-  if(master)master.gain.value=.32;
-  playing=true;stepIdx=0;
-  if(stepTimer){clearInterval(stepTimer);stepTimer=null;}
-  tick();stepTimer=setInterval(tick,stepMs);
-  updateBtns();
+  if(playing||muted||!userReady||!inContext())return false;
+  resumeCtx().then(ok=>{
+   if(!ok||playing||muted||!userReady||!inContext())return;
+   if(master)master.gain.value=.32;
+   playing=true;stepIdx=0;
+   if(stepTimer){clearInterval(stepTimer);stepTimer=null;}
+   tick();stepTimer=setInterval(tick,stepMs);
+   updateBtns();
+  }).catch(()=>{});
   return true;
  }
  function stopLoop(){
@@ -4944,40 +4978,40 @@ const lithos8bit=(()=>{
  function ensureReady(e){
   if(isMusicToggleEvent(e))return;
   userReady=true;
-  ac();if(ctx&&ctx.state==='suspended'){try{ctx.resume();}catch(_){}}
-  if(muted){silence();stopLoop();updateBtns();return;}
-  if(master)master.gain.value=.32;
-  if(!playing&&inContext())startLoop();
+  resumeCtx().then(ok=>{
+   if(!ok){updateBtns();return;}
+   if(muted){silence();stopLoop();updateBtns();return;}
+   if(master)master.gain.value=.32;
+   if(!playing&&inContext())startLoop();
+  }).catch(()=>{});
  }
  function toggle(e){
   if(e){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}
   userReady=true;
-  ac();
-  if(!ctx){updateBtns();return;}
-  if(ctx.state==='suspended'){try{ctx.resume();}catch(_){}}
-  if(muted){
-   /* Muted → unmute and play */
-   muted=false;saveMute();
-   if(inContext()){
-    if(master)master.gain.value=.32;
-    startLoop();
-   }else silence();
-  }else if(playing||stepTimer){
-   /* Audible / loop running → hard mute */
-   muted=true;saveMute();
-   silence();
-   stopLoop();
-  }else{
-   /* First start (not muted, not playing) */
-   if(inContext()){
+  resumeCtx().then(ok=>{
+   if(!ctx||!ok){updateBtns();return;}
+   if(muted){
+    muted=false;saveMute();
+    if(inContext()){
+     if(master)master.gain.value=.32;
+     startLoop();
+    }else silence();
+   }else if(playing||stepTimer){
+    muted=true;saveMute();
+    silence();
+    stopLoop();
+   }else if(inContext()){
     if(master)master.gain.value=.32;
     startLoop();
    }
-  }
-  updateBtns();
+   updateBtns();
+  }).catch(()=>{updateBtns();});
  }
  function inContext(){
   if(gamesHubOpen)return true;
+  if(document.getElementById('nightshift'))return true;
+  if(document.getElementById('brmaze'))return true;
+  if(document.getElementById('poppyplay'))return true;
   const v=activeView==='gemhunt'?'battlefield':activeView;
   return LITHOS_8BIT_VIEWS.has(v);
  }
@@ -4998,8 +5032,9 @@ const lithos8bit=(()=>{
   });
  }
  loadMute();
- document.addEventListener('click',ensureReady,{once:false,capture:true});
- document.addEventListener('keydown',ensureReady,{once:false,capture:true});
+ ['click','keydown','pointerdown','touchstart'].forEach(ev=>{
+  document.addEventListener(ev,ensureReady,{capture:true,passive:true});
+ });
  return{toggle,sync,ensureReady};
 })();
 function lithos8bitToggle(e){lithos8bit.toggle(e);}
@@ -12917,6 +12952,7 @@ function playNightShift(opts){
   try{ renderNightShift(); }
   catch(err){ console.error('Night Shift render failed',err); if(opts.openMarket)nsRenderMarketFallback(); }
   try{ if(SFX&&SFX.boss) SFX.boss(); }catch(e){}
+  lithos8bitSync();
 }
 function nsStartNight(){
   if(!nsGame)return;
@@ -12941,6 +12977,7 @@ function nsCloseGame(){
   }
   syncNavHighlight(activeView);
   syncBodyScrollLock();
+  lithos8bitSync();
 }
 function nsTick(){
   if(!nsGame||nsGame.over)return;
@@ -13391,6 +13428,7 @@ function closeBackroomsMaze(){
   history.replaceState(null,'',location.pathname+location.search+(activeView&&activeView!=='catalog'?('#'+activeView):''));
  }
  syncBodyScrollLock();
+ lithos8bitSync();
 }
 function playBackroomsMaze(){
  const old=document.getElementById('brmaze'); if(old)old.remove();
@@ -13450,6 +13488,7 @@ function playBackroomsMaze(){
  if(location.hash!=='#backrooms'&&location.hash!=='#gembackrooms')history.replaceState(null,'','#backrooms');
  syncBodyScrollLock();
  renderBrMaze();
+ lithos8bitSync();
 }
 function brMazeMove(dir){
  if(!brMaze||brMaze.caught||brMaze.won)return;
@@ -14693,6 +14732,7 @@ function closePoppyPlay(){
  const w=document.getElementById('poppyplay');if(w)w.remove();
  document.body.classList.remove('pp-playing');
  syncBodyScrollLock();
+ lithos8bitSync();
 }
 function ppInitState(cfg){
  const startX=12;
@@ -14720,6 +14760,7 @@ function playPoppyChapter(n){
  document.addEventListener('keydown',ppOnKey);
  document.addEventListener('keyup',ppOnKeyUp);
  renderPoppyPlay();
+ lithos8bitSync();
 }
 function poppyHubOnKey(e){
  if(!poppyHubActive())return;
@@ -14913,8 +14954,13 @@ const GM_MONSTERS=[
  {id:'crystal-spider',name:'Crystal Spider',color:'#7d43b3',hp:2,points:22,r:18,kind:'spider',speed:1.25},
  {id:'obsidian-brute',name:'Obsidian Brute',color:'#3a3a48',hp:5,points:45,r:28,kind:'brute',speed:.75},
  {id:'ruby-stalker',name:'Ruby Stalker',color:'#e0424f',hp:4,points:36,r:22,kind:'stalker',speed:1.1},
- {id:'amethyst-weaver',name:'Amethyst Weaver',color:'#9b6fd4',hp:3,points:30,r:20,kind:'spider',speed:1.15}
+ {id:'amethyst-weaver',name:'Amethyst Weaver',color:'#9b6fd4',hp:3,points:30,r:20,kind:'spider',speed:1.15},
+ {id:'topaz-wraith',name:'Topaz Wraith',color:'#f0b429',hp:2,points:26,r:16,kind:'stalker',speed:1.35},
+ {id:'emerald-sentinel',name:'Emerald Sentinel',color:'#3ecf8a',hp:6,points:52,r:30,kind:'brute',speed:.65},
+ {id:'sapphire-swarm',name:'Sapphire Swarm',color:'#4a7fd4',hp:1,points:18,r:14,kind:'spider',speed:1.4}
 ];
+const GM_MAX_ENEMIES=7;
+const GM_SECTOR_MS=28000;
 const GM_SKELETON=[[11,12],[11,13],[13,15],[12,14],[14,16],[11,23],[12,24],[23,24],[0,11],[0,12]];
 const GM_JOINTS=[0,11,12,13,14,15,16,23,24];
 const GM_CATCH=[
@@ -15551,7 +15597,9 @@ async function startGemMotion(){
   return 1;
  }
  function drawBattlefieldFP(timeWarp){
-  const scroll=(t*.0012)%1;
+  const sector=Math.floor(t/GM_SECTOR_MS);
+  const sectorHue=[201,169,79,126,200,255,62,207,138,155,111,212];
+  const scroll=(t*.00072)%1;
   const sky=ctx.createLinearGradient(0,0,0,H*.55);
   sky.addColorStop(0,'#0a0e18');sky.addColorStop(.55,'#1a1528');sky.addColorStop(1,'#3d2818');
   ctx.fillStyle=sky;ctx.fillRect(0,0,W,H);
@@ -15573,19 +15621,35 @@ async function startGemMotion(){
   ctx.fillStyle='rgba(8,6,5,.92)';
   ctx.beginPath();ctx.moveTo(0,VP_Y);ctx.lineTo(W*.18,H);ctx.lineTo(0,H);ctx.closePath();ctx.fill();
   ctx.beginPath();ctx.moveTo(W,VP_Y);ctx.lineTo(W*.82,H);ctx.lineTo(W,H);ctx.closePath();ctx.fill();
-  // ground grid (perspective)
+  // tunnel ribs — depth sections (longer mine feel)
+  const ribCount=6+sector%3;
+  for(let rib=0;rib<ribCount;rib++){
+   const rz=((rib/ribCount)+scroll)%1;
+   const rp=.18+rz*.82;
+   const ry=VP_Y+(H-VP_Y)*.78*rz;
+   const rhalf=W*(.22+rp*.28);
+   const hIdx=(sector+rib)%4;
+   ctx.strokeStyle=`rgba(${sectorHue[hIdx]},${sectorHue[hIdx+1]||169},${sectorHue[hIdx+2]||79},${.08+rz*.18})`;
+   ctx.lineWidth=1+rz;
+   ctx.globalAlpha=.25+rz*.45;
+   ctx.beginPath();ctx.moveTo(VP_X-rhalf,ry);ctx.lineTo(VP_X+rhalf,ry);ctx.stroke();
+  }
+  // ground grid (perspective) — extended depth
   ctx.strokeStyle='rgba(201,169,79,.12)';ctx.lineWidth=1;
-  const rows=14;
+  const rows=22;
   for(let row=0;row<rows;row++){
    const z=(row+scroll)/rows;
    const persp=.15+z*.85;
-   const y=VP_Y+(H-VP_Y)*.82*z;
+   const y=VP_Y+(H-VP_Y)*.84*z;
    const half=W*.48*persp;
-   ctx.globalAlpha=.35+z*.45;
+   ctx.globalAlpha=.28+z*.42;
    ctx.beginPath();ctx.moveTo(VP_X-half,y);ctx.lineTo(VP_X+half,y);ctx.stroke();
-   ctx.beginPath();ctx.moveTo(VP_X,y);ctx.lineTo(VP_X,y+(H-VP_Y)*.08);ctx.stroke();
+   ctx.beginPath();ctx.moveTo(VP_X,y);ctx.lineTo(VP_X,y+(H-VP_Y)*.07);ctx.stroke();
   }
   ctx.globalAlpha=1;
+  // sector depth marker
+  ctx.fillStyle='rgba(201,169,79,.55)';ctx.font='600 9px IBM Plex Mono,monospace';ctx.textAlign='center';
+  ctx.fillText('SECTOR '+(sector+1)+' · DEPTH '+Math.floor(sector*42+t/1200)+'m',VP_X,VP_Y-10);
   // floor glow / ore veins
   const floorGlow=ctx.createRadialGradient(VP_X,H*.92,0,VP_X,H*.92,W*.55);
   floorGlow.addColorStop(0,'rgba(201,169,79,.08)');floorGlow.addColorStop(1,'rgba(0,0,0,0)');
@@ -15774,21 +15838,35 @@ async function startGemMotion(){
   else g=GM_GEMS[Math.floor(Math.random()*6)];
   falling.push({
    laneX:(Math.random()-.5)*1.85,z:0,
-   vz:(.011+Math.random()*.009+score*.00004),
+   vz:(.009+Math.random()*.007+score*.000028),
    r:12+Math.random()*8,
    gem:g,spin:Math.random()*Math.PI*2,
    x:0,y:0,prevX:0,prevY:0
   });
  }
- function spawnMonster(){
-  if(enemies.length>=4)return;
-  const proto=GM_MONSTERS[Math.floor(Math.random()*GM_MONSTERS.length)];
-  const hpBoost=Math.floor(score/180);
+ function pickMonsterProto(){
+  const sector=Math.floor(t/GM_SECTOR_MS);
+  const pool=GM_MONSTERS.filter((m,i)=>{
+   if(sector<1)return i<4;
+   if(sector<3)return i<6;
+   return true;
+  });
+  const roll=Math.random();
+  if(sector>=2&&roll<.12)return GM_MONSTERS.find(m=>m.id==='sapphire-swarm')||pool[0];
+  if(sector>=1&&roll<.22)return GM_MONSTERS.find(m=>m.id==='emerald-sentinel')||pool[0];
+  return pool[Math.floor(Math.random()*pool.length)];
+ }
+ function spawnMonster(extra){
+  if(enemies.length>=GM_MAX_ENEMIES)return;
+  const proto=pickMonsterProto();
+  const hpBoost=Math.floor(score/240);
   const baseR=proto.r+(Math.random()*4-2);
+  const sector=Math.floor(t/GM_SECTOR_MS);
+  const laneSpread=1.35+sector*.08;
   enemies.push({
-   laneX:(Math.random()-.5)*1.55,
-   z:0,
-   vz:(.0075+Math.random()*.0045+score*.000025)*(proto.speed||1),
+   laneX:(Math.random()-.5)*laneSpread,
+   z:extra?.z||0,
+   vz:(.0058+Math.random()*.0038+score*.000018)*(proto.speed||1),
    baseR,r:baseR,
    hp:proto.hp+hpBoost,
    maxHp:proto.hp+hpBoost,
@@ -15800,6 +15878,13 @@ async function startGemMotion(){
    hitUntil:0,
    x:0,y:0,prevX:0,prevY:0
   });
+ }
+ function spawnMonsterWave(){
+  spawnMonster();
+  const sector=Math.floor(t/GM_SECTOR_MS);
+  if(enemies.length>=GM_MAX_ENEMIES)return;
+  if(score>=120&&Math.random()<.28+sector*.04)spawnMonster({z:0});
+  if(score>=280&&Math.random()<.14+sector*.03)spawnMonster({z:.04});
  }
  function weaponDamage(){
   return Math.max(1,weapon.dmg||1);
@@ -16136,10 +16221,11 @@ async function startGemMotion(){
 
   spawnT+=dt;
   monsterSpawnT+=dt;
-  const interval=Math.max(420,900-score*3);
+  const interval=Math.max(380,980-score*2.5);
   if(spawnT>=interval){spawnT=0;spawnGem();}
-  const mInterval=Math.max(850,1900-score*5);
-  if(monsterSpawnT>=mInterval){monsterSpawnT=0;spawnMonster();}
+  const sector=Math.floor(t/GM_SECTOR_MS);
+  const mInterval=Math.max(580,2600-score*3.5-sector*40);
+  if(monsterSpawnT>=mInterval){monsterSpawnT=0;spawnMonsterWave();}
 
   const landmarks=gmState.landmarks;
   const points=catchPoints(landmarks);
@@ -16249,7 +16335,7 @@ async function startGemMotion(){
    gmState.raf=requestAnimationFrame(tick);
   }
  }
- spawnMonster();
+ spawnMonsterWave();
  gmState.raf=requestAnimationFrame(tick);
 }
 
