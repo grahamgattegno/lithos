@@ -30,7 +30,7 @@ SOURCES = IMG / "PHOTO_SOURCES.json"
 WD_JSON = Path(__file__).with_name("minerals_wd.json")
 WIKI_JSON = Path(__file__).with_name("wiki_mineral_names.json")
 
-TARGET_NEW = 1000
+TARGET_NEW = 1000  # overridden by --target / --total
 UA = "LithosGemCatalog/1.0 (educational; https://github.com/grahamgattegno/lithos)"
 ctx = ssl.create_default_context()
 
@@ -410,7 +410,7 @@ def gem_js(g: dict, img_path: str) -> str:
 
 
 def existing_names(text: str) -> set[str]:
-    m = re.search(r"const GEMS\s*=\s*\[(.*?)\];", text, re.S)
+    m = re.search(r"(?:var|const)\s+GEMS\s*=\s*\[(.*?)\];", text, re.S)
     if not m:
         raise SystemExit("GEMS array not found")
     return {n.lower() for n in re.findall(r'\{name:"([^"]+)"', m.group(1))}
@@ -605,9 +605,13 @@ def write_gems_js(base_text: str, gems: list[dict]) -> None:
 def main():
     import argparse
 
+    global TARGET_NEW
+
     ap = argparse.ArgumentParser()
     ap.add_argument("--photos", type=int, default=1000, help="Max Commons photo attempts (0=skip)")
     ap.add_argument("--workers", type=int, default=5)
+    ap.add_argument("--target", type=int, default=None, help="Number of NEW gems to add")
+    ap.add_argument("--total", type=int, default=None, help="Desired total catalog size (computes --target)")
     args = ap.parse_args()
 
     assert WD_JSON.exists(), f"Missing {WD_JSON}"
@@ -618,6 +622,15 @@ def main():
     text = DATA_JS.read_text()
     have = existing_names(text)
     print(f"Existing GEMS: {len(have)}")
+
+    if args.total is not None:
+        TARGET_NEW = max(0, args.total - len(have))
+    elif args.target is not None:
+        TARGET_NEW = args.target
+    print(f"TARGET_NEW: {TARGET_NEW} (desired total ~{len(have)+TARGET_NEW})")
+    if TARGET_NEW <= 0:
+        print("Nothing to add.")
+        return
 
     gems = build_candidates(have)
     print(f"Selected new gems: {len(gems)}")
@@ -696,9 +709,11 @@ def main():
     print(f"Unique names: {len(set(n.lower() for n in names))}")
     print(f"New photos OK: {photo_ok}, photo attempts failed: {photo_fail}")
     print(f"New gems with JPG: {jpg_count}, SVG-only: {len(gems) - jpg_count}")
-    if len(names) != 1200:
-        print(f"WARNING: expected 1200, got {len(names)}")
-    print(f"Sample new: {gems[0]['name']}, {gems[100]['name']}, {gems[-1]['name']}")
+    expected = len(have) + len(gems)
+    if len(names) != expected:
+        print(f"WARNING: expected {expected}, got {len(names)}")
+    mid = gems[min(100, len(gems) - 1)]["name"]
+    print(f"Sample new: {gems[0]['name']}, {mid}, {gems[-1]['name']}")
 
 
 if __name__ == "__main__":
