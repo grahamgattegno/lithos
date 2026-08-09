@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- lithos-v:gem-animatronics-legs-run-2 -->
+<!-- lithos-v:mobile-ux-friendly-1 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -322,7 +322,7 @@
 
   /* ---------- Controls ---------- */
   .controls{
-    position:sticky;top:73px;z-index:30;
+    position:sticky;top:var(--header-offset,73px);z-index:30;
     max-width:var(--site-max);margin:0 auto;padding:0 var(--content-pad);
   }
   .controls-inner{
@@ -332,7 +332,7 @@
     border-bottom:1px solid var(--line);
   }
   .search{
-    position:relative;flex:1;min-width:260px;
+    position:relative;flex:1;min-width:min(260px,100%);
   }
   .search svg{position:absolute;left:16px;top:50%;transform:translateY(-50%);opacity:.4}
   .search input{
@@ -497,13 +497,14 @@
   }
   .overlay.open{opacity:1;pointer-events:auto}
   .drawer{
-    width:min(620px,100%);height:100%;overflow-y:auto;
+    position:relative;width:min(620px,100%);height:100%;overflow-y:auto;
     background:var(--ink-2);border-left:1px solid var(--line-2);
     transform:translateX(40px);transition:transform .38s cubic-bezier(.2,.8,.2,1);
+    -webkit-overflow-scrolling:touch;
   }
   .overlay.open .drawer{transform:none}
   .drawer .d-photo{
-    position:relative;width:100%;height:320px;overflow:hidden;background:#0c0d12;
+    position:relative;width:100%;height:min(320px,42vh);overflow:hidden;background:#0c0d12;
   }
   .drawer .d-photo img{
     width:100%;height:100%;object-fit:cover;object-position:center 35%;display:block;opacity:0;transition:opacity .4s;
@@ -528,20 +529,23 @@
     mix-blend-mode:screen;
   }
   .drawer .close{
-    position:absolute;top:24px;right:24px;z-index:2;
-    width:40px;height:40px;border-radius:50%;
-    background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.2);
-    color:#fff;cursor:pointer;font-size:18px;line-height:1;
+    position:absolute;top:16px;right:16px;z-index:5;
+    width:44px;height:44px;border-radius:50%;
+    background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.28);
+    color:#fff;cursor:pointer;font-size:20px;line-height:1;
     display:flex;align-items:center;justify-content:center;transition:background .2s;
+    touch-action:manipulation;
   }
-  .drawer .close:hover{background:rgba(0,0,0,.6)}
+  .drawer .close::before{content:"✕";font-size:18px;line-height:1}
+  .drawer .close:hover{background:rgba(0,0,0,.75)}
   .drawer .d-eyebrow{
     position:relative;z-index:1;font-family:var(--mono);font-size:11px;
     letter-spacing:.24em;text-transform:uppercase;color:rgba(0,0,0,.62);font-weight:500;
   }
   .drawer .d-name{
     position:relative;z-index:1;font-family:var(--serif);font-weight:400;
-    font-size:64px;line-height:.95;color:#0a0b0f;margin-top:14px;letter-spacing:-.02em;
+    font-size:clamp(32px,10vw,64px);line-height:.95;color:#0a0b0f;margin-top:14px;letter-spacing:-.02em;
+    word-break:break-word;overflow-wrap:anywhere;padding-right:36px;
   }
   .drawer .d-formula{
     position:relative;z-index:1;font-family:var(--mono);font-size:14px;
@@ -1494,15 +1498,16 @@
   /* ===== Mobile bottom bar ===== */
   .mobile-bar{
     display:none;position:fixed;left:0;right:0;bottom:0;z-index:45;
-    background:rgba(10,11,15,.94);backdrop-filter:blur(12px);
+    background:rgba(10,11,15,.96);backdrop-filter:blur(12px);
     border-top:1px solid var(--line);
-    padding:8px 6px calc(8px + env(safe-area-inset-bottom,0px));
-    grid-template-columns:repeat(3,1fr);gap:2px;
+    padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px));
+    grid-template-columns:repeat(5,1fr);gap:2px;
   }
   .mobile-bar button{
     background:transparent;border:none;color:var(--text-dim);cursor:pointer;
-    font-family:var(--mono);font-size:8px;letter-spacing:.06em;text-transform:uppercase;
-    padding:8px 4px;border-radius:8px;line-height:1.2;
+    font-family:var(--mono);font-size:9px;letter-spacing:.04em;text-transform:uppercase;
+    padding:10px 2px;border-radius:8px;line-height:1.25;min-height:44px;
+    touch-action:manipulation;
   }
   .mobile-bar button.on,.mobile-bar button:active{color:var(--gold);background:rgba(201,169,79,.1)}
 
@@ -2900,10 +2905,13 @@
     .donate-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
   }
   @media(max-width:767px){
-    :root{--content-pad:20px}
-    header.site{padding:16px var(--content-pad);grid-template-columns:1fr;gap:12px;max-width:none}
-    nav.top{display:flex;gap:10px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%;padding-bottom:4px;scrollbar-width:thin}
-    nav.top button{display:none}
+    :root{--content-pad:16px;--header-offset:120px}
+    header.site{padding:12px var(--content-pad);grid-template-columns:1fr;gap:10px;max-width:none}
+    .brand{flex-wrap:wrap;gap:8px 12px}
+    .brand .tag{font-size:9px;letter-spacing:.16em}
+    nav.top{display:flex;gap:8px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%;padding-bottom:2px;scrollbar-width:thin;overscroll-behavior-x:contain}
+    nav.top button{display:none;font-size:10px;letter-spacing:.12em;padding:10px 4px;min-height:40px}
+    nav.top .buy-cta{display:none;font-size:10px;letter-spacing:.1em;padding:10px 12px}
     /* Mobile quick nav — subset of views */
     nav.top button[data-view="catalog"],
     nav.top button#games-nav-btn,
@@ -2912,59 +2920,78 @@
     nav.top button[data-view="donate"],
     nav.top button[data-view="video"]{display:inline-block}
     .mobile-bar{display:grid}
-    body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
+    body{padding-bottom:calc(68px + env(safe-area-inset-bottom,0px))}
     .games-launch{width:100%}
-    .games-launch button{flex:1 1 calc(50% - 6px);min-width:140px}
+    .games-launch button{flex:1 1 calc(50% - 6px);min-width:0;justify-content:center}
     .poppy-wrap{padding:80px 16px 100px}
     .poppy-grid{grid-template-columns:repeat(2,1fr)}
     .bf-wrap{padding:80px 16px 40px}
-    .gem-slideshow{margin-bottom:28px}
-    .hero h1{font-size:clamp(40px,12vw,72px)}
-    .hero .meta-row{gap:20px}
-    .hero .stat .n{font-size:clamp(28px,8vw,40px)}
-    .hero{padding:70px 20px 40px}
-    .controls,.grid{padding-left:20px;padding-right:20px}
+    .gem-slideshow{margin-bottom:28px;padding:0 12px}
+    .hero h1{font-size:clamp(36px,11vw,64px)}
+    .hero .eyebrow{letter-spacing:.18em;font-size:10px}
+    .hero .lede{font-size:16px;margin-top:24px}
+    .hero .meta-row{gap:16px 24px}
+    .hero .stat .n{font-size:clamp(26px,7vw,36px)}
+    .hero .stat .l{letter-spacing:.12em;font-size:9.5px}
+    .hero{padding:56px var(--content-pad) 32px}
+    .controls,.grid{padding-left:var(--content-pad);padding-right:var(--content-pad)}
+    .controls{top:var(--header-offset,120px)}
+    .controls-inner{padding:14px 0;gap:12px}
+    .search{min-width:0;width:100%;flex:1 1 100%}
+    .search input{font-size:16px;padding:14px 14px 14px 42px}
     .filter-row{flex-direction:column;gap:6px}
-    .filter-label{margin-top:2px}
+    .filter-label{margin-top:2px;letter-spacing:.12em}
     .filter-pills{
       flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;
-      padding-bottom:4px;scrollbar-width:thin;
+      padding-bottom:4px;scrollbar-width:thin;overscroll-behavior-x:contain;
     }
-    .filter-pills .chip{flex:0 0 auto}
+    .filter-pills .chip{flex:0 0 auto;padding:10px 12px;font-size:10px;letter-spacing:.1em;min-height:40px}
     .grid{grid-template-columns:1fr}
-    .crafts-grid{grid-template-columns:1fr;padding:30px 20px 80px}
-    .mem-grid{grid-template-columns:1fr;padding:30px 20px 20px}
-    .collab-grid{grid-template-columns:1fr;padding:30px 20px 20px}
-    .collab-hero{padding:90px 20px 16px}
-    .collab-partners,.collab-form-wrap{padding-left:20px;padding-right:20px}
-    .careers-perks{padding-left:20px;padding-right:20px}
-    .plans{grid-template-columns:1fr;padding:30px 20px 20px}
-    .class-ai{padding:20px 20px 90px}
+    .card .name{font-size:clamp(22px,7vw,28px)}
+    .crafts-grid{grid-template-columns:1fr;padding:30px var(--content-pad) 80px}
+    .mem-grid{grid-template-columns:1fr;padding:30px var(--content-pad) 20px}
+    .collab-grid{grid-template-columns:1fr;padding:30px var(--content-pad) 20px}
+    .collab-hero{padding:90px var(--content-pad) 16px}
+    .collab-partners,.collab-form-wrap{padding-left:var(--content-pad);padding-right:var(--content-pad)}
+    .careers-perks{padding-left:var(--content-pad);padding-right:var(--content-pad)}
+    .plans{grid-template-columns:1fr;padding:30px var(--content-pad) 20px}
+    .class-ai{padding:20px var(--content-pad) 90px}
     .warrior-grid{grid-template-columns:repeat(2,1fr)}
     .arsenal-row{grid-template-columns:repeat(2,1fr)}
     .auras-grid{grid-template-columns:1fr}
     .donate-grid{grid-template-columns:repeat(2,1fr)}
-    .game-wrap{padding:80px 20px 90px}
+    .game-wrap{padding:80px var(--content-pad) 90px}
     .vs{font-size:28px}
-    .controls{top:65px}
-    .hero .meta-row{gap:34px}
-    .drawer .content,.drawer .hero-band{padding:28px 24px}
+    .drawer .content,.drawer .hero-band{padding:24px 18px}
+    .drawer .d-photo{height:min(240px,36vh)}
+    .drawer .d-name{font-size:clamp(28px,9vw,44px);padding-right:48px}
+    .drawer .close{top:12px;right:12px;width:46px;height:46px}
+    .drawer .section-label{margin:28px 0 14px}
     .props{grid-template-columns:1fr}
-    footer{padding:34px 20px;flex-direction:column;align-items:flex-start}
-    .partner-strip{padding:0 20px 28px}
-    .partner-card{padding:20px 22px}
-    .learn-hero{padding:80px 20px 30px}
-    .lessons{padding:24px 20px 80px}
-    .lesson .l-head{padding:24px 22px;gap:16px}
-    .lesson .l-inner{padding:0 22px 28px 22px}
-    .class-lessons-footer,.class-lessons-entry{padding-left:20px;padding-right:20px}
+    footer{padding:34px var(--content-pad);flex-direction:column;align-items:flex-start;gap:14px}
+    .partner-strip{padding:0 var(--content-pad) 28px}
+    .partner-card{padding:18px 16px}
+    .partner-cta{display:inline-flex;width:100%;justify-content:center;margin-top:14px;white-space:normal;text-align:center}
+    .drawer .partner-cta-wrap a.partner-link{display:block;margin:0 0 10px;text-align:center}
+    .drawer .partner-cta-wrap a.partner-link:last-child{margin-bottom:0}
+    .learn-hero{padding:80px var(--content-pad) 30px}
+    .lessons{padding:24px var(--content-pad) 80px}
+    .lesson .l-head{padding:20px 16px;gap:12px}
+    .lesson .l-inner{padding:0 16px 24px 16px}
+    .class-lessons-footer,.class-lessons-entry{padding-left:var(--content-pad);padding-right:var(--content-pad)}
+    .classes-hero,.crafts-hero,.mem-hero,.craft-detail,
+    .teacher-wrap,.feedback-wrap,.identify-wrap,.claw-quest-library,
+    .company-wrap,.donate-wrap{padding-left:var(--content-pad);padding-right:var(--content-pad)}
     .cc-grid{grid-template-columns:1fr}
     .scale{flex-wrap:wrap}
     .scale .step{min-width:64px}
-    .quiz-wrap{padding:80px 20px 90px}
-    .gem-week-card{grid-template-columns:1fr;text-align:center}
+    .quiz-wrap{padding:80px var(--content-pad) 90px}
+    .gem-week-wrap{padding-left:var(--content-pad);padding-right:var(--content-pad)}
+    .gem-week-card{grid-template-columns:1fr;text-align:center;padding:18px 16px}
     .gem-week-visual{order:-1}
-    .hunt-wrap,.about-wrap{padding:80px 20px 90px}
+    .hunt-wrap,.about-wrap{padding:80px var(--content-pad) 90px}
+    .hero-tour-launch button,.hero-tour-launch a.hero-tour-link{min-width:0;flex:1 1 calc(50% - 6px)}
+    .plan-btn,.plan-btn.alt{min-width:0;width:100%}
   }
   @media(prefers-reduced-motion:reduce){
     *{animation:none!important;transition:none!important;scroll-behavior:auto}
@@ -3263,13 +3290,21 @@
   nav.top button#games-nav-btn{background:rgba(201,169,79,.12);border:1px solid var(--gold);color:var(--gold)}
   nav.top button#games-nav-btn:hover{background:rgba(201,169,79,.2)}
   @media(max-width:767px){
-    .lithos-games-grid{grid-template-columns:1fr 1fr}
-    .lithos-games-card{padding:20px 16px;margin:0}
+    #lithos-games-hub{padding:12px 12px calc(20px + env(safe-area-inset-bottom,0px));align-items:stretch}
+    .lithos-games-grid{grid-template-columns:1fr}
+    .lithos-games-card{padding:18px 14px calc(18px + env(safe-area-inset-bottom,0px));margin:0;border-radius:14px}
+    .lithos-games-head{flex-wrap:wrap;gap:12px;margin-bottom:14px}
+    .lithos-games-head-actions{width:100%;justify-content:flex-end}
+    .lithos-game-card{padding:14px 12px;min-height:72px}
+    .lithos-game-card .g-name{letter-spacing:.08em;font-size:11px}
+    .lithos-device-btns{grid-template-columns:1fr}
+    #lithos-device-picker{padding:16px;align-items:flex-end}
+    .lithos-device-card{padding:22px 18px}
   }
 
-  html.lithos-mobile body{--content-pad:20px;padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
+  html.lithos-mobile body{--content-pad:16px;padding-bottom:calc(68px + env(safe-area-inset-bottom,0px))}
   html.lithos-mobile .mobile-bar{display:grid}
-  html.lithos-mobile nav.top{display:flex;gap:10px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%;padding-bottom:4px;scrollbar-width:thin}
+  html.lithos-mobile nav.top{display:flex;gap:8px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%;padding-bottom:2px;scrollbar-width:thin}
   html.lithos-mobile nav.top button{display:none}
   html.lithos-mobile nav.top button[data-view="catalog"],
   html.lithos-mobile nav.top button#games-nav-btn,
@@ -3277,11 +3312,26 @@
   html.lithos-mobile nav.top button[data-view="classes"],
   html.lithos-mobile nav.top button[data-view="donate"],
   html.lithos-mobile nav.top button[data-view="video"]{display:inline-block}
-  html.lithos-mobile header.site{padding:16px var(--content-pad);grid-template-columns:1fr;gap:12px;max-width:none}
-  html.lithos-computer .mobile-bar{display:none!important}
-  html.lithos-computer nav.top button{display:inline-block}
-  html.lithos-computer body{padding-bottom:0}
-  html.lithos-computer header.site{padding:22px max(var(--content-pad), calc((100% - var(--site-max)) / 2 + var(--content-pad)))}
+  html.lithos-mobile header.site{padding:12px var(--content-pad);grid-template-columns:1fr;gap:10px;max-width:none}
+  /* Computer chrome only on real desktop widths — never lock phones into full nav */
+  @media(min-width:768px){
+    html.lithos-computer .mobile-bar{display:none!important}
+    html.lithos-computer nav.top button{display:inline-block}
+    html.lithos-computer body{padding-bottom:0}
+    html.lithos-computer header.site{padding:22px max(var(--content-pad), calc((100% - var(--site-max)) / 2 + var(--content-pad)))}
+  }
+  @media(max-width:767px){
+    html.lithos-computer .mobile-bar{display:grid!important}
+    html.lithos-computer nav.top button{display:none}
+    html.lithos-computer nav.top button[data-view="catalog"],
+    html.lithos-computer nav.top button#games-nav-btn,
+    html.lithos-computer nav.top button[data-view="hunt"],
+    html.lithos-computer nav.top button[data-view="classes"],
+    html.lithos-computer nav.top button[data-view="donate"],
+    html.lithos-computer nav.top button[data-view="video"]{display:inline-block}
+    html.lithos-computer body{padding-bottom:calc(68px + env(safe-area-inset-bottom,0px))}
+    html.lithos-computer header.site{padding:12px var(--content-pad);grid-template-columns:1fr;gap:10px;max-width:none}
+  }
 
   /* ===== Purchase pending banner + success toast ===== */
   #lithos-purchase-banner{
@@ -3330,7 +3380,10 @@
     box-shadow:0 4px 20px rgba(0,0,0,.35);
   }
   body.lithos-games-music #lithos-music-btn{display:inline-flex}
-  html.lithos-mobile body.lithos-games-music #lithos-music-btn{bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+  html.lithos-mobile body.lithos-games-music #lithos-music-btn{bottom:calc(76px + env(safe-area-inset-bottom,0px))}
+  @media(max-width:767px){
+    body.lithos-games-music #lithos-music-btn{bottom:calc(76px + env(safe-area-inset-bottom,0px))}
+  }
   #lithos-music-btn:hover{border-color:var(--gold);color:var(--text)}
   #lithos-music-btn.playing{border-color:var(--gold);color:var(--gold);background:rgba(201,169,79,.1);box-shadow:0 0 16px rgba(201,169,79,.18)}
   #lithos-music-btn .music-icon{font-size:14px;line-height:1}
@@ -3570,7 +3623,8 @@
  var KEY='lithos_device_mode';
  try{
   var m=localStorage.getItem(KEY);
-  if(m!=='mobile'&&m!=='computer') m=window.matchMedia('(max-width:767px)').matches?'mobile':'computer';
+  var narrow=window.matchMedia('(max-width:767px)').matches;
+  if(m!=='mobile'&&m!=='computer') m=narrow?'mobile':'computer';
   document.documentElement.classList.add('lithos-'+m);
  }catch(e){}
 })();
@@ -4601,6 +4655,8 @@
  <button type="button" data-mnav="catalog" class="on">Home</button>
  <button type="button" data-mnav="hunt">Hunt</button>
  <button type="button" data-mnav="games">Games</button>
+ <button type="button" data-mnav="classes">Classes</button>
+ <button type="button" data-mnav="donate">Donate</button>
 </nav>
 
 <script src="ai-config.js"></script>
@@ -5001,7 +5057,7 @@ function openDrawer(i){
  const radio=isRadioactive(g);
  drawer.style.setProperty('--stone',g.stone);
  drawer.innerHTML=`
- <button class="close" onclick="closeDrawer()" aria-label="Close"></button>
+ <button type="button" class="close" onclick="closeDrawer()" aria-label="Close"></button>
  <div class="d-photo"><img alt="${g.name}"
  onload="this.classList.add('loaded')"
  onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src=this.src.replace(/\.jpg$/i,'.svg')}else{this.parentNode.style.display='none'}"
@@ -15442,18 +15498,36 @@ function lithosHardRefresh(){
  u.searchParams.set('_',String(Date.now()));
  location.assign(u.pathname+u.search+hash);
 }
+function syncLithosHeaderOffset(){
+ const header=document.querySelector('header.site');
+ if(!header) return;
+ const banner=document.body.classList.contains('lithos-purchase-pending')?52:0;
+ const h=Math.ceil(header.getBoundingClientRect().height)+banner;
+ document.documentElement.style.setProperty('--header-offset',h+'px');
+}
 function initLithosDeviceMode(){
  document.querySelectorAll('[data-lithos-device]').forEach(btn=>{
   btn.addEventListener('click',()=>pickLithosDevice(btn.dataset.lithosDevice));
  });
  const sw=document.getElementById('lithos-device-switch');
  if(sw) sw.addEventListener('click',openLithosDevicePicker);
+ /* Narrow viewports always get usable chrome via CSS; keep stored preference for wider screens */
  setLithosDeviceMode(getLithosDeviceMode()||detectLithosDeviceMode());
+ syncLithosHeaderOffset();
+ if(window.visualViewport){
+  window.visualViewport.addEventListener('resize',syncLithosHeaderOffset,{passive:true});
+ }
+ window.addEventListener('resize',syncLithosHeaderOffset,{passive:true});
+ if(typeof ResizeObserver!=='undefined'){
+  const header=document.querySelector('header.site');
+  if(header) new ResizeObserver(syncLithosHeaderOffset).observe(header);
+ }
 }
 function pickLithosDevice(mode){
  setLithosDeviceMode(mode);
  const picker=document.getElementById('lithos-device-picker');
  if(picker) picker.hidden=true;
+ syncLithosHeaderOffset();
 }
 
 /* ---------- Motion Battlefield (webcam body tracking) ---------- */
