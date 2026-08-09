@@ -3342,6 +3342,228 @@
   }
   .lithos-games-music-inline:hover{border-color:var(--gold);color:var(--gold)}
   .lithos-games-music-inline.playing{border-color:var(--gold);color:var(--gold);background:rgba(201,169,79,.1)}
+
+  /* ===== Lithos Adventure Preview (promo reel) ===== */
+  #lithos-adventure-preview{
+    position:fixed;inset:0;z-index:196;display:flex;align-items:center;justify-content:center;
+    background:rgba(4,5,8,.96);backdrop-filter:blur(18px);padding:16px;overflow-y:auto;
+  }
+  #lithos-adventure-preview[hidden]{display:none!important}
+  .lap-card{
+    max-width:920px;width:100%;background:var(--panel);border:1px solid var(--line);
+    border-radius:18px;overflow:hidden;box-shadow:0 32px 100px rgba(0,0,0,.55),0 0 0 1px rgba(201,169,79,.08);
+    animation:lapCardIn .55s cubic-bezier(.22,1,.36,1);
+  }
+  @keyframes lapCardIn{from{opacity:0;transform:translateY(24px) scale(.97)}to{opacity:1;transform:none}}
+  .lap-head{
+    display:flex;align-items:flex-start;justify-content:space-between;gap:16px;
+    padding:22px 24px 0;
+  }
+  .lap-head .lap-eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+  .lap-head h2{font-family:var(--serif);font-weight:300;font-size:clamp(24px,4vw,34px);line-height:1.05}
+  .lap-head-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+  .lap-btn-ghost,.lap-btn-close{
+    background:none;border:1px solid var(--line-2);color:var(--text-dim);border-radius:8px;padding:8px 12px;
+    cursor:pointer;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+    transition:border-color .15s,color .15s,background .15s;
+  }
+  .lap-btn-ghost:hover,.lap-btn-close:hover{border-color:var(--gold);color:var(--gold)}
+  .lap-btn-ghost.playing{border-color:var(--gold);color:var(--gold);background:rgba(201,169,79,.1)}
+  .lap-stage-wrap{padding:18px 24px 0;position:relative}
+  .lap-stage{
+    position:relative;min-height:340px;border-radius:14px;overflow:hidden;
+    border:1px solid var(--line);background:var(--ink);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+  }
+  .lap-slide{
+    position:absolute;inset:0;display:grid;grid-template-columns:1fr 1.05fr;gap:0;
+    opacity:0;visibility:hidden;transform:translateX(40px) scale(.97);filter:blur(4px);
+    transition:opacity .65s cubic-bezier(.22,1,.36,1),transform .65s cubic-bezier(.22,1,.36,1),filter .65s ease,visibility .65s;
+  }
+  .lap-slide.active{opacity:1;visibility:visible;transform:none;filter:none;z-index:2}
+  .lap-slide.exit{opacity:0;transform:translateX(-36px) scale(.97);filter:blur(4px);z-index:1}
+  .lap-slide-copy{padding:32px 28px 28px 32px;display:flex;flex-direction:column;justify-content:center;position:relative;z-index:3}
+  .lap-slide-tag{
+    font-family:var(--mono);font-size:9px;letter-spacing:.26em;text-transform:uppercase;
+    color:var(--lap-accent,var(--gold));margin-bottom:12px;display:block;
+    opacity:0;transform:translateY(10px);
+  }
+  .lap-slide.active .lap-slide-tag{animation:slideTextIn .55s cubic-bezier(.22,1,.36,1) .12s forwards}
+  .lap-slide-copy h3{
+    font-family:var(--serif);font-weight:300;font-size:clamp(26px,4vw,38px);line-height:.98;
+    letter-spacing:-.02em;margin-bottom:12px;opacity:0;transform:translateY(14px);
+  }
+  .lap-slide.active .lap-slide-copy h3{animation:slideTextIn .6s cubic-bezier(.22,1,.36,1) .2s forwards}
+  .lap-slide-copy h3 em{font-style:italic;color:var(--lap-accent,var(--gold))}
+  .lap-slide-copy p{
+    font-size:14px;line-height:1.6;color:var(--text-dim);max-width:36ch;margin-bottom:16px;
+    opacity:0;transform:translateY(12px);
+  }
+  .lap-slide.active .lap-slide-copy p{animation:slideTextIn .6s cubic-bezier(.22,1,.36,1) .32s forwards}
+  .lap-slide-stats{display:flex;flex-wrap:wrap;gap:8px;opacity:0;transform:translateY(10px)}
+  .lap-slide.active .lap-slide-stats{animation:slideTextIn .55s cubic-bezier(.22,1,.36,1) .44s forwards}
+  .lap-slide-stats span{
+    font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;
+    padding:5px 10px;border-radius:999px;border:1px solid var(--line-2);color:var(--text-faint);
+  }
+  .lap-slide-stats span b{color:var(--lap-accent,var(--gold));margin-right:4px}
+  .lap-slide-action{
+    margin-top:4px;align-self:flex-start;background:var(--gold);color:var(--ink);border:none;border-radius:8px;
+    padding:10px 16px;font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+    cursor:pointer;opacity:0;transform:translateY(8px);transition:filter .15s,transform .15s;
+  }
+  .lap-slide.active .lap-slide-action{animation:slideTextIn .5s cubic-bezier(.22,1,.36,1) .52s forwards}
+  .lap-slide-action:hover{filter:brightness(1.06);transform:translateY(-1px)}
+  .lap-preview-pane{
+    position:relative;overflow:hidden;min-height:340px;
+    background:var(--lap-preview,linear-gradient(135deg,#15171f,#0a0b0f));
+  }
+  .lap-preview-pane::before{
+    content:"";position:absolute;inset:0;z-index:0;
+    background:var(--lap-preview,linear-gradient(135deg,#15171f,#0a0b0f));
+    animation:lapPreviewPulse 4s ease-in-out infinite;
+  }
+  @keyframes lapPreviewPulse{0%,100%{opacity:.88;transform:scale(1)}50%{opacity:1;transform:scale(1.04)}}
+  .lap-preview-pane::after{
+    content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+    background:linear-gradient(90deg,rgba(10,11,15,.92) 0%,transparent 38%);
+  }
+  .lap-mock{position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;padding:24px}
+  .lap-mock-catalog{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:min(240px,90%)}
+  .lap-mock-card{
+    aspect-ratio:1;border-radius:8px;border:1px solid rgba(255,255,255,.12);
+    background:linear-gradient(145deg,rgba(255,255,255,.08),rgba(0,0,0,.2));
+    animation:lapMockPop .6s cubic-bezier(.22,1,.36,1) backwards;
+  }
+  .lap-slide.active .lap-mock-card:nth-child(1){animation-delay:.15s}
+  .lap-slide.active .lap-mock-card:nth-child(2){animation-delay:.25s}
+  .lap-slide.active .lap-mock-card:nth-child(3){animation-delay:.35s}
+  .lap-slide.active .lap-mock-card:nth-child(4){animation-delay:.45s}
+  .lap-slide.active .lap-mock-card:nth-child(5){animation-delay:.55s}
+  .lap-slide.active .lap-mock-card:nth-child(6){animation-delay:.65s}
+  @keyframes lapMockPop{from{opacity:0;transform:scale(.6) translateY(12px)}to{opacity:1;transform:none}}
+  .lap-mock-gem{
+    width:120px;height:120px;border-radius:50%;border:2px solid rgba(255,255,255,.15);
+    background:radial-gradient(circle at 35% 30%,var(--lap-accent,var(--gold)),transparent 65%),
+      radial-gradient(circle at 60% 70%,rgba(255,255,255,.15),transparent 50%);
+    box-shadow:0 0 40px color-mix(in srgb,var(--lap-accent,var(--gold)) 40%,transparent);
+    animation:lapGemFloat 3s ease-in-out infinite;
+  }
+  @keyframes lapGemFloat{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-10px) rotate(4deg)}}
+  .lap-mock-slideshow{
+    width:min(280px,92%);border-radius:10px;border:1px solid rgba(255,255,255,.12);overflow:hidden;
+    box-shadow:0 16px 48px rgba(0,0,0,.4);
+  }
+  .lap-mock-slideshow .lap-ms-bar{height:6px;background:rgba(255,255,255,.06);position:relative}
+  .lap-mock-slideshow .lap-ms-bar i{display:block;height:100%;width:35%;background:var(--lap-accent,var(--gold));animation:lapMsProgress 3.5s ease-in-out infinite}
+  @keyframes lapMsProgress{0%{width:15%}50%{width:72%}100%{width:15%}}
+  .lap-mock-slideshow .lap-ms-body{height:140px;background:var(--lap-preview);position:relative}
+  .lap-mock-slideshow .lap-ms-gem{
+    position:absolute;top:50%;left:50%;width:64px;height:64px;margin:-32px;border-radius:50%;
+    background:radial-gradient(circle at 30% 25%,#fff,var(--lap-accent,var(--gold)) 45%,transparent 70%);
+    animation:lapGemFloat 2.5s ease-in-out infinite;
+  }
+  .lap-mock-games{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;width:min(320px,95%)}
+  .lap-mock-game{
+    aspect-ratio:1;border-radius:8px;border:1px solid rgba(255,255,255,.1);font-size:16px;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--g-preview,linear-gradient(135deg,#1a1520,#0a0b0f));
+    animation:lapMockPop .5s cubic-bezier(.22,1,.36,1) backwards;
+  }
+  .lap-slide.active .lap-mock-game{animation:lapMockPop .5s cubic-bezier(.22,1,.36,1) backwards}
+  .lap-slide.active .lap-mock-game:nth-child(n){animation-delay:calc(.08s * var(--i,1))}
+  .lap-mock-hunt{
+    width:min(260px,90%);position:relative;height:160px;
+  }
+  .lap-mock-hunt .lap-hunt-pin{
+    position:absolute;width:28px;height:28px;border-radius:50% 50% 50% 0;
+    background:var(--lap-accent,var(--gold));transform:rotate(-45deg);
+    box-shadow:0 0 16px color-mix(in srgb,var(--lap-accent,var(--gold)) 50%,transparent);
+    animation:lapHuntPin 2s ease-in-out infinite;
+  }
+  .lap-mock-hunt .lap-hunt-pin:nth-child(1){top:20%;left:18%;animation-delay:0s}
+  .lap-mock-hunt .lap-hunt-pin:nth-child(2){top:55%;left:62%;animation-delay:.6s}
+  .lap-mock-hunt .lap-hunt-pin:nth-child(3){top:30%;left:72%;animation-delay:1.2s}
+  @keyframes lapHuntPin{0%,100%{transform:rotate(-45deg) scale(1)}50%{transform:rotate(-45deg) scale(1.15)}}
+  .lap-mock-chat{
+    width:min(260px,90%);background:rgba(10,11,15,.85);border:1px solid rgba(255,255,255,.1);
+    border-radius:12px;padding:14px;font-size:12px;line-height:1.5;color:var(--text-dim);
+  }
+  .lap-mock-chat .lap-chat-bubble{
+    background:rgba(201,169,79,.12);border:1px solid rgba(201,169,79,.25);border-radius:10px;
+    padding:10px 12px;margin-bottom:8px;animation:lapChatIn .8s ease-out backwards;
+  }
+  .lap-slide.active .lap-chat-bubble:nth-child(2){animation-delay:.3s}
+  @keyframes lapChatIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .lap-mock-mem{
+    width:min(240px,88%);background:rgba(10,11,15,.9);border:1px solid rgba(201,169,79,.35);
+    border-radius:12px;padding:18px;text-align:center;
+  }
+  .lap-mock-mem .lap-mem-price{font-family:var(--serif);font-size:36px;color:var(--gold);line-height:1}
+  .lap-mock-mem .lap-mem-sub{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint);margin-top:6px}
+  .lap-mock-mem .lap-mem-shine{
+    position:absolute;top:-20%;left:-20%;width:60%;height:140%;
+    background:linear-gradient(105deg,transparent,rgba(255,255,255,.12),transparent);
+    animation:lapMemShine 2.8s ease-in-out infinite;
+  }
+  @keyframes lapMemShine{0%{transform:translateX(-120%) rotate(12deg)}100%{transform:translateX(280%) rotate(12deg)}}
+  .lap-mock-partner{
+    width:min(260px,90%);text-align:center;font-family:var(--mono);font-size:10px;
+    letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);
+  }
+  .lap-mock-partner .lap-partner-gem{font-size:48px;margin-bottom:10px;animation:lapGemFloat 2.8s ease-in-out infinite}
+  .lap-foot{padding:16px 24px 22px}
+  .lap-progress{
+    height:3px;background:rgba(255,255,255,.06);border-radius:999px;overflow:hidden;margin-bottom:14px;
+  }
+  .lap-progress i{display:block;height:100%;background:var(--gold);border-radius:999px;transition:width .4s cubic-bezier(.22,1,.36,1)}
+  .lap-controls{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .lap-dots{display:flex;flex-wrap:wrap;gap:5px;flex:1;min-width:0}
+  .lap-dot{
+    width:7px;height:7px;border-radius:50%;border:none;padding:0;background:rgba(255,255,255,.18);
+    cursor:pointer;transition:background .2s,transform .15s;
+  }
+  .lap-dot.on{background:var(--gold);transform:scale(1.2)}
+  .lap-dot:hover{background:rgba(201,169,79,.55)}
+  .lap-nav-btns{display:flex;gap:8px;flex-shrink:0}
+  .lap-nav-btns button{
+    background:var(--panel-2);border:1px solid var(--line-2);color:var(--text);border-radius:8px;
+    width:38px;height:38px;cursor:pointer;font-size:18px;line-height:1;
+    transition:border-color .15s,background .15s;
+  }
+  .lap-nav-btns button:hover{border-color:var(--gold);background:rgba(201,169,79,.08)}
+  .lap-cta-row{
+    display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line);
+  }
+  .lap-cta-row button,.lap-cta-row a.lap-cta{
+    flex:1 1 auto;min-width:120px;text-align:center;text-decoration:none;
+    background:var(--panel-2);border:1px solid var(--line-2);color:var(--text);border-radius:8px;
+    padding:11px 14px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+    cursor:pointer;transition:border-color .15s,background .15s,transform .15s;
+  }
+  .lap-cta-row button:hover,.lap-cta-row a.lap-cta:hover{border-color:var(--gold);background:rgba(201,169,79,.08);transform:translateY(-1px)}
+  .lap-cta-row button.primary,.lap-cta-row a.lap-cta.primary{background:var(--gold);color:var(--ink);border-color:var(--gold)}
+  .lap-cta-row button.primary:hover,.lap-cta-row a.lap-cta.primary:hover{filter:brightness(1.05)}
+  .hero-tour-launch{margin-top:28px;display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+  .hero-tour-launch button,.hero-tour-launch a.hero-tour-link{
+    background:var(--panel);border:1px solid var(--line);color:var(--text);cursor:pointer;
+    font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;
+    padding:14px 20px;border-radius:8px;transition:transform .15s,border-color .15s,background .15s;
+    text-decoration:none;display:inline-flex;align-items:center;gap:8px;
+  }
+  .hero-tour-launch button:hover,.hero-tour-launch a.hero-tour-link:hover{transform:translateY(-2px);border-color:var(--gold);background:rgba(201,169,79,.08)}
+  .hero-tour-launch button.primary{background:var(--gold);color:var(--ink);border-color:var(--gold)}
+  .hero-tour-launch button.primary:hover{filter:brightness(1.05)}
+  .hero-tour-launch .hero-tour-sparkle{font-size:16px;animation:lapGemFloat 2.5s ease-in-out infinite}
+  @media(max-width:767px){
+    .lap-slide{grid-template-columns:1fr;min-height:420px}
+    .lap-preview-pane{min-height:180px;order:-1}
+    .lap-slide-copy{padding:20px 18px 18px}
+    .lap-mock-games{grid-template-columns:repeat(5,1fr);gap:4px}
+    .lap-mock-game{font-size:13px}
+    .hero-tour-launch{width:100%}
+    .hero-tour-launch button,.hero-tour-launch a.hero-tour-link{flex:1 1 calc(50% - 6px);min-width:140px;justify-content:center}
+  }
 </style>
 <script>
 (function(){
@@ -3381,6 +3603,39 @@
   <div class="lithos-games-grid" id="lithos-games-grid"></div>
  </div>
 </div>
+<div id="lithos-adventure-preview" hidden>
+ <div class="lap-card" role="dialog" aria-modal="true" aria-labelledby="lap-title">
+  <div class="lap-head">
+   <div>
+    <div class="lap-eyebrow">Lithos Adventure Preview</div>
+    <h2 id="lap-title">Your crystal expedition</h2>
+   </div>
+   <div class="lap-head-actions">
+    <button type="button" class="lap-btn-ghost" id="lap-play-toggle" aria-label="Pause tour">⏸ Pause</button>
+    <button type="button" class="lap-btn-close" id="lap-close" aria-label="Close tour">✕ Close</button>
+   </div>
+  </div>
+  <div class="lap-stage-wrap">
+   <div class="lap-stage" id="lap-stage" aria-live="polite"></div>
+  </div>
+  <div class="lap-foot">
+   <div class="lap-progress" aria-hidden="true"><i id="lap-progress-bar"></i></div>
+   <div class="lap-controls">
+    <div class="lap-dots" id="lap-dots" role="tablist" aria-label="Tour slides"></div>
+    <div class="lap-nav-btns">
+     <button type="button" id="lap-prev" aria-label="Previous slide">‹</button>
+     <button type="button" id="lap-next" aria-label="Next slide">›</button>
+    </div>
+   </div>
+   <div class="lap-cta-row" id="lap-cta-row">
+    <button type="button" class="primary" data-lap-action="memberships">Join — $67.50</button>
+    <button type="button" data-lap-action="catalog">Browse catalog</button>
+    <button type="button" data-lap-action="games">Play games</button>
+    <a class="lap-cta" data-partner="gemsny" data-partner-path="gems" href="https://www.gemsny.com/gems" target="_blank" rel="sponsored noopener noreferrer">Shop GemsNY ↗</a>
+   </div>
+  </div>
+ </div>
+</div>
 <div id="lithos-purchase-banner" hidden>
  <span>Finished paying? Tap here to unlock your membership.</span>
  <button type="button" id="lithos-purchase-unlock">Unlock now</button>
@@ -3414,14 +3669,19 @@
 <section class="hero">
  <div class="eyebrow">Mineralogy · Gemstones + Reference Species · Hand-Checked Photos</div>
  <h1>A field catalog<br>of <em>crystalline</em> earth</h1>
- <p class="lede">A desktop-first field catalog — browse on a wide screen with keyboard and mouse. The catalog opens on the curated <b>Field catalog</b> (<span id="hero-field-count-inline">1200</span> gemstones and minerals). Filter to <b>Gemstones</b> for <span id="hero-gem-count-inline">199</span> jewelry stones with verified photos, or <b>All minerals</b> for the full <span id="hero-lede-count">four thousand eight hundred</span>-specimen reference set — each entry lists chemistry, hardness, crystal system, and provenance.</p>
+ <p class="lede">A desktop-first field catalog — browse on a wide screen with keyboard and mouse. The catalog opens on the curated <b>Field catalog</b> (<span id="hero-field-count-inline">1,200</span> gemstones and minerals). Filter to <b>Gemstones</b> for <span id="hero-gem-count-inline">199</span> jewelry stones with verified photos, or <b>All minerals</b> for the full <span id="hero-lede-count">six thousand</span>-specimen reference set — each entry lists chemistry, hardness, crystal system, and provenance.</p>
  <div class="meta-row">
- <div class="stat"><div class="n" id="stat-field-count">1200</div><div class="l">Field catalog</div></div>
+ <div class="stat"><div class="n" id="stat-field-count">1,200</div><div class="l">Field catalog</div></div>
  <div class="stat"><div class="n" id="stat-gem-count">199</div><div class="l">Gemstones</div></div>
- <div class="stat"><div class="n" id="stat-total-count">4800</div><div class="l">Total specimens</div></div>
+ <div class="stat"><div class="n" id="stat-total-count">6,000</div><div class="l">Total specimens</div></div>
  <div class="stat"><div class="n">4.5–10</div><div class="l">Mohs Range</div></div>
  <div class="stat"><div class="n">30+</div><div class="l">Source Regions</div></div>
- <div class="stat"><div class="n">9</div><div class="l">Crystal Systems</div></div>
+  <div class="stat"><div class="n">9</div><div class="l">Crystal Systems</div></div>
+ </div>
+ <div class="hero-tour-launch">
+  <button type="button" class="primary" id="hero-watch-tour"><span class="hero-tour-sparkle">✦</span> Watch the tour</button>
+  <button type="button" id="hero-play-games" onclick="openGamesHub()">Play games</button>
+  <a class="hero-tour-link" href="#memberships" onclick="switchView('memberships');return false;">Join — from $67.50</a>
  </div>
 </section>
 
@@ -3648,7 +3908,7 @@
  <div class="plan-price">$220<span>/ course</span></div>
  <ul class="plan-list">
  <li>Full set of geology lessons for a whole class</li>
- <li>Uses all <span id="plan-gem-count">199</span> catalog gemstones + <span id="plan-mineral-count">4,601</span> reference minerals</li>
+ <li>Uses all <span id="plan-gem-count">199</span> catalog gemstones + <span id="plan-mineral-count">5,801</span> reference minerals</li>
  <li>Class lessons track + AI Rock Teacher</li>
  <li>Quizzes and activities included</li>
  </ul>
@@ -4580,7 +4840,7 @@ const filterGroups=[
 ];
 const filterDefs=filterGroups.flatMap(g=>g.items);
 
-let activeFilter=0, query=""; // default: Field catalog (~1200 curated)
+let activeFilter=0, query=""; // default: Field catalog (~1200 curated); All minerals ≈ full library
 const grid=document.getElementById('grid');
 const countEl=document.getElementById('count');
 const filtersEl=document.getElementById('filters');
@@ -4625,6 +4885,7 @@ function catalogNumberWords(n){
  if(n===1000)return 'One Thousand';
  if(n===1200)return 'Twelve Hundred';
  if(n===4800)return 'Forty-Eight Hundred';
+ if(n===6000)return 'Six Thousand';
  if(n===4000)return 'Four Thousand';
  if(n%100===0&&n<2000)return ones[n/100]+' Hundred';
  if(n<20)return ones[n]||String(n);
@@ -4870,6 +5131,7 @@ function isGamesHubOpen(){
 function syncBodyScrollLock(){
  const locked=overlay.classList.contains('open')
   ||gamesHubOpen
+  ||adventurePreviewOpen
   ||!!document.getElementById('poppyplay')
   ||!!document.getElementById('nightshift')
   ||!!document.getElementById('brmaze')
@@ -4955,6 +5217,185 @@ function closeGamesHub(opts={}){
 document.getElementById('lithos-games-hub')?.addEventListener('click',e=>{
  if(e.target.id==='lithos-games-hub')closeGamesHub();
 });
+
+/* ---------- Lithos Adventure Preview (promo reel) ---------- */
+const LAP_KEY='lithos_adventure_dismissed';
+const LAP_SLIDE_MS=4200;
+let adventurePreviewOpen=false;
+let adventureBuilt=false;
+let adventureIdx=0;
+let adventureTimer=null;
+let adventurePlaying=true;
+const LAP_SLIDES=[
+ {id:'intro',tag:'Welcome',accent:'#c9a94f',preview:'radial-gradient(circle at 50% 40%,rgba(201,169,79,.35),transparent 55%),linear-gradient(160deg,#1a1520,#0a0b0f)',title:'Your <em>adventure</em> starts here',copy:'Lithos is a field catalog, geology school, scavenger hunt, and arcade of crystal games — all in one expedition.',stats:['<span><b>6000</b>Specimens</span>','<span><b>199</b>Gemstones</span>','<span><b>10</b>Games</span>'],mock:'gem',action:null},
+ {id:'catalog',tag:'Field Catalog',accent:'#ff4060',preview:'radial-gradient(circle at 40% 35%,rgba(255,64,96,.3),transparent 55%),linear-gradient(180deg,#15171f,#0a0b0f)',title:'Browse <em>6000</em> specimens',copy:'Filter gemstones, minerals, and reference species. Every entry lists chemistry, Mohs hardness, crystal system, and provenance.',stats:['<span><b>1200</b>Field catalog</span>','<span><b>199</b>Jewelry gems</span>','<span><b>6000</b>Total</span>'],mock:'catalog',action:'catalog',actionLabel:'Open catalog'},
+ {id:'gem-week',tag:'Gem of the Week',accent:'#3ecf8a',preview:'radial-gradient(circle at 55% 45%,rgba(62,207,138,.35),transparent 50%),linear-gradient(180deg,#121820,#0a0b0f)',title:'Fresh <em>gem</em> every week',copy:'A spotlight specimen rotates weekly — tap through to the full catalog entry with verified photos and field notes.',stats:['<span><b>Weekly</b>Spotlight</span>','<span><b>Verified</b>Photos</span>'],mock:'gem',action:'catalog',actionLabel:'See gem of the week'},
+ {id:'slideshow',tag:'Cinematic Slideshow',accent:'#4a7fd4',preview:'radial-gradient(circle at 50% 30%,rgba(74,127,212,.35),transparent 55%),linear-gradient(180deg,#121820,#0a0b0f)',title:'Ruby, sapphire &amp; <em>diamond</em> reel',copy:'An auto-playing gem stage with particles, orbit rings, and Mohs stats — cinematic previews of the catalog\'s finest stones.',stats:['<span><b>5</b>Featured gems</span>','<span><b>Auto</b>Play</span>'],mock:'slideshow',action:'catalog',actionLabel:'View slideshow'},
+ {id:'learn',tag:'Learn',accent:'#c080e8',preview:'radial-gradient(circle at 35% 40%,rgba(192,128,232,.3),transparent 50%),linear-gradient(180deg,#15171f,#0a0b0f)',title:'How to <em>read</em> a gemstone',copy:'Five short lessons on what makes a stone a gem — plus every Claw Quest video on the channel. Perfect for curious explorers.',stats:['<span><b>5</b>Lessons</span>','<span><b>Free</b>Videos</span>'],mock:'chat',action:'learn',actionLabel:'Start learning'},
+ {id:'classes',tag:'Classes',accent:'#f0b429',preview:'radial-gradient(circle at 50% 25%,rgba(240,180,41,.3),transparent 55%),linear-gradient(180deg,#1a1520,#0a0b0f)',title:'Member <em>geology</em> track',copy:'Your purchased class plan unlocks the five core lessons, member tips, and connections to the Lithos catalog and AI Rock Teacher.',stats:['<span><b>Teacher</b>Plan</span>','<span><b>Home</b>Plan</span>'],mock:'chat',action:'classes',actionLabel:'Open classes'},
+ {id:'teacher',tag:'Rock Teacher',accent:'#7ec8ff',preview:'radial-gradient(circle at 45% 35%,rgba(126,200,255,.28),transparent 50%),linear-gradient(180deg,#121820,#0a0b0f)',title:'Ask the <em>Rock Teacher</em>',copy:'Quick answers about gems, hardness, and how stones form. Gold members get live AI + voice for compare mode and full catalog data.',stats:['<span><b>Free</b>Q&amp;A</span>','<span><b>Gold</b>Live AI</span>'],mock:'chat',action:'teacher',actionLabel:'Ask a question'},
+ {id:'identify',tag:'Identify a Rock',accent:'#86efac',preview:'radial-gradient(circle at 60% 40%,rgba(134,239,172,.25),transparent 50%),linear-gradient(180deg,#121820,#0a0b0f)',title:'Identify a <em>rock</em>',copy:'Upload or describe a specimen — get crystal system guesses, hardness hints, and links to matching catalog entries.',stats:['<span><b>Upload</b>Photo</span>','<span><b>Match</b>Catalog</span>'],mock:'gem',action:'identify',actionLabel:'Try identify'},
+ {id:'hunt',tag:'Scavenger Hunt',accent:'#fb923c',preview:'radial-gradient(circle at 40% 50%,rgba(251,146,60,.3),transparent 55%),linear-gradient(180deg,#1a1520,#0a0b0f)',title:'Hunt gems in the <em>catalog</em>',copy:'Follow clues to find hidden gemstones across the field catalog. Complete the hunt and earn your Junior Geologist certificate!',stats:['<span><b>Clues</b>Across catalog</span>','<span><b>Quiz</b>Certificate</span>'],mock:'hunt',action:'hunt',actionLabel:'Start hunt'},
+ {id:'games',tag:'Games Hub',accent:'#c9a94f',preview:'radial-gradient(circle at 50% 20%,rgba(201,169,79,.25),transparent 55%),linear-gradient(180deg,#15171f,#0a0b0f)',title:'Ten <em>crystal</em> games',copy:'Night Shift, Gem Factory, Gem Arena, Battlefield, Gem Hunt, Warriors, Motion Battlefield, Auras, Secret Codes, and the Mineral Quiz.',stats:['<span><b>4D</b>Time-warp</span>','<span><b>Free</b>Night Shift</span>'],mock:'games',action:'games',actionLabel:'Open games hub'},
+ {id:'memberships',tag:'Memberships',accent:'#c9a94f',preview:'radial-gradient(circle at 50% 50%,rgba(201,169,79,.4),transparent 60%),linear-gradient(180deg,#1a1520,#0a0b0f)',title:'Join from <em>$67.50</em>/yr',copy:'Silver saves 25% on class plans. Gold saves 50% plus live AI Rock Teacher, voice, and shiny badge perks.',stats:['<span><b>Silver</b>$67.50</span>','<span><b>Gold</b>$165</span>'],mock:'mem',action:'memberships',actionLabel:'See memberships'},
+ {id:'crafts',tag:'Crafts',accent:'#f472b6',preview:'radial-gradient(circle at 40% 35%,rgba(244,114,182,.28),transparent 50%),linear-gradient(180deg,#15171f,#0a0b0f)',title:'Gem <em>crafts</em> &amp; projects',copy:'Hands-on geology crafts — wire wrapping, crystal growing, and specimen display ideas for young rock hounds.',stats:['<span><b>DIY</b>Projects</span>'],mock:'catalog',action:'crafts',actionLabel:'Browse crafts'},
+ {id:'company',tag:'Company',accent:'#94a3b8',preview:'linear-gradient(135deg,rgba(148,163,184,.15),transparent),linear-gradient(180deg,#15171f,#0a0b0f)',title:'The Lithos <em>company</em>',copy:'Our story, partner programs, and careers — cross-promote educational content and specimen photography credits.',stats:['<span><b>Story</b>About</span>','<span><b>Partners</b>Affiliates</span>'],mock:'chat',action:'company',actionLabel:'Visit company'},
+ {id:'donate',tag:'Donate',accent:'#4ade80',preview:'radial-gradient(circle at 50% 40%,rgba(74,222,128,.22),transparent 55%),linear-gradient(180deg,#121820,#0a0b0f)',title:'Support <em>Lithos</em>',copy:'Help keep the catalog free, fund new games, and grow geology education for kids everywhere.',stats:['<span><b>Any</b>Amount</span>'],mock:'gem',action:'donate',actionLabel:'Donate now'},
+ {id:'moneygoal',tag:'Money Goal',accent:'#38bdf8',preview:'radial-gradient(circle at 55% 45%,rgba(56,189,248,.25),transparent 50%),linear-gradient(180deg,#121820,#0a0b0f)',title:'Track our <em>money goal</em>',copy:'See how close Lithos is to its next milestone — transparent progress toward new specimens, games, and class content.',stats:['<span><b>Live</b>Progress</span>'],mock:'slideshow',action:'moneygoal',actionLabel:'View goal'},
+ {id:'partner',tag:'Shop Gems',accent:'#e0424f',preview:'radial-gradient(circle at 50% 35%,rgba(224,66,79,.3),transparent 55%),linear-gradient(180deg,#15171f,#0a0b0f)',title:'Shop <em>GemsNY</em> partner',copy:'Certified loose sapphires, rubies, and emeralds — Lithos earns up to 5% affiliate commission when you buy through our tracked link.',stats:['<span><b>5%</b>Commission</span>','<span><b>Certified</b>Stones</span>'],mock:'partner',action:'partner',actionLabel:'Shop GemsNY ↗'},
+ {id:'finale',tag:'Ready?',accent:'#c9a94f',preview:'radial-gradient(circle at 50% 50%,rgba(201,169,79,.45),transparent 65%),conic-gradient(from 0deg,rgba(255,64,96,.08),rgba(74,127,212,.08),rgba(62,207,138,.08),rgba(201,169,79,.08)),linear-gradient(180deg,#15171f,#0a0b0f)',title:'Start your <em>expedition</em>',copy:'Join memberships, browse the catalog, play crystal games, or shop partner gems — your adventure awaits!',stats:['<span><b>Join</b>$67.50</span>','<span><b>Play</b>Games</span>','<span><b>Shop</b>GemsNY</span>'],mock:'gem',action:null}
+];
+function lapMockHtml(type,slide){
+ if(type==='catalog') return '<div class="lap-mock"><div class="lap-mock-catalog">'+[...Array(6)].map((_,i)=>'<div class="lap-mock-card" style="background:linear-gradient(145deg,hsl('+(i*47+320)+',60%,45%),hsl('+(i*47+320)+',50%,25%))"></div>').join('')+'</div></div>';
+ if(type==='slideshow') return '<div class="lap-mock"><div class="lap-mock-slideshow"><div class="lap-ms-bar"><i></i></div><div class="lap-ms-body"><div class="lap-ms-gem"></div></div></div></div>';
+ if(type==='games'){
+  return '<div class="lap-mock"><div class="lap-mock-games">'+LITHOS_GAMES.map((g,i)=>'<div class="lap-mock-game" style="--i:'+(i+1)+';--g-preview:'+(g.preview||'linear-gradient(135deg,#1a1520,#0a0b0f)')+'">'+g.icon+'</div>').join('')+'</div></div>';
+ }
+ if(type==='hunt') return '<div class="lap-mock"><div class="lap-mock-hunt"><div class="lap-hunt-pin"></div><div class="lap-hunt-pin"></div><div class="lap-hunt-pin"></div></div></div>';
+ if(type==='chat') return '<div class="lap-mock"><div class="lap-mock-chat"><div class="lap-chat-bubble">What makes a ruby red?</div><div class="lap-chat-bubble">Chromium in corundum — Mohs 9!</div></div></div>';
+ if(type==='mem') return '<div class="lap-mock"><div class="lap-mock-mem" style="position:relative;overflow:hidden"><div class="lap-mem-shine"></div><div class="lap-mem-price">$67.50</div><div class="lap-mem-sub">Silver · per year</div></div></div>';
+ if(type==='partner') return '<div class="lap-mock"><div class="lap-mock-partner"><div class="lap-partner-gem">💎</div>Certified loose gems</div></div>';
+ return '<div class="lap-mock"><div class="lap-mock-gem"></div></div>';
+}
+function buildAdventurePreview(){
+ if(adventureBuilt)return;
+ const stage=document.getElementById('lap-stage');
+ const dots=document.getElementById('lap-dots');
+ if(!stage||!dots)return;
+ stage.innerHTML=LAP_SLIDES.map((s,i)=>`
+  <article class="lap-slide${i===0?' active':''}" data-lap-idx="${i}" style="--lap-accent:${s.accent};--lap-preview:${s.preview}">
+   <div class="lap-slide-copy">
+    <span class="lap-slide-tag">${s.tag}</span>
+    <h3>${s.title}</h3>
+    <p>${s.copy}</p>
+    ${s.stats?'<div class="lap-slide-stats">'+s.stats.join('')+'</div>':''}
+    ${s.action?'<button type="button" class="lap-slide-action" data-lap-action="'+s.action+'">'+(s.actionLabel||'Go')+'</button>':''}
+   </div>
+   <div class="lap-preview-pane">${lapMockHtml(s.mock,s)}</div>
+  </article>`).join('');
+ dots.innerHTML=LAP_SLIDES.map((_,i)=>'<button type="button" class="lap-dot'+(i===0?' on':'')+'" data-lap-dot="'+i+'" aria-label="Slide '+(i+1)+'"></button>').join('');
+ stage.addEventListener('click',e=>{
+  const btn=e.target.closest('[data-lap-action]');
+  if(btn)lapDoAction(btn.dataset.lapAction);
+ });
+ document.getElementById('lap-cta-row')?.addEventListener('click',e=>{
+  const btn=e.target.closest('[data-lap-action]');
+  if(btn){e.preventDefault();lapDoAction(btn.dataset.lapAction);}
+ });
+ dots.addEventListener('click',e=>{
+  const dot=e.target.closest('[data-lap-dot]');
+  if(dot){goAdventureSlide(+dot.dataset.lapDot);resetAdventureTimer();}
+ });
+ document.getElementById('lap-prev')?.addEventListener('click',()=>{goAdventureSlide(adventureIdx-1);resetAdventureTimer();});
+ document.getElementById('lap-next')?.addEventListener('click',()=>{goAdventureSlide(adventureIdx+1);resetAdventureTimer();});
+ document.getElementById('lap-close')?.addEventListener('click',()=>closeAdventurePreview());
+ document.getElementById('lap-play-toggle')?.addEventListener('click',toggleAdventurePlay);
+ document.getElementById('lithos-adventure-preview')?.addEventListener('click',e=>{
+  if(e.target.id==='lithos-adventure-preview')closeAdventurePreview();
+ });
+ document.addEventListener('keydown',e=>{
+  if(!adventurePreviewOpen)return;
+  if(e.key==='Escape')closeAdventurePreview();
+  else if(e.key==='ArrowRight'){goAdventureSlide(adventureIdx+1);resetAdventureTimer();}
+  else if(e.key==='ArrowLeft'){goAdventureSlide(adventureIdx-1);resetAdventureTimer();}
+ });
+ adventureBuilt=true;
+}
+function goAdventureSlide(n){
+ const total=LAP_SLIDES.length;
+ if(n<0)n=total-1;
+ if(n>=total)n=0;
+ const slides=[...document.querySelectorAll('.lap-slide')];
+ const dots=[...document.querySelectorAll('.lap-dot')];
+ slides.forEach((el,i)=>{
+  el.classList.remove('active','exit');
+  if(i===adventureIdx&&i!==n)el.classList.add('exit');
+  if(i===n)el.classList.add('active');
+ });
+ dots.forEach((d,i)=>d.classList.toggle('on',i===n));
+ adventureIdx=n;
+ const bar=document.getElementById('lap-progress-bar');
+ if(bar)bar.style.width=((n+1)/total*100)+'%';
+}
+function lapDoAction(action){
+ if(action==='games'){closeAdventurePreview({keepDismiss:false});openGamesHub();return;}
+ if(action==='partner'){
+  const link=document.querySelector('#lap-cta-row a[data-partner="gemsny"]');
+  if(link){closeAdventurePreview({keepDismiss:false});link.click();}
+  return;
+ }
+ if(action==='catalog'||action==='learn'||action==='classes'||action==='teacher'||action==='identify'||action==='hunt'||action==='memberships'||action==='crafts'||action==='company'||action==='donate'||action==='moneygoal'){
+  closeAdventurePreview({keepDismiss:false});
+  switchView(action);
+  return;
+ }
+}
+function startAdventureTimer(){
+ stopAdventureTimer();
+ if(!adventurePlaying)return;
+ adventureTimer=setInterval(()=>goAdventureSlide(adventureIdx+1),LAP_SLIDE_MS);
+}
+function stopAdventureTimer(){
+ if(adventureTimer){clearInterval(adventureTimer);adventureTimer=null;}
+}
+function resetAdventureTimer(){
+ stopAdventureTimer();
+ startAdventureTimer();
+}
+function toggleAdventurePlay(){
+ adventurePlaying=!adventurePlaying;
+ const btn=document.getElementById('lap-play-toggle');
+ if(btn){
+  btn.textContent=adventurePlaying?'⏸ Pause':'▶ Play';
+  btn.classList.toggle('playing',!adventurePlaying);
+  btn.setAttribute('aria-label',adventurePlaying?'Pause tour':'Play tour');
+ }
+ if(adventurePlaying)startAdventureTimer();
+ else stopAdventureTimer();
+}
+function openAdventurePreview(opts={}){
+ buildAdventurePreview();
+ const el=document.getElementById('lithos-adventure-preview');
+ if(!el||adventurePreviewOpen)return;
+ if(opts.fromStart!==false){adventureIdx=0;goAdventureSlide(0);}
+ el.hidden=false;
+ adventurePreviewOpen=true;
+ adventurePlaying=true;
+ const btn=document.getElementById('lap-play-toggle');
+ if(btn){btn.textContent='⏸ Pause';btn.classList.remove('playing');}
+ syncBodyScrollLock();
+ startAdventureTimer();
+ if(location.hash!=='#tour')history.replaceState(null,'',location.pathname+location.search+'#tour');
+}
+function closeAdventurePreview(opts={}){
+ const el=document.getElementById('lithos-adventure-preview');
+ if(!el||!adventurePreviewOpen)return;
+ el.hidden=true;
+ adventurePreviewOpen=false;
+ stopAdventureTimer();
+ syncBodyScrollLock();
+ if(opts.keepDismiss!==false){
+  try{localStorage.setItem(LAP_KEY,'1');}catch(_){}
+ }
+ if(!opts.skipHash&&location.hash==='#tour'){
+  const h=activeView==='catalog'?'':('#'+activeView);
+  history.replaceState(null,'',location.pathname+location.search+h);
+ }
+}
+function maybeShowAdventurePreview(){
+ try{if(localStorage.getItem(LAP_KEY)==='1')return;}catch(_){}
+ if(location.hash==='#tour'){openAdventurePreview({fromHash:true});return;}
+ if(location.search.includes('tour=1')){openAdventurePreview();return;}
+ setTimeout(()=>{
+  if(activeView==='catalog'&&!adventurePreviewOpen&&!gamesHubOpen){
+   openAdventurePreview();
+  }
+ },1800);
+}
+function initAdventurePreview(){
+ document.getElementById('hero-watch-tour')?.addEventListener('click',()=>openAdventurePreview());
+ buildAdventurePreview();
+}
 
 /* ---------- 8-bit chiptune (Web Audio API) ---------- */
 const LITHOS_8BIT_VIEWS=new Set(['battlefield','game','gemmotion','poppy','gemhunt','parade','auras']);
@@ -5231,6 +5672,7 @@ document.querySelector('.mobile-bar')?.addEventListener('click',e=>{
 });
 function routeHashView(){
  const name=(location.hash||'').replace(/^#/,'').trim();
+ if(name==='tour'){openAdventurePreview({fromHash:true});return;}
  if(name==='games'){openGamesHub({fromHash:true});return;}
  // Don't remount Night Shift if it's already open (hash sync from win/market must not wipe state)
  if(name==='nightshift'){
@@ -16422,7 +16864,9 @@ async function startGemMotion(){
  bindPpWorld();
  bindPoppyGrid();
  initLithosDeviceMode();
+ initAdventurePreview();
  routeHashView();
+ maybeShowAdventurePreview();
 })();
 </script>
 </body>
