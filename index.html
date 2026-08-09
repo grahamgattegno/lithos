@@ -2935,7 +2935,8 @@
     .hero .meta-row{gap:16px 24px}
     .hero .stat .n{font-size:clamp(26px,7vw,36px)}
     .hero .stat .l{letter-spacing:.12em;font-size:9.5px}
-    .hero{padding:56px var(--content-pad) 32px}
+    .hero{padding:56px var(--content-pad) 88px}
+    .hero .meta-row{padding-bottom:8px}
     .controls,.grid{padding-left:var(--content-pad);padding-right:var(--content-pad)}
     .controls{top:var(--header-offset,120px)}
     .controls-inner{padding:14px 0;gap:12px}
@@ -3391,6 +3392,8 @@
   @media(max-width:767px){
     body.lithos-games-music #lithos-music-btn{bottom:calc(76px + env(safe-area-inset-bottom,0px))}
   }
+  body.lithos-hub-open #lithos-music-btn,
+  body.lithos-tour-open #lithos-music-btn{display:none!important}
   #lithos-music-btn:hover{border-color:var(--gold);color:var(--text)}
   #lithos-music-btn.playing{border-color:var(--gold);color:var(--gold);background:rgba(201,169,79,.1);box-shadow:0 0 16px rgba(201,169,79,.18)}
   #lithos-music-btn .music-icon{font-size:14px;line-height:1}
@@ -5271,6 +5274,7 @@ function openGamesHub(opts={}){
  const hub=document.getElementById('lithos-games-hub');
  if(hub)hub.hidden=false;
  gamesHubOpen=true;
+ document.body.classList.add('lithos-hub-open');
  syncNavHighlight(activeView);
  syncBodyScrollLock();
  if(location.hash!=='#games')history.replaceState(null,'',location.pathname+location.search+'#games');
@@ -5281,6 +5285,7 @@ function closeGamesHub(opts={}){
  if(!hub||hub.hidden)return;
  hub.hidden=true;
  gamesHubOpen=false;
+ document.body.classList.remove('lithos-hub-open');
  syncNavHighlight(activeView);
  syncBodyScrollLock();
  if(!opts.skipHash&&location.hash==='#games'){
@@ -5435,6 +5440,7 @@ function openAdventurePreview(opts={}){
  if(opts.fromStart!==false){adventureIdx=0;goAdventureSlide(0);}
  el.hidden=false;
  adventurePreviewOpen=true;
+ document.body.classList.add('lithos-tour-open');
  adventurePlaying=true;
  const btn=document.getElementById('lap-play-toggle');
  if(btn){btn.textContent='⏸ Pause';btn.classList.remove('playing');}
@@ -5447,6 +5453,7 @@ function closeAdventurePreview(opts={}){
  if(!el||!adventurePreviewOpen)return;
  el.hidden=true;
  adventurePreviewOpen=false;
+ document.body.classList.remove('lithos-tour-open');
  stopAdventureTimer();
  syncBodyScrollLock();
  if(opts.keepDismiss!==false){
