@@ -324,12 +324,14 @@
   .controls{
     position:sticky;top:var(--header-offset,73px);z-index:30;
     max-width:var(--site-max);margin:0 auto;padding:0 var(--content-pad);
+    min-width:0;width:100%;
   }
   .controls-inner{
     display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap;
     padding:20px 0;
     background:var(--ink);
     border-bottom:1px solid var(--line);
+    min-width:0;max-width:100%;
   }
   .search{
     position:relative;flex:1;min-width:min(260px,100%);
@@ -344,15 +346,15 @@
   }
   .search input::placeholder{color:var(--text-faint)}
   .search input:focus{outline:none;border-color:var(--gold);background:var(--panel-2)}
-  .filters{display:flex;flex-direction:column;gap:10px;flex:1;min-width:0}
-  .filter-row{display:flex;align-items:flex-start;gap:10px;min-width:0}
+  .filters{display:flex;flex-direction:column;gap:10px;flex:1;min-width:0;max-width:100%}
+  .filter-row{display:flex;align-items:flex-start;gap:10px;min-width:0;max-width:100%}
   .filter-label{
     flex:0 0 auto;margin-top:11px;min-width:7.5em;
     font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;
     color:var(--text-faint);white-space:nowrap;
   }
   .filter-pills{
-    display:flex;gap:8px;flex-wrap:wrap;min-width:0;
+    display:flex;gap:8px;flex-wrap:wrap;min-width:0;max-width:100%;
   }
   .chip{
     background:var(--panel);border:1px solid var(--line);color:var(--text-dim);
@@ -2942,10 +2944,15 @@
     .filter-row{flex-direction:column;gap:6px}
     .filter-label{margin-top:2px;letter-spacing:.12em}
     .filter-pills{
+      flex:1 1 auto;width:100%;max-width:100%;
       flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;
       padding-bottom:4px;scrollbar-width:thin;overscroll-behavior-x:contain;
     }
     .filter-pills .chip{flex:0 0 auto;padding:10px 12px;font-size:10px;letter-spacing:.1em;min-height:40px}
+    /* Keep horizontal chip/nav scrollers from expanding the page */
+    .controls,.controls-inner,.filters,.filter-row,nav.top,.gem-slideshow,.gem-slide-stage{overflow-x:clip;max-width:100%}
+    nav.top{overflow-x:auto}
+    .filter-pills{overflow-x:auto;overflow-y:hidden}
     .grid{grid-template-columns:1fr}
     .card .name{font-size:clamp(22px,7vw,28px)}
     .crafts-grid{grid-template-columns:1fr;padding:30px var(--content-pad) 80px}
@@ -3609,13 +3616,25 @@
   .hero-tour-launch button.primary:hover{filter:brightness(1.05)}
   .hero-tour-launch .hero-tour-sparkle{font-size:16px;animation:lapGemFloat 2.5s ease-in-out infinite}
   @media(max-width:767px){
-    .lap-slide{grid-template-columns:1fr;min-height:420px}
-    .lap-preview-pane{min-height:180px;order:-1}
-    .lap-slide-copy{padding:20px 18px 18px}
+    #lithos-adventure-preview{padding:10px 10px calc(12px + env(safe-area-inset-bottom,0px));align-items:stretch}
+    .lap-card{margin:0;border-radius:14px;max-height:none}
+    .lap-head{padding:16px 14px 0;flex-wrap:wrap;gap:10px}
+    .lap-head h2{font-size:clamp(22px,7vw,30px)}
+    .lap-head-actions{width:100%;justify-content:flex-end}
+    .lap-btn-ghost,.lap-btn-close{min-height:44px;padding:10px 12px}
+    .lap-stage-wrap{padding:12px 12px 0}
+    .lap-slide{grid-template-columns:1fr;min-height:0;position:relative}
+    .lap-stage{min-height:0}
+    .lap-preview-pane{min-height:160px;order:-1}
+    .lap-slide-copy{padding:16px 14px 14px;min-width:0;overflow:visible}
+    .lap-slide-copy h3{font-size:clamp(22px,6.5vw,30px);word-break:break-word}
+    .lap-slide-copy p{max-width:none;font-size:13px;line-height:1.55;overflow-wrap:anywhere}
     .lap-mock-games{grid-template-columns:repeat(5,1fr);gap:4px}
     .lap-mock-game{font-size:13px}
+    .lap-cta-row{padding:0 12px 12px}
+    .lap-cta-row button,.lap-cta-row a.lap-cta{min-width:0;flex:1 1 calc(50% - 6px);min-height:44px}
     .hero-tour-launch{width:100%}
-    .hero-tour-launch button,.hero-tour-launch a.hero-tour-link{flex:1 1 calc(50% - 6px);min-width:140px;justify-content:center}
+    .hero-tour-launch button,.hero-tour-launch a.hero-tour-link{flex:1 1 calc(50% - 6px);min-width:0;justify-content:center}
   }
 </style>
 <script>
@@ -5442,6 +5461,8 @@ function maybeShowAdventurePreview(){
  try{if(localStorage.getItem(LAP_KEY)==='1')return;}catch(_){}
  if(location.hash==='#tour'){openAdventurePreview({fromHash:true});return;}
  if(location.search.includes('tour=1')){openAdventurePreview();return;}
+ /* Auto-tour is disruptive on phones — keep it opt-in via hero CTA / hash */
+ if(window.matchMedia('(max-width:767px)').matches) return;
  setTimeout(()=>{
   if(activeView==='catalog'&&!adventurePreviewOpen&&!gamesHubOpen){
    openAdventurePreview();
