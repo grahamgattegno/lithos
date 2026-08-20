@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lithos — Founders Weekends Pitch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Space+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #07080c;
+    --ink-2: #0e1016;
+    --slate: #161922;
+    --line: rgba(255, 255, 255, 0.1);
+    --text: #f2f0ea;
+    --text-dim: #a8a69e;
+    --text-faint: #6e6d6a;
+    --gold: #c9a94f;
+    --gold-soft: rgba(201, 169, 79, 0.22);
+    --emerald: #3d7a62;
+    --ruby: #8b3a4a;
+    --serif: "Fraunces", Georgia, serif;
+    --sans: "Space Grotesk", sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    background: var(--ink);
+    color: var(--text);
+    font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection { background: var(--gold); color: var(--ink); }
+
+  /* Atmospheric mineral field */
+  .stage {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background:
+      radial-gradient(ellipse 90% 70% at 12% 18%, rgba(61, 122, 98, 0.18), transparent 55%),
+      radial-gradient(ellipse 70% 60% at 88% 78%, rgba(139, 58, 74, 0.14), transparent 50%),
+      radial-gradient(ellipse 50% 40% at 55% 40%, rgba(201, 169, 79, 0.07), transparent 60%),
+      linear-gradient(165deg, #0a0c12 0%, #12151d 45%, #0b0d12 100%);
+  }
+
+  .stage::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.35;
+    background-image:
+      url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    mix-blend-mode: overlay;
+    z-index: 1;
+  }
+
+  .stage::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(180deg, transparent 70%, rgba(0,0,0,0.35));
+    z-index: 1;
+  }
+
+  .slides {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: clamp(48px, 8vh, 96px) clamp(28px, 7vw, 100px);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(28px);
+    transition:
+      opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+      visibility 0.55s;
+    pointer-events: none;
+  }
+
+  .slide.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .slide.exit-left {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+
+  .slide.exit-right {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+
+  /* Enter animations for children */
+  .slide.active .reveal {
+    animation: riseIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .slide.active .reveal-d1 { animation-delay: 0.08s; }
+  .slide.active .reveal-d2 { animation-delay: 0.16s; }
+  .slide.active .reveal-d3 { animation-delay: 0.24s; }
+  .slide.active .reveal-d4 { animation-delay: 0.32s; }
+  .slide.active .reveal-d5 { animation-delay: 0.4s; }
+  .slide.active .reveal-d6 { animation-delay: 0.48s; }
+
+  @keyframes riseIn {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes brandReveal {
+    0% { opacity: 0; letter-spacing: 0.35em; transform: translateY(20px); filter: blur(6px); }
+    100% { opacity: 1; letter-spacing: 0.04em; transform: translateY(0); filter: blur(0); }
+  }
+
+  @keyframes shimmer {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  @keyframes pulseDot {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.25); opacity: 0.85; }
+  }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: clamp(10px, 1.4vw, 12px);
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: clamp(16px, 2.5vh, 28px);
+  }
+
+  h1.brand-hero {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(72px, 16vw, 168px);
+    line-height: 0.9;
+    letter-spacing: 0.04em;
+    margin-bottom: clamp(20px, 3vh, 36px);
+  }
+
+  .slide.active h1.brand-hero {
+    animation: brandReveal 1.1s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  h1.brand-hero .shimmer {
+    display: inline-block;
+    background: linear-gradient(
+      105deg,
+      #e8d9a8 0%,
+      var(--gold) 25%,
+      #f5efd6 50%,
+      var(--gold) 75%,
+      #c9a94f 100%
+    );
+    background-size: 220% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: shimmer 5s ease-in-out infinite;
+  }
+
+  h2 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(36px, 5.5vw, 64px);
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    max-width: 16ch;
+    margin-bottom: clamp(20px, 3vh, 32px);
+  }
+
+  h2 em {
+    font-style: italic;
+    color: var(--gold);
+    font-weight: 400;
+  }
+
+  .lede {
+    font-size: clamp(16px, 2vw, 20px);
+    line-height: 1.55;
+    color: var(--text-dim);
+    max-width: 38ch;
+  }
+
+  .meta {
+    margin-top: clamp(28px, 4vh, 48px);
+    font-family: var(--mono);
+    font-size: clamp(11px, 1.5vw, 13px);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  .meta strong {
+    color: var(--text-dim);
+    font-weight: 500;
+  }
+
+  ul.points {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(14px, 2.2vh, 22px);
+    max-width: 52ch;
+  }
+
+  ul.points li {
+    position: relative;
+    padding-left: 1.35em;
+    font-size: clamp(16px, 2.1vw, 21px);
+    line-height: 1.45;
+    color: var(--text-dim);
+  }
+
+  ul.points li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.55em;
+    width: 7px;
+    height: 7px;
+    background: var(--gold);
+    border-radius: 1px;
+    transform: rotate(45deg);
+  }
+
+  ul.points li strong {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  a.link {
+    color: var(--gold);
+    text-decoration: none;
+    border-bottom: 1px solid var(--gold-soft);
+    transition: border-color 0.2s, color 0.2s;
+  }
+
+  a.link:hover {
+    border-bottom-color: var(--gold);
+  }
+
+  /* Decision layout */
+  .decision {
+    display: grid;
+    gap: clamp(20px, 3vh, 32px);
+    max-width: 640px;
+  }
+
+  .decision .verdict {
+    font-family: var(--mono);
+    font-size: clamp(12px, 1.6vw, 14px);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold);
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  /* Math paths for $10k */
+  .paths {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(12px, 2vh, 18px);
+    margin-top: 4px;
+    max-width: 560px;
+  }
+
+  .path {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 16px;
+    align-items: baseline;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: clamp(15px, 1.9vw, 18px);
+  }
+
+  .path .label { color: var(--text); font-weight: 500; }
+  .path .math { color: var(--text-dim); font-family: var(--mono); font-size: 0.88em; }
+  .path .eq {
+    color: var(--gold);
+    font-family: var(--mono);
+    font-size: 0.9em;
+    letter-spacing: 0.04em;
+  }
+
+  .actions {
+    margin-top: clamp(22px, 3.5vh, 36px);
+    font-size: clamp(14px, 1.8vw, 17px);
+    color: var(--text-dim);
+    max-width: 48ch;
+    line-height: 1.5;
+  }
+
+  .actions strong { color: var(--text); font-weight: 500; }
+
+  /* Closing */
+  .ask {
+    margin-top: clamp(28px, 4vh, 44px);
+    font-family: var(--serif);
+    font-size: clamp(22px, 3.2vw, 32px);
+    font-style: italic;
+    color: var(--gold);
+    max-width: 28ch;
+    line-height: 1.3;
+  }
+
+  .site-url {
+    margin-top: clamp(20px, 3vh, 32px);
+    font-family: var(--mono);
+    font-size: clamp(13px, 1.7vw, 16px);
+    letter-spacing: 0.04em;
+  }
+
+  .site-url a {
+    color: var(--text);
+    text-decoration: none;
+    border-bottom: 1px solid var(--gold);
+  }
+
+  /* Chrome: nav + progress */
+  .chrome {
+    position: absolute;
+    z-index: 10;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 20px clamp(20px, 5vw, 48px) 24px;
+    pointer-events: none;
+  }
+
+  .progress {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    pointer-events: auto;
+  }
+
+  .progress button {
+    width: 8px;
+    height: 8px;
+    border: none;
+    padding: 0;
+    border-radius: 1px;
+    background: rgba(255, 255, 255, 0.22);
+    cursor: pointer;
+    transform: rotate(45deg);
+    transition: background 0.25s, transform 0.25s;
+  }
+
+  .progress button[aria-current="true"] {
+    background: var(--gold);
+    animation: pulseDot 2.4s ease-in-out infinite;
+  }
+
+  .progress button:hover {
+    background: rgba(255, 255, 255, 0.5);
+  }
+
+  .hint {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    pointer-events: none;
+  }
+
+  .slide-counter {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    color: var(--text-faint);
+    pointer-events: none;
+  }
+
+  /* Click zones */
+  .zone {
+    position: absolute;
+    top: 0;
+    bottom: 56px;
+    width: 28%;
+    z-index: 5;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+  }
+
+  .zone-prev { left: 0; }
+  .zone-next { right: 0; }
+
+  /* Title slide composition */
+  .title-block {
+    max-width: 900px;
+  }
+
+  .title-block .sub {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(22px, 3.5vw, 36px);
+    color: var(--text-dim);
+    line-height: 1.25;
+    max-width: 22ch;
+  }
+
+  /* Built list — compact product inventory */
+  .built-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 54ch;
+  }
+
+  .built-row {
+    font-size: clamp(15px, 1.95vw, 19px);
+    line-height: 1.4;
+    color: var(--text-dim);
+  }
+
+  .built-row strong {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .price {
+    color: var(--gold);
+    font-family: var(--mono);
+    font-size: 0.92em;
+  }
+
+  @media (max-width: 640px) {
+    .slide {
+      padding: 40px 24px 72px;
+      justify-content: flex-start;
+      padding-top: min(12vh, 80px);
+    }
+
+    h2 { max-width: none; }
+
+    .path {
+      grid-template-columns: 1fr;
+      gap: 4px;
+    }
+
+    .hint { display: none; }
+
+    .zone { width: 22%; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .slide,
+    .slide.active .reveal,
+    .slide.active h1.brand-hero,
+    .shimmer,
+    .progress button[aria-current="true"] {
+      animation: none !important;
+      transition: opacity 0.2s !important;
+    }
+    .slide.active .reveal { opacity: 1; transform: none; }
+  }
+</style>
+</head>
+<body>
+  <div class="stage" id="deck" role="region" aria-roledescription="carousel" aria-label="Lithos pitch slides">
+    <div class="slides">
+
+      <!-- 1. Title -->
+      <section class="slide active" data-slide="0" aria-label="Title">
+        <div class="title-block">
+          <p class="eyebrow reveal">Founders Weekends · Alpha School</p>
+          <h1 class="brand-hero"><span class="shimmer">LITHOS</span></h1>
+          <p class="sub reveal reveal-d2">Real gems. Real science.<br>Built for learners.</p>
+          <p class="meta reveal reveal-d4"><strong>Graham Gattegno</strong> · founder</p>
+        </div>
+      </section>
+
+      <!-- 2. Problem -->
+      <section class="slide" data-slide="1" aria-label="The problem I saw">
+        <p class="eyebrow reveal">01 — The problem</p>
+        <h2 class="reveal reveal-d1">Learning gems online felt <em>broken</em>.</h2>
+        <ul class="points">
+          <li class="reveal reveal-d2">Most stuff was <strong>boring, childish, or wrong</strong></li>
+          <li class="reveal reveal-d3">Kids got <strong>emoji toys</strong> instead of real mineral science</li>
+          <li class="reveal reveal-d4">Teachers and families had no serious, fun <strong>catalog + lessons</strong></li>
+        </ul>
+      </section>
+
+      <!-- 3. What I built -->
+      <section class="slide" data-slide="2" aria-label="What I built">
+        <p class="eyebrow reveal">02 — What I built</p>
+        <h2 class="reveal reveal-d1">I built <em>Lithos</em>.</h2>
+        <div class="built-grid">
+          <p class="built-row reveal reveal-d2"><strong>Live site</strong> — <a class="link" href="https://grahamgattegno.github.io/lithos/" target="_blank" rel="noopener">grahamgattegno.github.io/lithos</a></p>
+          <p class="built-row reveal reveal-d3"><strong>Huge gem catalog</strong> with real photos</p>
+          <p class="built-row reveal reveal-d3"><strong>Classes + memberships</strong> — Teacher <span class="price">$220</span> · Home <span class="price">$90</span></p>
+          <p class="built-row reveal reveal-d4"><strong>Rock Teacher AI</strong> chat + games (Gem Arena, Night Shift, Gem Factory…)</p>
+          <p class="built-row reveal reveal-d5"><strong>Donate</strong> for miner families · affiliates starting (Brian Gavin, Miles Jewellery, Diamond Rocks via Awin)</p>
+        </div>
+      </section>
+
+      <!-- 4. Strangers -->
+      <section class="slide" data-slide="3" aria-label="What happened with strangers">
+        <p class="eyebrow reveal">03 — Strangers tested it</p>
+        <h2 class="reveal reveal-d1">People told me the truth.</h2>
+        <ul class="points">
+          <li class="reveal reveal-d2">Emoji version felt <strong>too childish</strong> → I switched to <strong>real gem photos</strong></li>
+          <li class="reveal reveal-d3">Strangers tested the <strong>published site</strong>, not just a mock</li>
+          <li class="reveal reveal-d4"><strong>Accuracy mattered</strong> — wrong photos got called out</li>
+          <li class="reveal reveal-d5">Checkout + donations wired through <strong>Founders Weekends</strong></li>
+        </ul>
+      </section>
+
+      <!-- 5. Continuing / pivot -->
+      <section class="slide" data-slide="4" aria-label="Why I'm continuing">
+        <p class="eyebrow reveal">04 — The decision</p>
+        <h2 class="reveal reveal-d1">I'm <em>continuing</em>.</h2>
+        <div class="decision">
+          <p class="verdict reveal reveal-d2">Not quitting · partial pivot · still shopping partners</p>
+          <ul class="points">
+            <li class="reveal reveal-d3">From “pretty catalog + hope for donations” → <strong>education product + teacher sales + affiliate commerce</strong></li>
+            <li class="reveal reveal-d4">Learning core stays. Commerce gets sharper.</li>
+            <li class="reveal reveal-d5">Still shopping stronger jewelry/gem affiliates (Awin pending Allurez &amp; more)</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 6. Plan to $10k -->
+      <section class="slide" data-slide="5" aria-label="The plan to ten thousand dollars">
+        <p class="eyebrow reveal">05 — Path to $10k</p>
+        <h2 class="reveal reveal-d1">Concrete math.</h2>
+        <div class="paths">
+          <div class="path reveal reveal-d2">
+            <span class="label">Teacher $220</span>
+            <span class="math">× ~45 sales</span>
+            <span class="eq">≈ $10k</span>
+          </div>
+          <div class="path reveal reveal-d3">
+            <span class="label">Home $90</span>
+            <span class="math">× ~110 sales</span>
+            <span class="eq">≈ $10k</span>
+          </div>
+          <div class="path reveal reveal-d4">
+            <span class="label">Mix</span>
+            <span class="math">teacher + home + memberships</span>
+            <span class="eq">same goal</span>
+          </div>
+        </div>
+        <p class="actions reveal reveal-d5">
+          <strong>Weekly:</strong> pitch schools, teachers, parents, clubs · push Classes CTA · finish affiliate tracking · <strong>don’t wait on random traffic</strong>
+        </p>
+      </section>
+
+      <!-- 7. Closing / ask -->
+      <section class="slide" data-slide="6" aria-label="Closing ask">
+        <p class="eyebrow reveal">06 — Ask</p>
+        <h2 class="reveal reveal-d1">Try it. Then help me get in front of <em>teachers</em>.</h2>
+        <p class="site-url reveal reveal-d3">
+          <a href="https://grahamgattegno.github.io/lithos/" target="_blank" rel="noopener">grahamgattegno.github.io/lithos</a>
+        </p>
+        <p class="ask reveal reveal-d4">Intros, classrooms, clubs — I’ll show up.</p>
+        <p class="meta reveal reveal-d5"><strong>Graham Gattegno</strong> · Lithos</p>
+      </section>
+
+    </div>
+
+    <button class="zone zone-prev" type="button" aria-label="Previous slide"></button>
+    <button class="zone zone-next" type="button" aria-label="Next slide"></button>
+
+    <div class="chrome">
+      <div class="progress" role="tablist" aria-label="Slide progress" id="progress"></div>
+      <span class="hint">← → · Space</span>
+      <span class="slide-counter" id="counter" aria-live="polite">1 / 7</span>
+    </div>
+  </div>
+
+<script>
+(function () {
+  const slides = Array.from(document.querySelectorAll(".slide"));
+  const progress = document.getElementById("progress");
+  const counter = document.getElementById("counter");
+  const total = slides.length;
+  let index = 0;
+  let locked = false;
+
+  slides.forEach((_, i) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.setAttribute("role", "tab");
+    btn.setAttribute("aria-label", "Go to slide " + (i + 1));
+    btn.addEventListener("click", () => go(i));
+    progress.appendChild(btn);
+  });
+
+  const dots = Array.from(progress.querySelectorAll("button"));
+
+  function render() {
+    slides.forEach((s, i) => {
+      s.classList.toggle("active", i === index);
+      s.classList.remove("exit-left", "exit-right");
+    });
+    dots.forEach((d, i) => {
+      d.setAttribute("aria-current", i === index ? "true" : "false");
+    });
+    counter.textContent = (index + 1) + " / " + total;
+  }
+
+  function go(next) {
+    if (locked) return;
+    next = Math.max(0, Math.min(total - 1, next));
+    if (next === index) return;
+    locked = true;
+    const prev = index;
+    const dir = next > prev ? 1 : -1;
+    slides[prev].classList.add(dir > 0 ? "exit-left" : "exit-right");
+    slides[prev].classList.remove("active");
+    index = next;
+    slides[index].classList.add("active");
+    dots.forEach((d, i) => {
+      d.setAttribute("aria-current", i === index ? "true" : "false");
+    });
+    counter.textContent = (index + 1) + " / " + total;
+    window.setTimeout(() => {
+      slides[prev].classList.remove("exit-left", "exit-right");
+      locked = false;
+    }, 320);
+  }
+
+  function next() { go(index + 1); }
+  function prev() { go(index - 1); }
+
+  document.querySelector(".zone-next").addEventListener("click", next);
+  document.querySelector(".zone-prev").addEventListener("click", prev);
+
+  document.addEventListener("keydown", (e) => {
+    if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+    if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") {
+      e.preventDefault();
+      next();
+    } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
+      e.preventDefault();
+      prev();
+    } else if (e.key === "Home") {
+      e.preventDefault();
+      go(0);
+    } else if (e.key === "End") {
+      e.preventDefault();
+      go(total - 1);
+    }
+  });
+
+  let touchX = null;
+  document.getElementById("deck").addEventListener("touchstart", (e) => {
+    touchX = e.changedTouches[0].screenX;
+  }, { passive: true });
+  document.getElementById("deck").addEventListener("touchend", (e) => {
+    if (touchX == null) return;
+    const dx = e.changedTouches[0].screenX - touchX;
+    touchX = null;
+    if (Math.abs(dx) < 48) return;
+    if (dx < 0) next();
+    else prev();
+  }, { passive: true });
+
+  render();
+})();
+</script>
+</body>
+</html>

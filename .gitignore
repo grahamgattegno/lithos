@@ -1,3 +1,8 @@
 .env.local
 ai-config.js
 .DS_Store
+ads/*.mp4
+ads/.venv/
+ads/out_frames/
+ads/frames/
+ads/concat.txt

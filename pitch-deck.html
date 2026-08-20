@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lithos — Pitch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,400&family=Space+Grotesk:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0a0b0f;
+    --panel:#15171f;
+    --line:rgba(255,255,255,.09);
+    --text:#f2f0ea;
+    --dim:#a7a6a0;
+    --faint:#6d6d6b;
+    --gold:#c9a94f;
+    --serif:'Fraunces',Georgia,serif;
+    --sans:'Space Grotesk',system-ui,sans-serif;
+    --mono:'IBM Plex Mono',monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;overflow:hidden;background:var(--ink);color:var(--text);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+  ::selection{background:var(--gold);color:var(--ink)}
+
+  .deck{height:100%;position:relative}
+  .slides{height:100%;display:flex;transition:transform .55s cubic-bezier(.4,0,.2,1)}
+
+  .slide{
+    flex:0 0 100%;height:100%;padding:48px 56px 72px;
+    display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;
+    position:relative;overflow:hidden;
+  }
+  .slide::before{
+    content:'';position:absolute;inset:0;
+    background:radial-gradient(ellipse 80% 60% at 70% 30%,rgba(201,169,79,.06),transparent 55%);
+    pointer-events:none;
+  }
+  .slide-inner{position:relative;z-index:1;max-width:520px}
+  .slide-visual{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;min-height:280px}
+
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:var(--gold);margin-bottom:20px}
+  h1{font-family:var(--serif);font-weight:300;font-size:clamp(36px,5vw,56px);line-height:1.05;letter-spacing:-.02em;margin-bottom:20px}
+  h1 em{font-style:italic;color:var(--gold);font-weight:400}
+  .lead{font-size:17px;line-height:1.55;color:var(--dim);max-width:440px}
+  .bullets{margin-top:28px;list-style:none}
+  .bullets li{
+    font-size:15px;color:var(--dim);padding:10px 0 10px 20px;border-bottom:1px solid var(--line);
+    position:relative;line-height:1.45;
+  }
+  .bullets li::before{content:'◆';position:absolute;left:0;color:var(--gold);font-size:8px;top:14px}
+  .bullets li strong{color:var(--text);font-weight:500}
+
+  .gem-frame{
+    width:min(100%,320px);aspect-ratio:1;border-radius:12px;overflow:hidden;
+    border:1px solid var(--line);box-shadow:0 24px 60px rgba(0,0,0,.45),0 0 40px rgba(201,169,79,.08);
+    position:relative;
+  }
+  .gem-frame img{width:100%;height:100%;object-fit:cover;display:block}
+  .gem-frame::after{
+    content:'';position:absolute;inset:0;
+    background:linear-gradient(145deg,rgba(255,255,255,.08),transparent 40%,rgba(0,0,0,.25));
+    pointer-events:none;
+  }
+
+  .mosaic{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;width:min(100%,360px)}
+  .mosaic .tile{
+    background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 14px;
+    font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);
+  }
+  .mosaic .tile b{display:block;font-family:var(--serif);font-size:22px;font-weight:400;color:var(--text);letter-spacing:0;text-transform:none;margin:6px 0 2px}
+  .mosaic .tile span{color:var(--gold)}
+
+  .game-strip{display:flex;flex-wrap:wrap;gap:8px;max-width:380px;justify-content:center}
+  .game-chip{
+    background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 14px;
+    font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--dim);
+  }
+
+  .path{display:flex;flex-direction:column;gap:12px;width:min(100%,340px)}
+  .path-step{
+    display:flex;align-items:center;gap:16px;padding:14px 18px;
+    background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  }
+  .path-step .n{font-family:var(--mono);font-size:11px;color:var(--gold);width:28px;flex-shrink:0}
+  .path-step .t{font-size:14px;color:var(--text);line-height:1.35}
+  .path-step .t small{display:block;color:var(--faint);font-size:12px;margin-top:2px}
+
+  .verdict{
+    margin-top:24px;padding:16px 20px;border-left:2px solid var(--gold);
+    background:rgba(201,169,79,.06);font-size:15px;color:var(--dim);line-height:1.5;
+  }
+  .verdict b{color:var(--text);font-weight:500}
+
+  /* slide 1 — text only, centered feel */
+  .slide-problem{grid-template-columns:1fr}
+  .slide-problem .slide-inner{max-width:640px;margin:0 auto;text-align:center}
+  .slide-problem .lead{margin:0 auto}
+
+  /* slide 5 — plan */
+  .slide-plan{grid-template-columns:1.1fr .9fr}
+
+  /* chrome */
+  header{
+    position:fixed;top:0;left:0;right:0;z-index:20;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:20px 32px;background:linear-gradient(180deg,rgba(10,11,15,.92),transparent);
+    pointer-events:none;
+  }
+  header *{pointer-events:auto}
+  .logo{font-family:var(--serif);font-size:22px;color:var(--text);text-decoration:none}
+  .logo em{font-style:italic;color:var(--gold)}
+  .logo-tag{font-family:var(--mono);font-size:9px;letter-spacing:.28em;text-transform:uppercase;color:var(--faint);margin-left:12px}
+  .site-link{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);text-decoration:none}
+  .site-link:hover{color:var(--gold)}
+
+  nav.footer{
+    position:fixed;bottom:0;left:0;right:0;z-index:20;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:20px 32px 28px;background:linear-gradient(0deg,rgba(10,11,15,.95),transparent);
+  }
+  .dots{display:flex;gap:8px}
+  .dots button{
+    width:8px;height:8px;border-radius:50%;border:none;background:var(--line);cursor:pointer;padding:0;
+    transition:background .2s,transform .2s;
+  }
+  .dots button.on{background:var(--gold);transform:scale(1.2)}
+  .nav-btns{display:flex;gap:10px}
+  .nav-btns button{
+    background:var(--panel);border:1px solid var(--line);color:var(--dim);
+    font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+    padding:10px 16px;border-radius:6px;cursor:pointer;transition:border-color .15s,color .15s;
+  }
+  .nav-btns button:hover{border-color:var(--gold);color:var(--text)}
+  .counter{font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.12em}
+
+  @media(max-width:900px){
+    .slide{grid-template-columns:1fr;padding:80px 24px 100px;gap:32px;align-content:center}
+    .slide-visual{min-height:auto}
+    .slide-problem .slide-inner{text-align:left}
+    .slide-problem .lead{margin:0}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <a class="logo" href="index.html">Lith<em>os</em></a>
+    <span class="logo-tag">Pitch · 2026</span>
+  </div>
+  <a class="site-link" href="https://grahamgattegno.github.io/lithos/" target="_blank" rel="noopener">Live site ↗</a>
+</header>
+
+<div class="deck" id="deck">
+  <div class="slides" id="slides">
+
+    <!-- 1 · Problem -->
+    <section class="slide slide-problem" data-i="0">
+      <div class="slide-inner">
+        <div class="eyebrow">Slide 01 · The problem</div>
+        <h1>Rock learning is <em>accurate</em> but rarely <em>alive</em></h1>
+        <p class="lead">Most mineral sites are walls of text and stock photos. Kids open them once. Collectors trust nothing. Teachers have no single place that’s fun <i>and</i> correct.</p>
+      </div>
+    </section>
+
+    <!-- 2 · Built -->
+    <section class="slide" data-i="1">
+      <div class="slide-inner">
+        <div class="eyebrow">Slide 02 · What I built</div>
+        <h1><em>Lithos</em> — catalog + games + tools</h1>
+        <ul class="bullets">
+          <li><strong>4,800 specimens</strong> — chemistry, Mohs, origins</li>
+          <li><strong>10 games</strong> — Night Shift, Gem Factory, Motion Battlefield…</li>
+          <li><strong>Identify a Rock</strong> — photo → name + facts</li>
+          <li><strong>Classes, hunt, quiz</strong> — built to stick</li>
+        </ul>
+      </div>
+      <div class="slide-visual">
+        <div class="mosaic">
+          <div class="tile"><span>Catalog</span><b>4,800</b>specimens</div>
+          <div class="tile"><span>Gemstones</span><b>199</b>verified photos</div>
+          <div class="tile"><span>Games</span><b>10</b>4D adventures</div>
+          <div class="tile"><span>Live</span><b>↗</b>GitHub Pages</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 · Continue / pivot / stop -->
+    <section class="slide" data-i="2">
+      <div class="slide-visual">
+        <div class="gem-frame">
+          <img src="images/ruby.jpg" alt="Ruby specimen from Lithos catalog" width="320" height="320" loading="eager">
+        </div>
+      </div>
+      <div class="slide-inner">
+        <div class="eyebrow">Slide 03 · Why keep going</div>
+        <h1>Continuing — <em>not</em> stopping</h1>
+        <p class="lead">It’s a passion project that already ships weekly. The catalog is real. The games get played. Memberships and partner links are wired.</p>
+        <div class="verdict"><b>Pivot:</b> less “everything app,” more catalog trust + memberships + schools. <b>Stop:</b> no — momentum is there.</div>
+      </div>
+    </section>
+
+    <!-- 4 · Traction / wedge (bridge to 10k) -->
+    <section class="slide" data-i="3">
+      <div class="slide-inner">
+        <div class="eyebrow">Slide 04 · The wedge</div>
+        <h1>Free catalog. <em>Paid</em> depth.</h1>
+        <ul class="bullets">
+          <li><strong>Memberships</strong> from $67.50 — AI teacher, voice, compare</li>
+          <li><strong>GemsNY</strong> partner — shop real stones</li>
+          <li><strong>Tips &amp; donate</strong> — optional support</li>
+          <li><strong>Content</strong> — Claw Quest, gem of the week, certs</li>
+        </ul>
+      </div>
+      <div class="slide-visual">
+        <div class="game-strip">
+          <span class="game-chip">🌙 Night Shift</span>
+          <span class="game-chip">🏭 Gem Factory</span>
+          <span class="game-chip">💎 Gem Arena</span>
+          <span class="game-chip">📷 Motion Hunt</span>
+          <span class="game-chip">🔬 Identify</span>
+          <span class="game-chip">🗺 Scavenger Hunt</span>
+          <span class="game-chip">❓ Quiz</span>
+          <span class="game-chip">✨ Auras</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5 · Plan to 10k -->
+    <section class="slide slide-plan" data-i="4">
+      <div class="slide-inner">
+        <div class="eyebrow">Slide 05 · Plan to $10k</div>
+        <h1>Simple math to <em>$10k</em></h1>
+        <p class="lead">Not viral hype — repeatable paths that fit a solo builder.</p>
+        <div class="path" style="margin-top:28px">
+          <div class="path-step"><span class="n">01</span><div class="t">~150 memberships @ $67<small>Core product — classes, AI, voice</small></div></div>
+          <div class="path-step"><span class="n">02</span><div class="t">Affiliate + tips fill the gap<small>GemsNY commissions, optional tips, school pilots</small></div></div>
+          <div class="path-step"><span class="n">03</span><div class="t">Ship weekly, measure retention<small>Games bring people back; catalog keeps trust</small></div></div>
+        </div>
+      </div>
+      <div class="slide-visual">
+        <div class="mosaic">
+          <div class="tile" style="grid-column:span 2;text-align:center;padding:24px"><span>Target</span><b style="font-size:42px;color:var(--gold)">$10k</b>annual run-rate</div>
+          <div class="tile"><span>Now</span><b>Solo</b>founder-built</div>
+          <div class="tile"><span>Ask</span><b>Try it</b><a href="index.html" style="color:var(--gold);text-decoration:none;display:block;margin-top:4px;font-size:11px">grahamgattegno.github.io/lithos</a></div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<nav class="footer">
+  <span class="counter" id="counter">01 / 05</span>
+  <div class="dots" id="dots"></div>
+  <div class="nav-btns">
+    <button type="button" id="prev">← Prev</button>
+    <button type="button" id="next">Next →</button>
+  </div>
+</nav>
+
+<script>
+(function(){
+  const total=5;
+  let i=0;
+  const slides=document.getElementById('slides');
+  const counter=document.getElementById('counter');
+  const dotsEl=document.getElementById('dots');
+  for(let d=0;d<total;d++){
+    const b=document.createElement('button');
+    b.type='button';
+    b.setAttribute('aria-label','Slide '+(d+1));
+    b.onclick=()=>go(d);
+    dotsEl.appendChild(b);
+  }
+  const dots=[...dotsEl.children];
+  function go(n){
+    i=Math.max(0,Math.min(total-1,n));
+    slides.style.transform='translateX('+(-i*100)+'%)';
+    counter.textContent=String(i+1).padStart(2,'0')+' / 05';
+    dots.forEach((d,j)=>d.classList.toggle('on',j===i));
+  }
+  document.getElementById('prev').onclick=()=>go(i-1);
+  document.getElementById('next').onclick=()=>go(i+1);
+  document.addEventListener('keydown',e=>{
+    if(e.key==='ArrowRight'||e.key===' ')go(i+1);
+    if(e.key==='ArrowLeft')go(i-1);
+  });
+  let tx=0;
+  document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;},{passive:true});
+  document.addEventListener('touchend',e=>{
+    const dx=e.changedTouches[0].clientX-tx;
+    if(Math.abs(dx)>50){if(dx<0)go(i+1);else go(i-1);}
+  },{passive:true});
+  go(0);
+})();
+</script>
+</body>
+</html>

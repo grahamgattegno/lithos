@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- lithos-v:mobile-ux-friendly-3 -->
+<!-- lithos-v:mobile-ux-friendly-4 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -949,6 +949,8 @@
  .fb-badge{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;padding:3px 7px;border-radius:3px}
  .fb-badge.gold{background:var(--gold);color:var(--ink)}
  .fb-badge.silver{background:var(--line-2);color:var(--text-dim)}
+ .fb-badge.sapphire{background:#4a7fd4;color:#fff}
+ .fb-badge.diamond{background:linear-gradient(135deg,#d4ecff,#fff);color:#1a2840}
   .fb-item .fb-rate{font-size:14px;white-space:nowrap}
   .fb-item .fb-text{font-size:15px;line-height:1.55;color:var(--text)}
   .fb-empty{color:var(--text-faint);font-size:14px;text-align:center;padding:30px}
@@ -1069,9 +1071,19 @@
   .mem-hero h1{font-family:var(--serif);font-weight:300;font-size:clamp(38px,6vw,80px);line-height:1;letter-spacing:-.02em}
   .mem-hero h1 em{font-style:italic;color:var(--gold);font-weight:400}
   .mem-hero .lede{margin:26px auto 0;max-width:560px;font-size:17px;line-height:1.6;color:var(--text-dim)}
-  .mem-grid{max-width:860px;margin:0 auto;padding:44px 40px 20px;display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  .mem-grid{max-width:960px;margin:0 auto;padding:44px 40px 20px;display:grid;grid-template-columns:repeat(2,1fr);gap:24px}
   .mem-card{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:34px 30px;display:flex;flex-direction:column;text-align:center}
   .mem-card.gold{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 20px 60px -20px rgba(201,169,79,.45)}
+  .mem-card.sapphire{border-color:#4a7fd4;box-shadow:0 0 0 1px #4a7fd4,0 20px 60px -20px rgba(74,127,212,.35)}
+  .mem-card.sapphire .mem-off,.mem-card.sapphire .mem-join-price b{color:#6eb5ff}
+  .mem-card.sapphire .mem-list li::before{background:#4a7fd4}
+  .mem-card.sapphire .mem-btn{background:#4a7fd4;color:#fff}
+  .mem-card.sapphire .mem-btn.alt{color:#6eb5ff;box-shadow:inset 0 0 0 1px #4a7fd4}
+  .mem-card.diamond{border-color:#b8e0ff;box-shadow:0 0 0 1px #b8e0ff,0 20px 60px -20px rgba(184,224,255,.4)}
+  .mem-card.diamond .mem-off,.mem-card.diamond .mem-join-price b{color:#e8f4ff}
+  .mem-card.diamond .mem-list li::before{background:linear-gradient(135deg,#b8e0ff,#fff)}
+  .mem-card.diamond .mem-btn{background:linear-gradient(135deg,#d4ecff,#b8e0ff);color:#1a2840}
+  .mem-card.diamond .mem-btn.alt{color:#e8f4ff;box-shadow:inset 0 0 0 1px #b8e0ff}
   .mem-badge{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--gold);color:var(--ink);font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;padding:6px 14px;border-radius:20px}
   .mem-tier{font-family:var(--mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--text-dim);margin-bottom:14px}
   .mem-off{font-family:var(--serif);font-size:52px;font-weight:400;color:var(--gold);line-height:1;margin-bottom:20px}
@@ -2117,6 +2129,12 @@
   .pp-jumpscare .pp-ranimatronic,.pp-jumpscare .pp-rhuggy,.pp-jumpscare .pp-rmommy,.pp-jumpscare .pp-rboxy,.pp-jumpscare .pp-rgolem,.pp-jumpscare .pp-rking{--pp-msz:220px}
 
   #nightshift{position:fixed;inset:0;z-index:9999;background:#0a0a10;display:flex;align-items:flex-start;justify-content:center;padding:12px;overflow:auto;-webkit-overflow-scrolling:touch}
+  #nightshift2{position:fixed;inset:0;z-index:9999;background:radial-gradient(ellipse at 50% 20%,#16121e,#07070c);display:flex;align-items:flex-start;justify-content:center;padding:12px;overflow:auto;-webkit-overflow-scrolling:touch}
+  .ns2-frost{margin:8px 0;padding:12px 16px;background:linear-gradient(90deg,rgba(122,208,240,.25),rgba(200,240,255,.15));border:2px solid #7ad0f0;border-radius:10px;color:#cfeeff;font-weight:800;text-align:center;cursor:pointer;animation:nsFlicker .4s steps(2) infinite}
+  .ns2-decoy{position:absolute;z-index:4;font-size:42px;background:rgba(0,0,0,.35);border:2px dashed #ff6ab0;border-radius:8px;padding:8px 12px;cursor:pointer;transform:translate(-50%,-50%)}
+  .ns2-decoy .ns2-blink{position:absolute;top:4px;right:4px;font-size:14px;animation:nsFlicker .5s steps(2) infinite}
+  .ns-camview.ns2-corrupt{filter:contrast(1.2) saturate(0.4)}
+  .ns-camview.ns2-corrupt .ns-static{opacity:.45!important}
   .ns-screen{width:min(96vw,720px);color:#d8d0e0;font-family:var(--sans,sans-serif);margin:12px auto 40px;max-height:none}
   .ns-topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-weight:800;font-size:15px}
   .ns-clock{color:#c9a94f;font-family:var(--mono,monospace)}
@@ -4410,7 +4428,7 @@
  <section class="mem-hero">
  <div class="eyebrow">Join &amp; Save</div>
  <h1>Become a <em>member</em></h1>
- <p class="lede">Silver starts at <b>$67.50/year</b>. Gold is <b>$165/year</b> — more expensive, but you get 50% off every class plus live AI, voice, and premium perks.</p>
+ <p class="lede">Four tiers — Silver from <b>$67.50/year</b> up to <b>Diamond at $399/year</b>. Higher tiers save more on class plans and unlock live AI, voice, and exclusive perks.</p>
  </section>
  <div class="mem-grid">
  <div class="mem-card">
@@ -4436,14 +4454,13 @@
  </div>
  </div>
  <div class="mem-card gold">
- <div class="mem-badge">Best Perks</div>
  <div class="mem-tier">Gold Member</div>
  <div class="mem-join-price">Join for <b>$165</b> <span>/ year</span></div>
  <div class="mem-off">50% OFF</div>
  <div class="mem-line">Teacher plan: <s>$220</s> <b>$110</b></div>
  <div class="mem-line">Home plan: <s>$90</s> <b>$45</b></div>
  <ul class="mem-list">
- <li><b>50% off</b> Teacher &amp; Home — biggest savings</li>
+ <li><b>50% off</b> Teacher &amp; Home class plans</li>
  <li>Everything in Silver, plus:</li>
  <li>Live Gemini AI Rock Teacher (site-powered)</li>
  <li>Voice on by default — speak &amp; listen</li>
@@ -4460,6 +4477,54 @@
  <a class="mem-btn alt class-buy" data-plan="gold-home" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=4500&name=Venture+1" target="_blank" rel="noopener noreferrer">Home plan — $45</a>
  </div>
  </div>
+ <div class="mem-card sapphire">
+ <div class="mem-badge" style="background:#4a7fd4;color:#fff">Elite</div>
+ <div class="mem-tier">Sapphire Member</div>
+ <div class="mem-join-price">Join for <b>$275</b> <span>/ year</span></div>
+ <div class="mem-off">65% OFF</div>
+ <div class="mem-line">Teacher plan: <s>$220</s> <b>$77</b></div>
+ <div class="mem-line">Home plan: <s>$90</s> <b>$31.50</b></div>
+ <ul class="mem-list">
+ <li><b>65% off</b> Teacher &amp; Home — elite savings</li>
+ <li>Everything in Gold, plus:</li>
+ <li>Sapphire badge on feedback &amp; profile flair</li>
+ <li>Monthly exclusive gem spotlight in catalog</li>
+ <li>Priority early access to new crafts</li>
+ <li>Cancel anytime</li>
+ </ul>
+ <div class="mem-btns">
+ <a class="mem-btn class-buy" data-plan="sapphire-membership" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=27500&name=Venture+1" target="_blank" rel="noopener noreferrer">Join Sapphire — $275/yr</a>
+ </div>
+ <div class="mem-class-head">Member class prices</div>
+ <div class="mem-btns">
+ <a class="mem-btn alt class-buy" data-plan="sapphire-teacher" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=7700&name=Venture+1" target="_blank" rel="noopener noreferrer">Teacher plan — $77</a>
+ <a class="mem-btn alt class-buy" data-plan="sapphire-home" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=3150&name=Venture+1" target="_blank" rel="noopener noreferrer">Home plan — $31.50</a>
+ </div>
+ </div>
+ <div class="mem-card diamond">
+ <div class="mem-badge" style="background:linear-gradient(135deg,#d4ecff,#fff);color:#1a2840">Best Perks</div>
+ <div class="mem-tier">Diamond Member</div>
+ <div class="mem-join-price">Join for <b>$399</b> <span>/ year</span></div>
+ <div class="mem-off">75% OFF</div>
+ <div class="mem-line">Teacher plan: <s>$220</s> <b>$55</b></div>
+ <div class="mem-line">Home plan: <s>$90</s> <b>$22.50</b></div>
+ <ul class="mem-list">
+ <li><b>75% off</b> Teacher &amp; Home — deepest savings</li>
+ <li>Everything in Sapphire, plus:</li>
+ <li>Diamond badge + VIP profile flair</li>
+ <li>First access to new games &amp; beta features</li>
+ <li>Priority live AI Rock Teacher responses</li>
+ <li>Cancel anytime</li>
+ </ul>
+ <div class="mem-btns">
+ <a class="mem-btn class-buy" data-plan="diamond-membership" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=39900&name=Venture+1" target="_blank" rel="noopener noreferrer">Join Diamond — $399/yr</a>
+ </div>
+ <div class="mem-class-head">Member class prices</div>
+ <div class="mem-btns">
+ <a class="mem-btn alt class-buy" data-plan="diamond-teacher" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=5500&name=Venture+1" target="_blank" rel="noopener noreferrer">Teacher plan — $55</a>
+ <a class="mem-btn alt class-buy" data-plan="diamond-home" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=2250&name=Venture+1" target="_blank" rel="noopener noreferrer">Home plan — $22.50</a>
+ </div>
+ </div>
  </div>
  <div class="mem-recovery">
   <p>Already paid but still locked? Enter your unlock code from your receipt (or ask the grown-up who paid).</p>
@@ -4467,7 +4532,7 @@
   <button type="button" id="mem-recovery-btn">Unlock with code</button>
   <p style="margin-top:12px;font-size:13px">Or open <b>Games → Secret Codes</b> in the nav.</p>
  </div>
- <p class="mem-note">All four membership checkouts are live — a grown-up should complete the payment. After checkout you’ll return here automatically; if not, use the banner at the top or tap unlock on Classes.</p>
+ <p class="mem-note">All membership checkouts are live — a grown-up should complete the payment. After checkout you’ll return here automatically; if not, use the banner at the top or tap unlock on Classes.</p>
 </div><!-- /view-memberships -->
 
 <div class="view" id="view-game" hidden>
@@ -4683,6 +4748,7 @@
 
 <script src="ai-config.js"></script>
 <script src="gems-data.js"></script>
+<script src="nightshift2.js"></script>
 <script>
 /* ---------- Affiliate partners (tracked links where available) ---------- */
 const DEFAULT_PARTNER='gemsny';
@@ -5188,6 +5254,7 @@ function lithos4DClearParticles(){lithos4DParticles=[];}
 /* ---------- Games hub ---------- */
 const LITHOS_GAMES=[
  {id:'nightshift',icon:'🌙',name:'Night Shift',tag4d:true,desc:'FREE — survive until 6 AM and get paid. Then spend cash at the Market.',preview:'radial-gradient(circle at 50% 40%,rgba(201,169,79,.25),transparent 50%),radial-gradient(circle at 20% 70%,rgba(154,58,192,.3),transparent 45%),linear-gradient(180deg,#120e1a,#050508)'},
+ {id:'nightshift2',icon:'⛏️',name:'Night Shift 2',tag4d:true,desc:'FREE — the Mine Below crew with unique powers: magnets, mimics, frost, swarms & glitches.',preview:'radial-gradient(circle at 50% 35%,rgba(122,208,240,.22),transparent 50%),radial-gradient(circle at 80% 70%,rgba(176,96,232,.28),transparent 45%),linear-gradient(180deg,#0e0a14,#040408)'},
  {id:'poppy',icon:'🏭',name:'Gem Factory',tag4d:true,desc:'12-chapter factory vs Freddy, Bonnie, Chica, Foxy & Golden Freddy — gemstone animatronics.',preview:'radial-gradient(circle at 50% 20%,rgba(255,77,141,.35),transparent 55%),linear-gradient(180deg,#1a1030,#07060c)'},
  {id:'game',icon:'💎',name:'Gem Arena',tag4d:true,desc:'4D crystal battles — time-warp powers bend combat.',preview:'radial-gradient(ellipse at 55% 35%,rgba(201,169,79,.45),transparent 55%),radial-gradient(circle at 30% 70%,rgba(125,90,200,.35),transparent 50%),linear-gradient(160deg,#1a1428,#0a0b0f)'},
  {id:'battlefield',icon:'⚔',name:'Battlefield',tag4d:true,desc:'4D mine expedition — chromatic hits, time dilation on impact.',preview:'radial-gradient(ellipse at 70% 25%,rgba(255,180,80,.35),transparent 50%),linear-gradient(180deg,#2a3a5c 0%,#1a2340 45%,#3a4a2e 100%)'},
@@ -5212,6 +5279,7 @@ function syncBodyScrollLock(){
   ||adventurePreviewOpen
   ||!!document.getElementById('poppyplay')
   ||!!document.getElementById('nightshift')
+  ||!!document.getElementById('nightshift2')
   ||!!document.getElementById('brmaze')
   ||document.body.classList.contains('pp-playing');
  document.body.style.overflow=locked?'hidden':'';
@@ -5219,12 +5287,12 @@ function syncBodyScrollLock(){
 function syncMobileNav(name){
  document.querySelectorAll('.mobile-bar button').forEach(b=>{
   const target=b.dataset.mnav;
-  const onGames=name==='games'||LITHOS_GAME_IDS.has(name)||name==='nightshift';
+  const onGames=name==='games'||LITHOS_GAME_IDS.has(name)||name==='nightshift'||name==='nightshift2';
   b.classList.toggle('on',onGames?target==='games':target===name);
  });
 }
 function syncNavHighlight(viewName){
- const nsOpen=!!document.getElementById('nightshift')||viewName==='nightshift';
+ const nsOpen=!!document.getElementById('nightshift')||!!document.getElementById('nightshift2')||viewName==='nightshift'||viewName==='nightshift2';
  const hubGame=LITHOS_GAME_IDS.has(viewName);
  const gamesBtn=document.getElementById('games-nav-btn');
  if(gamesBtn)gamesBtn.classList.toggle('on',(gamesHubOpen||hubGame)&&!nsOpen);
@@ -5251,6 +5319,7 @@ function buildGamesHub(){
    if(!card)return;
    const id=card.dataset.game;
    if(id==='nightshift'){ closeGamesHub({skipHash:true}); playNightShift(); return; }
+   if(id==='nightshift2'){ closeGamesHub({skipHash:true}); playNightShift2(); return; }
    if(id==='nightmarket'){ closeGamesHub({skipHash:true}); playNightMarket(); return; }
    if(id==='backrooms'||id==='gembackrooms'){ closeGamesHub({skipHash:true}); playBackroomsMaze(); return; }
    switchView(id);
@@ -5261,6 +5330,7 @@ function buildGamesHub(){
 function lithosCloseGameOverlays(){
  try{closePoppyPlay();}catch(_){}
  try{nsCloseGame();}catch(_){}
+ try{ns2CloseGame();}catch(_){}
  try{closeBackroomsMaze();}catch(_){}
  try{stopGemMotion();}catch(_){}
 }
@@ -5316,8 +5386,8 @@ const LAP_SLIDES=[
  {id:'teacher',tag:'Rock Teacher',accent:'#7ec8ff',preview:'radial-gradient(circle at 45% 35%,rgba(126,200,255,.28),transparent 50%),linear-gradient(180deg,#121820,#0a0b0f)',title:'Ask the <em>Rock Teacher</em>',copy:'Quick answers about gems, hardness, and how stones form. Gold members get live AI + voice for compare mode and full catalog data.',stats:['<span><b>Free</b>Q&amp;A</span>','<span><b>Gold</b>Live AI</span>'],mock:'chat',action:'teacher',actionLabel:'Ask a question'},
  {id:'identify',tag:'Identify a Rock',accent:'#86efac',preview:'radial-gradient(circle at 60% 40%,rgba(134,239,172,.25),transparent 50%),linear-gradient(180deg,#121820,#0a0b0f)',title:'Identify a <em>rock</em>',copy:'Upload or describe a specimen — get crystal system guesses, hardness hints, and links to matching catalog entries.',stats:['<span><b>Upload</b>Photo</span>','<span><b>Match</b>Catalog</span>'],mock:'gem',action:'identify',actionLabel:'Try identify'},
  {id:'hunt',tag:'Scavenger Hunt',accent:'#fb923c',preview:'radial-gradient(circle at 40% 50%,rgba(251,146,60,.3),transparent 55%),linear-gradient(180deg,#1a1520,#0a0b0f)',title:'Hunt gems in the <em>catalog</em>',copy:'Follow clues to find hidden gemstones across the field catalog. Complete the hunt and earn your Junior Geologist certificate!',stats:['<span><b>Clues</b>Across catalog</span>','<span><b>Quiz</b>Certificate</span>'],mock:'hunt',action:'hunt',actionLabel:'Start hunt'},
- {id:'games',tag:'Games Hub',accent:'#c9a94f',preview:'radial-gradient(circle at 50% 20%,rgba(201,169,79,.25),transparent 55%),linear-gradient(180deg,#15171f,#0a0b0f)',title:'Ten <em>crystal</em> games',copy:'Night Shift, Gem Factory, Gem Arena, Battlefield, Gem Hunt, Warriors, Motion Battlefield, Auras, Secret Codes, and the Mineral Quiz.',stats:['<span><b>4D</b>Time-warp</span>','<span><b>Free</b>Night Shift</span>'],mock:'games',action:'games',actionLabel:'Open games hub'},
- {id:'memberships',tag:'Memberships',accent:'#c9a94f',preview:'radial-gradient(circle at 50% 50%,rgba(201,169,79,.4),transparent 60%),linear-gradient(180deg,#1a1520,#0a0b0f)',title:'Join from <em>$67.50</em>/yr',copy:'Silver saves 25% on class plans. Gold saves 50% plus live AI Rock Teacher, voice, and shiny badge perks.',stats:['<span><b>Silver</b>$67.50</span>','<span><b>Gold</b>$165</span>'],mock:'mem',action:'memberships',actionLabel:'See memberships'},
+ {id:'games',tag:'Games Hub',accent:'#c9a94f',preview:'radial-gradient(circle at 50% 20%,rgba(201,169,79,.25),transparent 55%),linear-gradient(180deg,#15171f,#0a0b0f)',title:'Eleven <em>crystal</em> games',copy:'Night Shift & Night Shift 2, Gem Factory, Gem Arena, Battlefield, Gem Hunt, Warriors, Motion Battlefield, Auras, Secret Codes, and the Mineral Quiz.',stats:['<span><b>4D</b>Time-warp</span>','<span><b>Free</b>Night Shift</span>'],mock:'games',action:'games',actionLabel:'Open games hub'},
+ {id:'memberships',tag:'Memberships',accent:'#c9a94f',preview:'radial-gradient(circle at 50% 50%,rgba(201,169,79,.4),transparent 60%),linear-gradient(180deg,#1a1520,#0a0b0f)',title:'Join from <em>$67.50</em>/yr',copy:'Silver, Gold, Sapphire & Diamond — save up to 75% on class plans. Gold+ gets live AI Rock Teacher, voice, and shiny badge perks.',stats:['<span><b>Silver</b>$67.50</span>','<span><b>Diamond</b>$399</span>'],mock:'mem',action:'memberships',actionLabel:'See memberships'},
  {id:'crafts',tag:'Crafts',accent:'#f472b6',preview:'radial-gradient(circle at 40% 35%,rgba(244,114,182,.28),transparent 50%),linear-gradient(180deg,#15171f,#0a0b0f)',title:'Gem <em>crafts</em> &amp; projects',copy:'Hands-on geology crafts — wire wrapping, crystal growing, and specimen display ideas for young rock hounds.',stats:['<span><b>DIY</b>Projects</span>'],mock:'catalog',action:'crafts',actionLabel:'Browse crafts'},
  {id:'company',tag:'Company',accent:'#94a3b8',preview:'linear-gradient(135deg,rgba(148,163,184,.15),transparent),linear-gradient(180deg,#15171f,#0a0b0f)',title:'The Lithos <em>company</em>',copy:'Our story, partner programs, and careers — cross-promote educational content and specimen photography credits.',stats:['<span><b>Story</b>About</span>','<span><b>Partners</b>Affiliates</span>'],mock:'chat',action:'company',actionLabel:'Visit company'},
  {id:'donate',tag:'Donate',accent:'#4ade80',preview:'radial-gradient(circle at 50% 40%,rgba(74,222,128,.22),transparent 55%),linear-gradient(180deg,#121820,#0a0b0f)',title:'Support <em>Lithos</em>',copy:'Help keep the catalog free, fund new games, and grow geology education for kids everywhere.',stats:['<span><b>Any</b>Amount</span>'],mock:'gem',action:'donate',actionLabel:'Donate now'},
@@ -5612,6 +5682,7 @@ const lithos8bit=(()=>{
  function inContext(){
   if(gamesHubOpen)return true;
   if(document.getElementById('nightshift'))return true;
+  if(document.getElementById('nightshift2'))return true;
   if(document.getElementById('brmaze'))return true;
   if(document.getElementById('poppyplay'))return true;
   const v=activeView==='gemhunt'?'battlefield':activeView;
@@ -5694,6 +5765,13 @@ function switchView(name){
   if(location.hash!=='#nightshift')history.replaceState(null,'','#nightshift');
   return;
  }
+ if(name==='nightshift2'){
+  try{closeGamesHub({skipHash:true});}catch(_){}
+  try{closePoppyPlay();}catch(_){}
+  playNightShift2();
+  if(location.hash!=='#nightshift2')history.replaceState(null,'','#nightshift2');
+  return;
+ }
  if(name==='nightmarket'){
   try{closeGamesHub({skipHash:true});}catch(_){}
   playNightMarket();
@@ -5765,6 +5843,10 @@ function routeHashView(){
    return;
   }
   playNightShift();return;
+ }
+ if(name==='nightshift2'){
+  if(document.getElementById('nightshift2')&&ns2Game)return;
+  playNightShift2();return;
  }
  if(name==='nightmarket'){
   if(document.getElementById('nightshift')&&nsGame){nsShowMarket();return;}
@@ -7238,11 +7320,29 @@ const classAiHistory=[];
 function hasClassAccess(){
  try{ return localStorage.getItem(CLASS_ACCESS_KEY)==='1'; }catch(e){ return false; }
 }
+const MEMBER_TIERS=['silver','gold','sapphire','diamond'];
+function memberTierRank(tier){
+ const i=MEMBER_TIERS.indexOf(String(tier||'').toLowerCase());
+ return i<0?-1:i;
+}
 function getMemberTier(){
  try{ return localStorage.getItem(MEMBER_TIER_KEY)||''; }catch(e){ return ''; }
 }
-function isGoldMember(){ return getMemberTier()==='gold'; }
-function isSilverMember(){ return getMemberTier()==='silver'; }
+function hasMemberTier(minTier){
+ return memberTierRank(getMemberTier())>=memberTierRank(minTier);
+}
+function isDiamondMember(){ return hasMemberTier('diamond'); }
+function isSapphireMember(){ return hasMemberTier('sapphire'); }
+function isGoldMember(){ return hasMemberTier('gold'); }
+function isSilverMember(){ return hasMemberTier('silver'); }
+function memberTierLabel(){
+ const t=getMemberTier();
+ if(t==='diamond') return 'Diamond';
+ if(t==='sapphire') return 'Sapphire';
+ if(t==='gold') return 'Gold';
+ if(t==='silver') return 'Silver';
+ return '';
+}
 function setMemberTier(tier){
  try{
  if(tier) localStorage.setItem(MEMBER_TIER_KEY,tier);
@@ -7290,6 +7390,16 @@ function updateClassAiMode(){
  const el=document.getElementById('class-ai-mode');
  if(!el) return;
  const cfg=getAiConfig();
+ if(isDiamondMember()&&cfg.key){
+ const label=cfg.resolved==='gemini'?'Gemini':'OpenAI-compatible';
+ el.innerHTML='Mode: <b>Diamond · Live AI (priority)</b> ('+label+') + voice · full catalog context & class lessons';
+ return;
+ }
+ if(isSapphireMember()&&cfg.key){
+ const label=cfg.resolved==='gemini'?'Gemini':'OpenAI-compatible';
+ el.innerHTML='Mode: <b>Sapphire · Live AI</b> ('+label+') + voice · full catalog context & class lessons';
+ return;
+ }
  if(isGoldMember()&&cfg.key){
  const label=cfg.resolved==='gemini'?'Gemini':'OpenAI-compatible';
  el.innerHTML='Mode: <b>Gold · Live AI</b> ('+label+') + voice · full catalog context & class lessons';
@@ -7304,7 +7414,9 @@ function updateClassAiMode(){
 function markClassCheckoutPending(plan){
  const p=plan||'class';
  try{ localStorage.setItem(CLASS_CHECKOUT_PENDING,p); }catch(e){}
- if(/^gold-/i.test(p)) setMemberTier('gold');
+ if(/^diamond-/i.test(p)) setMemberTier('diamond');
+ else if(/^sapphire-/i.test(p)) setMemberTier('sapphire');
+ else if(/^gold-/i.test(p)) setMemberTier('gold');
  else if(/^silver-/i.test(p)) setMemberTier('silver');
 }
 function lithosPurchaseReturnUrl(plan){
@@ -7353,6 +7465,8 @@ function unlockViaRecoveryCode(code){
  const MAP={
   GOLDHOME45:()=>({tier:'gold',label:'Gold Home membership ($45)'}),
   SILVER6750:()=>({tier:'silver',label:'Silver membership ($67.50)'}),
+  SAPPHIRE275:()=>({tier:'sapphire',label:'Sapphire membership ($275)'}),
+  DIAMOND399:()=>({tier:'diamond',label:'Diamond membership ($399)'}),
   LITHOSTHANKS:()=>({tier:'gold',label:'Lithos thank-you access'})
  };
  const fn=MAP[raw];
@@ -7437,9 +7551,14 @@ function buildClassAI(){
  wireChatMic('class-chat-mic','class-chat-input',sendClassChat);
  const welcome=document.getElementById('class-ai-welcome');
  if(welcome){
- if(isGoldMember()){
+ const tier=getMemberTier();
+ if(tier==='diamond'){
+ welcome.innerHTML='<span class="ai-tag">Diamond member</span>Welcome! You’ve got <b>priority live Gemini AI</b>, voice, deepest class savings, VIP beta access, and full catalog context.';
+ }else if(tier==='sapphire'){
+ welcome.innerHTML='<span class="ai-tag">Sapphire member</span>Welcome! You’ve got <b>live Gemini AI</b>, voice, elite class savings, exclusive gem spotlights, and full catalog context.';
+ }else if(tier==='gold'){
  welcome.innerHTML='<span class="ai-tag">Gold member</span>Welcome! You’ve got <b>live Gemini AI</b>, voice readout, class lessons with member tips, and full catalog context. Ask me to compare gems, quiz you, or tie an answer to a lesson.';
- }else if(isSilverMember()){
+ }else if(tier==='silver'){
  welcome.innerHTML='<span class="ai-tag">Silver member</span>Welcome! You’ve got the <b>deep catalog teacher</b> — formulas, crystal systems, compare mode, and class lessons. Upgrade to Gold for live AI + voice.';
  }else{
  welcome.innerHTML='<span class="ai-tag">Class member</span>Welcome! You’ve got the <b>deep catalog teacher</b> — full gem data, compare mode, and lesson tips. Gold members also get live AI + voice.';
@@ -7636,14 +7755,14 @@ async function sendClassChat(){
  if(goldLive){
  try{
  answer=await classAiApiAnswer(q, classAiHistory, {premium:true});
- tag='Gold · Live AI';
+ tag=isDiamondMember()?'Diamond · Live AI':isSapphireMember()?'Sapphire · Live AI':'Gold · Live AI';
  }catch(err){
  answer=classLocalAnswer(q)+` (Live AI unavailable — used catalog teacher. ${String(err.message||err).slice(0,80)})`;
  tag='Catalog fallback';
  }
  }else{
  answer=classLocalAnswer(q);
- tag=isSilverMember()?'Silver · Catalog teacher':'Class · Catalog teacher';
+ tag=getMemberTier()==='silver'?'Silver · Catalog teacher':'Class · Catalog teacher';
  }
  const wait=Math.max(0,MIN_THINK_MS-(Date.now()-thinkStart));
  if(wait) await new Promise(r=>setTimeout(r,wait));
@@ -7802,6 +7921,8 @@ function buildFeedback(){
  renderFeedback();
 }
 function memberBadgeHtml(tier){
+ if(tier==='diamond') return ' <span class="fb-badge diamond">Diamond</span>';
+ if(tier==='sapphire') return ' <span class="fb-badge sapphire">Sapphire</span>';
  if(tier==='gold') return ' <span class="fb-badge gold">Gold</span>';
  if(tier==='silver') return ' <span class="fb-badge silver">Silver</span>';
  return '';
@@ -9337,161 +9458,631 @@ function nsBotId(name){
   if(n.includes('sunspire')||n.includes('citrine')||n.includes('freddy'))return 'freddy';
   return n;
 }
+function nsBotAnimMode(botId){
+  try{
+    if(typeof nsGame==='undefined'||!nsGame)return 'calm';
+    if(nsGame.blackout||nsGame.power<=0)return 'intense';
+    const bot=nsGame.bots&&nsGame.bots.find(b=>(b.id||nsBotId(b.name))===botId);
+    if(bot&&bot.pos>=3)return 'intense';
+    if((nsGame.anger||0)>=4)return 'intense';
+  }catch(_){}
+  return 'calm';
+}
 function nsBotSVG(name, size){
   size = size || 60;
   const uid='nb'+Math.random().toString(36).slice(2,7);
   const id=nsBotId(name);
+  const mode=nsBotAnimMode(id);
   const svg=(vw,vh,body)=>{
     const h=Math.round(size*(vh/vw));
     return `<svg class="ns-bot-svg" viewBox="0 0 ${vw} ${vh}" width="${size}" height="${h}" xmlns="http://www.w3.org/2000/svg" aria-label="${String(name).replace(/"/g,'')}" style="overflow:visible">${body}</svg>`;
   };
 
-  /* SUNSPIRE — Citrine monarch (the leader) */
+  /* SUNSPIRE — Citrine monarch (royal patrol / power-out march) */
   if(id==='freddy'){
-    return svg(110,150,`<defs>
-      <linearGradient id="${uid}s" x1="0" y1="0" x2="0.6" y2="1"><stop offset="0%" stop-color="#ffe9a0"/><stop offset="45%" stop-color="#f4b41e"/><stop offset="100%" stop-color="#8a5c06"/></linearGradient>
-      <linearGradient id="${uid}sD" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#c98c10"/><stop offset="100%" stop-color="#5c3a02"/></linearGradient>
-      <radialGradient id="${uid}sG" cx="50%" cy="45%" r="55%"><stop offset="0%" stop-color="#ffde7a"/><stop offset="100%" stop-color="#f4b41e" stop-opacity="0"/></radialGradient>
-    </defs>
-    <ellipse cx="55" cy="145" rx="28" ry="5" fill="#000" opacity=".35"/>
-    <ellipse cx="55" cy="76" rx="46" ry="56" fill="url(#${uid}sG)" opacity=".35"><animate attributeName="opacity" values=".2;.5;.2" dur="3s" repeatCount="indefinite"/></ellipse>
-    <polygon points="30,140 38,84 72,84 80,140 66,132 55,142 44,132" fill="url(#${uid}s)" stroke="#ffe9a0" stroke-width="1.6"/>
-    <polygon points="38,84 72,84 66,132 55,142 44,132" fill="url(#${uid}sD)" opacity=".35"/>
-    <polygon points="55,40 78,62 72,96 38,96 32,62" fill="url(#${uid}s)" stroke="#ffe9a0" stroke-width="2"/>
-    <polygon points="55,40 78,62 55,70" fill="#fff" opacity=".35"/>
-    <polygon points="32,62 55,70 38,96" fill="url(#${uid}sD)" opacity=".5"/>
-    <circle cx="55" cy="78" r="8.5" fill="#5c3a02"/>
-    <circle cx="55" cy="78" r="5.6" fill="#ffde7a"><animate attributeName="r" values="5.6;7;5.6" dur="1.6s" repeatCount="indefinite"/></circle>
-    <circle cx="55" cy="78" r="2.2" fill="#fff"/>
-    <polygon points="24,66 32,48 38,68" fill="url(#${uid}s)" stroke="#ffe9a0" stroke-width="1.2"/>
-    <polygon points="86,66 78,48 72,68" fill="url(#${uid}s)" stroke="#ffe9a0" stroke-width="1.2"/>
-    <polygon points="55,16 70,30 66,48 44,48 40,30" fill="url(#${uid}s)" stroke="#ffe9a0" stroke-width="2"/>
-    <polygon points="55,16 70,30 55,34" fill="#fff" opacity=".4"/>
-    <g stroke="#ffe9a0" stroke-width="1">
-      <polygon points="40,22 36,4 46,18" fill="url(#${uid}s)"><animate attributeName="opacity" values="1;.55;1" dur="2.2s" repeatCount="indefinite"/></polygon>
-      <polygon points="49,17 52,0 58,16" fill="url(#${uid}s)"><animate attributeName="opacity" values=".55;1;.55" dur="2.2s" repeatCount="indefinite"/></polygon>
-      <polygon points="62,18 72,3 70,22" fill="url(#${uid}s)"><animate attributeName="opacity" values="1;.55;1" dur="2.6s" repeatCount="indefinite"/></polygon>
-    </g>
-    <rect x="45" y="32" width="8" height="4.6" rx="2.2" fill="#3a2402"/>
-    <rect x="58" y="32" width="8" height="4.6" rx="2.2" fill="#3a2402"/>
-    <rect x="46.4" y="33" width="5.2" height="2.6" rx="1.3" fill="#ffde7a"><animate attributeName="opacity" values="1;.35;1" dur="1.8s" repeatCount="indefinite"/></rect>
-    <rect x="59.4" y="33" width="5.2" height="2.6" rx="1.3" fill="#ffde7a"><animate attributeName="opacity" values="1;.35;1" dur="1.8s" repeatCount="indefinite"/></rect>
-    <path d="M48,43 L62,43" stroke="#3a2402" stroke-width="2" stroke-linecap="round"/>`);
+    const body=mode==='intense'?`<defs>
+            <linearGradient id="${uid}s" x1="0" y1="0" x2="0.6" y2="1"><stop offset="0%" stop-color="#ffe9a0"/><stop offset="45%" stop-color="#f4b41e"/><stop offset="100%" stop-color="#8a5c06"/></linearGradient>
+            <linearGradient id="${uid}sD" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#c98c10"/><stop offset="100%" stop-color="#5c3a02"/></linearGradient>
+            <radialGradient id="${uid}sG" cx="50%" cy="45%" r="55%"><stop offset="0%" stop-color="#ffde7a"/><stop offset="100%" stop-color="#f4b41e" stop-opacity="0"/></radialGradient>
+          </defs>
+          <ellipse cx="75" cy="141" rx="32" ry="5" fill="#000" opacity=".4"/>
+          <!-- cracks split the floor beneath him -->
+          <g stroke="#3a2a06" stroke-width="1.6" opacity=".8">
+            <path d="M64,140 l-10,4 m10,-4 l-4,7" fill="none"/>
+            <path d="M86,140 l10,4 m-10,-4 l4,7" fill="none"/>
+            <path d="M75,142 l-2,6 m2,-6 l3,6" fill="none"/>
+          </g>
+          <!-- BIG shockwaves — THOOM! THOOM! -->
+          <ellipse cx="75" cy="139" rx="5" ry="1.8" fill="none" stroke="#ffde7a" stroke-width="2.6">
+            <animate attributeName="rx" values="4;36" dur=".6s" begin=".26s" repeatCount="indefinite"/>
+            <animate attributeName="ry" values="1.4;8" dur=".6s" begin=".26s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values=".9;0" dur=".6s" begin=".26s" repeatCount="indefinite"/>
+          </ellipse>
+          <ellipse cx="75" cy="139" rx="5" ry="1.8" fill="none" stroke="#ff9a2a" stroke-width="1.6">
+            <animate attributeName="rx" values="4;30" dur=".6s" begin=".34s" repeatCount="indefinite"/>
+            <animate attributeName="ry" values="1.4;7" dur=".6s" begin=".34s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values=".7;0" dur=".6s" begin=".34s" repeatCount="indefinite"/>
+          </ellipse>
+          <!-- crystal chips bounce up on impact -->
+          <polygon points="58,134 61,138 55,139" fill="#ffde7a" opacity="0">
+            <animateTransform attributeName="transform" type="translate" values="0,0;-8,-14;-11,-2" dur=".6s" begin=".26s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values=".9;.6;0" dur=".6s" begin=".26s" repeatCount="indefinite"/>
+          </polygon>
+          <polygon points="92,134 95,138 89,139" fill="#ffde7a" opacity="0">
+            <animateTransform attributeName="transform" type="translate" values="0,0;8,-14;11,-2" dur=".6s" begin=".3s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values=".9;.6;0" dur=".6s" begin=".3s" repeatCount="indefinite"/>
+          </polygon>
+          <ellipse cx="75" cy="76" rx="48" ry="58" fill="url(#${uid}sG)" opacity=".4"><animate attributeName="opacity" values=".3;.7;.3" dur=".6s" repeatCount="indefinite"/></ellipse>
+          <!-- POWER-OUT MARCH: faster, heavier, leaning in -->
+          <g transform="rotate(-3 75 100)">
+            <animateTransform attributeName="transform" type="rotate" values="-3.5 75 140;3.5 75 140;-3.5 75 140" dur="1.2s" additive="sum" repeatCount="indefinite"/>
+            <g>
+              <animateTransform attributeName="transform" type="translate" values="0,0;0,-6;0,1.5;0,0" keyTimes="0;0.38;0.5;1" dur=".6s" repeatCount="indefinite"/>
+              <polygon points="50,140 58,84 92,84 100,140 86,132 75,142 64,132" fill="url(#${uid}s)" stroke="#ffe9a0" stroke-width="1.6"/>
+              <polygon points="58,84 92,84 86,132 75,142 64,132" fill="url(#${uid}sD)" opacity=".35"/>
+              <polygon points="75,40 98,62 92,96 58,96 52,62" fill="url(#${uid}s)" stroke="#ffe9a0" stroke-width="2"/>
+              <polygon points="75,40 98,62 75,70" fill="#fff" opacity=".35"/>
+              <polygon points="52,62 75,70 58,96" fill="url(#${uid}sD)" opacity=".5"/>
+              <circle cx="75" cy="78" r="8.5" fill="#5c3a02"/>
+              <circle cx="75" cy="78" r="5.6" fill="#ff9a2a"><animate attributeName="r" values="5.6;7.6;5.6" dur=".6s" repeatCount="indefinite"/></circle>
+              <circle cx="75" cy="78" r="2.2" fill="#fff"/>
+              <polygon points="44,66 52,48 58,68" fill="url(#${uid}s)" stroke="#ffe9a0" stroke-width="1.2"/>
+              <polygon points="106,66 98,48 92,68" fill="url(#${uid}s)" stroke="#ffe9a0" stroke-width="1.2"/>
+              <polygon points="75,16 90,30 86,48 64,48 60,30" fill="url(#${uid}s)" stroke="#ffe9a0" stroke-width="2"/>
+              <polygon points="75,16 90,30 75,34" fill="#fff" opacity=".4"/>
+              <!-- crown BLAZING -->
+              <g stroke="#fff2c0" stroke-width="1.2">
+                <polygon points="60,22 56,4 66,18" fill="url(#${uid}s)"><animate attributeName="opacity" values=".4;1;.4" dur=".3s" repeatCount="indefinite"/></polygon>
+                <polygon points="69,17 72,0 78,16" fill="url(#${uid}s)"><animate attributeName="opacity" values="1;.4;1" dur=".3s" repeatCount="indefinite"/></polygon>
+                <polygon points="82,18 92,3 90,22" fill="url(#${uid}s)"><animate attributeName="opacity" values=".4;1;.4" dur=".34s" repeatCount="indefinite"/></polygon>
+              </g>
+              <!-- furious white-hot eyes -->
+              <rect x="65" y="32" width="8" height="4.6" rx="2.2" fill="#3a2402"/>
+              <rect x="78" y="32" width="8" height="4.6" rx="2.2" fill="#3a2402"/>
+              <rect x="66.4" y="33" width="5.2" height="2.6" rx="1.3" fill="#fff"><animate attributeName="opacity" values="1;.3;1" dur=".35s" repeatCount="indefinite"/></rect>
+              <rect x="79.4" y="33" width="5.2" height="2.6" rx="1.3" fill="#fff"><animate attributeName="opacity" values="1;.3;1" dur=".35s" repeatCount="indefinite"/></rect>
+              <!-- angry frown -->
+              <path d="M68,44 Q75,41 82,44" stroke="#3a2402" stroke-width="2" fill="none" stroke-linecap="round"/>
+            </g>
+          </g>`:`<defs>
+            <linearGradient id="${uid}s" x1="0" y1="0" x2="0.6" y2="1"><stop offset="0%" stop-color="#ffe9a0"/><stop offset="45%" stop-color="#f4b41e"/><stop offset="100%" stop-color="#8a5c06"/></linearGradient>
+            <linearGradient id="${uid}sD" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#c98c10"/><stop offset="100%" stop-color="#5c3a02"/></linearGradient>
+            <radialGradient id="${uid}sG" cx="50%" cy="45%" r="55%"><stop offset="0%" stop-color="#ffde7a"/><stop offset="100%" stop-color="#f4b41e" stop-opacity="0"/></radialGradient>
+          </defs>
+          <ellipse cx="75" cy="141" rx="30" ry="5" fill="#000" opacity=".35"/>
+          <!-- STOMP shockwave rings ripple out from each footfall -->
+          <ellipse cx="75" cy="139" rx="5" ry="1.8" fill="none" stroke="#ffde7a" stroke-width="2">
+            <animate attributeName="rx" values="4;28" dur="1.2s" begin=".62s" repeatCount="indefinite"/>
+            <animate attributeName="ry" values="1.4;6.5" dur="1.2s" begin=".62s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values=".75;0" dur="1.2s" begin=".62s" repeatCount="indefinite"/>
+          </ellipse>
+          <!-- dust pops out at the impact -->
+          <circle cx="60" cy="137" r="2.6" fill="#c9a45a" opacity="0">
+            <animateTransform attributeName="transform" type="translate" values="0,0;-9,-4" dur="1.2s" begin=".62s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values=".55;0" dur="1.2s" begin=".62s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="90" cy="137" r="2.6" fill="#c9a45a" opacity="0">
+            <animateTransform attributeName="transform" type="translate" values="0,0;9,-4" dur="1.2s" begin=".62s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values=".55;0" dur="1.2s" begin=".62s" repeatCount="indefinite"/>
+          </circle>
+          <ellipse cx="75" cy="76" rx="48" ry="58" fill="url(#${uid}sG)" opacity=".3"><animate attributeName="opacity" values=".18;.42;.18" dur="2.4s" repeatCount="indefinite"/></ellipse>
+          <!-- ROYAL MARCH: rocks side to side like a heavy walker... -->
+          <g>
+            <animateTransform attributeName="transform" type="rotate" values="-2.5 75 140;2.5 75 140;-2.5 75 140" dur="2.4s" repeatCount="indefinite"/>
+            <!-- ...and heaves up then SLAMS down each stomp -->
+            <g>
+              <animateTransform attributeName="transform" type="translate" values="0,0;0,-5;0,1;0,0" keyTimes="0;0.42;0.55;1" dur="1.2s" repeatCount="indefinite"/>
+              <polygon points="50,140 58,84 92,84 100,140 86,132 75,142 64,132" fill="url(#${uid}s)" stroke="#ffe9a0" stroke-width="1.6"/>
+              <polygon points="58,84 92,84 86,132 75,142 64,132" fill="url(#${uid}sD)" opacity=".35"/>
+              <polygon points="75,40 98,62 92,96 58,96 52,62" fill="url(#${uid}s)" stroke="#ffe9a0" stroke-width="2"/>
+              <polygon points="75,40 98,62 75,70" fill="#fff" opacity=".35"/>
+              <polygon points="52,62 75,70 58,96" fill="url(#${uid}sD)" opacity=".5"/>
+              <circle cx="75" cy="78" r="8.5" fill="#5c3a02"/>
+              <circle cx="75" cy="78" r="5.6" fill="#ffde7a"><animate attributeName="r" values="5.6;7;5.6" dur="1.2s" begin=".62s" repeatCount="indefinite"/></circle>
+              <circle cx="75" cy="78" r="2.2" fill="#fff"/>
+              <polygon points="44,66 52,48 58,68" fill="url(#${uid}s)" stroke="#ffe9a0" stroke-width="1.2"/>
+              <polygon points="106,66 98,48 92,68" fill="url(#${uid}s)" stroke="#ffe9a0" stroke-width="1.2"/>
+              <polygon points="75,16 90,30 86,48 64,48 60,30" fill="url(#${uid}s)" stroke="#ffe9a0" stroke-width="2"/>
+              <polygon points="75,16 90,30 75,34" fill="#fff" opacity=".4"/>
+              <!-- crown shards flash with each stomp -->
+              <g stroke="#ffe9a0" stroke-width="1">
+                <polygon points="60,22 56,4 66,18" fill="url(#${uid}s)"><animate attributeName="opacity" values=".55;1;.55" dur="1.2s" begin=".62s" repeatCount="indefinite"/></polygon>
+                <polygon points="69,17 72,0 78,16" fill="url(#${uid}s)"><animate attributeName="opacity" values=".55;1;.55" dur="1.2s" begin=".68s" repeatCount="indefinite"/></polygon>
+                <polygon points="82,18 92,3 90,22" fill="url(#${uid}s)"><animate attributeName="opacity" values=".55;1;.55" dur="1.2s" begin=".74s" repeatCount="indefinite"/></polygon>
+              </g>
+              <rect x="65" y="32" width="8" height="4.6" rx="2.2" fill="#3a2402"/>
+              <rect x="78" y="32" width="8" height="4.6" rx="2.2" fill="#3a2402"/>
+              <rect x="66.4" y="33" width="5.2" height="2.6" rx="1.3" fill="#ffde7a"><animate attributeName="opacity" values="1;.35;1" dur="1.8s" repeatCount="indefinite"/></rect>
+              <rect x="79.4" y="33" width="5.2" height="2.6" rx="1.3" fill="#ffde7a"><animate attributeName="opacity" values="1;.35;1" dur="1.8s" repeatCount="indefinite"/></rect>
+              <path d="M68,43 L82,43" stroke="#3a2402" stroke-width="2" stroke-linecap="round"/>
+            </g>
+          </g>`;
+    return svg(150,150,body);
   }
 
-  /* DUSKVEIL — Amethyst phantom (the lurker) */
+  /* DUSKVEIL — Amethyst phantom (glide / phase-stalk) */
   if(id==='bonnie'){
-    return svg(110,150,`<defs>
-      <linearGradient id="${uid}d" x1="0" y1="0" x2="0.4" y2="1"><stop offset="0%" stop-color="#c9a0f2"/><stop offset="50%" stop-color="#7a3ac0"/><stop offset="100%" stop-color="#2c1050"/></linearGradient>
-      <radialGradient id="${uid}dG" cx="50%" cy="40%" r="55%"><stop offset="0%" stop-color="#d8b0ff"/><stop offset="100%" stop-color="#7a3ac0" stop-opacity="0"/></radialGradient>
-    </defs>
-    <ellipse cx="55" cy="145" rx="26" ry="5" fill="#000" opacity=".35"/>
-    <ellipse cx="55" cy="70" rx="44" ry="52" fill="url(#${uid}dG)" opacity=".3"><animate attributeName="opacity" values=".18;.42;.18" dur="2.6s" repeatCount="indefinite"/></ellipse>
-    <g stroke="#d8b0ff" stroke-width=".8">
-      <polygon points="16,58 24,44 27,70" fill="url(#${uid}d)"><animateTransform attributeName="transform" type="translate" values="0,0;0,-5;0,0" dur="2.4s" repeatCount="indefinite"/></polygon>
-      <polygon points="10,86 20,72 22,98" fill="url(#${uid}d)"><animateTransform attributeName="transform" type="translate" values="0,0;0,-7;0,0" dur="3s" repeatCount="indefinite"/></polygon>
-      <polygon points="94,58 86,44 83,70" fill="url(#${uid}d)"><animateTransform attributeName="transform" type="translate" values="0,0;0,-6;0,0" dur="2.7s" repeatCount="indefinite"/></polygon>
-      <polygon points="100,86 90,72 88,98" fill="url(#${uid}d)"><animateTransform attributeName="transform" type="translate" values="0,0;0,-4;0,0" dur="2.2s" repeatCount="indefinite"/></polygon>
-      <polygon points="20,114 28,100 31,124" fill="url(#${uid}d)"><animateTransform attributeName="transform" type="translate" values="0,0;0,-6;0,0" dur="2.9s" repeatCount="indefinite"/></polygon>
-      <polygon points="90,114 82,100 79,124" fill="url(#${uid}d)"><animateTransform attributeName="transform" type="translate" values="0,0;0,-5;0,0" dur="2.5s" repeatCount="indefinite"/></polygon>
-    </g>
-    <path d="M30,142 Q22,86 40,50 Q47,24 55,24 Q63,24 70,50 Q88,86 80,142 Q68,132 62,142 Q55,131 48,142 Q42,132 30,142 Z" fill="url(#${uid}d)" stroke="#d8b0ff" stroke-width="1.6"><animate attributeName="opacity" values=".92;1;.92" dur="2.8s" repeatCount="indefinite"/></path>
-    <path d="M40,52 Q47,28 55,28 Q63,28 70,52 Q63,62 55,62 Q47,62 40,52 Z" fill="#160830"/>
-    <ellipse cx="48" cy="49" rx="4.4" ry="5.8" fill="#e8c8ff"><animate attributeName="opacity" values="1;.3;1" dur="1.5s" repeatCount="indefinite"/></ellipse>
-    <ellipse cx="62" cy="49" rx="4.4" ry="5.8" fill="#e8c8ff"><animate attributeName="opacity" values="1;.3;1" dur="1.5s" repeatCount="indefinite"/></ellipse>
-    <circle cx="48" cy="50" r="1.7" fill="#fff"/><circle cx="62" cy="50" r="1.7" fill="#fff"/>
-    <polygon points="55,66 60,72 55,78 50,72" fill="#e8c8ff" stroke="#7a3ac0" stroke-width="1"><animate attributeName="opacity" values="1;.55;1" dur="2s" repeatCount="indefinite"/></polygon>`);
+    const body=mode==='intense'?`<defs>
+            <linearGradient id="${uid}d" x1="0" y1="0" x2="0.4" y2="1"><stop offset="0%" stop-color="#c9a0f2"/><stop offset="50%" stop-color="#7a3ac0"/><stop offset="100%" stop-color="#2c1050"/></linearGradient>
+            <radialGradient id="${uid}dG" cx="50%" cy="40%" r="55%"><stop offset="0%" stop-color="#d8b0ff"/><stop offset="100%" stop-color="#7a3ac0" stop-opacity="0"/></radialGradient>
+          </defs>
+          <!-- ghost AFTER-IMAGES appear where it just was! -->
+          <path d="M50,142 Q42,86 60,50 Q67,24 75,24 Q83,24 90,50 Q108,86 100,142 Q88,132 82,142 Q75,131 68,142 Q62,132 50,142 Z" fill="#3a2560" opacity="0" transform="translate(-16,0)">
+            <animate attributeName="opacity" values="0;.4;0" dur=".8s" repeatCount="indefinite"/>
+          </path>
+          <path d="M50,142 Q42,86 60,50 Q67,24 75,24 Q83,24 90,50 Q108,86 100,142 Q88,132 82,142 Q75,131 68,142 Q62,132 50,142 Z" fill="#3a2560" opacity="0" transform="translate(14,0)">
+            <animate attributeName="opacity" values="0;.4;0" dur=".8s" begin=".4s" repeatCount="indefinite"/>
+          </path>
+          <!-- expanding psychic ring -->
+          <ellipse cx="75" cy="66" rx="34" ry="30" fill="none" stroke="#b060e0" stroke-width="1">
+            <animate attributeName="rx" values="30;50" dur=".9s" repeatCount="indefinite"/>
+            <animate attributeName="ry" values="26;44" dur=".9s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values=".55;0" dur=".9s" repeatCount="indefinite"/>
+          </ellipse>
+          <!-- PHASE-STALK: it TELEPORT-FLICKERS closer... -->
+          <g>
+            <animateTransform attributeName="transform" type="translate" calcMode="discrete" values="0,0;-14,0;10,0;-6,0;14,0;0,0" dur="1.6s" repeatCount="indefinite"/>
+            <ellipse cx="75" cy="66" rx="46" ry="54" fill="url(#${uid}dG)" opacity=".4"><animate attributeName="opacity" values=".25;.6;.25" dur=".7s" repeatCount="indefinite"/></ellipse>
+            <!-- slivers whirl frantically -->
+            <g stroke="#d8b0ff" stroke-width=".8">
+              <polygon points="36,58 44,44 47,70" fill="url(#${uid}d)"><animateTransform attributeName="transform" type="translate" values="0,0;0,-9;0,0" dur=".7s" repeatCount="indefinite"/></polygon>
+              <polygon points="30,86 40,72 42,98" fill="url(#${uid}d)"><animateTransform attributeName="transform" type="translate" values="0,0;0,-11;0,0" dur=".8s" repeatCount="indefinite"/></polygon>
+              <polygon points="114,58 106,44 103,70" fill="url(#${uid}d)"><animateTransform attributeName="transform" type="translate" values="0,0;0,-10;0,0" dur=".75s" repeatCount="indefinite"/></polygon>
+              <polygon points="120,86 110,72 108,98" fill="url(#${uid}d)"><animateTransform attributeName="transform" type="translate" values="0,0;0,-8;0,0" dur=".65s" repeatCount="indefinite"/></polygon>
+              <polygon points="40,114 48,100 51,124" fill="url(#${uid}d)"><animateTransform attributeName="transform" type="translate" values="0,0;0,-10;0,0" dur=".85s" repeatCount="indefinite"/></polygon>
+              <polygon points="110,114 102,100 99,124" fill="url(#${uid}d)"><animateTransform attributeName="transform" type="translate" values="0,0;0,-9;0,0" dur=".7s" repeatCount="indefinite"/></polygon>
+            </g>
+            <!-- body STROBES in and out of reality -->
+            <path d="M50,142 Q42,86 60,50 Q67,24 75,24 Q83,24 90,50 Q108,86 100,142 Q88,132 82,142 Q75,131 68,142 Q62,132 50,142 Z" fill="url(#${uid}d)" stroke="#d8b0ff" stroke-width="1.6">
+              <animate attributeName="opacity" values="1;.18;1;.1;1" dur=".5s" repeatCount="indefinite"/>
+            </path>
+            <path d="M60,52 Q67,28 75,28 Q83,28 90,52 Q83,62 75,62 Q67,62 60,52 Z" fill="#160830"/>
+            <!-- eyes BLAZING wide -->
+            <ellipse cx="68" cy="49" rx="5" ry="6.6" fill="#fff"><animate attributeName="opacity" values="1;.35;1" dur=".3s" repeatCount="indefinite"/></ellipse>
+            <ellipse cx="82" cy="49" rx="5" ry="6.6" fill="#fff"><animate attributeName="opacity" values="1;.35;1" dur=".3s" repeatCount="indefinite"/></ellipse>
+            <circle cx="68" cy="50" r="1.9" fill="#7a3ac0"/><circle cx="82" cy="50" r="1.9" fill="#7a3ac0"/>
+            <polygon points="75,66 80,72 75,78 70,72" fill="#fff" stroke="#7a3ac0" stroke-width="1"><animate attributeName="opacity" values="1;.4;1" dur=".35s" repeatCount="indefinite"/></polygon>
+            <!-- psychic sparks crackle around it -->
+            <circle cx="48" cy="34" r="1.4" fill="#f0c0ff"><animate attributeName="opacity" values="1;.1;1" dur=".4s" repeatCount="indefinite"/></circle>
+            <circle cx="104" cy="40" r="1.4" fill="#f0c0ff"><animate attributeName="opacity" values=".1;1;.1" dur=".45s" repeatCount="indefinite"/></circle>
+            <circle cx="98" cy="112" r="1.3" fill="#f0c0ff"><animate attributeName="opacity" values="1;.1;1" dur=".5s" repeatCount="indefinite"/></circle>
+          </g>`:`<defs>
+            <linearGradient id="${uid}d" x1="0" y1="0" x2="0.4" y2="1"><stop offset="0%" stop-color="#c9a0f2"/><stop offset="50%" stop-color="#7a3ac0"/><stop offset="100%" stop-color="#2c1050"/></linearGradient>
+            <radialGradient id="${uid}dG" cx="50%" cy="40%" r="55%"><stop offset="0%" stop-color="#d8b0ff"/><stop offset="100%" stop-color="#7a3ac0" stop-opacity="0"/></radialGradient>
+          </defs>
+          <ellipse cx="75" cy="145" rx="24" ry="4.5" fill="#000" opacity=".25"><animate attributeName="rx" values="24;20;24" dur="3s" repeatCount="indefinite"/></ellipse>
+          <!-- GLIDE: drifts side to side... -->
+          <g>
+            <animateTransform attributeName="transform" type="translate" values="0,0;9,0;0,0;-9,0;0,0" dur="6s" repeatCount="indefinite"/>
+            <!-- ...while bobbing up and down, hovering off the floor -->
+            <g>
+              <animateTransform attributeName="transform" type="translate" values="0,0;0,-7;0,0" dur="3s" repeatCount="indefinite"/>
+              <ellipse cx="75" cy="70" rx="44" ry="52" fill="url(#${uid}dG)" opacity=".3"><animate attributeName="opacity" values=".18;.42;.18" dur="2.6s" repeatCount="indefinite"/></ellipse>
+              <!-- mist wisps trail below as it floats -->
+              <ellipse cx="62" cy="134" rx="6" ry="3" fill="#b28ae0" opacity="0">
+                <animateTransform attributeName="transform" type="translate" values="0,0;-6,11" dur="2.4s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values=".38;0" dur="2.4s" repeatCount="indefinite"/>
+              </ellipse>
+              <ellipse cx="88" cy="136" rx="5" ry="2.6" fill="#b28ae0" opacity="0">
+                <animateTransform attributeName="transform" type="translate" values="0,0;6,10" dur="2.8s" begin=".8s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values=".38;0" dur="2.8s" begin=".8s" repeatCount="indefinite"/>
+              </ellipse>
+              <ellipse cx="75" cy="138" rx="7" ry="3" fill="#b28ae0" opacity="0">
+                <animateTransform attributeName="transform" type="translate" values="0,0;0,12" dur="2.6s" begin="1.5s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values=".34;0" dur="2.6s" begin="1.5s" repeatCount="indefinite"/>
+              </ellipse>
+              <!-- floating cape slivers -->
+              <g stroke="#d8b0ff" stroke-width=".8">
+                <polygon points="36,58 44,44 47,70" fill="url(#${uid}d)"><animateTransform attributeName="transform" type="translate" values="0,0;0,-5;0,0" dur="2.4s" repeatCount="indefinite"/></polygon>
+                <polygon points="30,86 40,72 42,98" fill="url(#${uid}d)"><animateTransform attributeName="transform" type="translate" values="0,0;0,-7;0,0" dur="3s" repeatCount="indefinite"/></polygon>
+                <polygon points="114,58 106,44 103,70" fill="url(#${uid}d)"><animateTransform attributeName="transform" type="translate" values="0,0;0,-6;0,0" dur="2.7s" repeatCount="indefinite"/></polygon>
+                <polygon points="120,86 110,72 108,98" fill="url(#${uid}d)"><animateTransform attributeName="transform" type="translate" values="0,0;0,-4;0,0" dur="2.2s" repeatCount="indefinite"/></polygon>
+                <polygon points="40,114 48,100 51,124" fill="url(#${uid}d)"><animateTransform attributeName="transform" type="translate" values="0,0;0,-6;0,0" dur="2.9s" repeatCount="indefinite"/></polygon>
+                <polygon points="110,114 102,100 99,124" fill="url(#${uid}d)"><animateTransform attributeName="transform" type="translate" values="0,0;0,-5;0,0" dur="2.5s" repeatCount="indefinite"/></polygon>
+              </g>
+              <!-- hooded cloak body -->
+              <path d="M50,142 Q42,86 60,50 Q67,24 75,24 Q83,24 90,50 Q108,86 100,142 Q88,132 82,142 Q75,131 68,142 Q62,132 50,142 Z" fill="url(#${uid}d)" stroke="#d8b0ff" stroke-width="1.6">
+                <animate attributeName="opacity" values=".92;1;.92" dur="2.8s" repeatCount="indefinite"/>
+              </path>
+              <path d="M60,52 Q67,28 75,28 Q83,28 90,52 Q83,62 75,62 Q67,62 60,52 Z" fill="#160830"/>
+              <!-- eyes that BLINK slowly -->
+              <ellipse cx="68" cy="49" rx="4.4" ry="5.8" fill="#e8c8ff"><animate attributeName="ry" values="5.8;5.8;0.6;5.8" keyTimes="0;0.88;0.94;1" dur="4s" repeatCount="indefinite"/></ellipse>
+              <ellipse cx="82" cy="49" rx="4.4" ry="5.8" fill="#e8c8ff"><animate attributeName="ry" values="5.8;5.8;0.6;5.8" keyTimes="0;0.88;0.94;1" dur="4s" repeatCount="indefinite"/></ellipse>
+              <circle cx="68" cy="50" r="1.7" fill="#fff"/><circle cx="82" cy="50" r="1.7" fill="#fff"/>
+              <polygon points="75,66 80,72 75,78 70,72" fill="#e8c8ff" stroke="#7a3ac0" stroke-width="1"><animate attributeName="opacity" values="1;.55;1" dur="2s" repeatCount="indefinite"/></polygon>
+            </g>
+          </g>`;
+    return svg(150,150,body);
   }
 
-  /* CLATTERCLAW — Topaz crab-machine (the noisy one) */
+  /* CLATTERCLAW — Topaz crab (scuttle / vent rampage) */
   if(id==='chica'){
-    return svg(120,150,`<defs>
-      <linearGradient id="${uid}c" x1="0" y1="0" x2="0.4" y2="1"><stop offset="0%" stop-color="#ffce8a"/><stop offset="50%" stop-color="#f08a1e"/><stop offset="100%" stop-color="#8a4a06"/></linearGradient>
-      <linearGradient id="${uid}cM" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#c87614"/><stop offset="100%" stop-color="#6a3804"/></linearGradient>
-    </defs>
-    <ellipse cx="60" cy="145" rx="34" ry="5" fill="#000" opacity=".35"/>
-    <g stroke="#8a4a06" stroke-width="3.6" stroke-linecap="round">
-      <path d="M38,116 L26,132 L20,142" fill="none"><animateTransform attributeName="transform" type="rotate" values="0 38 116;7 38 116;0 38 116" dur=".5s" repeatCount="indefinite"/></path>
-      <path d="M48,120 L42,136 L38,144" fill="none"><animateTransform attributeName="transform" type="rotate" values="0 48 120;-6 48 120;0 48 120" dur=".45s" repeatCount="indefinite"/></path>
-      <path d="M82,116 L94,132 L100,142" fill="none"><animateTransform attributeName="transform" type="rotate" values="0 82 116;-7 82 116;0 82 116" dur=".5s" repeatCount="indefinite"/></path>
-      <path d="M72,120 L78,136 L82,144" fill="none"><animateTransform attributeName="transform" type="rotate" values="0 72 120;6 72 120;0 72 120" dur=".45s" repeatCount="indefinite"/></path>
-    </g>
-    <ellipse cx="60" cy="94" rx="36" ry="28" fill="url(#${uid}c)" stroke="#8a4a06" stroke-width="2.4"/>
-    <ellipse cx="60" cy="86" rx="26" ry="14" fill="#ffce8a" opacity=".35"/>
-    <path d="M28,94 Q60,80 92,94" stroke="#8a4a06" stroke-width="1.6" fill="none" opacity=".7"/>
-    <path d="M32,104 Q60,92 88,104" stroke="#8a4a06" stroke-width="1.6" fill="none" opacity=".7"/>
-    <g fill="#6a3804"><circle cx="40" cy="90" r="1.6"/><circle cx="80" cy="90" r="1.6"/><circle cx="46" cy="102" r="1.6"/><circle cx="74" cy="102" r="1.6"/></g>
-    <rect x="52" y="96" width="16" height="9" rx="2" fill="#6a3804"/>
-    <g stroke="#f08a1e" stroke-width="1.4"><line x1="55" y1="97.5" x2="55" y2="103.5"/><line x1="60" y1="97.5" x2="60" y2="103.5"/><line x1="65" y1="97.5" x2="65" y2="103.5"/></g>
-    <g>
-      <path d="M26,84 Q6,74 8,56 Q10,46 20,46 Q14,58 24,66 Z" fill="url(#${uid}cM)" stroke="#6a3804" stroke-width="1.6"><animateTransform attributeName="transform" type="rotate" values="0 26 84;-16 26 84;0 26 84" dur=".8s" repeatCount="indefinite"/></path>
-      <path d="M26,84 Q10,86 6,74 Q12,72 18,72 Z" fill="url(#${uid}c)" stroke="#6a3804" stroke-width="1.6"><animateTransform attributeName="transform" type="rotate" values="0 26 84;12 26 84;0 26 84" dur=".8s" repeatCount="indefinite"/></path>
-    </g>
-    <g>
-      <path d="M94,84 Q114,74 112,56 Q110,46 100,46 Q106,58 96,66 Z" fill="url(#${uid}cM)" stroke="#6a3804" stroke-width="1.6"><animateTransform attributeName="transform" type="rotate" values="0 94 84;16 94 84;0 94 84" dur=".7s" repeatCount="indefinite"/></path>
-      <path d="M94,84 Q110,86 114,74 Q108,72 102,72 Z" fill="url(#${uid}c)" stroke="#6a3804" stroke-width="1.6"><animateTransform attributeName="transform" type="rotate" values="0 94 84;-12 94 84;0 94 84" dur=".7s" repeatCount="indefinite"/></path>
-    </g>
-    <line x1="50" y1="70" x2="46" y2="54" stroke="#8a4a06" stroke-width="3"/>
-    <line x1="70" y1="70" x2="74" y2="54" stroke="#8a4a06" stroke-width="3"/>
-    <circle cx="46" cy="51" r="6" fill="#3a2002"/><circle cx="74" cy="51" r="6" fill="#3a2002"/>
-    <circle cx="46" cy="51" r="3.2" fill="#ffce5a"><animate attributeName="opacity" values="1;.3;1" dur=".6s" repeatCount="indefinite"/></circle>
-    <circle cx="74" cy="51" r="3.2" fill="#ffce5a"><animate attributeName="opacity" values=".3;1;.3" dur=".6s" repeatCount="indefinite"/></circle>
-    <polyline points="50,82 54,78 58,82 62,78 66,82 70,78" fill="none" stroke="#6a3804" stroke-width="2" stroke-linecap="round"/>`);
+    const body=mode==='intense'?`<defs>
+            <linearGradient id="${uid}c" x1="0" y1="0" x2="0.4" y2="1"><stop offset="0%" stop-color="#ffce8a"/><stop offset="50%" stop-color="#f08a1e"/><stop offset="100%" stop-color="#8a4a06"/></linearGradient>
+            <linearGradient id="${uid}cM" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#c87614"/><stop offset="100%" stop-color="#6a3804"/></linearGradient>
+          </defs>
+          <ellipse cx="75" cy="142" rx="38" ry="5" fill="#000" opacity=".35"/>
+          <!-- sideways speed lines — crabs charge SIDEWAYS! -->
+          <g stroke="#ffb35a" stroke-width="2.6" stroke-linecap="round">
+            <line x1="2" y1="84" x2="24" y2="84"><animate attributeName="opacity" values="0;1;0" dur=".35s" repeatCount="indefinite"/></line>
+            <line x1="6" y1="100" x2="26" y2="100"><animate attributeName="opacity" values="0;1;0" dur=".35s" begin=".12s" repeatCount="indefinite"/></line>
+            <line x1="126" y1="84" x2="148" y2="84"><animate attributeName="opacity" values="0;1;0" dur=".35s" begin=".18s" repeatCount="indefinite"/></line>
+            <line x1="124" y1="100" x2="144" y2="100"><animate attributeName="opacity" values="0;1;0" dur=".35s" begin=".06s" repeatCount="indefinite"/></line>
+          </g>
+          <!-- CLACK! sparks at the pincer tips -->
+          <polygon points="30,44 32,50 38,52 32,54 30,60 28,54 22,52 28,50" fill="#fff2c0">
+            <animate attributeName="opacity" values="0;1;0" dur=".28s" repeatCount="indefinite"/></polygon>
+          <polygon points="120,44 122,50 128,52 122,54 120,60 118,54 112,52 118,50" fill="#fff2c0">
+            <animate attributeName="opacity" values="0;1;0" dur=".28s" begin=".14s" repeatCount="indefinite"/></polygon>
+          <!-- dust kicked from the frantic legs -->
+          <circle cx="44" cy="138" r="3" fill="#c9a06a" opacity=".5">
+            <animateTransform attributeName="transform" type="translate" values="0,0;-12,-3" dur=".45s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values=".55;0" dur=".45s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="106" cy="140" r="3" fill="#c9a06a" opacity=".5">
+            <animateTransform attributeName="transform" type="translate" values="0,0;12,-3" dur=".45s" begin=".22s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values=".55;0" dur=".45s" begin=".22s" repeatCount="indefinite"/>
+          </circle>
+          <!-- VENT RAMPAGE: frantic sideways shake, legs a blur, pincers SNAPPING -->
+          <g>
+            <animateTransform attributeName="transform" type="translate" values="0,0; 8,-2.5; 0,0; -8,-2.5; 0,0" dur=".4s" repeatCount="indefinite"/>
+            <!-- rampage legs: armored + blazing joints, super fast -->
+            <g stroke-linecap="round" stroke-linejoin="round">
+              <g>
+                <animateTransform attributeName="transform" type="rotate" values="0 53 116;12 53 116;0 53 116" dur=".16s" repeatCount="indefinite"/>
+                <path d="M53,116 L41,132 L35,142" fill="none" stroke="#4a2a04" stroke-width="7"/>
+                <path d="M53,116 L41,132 L35,142" fill="none" stroke="url(#${uid}cM)" stroke-width="4.4"/>
+                <path d="M53,116 L41,132 L35,142" fill="none" stroke="#ffce8a" stroke-width="1.2" opacity=".7" transform="translate(-0.8,-1)"/>
+                <circle cx="41" cy="132" r="2.6" fill="#3a2002"/><circle cx="41" cy="132" r="1.2" fill="#ff8a2a"><animate attributeName="opacity" values="1;.3;1" dur=".16s" repeatCount="indefinite"/></circle>
+                <polygon points="36,138.5 31.5,145.5 39,143.5" fill="#3a2002"/>
+              </g>
+              <g>
+                <animateTransform attributeName="transform" type="rotate" values="0 63 120;-11 63 120;0 63 120" dur=".15s" repeatCount="indefinite"/>
+                <path d="M63,120 L57,136 L53,144" fill="none" stroke="#4a2a04" stroke-width="7"/>
+                <path d="M63,120 L57,136 L53,144" fill="none" stroke="url(#${uid}cM)" stroke-width="4.4"/>
+                <path d="M63,120 L57,136 L53,144" fill="none" stroke="#ffce8a" stroke-width="1.2" opacity=".7" transform="translate(-0.8,-1)"/>
+                <circle cx="57" cy="136" r="2.6" fill="#3a2002"/><circle cx="57" cy="136" r="1.2" fill="#ff8a2a"><animate attributeName="opacity" values=".3;1;.3" dur=".15s" repeatCount="indefinite"/></circle>
+                <polygon points="54,140.5 51,147 58.5,145" fill="#3a2002"/>
+              </g>
+              <g>
+                <animateTransform attributeName="transform" type="rotate" values="0 97 116;-12 97 116;0 97 116" dur=".16s" repeatCount="indefinite"/>
+                <path d="M97,116 L109,132 L115,142" fill="none" stroke="#4a2a04" stroke-width="7"/>
+                <path d="M97,116 L109,132 L115,142" fill="none" stroke="url(#${uid}cM)" stroke-width="4.4"/>
+                <path d="M97,116 L109,132 L115,142" fill="none" stroke="#ffce8a" stroke-width="1.2" opacity=".7" transform="translate(0.8,-1)"/>
+                <circle cx="109" cy="132" r="2.6" fill="#3a2002"/><circle cx="109" cy="132" r="1.2" fill="#ff8a2a"><animate attributeName="opacity" values="1;.3;1" dur=".16s" repeatCount="indefinite"/></circle>
+                <polygon points="114,138.5 118.5,145.5 111,143.5" fill="#3a2002"/>
+              </g>
+              <g>
+                <animateTransform attributeName="transform" type="rotate" values="0 87 120;11 87 120;0 87 120" dur=".15s" repeatCount="indefinite"/>
+                <path d="M87,120 L93,136 L97,144" fill="none" stroke="#4a2a04" stroke-width="7"/>
+                <path d="M87,120 L93,136 L97,144" fill="none" stroke="url(#${uid}cM)" stroke-width="4.4"/>
+                <path d="M87,120 L93,136 L97,144" fill="none" stroke="#ffce8a" stroke-width="1.2" opacity=".7" transform="translate(0.8,-1)"/>
+                <circle cx="93" cy="136" r="2.6" fill="#3a2002"/><circle cx="93" cy="136" r="1.2" fill="#ff8a2a"><animate attributeName="opacity" values=".3;1;.3" dur=".15s" repeatCount="indefinite"/></circle>
+                <polygon points="96,140.5 99,147 91.5,145" fill="#3a2002"/>
+              </g>
+            </g>
+            <ellipse cx="75" cy="94" rx="36" ry="28" fill="url(#${uid}c)" stroke="#8a4a06" stroke-width="2.4"/>
+            <ellipse cx="75" cy="86" rx="26" ry="14" fill="#ffce8a" opacity=".35"/>
+            <path d="M43,94 Q75,80 107,94" stroke="#8a4a06" stroke-width="1.6" fill="none" opacity=".7"/>
+            <path d="M47,104 Q75,92 103,104" stroke="#8a4a06" stroke-width="1.6" fill="none" opacity=".7"/>
+            <g fill="#6a3804"><circle cx="55" cy="90" r="1.6"/><circle cx="95" cy="90" r="1.6"/><circle cx="61" cy="102" r="1.6"/><circle cx="89" cy="102" r="1.6"/></g>
+            <rect x="67" y="96" width="16" height="9" rx="2" fill="#6a3804"/>
+            <g stroke="#f08a1e" stroke-width="1.4"><line x1="70" y1="97.5" x2="70" y2="103.5"/><line x1="75" y1="97.5" x2="75" y2="103.5"/><line x1="80" y1="97.5" x2="80" y2="103.5"/></g>
+            <!-- pincers SNAPPING hard and fast -->
+            <g>
+              <path d="M41,84 Q21,74 23,56 Q25,46 35,46 Q29,58 39,66 Z" fill="url(#${uid}cM)" stroke="#6a3804" stroke-width="1.6">
+                <animateTransform attributeName="transform" type="rotate" values="0 41 84;-24 41 84;0 41 84" dur=".28s" repeatCount="indefinite"/></path>
+              <path d="M41,84 Q25,86 21,74 Q27,72 33,72 Z" fill="url(#${uid}c)" stroke="#6a3804" stroke-width="1.6">
+                <animateTransform attributeName="transform" type="rotate" values="0 41 84;18 41 84;0 41 84" dur=".28s" repeatCount="indefinite"/></path>
+            </g>
+            <g>
+              <path d="M109,84 Q129,74 127,56 Q125,46 115,46 Q121,58 111,66 Z" fill="url(#${uid}cM)" stroke="#6a3804" stroke-width="1.6">
+                <animateTransform attributeName="transform" type="rotate" values="0 109 84;24 109 84;0 109 84" dur=".26s" repeatCount="indefinite"/></path>
+              <path d="M109,84 Q125,86 129,74 Q123,72 117,72 Z" fill="url(#${uid}c)" stroke="#6a3804" stroke-width="1.6">
+                <animateTransform attributeName="transform" type="rotate" values="0 109 84;-18 109 84;0 109 84" dur=".26s" repeatCount="indefinite"/></path>
+            </g>
+            <!-- eye stalks vibrating, eyes blazing -->
+            <g>
+              <animateTransform attributeName="transform" type="rotate" values="-3 75 70;3 75 70;-3 75 70" dur=".2s" repeatCount="indefinite"/>
+              <line x1="65" y1="70" x2="61" y2="54" stroke="#8a4a06" stroke-width="3"/>
+              <line x1="85" y1="70" x2="89" y2="54" stroke="#8a4a06" stroke-width="3"/>
+              <circle cx="61" cy="51" r="6" fill="#3a2002"/><circle cx="89" cy="51" r="6" fill="#3a2002"/>
+              <circle cx="61" cy="51" r="3.4" fill="#ff8a2a"><animate attributeName="opacity" values="1;.25;1" dur=".22s" repeatCount="indefinite"/></circle>
+              <circle cx="89" cy="51" r="3.4" fill="#ff8a2a"><animate attributeName="opacity" values=".25;1;.25" dur=".22s" repeatCount="indefinite"/></circle>
+            </g>
+            <polyline points="65,82 69,78 73,82 77,78 81,82 85,78" fill="none" stroke="#6a3804" stroke-width="2" stroke-linecap="round"/>
+          </g>`:`<defs>
+            <linearGradient id="${uid}c" x1="0" y1="0" x2="0.4" y2="1"><stop offset="0%" stop-color="#ffce8a"/><stop offset="50%" stop-color="#f08a1e"/><stop offset="100%" stop-color="#8a4a06"/></linearGradient>
+            <linearGradient id="${uid}cM" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#c87614"/><stop offset="100%" stop-color="#6a3804"/></linearGradient>
+          </defs>
+          <ellipse cx="75" cy="142" rx="36" ry="5" fill="#000" opacity=".35"/>
+          <!-- SCUTTLE: whole crab shuffles side to side (crabs walk sideways!) -->
+          <g>
+            <animateTransform attributeName="transform" type="translate" values="0,0; 5,-1.5; 0,0; -5,-1.5; 0,0" dur="1.3s" repeatCount="indefinite"/>
+            <!-- skittering legs -->
+            <!-- segmented armored crab legs: outline + topaz armor + shine + mech joints + pointed tips -->
+            <g stroke-linecap="round" stroke-linejoin="round">
+              <g>
+                <animateTransform attributeName="transform" type="rotate" values="0 53 116;8 53 116;0 53 116" dur=".5s" repeatCount="indefinite"/>
+                <path d="M53,116 L41,132 L35,142" fill="none" stroke="#4a2a04" stroke-width="7"/>
+                <path d="M53,116 L41,132 L35,142" fill="none" stroke="url(#${uid}cM)" stroke-width="4.4"/>
+                <path d="M53,116 L41,132 L35,142" fill="none" stroke="#ffce8a" stroke-width="1.2" opacity=".7" transform="translate(-0.8,-1)"/>
+                <circle cx="41" cy="132" r="2.6" fill="#3a2002"/><circle cx="41" cy="132" r="1.1" fill="#f08a1e"><animate attributeName="opacity" values="1;.4;1" dur=".5s" repeatCount="indefinite"/></circle>
+                <polygon points="36,138.5 31.5,145.5 39,143.5" fill="#3a2002"/>
+              </g>
+              <g>
+                <animateTransform attributeName="transform" type="rotate" values="0 63 120;-7 63 120;0 63 120" dur=".45s" repeatCount="indefinite"/>
+                <path d="M63,120 L57,136 L53,144" fill="none" stroke="#4a2a04" stroke-width="7"/>
+                <path d="M63,120 L57,136 L53,144" fill="none" stroke="url(#${uid}cM)" stroke-width="4.4"/>
+                <path d="M63,120 L57,136 L53,144" fill="none" stroke="#ffce8a" stroke-width="1.2" opacity=".7" transform="translate(-0.8,-1)"/>
+                <circle cx="57" cy="136" r="2.6" fill="#3a2002"/><circle cx="57" cy="136" r="1.1" fill="#f08a1e"><animate attributeName="opacity" values=".4;1;.4" dur=".45s" repeatCount="indefinite"/></circle>
+                <polygon points="54,140.5 51,147 58.5,145" fill="#3a2002"/>
+              </g>
+              <g>
+                <animateTransform attributeName="transform" type="rotate" values="0 97 116;-8 97 116;0 97 116" dur=".5s" repeatCount="indefinite"/>
+                <path d="M97,116 L109,132 L115,142" fill="none" stroke="#4a2a04" stroke-width="7"/>
+                <path d="M97,116 L109,132 L115,142" fill="none" stroke="url(#${uid}cM)" stroke-width="4.4"/>
+                <path d="M97,116 L109,132 L115,142" fill="none" stroke="#ffce8a" stroke-width="1.2" opacity=".7" transform="translate(0.8,-1)"/>
+                <circle cx="109" cy="132" r="2.6" fill="#3a2002"/><circle cx="109" cy="132" r="1.1" fill="#f08a1e"><animate attributeName="opacity" values="1;.4;1" dur=".5s" repeatCount="indefinite"/></circle>
+                <polygon points="114,138.5 118.5,145.5 111,143.5" fill="#3a2002"/>
+              </g>
+              <g>
+                <animateTransform attributeName="transform" type="rotate" values="0 87 120;7 87 120;0 87 120" dur=".45s" repeatCount="indefinite"/>
+                <path d="M87,120 L93,136 L97,144" fill="none" stroke="#4a2a04" stroke-width="7"/>
+                <path d="M87,120 L93,136 L97,144" fill="none" stroke="url(#${uid}cM)" stroke-width="4.4"/>
+                <path d="M87,120 L93,136 L97,144" fill="none" stroke="#ffce8a" stroke-width="1.2" opacity=".7" transform="translate(0.8,-1)"/>
+                <circle cx="93" cy="136" r="2.6" fill="#3a2002"/><circle cx="93" cy="136" r="1.1" fill="#f08a1e"><animate attributeName="opacity" values=".4;1;.4" dur=".45s" repeatCount="indefinite"/></circle>
+                <polygon points="96,140.5 99,147 91.5,145" fill="#3a2002"/>
+              </g>
+            </g>
+            <!-- wide crab shell body -->
+            <ellipse cx="75" cy="94" rx="36" ry="28" fill="url(#${uid}c)" stroke="#8a4a06" stroke-width="2.4"/>
+            <ellipse cx="75" cy="86" rx="26" ry="14" fill="#ffce8a" opacity=".35"/>
+            <path d="M43,94 Q75,80 107,94" stroke="#8a4a06" stroke-width="1.6" fill="none" opacity=".7"/>
+            <path d="M47,104 Q75,92 103,104" stroke="#8a4a06" stroke-width="1.6" fill="none" opacity=".7"/>
+            <g fill="#6a3804"><circle cx="55" cy="90" r="1.6"/><circle cx="95" cy="90" r="1.6"/><circle cx="61" cy="102" r="1.6"/><circle cx="89" cy="102" r="1.6"/></g>
+            <rect x="67" y="96" width="16" height="9" rx="2" fill="#6a3804"/>
+            <g stroke="#f08a1e" stroke-width="1.4"><line x1="70" y1="97.5" x2="70" y2="103.5"/><line x1="75" y1="97.5" x2="75" y2="103.5"/><line x1="80" y1="97.5" x2="80" y2="103.5"/></g>
+            <!-- pincers snapping gently -->
+            <g>
+              <path d="M41,84 Q21,74 23,56 Q25,46 35,46 Q29,58 39,66 Z" fill="url(#${uid}cM)" stroke="#6a3804" stroke-width="1.6">
+                <animateTransform attributeName="transform" type="rotate" values="0 41 84;-14 41 84;0 41 84" dur="1.3s" repeatCount="indefinite"/></path>
+              <path d="M41,84 Q25,86 21,74 Q27,72 33,72 Z" fill="url(#${uid}c)" stroke="#6a3804" stroke-width="1.6">
+                <animateTransform attributeName="transform" type="rotate" values="0 41 84;10 41 84;0 41 84" dur="1.3s" repeatCount="indefinite"/></path>
+            </g>
+            <g>
+              <path d="M109,84 Q129,74 127,56 Q125,46 115,46 Q121,58 111,66 Z" fill="url(#${uid}cM)" stroke="#6a3804" stroke-width="1.6">
+                <animateTransform attributeName="transform" type="rotate" values="0 109 84;14 109 84;0 109 84" dur="1.1s" repeatCount="indefinite"/></path>
+              <path d="M109,84 Q125,86 129,74 Q123,72 117,72 Z" fill="url(#${uid}c)" stroke="#6a3804" stroke-width="1.6">
+                <animateTransform attributeName="transform" type="rotate" values="0 109 84;-10 109 84;0 109 84" dur="1.1s" repeatCount="indefinite"/></path>
+            </g>
+            <!-- eye stalks -->
+            <line x1="65" y1="70" x2="61" y2="54" stroke="#8a4a06" stroke-width="3"/>
+            <line x1="85" y1="70" x2="89" y2="54" stroke="#8a4a06" stroke-width="3"/>
+            <circle cx="61" cy="51" r="6" fill="#3a2002"/><circle cx="89" cy="51" r="6" fill="#3a2002"/>
+            <circle cx="61" cy="51" r="3.2" fill="#ffce5a"><animate attributeName="opacity" values="1;.35;1" dur=".9s" repeatCount="indefinite"/></circle>
+            <circle cx="89" cy="51" r="3.2" fill="#ffce5a"><animate attributeName="opacity" values=".35;1;.35" dur=".9s" repeatCount="indefinite"/></circle>
+            <polyline points="65,82 69,78 73,82 77,78 81,82 85,78" fill="none" stroke="#6a3804" stroke-width="2" stroke-linecap="round"/>
+          </g>`;
+    return svg(150,150,body);
   }
 
-  /* REDLINE — Ruby raptor (the sprinter) */
+  /* REDLINE — Ruby raptor (walk / run) */
   if(id==='foxy'){
-    return svg(120,150,`<defs>
-      <linearGradient id="${uid}r" x1="0" y1="0" x2="0.5" y2="1"><stop offset="0%" stop-color="#ff9aa8"/><stop offset="45%" stop-color="#e8304a"/><stop offset="100%" stop-color="#6a0a1a"/></linearGradient>
-      <linearGradient id="${uid}rD" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#b01830"/><stop offset="100%" stop-color="#480512"/></linearGradient>
-    </defs>
-    <ellipse cx="62" cy="145" rx="30" ry="5" fill="#000" opacity=".35"/>
-    <g stroke="#ff6a80" stroke-width="2.4" stroke-linecap="round">
-      <line x1="6" y1="70" x2="30" y2="70"><animate attributeName="opacity" values="0;1;0" dur=".5s" repeatCount="indefinite"/></line>
-      <line x1="2" y1="88" x2="24" y2="88"><animate attributeName="opacity" values="0;1;0" dur=".5s" begin=".16s" repeatCount="indefinite"/></line>
-      <line x1="8" y1="106" x2="28" y2="106"><animate attributeName="opacity" values="0;1;0" dur=".5s" begin=".32s" repeatCount="indefinite"/></line>
-    </g>
-    <g>
-      <animateTransform attributeName="transform" type="translate" values="0,0;2.5,-2;0,0" dur=".4s" repeatCount="indefinite"/>
-      <path d="M34,112 Q30,84 52,72 Q70,62 92,70 Q104,76 100,92 Q94,110 70,116 Q48,120 34,112 Z" fill="url(#${uid}r)" stroke="#ff9aa8" stroke-width="2"/>
-      <path d="M52,72 Q70,62 92,70 L88,84 Q68,76 56,84 Z" fill="#fff" opacity=".22"/>
-      <g stroke="#ff9aa8" stroke-width="1">
-        <polygon points="52,72 56,56 62,70" fill="url(#${uid}r)"/>
-        <polygon points="64,68 70,52 76,68" fill="url(#${uid}r)"/>
-        <polygon points="78,68 86,56 88,70" fill="url(#${uid}r)"/>
-      </g>
-      <path d="M48,112 L44,126 L52,126 L52,138 L62,138" fill="none" stroke="url(#${uid}rD)" stroke-width="7" stroke-linecap="round"/>
-      <path d="M78,112 L82,124 L74,128 L76,140 L86,140" fill="none" stroke="url(#${uid}rD)" stroke-width="7" stroke-linecap="round"/>
-      <path d="M36,102 Q16,102 8,116" fill="none" stroke="url(#${uid}r)" stroke-width="8" stroke-linecap="round"/>
-      <path d="M92,70 Q112,66 116,78 Q112,90 96,90 Q88,82 92,70 Z" fill="url(#${uid}r)" stroke="#ff9aa8" stroke-width="2"/>
-      <path d="M96,74 Q108,72 112,78" fill="none" stroke="#2a0410" stroke-width="6" stroke-linecap="round"/>
-      <path d="M96,74 Q108,72 112,78" fill="none" stroke="#ff4a5a" stroke-width="3" stroke-linecap="round"><animate attributeName="opacity" values="1;.25;1" dur=".7s" repeatCount="indefinite"/></path>
-      <path d="M96,86 L110,84" stroke="#480512" stroke-width="2.6" stroke-linecap="round"/>
-      <polygon points="98,86 101,90 104,85" fill="#ffd0d8"/>
-      <circle cx="60" cy="94" r="7" fill="#2a0410"/>
-      <circle cx="60" cy="94" r="4.4" fill="#ff4a5a"><animate attributeName="r" values="4.4;5.8;4.4" dur=".45s" repeatCount="indefinite"/></circle>
-    </g>`);
+    const body=mode==='intense'?`<defs>
+            <linearGradient id="${uid}r" x1="0" y1="0" x2="0.5" y2="1"><stop offset="0%" stop-color="#ff9aa8"/><stop offset="45%" stop-color="#e8304a"/><stop offset="100%" stop-color="#6a0a1a"/></linearGradient>
+            <linearGradient id="${uid}rD" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#b01830"/><stop offset="100%" stop-color="#480512"/></linearGradient>
+          </defs>
+          <ellipse cx="78" cy="142" rx="42" ry="5" fill="#000" opacity=".35"/>
+          <!-- speed lines whoosh past -->
+          <g stroke="#ff6a80" stroke-width="2.6" stroke-linecap="round">
+            <line x1="4" y1="64" x2="32" y2="64"><animate attributeName="opacity" values="0;1;0" dur=".4s" repeatCount="indefinite"/></line>
+            <line x1="0" y1="82" x2="26" y2="82"><animate attributeName="opacity" values="0;1;0" dur=".4s" begin=".13s" repeatCount="indefinite"/></line>
+            <line x1="6" y1="100" x2="30" y2="100"><animate attributeName="opacity" values="0;1;0" dur=".4s" begin=".26s" repeatCount="indefinite"/></line>
+          </g>
+          <!-- dust kicked up by the feet! -->
+          <circle cx="58" cy="138" r="3.5" fill="#c98a90" opacity=".5">
+            <animateTransform attributeName="transform" type="translate" values="0,0;-14,-4" dur=".5s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values=".55;0" dur=".5s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="88" cy="140" r="3" fill="#c98a90" opacity=".5">
+            <animateTransform attributeName="transform" type="translate" values="0,0;-12,-3" dur=".5s" begin=".25s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values=".55;0" dur=".5s" begin=".25s" repeatCount="indefinite"/>
+          </circle>
+          <!-- RUN CYCLE: leans forward, big fast strides, bounces hard -->
+          <g transform="rotate(-7 75 100)">
+            <animateTransform attributeName="transform" type="translate" values="0,0;0,-4;0,0" dur=".23s" additive="sum" repeatCount="indefinite"/>
+            <!-- tail streams out behind -->
+            <g>
+              <animateTransform attributeName="transform" type="rotate" values="-10 44 96;10 44 96;-10 44 96" dur=".46s" repeatCount="indefinite"/>
+              <path d="M44,96 Q18,90 6,100" stroke="url(#${uid}rD)" stroke-width="9" fill="none" stroke-linecap="round"/>
+            </g>
+            <!-- BACK LEG — BIG fast stride, armored + blazing joints -->
+            <g stroke-linecap="round" stroke-linejoin="round">
+              <animateTransform attributeName="transform" type="rotate" values="-38 64 102;38 64 102;-38 64 102" dur=".46s" repeatCount="indefinite"/>
+              <path d="M64,102 L57,117 L67,123 L65,136 L79,136" fill="none" stroke="#3a0510" stroke-width="9"/>
+              <path d="M64,102 L57,117 L67,123 L65,136 L79,136" fill="none" stroke="#901a30" stroke-width="5.6"/>
+              <path d="M64,102 L57,117 L67,123 L65,136 L79,136" fill="none" stroke="#ff8a98" stroke-width="1.4" opacity=".55" transform="translate(-1,-1)"/>
+              <circle cx="57" cy="117" r="3" fill="#2a0410"/><circle cx="57" cy="117" r="1.4" fill="#ff4a5a"><animate attributeName="opacity" values="1;.3;1" dur=".46s" repeatCount="indefinite"/></circle>
+              <circle cx="67" cy="123" r="3" fill="#2a0410"/><circle cx="67" cy="123" r="1.4" fill="#ff4a5a"><animate attributeName="opacity" values=".3;1;.3" dur=".46s" repeatCount="indefinite"/></circle>
+              <circle cx="65" cy="136" r="2.6" fill="#2a0410"/>
+              <polygon points="78,132.5 87,136.5 78,139.5" fill="#2a0410"/>
+              <polygon points="73,134 77,143 69,140" fill="#2a0410"/>
+            </g>
+            <!-- body -->
+            <path d="M38,112 Q32,84 56,72 Q76,62 98,70 Q112,76 108,92 Q102,112 74,118 Q52,122 38,112 Z" fill="url(#${uid}r)" stroke="#ff9aa8" stroke-width="2"/>
+            <path d="M56,72 Q76,62 98,70 L94,84 Q74,76 60,84 Z" fill="#fff" opacity=".22"/>
+            <g stroke="#ff9aa8" stroke-width="1">
+              <polygon points="56,72 60,56 66,70" fill="url(#${uid}r)"/>
+              <polygon points="68,68 74,52 80,68" fill="url(#${uid}r)"/>
+              <polygon points="82,68 90,56 92,70" fill="url(#${uid}r)"/>
+            </g>
+            <!-- little arm tucked for speed -->
+            <path d="M84,92 L93,96 L90,102" fill="none" stroke="#7a0d1f" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- FRONT LEG — BIG opposite stride, armored + blazing joints -->
+            <g stroke-linecap="round" stroke-linejoin="round">
+              <animateTransform attributeName="transform" type="rotate" values="38 86 104;-38 86 104;38 86 104" dur=".46s" repeatCount="indefinite"/>
+              <path d="M86,104 L79,119 L89,125 L87,138 L101,138" fill="none" stroke="#3a0510" stroke-width="9"/>
+              <path d="M86,104 L79,119 L89,125 L87,138 L101,138" fill="none" stroke="url(#${uid}rD)" stroke-width="5.6"/>
+              <path d="M86,104 L79,119 L89,125 L87,138 L101,138" fill="none" stroke="#ff8a98" stroke-width="1.4" opacity=".7" transform="translate(-1,-1)"/>
+              <circle cx="79" cy="119" r="3" fill="#2a0410"/><circle cx="79" cy="119" r="1.4" fill="#ff4a5a"><animate attributeName="opacity" values="1;.3;1" dur=".46s" repeatCount="indefinite"/></circle>
+              <circle cx="89" cy="125" r="3" fill="#2a0410"/><circle cx="89" cy="125" r="1.4" fill="#ff4a5a"><animate attributeName="opacity" values=".3;1;.3" dur=".46s" repeatCount="indefinite"/></circle>
+              <circle cx="87" cy="138" r="2.6" fill="#2a0410"/>
+              <polygon points="100,134.5 109,138.5 100,141.5" fill="#2a0410"/>
+              <polygon points="95,136 99,145 91,142" fill="#2a0410"/>
+            </g>
+            <!-- head + visor blazing -->
+            <path d="M98,70 Q120,66 124,78 Q120,90 102,90 Q94,82 98,70 Z" fill="url(#${uid}r)" stroke="#ff9aa8" stroke-width="2"/>
+            <path d="M102,74 Q114,72 119,78" fill="none" stroke="#2a0410" stroke-width="6" stroke-linecap="round"/>
+            <path d="M102,74 Q114,72 119,78" fill="none" stroke="#ff4a5a" stroke-width="3" stroke-linecap="round"><animate attributeName="opacity" values="1;.2;1" dur=".3s" repeatCount="indefinite"/></path>
+            <path d="M102,86 L117,84" stroke="#480512" stroke-width="2.6" stroke-linecap="round"/>
+            <polygon points="104,86 107,90 110,85" fill="#ffd0d8"/>
+            <!-- engine core revving hard -->
+            <circle cx="64" cy="96" r="7" fill="#2a0410"/>
+            <circle cx="64" cy="96" r="4.4" fill="#ff4a5a"><animate attributeName="r" values="4.4;6;4.4" dur=".23s" repeatCount="indefinite"/></circle>
+          </g>`:`<defs>
+            <linearGradient id="${uid}r" x1="0" y1="0" x2="0.5" y2="1"><stop offset="0%" stop-color="#ff9aa8"/><stop offset="45%" stop-color="#e8304a"/><stop offset="100%" stop-color="#6a0a1a"/></linearGradient>
+            <linearGradient id="${uid}rD" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#b01830"/><stop offset="100%" stop-color="#480512"/></linearGradient>
+          </defs>
+          <ellipse cx="78" cy="142" rx="40" ry="5" fill="#000" opacity=".35"/>
+          <!-- WALK CYCLE: whole body bounces gently, one bounce per footstep -->
+          <g>
+            <animateTransform attributeName="transform" type="translate" values="0,0;0,-2;0,0" dur=".55s" repeatCount="indefinite"/>
+            <!-- swishing tail -->
+            <g>
+              <animateTransform attributeName="transform" type="rotate" values="-6 44 96;6 44 96;-6 44 96" dur="1.1s" repeatCount="indefinite"/>
+              <path d="M44,96 Q20,94 10,108" stroke="url(#${uid}rD)" stroke-width="9" fill="none" stroke-linecap="round"/>
+            </g>
+            <!-- BACK LEG — armored, glowing joints, talons -->
+            <g stroke-linecap="round" stroke-linejoin="round">
+              <animateTransform attributeName="transform" type="rotate" values="-20 64 102;20 64 102;-20 64 102" dur="1.1s" repeatCount="indefinite"/>
+              <path d="M64,102 L57,117 L67,123 L65,136 L79,136" fill="none" stroke="#3a0510" stroke-width="9"/>
+              <path d="M64,102 L57,117 L67,123 L65,136 L79,136" fill="none" stroke="#901a30" stroke-width="5.6"/>
+              <path d="M64,102 L57,117 L67,123 L65,136 L79,136" fill="none" stroke="#ff8a98" stroke-width="1.4" opacity=".55" transform="translate(-1,-1)"/>
+              <circle cx="57" cy="117" r="3" fill="#2a0410"/><circle cx="57" cy="117" r="1.3" fill="#ff4a5a"><animate attributeName="opacity" values="1;.4;1" dur="1.1s" repeatCount="indefinite"/></circle>
+              <circle cx="67" cy="123" r="3" fill="#2a0410"/><circle cx="67" cy="123" r="1.3" fill="#ff4a5a"><animate attributeName="opacity" values=".4;1;.4" dur="1.1s" repeatCount="indefinite"/></circle>
+              <circle cx="65" cy="136" r="2.6" fill="#2a0410"/>
+              <polygon points="78,132.5 87,136.5 78,139.5" fill="#2a0410"/>
+              <polygon points="73,134 77,143 69,140" fill="#2a0410"/>
+            </g>
+            <!-- body -->
+            <path d="M38,112 Q32,84 56,72 Q76,62 98,70 Q112,76 108,92 Q102,112 74,118 Q52,122 38,112 Z" fill="url(#${uid}r)" stroke="#ff9aa8" stroke-width="2"/>
+            <path d="M56,72 Q76,62 98,70 L94,84 Q74,76 60,84 Z" fill="#fff" opacity=".22"/>
+            <g stroke="#ff9aa8" stroke-width="1">
+              <polygon points="56,72 60,56 66,70" fill="url(#${uid}r)"/>
+              <polygon points="68,68 74,52 80,68" fill="url(#${uid}r)"/>
+              <polygon points="82,68 90,56 92,70" fill="url(#${uid}r)"/>
+            </g>
+            <!-- little arm -->
+            <path d="M84,92 L92,98 L88,104" fill="none" stroke="#7a0d1f" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- FRONT LEG — armored, glowing joints, talons -->
+            <g stroke-linecap="round" stroke-linejoin="round">
+              <animateTransform attributeName="transform" type="rotate" values="20 86 104;-20 86 104;20 86 104" dur="1.1s" repeatCount="indefinite"/>
+              <path d="M86,104 L79,119 L89,125 L87,138 L101,138" fill="none" stroke="#3a0510" stroke-width="9"/>
+              <path d="M86,104 L79,119 L89,125 L87,138 L101,138" fill="none" stroke="url(#${uid}rD)" stroke-width="5.6"/>
+              <path d="M86,104 L79,119 L89,125 L87,138 L101,138" fill="none" stroke="#ff8a98" stroke-width="1.4" opacity=".7" transform="translate(-1,-1)"/>
+              <circle cx="79" cy="119" r="3" fill="#2a0410"/><circle cx="79" cy="119" r="1.3" fill="#ff4a5a"><animate attributeName="opacity" values="1;.4;1" dur="1.1s" repeatCount="indefinite"/></circle>
+              <circle cx="89" cy="125" r="3" fill="#2a0410"/><circle cx="89" cy="125" r="1.3" fill="#ff4a5a"><animate attributeName="opacity" values=".4;1;.4" dur="1.1s" repeatCount="indefinite"/></circle>
+              <circle cx="87" cy="138" r="2.6" fill="#2a0410"/>
+              <polygon points="100,134.5 109,138.5 100,141.5" fill="#2a0410"/>
+              <polygon points="95,136 99,145 91,142" fill="#2a0410"/>
+            </g>
+            <!-- head + scanning visor -->
+            <path d="M98,70 Q120,66 124,78 Q120,90 102,90 Q94,82 98,70 Z" fill="url(#${uid}r)" stroke="#ff9aa8" stroke-width="2"/>
+            <path d="M102,74 Q114,72 119,78" fill="none" stroke="#2a0410" stroke-width="6" stroke-linecap="round"/>
+            <path d="M102,74 Q114,72 119,78" fill="none" stroke="#ff4a5a" stroke-width="3" stroke-linecap="round"><animate attributeName="opacity" values="1;.3;1" dur="1.4s" repeatCount="indefinite"/></path>
+            <path d="M102,86 L117,84" stroke="#480512" stroke-width="2.6" stroke-linecap="round"/>
+            <polygon points="104,86 107,90 110,85" fill="#ffd0d8"/>
+            <!-- chest core -->
+            <circle cx="64" cy="96" r="7" fill="#2a0410"/>
+            <circle cx="64" cy="96" r="4.4" fill="#ff4a5a"><animate attributeName="r" values="4.4;5.4;4.4" dur=".55s" repeatCount="indefinite"/></circle>
+          </g>`;
+    return svg(150,150,body);
   }
 
-  /* AURUM — Gold ghost (the secret phantom) */
-  return svg(110,150,`<defs>
-    <radialGradient id="${uid}a" cx="50%" cy="35%" r="65%"><stop offset="0%" stop-color="#ffe9a0"/><stop offset="55%" stop-color="#d8a318"/><stop offset="100%" stop-color="#5a4004"/></radialGradient>
-    <radialGradient id="${uid}aG" cx="50%" cy="45%" r="52%"><stop offset="0%" stop-color="#fff2c0"/><stop offset="100%" stop-color="#ffd34e" stop-opacity="0"/></radialGradient>
-  </defs>
-  <ellipse cx="55" cy="145" rx="24" ry="4.6" fill="#000" opacity=".3"/>
-  <g><animate attributeName="opacity" values=".35;1;.35" dur="3.4s" repeatCount="indefinite"/><animateTransform attributeName="transform" type="translate" values="0,0;0,-5;0,0" dur="3.4s" repeatCount="indefinite"/>
-    <ellipse cx="55" cy="72" rx="44" ry="54" fill="url(#${uid}aG)" opacity=".5"/>
-    <path d="M28,132 Q22,74 40,46 Q46,26 57,28 Q70,30 74,52 Q86,84 82,132 Q72,122 66,132 Q58,121 50,132 Q44,122 28,132 Z" fill="url(#${uid}a)" stroke="#fff2c0" stroke-width="1.6"/>
-    <path d="M36,60 Q42,52 50,52" stroke="#8a6608" stroke-width="1.6" fill="none" opacity=".6"/>
-    <path d="M42,58 Q46,54 50,58 L50,66 Q46,70 42,66 Z" fill="#fff2c0"><animate attributeName="opacity" values="1;.4;1" dur="2.2s" repeatCount="indefinite"/></path>
-    <path d="M60,58 Q64,54 68,58 L68,66 Q64,70 60,66 Z" fill="#fff2c0"><animate attributeName="opacity" values="1;.4;1" dur="2.2s" repeatCount="indefinite"/></path>
-    <circle cx="46" cy="62" r="1.7" fill="#5a4004"/><circle cx="64" cy="62" r="1.7" fill="#5a4004"/>
-    <ellipse cx="55" cy="80" rx="6" ry="9" fill="#3a2a02"><animate attributeName="ry" values="9;12;9" dur="3.4s" repeatCount="indefinite"/></ellipse>
-    <text x="55" y="104" font-size="10" text-anchor="middle" fill="#5a4004" font-family="monospace" font-weight="bold">Au·79</text>
-    <circle cx="26" cy="46" r="2" fill="#ffe9a0"><animateTransform attributeName="transform" type="translate" values="0,0;0,-10;0,0" dur="2.6s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;.2;1" dur="2.6s" repeatCount="indefinite"/></circle>
-    <circle cx="86" cy="56" r="1.7" fill="#ffe9a0"><animateTransform attributeName="transform" type="translate" values="0,0;0,-12;0,0" dur="3s" repeatCount="indefinite"/><animate attributeName="opacity" values=".2;1;.2" dur="3s" repeatCount="indefinite"/></circle>
-    <circle cx="80" cy="34" r="1.5" fill="#ffe9a0"><animateTransform attributeName="transform" type="translate" values="0,0;0,-8;0,0" dur="2.2s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;.15;1" dur="2.2s" repeatCount="indefinite"/></circle>
-  </g>`);
+  /* AURUM — Gold ghost (haunting / stared too long) */
+  const aurBody=mode==='intense'?`<defs>
+            <radialGradient id="${uid}a" cx="50%" cy="35%" r="65%"><stop offset="0%" stop-color="#fff2c0"/><stop offset="50%" stop-color="#e8b420"/><stop offset="100%" stop-color="#6a4a04"/></radialGradient>
+            <radialGradient id="${uid}aG" cx="50%" cy="45%" r="52%"><stop offset="0%" stop-color="#fff8d8"/><stop offset="100%" stop-color="#ffd34e" stop-opacity="0"/></radialGradient>
+          </defs>
+          <ellipse cx="75" cy="145" rx="27" ry="5" fill="#000" opacity=".45"/>
+          <!-- light IMPLODES into him — rings getting sucked inward! -->
+          <ellipse cx="75" cy="78" rx="48" ry="42" fill="none" stroke="#ffe9a0" stroke-width="1.6">
+            <animate attributeName="rx" values="48;18;6" dur=".9s" repeatCount="indefinite"/>
+            <animate attributeName="ry" values="42;16;5" dur=".9s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0;.7;0" dur=".9s" repeatCount="indefinite"/>
+          </ellipse>
+          <ellipse cx="75" cy="78" rx="48" ry="42" fill="none" stroke="#fff8d8" stroke-width="1">
+            <animate attributeName="rx" values="48;18;6" dur=".9s" begin=".45s" repeatCount="indefinite"/>
+            <animate attributeName="ry" values="42;16;5" dur=".9s" begin=".45s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0;.6;0" dur=".9s" begin=".45s" repeatCount="indefinite"/>
+          </ellipse>
+          <!-- gold motes get SUCKED INTO his mouth -->
+          <circle cx="40" cy="40" r="1.8" fill="#ffe9a0"><animateTransform attributeName="transform" type="translate" values="0,0;33,40" dur=".8s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.95;0" dur=".8s" repeatCount="indefinite"/></circle>
+          <circle cx="114" cy="52" r="1.6" fill="#ffe9a0"><animateTransform attributeName="transform" type="translate" values="0,0;-36,28" dur=".8s" begin=".3s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.95;0" dur=".8s" begin=".3s" repeatCount="indefinite"/></circle>
+          <circle cx="52" cy="124" r="1.6" fill="#ffe9a0"><animateTransform attributeName="transform" type="translate" values="0,0;21,-40" dur=".8s" begin=".55s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.95;0" dur=".8s" begin=".55s" repeatCount="indefinite"/></circle>
+          <!-- STARED TOO LONG: he becomes SOLID and looms closer... -->
+          <g>
+            <animateTransform attributeName="transform" type="translate" values="0,0;1.4,0;-1.4,0;0,0" dur=".14s" repeatCount="indefinite"/>
+            <g transform="translate(75,140)">
+              <g>
+                <animateTransform attributeName="transform" type="scale" values="1;1.1;1" dur="1.2s" repeatCount="indefinite"/>
+                <g transform="translate(-75,-140)">
+                  <ellipse cx="75" cy="72" rx="46" ry="56" fill="url(#${uid}aG)" opacity=".5"><animate attributeName="opacity" values=".35;.85;.35" dur=".5s" repeatCount="indefinite"/></ellipse>
+                  <!-- SOLID body — no more fading -->
+                  <path d="M48,132 Q42,74 60,46 Q66,26 77,28 Q90,30 94,52 Q106,84 102,132 Q92,122 86,132 Q78,121 70,132 Q64,122 48,132 Z" fill="url(#${uid}a)" stroke="#fff8d8" stroke-width="2"/>
+                  <!-- arms REACHING for you -->
+                  <path d="M52,70 Q38,64 34,54" fill="none" stroke="url(#${uid}a)" stroke-width="6" stroke-linecap="round"><animateTransform attributeName="transform" type="rotate" values="0 52 70;-7 52 70;0 52 70" dur=".6s" repeatCount="indefinite"/></path>
+                  <path d="M98,70 Q112,64 116,54" fill="none" stroke="url(#${uid}a)" stroke-width="6" stroke-linecap="round"><animateTransform attributeName="transform" type="rotate" values="0 98 70;7 98 70;0 98 70" dur=".6s" repeatCount="indefinite"/></path>
+                  <!-- eyes gone HOLLOW — black voids with pinpoint stares -->
+                  <path d="M61,56 Q66,52 71,56 L71,67 Q66,71 61,67 Z" fill="#1a1202" stroke="#fff8d8" stroke-width=".8"/>
+                  <path d="M79,56 Q84,52 89,56 L89,67 Q84,71 79,67 Z" fill="#1a1202" stroke="#fff8d8" stroke-width=".8"/>
+                  <circle cx="66" cy="61" r="1.1" fill="#fff"><animate attributeName="opacity" values="1;.2;1" dur=".3s" repeatCount="indefinite"/></circle>
+                  <circle cx="84" cy="61" r="1.1" fill="#fff"><animate attributeName="opacity" values="1;.2;1" dur=".3s" repeatCount="indefinite"/></circle>
+                  <!-- mouth stretches ENORMOUS, devouring the light -->
+                  <ellipse cx="75" cy="86" rx="8" ry="14" fill="#1a1202" stroke="#fff8d8" stroke-width=".8">
+                    <animate attributeName="ry" values="13;24;13" dur="1.2s" repeatCount="indefinite"/>
+                    <animate attributeName="rx" values="7;10.5;7" dur="1.2s" repeatCount="indefinite"/>
+                  </ellipse>
+                  <!-- Au·79 burning bright -->
+                  <text x="75" y="116" font-size="10.5" text-anchor="middle" fill="#fff2c0" font-family="monospace" font-weight="bold">Au·79<animate attributeName="opacity" values="1;.4;1" dur=".4s" repeatCount="indefinite"/></text>
+                </g>
+              </g>
+            </g>
+          </g>`:`<defs>
+            <radialGradient id="${uid}a" cx="50%" cy="35%" r="65%"><stop offset="0%" stop-color="#ffe9a0"/><stop offset="55%" stop-color="#d8a318"/><stop offset="100%" stop-color="#5a4004"/></radialGradient>
+            <radialGradient id="${uid}aG" cx="50%" cy="45%" r="52%"><stop offset="0%" stop-color="#fff2c0"/><stop offset="100%" stop-color="#ffd34e" stop-opacity="0"/></radialGradient>
+          </defs>
+          <ellipse cx="75" cy="145" rx="24" ry="4.6" fill="#000" opacity=".3"><animate attributeName="opacity" values=".3;.12;.3" dur="3.4s" repeatCount="indefinite"/></ellipse>
+          <!-- HAUNTING: fades in and out of our world, drifting -->
+          <g>
+            <animate attributeName="opacity" values=".3;1;.3" dur="3.4s" repeatCount="indefinite"/>
+            <animateTransform attributeName="transform" type="translate" values="0,0;0,-6;0,0" dur="3.4s" repeatCount="indefinite"/>
+            <ellipse cx="75" cy="72" rx="44" ry="54" fill="url(#${uid}aG)" opacity=".5"/>
+            <!-- flickering halo -->
+            <ellipse cx="75" cy="16" rx="13" ry="3.6" fill="none" stroke="#ffe9a0" stroke-width="1.6"><animate attributeName="opacity" values=".8;.2;.8" dur="2.2s" repeatCount="indefinite"/></ellipse>
+            <!-- slumped drooping ghost body -->
+            <path d="M48,132 Q42,74 60,46 Q66,26 77,28 Q90,30 94,52 Q106,84 102,132 Q92,122 86,132 Q78,121 70,132 Q64,122 48,132 Z" fill="url(#${uid}a)" stroke="#fff2c0" stroke-width="1.6"/>
+            <!-- drooping ghost arms -->
+            <path d="M52,74 Q44,82 46,92" fill="none" stroke="url(#${uid}a)" stroke-width="5.5" stroke-linecap="round"><animateTransform attributeName="transform" type="rotate" values="0 52 74;-4 52 74;0 52 74" dur="3.4s" repeatCount="indefinite"/></path>
+            <path d="M98,74 Q106,82 104,92" fill="none" stroke="url(#${uid}a)" stroke-width="5.5" stroke-linecap="round"><animateTransform attributeName="transform" type="rotate" values="0 98 74;4 98 74;0 98 74" dur="3.4s" repeatCount="indefinite"/></path>
+            <path d="M56,60 Q62,52 70,52" stroke="#8a6608" stroke-width="1.6" fill="none" opacity=".6"/>
+            <!-- sad drooping eyes with a slow blink -->
+            <path d="M62,58 Q66,54 70,58 L70,66 Q66,70 62,66 Z" fill="#fff2c0"><animate attributeName="opacity" values="1;1;.15;1" keyTimes="0;.86;.92;1" dur="4.4s" repeatCount="indefinite"/></path>
+            <path d="M80,58 Q84,54 88,58 L88,66 Q84,70 80,66 Z" fill="#fff2c0"><animate attributeName="opacity" values="1;1;.15;1" keyTimes="0;.86;.92;1" dur="4.4s" repeatCount="indefinite"/></path>
+            <circle cx="66" cy="62" r="1.7" fill="#5a4004"/><circle cx="84" cy="62" r="1.7" fill="#5a4004"/>
+            <!-- hollow mouth slowly gaping -->
+            <ellipse cx="75" cy="82" rx="6" ry="9" fill="#3a2a02"><animate attributeName="ry" values="9;12;9" dur="3.4s" repeatCount="indefinite"/></ellipse>
+            <text x="75" y="106" font-size="10" text-anchor="middle" fill="#5a4004" font-family="monospace" font-weight="bold">Au·79</text>
+            <!-- gold dust flakes fall off him -->
+            <circle cx="60" cy="72" r="1.4" fill="#ffe9a0"><animateTransform attributeName="transform" type="translate" values="0,0;-2,20" dur="2.6s" repeatCount="indefinite"/><animate attributeName="opacity" values=".8;0" dur="2.6s" repeatCount="indefinite"/></circle>
+            <circle cx="92" cy="88" r="1.3" fill="#ffe9a0"><animateTransform attributeName="transform" type="translate" values="0,0;2,18" dur="3s" begin="1s" repeatCount="indefinite"/><animate attributeName="opacity" values=".8;0" dur="3s" begin="1s" repeatCount="indefinite"/></circle>
+            <circle cx="75" cy="112" r="1.3" fill="#ffe9a0"><animateTransform attributeName="transform" type="translate" values="0,0;0,16" dur="2.4s" begin=".6s" repeatCount="indefinite"/><animate attributeName="opacity" values=".8;0" dur="2.4s" begin=".6s" repeatCount="indefinite"/></circle>
+            <!-- floating gold motes -->
+            <circle cx="46" cy="46" r="2" fill="#ffe9a0"><animateTransform attributeName="transform" type="translate" values="0,0;0,-10;0,0" dur="2.6s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;.2;1" dur="2.6s" repeatCount="indefinite"/></circle>
+            <circle cx="106" cy="56" r="1.7" fill="#ffe9a0"><animateTransform attributeName="transform" type="translate" values="0,0;0,-12;0,0" dur="3s" repeatCount="indefinite"/><animate attributeName="opacity" values=".2;1;.2" dur="3s" repeatCount="indefinite"/></circle>
+          </g>`;
+  return svg(150,150,aurBody);
 }
 
 function soldierSVG(size){
@@ -13020,6 +13611,11 @@ function tryCode(){
  playNightShift();
  return;
  }
+ if(raw==="night shift 2"||raw==="nightshift2"||raw==="mine below"||raw==="the mine below"||raw==="deep crew"){
+ res.innerHTML=`<div class="win" style="border-color:#7ad0f0"><b>Night Shift 2 is free!</b><br>The Mine Below crew awaits — launching now…</div>`;
+ playNightShift2();
+ return;
+ }
 
  // FREE GIFT — Emerald Guardian only (not Diamond Titan!)
  if(raw==="free gift"){
@@ -13048,7 +13644,7 @@ let nsGame=null, nsLoop=null;
 /* Animatronic SFX — Web Audio (walk / run / talk / jumpscare + UI beeps) */
 const SFX=(()=>{
  let ctx=null,master=null;
- const last={walk:0,run:0,talk:0,jump:0,ui:0};
+ const last={walk:0,run:0,talk:0,jump:0,ui:0,door:0,cam:0,clack:0,beat:0,stomp:0};
  const voice={
   freddy:{base:90,growl:55,noise:400},
   bonnie:{base:140,growl:70,noise:700},
@@ -13170,6 +13766,64 @@ const SFX=(()=>{
    setTimeout(()=>{tone('sawtooth',55,.6,.2,28);noise(.4,.12,80,2000);},140);
    // bot "yell"
    setTimeout(()=>{try{SFX.talk(id);}catch(_){}},40);
+  },
+  door(closed){
+   if(!ready('door',100))return;
+   if(closed){
+    tone('square',95,.1,.1,45);
+    noise(.08,.09,180,2200);
+    setTimeout(()=>tone('sine',60,.06,.06),40);
+   }else{
+    tone('sine',220,.07,.06,140);
+    noise(.05,.05,400,3500);
+   }
+  },
+  cam(on){
+   if(!ready('cam',90))return;
+   noise(on?0.12:0.07,on?0.08:0.05,on?700:500,on?6500:4500);
+   tone('square',on?520:380,.05,.04);
+   if(on)setTimeout(()=>noise(.04,.03,1200,8000),30);
+  },
+  camSwitch(){
+   if(!ready('cam',55))return;
+   tone('square',740,.03,.035);
+   noise(.025,.035,900,5500);
+  },
+  powerOut(){
+   if(!ready('ui',900))return;
+   tone('sawtooth',72,.45,.14,28);
+   noise(.35,.11,80,1400);
+   setTimeout(()=>{tone('square',180,.25,.09,90);noise(.15,.07,200,2000);},180);
+   setTimeout(()=>{tone('sawtooth',55,.5,.1,30);},420);
+  },
+  clack(){
+   if(!ready('clack',70))return;
+   tone('square',340,.035,.06);
+   tone('square',290,.035,.05);
+   noise(.028,.055,1400,8500);
+  },
+  stomp(){
+   if(!ready('stomp',180))return;
+   tone('sine',48,.14,.11,22);
+   noise(.09,.1,60,900);
+  },
+  heartbeat(){
+   if(!ready('beat',340))return;
+   tone('sine',52,.14,.07);
+   setTimeout(()=>tone('sine',44,.1,.05),120);
+   noise(.04,.035,35,180);
+  },
+  hammer(){
+   if(!ready('ui',120))return;
+   tone('square',180,.05,.07);
+   noise(.04,.06,400,3000);
+   setTimeout(()=>tone('square',140,.04,.05),60);
+  },
+  office(){
+   if(!ready('ui',300))return;
+   tone('sine',220,.2,.06);
+   tone('triangle',330,.15,.04);
+   noise(.08,.03,300,2000);
   }
  };
 })();
@@ -13422,7 +14076,7 @@ function nsPlaceBarricade(side){
   nsGame[key]={hp:maxHp,maxHp};
   nsGame.placingBarricade=false;
   nsGame.msg=`🪵 Barricade nailed on the ${side} door!`;
-  try{if(SFX&&SFX.click)SFX.click();}catch(_){}
+  try{if(SFX&&SFX.hammer)SFX.hammer();else if(SFX&&SFX.click)SFX.click();}catch(_){}
   renderNightShift();
 }
 function nsCancelPlaceBarricade(){
@@ -13518,6 +14172,7 @@ function playNightShift(opts){
   if(nsLoop){clearInterval(nsLoop);nsLoop=null;}
   try{closeGamesHub({skipHash:true});}catch(_){}
   try{closePoppyPlay();}catch(_){}
+  try{ns2CloseGame();}catch(_){}
   // FNAF 1 crew → original gemstone animatronics (SVG, not drawings)
   nsGame={
     hour:12,          // starts at 12 AM, win at 6 AM
@@ -13566,7 +14221,7 @@ function nsStartNight(){
   nsGame.scareSfxPlayed=false;
   nsApplyStartGear();
   // Unlock Web Audio on the Start click (browsers block autoplay)
-  try{SFX.talk('freddy');}catch(_){}
+  try{SFX.office();SFX.talk('freddy');}catch(_){}
   renderNightShift();
   if(nsLoop){clearInterval(nsLoop);}
   nsLoop=setInterval(nsTick, 100);
@@ -13596,8 +14251,15 @@ function nsTick(){
   if(g.camOpen)drain+=g.hasFlashlight?0.025:0.04;
   drain*=(g.drainMul||1);
   g.power-=drain;
-  if(g.power<=0){ g.power=0; g.leftDoor=false; g.rightDoor=false;   // power out — doors open!
-    g.blackout=true; }
+  if(g.power<=0){
+    g.power=0;
+    g.leftDoor=false;
+    g.rightDoor=false;
+    if(!g.blackout){
+      g.blackout=true;
+      try{if(SFX&&SFX.powerOut)SFX.powerOut();}catch(_){}
+    }
+  }
   // ---- bots creep closer ----
   // 😌➡️😡 ANGER LEVEL: the bots start CALM and get angrier every hour!
   // hour goes 12,1,2,3,4,5 → so figure out how many hours have passed (0 to 5)
@@ -13614,6 +14276,7 @@ function nsTick(){
   g.telepathSensed=false;
   const pushChance=(g.hasCrowbar?0.16:0.06)+(g.hasDoorBrace?0.08:0);
   const telepathChance=g.hasFlashlight?0.08:0.14;
+  let doorBot=null;
   g.bots.forEach((bot,idx)=>{
     const awake = hoursPassed >= (wakeHour[idx]!==undefined?wakeHour[idx]:0);
     bot.asleep = !awake;
@@ -13631,43 +14294,54 @@ function nsTick(){
       if(!youreWatchingIt && Math.random()<telepathChance*angerBoost){ bot.pos+=1; g.telepathSensed=true; }
     }
     if(bot.pos>4)bot.pos=4;
+    // Only one bot may hold the door at a time — others wait in the hall (pos 3)
+    if(bot.pos>=4){
+      if(doorBot) bot.pos=3;
+      else doorBot=bot;
+    }
     // Footsteps + chatter when a bot actually advances
     if(bot.pos>prevPos){
       const bid=bot.id||nsBotId(bot.name);
       const running=bid==='foxy'||bot.pos>=3||angerBoost>=1.5;
       try{ if(running)SFX.run(bid); else SFX.walk(bid); }catch(_){}
+      if(bid==='chica'){ try{SFX.clack();}catch(_){} }
+      if(bid==='freddy'){ try{SFX.stomp();}catch(_){} }
       if(Math.random()<0.28){ try{SFX.talk(bid);}catch(_){} }
     }
+    if(bot.pos<4) bot._radioWarned=false;
     bot._prevPos=bot.pos;
-    // AT your door (pos 4)?
-    if(bot.pos>=4){
-      g.scare=1;
-      if(g.hasRadio&&!bot._radioWarned){
-        bot._radioWarned=true;
-        g.msg=`RADIO: ${bot.name} is at the ${bot.side} door!`;
-        try{SFX.boss();SFX.talk(bot.id||bot.name);}catch(_){}
-      }
-      const doorClosed = (bot.side==="left"&&g.leftDoor) || (bot.side==="right"&&g.rightDoor);
-      const bar=bot.side==="left"?g.leftBarricade:g.rightBarricade;
-      const boarded=bar&&bar.hp>0;
-      if(doorClosed||boarded){
-        // smash at barricade boards
-        if(boarded&&Math.random()<0.12*(g.hasDoorBrace?0.7:1)){
-          bar.hp-=1;
-          if(bar.hp<=0){
-            if(bot.side==="left")g.leftBarricade=null; else g.rightBarricade=null;
-            g.msg=`Barricade on the ${bot.side} door smashed!`;
-            try{if(SFX&&SFX.lose)SFX.lose();}catch(_){}
-          }
-        }
-        // blocked! push them back after a moment (crowbar / brace help)
-        if(Math.random()<pushChance){ bot.pos=1; }
-      } else {
-        // GOTCHA! (only if you're NOT looking at cameras, or power is out)
-        if(!g.camOpen || g.blackout){ nsLose(bot); return; }
-      }
-    }
   });
+  // Door attack logic — single bot only
+  if(doorBot){
+    g.scare=1;
+    if(g.hasRadio&&!doorBot._radioWarned){
+      doorBot._radioWarned=true;
+      g.msg=`RADIO: ${doorBot.name} is at the ${doorBot.side} door!`;
+      try{SFX.boss();SFX.talk(doorBot.id||doorBot.name);}catch(_){}
+    }
+    try{if(SFX&&SFX.heartbeat)SFX.heartbeat();}catch(_){}
+    const doorClosed = (doorBot.side==="left"&&g.leftDoor) || (doorBot.side==="right"&&g.rightDoor);
+    const bar=doorBot.side==="left"?g.leftBarricade:g.rightBarricade;
+    const boarded=bar&&bar.hp>0;
+    if(doorClosed||boarded){
+      // smash at barricade boards
+      if(boarded&&Math.random()<0.12*(g.hasDoorBrace?0.7:1)){
+        bar.hp-=1;
+        if(bar.hp<=0){
+          if(doorBot.side==="left")g.leftBarricade=null; else g.rightBarricade=null;
+          g.msg=`Barricade on the ${doorBot.side} door smashed!`;
+          try{if(SFX&&SFX.lose)SFX.lose();}catch(_){}
+        }else{
+          try{if(SFX&&SFX.clack)SFX.clack();}catch(_){}
+        }
+      }
+      // blocked! push them back after a moment (crowbar / brace help)
+      if(Math.random()<pushChance){ doorBot.pos=1; doorBot._radioWarned=false; }
+    } else {
+      // GOTCHA! (only if you're NOT looking at cameras, or power is out)
+      if(!g.camOpen || g.blackout){ nsLose(doorBot); return; }
+    }
+  }
   renderNightShift();
 }
 function nsLose(bot){
@@ -13738,16 +14412,22 @@ function nsToggleDoor(side){
   if(!nsGame||nsGame.over||nsGame.blackout)return;
   if(side==="left")nsGame.leftDoor=!nsGame.leftDoor;
   else nsGame.rightDoor=!nsGame.rightDoor;
-  try{ if(SFX&&SFX.click)SFX.click(); }catch(e){}
+  const closed=side==="left"?nsGame.leftDoor:nsGame.rightDoor;
+  try{ if(SFX&&SFX.door)SFX.door(closed); else if(SFX&&SFX.click)SFX.click(); }catch(e){}
   renderNightShift();
 }
 function nsToggleCam(){
   if(!nsGame||nsGame.over)return;
   nsGame.camOpen=!nsGame.camOpen;
-  try{ if(SFX&&SFX.click)SFX.click(); }catch(e){}
+  try{ if(SFX&&SFX.cam)SFX.cam(nsGame.camOpen); else if(SFX&&SFX.click)SFX.click(); }catch(e){}
   renderNightShift();
 }
-function nsSetCam(n){ if(!nsGame)return; nsGame.currentCam=n; renderNightShift(); }
+function nsSetCam(n){
+  if(!nsGame)return;
+  if(nsGame.currentCam!==n){ try{if(SFX&&SFX.camSwitch)SFX.camSwitch();}catch(_){} }
+  nsGame.currentCam=n;
+  renderNightShift();
+}
 // each camera room has its own decorations so you can see the layout & where bots go!
 function nsCamDecor(cam){
   if(cam===1){ // Crystal Vault — shelves of gems
@@ -13953,11 +14633,14 @@ function renderNightShift(){
     return;
   }
   // ---- OFFICE / CONTROL ROOM VIEW ----
-  // find the scariest bot at each door
+  // find the scariest bot at each door; only one bot may occupy a door at a time
+  const doorBot=g.bots.find(b=>!b.asleep&&b.pos>=4)||null;
   const leftBot=g.bots.filter(b=>b.side==="left").reduce((a,b)=>b.pos>a.pos?b:a,{pos:0});
   const rightBot=g.bots.filter(b=>b.side==="right").reduce((a,b)=>b.pos>a.pos?b:a,{pos:0});
-  const leftWarn = leftBot.pos>=4?'👹 AT THE DOOR!':(leftBot.pos>=2?'👀 something\'s close...':'');
-  const rightWarn = rightBot.pos>=4?'👹 AT THE DOOR!':(rightBot.pos>=2?'👀 something\'s close...':'');
+  const leftAtDoor=doorBot&&doorBot.side==="left";
+  const rightAtDoor=doorBot&&doorBot.side==="right";
+  const leftWarn = leftAtDoor?'👹 AT THE DOOR!':(leftBot.pos>=2?'👀 something\'s close...':'');
+  const rightWarn = rightAtDoor?'👹 AT THE DOOR!':(rightBot.pos>=2?'👀 something\'s close...':'');
   // 😌➡️😡 the night MOOD — calmer early, scarier late
   const moods=[
     {face:'😌',label:'Calm night...',color:'#5ad65a'},
@@ -13999,7 +14682,7 @@ function renderNightShift(){
       </div>
       <!-- left door (your left side) -->
       <div class="ns-door-area left">
-        <div class="ns-door ${g.leftDoor||(g.leftBarricade&&g.leftBarricade.hp>0)?'closed':'open'}">${g.leftDoor?'🚪':(leftBot.pos>=4&&!(g.leftBarricade&&g.leftBarricade.hp>0)?`<span class="ns-doorbot pose-attack" data-ani="${leftBot.id||nsBotId(leftBot.name)}">${nsBotSVG(leftBot.id||leftBot.name,60)}</span>`:'')}${nsDoorArtHTML('left')}</div>
+        <div class="ns-door ${g.leftDoor||(g.leftBarricade&&g.leftBarricade.hp>0)?'closed':'open'}">${g.leftDoor?'🚪':(leftAtDoor&&!(g.leftBarricade&&g.leftBarricade.hp>0)?`<span class="ns-doorbot pose-attack" data-ani="${doorBot.id||nsBotId(doorBot.name)}">${nsBotSVG(doorBot.id||doorBot.name,60)}</span>`:'')}${nsDoorArtHTML('left')}</div>
         <div class="ns-door-warn">${leftWarn}${g.leftBarricade&&g.leftBarricade.hp>0?' · 🪵 boarded':''}</div>
         <button class="ns-btn door ${g.leftDoor?'on':''}" onclick="nsToggleDoor('left')">${g.leftDoor?'🔒 Left SHUT':'🚪 Left Door'}</button>
       </div>
@@ -14013,7 +14696,7 @@ function renderNightShift(){
       </div>
       <!-- right door (your right side) -->
       <div class="ns-door-area right">
-        <div class="ns-door ${g.rightDoor||(g.rightBarricade&&g.rightBarricade.hp>0)?'closed':'open'}">${g.rightDoor?'🚪':(rightBot.pos>=4&&!(g.rightBarricade&&g.rightBarricade.hp>0)?`<span class="ns-doorbot pose-attack" data-ani="${rightBot.id||nsBotId(rightBot.name)}">${nsBotSVG(rightBot.id||rightBot.name,60)}</span>`:'')}${nsDoorArtHTML('right')}</div>
+        <div class="ns-door ${g.rightDoor||(g.rightBarricade&&g.rightBarricade.hp>0)?'closed':'open'}">${g.rightDoor?'🚪':(rightAtDoor&&!(g.rightBarricade&&g.rightBarricade.hp>0)?`<span class="ns-doorbot pose-attack" data-ani="${doorBot.id||nsBotId(doorBot.name)}">${nsBotSVG(doorBot.id||doorBot.name,60)}</span>`:'')}${nsDoorArtHTML('right')}</div>
         <div class="ns-door-warn">${rightWarn}${g.rightBarricade&&g.rightBarricade.hp>0?' · 🪵 boarded':''}</div>
         <button class="ns-btn door ${g.rightDoor?'on':''}" onclick="nsToggleDoor('right')">${g.rightDoor?'🔒 Right SHUT':'🚪 Right Door'}</button>
       </div>
