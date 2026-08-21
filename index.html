@@ -1401,6 +1401,11 @@
   .dg-shopbtn{background:#1a1826;border:1px solid #3a3448;color:#d8d0ea;border-radius:10px;padding:9px 12px;font-weight:800;font-size:12.5px;cursor:pointer}
   .dg-shopbtn:disabled{opacity:.45;cursor:not-allowed}
   .dg-shopbtn.on{background:#6a3a1a;border-color:#c07a3a;color:#ffd9a8}
+  .dg-shopbtn.nuke{background:linear-gradient(135deg,#4a1020,#8a1830);border-color:#ff4a6a;color:#ffd0d8;box-shadow:0 0 18px rgba(255,74,106,.35)}
+  .dg-shopbtn.nuke:hover{filter:brightness(1.12)}
+  .dg-levelbar{font-family:var(--mono,monospace);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#7ad0f0;margin:0 0 8px}
+  .dg-nuke-flash{position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,rgba(255,255,220,.95),rgba(255,80,40,.85) 40%,rgba(120,0,0,.7));border-radius:18px;z-index:9;pointer-events:none;animation:dgNukeFlash .85s ease forwards}
+  @keyframes dgNukeFlash{0%{opacity:0;transform:scale(.92)}15%{opacity:1}100%{opacity:0;transform:scale(1.04)}}
   .dg-hint{font-size:11.5px;color:#8a84a0;margin-top:8px;line-height:1.5}
   .dg-heatrow{display:flex;align-items:center;justify-content:center;gap:8px;font-family:var(--mono,monospace);font-size:12.5px;color:#b8b0cc;margin:-2px 0 10px}
   .dg-heatbar{width:min(60vw,240px);height:11px;background:#221c34;border:1px solid #3a3448;border-radius:8px;overflow:hidden}
@@ -5368,7 +5373,7 @@ function lithos4DClearParticles(){lithos4DParticles=[];}
 const LITHOS_GAMES=[
  {id:'arcade',icon:'🕹️',name:'Arcade',desc:'Gem Rush, Night Shift, Gem Digger & the secret game — pick a card and play!',preview:'radial-gradient(circle at 50% 35%,rgba(122,208,240,.28),transparent 50%),radial-gradient(circle at 70% 70%,rgba(201,169,79,.22),transparent 45%),linear-gradient(180deg,#141020,#080610)'},
  {id:'gemrush',icon:'⛏️💎',name:'Gem Rush',desc:'Match gemstone pairs — Diamond with Diamond, Ruby with Ruby! Clear the board before you run out of moves.',preview:'radial-gradient(circle at 40% 30%,rgba(255,120,160,.35),transparent 50%),radial-gradient(circle at 70% 70%,rgba(100,160,255,.3),transparent 45%),linear-gradient(180deg,#1a1028,#0a0812)'},
- {id:'gemdigger',icon:'⛏️🕳️',name:'Gem Digger',desc:'Dig deep underground! Upgrade your drill, buy bombs, reach the Legendary Rainbow Gem at 40m! 🌈',preview:'radial-gradient(circle at 50% 40%,rgba(180,120,60,.35),transparent 50%),linear-gradient(180deg,#1a1410,#0a0806)'},
+ {id:'gemdigger',icon:'⛏️🕳️',name:'Gem Digger',desc:'5 mine levels! Upgrade drill, buy bombs, reach the Legendary Rainbow Gem — owner gets Nuke Blaster ☢️',preview:'radial-gradient(circle at 50% 40%,rgba(180,120,60,.35),transparent 50%),linear-gradient(180deg,#1a1410,#0a0806)'},
  {id:'nightshift',icon:'🌙',name:'Night Shift',tag4d:true,desc:'FREE — survive until 6 AM and get paid. Then spend cash at the Market.',preview:'radial-gradient(circle at 50% 40%,rgba(201,169,79,.25),transparent 50%),radial-gradient(circle at 20% 70%,rgba(154,58,192,.3),transparent 45%),linear-gradient(180deg,#120e1a,#050508)'},
  {id:'nightshift2',icon:'⛏️',name:'Night Shift 2',tag4d:true,desc:'FREE — the Mine Below crew with unique powers: magnets, mimics, frost, swarms & glitches.',preview:'radial-gradient(circle at 50% 35%,rgba(122,208,240,.22),transparent 50%),radial-gradient(circle at 80% 70%,rgba(176,96,232,.28),transparent 45%),linear-gradient(180deg,#0e0a14,#040408)'},
  {id:'poppy',icon:'🏭',name:'Gem Factory',tag4d:true,desc:'12-chapter factory vs Sunspire, Duskveil, Clatterclaw, Redline & Aurum — gemstone animatronics.',preview:'radial-gradient(circle at 50% 20%,rgba(255,77,141,.35),transparent 55%),linear-gradient(180deg,#1a1030,#07060c)'},
@@ -5386,7 +5391,7 @@ const LITHOS_ARCADE_ONLY=new Set(['arcade','gemrush','gemdigger']);
 const LITHOS_ARCADE=[
  {emoji:'⛏️💎',name:'Gem Rush',desc:'Match pairs of the same gemstone — Diamond with Diamond, Ruby with Ruby! Clear all 32 pairs before moves run out.',action:'gemrush'},
  {emoji:'🌙🏭',name:'Night Shift at the Gem Factory',desc:'Survive all 5 nights as the factory\'s night guard! Watch the cameras, slam the doors, don\'t get caught…',action:'nightshift'},
- {emoji:'⛏️🕳️',name:'Gem Digger',desc:'Dig deep underground! Find gems, upgrade your drill, buy BOMBS — and reach the Legendary Rainbow Gem at 40m! 🌈',action:'gemdigger'},
+ {emoji:'⛏️🕳️',name:'Gem Digger',desc:'Dig through 5 mine levels! Find gems, upgrade drill, buy bombs — reach the Rainbow Gem at the bottom. Owner: Nuke Blaster clears everything! ☢️',action:'gemdigger'},
  {emoji:'❓🔒',name:'??? Secret Game ???',desc:'A hidden game lurks somewhere on this site… it only unlocks with a secret code. Hint: how do you fall THROUGH a wall? 🟡',action:'secret',locked:true}
 ];
 let arcadeBuilt=false;
@@ -12758,7 +12763,7 @@ function buildCodes(){
  send.onclick=tryCode;
  input.onkeydown=e=>{if(e.key==='Enter')tryCode();};
  document.getElementById('code-result').innerHTML=isOwner
-? `<div class="win"><b> OWNER MODE is ON!</b> You have all the best items, Bomb Blaster (∞ bombs) in Gem Digger, and can play freely!</div>`
+? `<div class="win"><b> OWNER MODE is ON!</b> You have all the best items, Bomb Blaster (∞ bombs), Nuke Blaster (☢️) in Gem Digger, and can play freely!</div>`
  : isStaff
 ? `<div class="win"><b> LITHOS TEAM MODE is ON!</b> Bomb Blaster unlocked in Gem Digger — unlimited bombs!</div>`
  : '';
@@ -13800,7 +13805,8 @@ function tryCode(){
  You can play freely!<br>
  NEW: <b>Owner TV</b> — your private video platform for anything you want to watch!<br>
  NEW: All <b>Motion Battlefield weaponary</b> — owner blades, shields, powers &amp; avatars!${armList}<br>
- NEW: <b>Bomb Blaster</b> in Gem Digger — unlimited bombs! 💣∞<br><br>
+ NEW: <b>Bomb Blaster</b> in Gem Digger — unlimited bombs! 💣∞<br>
+ NEW: <b>Nuke Blaster</b> in Gem Digger — vaporize an entire level! ☢️ (owner only)<br><br>
  <button type="button" class="game-btn" onclick="switchView('video')" style="margin-top:8px">Open Owner TV now</button>
  <button type="button" class="game-btn" onclick="switchView('gemmotion')" style="margin-top:8px;margin-left:8px">Open Gem Armory</button><br><br>
  Go to the Gem Arena and check it out!
@@ -13965,26 +13971,57 @@ const DG_GEMS=[
  {e:"🟡",n:"Citrine",v:6},{e:"🟣",n:"Amethyst",v:10},{e:"🟢",n:"Emerald",v:16},{e:"🔵",n:"Sapphire",v:22},
  {e:"🟠",n:"Topaz",v:28},{e:"🔴",n:"Ruby",v:38},{e:"⚪",n:"Opal",v:48},{e:"💎",n:"Diamond",v:65}
 ];
+const DG_LEVELS=[
+ {name:'Shallow Mine',rows:38,hpMul:1,gemChance:.24,bonus:0},
+ {name:'Crystal Cavern',rows:42,hpMul:1.15,gemChance:.27,bonus:75},
+ {name:'Magma Vault',rows:46,hpMul:1.32,gemChance:.29,bonus:150},
+ {name:'Abyss Pit',rows:50,hpMul:1.5,gemChance:.31,bonus:250},
+ {name:'Rainbow Core',rows:54,hpMul:1.72,gemChance:.34,bonus:400}
+];
+const DG_MAX_LEVEL=DG_LEVELS.length;
+const DG_LEVEL_BEST_KEY='lithos_dg_level_best';
 function dgHasBombBlaster(){return !!(isOwner||isStaff);}
-function playGemDigger(){
- const old=document.getElementById('gemdig'); if(old)old.remove();
- if(dgLoop){clearInterval(dgLoop);dgLoop=null;}
- const cols=10,rows=40;
- dgGame={cols,rows,hp:[],maxhp:[],gem:[],cleared:new Array(cols*rows).fill(false),
-  money:0,drill:1,bombs:1,bombMode:false,bombBlaster:dgHasBombBlaster(),over:false,won:false,dug:0,gemsFound:0,depth:0,
-  heat:0,overheated:false,coolant:1};
- const g=dgGame;
- for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
-  const i=r*cols+c;
-  const hp=1+Math.floor(r/7); g.hp[i]=hp; g.maxhp[i]=hp;
+function dgHasNukeBlaster(){return !!isOwner;}
+function dgLevelBest(){try{return Math.max(1,+(localStorage.getItem(DG_LEVEL_BEST_KEY)||1));}catch(e){return 1;}}
+function dgSaveLevelBest(lv){try{const b=dgLevelBest(); if(lv>b)localStorage.setItem(DG_LEVEL_BEST_KEY,String(lv));}catch(e){}}
+function dgLevelCfg(lv){return DG_LEVELS[Math.max(0,Math.min(DG_MAX_LEVEL-1,(lv||1)-1))];}
+function dgBuildLevel(g,lv){
+ const cfg=dgLevelCfg(lv);
+ g.level=lv; g.levelName=cfg.name; g.rows=cfg.rows;
+ g.hp=[]; g.maxhp=[]; g.gem=[]; g.cleared=new Array(g.cols*g.rows).fill(false);
+ g.dug=0; g.depth=0; g.heat=0; g.overheated=false; g.over=false; g.won=false;
+ for(let r=0;r<g.rows;r++)for(let c=0;c<g.cols;c++){
+  const i=r*g.cols+c;
+  const hp=Math.max(1,Math.round((1+Math.floor(r/7))*cfg.hpMul));
+  g.hp[i]=hp; g.maxhp[i]=hp;
   let gem=-1;
-  if(Math.random()<0.25){const t=Math.min(7,Math.floor(r/5)); gem=Math.max(0,t-(Math.random()<0.4?1:0));}
+  if(Math.random()<cfg.gemChance){const t=Math.min(7,Math.floor(r/5)); gem=Math.max(0,t-(Math.random()<0.4?1:0));}
   g.gem[i]=gem;
  }
- const leg=39*cols+4; g.gem[leg]=99; g.hp[leg]=6; g.maxhp[leg]=6;
+ const leg=(g.rows-1)*g.cols+Math.floor(g.cols/2);
+ g.gem[leg]=99; g.hp[leg]=Math.max(6,Math.round(6*cfg.hpMul)); g.maxhp[leg]=g.hp[leg];
+}
+function dgMountGrid(g){
+ const grid=document.getElementById('dg-grid'); if(!grid)return;
+ let html='';
+ for(let i=0;i<g.cols*g.rows;i++)html+=`<button class="dg-cell" data-i="${i}" onclick="dgClick(${i})"></button>`;
+ grid.innerHTML=html;
+ for(let i=0;i<g.cols*g.rows;i++)dgPaint(i);
+}
+function playGemDigger(startLevel,carry){
+ const old=document.getElementById('gemdig'); if(old)old.remove();
+ if(dgLoop){clearInterval(dgLoop);dgLoop=null;}
+ const cols=10;
+ const lv=Math.max(1,Math.min(DG_MAX_LEVEL,startLevel||1));
+ dgGame={cols,rows:40,hp:[],maxhp:[],gem:[],cleared:[],
+  money:carry?.money||0,drill:carry?.drill||1,bombs:carry?.bombs||1,bombMode:false,bombBlaster:dgHasBombBlaster(),nukeBlaster:dgHasNukeBlaster(),
+  over:false,won:false,dug:0,gemsFound:carry?.gemsFound||0,depth:0,heat:0,overheated:false,coolant:carry?.coolant||1,level:lv,levelName:''};
+ dgBuildLevel(dgGame,lv);
+ const g=dgGame;
  const wrap=document.createElement('div'); wrap.id='gemdig';
  wrap.innerHTML=`<div class="dg-box">
   <div class="gr-title">⛏️ GEM DIGGER 🕳️</div>
+  <div class="dg-levelbar" id="dg-levelbar"></div>
   <div class="dg-hud" id="dg-hud"></div>
   <div class="dg-heatrow">🌡️ <div class="dg-heatbar"><span id="dg-heatfill"></span></div> <span id="dg-heattxt"></span></div>
   <div class="dg-gridwrap"><div class="dg-grid" id="dg-grid"></div></div>
@@ -13993,17 +14030,21 @@ function playGemDigger(){
    <button class="dg-shopbtn" id="dg-cool" onclick="dgCoolUp()"></button>
    <button class="dg-shopbtn" id="dg-buy" onclick="dgBuyBomb()"></button>
    <button class="dg-shopbtn" id="dg-bomb" onclick="dgToggleBomb()"></button>
+   <button class="dg-shopbtn nuke" id="dg-nuke" onclick="dgNuke()" hidden>☢️ Nuke Blaster</button>
    <button class="gr-btn ghost" onclick="dgClose()">Leave</button>
   </div>
   <div class="dg-hint" id="dg-hint">Dig blocks touching open air! ⚠️ Your drill HEATS UP as you dig — hit 100° and it locks until it fully cools! 🧊 Coolant cools faster. 💣 Bombs never overheat!</div>
  </div>`;
  document.body.appendChild(wrap);
  const dgHint=document.getElementById('dg-hint');
- if(dgHint&&dgHasBombBlaster())dgHint.innerHTML='💣 <b>Bomb Blaster active</b> — unlimited bombs! (Owner / Lithos team perk) · Dig blocks touching open air · Bombs never overheat!';
- let html='';
- for(let i=0;i<cols*rows;i++)html+=`<button class="dg-cell" data-i="${i}" onclick="dgClick(${i})"></button>`;
- document.getElementById('dg-grid').innerHTML=html;
- for(let i=0;i<cols*rows;i++)dgPaint(i);
+ if(dgHint){
+  if(g.nukeBlaster)dgHint.innerHTML='☢️ <b>Nuke Blaster active</b> — owner perk: vaporize the whole level! · 💣 Bomb Blaster ∞ · Clear all <b>'+DG_MAX_LEVEL+' levels</b> to master the mine!';
+  else if(g.bombBlaster)dgHint.innerHTML='💣 <b>Bomb Blaster active</b> — unlimited bombs! (Owner / Lithos team) · Beat <b>Level '+g.level+'/'+DG_MAX_LEVEL+'</b> — find the Rainbow Gem at the bottom!';
+  else dgHint.innerHTML='Dig blocks touching open air! Beat <b>Level '+g.level+'/'+DG_MAX_LEVEL+' — '+g.levelName+'</b>. Find the 🌈 Rainbow Gem at the bottom!';
+ }
+ const nukeBtn=document.getElementById('dg-nuke');
+ if(nukeBtn)nukeBtn.hidden=!g.nukeBlaster;
+ dgMountGrid(g);
  dgHUD(); dgHeat();
  dgLoop=setInterval(dgTickHeat,150);
  syncBodyScrollLock();
@@ -14053,10 +14094,12 @@ function dgBest(){try{return +(localStorage.getItem('lithos_dg_best')||0);}catch
 function dgSaveBest(){try{const b=dgBest(); if(dgGame&&dgGame.money>b)localStorage.setItem('lithos_dg_best',dgGame.money);}catch(e){}}
 function dgHUD(){
  const g=dgGame; if(!g)return;
+ const lvlBar=document.getElementById('dg-levelbar');
+ if(lvlBar)lvlBar.textContent=`Level ${g.level}/${DG_MAX_LEVEL} · ${g.levelName}`;
  const hud=document.getElementById('dg-hud'); if(!hud)return;
  const bombLabel=g.bombBlaster?'∞':g.bombs;
- hud.innerHTML=`<span>💰 <b>$${g.money}</b></span><span>📏 depth <b>${g.depth}m</b></span><span>💎 <b>${g.gemsFound}</b></span><span>⛏️ Lv <b>${g.drill}</b></span><span>🧊 Lv <b>${g.coolant}</b></span><span>💣 <b>${bombLabel}</b>${g.bombBlaster?' <em style="color:#ffde7a;font-style:normal">Blaster</em>':''}</span><span>Best: <b>$${dgBest()}</b></span>`;
- const up=document.getElementById('dg-up'),buy=document.getElementById('dg-buy'),bomb=document.getElementById('dg-bomb'),cool=document.getElementById('dg-cool');
+ hud.innerHTML=`<span>💰 <b>$${g.money}</b></span><span>📏 depth <b>${g.depth}m</b></span><span>💎 <b>${g.gemsFound}</b></span><span>⛏️ Lv <b>${g.drill}</b></span><span>🧊 Lv <b>${g.coolant}</b></span><span>💣 <b>${bombLabel}</b>${g.bombBlaster?' <em style="color:#ffde7a;font-style:normal">Blaster</em>':''}</span>${g.nukeBlaster?'<span>☢️ <b style="color:#ff6a8a">Nuke</b></span>':''}<span>Best: <b>$${dgBest()}</b></span><span>Max Lv <b>${dgLevelBest()}</b></span>`;
+ const up=document.getElementById('dg-up'),buy=document.getElementById('dg-buy'),bomb=document.getElementById('dg-bomb'),cool=document.getElementById('dg-cool'),nuke=document.getElementById('dg-nuke');
  if(!up||!buy||!bomb)return;
  if(g.drill>=5){up.textContent='⛏️ Drill MAXED OUT'; up.disabled=true;}
  else{up.textContent=`⛏️ Upgrade Drill → Lv ${g.drill+1} (FREE!)`; up.disabled=false;}
@@ -14065,17 +14108,22 @@ function dgHUD(){
   if(g.coolant>=3){cool.textContent='🧊 Coolant MAXED'; cool.disabled=true;}
   else{cool.textContent=`🧊 Coolant → Lv ${g.coolant+1} ($${cc[g.coolant]})`; cool.disabled=g.money<cc[g.coolant];}
  }
+ if(nuke){
+  nuke.hidden=!g.nukeBlaster;
+  nuke.textContent='☢️ Nuke Blaster (∞)';
+  nuke.disabled=!g.nukeBlaster||g.over;
+ }
  if(g.bombBlaster){
   buy.textContent='💣 Bomb Blaster (∞)'; buy.disabled=true;
   bomb.textContent=g.bombMode?'💣 CLICK A SPOT TO BLAST!':'💣 Bomb Blaster (∞)';
   bomb.classList.toggle('on',g.bombMode);
-  bomb.disabled=false;
+  bomb.disabled=g.over;
   return;
  }
  buy.textContent='🛒 Buy Bomb ($45)'; buy.disabled=g.money<45;
  bomb.textContent=g.bombMode?'💣 CLICK A SPOT TO BLAST!':`💣 Bomb Mode (x${g.bombs})`;
  bomb.classList.toggle('on',g.bombMode);
- bomb.disabled=g.bombs<=0&&!g.bombMode;
+ bomb.disabled=(g.bombs<=0&&!g.bombMode)||g.over;
 }
 function dgClick(i){
  const g=dgGame; if(!g||g.over)return;
@@ -14089,7 +14137,7 @@ function dgClick(i){
  try{if(SFX&&SFX.click)SFX.click();}catch(e){}
  if(g.hp[i]<=0){dgClear(i,true); dgHUD();} else{dgPaint(i);}
 }
-function dgClear(i,scroll){
+function dgClear(i,scroll,skipWin){
  const g=dgGame; if(g.cleared[i])return;
  g.cleared[i]=true; g.dug++;
  const [r,c]=dgRC(i);
@@ -14098,17 +14146,39 @@ function dgClear(i,scroll){
  const gem=g.gem[i];
  const el=document.querySelector(`.dg-cell[data-i="${i}"]`);
  if(gem===99){
-  g.money+=500; g.gemsFound++;
+  g.money+=500+dgLevelCfg(g.level).bonus; g.gemsFound++;
   if(el)el.innerHTML='<span class="dg-gemflash">🌈</span>';
-  dgFloat('🌈 LEGENDARY! +$500');
-  dgWin();
+  dgFloat('🌈 LEGENDARY! +$'+(500+dgLevelCfg(g.level).bonus));
+  if(!skipWin)dgWin();
  } else if(gem>=0){
   const t=DG_GEMS[gem]; g.money+=t.v; g.gemsFound++;
   if(el){el.innerHTML=`<span class="dg-gemflash">${t.e}</span>`; setTimeout(()=>{if(dgGame)dgPaint(i);},650);}
-  dgFloat(`${t.e} ${t.n}! +$${t.v}`);
+  if(!skipWin)dgFloat(`${t.e} ${t.n}! +$${t.v}`);
  }
  [[r-1,c],[r+1,c],[r,c-1],[r,c+1]].forEach(([rr,cc])=>{if(rr>=0&&rr<g.rows&&cc>=0&&cc<g.cols)dgPaint(dgIdx(rr,cc));});
  if(scroll&&r>5){const e2=document.querySelector(`.dg-cell[data-i="${i}"]`); if(e2)e2.scrollIntoView({block:'center',behavior:'smooth'});}
+}
+function dgNuke(){
+ const g=dgGame; if(!g||!g.nukeBlaster||g.over)return;
+ g.bombMode=false;
+ try{if(SFX&&SFX.boom)SFX.boom();}catch(e){}
+ const box=document.querySelector('.dg-box');
+ if(box){
+  box.classList.add('shake');
+  const flash=document.createElement('div'); flash.className='dg-nuke-flash';
+  box.appendChild(flash);
+  setTimeout(()=>{box.classList.remove('shake'); flash.remove();},880);
+ }
+ const pending=[];
+ for(let i=0;i<g.cols*g.rows;i++)if(!g.cleared[i])pending.push(i);
+ pending.forEach(i=>dgClear(i,false,true));
+ dgFloat('☢️ NUKE BLASTER — entire level vaporized!');
+ if(!g.over){
+  const cfg=dgLevelCfg(g.level);
+  g.money+=cfg.bonus;
+  dgWin(true);
+ }
+ dgHUD();
 }
 function dgBomb(i){
  const g=dgGame; g.bombMode=false;
@@ -14137,15 +14207,24 @@ function dgFloat(txt){
  const f=document.createElement('div'); f.className='dg-float'; f.textContent=txt;
  box.appendChild(f); setTimeout(()=>f.remove(),950);
 }
-function dgWin(){
- const g=dgGame; g.over=true; g.won=true;
+function dgNextLevel(){
+ if(!dgGame||dgGame.level>=DG_MAX_LEVEL)return;
+ playGemDigger(dgGame.level+1,{money:dgGame.money,drill:dgGame.drill,coolant:dgGame.coolant,bombs:dgGame.bombs,gemsFound:dgGame.gemsFound});
+}
+function dgWin(fromNuke){
+ const g=dgGame; if(g.over)return;
+ g.over=true; g.won=true;
  dgSaveBest();
+ dgSaveLevelBest(g.level);
  try{if(SFX&&SFX.win)SFX.win();}catch(e){}
  const box=document.querySelector('.dg-box'); if(!box)return;
+ const cfg=dgLevelCfg(g.level);
+ const hasNext=g.level<DG_MAX_LEVEL;
  const end=document.createElement('div'); end.className='gr-end';
- end.innerHTML=`<div class="gr-end-title">🌈 LEGENDARY RAINBOW GEM FOUND!</div>
-  <div class="gr-end-sub">You dug <b>${g.dug}</b> blocks, found <b>${g.gemsFound}</b> gems, and earned <b style="color:#ffde7a">$${g.money}</b>! Master miner!! ⛏️</div>
-  <button class="gr-btn" onclick="playGemDigger()">Dig Again ⛏️</button>
+ end.innerHTML=`<div class="gr-end-title">${hasNext?'🌈 LEVEL '+g.level+' CLEARED!':'🏆 ALL '+DG_MAX_LEVEL+' LEVELS BEATEN!'}</div>
+  <div class="gr-end-sub">${fromNuke?'☢️ Nuke Blaster cleared <b>'+g.levelName+'</b>! · ':''}Dug <b>${g.dug}</b> blocks · <b>${g.gemsFound}</b> gems · <b style="color:#ffde7a">$${g.money}</b>${cfg.bonus?` (+$${cfg.bonus} level bonus)`:''}</div>
+  ${hasNext?`<button class="gr-btn" onclick="dgNextLevel()">Level ${g.level+1} → ${dgLevelCfg(g.level+1).name} ⛏️</button>`:''}
+  <button class="gr-btn" onclick="playGemDigger()">Replay Level 1 ⛏️</button>
   <button class="gr-btn ghost" onclick="dgClose()">Leave</button>`;
  box.appendChild(end);
 }
