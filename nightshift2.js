@@ -110,57 +110,114 @@ function ns2BotSVG(name, size){
   }
   if(id==='prism'){
     const body=mode==='intense'?`<defs>
-            <radialGradient id="${uid}p" cx="50%" cy="35%" r="70%"><stop offset="0%" stop-color="#ffc0e8"/><stop offset="55%" stop-color="#e858a8"/><stop offset="100%" stop-color="#6a1448"/></radialGradient>
+            <radialGradient id="${uid}p" cx="45%" cy="30%" r="75%"><stop offset="0%" stop-color="#4a2e58"/><stop offset="55%" stop-color="#2a1638"/><stop offset="100%" stop-color="#0e0616"/></radialGradient>
           </defs>
-          <ellipse cx="75" cy="141" rx="36" ry="5" fill="#000" opacity=".4"/>
-          <!-- crate planks EXPLODE outward -->
-          <g fill="#6a4a2a" stroke="#3a2814" stroke-width="1.5">
-            <rect x="18" y="86" width="26" height="9" rx="2" transform="rotate(-24 31 90)"><animateTransform attributeName="transform" type="translate" values="0,0;-8,-6;0,0" dur="1.2s" additive="sum" repeatCount="indefinite"/></rect>
-            <rect x="106" y="80" width="26" height="9" rx="2" transform="rotate(20 119 84)"><animateTransform attributeName="transform" type="translate" values="0,0;8,-5;0,0" dur="1.3s" additive="sum" repeatCount="indefinite"/></rect>
-            <rect x="30" y="126" width="22" height="8" rx="2" transform="rotate(12 41 130)"/>
-            <rect x="98" y="128" width="22" height="8" rx="2" transform="rotate(-14 109 132)"/>
+          <ellipse cx="75" cy="142" rx="40" ry="5" fill="#000" opacity=".45"/>
+          <!-- shattered crate planks on the floor... it was never a crate -->
+          <g fill="#4a3018" stroke="#241606" stroke-width="1.5">
+            <rect x="18" y="130" width="24" height="7" rx="2" transform="rotate(-10 30 133)"/>
+            <rect x="108" y="132" width="22" height="7" rx="2" transform="rotate(14 119 135)"/>
           </g>
-          <!-- THE TRUE FORM: a one-eyed opal blob! -->
+          <!-- THE TRUE FORM: a looming, dripping, many-eyed thing -->
           <g>
-            <animateTransform attributeName="transform" type="translate" values="0,0;0,-4;0,0" dur=".9s" repeatCount="indefinite"/>
-            <!-- waving tendrils -->
-            <path d="M40,96 Q26,88 24,72" fill="none" stroke="url(#${uid}p)" stroke-width="8" stroke-linecap="round">
-              <animateTransform attributeName="transform" type="rotate" values="-10 40 96;12 40 96;-10 40 96" dur="1.1s" repeatCount="indefinite"/></path>
-            <path d="M110,96 Q124,88 126,70" fill="none" stroke="url(#${uid}p)" stroke-width="8" stroke-linecap="round">
-              <animateTransform attributeName="transform" type="rotate" values="10 110 96;-12 110 96;10 110 96" dur="1s" repeatCount="indefinite"/></path>
-            <!-- blobby body -->
-            <path d="M40,132 Q30,96 44,76 Q52,56 75,54 Q98,56 106,76 Q120,96 110,132 Q96,140 75,140 Q54,140 40,132 Z" fill="url(#${uid}p)" stroke="#ffc0e8" stroke-width="2"/>
-            <!-- opal spots that CYCLE colors -->
-            <circle cx="52" cy="112" r="6" fill="#8ae8d0" opacity=".8"><animate attributeName="fill" values="#8ae8d0;#8ab0ff;#ffde7a;#8ae8d0" dur="3s" repeatCount="indefinite"/></circle>
-            <circle cx="98" cy="106" r="5" fill="#8ab0ff" opacity=".8"><animate attributeName="fill" values="#8ab0ff;#ffde7a;#8ae8d0;#8ab0ff" dur="2.6s" repeatCount="indefinite"/></circle>
-            <circle cx="66" cy="128" r="4" fill="#ffde7a" opacity=".8"><animate attributeName="fill" values="#ffde7a;#8ae8d0;#8ab0ff;#ffde7a" dur="3.4s" repeatCount="indefinite"/></circle>
-            <circle cx="88" cy="126" r="4.6" fill="#b08aff" opacity=".8"><animate attributeName="fill" values="#b08aff;#ff8ac0;#8ae8d0;#b08aff" dur="2.8s" repeatCount="indefinite"/></circle>
-            <!-- ONE GIANT EYE, darting around looking for you -->
-            <circle cx="75" cy="84" r="17" fill="#fff"/>
-            <circle cx="75" cy="84" r="9" fill="#ff4a9a"><animate attributeName="cx" values="75;80;70;75" dur="2.2s" repeatCount="indefinite"/></circle>
-            <circle cx="75" cy="84" r="4" fill="#2a0418"><animate attributeName="cx" values="75;81;69;75" dur="2.2s" repeatCount="indefinite"/></circle>
-            <circle cx="71" cy="79" r="2.4" fill="#fff" opacity=".9"/>
-            <!-- splitting grin with little teeth -->
-            <path d="M56,112 Q75,124 94,112" fill="none" stroke="#4a0a2c" stroke-width="3.4" stroke-linecap="round"><animate attributeName="d" values="M56,112 Q75,124 94,112;M56,114 Q75,130 94,114;M56,112 Q75,124 94,112" dur=".9s" repeatCount="indefinite"/></path>
-            <polygon points="64,114 67,119 70,114" fill="#fff"/>
-            <polygon points="80,114 83,119 86,114" fill="#fff"/>
+            <animateTransform attributeName="transform" type="rotate" calcMode="discrete" values="0 75 100;0 75 100;-2.5 75 100;0 75 100;2 75 100;0 75 100" keyTimes="0;.55;.6;.65;.8;1" dur="2.6s" repeatCount="indefinite"/>
+            <g>
+              <animateTransform attributeName="transform" type="translate" values="0,0;0,-3;0,0" dur="3.4s" repeatCount="indefinite"/>
+              <!-- long spindly arms with talon-drip fingers -->
+              <g>
+                <animateTransform attributeName="transform" type="rotate" calcMode="discrete" values="0 46 96;0 46 96;4 46 96;0 46 96" keyTimes="0;.5;.56;1" dur="2.1s" repeatCount="indefinite"/>
+                <path d="M46,96 Q26,104 20,124" fill="none" stroke="#1c0e28" stroke-width="7" stroke-linecap="round"/>
+                <path d="M20,124 L12,132 M20,124 L18,136 M20,124 L26,134" stroke="#1c0e28" stroke-width="3" stroke-linecap="round" fill="none"/>
+              </g>
+              <g>
+                <animateTransform attributeName="transform" type="rotate" calcMode="discrete" values="0 108 80;0 108 80;-5 108 80;0 108 80" keyTimes="0;.4;.47;1" dur="2.4s" repeatCount="indefinite"/>
+                <path d="M108,80 Q128,70 132,52" fill="none" stroke="#1c0e28" stroke-width="7" stroke-linecap="round"/>
+                <path d="M132,52 L126,42 M132,52 L134,40 M132,52 L140,44" stroke="#1c0e28" stroke-width="3" stroke-linecap="round" fill="none"/>
+              </g>
+              <!-- hunched towering body -->
+              <path d="M46,138 Q34,120 40,96 Q34,66 56,46 Q66,30 82,32 Q104,34 110,58 Q120,80 112,104 Q118,124 104,138 Q75,146 46,138 Z" fill="url(#${uid}p)" stroke="#8a6aa8" stroke-width="1.6"/>
+              <path d="M56,46 Q66,30 82,32" fill="none" stroke="#d8c8ff" stroke-width="1.4" opacity=".5"/>
+              <!-- goo dripping off its bottom edge -->
+              <path d="M58,138 q-2,7 0,10 q3,-3 2,-10 Z" fill="#2a1638"/>
+              <path d="M90,140 q-2,6 0,9 q3,-3 2,-9 Z" fill="#2a1638"/>
+              <circle cx="59" cy="148" r="1.6" fill="#4a2e58"><animateTransform attributeName="transform" type="translate" values="0,0;0,8" dur="1.6s" repeatCount="indefinite"/><animate attributeName="opacity" values=".8;0" dur="1.6s" repeatCount="indefinite"/></circle>
+              <!-- a plank from the crate STILL STUCK in its shoulder -->
+              <g transform="rotate(-18 98 46)">
+                <rect x="86" y="40" width="26" height="9" rx="1.5" fill="#5a3c20" stroke="#241606" stroke-width="1.5"/>
+                <text x="99" y="47" text-anchor="middle" font-size="6" fill="#241606" font-family="monospace" font-weight="bold">GE</text>
+              </g>
+              <!-- dim, sickly opal shimmer under its skin -->
+              <circle cx="56" cy="108" r="6" fill="#4ae8b8" opacity=".28"><animate attributeName="fill" values="#4ae8b8;#6a5aff;#a8e84a;#4ae8b8" dur="4s" repeatCount="indefinite"/></circle>
+              <circle cx="98" cy="120" r="5" fill="#6a5aff" opacity=".25"><animate attributeName="fill" values="#6a5aff;#a8e84a;#4ae8b8;#6a5aff" dur="3.4s" repeatCount="indefinite"/></circle>
+              <circle cx="88" cy="72" r="4" fill="#a8e84a" opacity=".25"><animate attributeName="fill" values="#a8e84a;#4ae8b8;#6a5aff;#a8e84a" dur="4.4s" repeatCount="indefinite"/></circle>
+              <!-- THE MAIN EYE — huge, sickly, vertical slit pupil, veins -->
+              <ellipse cx="66" cy="62" rx="13" ry="11" fill="#e8f0c8"/>
+              <path d="M56,56 l5,3 M76,54 l-5,4 M58,68 l5,-2" stroke="#c05a5a" stroke-width="1" opacity=".8"/>
+              <circle cx="66" cy="62" r="6.4" fill="#a8e84a"/>
+              <ellipse cx="66" cy="62" rx="1.7" ry="5.4" fill="#0a0410">
+                <animate attributeName="cx" calcMode="discrete" values="66;70;66;62;66" keyTimes="0;.3;.5;.75;1" dur="2.8s" repeatCount="indefinite"/>
+              </ellipse>
+              <path d="M53,56 Q66,48 79,56 L79,52 Q66,44 53,52 Z" fill="#1c0e28"/>
+              <!-- MORE EYES keep opening where eyes should NOT be... -->
+              <g>
+                <ellipse cx="96" cy="54" rx="5" ry="4" fill="#e8f0c8"><animate attributeName="ry" values="0;0;4;4" keyTimes="0;.3;.36;1" dur="4s" repeatCount="indefinite"/></ellipse>
+                <ellipse cx="96" cy="54" rx="1.1" ry="3" fill="#0a0410"><animate attributeName="ry" values="0;0;3;3" keyTimes="0;.3;.36;1" dur="4s" repeatCount="indefinite"/></ellipse>
+              </g>
+              <g>
+                <ellipse cx="98" cy="92" rx="4.4" ry="3.6" fill="#e8f0c8"><animate attributeName="ry" values="0;0;3.6;3.6" keyTimes="0;.55;.61;1" dur="4s" repeatCount="indefinite"/></ellipse>
+                <ellipse cx="98" cy="92" rx="1" ry="2.6" fill="#0a0410"><animate attributeName="ry" values="0;0;2.6;2.6" keyTimes="0;.55;.61;1" dur="4s" repeatCount="indefinite"/></ellipse>
+              </g>
+              <g>
+                <ellipse cx="52" cy="84" rx="3.6" ry="3" fill="#e8f0c8"><animate attributeName="ry" values="0;0;3;3" keyTimes="0;.75;.8;1" dur="4s" repeatCount="indefinite"/></ellipse>
+                <ellipse cx="52" cy="84" rx=".9" ry="2.2" fill="#0a0410"><animate attributeName="ry" values="0;0;2.2;2.2" keyTimes="0;.75;.8;1" dur="4s" repeatCount="indefinite"/></ellipse>
+              </g>
+              <!-- THE MAW — a huge unhinging jaw full of needle teeth -->
+              <path d="M50,102 Q75,94 102,102 L104,118 Q75,134 48,118 Z" fill="#160410"/>
+              <g fill="#e8e8f0">
+                <polygon points="54,103 57,112 60,103"/>
+                <polygon points="63,101 66,112 69,101"/>
+                <polygon points="73,100 76,113 79,100"/>
+                <polygon points="83,101 86,112 89,101"/>
+                <polygon points="93,102 96,111 99,102"/>
+              </g>
+              <g>
+                <animateTransform attributeName="transform" type="translate" values="0,0;0,5;0,0" dur="2.6s" repeatCount="indefinite"/>
+                <path d="M48,118 Q75,134 104,118 L102,124 Q75,140 50,124 Z" fill="#160410"/>
+                <g fill="#e8e8f0">
+                  <polygon points="58,121 61,113 64,122"/>
+                  <polygon points="70,124 73,115 76,124"/>
+                  <polygon points="82,124 85,115 88,123"/>
+                  <polygon points="92,120 95,113 98,120"/>
+                </g>
+                <line x1="75" y1="106" x2="75" y2="126" stroke="#8a6aa8" stroke-width="1.2" opacity=".5"/>
+              </g>
+            </g>
           </g>`:`<ellipse cx="75" cy="140" rx="36" ry="5" fill="#000" opacity=".35"/>
-          <!-- DISGUISED as an innocent crate... or IS it? -->
-          <rect x="45" y="72" width="60" height="58" rx="3" fill="#6a4a2a" stroke="#3a2814" stroke-width="2.5"/>
-          <rect x="45" y="72" width="60" height="12" fill="#7a5834"/>
-          <line x1="45" y1="101" x2="105" y2="101" stroke="#3a2814" stroke-width="2"/>
-          <line x1="75" y1="72" x2="75" y2="130" stroke="#3a2814" stroke-width="2"/>
-          <text x="75" y="122" text-anchor="middle" font-size="9" fill="#3a2814" font-family="monospace" font-weight="bold">GEMS</text>
-          <!-- a rainbow shimmer sweeps across it... suspicious -->
-          <rect x="30" y="60" width="10" height="84" fill="#ffb0e0" opacity=".12" transform="skewX(-18)">
+          <!-- DISGUISED as an innocent crate... but the crate is BREATHING -->
+          <g>
+            <animateTransform attributeName="transform" type="translate" values="0,0;0,-1.4;0,0" dur="3s" repeatCount="indefinite"/>
+            <rect x="45" y="72" width="60" height="58" rx="3" fill="#6a4a2a" stroke="#3a2814" stroke-width="2.5"/>
+            <rect x="45" y="72" width="60" height="12" fill="#7a5834"/>
+            <line x1="45" y1="101" x2="105" y2="101" stroke="#3a2814" stroke-width="2"/>
+            <line x1="75" y1="72" x2="75" y2="130" stroke="#3a2814" stroke-width="2"/>
+            <text x="75" y="122" text-anchor="middle" font-size="9" fill="#3a2814" font-family="monospace" font-weight="bold">GEMS</text>
+            <!-- claw scratches... from the INSIDE -->
+            <g stroke="#241606" stroke-width="1.4" stroke-linecap="round">
+              <line x1="52" y1="80" x2="58" y2="94"/>
+              <line x1="56" y1="79" x2="62" y2="93"/>
+              <line x1="60" y1="80" x2="66" y2="94"/>
+            </g>
+          </g>
+          <!-- a shimmer sweeps across it... suspicious -->
+          <rect x="30" y="60" width="10" height="84" fill="#b08ae0" opacity=".1" transform="skewX(-18)">
             <animate attributeName="x" values="30;116" dur="3.4s" repeatCount="indefinite"/>
           </rect>
-          <!-- opal goo dripping from a corner... VERY suspicious -->
-          <circle cx="49" cy="132" r="2.6" fill="#ff8ac0"><animate attributeName="cy" values="130;140" dur="2.6s" repeatCount="indefinite"/><animate attributeName="opacity" values=".9;0" dur="2.6s" repeatCount="indefinite"/><animate attributeName="fill" values="#ff8ac0;#8ae8d0;#8ab0ff;#ff8ac0" dur="5s" repeatCount="indefinite"/></circle>
+          <!-- dark goo dripping from a corner... VERY suspicious -->
+          <circle cx="49" cy="132" r="2.6" fill="#8a6aa8"><animate attributeName="cy" values="130;140" dur="2.6s" repeatCount="indefinite"/><animate attributeName="opacity" values=".9;0" dur="2.6s" repeatCount="indefinite"/><animate attributeName="fill" values="#8a6aa8;#4ae8b8;#a8e84a;#8a6aa8" dur="5s" repeatCount="indefinite"/></circle>
           <!-- AND THEN THE CRATE BLINKS. 👁️ -->
-          <ellipse cx="90" cy="90" rx="8" ry="6" fill="#fff"><animate attributeName="ry" values="0;0;6;6;0;0" keyTimes="0;.6;.66;.86;.92;1" dur="5s" repeatCount="indefinite"/></ellipse>
-          <circle cx="90" cy="90" r="3.4" fill="#ff4a9a"><animate attributeName="r" values="0;0;3.4;3.4;0;0" keyTimes="0;.6;.66;.86;.92;1" dur="5s" repeatCount="indefinite"/></circle>
-          <circle cx="90" cy="90" r="1.3" fill="#2a0418"><animate attributeName="r" values="0;0;1.3;1.3;0;0" keyTimes="0;.6;.66;.86;.92;1" dur="5s" repeatCount="indefinite"/></circle>`;
+          <ellipse cx="90" cy="90" rx="8" ry="6" fill="#e8f0c8"><animate attributeName="ry" values="0;0;6;6;0;0" keyTimes="0;.6;.66;.86;.92;1" dur="5s" repeatCount="indefinite"/></ellipse>
+          <circle cx="90" cy="90" r="3.4" fill="#a8e84a"><animate attributeName="r" values="0;0;3.4;3.4;0;0" keyTimes="0;.6;.66;.86;.92;1" dur="5s" repeatCount="indefinite"/></circle>
+          <ellipse cx="90" cy="90" rx="1" ry="2.6" fill="#0a0410"><animate attributeName="ry" values="0;0;2.6;2.6;0;0" keyTimes="0;.6;.66;.86;.92;1" dur="5s" repeatCount="indefinite"/></ellipse>`;
     return svg(150,150,body);
   }
   if(id==='glaci'){
@@ -475,7 +532,7 @@ function playNightShift2(opts){
     decoy:null,frost:null,corrupt:{1:0,2:0,3:0,4:0},
     bots:[
       {id:'magna',name:'Magnapull',role:'Door-Breaker',gem:'Magnetite · rips doors with magnetism',side:'left',pos:0,speed:0.14,color:'#7a8ae8'},
-      {id:'prism',name:'Prismimic',role:'Shapeshifter',gem:'Opal · disguises on cameras',side:'right',pos:0,speed:0.16,color:'#ff6ab0'},
+      {id:'prism',name:'Prismimic',role:'Shapeshifter',gem:'Opal · The Shapeshifter',side:'right',pos:0,speed:0.16,color:'#ff6ab0'},
       {id:'glaci',name:'Glacivore',role:'The Freezer',gem:'Ice Crystal · freezes controls',side:'left',pos:0,speed:0.15,color:'#7ad0f0'},
       {id:'swarm',name:'Swarmshard',role:'The Many',gem:'Pyrite · swarms both doors',side:'right',pos:0,speed:0.17,color:'#e8c838',swarmL:0,swarmR:0},
       {id:'null',name:'Nullite',role:'The Glitch',gem:'Corrupted · static & teleports',side:'right',pos:0,speed:0.11,color:'#b060e8',telepath:true},

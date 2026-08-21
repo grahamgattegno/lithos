@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- lithos-v:mobile-ux-friendly-4 -->
+<!-- lithos-v:approach-depth-5 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1271,7 +1271,7 @@
   .gm-mode-btn:hover,.gm-mode-btn.on{border-color:var(--gold);background:rgba(201,169,79,.1);color:var(--gold)}
   .gm-instructions{font-size:13px;line-height:1.55;color:var(--text-faint);margin-top:18px;text-align:center}
   .gm-instructions b{color:var(--gold);font-weight:500}
-  .gm-video{display:none;position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+  .gm-video{position:fixed;left:-9999px;top:0;width:640px;height:480px;opacity:0;pointer-events:none;object-fit:cover}
   .gm-overlay .game-btn{min-height:54px;padding:16px 36px;font-size:13px;letter-spacing:.18em}
   .gm-status{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint)}
   .gm-status.on{color:#3ecf8a}
@@ -1357,6 +1357,65 @@
   .parade-note{margin-top:24px;color:var(--text-faint);font-size:14px}
   .parade-note b{color:var(--gold)}
 
+  /* ⛏️💎 GEM RUSH — match-3 mining game */
+  #gemrush{position:fixed;inset:0;z-index:9999;background:rgba(6,6,12,.93);display:flex;align-items:center;justify-content:center;padding:12px}
+  .gr-box{background:linear-gradient(170deg,#181428,#0c0a16);border:1px solid #3a3050;border-radius:18px;padding:18px 18px 16px;width:min(96vw,520px);text-align:center;position:relative}
+  .gr-title{font-family:var(--display,serif);font-size:clamp(19px,3.5vw,26px);font-weight:800;color:#7ad0f0;margin-bottom:4px}
+  .gr-hud{display:flex;justify-content:center;gap:14px;font-family:var(--mono,monospace);font-size:13px;color:#b8b0cc;margin-bottom:12px;flex-wrap:wrap}
+  .gr-hud b{color:#ffde7a}
+  .gr-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;max-width:430px;margin:0 auto}
+  .gr-cell{aspect-ratio:1;border:none;background:#221c34;border-radius:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;position:relative;transition:transform .12s}
+  .gr-cell:hover{transform:scale(1.07)}
+  .gr-cell.sel{outline:3px solid #ffde7a;transform:scale(1.1);z-index:2}
+  .gr-gem{width:70%;height:70%;transform:rotate(45deg);border-radius:22%;box-shadow:inset -3px -3px 6px rgba(0,0,0,.45), inset 3px 3px 6px rgba(255,255,255,.35)}
+  .gr-cell.pop .gr-gem{animation:grPop .28s ease forwards}
+  @keyframes grPop{to{transform:rotate(45deg) scale(0);opacity:0}}
+  .gr-combo{position:absolute;top:56px;left:50%;transform:translateX(-50%);font-family:var(--mono,monospace);font-weight:900;color:#ffde7a;font-size:18px;z-index:5;text-shadow:0 2px 8px #000;pointer-events:none}
+  .gr-end{position:absolute;inset:0;background:rgba(8,6,16,.94);border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;z-index:6}
+  .gr-end-title{font-size:24px;font-weight:900;color:#ffde7a;font-family:var(--display,serif)}
+  .gr-end-sub{color:#b8b0cc;font-size:14px}
+  .gr-btn{background:linear-gradient(135deg,#3a8ac0,#7ad0f0);color:#08131a;border:none;border-radius:11px;padding:11px 20px;font-weight:800;font-size:14.5px;cursor:pointer}
+  .gr-btn.ghost{background:transparent;border:1px solid #4a4058;color:#b0a8c0}
+  /* ⛏️🕳️ GEM DIGGER — dig deep underground */
+  #gemdig{position:fixed;inset:0;z-index:9999;background:rgba(6,6,12,.93);display:flex;align-items:center;justify-content:center;padding:12px}
+  .dg-box{background:linear-gradient(170deg,#181428,#0c0a16);border:1px solid #3a3050;border-radius:18px;padding:16px 16px 14px;width:min(96vw,520px);text-align:center;position:relative}
+  .dg-box.shake{animation:dgShake .38s}
+  @keyframes dgShake{0%,100%{transform:none}20%{transform:translate(-5px,2px)}40%{transform:translate(5px,-2px)}60%{transform:translate(-4px,-2px)}80%{transform:translate(4px,2px)}}
+  .dg-hud{display:flex;justify-content:center;gap:12px;font-family:var(--mono,monospace);font-size:12.5px;color:#b8b0cc;margin:6px 0 10px;flex-wrap:wrap}
+  .dg-hud b{color:#ffde7a}
+  .dg-gridwrap{max-height:400px;overflow-y:auto;border:1px solid #2a2440;border-radius:12px;background:#0a0812}
+  .dg-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:3px;padding:6px}
+  .dg-cell{aspect-ratio:1;border:none;border-radius:6px;cursor:default;padding:0;position:relative;font-size:15px;box-shadow:inset 0 -3px 0 rgba(0,0,0,.25)}
+  .dg-cell.d1{background:#7a5834}.dg-cell.d2{background:#6a4a2a}.dg-cell.d3{background:#5f5548}
+  .dg-cell.d4{background:#565664}.dg-cell.d5{background:#40404e}.dg-cell.d6{background:#2e2e3a}
+  .dg-cell.can{filter:brightness(1.25);cursor:pointer}
+  .dg-cell.can:hover{filter:brightness(1.45)}
+  .dg-cell.crack{background-image:linear-gradient(135deg,transparent 42%,rgba(0,0,0,.55) 46%,transparent 50%),linear-gradient(45deg,transparent 58%,rgba(0,0,0,.45) 62%,transparent 66%)}
+  .dg-cell.open{background:radial-gradient(circle at 50% 32%,#241d38,#110d1c);box-shadow:inset 0 2px 7px rgba(0,0,0,.65);cursor:default}
+  .dg-gemflash{display:inline-block;animation:dgGem .62s ease forwards}
+  @keyframes dgGem{0%{transform:scale(.3)}55%{transform:scale(1.35)}100%{transform:scale(0);opacity:0}}
+  .dg-shop{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:10px}
+  .dg-shopbtn{background:#1a1826;border:1px solid #3a3448;color:#d8d0ea;border-radius:10px;padding:9px 12px;font-weight:800;font-size:12.5px;cursor:pointer}
+  .dg-shopbtn:disabled{opacity:.45;cursor:not-allowed}
+  .dg-shopbtn.on{background:#6a3a1a;border-color:#c07a3a;color:#ffd9a8}
+  .dg-hint{font-size:11.5px;color:#8a84a0;margin-top:8px;line-height:1.5}
+  .dg-heatrow{display:flex;align-items:center;justify-content:center;gap:8px;font-family:var(--mono,monospace);font-size:12.5px;color:#b8b0cc;margin:-2px 0 10px}
+  .dg-heatbar{width:min(60vw,240px);height:11px;background:#221c34;border:1px solid #3a3448;border-radius:8px;overflow:hidden}
+  .dg-heatbar span{display:block;height:100%;width:0%;background:#6ae87a;transition:width .14s linear, background .3s}
+  .dg-box.overheat{box-shadow:0 0 0 2px #ff3a3a, 0 0 34px rgba(255,58,58,.35);animation:dgHotPulse .5s infinite alternate}
+  @keyframes dgHotPulse{from{box-shadow:0 0 0 2px #ff3a3a, 0 0 22px rgba(255,58,58,.25)}to{box-shadow:0 0 0 2px #ff6a3a, 0 0 40px rgba(255,90,42,.45)}}
+  .dg-float{position:absolute;top:64px;left:50%;transform:translateX(-50%);font-weight:900;color:#ffde7a;font-family:var(--mono,monospace);font-size:16px;z-index:8;animation:dgRise .95s ease forwards;pointer-events:none;text-shadow:0 2px 8px #000;white-space:nowrap}
+  @keyframes dgRise{to{transform:translate(-50%,-26px);opacity:0}}
+  /* 🕹️ THE LITHOS ARCADE */
+  .arcade-grid{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;margin-top:18px}
+  .arcade-card{background:linear-gradient(170deg,#181428,#0e0c18);border:1px solid #322a44;border-radius:16px;padding:20px 18px;width:min(92vw,300px);text-align:center}
+  .arcade-card.locked{opacity:.85;border-style:dashed}
+  .arcade-emoji{font-size:34px;margin-bottom:8px}
+  .arcade-name{font-weight:800;font-size:17px;color:var(--text,#e8e0f0);margin-bottom:6px}
+  .arcade-desc{font-size:13px;color:#9a92b0;line-height:1.5;margin-bottom:14px;min-height:58px}
+  .arcade-play{background:linear-gradient(135deg,#3a8ac0,#7ad0f0);color:#08131a;border:none;border-radius:11px;padding:10px 22px;font-weight:800;font-size:14px;cursor:pointer}
+  .arcade-play.ghost{background:transparent;border:1px solid #4a4058;color:#b0a8c0}
+
   /* ---------- Secret Codes ---------- */
   .codes-wrap{max-width:760px;margin:0 auto;padding:110px var(--content-pad) 120px;text-align:center}
   .codes-wrap .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:var(--gold);margin-bottom:22px}
@@ -1440,7 +1499,7 @@
   @keyframes heroCharge{0%{transform:translateX(0)}45%{transform:translateX(30px) rotate(8deg)}60%{transform:translateX(30px)}100%{transform:translateX(0)}}
   .bf-char.charging svg{animation:heroCharge .4s ease}
   /* the play area where your character walks around */
-  .bf-play{position:relative;z-index:1;height:170px;margin:8px 0}
+  .bf-play{position:relative;z-index:1;height:170px;margin:8px 0;perspective:820px;perspective-origin:50% 72%}
   /* a ground surface right where the characters' feet are, so they stand ON it */
   .bf-ground-line{position:absolute;left:-16px;right:-16px;bottom:0;height:36%;z-index:0;pointer-events:none;
     background:linear-gradient(180deg, rgba(90,100,120,.35) 0%, rgba(40,44,54,.55) 40%, rgba(20,22,28,.7) 100%);
@@ -1676,12 +1735,14 @@
   .pp-wall.left{left:0;transform:skewY(3deg);border-right:2px solid rgba(16,185,129,.18)}
   .pp-wall.right{right:0;transform:skewY(-3deg);border-left:2px solid rgba(59,130,246,.18)}
   .pp-back-wall{position:absolute;left:18%;right:18%;bottom:28%;height:42%;background:linear-gradient(180deg,#221838,#0e0c18);border:1px solid rgba(167,139,250,.12);border-radius:4px 4px 0 0}
-  .pp-prop{position:absolute;transform:translateX(-50%);bottom:32%;font-size:clamp(28px,8vw,44px);filter:drop-shadow(0 8px 12px rgba(0,0,0,.5));transition:left .25s ease,transform .2s;z-index:2;cursor:pointer;touch-action:manipulation;border:none;background:none;padding:0}
+  .pp-prop{position:absolute;transform:translateX(-50%);bottom:32%;font-size:clamp(28px,8vw,44px);filter:drop-shadow(0 8px 12px rgba(0,0,0,.5));transition:left .25s ease,transform .18s ease,bottom .18s ease;z-index:2;cursor:pointer;touch-action:manipulation;border:none;background:none;padding:0;transform-origin:center bottom}
   .pp-prop:active{transform:translateX(-50%) scale(.94)}
   .pp-prop.glow{animation:ppGlow 1s ease-in-out infinite}
   @keyframes ppGlow{0%,100%{filter:drop-shadow(0 0 8px rgba(255,77,141,.5))}50%{filter:drop-shadow(0 0 18px rgba(255,77,141,.9))}}
-  .pp-monster-far{position:absolute;left:50%;bottom:38%;transform:translateX(-50%);z-index:4;transition:transform .3s,opacity .3s;pointer-events:none}
-  .pp-monster-far.close{transform:translateX(-50%) scale(1.35);filter:drop-shadow(0 0 20px rgba(124,58,237,.6))}
+  .pp-monster-far{position:absolute;left:50%;bottom:38%;transform:translateX(-50%);z-index:4;transition:transform .22s,bottom .22s,opacity .22s;pointer-events:none;transform-origin:center bottom}
+  .pp-monster-far.close{transform:translateX(-50%) scale(1.65);filter:drop-shadow(0 0 24px rgba(124,58,237,.75))}
+  .pp-monster-far.lunging{animation:ppMonsterLunge .35s ease-in-out infinite alternate}
+  @keyframes ppMonsterLunge{0%{transform:translateX(-50%) scale(var(--pp-threat,1)) translateY(0)}100%{transform:translateX(-50%) scale(calc(var(--pp-threat,1)*1.08)) translateY(4%)}}
   .pp-player-wrap{position:absolute;left:50%;bottom:6%;transform:translateX(-50%);z-index:4;transition:left .22s ease;pointer-events:none}
   .pp-player-wrap.walk{animation:ppWalkBob .35s ease-in-out infinite}
   .pp-player-wrap.crouch{transform:translateX(-50%) scale(.88) translateY(8px)}
@@ -2446,7 +2507,7 @@
   @keyframes bfWeaponSwing{0%{transform:rotate(0)}22%{transform:rotate(44deg)}40%{transform:rotate(-108deg)}52%{transform:rotate(-100deg)}70%{transform:rotate(-80deg)}100%{transform:rotate(0)}}
   .bf-char.attacking .held-weapon{animation:bfWeaponSwing .5s cubic-bezier(.5,0,.2,1)!important}
   .bf-char svg{filter:drop-shadow(0 6px 8px rgba(0,0,0,.5))}
-  .bf-enemy{position:absolute;transition:left .06s linear, bottom .06s linear;z-index:1;filter:drop-shadow(0 4px 6px rgba(0,0,0,.5))}
+  .bf-enemy{position:absolute;transition:left .06s linear,bottom .06s linear,transform .08s linear;z-index:1;filter:drop-shadow(0 4px 6px rgba(0,0,0,.5));transform-origin:center bottom}
   .bf-slash{position:absolute;font-size:44px;z-index:3;pointer-events:none;filter:drop-shadow(0 0 10px #fff);animation:slashPop .35s ease forwards}  @keyframes slashPop{0%{transform:scale(.4) rotate(-40deg);opacity:0}40%{transform:scale(1.5) rotate(20deg);opacity:1}100%{transform:scale(1.2) rotate(40deg);opacity:0}}
   /* ===== FIRST-PERSON VIEW ===== */
   .fp-scene{position:absolute;inset:0;overflow:hidden;perspective:600px}
@@ -2459,7 +2520,8 @@
       repeating-linear-gradient(90deg, rgba(120,130,150,.15) 0 2px, transparent 2px 60px),
       linear-gradient(180deg,#2a2f3c 0%,#14161e 100%);
     transform:perspective(300px) rotateX(60deg);transform-origin:bottom;box-shadow:inset 0 20px 40px rgba(0,0,0,.5)}
-  .fp-enemy{position:absolute;line-height:0;pointer-events:none;transition:bottom .08s linear,left .08s linear;filter:drop-shadow(0 6px 10px rgba(0,0,0,.6))}
+  .fp-enemy{position:absolute;line-height:0;pointer-events:none;transition:bottom .08s linear,left .08s linear,transform .08s linear;filter:drop-shadow(0 6px 10px rgba(0,0,0,.6));transform-origin:center bottom}
+  .fp-enemy.close-up{filter:drop-shadow(0 10px 18px rgba(0,0,0,.75)) drop-shadow(0 0 16px rgba(255,90,60,.35))}
   /* wall pillars that scroll past so you can SEE yourself moving */
   .fp-pillar{position:absolute;width:14px;height:120px;transform-origin:bottom;
     background:linear-gradient(90deg,rgba(90,100,120,.5),rgba(40,46,58,.7),rgba(90,100,120,.5));
@@ -2606,6 +2668,10 @@
   .bf-exit.next{color:#ffd34e}
   .bf-controls{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;position:relative;z-index:2;margin-top:6px}
   .bf-controls .game-btn{padding:14px 20px}
+  .gm-controls{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;position:relative;z-index:2;margin-top:10px}
+  .gm-controls .game-btn{padding:14px 20px}
+  .gm-step-log{text-align:center;font-size:13px;line-height:1.55;color:var(--text-dim);margin:10px 0 4px;min-height:2.8em;font-family:var(--mono);letter-spacing:.04em}
+  .gm-step-log b{color:var(--gold)}
   /* ===== Gem Hunt Expedition (billboard → scavenger hunt → gold mine) ===== */
   .exp-wrap{margin-top:20px}
   .exp-field{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:14px;padding:16px;
@@ -2664,7 +2730,14 @@
   .exp-board-title{font-family:var(--mono);font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:#3a2808;margin-bottom:14px}
   .exp-board-fact{font-family:var(--serif);font-size:clamp(18px,3vw,24px);line-height:1.45;color:#1a1008;margin-bottom:22px}
   .exp-board-fact em{font-style:italic;color:#5a3010}
-  .exp-play{position:relative;height:220px;margin:8px 0;z-index:1}
+  .exp-play{position:relative;height:220px;margin:8px 0;z-index:1;perspective:680px;perspective-origin:50% 68%;overflow:hidden}
+  .exp-depth-lanes{position:absolute;left:-8%;right:-8%;bottom:0;height:52%;pointer-events:none;z-index:0;
+    transform:perspective(420px) rotateX(58deg);transform-origin:bottom;
+    background:repeating-linear-gradient(90deg,rgba(255,255,255,.06) 0 2px,transparent 2px 52px),
+      repeating-linear-gradient(0deg,rgba(0,0,0,.12) 0 14px,transparent 14px 28px);
+    opacity:.55;mask-image:linear-gradient(180deg,transparent 0%,#000 35%,#000 100%)}
+  .exp-depth-vanish{position:absolute;left:22%;right:22%;bottom:36%;height:28%;pointer-events:none;z-index:0;
+    background:radial-gradient(ellipse at 50% 100%,rgba(255,255,255,.08),transparent 68%);opacity:.7}
   .exp-ground{position:absolute;left:-16px;right:-16px;bottom:0;height:38%;background:linear-gradient(180deg,#5a8a3a,#3a6028);
     border-top:2px solid rgba(255,255,255,.2);box-shadow:inset 0 4px 10px rgba(0,0,0,.25)}
   .exp-pit{position:absolute;bottom:0;height:32%;background:radial-gradient(ellipse at center top,rgba(0,0,0,.55),rgba(0,0,0,.85));border-top:2px dashed rgba(255,255,255,.15);z-index:0;transform:translateX(-50%);border-radius:8px 8px 0 0;pointer-events:none}
@@ -2672,7 +2745,7 @@
   .exp-hurdle{position:absolute;transform:translateX(-50%);z-index:4;font-size:28px;line-height:1;bottom:36%;filter:drop-shadow(0 3px 4px rgba(0,0,0,.35));pointer-events:none}
   .exp-char.falling{opacity:.85;transition:none}
   .exp-field.goldmine .exp-ground{background:linear-gradient(180deg,#4a3820,#2a1a08);border-top-color:rgba(255,211,78,.25)}
-  .exp-char{position:absolute;transition:left .08s linear,bottom .06s linear;z-index:5;line-height:0}
+  .exp-char{position:absolute;transition:left .08s linear,bottom .06s linear,transform .12s linear;z-index:5;line-height:0;transform-origin:center bottom}
   .exp-char.swinging svg{animation:expSwing .35s ease}
   @keyframes expSwing{0%{transform:rotate(0)}40%{transform:rotate(-28deg) translateX(8px)}100%{transform:rotate(0)}}
   .exp-gem-spot{position:absolute;transform:translateX(-50%);z-index:3;line-height:0;transition:transform .3s,filter .3s,opacity .3s}
@@ -2935,6 +3008,7 @@
     /* Mobile quick nav — subset of views */
     nav.top button[data-view="catalog"],
     nav.top button#games-nav-btn,
+    nav.top button[data-view="arcade"],
     nav.top button[data-view="hunt"],
     nav.top button[data-view="classes"],
     nav.top button[data-view="donate"],
@@ -3334,6 +3408,7 @@
   html.lithos-mobile nav.top button{display:none}
   html.lithos-mobile nav.top button[data-view="catalog"],
   html.lithos-mobile nav.top button#games-nav-btn,
+  html.lithos-mobile nav.top button[data-view="arcade"],
   html.lithos-mobile nav.top button[data-view="hunt"],
   html.lithos-mobile nav.top button[data-view="classes"],
   html.lithos-mobile nav.top button[data-view="donate"],
@@ -3351,6 +3426,7 @@
     html.lithos-computer nav.top button{display:none}
     html.lithos-computer nav.top button[data-view="catalog"],
     html.lithos-computer nav.top button#games-nav-btn,
+    html.lithos-computer nav.top button[data-view="arcade"],
     html.lithos-computer nav.top button[data-view="hunt"],
     html.lithos-computer nav.top button[data-view="classes"],
     html.lithos-computer nav.top button[data-view="donate"],
@@ -3753,6 +3829,7 @@
  <button data-view="memberships">Memberships</button>
  <a class="buy-cta" href="#memberships" onclick="switchView('memberships');return false;">Join — from $67.50</a>
  <button type="button" id="games-nav-btn" onclick="openGamesHub()">Games</button>
+ <button data-view="arcade">🕹️ Arcade</button>
  <button data-view="donate">Donate</button>
  <button data-view="moneygoal">Money Goal</button>
  <button data-view="video" id="video-nav-btn">Owner TV</button>
@@ -3908,6 +3985,14 @@
  <p>Engagement rings and diamond jewellery from London’s Hatton Garden — tracked Awin mid 51929.</p>
  </div>
  <a class="partner-cta" data-partner="diamondrocks" data-partner-path="home" href="https://www.awin1.com/cread.php?awinmid=51929&amp;awinaffid=3027627&amp;ued=https%3A%2F%2Fwww.diamondrocks.co.uk%2F" target="_blank" rel="sponsored noopener noreferrer">Shop Diamond Rocks ↗</a>
+ </div>
+ <div class="partner-card" style="margin-top:14px">
+ <div>
+ <div class="partner-label">Partner spotlight · NYC</div>
+ <h3>See crystals &amp; minerals at <em>Rock Star Crystals</em></h3>
+ <p>Chelsea gallery at 146 W 26th St — 30+ years of amethyst, quartz, tourmaline, fossils, and collector specimens. Open daily 12–8 PM. Recommended shop; affiliate tracking not yet active.</p>
+ </div>
+ <a class="partner-cta" data-partner="rockstarcrystals" data-partner-path="home" href="https://www.rockstarcrystals.com/" target="_blank" rel="noopener noreferrer">Visit Rock Star Crystals ↗</a>
  </div>
 </section>
 
@@ -4234,7 +4319,7 @@
 
  <section class="collab-partners">
  <h2>Active partners</h2>
- <p class="sub">Live integrations on Lithos today. More partners added as agreements are signed.</p>
+ <p class="sub">Tracked affiliates and recommended shops on Lithos today. Commission applies only where noted; spotlight partners are editorial picks until an affiliate agreement is signed.</p>
  <div class="collab-partner-row">
  <div class="collab-partner">
  <div class="p-status">Affiliate · Live tracking</div>
@@ -4259,6 +4344,12 @@
  <div class="p-name">GemsNY</div>
  <p>Certified loose rubies, sapphires, emeralds. Impact signup needs SMS — links stay ready for tracking once approved.</p>
  <a class="mem-btn alt" data-partner="gemsny" data-partner-path="home" href="https://www.gemsny.com/" target="_blank" rel="sponsored noopener noreferrer">Visit GemsNY ↗</a>
+ </div>
+ <div class="collab-partner">
+ <div class="p-status">Partner spotlight · NYC</div>
+ <div class="p-name">Rock Star Crystals</div>
+ <p>Manhattan’s Chelsea crystal gallery — minerals, gemstones, jewelry, fossils, and meteorites. In-store destination; no public affiliate program yet. Lithos recommends for field-study visits.</p>
+ <a class="mem-btn alt" data-partner="rockstarcrystals" data-partner-path="home" href="https://www.rockstarcrystals.com/" target="_blank" rel="noopener noreferrer">Visit Rock Star Crystals ↗</a>
  </div>
  </div>
  </section>
@@ -4561,6 +4652,15 @@
  </section>
 </div><!-- /view-parade -->
 
+<div class="view" id="view-arcade" hidden>
+ <section class="codes-wrap">
+  <div class="eyebrow">The Lithos Arcade</div>
+  <h1>Pick a <em>game</em> 🕹️</h1>
+  <p class="lede">Every game here is 100% original and free to play — made by Lithos! New games get added all the time.</p>
+  <div class="arcade-grid" id="arcade-grid"></div>
+ </section>
+</div><!-- /view-arcade -->
+
 <div class="view" id="view-codes" hidden>
  <section class="codes-wrap">
  <div class="eyebrow">Secret Cheat Codes</div>
@@ -4720,6 +4820,7 @@
  <a data-partner="miles" data-partner-path="home" href="https://www.awin1.com/cread.php?awinmid=129311&amp;awinaffid=3027627&amp;ued=https%3A%2F%2Fmilesjewellery.com%2F" target="_blank" rel="sponsored noopener noreferrer">Shop Miles ↗</a>
  <a data-partner="diamondrocks" data-partner-path="home" href="https://www.awin1.com/cread.php?awinmid=51929&amp;awinaffid=3027627&amp;ued=https%3A%2F%2Fwww.diamondrocks.co.uk%2F" target="_blank" rel="sponsored noopener noreferrer">Shop Diamond Rocks ↗</a>
  <a data-partner="gemsny" data-partner-path="home" href="https://www.gemsny.com/" target="_blank" rel="sponsored noopener noreferrer">Shop at GemsNY ↗</a>
+ <a data-partner="rockstarcrystals" data-partner-path="home" href="https://www.rockstarcrystals.com/" target="_blank" rel="noopener noreferrer">Rock Star Crystals ↗</a>
  <a href="#company" onclick="switchView('company');return false;">Company</a>
  <a href="#company/partners" onclick="openCompanyPage('partners');return false;">Partners</a>
  <a href="#company/careers" onclick="openCompanyPage('careers');return false;">Careers</a>
@@ -4785,6 +4886,15 @@ const AFFILIATE_PARTNERS={
    ruby:'https://www.gemsny.com/ruby/basic-search',
    emerald:'https://www.gemsny.com/emerald/basic-search',
    join:'https://www.gemsny.com/affiliates'
+  }
+ },
+ rockstarcrystals:{
+  name:'Rock Star Crystals',
+  clickUrl:'', // no public affiliate program — partner spotlight only
+  paths:{
+   home:'https://www.rockstarcrystals.com/',
+   gallery:'https://www.rockstarcrystals.com/pages/gallery',
+   contact:'https://www.rockstarcrystals.com/pages/contact'
   }
  }
 };
@@ -5253,6 +5363,9 @@ function lithos4DClearParticles(){lithos4DParticles=[];}
 
 /* ---------- Games hub ---------- */
 const LITHOS_GAMES=[
+ {id:'arcade',icon:'🕹️',name:'Arcade',desc:'Gem Rush, Night Shift, Gem Digger & the secret game — pick a card and play!',preview:'radial-gradient(circle at 50% 35%,rgba(122,208,240,.28),transparent 50%),radial-gradient(circle at 70% 70%,rgba(201,169,79,.22),transparent 45%),linear-gradient(180deg,#141020,#080610)'},
+ {id:'gemrush',icon:'⛏️💎',name:'Gem Rush',desc:'Swap gems to match 3 or more! Chain combos — can you hit 1,000 points in 25 moves?',preview:'radial-gradient(circle at 40% 30%,rgba(255,120,160,.35),transparent 50%),radial-gradient(circle at 70% 70%,rgba(100,160,255,.3),transparent 45%),linear-gradient(180deg,#1a1028,#0a0812)'},
+ {id:'gemdigger',icon:'⛏️🕳️',name:'Gem Digger',desc:'Dig deep underground! Upgrade your drill, buy bombs, reach the Legendary Rainbow Gem at 40m! 🌈',preview:'radial-gradient(circle at 50% 40%,rgba(180,120,60,.35),transparent 50%),linear-gradient(180deg,#1a1410,#0a0806)'},
  {id:'nightshift',icon:'🌙',name:'Night Shift',tag4d:true,desc:'FREE — survive until 6 AM and get paid. Then spend cash at the Market.',preview:'radial-gradient(circle at 50% 40%,rgba(201,169,79,.25),transparent 50%),radial-gradient(circle at 20% 70%,rgba(154,58,192,.3),transparent 45%),linear-gradient(180deg,#120e1a,#050508)'},
  {id:'nightshift2',icon:'⛏️',name:'Night Shift 2',tag4d:true,desc:'FREE — the Mine Below crew with unique powers: magnets, mimics, frost, swarms & glitches.',preview:'radial-gradient(circle at 50% 35%,rgba(122,208,240,.22),transparent 50%),radial-gradient(circle at 80% 70%,rgba(176,96,232,.28),transparent 45%),linear-gradient(180deg,#0e0a14,#040408)'},
  {id:'poppy',icon:'🏭',name:'Gem Factory',tag4d:true,desc:'12-chapter factory vs Freddy, Bonnie, Chica, Foxy & Golden Freddy — gemstone animatronics.',preview:'radial-gradient(circle at 50% 20%,rgba(255,77,141,.35),transparent 55%),linear-gradient(180deg,#1a1030,#07060c)'},
@@ -5266,7 +5379,42 @@ const LITHOS_GAMES=[
  {id:'quiz',icon:'❓',name:'Mineral Quiz',desc:'Test your geology knowledge.',activity:true,preview:'radial-gradient(circle at 50% 30%,rgba(78,168,255,.3),transparent 55%),linear-gradient(180deg,#121820,#0a0b0f)'}
 ];
 const LITHOS_GAME_IDS=new Set(LITHOS_GAMES.map(g=>g.id));
+const LITHOS_ARCADE_ONLY=new Set(['arcade','gemrush','gemdigger']);
+const LITHOS_ARCADE=[
+ {emoji:'⛏️💎',name:'Gem Rush',desc:'Swap gems to match 3 or more! Chain combos to multiply your score — can you hit 1,000 points in 25 moves?',action:'gemrush'},
+ {emoji:'🌙🏭',name:'Night Shift at the Gem Factory',desc:'Survive all 5 nights as the factory\'s night guard! Watch the cameras, slam the doors, don\'t get caught…',action:'nightshift'},
+ {emoji:'⛏️🕳️',name:'Gem Digger',desc:'Dig deep underground! Find gems, upgrade your drill, buy BOMBS — and reach the Legendary Rainbow Gem at 40m! 🌈',action:'gemdigger'},
+ {emoji:'❓🔒',name:'??? Secret Game ???',desc:'A hidden game lurks somewhere on this site… it only unlocks with a secret code. Hint: how do you fall THROUGH a wall? 🟡',action:'secret',locked:true}
+];
+let arcadeBuilt=false;
 let gamesHubBuilt=false;
+function launchArcadeGame(action){
+ try{closeGamesHub({skipHash:true});}catch(_){}
+ lithosCloseGameOverlays();
+ if(action==='gemrush'){playGemRush();return;}
+ if(action==='nightshift'){playNightShift();return;}
+ if(action==='gemdigger'){playGemDigger();return;}
+ if(action==='secret'){switchView('codes');return;}
+}
+function buildArcade(){
+ const grid=document.getElementById('arcade-grid');
+ if(!grid)return;
+ grid.innerHTML=LITHOS_ARCADE.map(g=>`
+  <div class="arcade-card${g.locked?' locked':''}">
+   <div class="arcade-emoji">${g.emoji}</div>
+   <div class="arcade-name">${g.name}</div>
+   <div class="arcade-desc">${g.desc}</div>
+   <button type="button" class="arcade-play${g.locked?' ghost':''}" data-arcade="${g.action}">${g.locked?'🔑 Enter a Code':'▶ Play'}</button>
+  </div>`).join('');
+ if(!arcadeBuilt){
+  grid.addEventListener('click',e=>{
+   const btn=e.target.closest('[data-arcade]');
+   if(!btn)return;
+   launchArcadeGame(btn.dataset.arcade);
+  });
+  arcadeBuilt=true;
+ }
+}
 let gamesHubOpen=false;
 let activeView='catalog';
 function isGamesHubOpen(){
@@ -5281,21 +5429,23 @@ function syncBodyScrollLock(){
   ||!!document.getElementById('nightshift')
   ||!!document.getElementById('nightshift2')
   ||!!document.getElementById('brmaze')
+  ||!!document.getElementById('gemrush')
+  ||!!document.getElementById('gemdig')
   ||document.body.classList.contains('pp-playing');
  document.body.style.overflow=locked?'hidden':'';
 }
 function syncMobileNav(name){
  document.querySelectorAll('.mobile-bar button').forEach(b=>{
   const target=b.dataset.mnav;
-  const onGames=name==='games'||LITHOS_GAME_IDS.has(name)||name==='nightshift'||name==='nightshift2';
+  const onGames=name==='games'||name==='arcade'||(LITHOS_GAME_IDS.has(name)&&!LITHOS_ARCADE_ONLY.has(name))||name==='nightshift'||name==='nightshift2'||name==='gemrush'||name==='gemdigger';
   b.classList.toggle('on',onGames?target==='games':target===name);
  });
 }
 function syncNavHighlight(viewName){
  const nsOpen=!!document.getElementById('nightshift')||!!document.getElementById('nightshift2')||viewName==='nightshift'||viewName==='nightshift2';
- const hubGame=LITHOS_GAME_IDS.has(viewName);
+ const hubGame=LITHOS_GAME_IDS.has(viewName)&&!LITHOS_ARCADE_ONLY.has(viewName);
  const gamesBtn=document.getElementById('games-nav-btn');
- if(gamesBtn)gamesBtn.classList.toggle('on',(gamesHubOpen||hubGame)&&!nsOpen);
+ if(gamesBtn)gamesBtn.classList.toggle('on',(gamesHubOpen||hubGame)&&!nsOpen&&viewName!=='arcade');
  const highlight=viewName==='about'||viewName==='collaborate'||viewName==='careers'?'company':viewName;
  navBtns.forEach(b=>{
   b.classList.toggle('on',!gamesHubOpen&&!nsOpen&&!hubGame&&b.dataset.view===highlight);
@@ -5318,6 +5468,9 @@ function buildGamesHub(){
    const card=e.target.closest('[data-game]');
    if(!card)return;
    const id=card.dataset.game;
+   if(id==='arcade'){closeGamesHub({skipHash:true}); switchView('arcade'); return;}
+   if(id==='gemrush'){closeGamesHub({skipHash:true}); playGemRush(); return;}
+   if(id==='gemdigger'){closeGamesHub({skipHash:true}); playGemDigger(); return;}
    if(id==='nightshift'){ closeGamesHub({skipHash:true}); playNightShift(); return; }
    if(id==='nightshift2'){ closeGamesHub({skipHash:true}); playNightShift2(); return; }
    if(id==='nightmarket'){ closeGamesHub({skipHash:true}); playNightMarket(); return; }
@@ -5333,6 +5486,8 @@ function lithosCloseGameOverlays(){
  try{ns2CloseGame();}catch(_){}
  try{closeBackroomsMaze();}catch(_){}
  try{stopGemMotion();}catch(_){}
+ try{grClose();}catch(_){}
+ try{dgClose();}catch(_){}
 }
 function openGamesHub(opts={}){
  if(isGamesHubOpen()){
@@ -5740,6 +5895,7 @@ const views={
  game:document.getElementById('view-game'),
  poppy:document.getElementById('view-poppy'),
  parade:document.getElementById('view-parade'),
+ arcade:document.getElementById('view-arcade'),
  codes:document.getElementById('view-codes'),
  auras:document.getElementById('view-auras'),
  battlefield:document.getElementById('view-battlefield'),
@@ -5811,6 +5967,7 @@ function switchView(name){
  if(name==='gemmotion'){buildGemMotion();}
  if(name==='poppy'){buildPoppyHub();}
  if(name==='parade'){buildParade();}
+ if(name==='arcade'){buildArcade();}
  if(name==='codes'){buildCodes();}
  if(name==='auras'){buildAuras();}
  if(name==='battlefield'){ if(gemHunt) startExpedition(); else buildBattlefield(); }
@@ -5853,6 +6010,8 @@ function routeHashView(){
   playNightMarket();return;
  }
  if(name==='backrooms'||name==='noclip'||name==='gembackrooms'){playBackroomsMaze();return;}
+ if(name==='gemrush'){playGemRush();return;}
+ if(name==='gemdigger'){playGemDigger();return;}
  if(name==='parts'){openGamesHub({fromHash:true});return;}
  if(name==='about'){openCompanyPage('story');return;}
  if(name==='collaborate'){openCompanyPage('partners');return;}
@@ -10859,6 +11018,11 @@ const HUNT_GEM_FACTS={
 };
 const GOLD_VEIN_SPOTS=[8,18,28,38,48,58,68,78,88,94];
 function expGemFact(name){ return HUNT_GEM_FACTS[name]||'A beautiful treasure from the earth!'; }
+function expApproachDepth(dist, baseBottom){
+ const d=Math.max(0,dist||0);
+ const t=Math.max(0,Math.min(1,1-d/46));
+ return {scale:0.38+t*2.05,bottom:(baseBottom||36)+t*18,z:Math.round(2+t*12),opacity:d>54?0.52:0.58+t*0.42};
+}
 function expAreaClue(){
  const left=expAreaGems().filter(g=>!g.found);
  if(!left.length) return '';
@@ -11198,15 +11362,18 @@ function renderExpedition(){
  const searching=exp.searching&&Math.abs(exp.heroX-g.x)<EXP_SEARCH_RADIUS;
  const prog=g.searches/g.searchesNeeded;
  const nearby=Math.abs(g.x-exp.heroX)<=28;
+ const ap=expApproachDepth(Math.abs(g.x-exp.heroX),(g.y||38)-2);
  const cls='exp-hide-spot'+(searching?' searching':'')+(prog>=0.66?' almost':prog>0?' partial':'')+(nearby?' nearby':'');
- return `<div class="${cls}" style="left:${g.x}%;bottom:${(g.y||38)-2}%">${g.hide}${g.searches>0?`<span class="exp-search-prog">${g.searches}/${g.searchesNeeded}</span>`:''}</div>`;
+ return `<div class="${cls}" style="left:${g.x}%;bottom:${ap.bottom}%;transform:translateX(-50%) scale(${ap.scale});z-index:${ap.z};opacity:${ap.opacity}">${g.hide}${g.searches>0?`<span class="exp-search-prog">${g.searches}/${g.searchesNeeded}</span>`:''}</div>`;
  }).join(''):'';
  const gemsHTML=(!isGold)?areaGems.filter(g=>g.found).map(g=>{
- return `<div class="exp-gem-spot spotted" style="left:${g.x}%;bottom:${g.y||38}%">${huntGemSVG(34,g.color)}<span class="exp-check">✓</span></div>`;
+ const ap=expApproachDepth(Math.abs(g.x-exp.heroX),g.y||38);
+ return `<div class="exp-gem-spot spotted" style="left:${g.x}%;bottom:${ap.bottom}%;transform:translateX(-50%) scale(${ap.scale});z-index:${ap.z}">${huntGemSVG(34,g.color)}<span class="exp-check">✓</span></div>`;
  }).join(''):'';
  const veinsHTML=isGold?exp.veins.map(v=>{
  const pct=v.mined?100:Math.round(v.hits/v.hitsNeeded*100);
- return `<div class="exp-vein ${v.mined?'mined':''} ${v.hitT>0?'hit':''}" style="left:${v.x}%;bottom:36%">${goldVeinSVG(72,v.hitT>0||v.mined)}${!v.mined?`<div class="exp-vein-bar"><span style="width:${pct}%"></span></div>`:''}</div>`;
+ const ap=expApproachDepth(Math.abs(v.x-exp.heroX),36);
+ return `<div class="exp-vein ${v.mined?'mined':''} ${v.hitT>0?'hit':''}" style="left:${v.x}%;bottom:${ap.bottom}%;transform:translateX(-50%) scale(${ap.scale});z-index:${ap.z}">${goldVeinSVG(72,v.hitT>0||v.mined)}${!v.mined?`<div class="exp-vein-bar"><span style="width:${pct}%"></span></div>`:''}</div>`;
  }).join(''):'';
  const popsHTML=isGold?(exp.goldPops||[]).map(p=>`<div class="exp-gold-pop" style="left:${p.x}%;bottom:50%">${goldNuggetSVG(22)} +1!</div>`).join(''):'';
  const gemPopHTML=(!isGold&&(exp.gemPops||[]).length)?(exp.gemPops||[]).map(p=>`<div class="exp-gem-pop" style="left:${p.x}%;bottom:55%">${p.text}</div>`).join(''):'';
@@ -11216,7 +11383,8 @@ function renderExpedition(){
  const streakHTML=(!isGold&&(exp.streak||0)>=2)?`<div class="exp-streak on">🔥 ${exp.streak} gem streak — keep going!</div>`:'';
  const toastHTML=(!isGold&&exp.findToast)?`<div class="exp-find-toast">💎 ${exp.findToast}</div>`:'';
  const pickaxe=isGold?`<span class="exp-pickaxe">${pickaxeSVG(44)}</span>`:'';
- const heroHTML=`<div class="exp-char ${exp.swing?'swinging':''} ${exp.searching?'searching':''} ${exp.falling?'falling':''}" style="left:${exp.heroX}%;bottom:${expCharBottomPct()}%">${gemWarriorSVG(hero.color,64,hero.titan,hero.plasma,hero.style)}${pickaxe}</div>`;
+ const heroFlip=exp.faceDir<0?' scaleX(-1)':'';
+ const heroHTML=`<div class="exp-char ${exp.swing?'swinging':''} ${exp.searching?'searching':''} ${exp.falling?'falling':''}" style="left:${exp.heroX}%;bottom:${expCharBottomPct()}%;transform:translateX(-50%)${heroFlip}">${gemWarriorSVG(hero.color,64,hero.titan,hero.plasma,hero.style)}${pickaxe}</div>`;
  const counter=isGold
  ?`Gold bag: ${exp.gold} / ${EXPEDITION_GOLD_COUNT} ${goldNuggetSVG(18)}`
  :`${area.emoji} ${area.name}: ${expAreaFound(area.id)} / ${expAreaNeed(area)} &nbsp;•&nbsp; Total: ${exp.gemsFound} / ${EXPEDITION_GEM_COUNT} 💎`;
@@ -11254,6 +11422,7 @@ function renderExpedition(){
  <div class="exp-field ${isGold?'goldmine':area.id}">
  ${isGold?'<div class="exp-mine-wall"></div><div class="exp-tunnel"></div><div class="exp-mine-sign">⛏ Each vein needs several swings — get close!</div>':`<div class="exp-trail-sign">${area.sign}</div>`}
  <div class="exp-play">
+ <div class="exp-depth-lanes"></div><div class="exp-depth-vanish"></div>
  <div class="exp-ground"></div>
  ${(!isGold)?(()=>{
  const ob=area.obby||{};
@@ -11262,7 +11431,10 @@ function renderExpedition(){
  const emoji=area.id==='river'?'💧':area.id==='volcano'?'🔥':area.id==='snow'?'🧊':'🕳️';
  return `<div class="exp-pit" style="left:${mid}%;width:${w}%" title="Jump!">${emoji?`<span style="position:absolute;left:50%;top:15%;transform:translateX(-50%);font-size:16px;opacity:.6">${emoji}</span>`:''}</div>`;
  }).join('');
- const hurdles=(ob.hurdles||[]).map(h=>`<div class="exp-hurdle" style="left:${h.x}%">🪵</div>`).join('');
+ const hurdles=(ob.hurdles||[]).map(h=>{
+ const ap=expApproachDepth(Math.abs(h.x-exp.heroX),36);
+ return `<div class="exp-hurdle" style="left:${h.x}%;bottom:${ap.bottom}%;transform:translateX(-50%) scale(${ap.scale});z-index:${ap.z}">🪵</div>`;
+ }).join('');
  return pits+hurdles;
  })():''}
  ${hideSpotsHTML}${gemsHTML}${veinsHTML}${popsHTML}${gemPopHTML}${confettiHTML}${heroHTML}
@@ -11311,6 +11483,7 @@ function startArmyBattle(){
  collapse:0,
  spawnTimer:0,
  over:false,
+ fpv:true,
  log:" Corrupted gem mine! Gem monsters are pouring in from EVERYWHERE! Shatter them all!",
  quizShown:{},
  bossSpawnQueued:false
@@ -12139,6 +12312,16 @@ function updateLabSparks(){
  play.appendChild(d);
  });
 }
+function bfApproachDepth(x,jump,baseBottom){
+ if(!bf) return {scale:1,bottom:baseBottom||34,z:1};
+ const dist=Math.abs(x-bf.heroX);
+ const t=Math.max(0,1-Math.min(dist,48)/48);
+ return {scale:0.42+t*1.22,bottom:(baseBottom||34)+(jump||0)*0.4+t*13,z:Math.round(1+t*16)};
+}
+function bfDepthStyle(x,jump,baseBottom){
+ const d=bfApproachDepth(x,jump,baseBottom);
+ return `transform:translateX(-50%) scale(${d.scale.toFixed(2)});bottom:${d.bottom.toFixed(1)}%;z-index:${d.z}`;
+}
 function renderBattlefieldFrame(){
  if(!bf)return;
  const wrap=document.getElementById('bf-wrap');
@@ -12169,14 +12352,14 @@ function renderBattlefieldFrame(){
  const sparksHTML = (bf.sparks||[]).map(s=>`<div class="bf-spark" style="left:${s.x}%;bottom:${s.y}%">${sparkSVG()}</div>`).join('');
  if(bf.phase==="golems"){
  fieldStuff=bf.enemies.map(e=>e.alive
-? `<div class="bf-enemy" style="left:${e.x}%;bottom:${34+e.jump*0.4}%">${shardGolemSVG(52, e.hurt, e.color)}</div>`
+? `<div class="bf-enemy" style="left:${e.x}%;${bfDepthStyle(e.x,e.jump,34)}">${shardGolemSVG(52, e.hurt, e.color)}</div>`
  : '').join('');
  const left=bf.total-bf.defeated;
  statusLine=` ${fmtHP(h.hp)} / ${fmtHP(h.maxhp)} &nbsp;•&nbsp; Gem monsters left: ${left} / ${bf.total}`;
  } else if(bf.phase==="boss"){
  const boss=bf.boss;
  // giant boss — 5x bigger!
- fieldStuff=`<div class="bf-enemy bf-boss" style="left:${boss.x}%;bottom:${28+boss.jump*0.4}%">${megaGolemSVG(260, boss.hurt)}</div>`;
+ fieldStuff=`<div class="bf-enemy bf-boss" style="left:${boss.x}%;${bfDepthStyle(boss.x,boss.jump,28)}">${megaGolemSVG(260, boss.hurt)}</div>`;
  if(bf.lasers){fieldStuff+=bf.lasers.map(lz=>`<div class="bf-laser" style="left:${lz.x}%;bottom:38%">${laserSVG(30)}</div>`).join('');}
  statusLine=` ${fmtHP(h.hp)} / ${fmtHP(h.maxhp)} &nbsp;•&nbsp; Crystal Lord HP: ${fmtHP(boss.hp)} / ${fmtHP(boss.maxhp)}`;
  } else if(bf.phase==="escape"||bf.phase==="escaped"){
@@ -12230,7 +12413,7 @@ function renderBattlefieldFrame(){
  statusLine=` The floor is breaking apart — FALLING into the vents...`;
  } else if(bf.phase==="underground"){
  // spider bots
- let spiders=bf.spiders?bf.spiders.map(s=>s.alive?`<div class="bf-enemy" style="left:${s.x}%;bottom:34%">${crystalSpiderSVG(56,s.hurt,s.color)}</div>`:'').join(''):'';
+ let spiders=bf.spiders?bf.spiders.map(s=>s.alive?`<div class="bf-enemy" style="left:${s.x}%;${bfDepthStyle(s.x,0,34)}">${crystalSpiderSVG(56,s.hurt,s.color)}</div>`:'').join(''):'';
  // spider lasers
  let lasers=bf.lasers?bf.lasers.map(lz=>`<div class="bf-laser" style="left:${lz.x}%;bottom:38%">${laserSVG(30)}</div>`).join(''):'';
  // debris (ground blocks sit low, falling ones drop)
@@ -12275,7 +12458,7 @@ function renderBattlefieldFrame(){
  statusLine=` ${fmtHP(h.hp)} / ${fmtHP(h.maxhp)} &nbsp;•&nbsp; Escape Hallway &nbsp;•&nbsp; Cave-in: ${Math.min(100,Math.round(bf.collapse))}%`;
  } else if(bf.phase==="creator"){
  const boss=bf.creator;
- let creatorEl=`<div class="bf-enemy bf-boss" style="left:${boss.x}%;bottom:${20+boss.jump*0.4}%">${creatorSVG(240,boss.hurt)}</div>`;
+ let creatorEl=`<div class="bf-enemy bf-boss" style="left:${boss.x}%;${bfDepthStyle(boss.x,boss.jump,20)}">${creatorSVG(240,boss.hurt)}</div>`;
  let lasers=bf.lasers?bf.lasers.map(lz=>`<div class="bf-laser" style="left:${lz.x}%;bottom:${lz.hi?46:38}%">${laserSVG(40)}</div>`).join(''):'';
  let booms=bf.explosions?bf.explosions.map(x=>`<div class="bf-boom" style="left:${x.x}%;bottom:${x.y}%">${explosionSVG(44)}</div>`).join(''):'';
  // your team lines up and FIGHTS — they bob in a battle stance
@@ -12331,24 +12514,27 @@ function renderBattlefieldFrame(){
  let fpEnemies='';
  if(bf.phase==="golems"){
  fpEnemies=bf.enemies.filter(e=>e.alive).map(e=>{
- const dist=Math.abs(e.x-bf.heroX); // how far away (0=on top of you)
- const scale=Math.max(0.3, 1.8 - dist*0.05); // closer = bigger
- const side=(e.x-bf.heroX); // negative=left, positive=right
- const leftPct=50 + side*1.4; // spread across the view
- const bottomPct=18 + Math.max(0,(dist-4))*0.6 - e.jump*0.3; // far = higher up (toward horizon)
+ const dist=Math.abs(e.x-bf.heroX);
+ const scale=Math.max(0.22, 2.85 - dist*0.068);
+ const side=(e.x-bf.heroX);
+ const face=side<=0?1:-1;
+ const leftPct=50 + side*1.4;
+ const bottomPct=10 + Math.max(0,(32-dist))*0.92 - e.jump*0.35;
  const z=Math.round(100-dist);
- return `<div class="fp-enemy" style="left:${leftPct}%;bottom:${bottomPct}%;transform:translateX(-50%) scale(${scale});z-index:${z};opacity:${dist>28?0.5:1}">${shardGolemSVG(90,e.hurt,e.color)}</div>`;
+ const closeUp=dist<10?' close-up':'';
+ return `<div class="fp-enemy${closeUp}" style="left:${leftPct}%;bottom:${bottomPct}%;transform:translateX(-50%) scale(${face*scale}, ${scale});z-index:${z};opacity:${dist>30?0.42:1}">${shardGolemSVG(90,e.hurt,e.color)}</div>`;
  }).join('');
  } else if(bf.phase==="boss"){
  const boss=bf.boss; const dist=Math.abs(boss.x-bf.heroX);
- const scale=Math.max(1.2, 4.2 - dist*0.08);
+ const scale=Math.max(1.35, 5.2 - dist*0.09);
  const leftPct=50 + (boss.x-bf.heroX)*1.2;
- fpEnemies=`<div class="fp-enemy" style="left:${leftPct}%;bottom:${16+Math.max(0,dist-4)*0.5}%;transform:translateX(-50%) scale(${scale})">${megaGolemSVG(120,boss.hurt)}</div>`;
- if(bf.lasers){fpEnemies+=bf.lasers.map(lz=>{const d=Math.abs(lz.x-bf.heroX);const sc=Math.max(.5,2-d*0.06);return `<div class="fp-laser" style="left:${50+(lz.x-bf.heroX)*1.4}%;bottom:${30}%;transform:translateX(-50%) scale(${sc})">${laserSVG(40)}</div>`;}).join('');}
+ fpEnemies=`<div class="fp-enemy close-up" style="left:${leftPct}%;bottom:${8+Math.max(0,(28-dist))*0.75}%;transform:translateX(-50%) scale(${scale})">${megaGolemSVG(120,boss.hurt)}</div>`;
+ if(bf.lasers){fpEnemies+=bf.lasers.map(lz=>{const d=Math.abs(lz.x-bf.heroX);const sc=Math.max(.45,2.4-d*0.07);return `<div class="fp-laser" style="left:${50+(lz.x-bf.heroX)*1.4}%;bottom:${26+Math.max(0,18-d)*0.4}%;transform:translateX(-50%) scale(${sc})">${laserSVG(40)}</div>`;}).join('');}
  } else if(bf.phase==="underground"){
  fpEnemies=(bf.spiders||[]).filter(s=>s.alive).map(s=>{
- const dist=Math.abs(s.x-bf.heroX); const scale=Math.max(0.3,1.8-dist*0.05);
- return `<div class="fp-enemy" style="left:${50+(s.x-bf.heroX)*1.4}%;bottom:${16+Math.max(0,dist-4)*0.6}%;transform:translateX(-50%) scale(${scale})">${crystalSpiderSVG(90,s.hurt,s.color)}</div>`;
+ const dist=Math.abs(s.x-bf.heroX); const scale=Math.max(0.22,2.85-dist*0.068);
+ const side=(s.x-bf.heroX); const face=side<=0?1:-1;
+ return `<div class="fp-enemy${dist<10?' close-up':''}" style="left:${50+(s.x-bf.heroX)*1.4}%;bottom:${10+Math.max(0,(32-dist))*0.92}%;transform:translateX(-50%) scale(${face*scale}, ${scale})">${crystalSpiderSVG(90,s.hurt,s.color)}</div>`;
  }).join('');
  if(bf.lasers){fpEnemies+=bf.lasers.map(lz=>`<div class="fp-laser" style="left:${50+(lz.x-bf.heroX)*1.4}%;bottom:30%;transform:translateX(-50%)">${laserSVG(40)}</div>`).join('');}
  }
@@ -12475,6 +12661,15 @@ document.addEventListener('click',e=>{
   case 'exp-leave': leaveExpedition(); return;
   }
  }
+ if(gmState&&gmState.running){
+  switch(btn.id){
+  case 'gm-left': gmState.move(-1); return;
+  case 'gm-right': gmState.move(1); return;
+  case 'gm-jump': gmState.jump(); return;
+  case 'gm-swing': gmState.attack(); return;
+  case 'gm-leave-btn': stopGemMotion(); buildGemMotion(); return;
+  }
+ }
  if(!bf)return;
  switch(btn.id){
  case 'bf-left': if(!bf.over)bfMove(-1); break;
@@ -12510,6 +12705,14 @@ document.addEventListener('keydown',e=>{
 // arrow keys + space controls
 document.addEventListener('keydown',e=>{
  if(isTypingTarget(e.target))return;
+ if(gmState&&gmState.running&&!views.gemmotion.hidden){
+  if(e.key==='l'||e.key==='L'){stopGemMotion();buildGemMotion();e.preventDefault();return;}
+  if(e.key==='ArrowLeft'){gmState.move(-1);e.preventDefault();return;}
+  if(e.key==='ArrowRight'){gmState.move(1);e.preventDefault();return;}
+  if(e.key==='ArrowUp'||isSpaceKey(e)){gmState.jump();e.preventDefault();return;}
+  if(e.key==='Enter'||e.key==='a'||e.key==='A'){gmState.attack();e.preventDefault();return;}
+  return;
+ }
  if(exp && !views.battlefield.hidden){
  if(exp.phase==="billboard"||exp.phase==="done")return;
  if(e.key==='l'||e.key==='L'){leaveExpedition();e.preventDefault();return;}
@@ -13606,7 +13809,7 @@ function tryCode(){
  }
 
  // NIGHT SHIFT AT THE GEM FACTORY — a spooky survive-the-night game!
- if(raw==="night shift"||raw==="nightshift"||raw==="survive the night"||raw==="gem animatronics"||raw==="freddy"){
+ if(raw==="night shift"||raw==="nightshift"||raw==="survive the night"||raw==="gem factory"||raw==="gem animatronics"||raw==="freddy"){
  res.innerHTML=`<div class="win" style="border-color:#7a3a9a"><b>Night Shift is free!</b><br>No code needed — open <b>Games → Night Shift</b>. Launching now…</div>`;
  playNightShift();
  return;
@@ -13614,6 +13817,20 @@ function tryCode(){
  if(raw==="night shift 2"||raw==="nightshift2"||raw==="mine below"||raw==="the mine below"||raw==="deep crew"){
  res.innerHTML=`<div class="win" style="border-color:#7ad0f0"><b>Night Shift 2 is free!</b><br>The Mine Below crew awaits — launching now…</div>`;
  playNightShift2();
+ return;
+ }
+
+ // GEM RUSH — match-3 mining madness! 💎⛏️
+ if(raw==="gem rush"||raw==="gemrush"||raw==="match"||raw==="match 3"){
+ res.innerHTML=`<div class="win" style="border-color:#7ad0f0">⛏️ GEM RUSH! Match gems, chain combos — can you hit 1,000 points?</div>`;
+ playGemRush();
+ return;
+ }
+
+ // GEM DIGGER — dig deep with drills & bombs! ⛏️🕳️
+ if(raw==="dig"||raw==="gem digger"||raw==="gemdigger"||raw==="mine"){
+ res.innerHTML=`<div class="win" style="border-color:#8a6a3a">⛏️ GEM DIGGER! Dig deep, find gems, buy drills and BOMBS — the Legendary Rainbow Gem waits at 40m! 🌈</div>`;
+ playGemDigger();
  return;
  }
 
@@ -13638,6 +13855,287 @@ function tryCode(){
 
  res.innerHTML=`<div class="fail"> Hmm, that's not a real code. Keep looking! </div>`;
 }
+
+// ================= ⛏️💎 GEM RUSH — match-3 mining game! =================
+let grGame=null;
+const GR_COLORS=[
+ {n:"Ruby",c1:"#ff8a9a",c2:"#c01830"},
+ {n:"Sapphire",c1:"#8ab0ff",c2:"#1840c0"},
+ {n:"Emerald",c1:"#8ae8b0",c2:"#0c8a4a"},
+ {n:"Citrine",c1:"#ffe08a",c2:"#c08a10"},
+ {n:"Amethyst",c1:"#d0a0ff",c2:"#7a2ac0"},
+ {n:"Diamond",c1:"#f0f8ff",c2:"#8aa8c0"}
+];
+function playGemRush(){
+ const old=document.getElementById('gemrush'); if(old)old.remove();
+ grGame={board:[],score:0,moves:25,target:1000,sel:-1,busy:false,over:false,won:false,combo:0};
+ const b=grGame.board;
+ for(let i=0;i<64;i++){
+  let c;
+  do{c=Math.floor(Math.random()*6);}
+  while((i%8>=2&&b[i-1]===c&&b[i-2]===c)||(Math.floor(i/8)>=2&&b[i-8]===c&&b[i-16]===c));
+  b[i]=c;
+ }
+ const wrap=document.createElement('div'); wrap.id='gemrush';
+ document.body.appendChild(wrap);
+ grRender();
+ syncBodyScrollLock();
+}
+function grClose(){const w=document.getElementById('gemrush'); if(w)w.remove(); grGame=null; syncBodyScrollLock();}
+function grBest(){try{return +(localStorage.getItem('lithos_gr_best')||0);}catch(e){return 0;}}
+function grSaveBest(){try{const b=grBest(); if(grGame&&grGame.score>b)localStorage.setItem('lithos_gr_best',grGame.score);}catch(e){}}
+function grRender(msg){
+ const g=grGame; if(!g)return;
+ const wrap=document.getElementById('gemrush'); if(!wrap)return;
+ const cells=g.board.map((c,i)=>{
+  const col=GR_COLORS[c]||GR_COLORS[0];
+  return `<button class="gr-cell ${g.sel===i?'sel':''}" onclick="grPick(${i})" data-i="${i}"><div class="gr-gem" style="background:radial-gradient(circle at 32% 30%, ${col.c1}, ${col.c2})"></div></button>`;
+ }).join('');
+ wrap.innerHTML=`<div class="gr-box">
+  <div class="gr-title">⛏️ GEM RUSH 💎</div>
+  <div class="gr-hud"><span>Score: <b>${g.score}</b> / ${g.target}</span><span>Moves: <b>${g.moves}</b></span><span>Best: <b>${grBest()}</b></span></div>
+  ${msg?`<div class="gr-combo">${msg}</div>`:''}
+  <div class="gr-grid">${cells}</div>
+  <div style="margin-top:12px"><button class="gr-btn ghost" onclick="grClose()">Leave</button></div>
+  ${g.over?`<div class="gr-end"><div class="gr-end-title">${g.won?'⛏️ TARGET SMASHED! 🎉':'😅 OUT OF MOVES!'}</div><div class="gr-end-sub">Final score: <b style="color:#ffde7a">${g.score}</b>${g.won?' — you are a master miner!':' — so close! Try again?'}</div><button class="gr-btn" onclick="playGemRush()">Play Again ⛏️</button><button class="gr-btn ghost" onclick="grClose()">Leave</button></div>`:''}
+ </div>`;
+}
+function grPick(i){
+ const g=grGame; if(!g||g.busy||g.over)return;
+ if(g.sel<0){g.sel=i; grRender(); try{if(SFX&&SFX.click)SFX.click();}catch(e){} return;}
+ if(g.sel===i){g.sel=-1; grRender(); return;}
+ const a=g.sel,b2=i;
+ const adj=(Math.abs(a-b2)===1&&Math.floor(a/8)===Math.floor(b2/8))||Math.abs(a-b2)===8;
+ if(!adj){g.sel=i; grRender(); return;}
+ g.sel=-1; g.busy=true;
+ [g.board[a],g.board[b2]]=[g.board[b2],g.board[a]];
+ if(grFindMatches().length===0){
+  grRender();
+  setTimeout(()=>{[g.board[a],g.board[b2]]=[g.board[b2],g.board[a]]; g.busy=false; grRender('❌ no match there');},260);
+  return;
+ }
+ g.moves--; g.combo=0;
+ try{if(SFX&&SFX.click)SFX.click();}catch(e){}
+ grRender();
+ setTimeout(grResolve,180);
+}
+function grFindMatches(){
+ const b=grGame.board,hit=new Set();
+ for(let r=0;r<8;r++)for(let c=0;c<6;c++){
+  const i=r*8+c;
+  if(b[i]!=null&&b[i]===b[i+1]&&b[i]===b[i+2]){let k=c; while(k<8&&b[r*8+k]===b[i]){hit.add(r*8+k);k++;}}
+ }
+ for(let c=0;c<8;c++)for(let r=0;r<6;r++){
+  const i=r*8+c;
+  if(b[i]!=null&&b[i]===b[i+8]&&b[i]===b[i+16]){let k=r; while(k<8&&b[k*8+c]===b[i]){hit.add(k*8+c);k++;}}
+ }
+ return [...hit];
+}
+function grResolve(){
+ const g=grGame; if(!g)return;
+ const hits=grFindMatches();
+ if(hits.length===0){
+  g.busy=false;
+  if(g.score>=g.target){g.over=true; g.won=true; grSaveBest(); try{if(SFX&&SFX.win)SFX.win();}catch(e){}}
+  else if(g.moves<=0){g.over=true; g.won=false; grSaveBest(); try{if(SFX&&SFX.lose)SFX.lose();}catch(e){}}
+  grRender(); return;
+ }
+ g.combo++;
+ g.score+=hits.length*10*g.combo;
+ hits.forEach(i=>{const el=document.querySelector(`.gr-cell[data-i="${i}"]`); if(el)el.classList.add('pop');});
+ try{if(SFX&&SFX.click)SFX.click();}catch(e){}
+ setTimeout(()=>{
+  hits.forEach(i=>g.board[i]=null);
+  for(let c=0;c<8;c++){
+   let write=7;
+   for(let r=7;r>=0;r--){const i=r*8+c; if(g.board[i]!=null){g.board[write*8+c]=g.board[i]; if(write!==r)g.board[i]=null; write--;}}
+   for(let r=write;r>=0;r--)g.board[r*8+c]=Math.floor(Math.random()*6);
+  }
+  grRender(g.combo>1?`💥 COMBO x${g.combo}!`:'');
+  setTimeout(grResolve,200);
+ },260);
+}
+
+// ================= ⛏️🕳️ GEM DIGGER — dig deep, find gems, buy bombs! =================
+let dgGame=null,dgLoop=null;
+const DG_GEMS=[
+ {e:"🟡",n:"Citrine",v:6},{e:"🟣",n:"Amethyst",v:10},{e:"🟢",n:"Emerald",v:16},{e:"🔵",n:"Sapphire",v:22},
+ {e:"🟠",n:"Topaz",v:28},{e:"🔴",n:"Ruby",v:38},{e:"⚪",n:"Opal",v:48},{e:"💎",n:"Diamond",v:65}
+];
+function playGemDigger(){
+ const old=document.getElementById('gemdig'); if(old)old.remove();
+ if(dgLoop){clearInterval(dgLoop);dgLoop=null;}
+ const cols=10,rows=40;
+ dgGame={cols,rows,hp:[],maxhp:[],gem:[],cleared:new Array(cols*rows).fill(false),
+  money:0,drill:1,bombs:1,bombMode:false,over:false,won:false,dug:0,gemsFound:0,depth:0,
+  heat:0,overheated:false,coolant:1};
+ const g=dgGame;
+ for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
+  const i=r*cols+c;
+  const hp=1+Math.floor(r/7); g.hp[i]=hp; g.maxhp[i]=hp;
+  let gem=-1;
+  if(Math.random()<0.25){const t=Math.min(7,Math.floor(r/5)); gem=Math.max(0,t-(Math.random()<0.4?1:0));}
+  g.gem[i]=gem;
+ }
+ const leg=39*cols+4; g.gem[leg]=99; g.hp[leg]=6; g.maxhp[leg]=6;
+ const wrap=document.createElement('div'); wrap.id='gemdig';
+ wrap.innerHTML=`<div class="dg-box">
+  <div class="gr-title">⛏️ GEM DIGGER 🕳️</div>
+  <div class="dg-hud" id="dg-hud"></div>
+  <div class="dg-heatrow">🌡️ <div class="dg-heatbar"><span id="dg-heatfill"></span></div> <span id="dg-heattxt"></span></div>
+  <div class="dg-gridwrap"><div class="dg-grid" id="dg-grid"></div></div>
+  <div class="dg-shop">
+   <button class="dg-shopbtn" id="dg-up" onclick="dgUpgrade()"></button>
+   <button class="dg-shopbtn" id="dg-cool" onclick="dgCoolUp()"></button>
+   <button class="dg-shopbtn" id="dg-buy" onclick="dgBuyBomb()"></button>
+   <button class="dg-shopbtn" id="dg-bomb" onclick="dgToggleBomb()"></button>
+   <button class="gr-btn ghost" onclick="dgClose()">Leave</button>
+  </div>
+  <div class="dg-hint">Dig blocks touching open air! ⚠️ Your drill HEATS UP as you dig — hit 100° and it locks until it fully cools! 🧊 Coolant cools faster. 💣 Bombs never overheat!</div>
+ </div>`;
+ document.body.appendChild(wrap);
+ let html='';
+ for(let i=0;i<cols*rows;i++)html+=`<button class="dg-cell" data-i="${i}" onclick="dgClick(${i})"></button>`;
+ document.getElementById('dg-grid').innerHTML=html;
+ for(let i=0;i<cols*rows;i++)dgPaint(i);
+ dgHUD(); dgHeat();
+ dgLoop=setInterval(dgTickHeat,150);
+ syncBodyScrollLock();
+}
+function dgTickHeat(){
+ const g=dgGame; if(!g){if(dgLoop){clearInterval(dgLoop);dgLoop=null;} return;}
+ if(g.heat>0){
+  const coolRate=[0,2,3,4.5][g.coolant];
+  g.heat=Math.max(0,g.heat-coolRate);
+  if(g.overheated&&g.heat<=0){g.overheated=false; dgFloat('❄️ Drill cooled — dig on!');}
+  dgHeat();
+ }
+}
+function dgHeat(){
+ const g=dgGame; if(!g)return;
+ const fill=document.getElementById('dg-heatfill'),txt=document.getElementById('dg-heattxt');
+ const box=document.querySelector('.dg-box');
+ if(fill){fill.style.width=g.heat+'%'; fill.style.background=g.overheated?'#ff3a3a':g.heat>85?'#ff5a2a':g.heat>60?'#ffa53a':g.heat>35?'#ffd53a':'#6ae87a';}
+ if(txt)txt.textContent=g.overheated?'🔥 OVERHEATED!':Math.round(g.heat)+'°';
+ if(box)box.classList.toggle('overheat',g.overheated);
+}
+function dgCoolUp(){
+ const g=dgGame; if(!g)return; const costs=[0,90,220];
+ if(g.coolant>=3||g.money<costs[g.coolant])return;
+ g.money-=costs[g.coolant]; g.coolant++;
+ try{if(SFX&&SFX.win)SFX.win();}catch(e){}
+ dgFloat('🧊 COOLANT UPGRADED!'); dgHUD();
+}
+function dgIdx(r,c){return r*dgGame.cols+c;}
+function dgRC(i){return [Math.floor(i/dgGame.cols),i%dgGame.cols];}
+function dgCan(i){
+ const g=dgGame; if(g.cleared[i])return false;
+ const [r,c]=dgRC(i); if(r===0)return true;
+ return [[r-1,c],[r+1,c],[r,c-1],[r,c+1]].some(([rr,cc])=>rr>=0&&rr<g.rows&&cc>=0&&cc<g.cols&&g.cleared[dgIdx(rr,cc)]);
+}
+function dgPaint(i){
+ const g=dgGame; if(!g)return; const el=document.querySelector(`.dg-cell[data-i="${i}"]`); if(!el)return;
+ const [r]=dgRC(i);
+ el.className='dg-cell';
+ if(g.cleared[i]){el.classList.add('open'); el.innerHTML=''; return;}
+ el.classList.add(r<7?'d1':r<14?'d2':r<21?'d3':r<28?'d4':r<35?'d5':'d6');
+ if(g.hp[i]<g.maxhp[i])el.classList.add('crack');
+ if(dgCan(i))el.classList.add('can');
+ el.innerHTML='';
+}
+function dgBest(){try{return +(localStorage.getItem('lithos_dg_best')||0);}catch(e){return 0;}}
+function dgSaveBest(){try{const b=dgBest(); if(dgGame&&dgGame.money>b)localStorage.setItem('lithos_dg_best',dgGame.money);}catch(e){}}
+function dgHUD(){
+ const g=dgGame; if(!g)return;
+ const hud=document.getElementById('dg-hud'); if(!hud)return;
+ hud.innerHTML=`<span>💰 <b>$${g.money}</b></span><span>📏 depth <b>${g.depth}m</b></span><span>💎 <b>${g.gemsFound}</b></span><span>⛏️ Lv <b>${g.drill}</b></span><span>🧊 Lv <b>${g.coolant}</b></span><span>💣 <b>${g.bombs}</b></span><span>Best: <b>$${dgBest()}</b></span>`;
+ const up=document.getElementById('dg-up'),buy=document.getElementById('dg-buy'),bomb=document.getElementById('dg-bomb'),cool=document.getElementById('dg-cool');
+ if(!up||!buy||!bomb)return;
+ if(g.drill>=5){up.textContent='⛏️ Drill MAXED OUT'; up.disabled=true;}
+ else{up.textContent=`⛏️ Upgrade Drill → Lv ${g.drill+1} (FREE!)`; up.disabled=false;}
+ if(cool){
+  const cc=[0,90,220];
+  if(g.coolant>=3){cool.textContent='🧊 Coolant MAXED'; cool.disabled=true;}
+  else{cool.textContent=`🧊 Coolant → Lv ${g.coolant+1} ($${cc[g.coolant]})`; cool.disabled=g.money<cc[g.coolant];}
+ }
+ buy.textContent='🛒 Buy Bomb ($45)'; buy.disabled=g.money<45;
+ bomb.textContent=g.bombMode?'💣 CLICK A SPOT TO BLAST!':`💣 Bomb Mode (x${g.bombs})`;
+ bomb.classList.toggle('on',g.bombMode);
+ bomb.disabled=g.bombs<=0&&!g.bombMode;
+}
+function dgClick(i){
+ const g=dgGame; if(!g||g.over)return;
+ if(g.bombMode){dgBomb(i); return;}
+ if(g.overheated){dgFloat('🔥 Too hot! Wait for the cooldown...'); return;}
+ if(g.cleared[i]||!dgCan(i))return;
+ g.hp[i]-=g.drill;
+ g.heat=Math.min(100,g.heat+8);
+ if(g.heat>=100){g.overheated=true; dgFloat('🔥 DRILL OVERHEATED!!'); try{if(SFX&&SFX.lose)SFX.lose();}catch(e){}}
+ dgHeat();
+ try{if(SFX&&SFX.click)SFX.click();}catch(e){}
+ if(g.hp[i]<=0){dgClear(i,true); dgHUD();} else{dgPaint(i);}
+}
+function dgClear(i,scroll){
+ const g=dgGame; if(g.cleared[i])return;
+ g.cleared[i]=true; g.dug++;
+ const [r,c]=dgRC(i);
+ if(r+1>g.depth)g.depth=r+1;
+ dgPaint(i);
+ const gem=g.gem[i];
+ const el=document.querySelector(`.dg-cell[data-i="${i}"]`);
+ if(gem===99){
+  g.money+=500; g.gemsFound++;
+  if(el)el.innerHTML='<span class="dg-gemflash">🌈</span>';
+  dgFloat('🌈 LEGENDARY! +$500');
+  dgWin();
+ } else if(gem>=0){
+  const t=DG_GEMS[gem]; g.money+=t.v; g.gemsFound++;
+  if(el){el.innerHTML=`<span class="dg-gemflash">${t.e}</span>`; setTimeout(()=>{if(dgGame)dgPaint(i);},650);}
+  dgFloat(`${t.e} ${t.n}! +$${t.v}`);
+ }
+ [[r-1,c],[r+1,c],[r,c-1],[r,c+1]].forEach(([rr,cc])=>{if(rr>=0&&rr<g.rows&&cc>=0&&cc<g.cols)dgPaint(dgIdx(rr,cc));});
+ if(scroll&&r>5){const e2=document.querySelector(`.dg-cell[data-i="${i}"]`); if(e2)e2.scrollIntoView({block:'center',behavior:'smooth'});}
+}
+function dgBomb(i){
+ const g=dgGame; g.bombMode=false;
+ if(g.bombs<=0){dgHUD(); return;}
+ g.bombs--;
+ try{if(SFX&&SFX.boom)SFX.boom();}catch(e){}
+ const box=document.querySelector('.dg-box'); if(box){box.classList.add('shake'); setTimeout(()=>box.classList.remove('shake'),420);}
+ const [r,c]=dgRC(i);
+ for(let rr=r-1;rr<=r+1;rr++)for(let cc=c-1;cc<=c+1;cc++){
+  if(rr>=0&&rr<g.rows&&cc>=0&&cc<g.cols){const j=dgIdx(rr,cc); if(!g.cleared[j])dgClear(j,false);}
+ }
+ const el=document.querySelector(`.dg-cell[data-i="${i}"]`); if(el)el.scrollIntoView({block:'center',behavior:'smooth'});
+ dgHUD();
+}
+function dgUpgrade(){
+ const g=dgGame; if(!g)return;
+ if(g.drill>=5)return;
+ g.drill++;
+ try{if(SFX&&SFX.win)SFX.win();}catch(e){}
+ dgFloat('⛏️ DRILL UPGRADED!'); dgHUD();
+}
+function dgBuyBomb(){const g=dgGame; if(!g||g.money<45)return; g.money-=45; g.bombs++; dgFloat('💣 +1 bomb!'); dgHUD();}
+function dgToggleBomb(){const g=dgGame; if(!g)return; g.bombMode=g.bombs>0?!g.bombMode:false; dgHUD();}
+function dgFloat(txt){
+ const box=document.querySelector('.dg-box'); if(!box)return;
+ const f=document.createElement('div'); f.className='dg-float'; f.textContent=txt;
+ box.appendChild(f); setTimeout(()=>f.remove(),950);
+}
+function dgWin(){
+ const g=dgGame; g.over=true; g.won=true;
+ dgSaveBest();
+ try{if(SFX&&SFX.win)SFX.win();}catch(e){}
+ const box=document.querySelector('.dg-box'); if(!box)return;
+ const end=document.createElement('div'); end.className='gr-end';
+ end.innerHTML=`<div class="gr-end-title">🌈 LEGENDARY RAINBOW GEM FOUND!</div>
+  <div class="gr-end-sub">You dug <b>${g.dug}</b> blocks, found <b>${g.gemsFound}</b> gems, and earned <b style="color:#ffde7a">$${g.money}</b>! Master miner!! ⛏️</div>
+  <button class="gr-btn" onclick="playGemDigger()">Dig Again ⛏️</button>
+  <button class="gr-btn ghost" onclick="dgClose()">Leave</button>`;
+ box.appendChild(end);
+}
+function dgClose(){dgSaveBest(); if(dgLoop){clearInterval(dgLoop);dgLoop=null;} const w=document.getElementById('gemdig'); if(w)w.remove(); dgGame=null; syncBodyScrollLock();}
 
 // ===== NIGHT SHIFT AT THE GEM FACTORY — a spooky survive-the-night game! 🎃🏭 =====
 let nsGame=null, nsLoop=null;
@@ -15440,6 +15938,12 @@ function ppOnKey(e){
 function ppOnKeyUp(e){ppOnKey(e);}
 function ppWorldMax(){return ppGame?.cfg?.worldMax||128;}
 function ppWorldScreen(x){if(!ppGame)return'50%';return `calc(50% + ${(x-ppGame.state.x)*0.72}%)`;}
+function ppApproachDepth(dist, baseBottomPct){
+ const d=Math.max(0,dist||0);
+ const t=Math.max(0,Math.min(1,1-d/52));
+ const base=parseFloat(String(baseBottomPct||32));
+ return {scale:0.34+t*1.62,bottom:base+t*17,z:Math.round(2+t*11)};
+}
 function ppObjBottom(type){return type==='hide'?'30%':type==='door'?'26%':'32%';}
 function ppDoorNeeds(){
  if(!ppGame)return 0;
@@ -15551,39 +16055,40 @@ function ppPropHTML(p,s){
  const reach=p.type==='door'?24:18;
  const near=dist<reach;
  const sl=ppWorldScreen(p.x);
- const bot=ppObjBottom(p.type);
+ const ap=ppApproachDepth(dist, ppObjBottom(p.type));
+ const objStyle=`left:${sl};bottom:${ap.bottom}%;transform:translateX(-50%) scale(${ap.scale});z-index:${ap.z}`;
  if(p.type==='crate'){
-  if(p.done)return `<div class="pp-obj" style="left:${sl};bottom:${bot}"><div class="pp-obj-crate" style="opacity:.4"></div></div>`;
-  return `<button type="button" class="pp-obj${near?' glow':''}" style="left:${sl};bottom:${bot}" data-pp-prop="${p.id}"><div class="pp-obj-crate"></div>${near?'<span class="pp-obj-label">Gem Grab</span>':''}</button>`;
+  if(p.done)return `<div class="pp-obj" style="${objStyle}"><div class="pp-obj-crate" style="opacity:.4"></div></div>`;
+  return `<button type="button" class="pp-obj${near?' glow':''}" style="${objStyle}" data-pp-prop="${p.id}"><div class="pp-obj-crate"></div>${near?'<span class="pp-obj-label">Gem Grab</span>':''}</button>`;
  }
- if(p.type==='hide')return `<div class="pp-obj" style="left:${sl};bottom:${bot}"><div class="pp-obj-locker"></div><span class="pp-obj-label">Crystal Pod</span></div>`;
+ if(p.type==='hide')return `<div class="pp-obj" style="${objStyle}"><div class="pp-obj-locker"></div><span class="pp-obj-label">Crystal Pod</span></div>`;
  if(p.type==='console'){
-  return `<button type="button" class="pp-obj${near&&!p.done?' glow':''}" style="left:${sl};bottom:${bot}" data-pp-prop="${p.id}" ${p.done?'disabled':''}><div class="pp-obj-console${p.done?' done':''}"></div>${near&&!p.done?'<span class="pp-obj-label">Power Node</span>':''}</button>`;
+  return `<button type="button" class="pp-obj${near&&!p.done?' glow':''}" style="${objStyle}" data-pp-prop="${p.id}" ${p.done?'disabled':''}><div class="pp-obj-console${p.done?' done':''}"></div>${near&&!p.done?'<span class="pp-obj-label">Power Node</span>':''}</button>`;
  }
  if(p.type==='lever'){
-  return `<button type="button" class="pp-obj${near&&!p.done?' glow':''}" style="left:${sl};bottom:${bot}" data-pp-prop="${p.id}" ${p.done?'disabled':''}><div class="pp-obj-lever"></div>${near&&!p.done?'<span class="pp-obj-label">Crystal Switch</span>':''}</button>`;
+  return `<button type="button" class="pp-obj${near&&!p.done?' glow':''}" style="${objStyle}" data-pp-prop="${p.id}" ${p.done?'disabled':''}><div class="pp-obj-lever"></div>${near&&!p.done?'<span class="pp-obj-label">Crystal Switch</span>':''}</button>`;
  }
  if(p.type==='ore'){
-  if(p.done)return `<div class="pp-obj" style="left:${sl};bottom:${bot}"><div class="pp-obj-ore" style="opacity:.3;transform:scale(.6)"></div></div>`;
-  return `<button type="button" class="pp-obj${near?' glow':''}" style="left:${sl};bottom:${bot}" data-pp-prop="${p.id}"><div class="pp-obj-ore"></div>${near?'<span class="pp-obj-label">Mine Ore</span>':''}</button>`;
+  if(p.done)return `<div class="pp-obj" style="${objStyle}"><div class="pp-obj-ore" style="opacity:.3;transform:scale(.6)"></div></div>`;
+  return `<button type="button" class="pp-obj${near?' glow':''}" style="${objStyle}" data-pp-prop="${p.id}"><div class="pp-obj-ore"></div>${near?'<span class="pp-obj-label">Mine Ore</span>':''}</button>`;
  }
  if(p.type==='key'){
-  if(p.done)return `<div class="pp-obj" style="left:${sl};bottom:${bot}"><div class="pp-obj-key" style="opacity:.35;transform:rotate(15deg)"></div></div>`;
-  return `<button type="button" class="pp-obj${near?' glow':''}" style="left:${sl};bottom:${bot}" data-pp-prop="${p.id}"><div class="pp-obj-key"></div>${near?'<span class="pp-obj-label">Grab Key</span>':''}</button>`;
+  if(p.done)return `<div class="pp-obj" style="${objStyle}"><div class="pp-obj-key" style="opacity:.35;transform:rotate(15deg)"></div></div>`;
+  return `<button type="button" class="pp-obj${near?' glow':''}" style="${objStyle}" data-pp-prop="${p.id}"><div class="pp-obj-key"></div>${near?'<span class="pp-obj-label">Grab Key</span>':''}</button>`;
  }
  if(p.type==='puzzle'){
   const step=p.step||0,need=(p.seq||[]).length||3;
-  return `<button type="button" class="pp-obj${near&&!p.done?' glow':''}" style="left:${sl};bottom:${bot}" data-pp-prop="${p.id}" ${p.done?'disabled':''}><div class="pp-obj-puzzle"></div>${near&&!p.done?`<span class="pp-obj-label">Gem Puzzle ${step}/${need}</span>`:''}</button>`;
+  return `<button type="button" class="pp-obj${near&&!p.done?' glow':''}" style="${objStyle}" data-pp-prop="${p.id}" ${p.done?'disabled':''}><div class="pp-obj-puzzle"></div>${near&&!p.done?`<span class="pp-obj-label">Gem Puzzle ${step}/${need}</span>`:''}</button>`;
  }
  if(p.type==='encounter'){
-  if(p.done)return `<div class="pp-obj" style="left:${sl};bottom:${bot}"><div class="pp-rubble-pile"></div></div>`;
+  if(p.done)return `<div class="pp-obj" style="${objStyle}"><div class="pp-rubble-pile"></div></div>`;
   const mtype=p.monsterType||'slime';
   const hpLeft=Math.max(0,(p.hp||3)-(p.hits||0));
-  return `<button type="button" class="pp-obj${near?' glow':''}" style="left:${sl};bottom:${bot}" data-pp-prop="${p.id}"><div style="transform:scale(.55)">${ppMonsterHTML(mtype,true,70,true,'attack')}</div>${near?`<span class="pp-obj-label">${p.name||'Monster'} HP:${hpLeft}</span>`:''}</button>`;
+  return `<button type="button" class="pp-obj${near?' glow':''}" style="${objStyle}" data-pp-prop="${p.id}"><div style="transform:scale(.55)">${ppMonsterHTML(mtype,true,70,true,'attack')}</div>${near?`<span class="pp-obj-label">${p.name||'Monster'} HP:${hpLeft}</span>`:''}</button>`;
  }
  if(p.type==='door'){
   const ok=ppCanUseDoor(p);
-  return `<button type="button" class="pp-obj${ok?' glow pp-door-glow':''}" style="left:${sl};bottom:${bot}" data-pp-prop="${p.id}"><div class="pp-obj-door${ok?'':' locked'}"></div><span class="pp-obj-label">${ok?'VAULT — Walk In':'Locked ('+ppGame.state.parts+'/'+ppDoorNeeds()+')'}</span></button>`;
+  return `<button type="button" class="pp-obj${ok?' glow pp-door-glow':''}" style="${objStyle}" data-pp-prop="${p.id}"><div class="pp-obj-door${ok?'':' locked'}"></div><span class="pp-obj-label">${ok?'VAULT — Walk In':'Locked ('+ppGame.state.parts+'/'+ppDoorNeeds()+')'}</span></button>`;
  }
  return'';
 }
@@ -15666,13 +16171,15 @@ function ppRenderWorld(){
  let monsterHTML='';
  if(s.monster&&!s.monster.sleeping){
   const dist=s.x-s.monster.x;
-  const threat=chasing?Math.min(1.7,.55+Math.max(0,32-dist)/18):Math.max(.45,.85-Math.abs(s.x-s.monster.x)/70);
+  const gap=Math.max(0,dist);
+  const threat=chasing?Math.min(2.85,.32+Math.max(0,44-gap)/12):Math.max(.42,.88-Math.abs(dist)/58);
   const mtype=ppMonsterType(s.monster,c);
-  const msize=(ppUseKeyboard()?70:56)+threat*(ppUseKeyboard()?80:70);
+  const msize=(ppUseKeyboard()?70:56)+threat*(ppUseKeyboard()?95:82);
   const mname=s.monster.name||ppBossName();
-  const close=Math.abs(dist)<16||(chasing&&Math.abs(dist)<28);
+  const close=gap<16||(chasing&&gap<30);
   const mpose=chasing?(close?'attack':'run'):(s.monster.alert||Math.abs(dist)<22?'attack':'walk');
-  monsterHTML=`<div class="pp-monster-far${chasing?' close':''}${s.monster.alert?' alert':''}" style="left:${ppWorldScreen(s.monster.x)};bottom:${24+threat*10}%;transform:translateX(-50%) scale(${threat});z-index:14">${ppMonsterHTML(mtype,chasing||Math.abs(dist)<28,msize,s.monster.alert||chasing||Math.abs(dist)<20,mpose)}<span class="pp-monster-name">${mname}</span></div>`;
+  const lunging=chasing&&gap<22?' lunging':'';
+  monsterHTML=`<div class="pp-monster-far${chasing?' close':''}${s.monster.alert?' alert':''}${lunging}" style="left:${ppWorldScreen(s.monster.x)};bottom:${14+threat*20}%;--pp-threat:${threat.toFixed(2)};transform:translateX(-50%) scale(${threat});z-index:14">${ppMonsterHTML(mtype,chasing||Math.abs(dist)<28,msize,s.monster.alert||chasing||Math.abs(dist)<20,mpose)}<span class="pp-monster-name">${mname}</span></div>`;
  }else if(s.monster?.sleeping){
   monsterHTML=`<div class="pp-monster-far" style="left:${ppWorldScreen(s.monster.x)};bottom:26%;transform:translateX(-50%) scale(.85);opacity:.7;z-index:14">${ppMonsterHTML(ppMonsterType(s.monster,c),false,72,false,'idle')}<span class="pp-monster-name">${s.monster.name||'Animatronic'} (dormant)</span></div>`;
  }
@@ -16265,6 +16772,17 @@ const GM_MONSTERS=[
 ];
 const GM_MAX_ENEMIES=7;
 const GM_SECTOR_MS=28000;
+/* Same story steps as Battlefield — adapted for Motion Battlefield FP */
+const GM_BF_STEPS=[
+ {name:'Shard Golems',log:'Corrupted gem mine! Gem monsters pour in from everywhere!',kills:6},
+ {name:'Mega Golem Boss',log:'The MEGA GOLEM blocks your path — smash it!',kills:1,boss:'obsidian-brute'},
+ {name:'Factory Escape',log:'Run RIGHT — escape the collapsing factory!',run:40},
+ {name:'Underground Cavern',log:'Crystal spiders in the vent sections!',kills:8},
+ {name:'Buried Core',log:'Something glows in the dirt… keep fighting!',kills:5},
+ {name:'Vent Climb',log:'Jump & climb — almost to the surface!',run:30},
+ {name:'The Brain',log:'Attack the Brain boss — swing your weapon!',kills:1,boss:'emerald-sentinel'},
+ {name:'Final Escape',log:'RUN! Escape the mine!',run:50}
+];
 const GM_SKELETON=[[11,12],[11,13],[13,15],[12,14],[14,16],[11,23],[12,24],[23,24],[0,11],[0,12]];
 const GM_JOINTS=[0,11,12,13,14,15,16,23,24];
 const GM_CATCH=[
@@ -16541,7 +17059,7 @@ function buildGemMotion(){
    <span class="gm-fp-time" id="gm-fp-time">⏳ Time dilation</span>
    <canvas class="gm-canvas" id="gm-canvas" width="640" height="480" aria-label="Motion Battlefield first-person view"></canvas>
    <div class="gm-fx-layer" id="gm-fx-layer" hidden aria-hidden="true"></div>
-   <video class="gm-video" id="gm-video" playsinline muted autoplay></video>
+   <video class="gm-video" id="gm-video" width="640" height="480" playsinline muted autoplay></video>
    <div class="gm-gear-strip" id="gm-gear-strip" aria-label="Equipped gear">
     <span class="gm-gear-chip" id="gm-gear-avatar"></span>
     <span class="gm-gear-chip" id="gm-gear-weapon"></span>
@@ -16554,12 +17072,21 @@ function buildGemMotion(){
     <button type="button" class="game-btn" id="gm-start-btn">Enter battlefield</button>
    </div>
   </div>
-  <div class="game-btns" style="margin-top:16px">
+  <p class="gm-step-log" id="gm-step-log"><b>Step 1:</b> Shard Golems — corrupted gem mine! Gem monsters pour in!</p>
+  <div class="gm-controls" id="gm-controls" hidden>
+   <button type="button" class="game-btn" id="gm-left">← Left</button>
+   <button type="button" class="game-btn" id="gm-jump">Jump</button>
+   <button type="button" class="game-btn" id="gm-right">Right →</button>
+   <button type="button" class="game-btn" id="gm-swing">Attack!</button>
+  </div>
+  <div class="game-btns" style="margin-top:12px">
+   <button type="button" class="game-btn ghost" id="gm-leave-btn" hidden>Leave battlefield</button>
    <button type="button" class="game-btn ghost" id="gm-restart-btn">Restart</button>
   </div>
  </div>
- <p class="gm-instructions"><b>Motion Battlefield:</b> drag your hands <b>anywhere</b> on the field with mouse or finger (2 fingers = both hands). Body cam still works too. Catch gems, smash monsters with weapon hands. Starting goes <b>fullscreen</b> (Esc to exit).</p>`;
+ <p class="gm-instructions"><b>Motion Battlefield:</b> same controls as Battlefield — <b>← Jump → Attack</b> (or arrow keys + space). Body cam tracks your arms too. Walk through all <b>8 story steps</b>, catch gems, smash monsters. Fullscreen on start (Esc to exit).</p>`;
  document.getElementById('gm-restart-btn').onclick=()=>buildGemMotion();
+ document.getElementById('gm-leave-btn').onclick=()=>{stopGemMotion();buildGemMotion();};
  document.getElementById('gm-start-btn').onclick=()=>startGemMotion();
  document.getElementById('gm-power-btn').onclick=()=>{if(gmState&&gmState.activatePower)gmState.activatePower();};
  const exitFs=document.getElementById('gm-exit-fs');
@@ -16657,14 +17184,6 @@ async function startGemMotion(){
    freeHands.pointers.set(e.pointerId,canvasXY(e.clientX,e.clientY));
    syncFreeHandsFromPointers();
    e.preventDefault();
-   return;
-  }
-  /* Mouse hover — steer hands anywhere without holding a button */
-  if(e.pointerType==='mouse'){
-   const p=canvasXY(e.clientX,e.clientY);
-   freeHands.right.x=p.x;freeHands.right.y=p.y;
-   freeHands.left.x=Math.max(8,p.x-54);freeHands.left.y=Math.min(H-8,p.y+8);
-   freeHands.activeUntil=performance.now()+500;
   }
  }
  function onHandPointerUp(e){
@@ -16678,13 +17197,76 @@ async function startGemMotion(){
  canvas.addEventListener('pointermove',onHandPointerMove);
  canvas.addEventListener('pointerup',onHandPointerUp);
  canvas.addEventListener('pointercancel',onHandPointerUp);
- gmState={running:true,raf:null,videoStream:null,pose:null,camera:null,landmarks:null,frameImage:null,cleanupHands:()=>{
+ gmState={running:true,raf:null,videoStream:null,pose:null,camera:null,landmarks:null,frameImage:null,
+  hero:{x:50,y:0,jumping:false,walkingUntil:0,attackingUntil:0},
+  stepIdx:0,stepKillBase:0,runProgress:0,attackBoostUntil:0,won:false,
+  cleanupHands:()=>{
   canvas.removeEventListener('pointerdown',onHandPointerDown);
   canvas.removeEventListener('pointermove',onHandPointerMove);
   canvas.removeEventListener('pointerup',onHandPointerUp);
   canvas.removeEventListener('pointercancel',onHandPointerUp);
   freeHands.pointers.clear();
  }};
+ function gmUpdateStepLog(){
+  const el=document.getElementById('gm-step-log');
+  const st=GM_BF_STEPS[gmState.stepIdx];
+  if(el&&st)el.innerHTML=`<b>Step ${gmState.stepIdx+1}:</b> ${st.name} — ${st.log}`;
+ }
+ function gmAdvanceStep(){
+  if(gmState.stepIdx>=GM_BF_STEPS.length-1){
+   gmState.won=true;
+   gameOver(true);
+   return;
+  }
+  gmState.stepIdx++;
+  gmState.stepKillBase=kills;
+  gmState.runProgress=0;
+  gmUpdateStepLog();
+  const st=GM_BF_STEPS[gmState.stepIdx];
+  if(st.boss){
+   const proto=GM_MONSTERS.find(m=>m.id===st.boss)||GM_MONSTERS[5];
+   enemies.push({
+    laneX:(Math.random()-.5)*.6,z:.15,
+    vz:(.004+score*.000012)*(proto.speed||1),
+    baseR:proto.r+8,r:proto.r+8,
+    hp:proto.hp+Math.floor(score/200)+4,maxHp:proto.hp+Math.floor(score/200)+4,
+    points:proto.points+40,color:proto.color,name:proto.name,kind:proto.kind,
+    spin:0,hitUntil:0,x:0,y:0,prevX:0,prevY:0
+   });
+  }
+ }
+ function gmCheckStepAdvance(){
+  const st=GM_BF_STEPS[gmState.stepIdx];
+  if(!st||gmState.won)return;
+  const stepKills=kills-gmState.stepKillBase;
+  if(st.kills&&stepKills>=st.kills){gmAdvanceStep();return;}
+  if(st.run&&gmState.runProgress>=st.run)gmAdvanceStep();
+ }
+ gmState.move=(dir)=>{
+  if(!gmState||!gmState.running||gmState.won)return;
+  gmState.hero.x=Math.max(4,Math.min(97,gmState.hero.x+dir*6));
+  gmState.hero.walkingUntil=performance.now()+620;
+  const st=GM_BF_STEPS[gmState.stepIdx];
+  if(st&&st.run&&dir>0)gmState.runProgress+=4;
+  gmCheckStepAdvance();
+ };
+ gmState.jump=()=>{
+  if(!gmState||!gmState.running||gmState.won||gmState.hero.jumping)return;
+  gmState.hero.jumping=true;
+  gmState.hero.walkingUntil=performance.now()+600;
+  let jt=0;
+  const jumpId=setInterval(()=>{
+   jt+=0.11;
+   gmState.hero.y=Math.sin(jt*Math.PI)*52;
+   if(jt>=1){clearInterval(jumpId);gmState.hero.y=0;gmState.hero.jumping=false;}
+  },30);
+ };
+ gmState.attack=()=>{
+  if(!gmState||!gmState.running||gmState.won)return;
+  gmState.hero.attackingUntil=performance.now()+500;
+  gmState.attackBoostUntil=performance.now()+480;
+  try{if(SFX&&SFX.click)SFX.click();}catch(_){}
+ };
 
  overlayTitle.textContent='Loading body tracker…';
  overlayMsg.textContent='Fetching pose models — one moment.';
@@ -16725,6 +17307,11 @@ async function startGemMotion(){
  }
 
  overlay.hidden=true;
+ const gmControls=document.getElementById('gm-controls');
+ const gmLeave=document.getElementById('gm-leave-btn');
+ if(gmControls)gmControls.hidden=false;
+ if(gmLeave)gmLeave.hidden=false;
+ gmUpdateStepLog();
  const gmFx=document.getElementById('gm-fx-layer');
  if(gmStage)gmStage.classList.add('gm-live');
  if(gmFx){gmFx.hidden=false;}
@@ -16871,7 +17458,7 @@ async function startGemMotion(){
 
  function lmX(p){return(1-p.x)*W;}
  function lmY(p){return p.y*H;}
- function visible(p){return p&&(p.visibility==null||p.visibility>0.28);}
+ function visible(p){return p&&(p.visibility==null||p.visibility>0.2);}
  const VP_X=W*.5,VP_Y=H*.34;
  function projectGem(gem){
   const z=Math.max(0,Math.min(1.2,gem.z));
@@ -16901,9 +17488,10 @@ async function startGemMotion(){
   return 1;
  }
  function drawBattlefieldFP(timeWarp){
+  const heroX=gmState&&gmState.hero?gmState.hero.x:50;
   const sector=Math.floor(t/GM_SECTOR_MS);
   const sectorHue=[201,169,79,126,200,255,62,207,138,155,111,212];
-  const scroll=(t*.00072)%1;
+  const scroll=(heroX*3+t*.00072)%1;
   const sky=ctx.createLinearGradient(0,0,0,H*.55);
   sky.addColorStop(0,'#0a0e18');sky.addColorStop(.55,'#1a1528');sky.addColorStop(1,'#3d2818');
   ctx.fillStyle=sky;ctx.fillRect(0,0,W,H);
@@ -16951,6 +17539,16 @@ async function startGemMotion(){
    ctx.beginPath();ctx.moveTo(VP_X,y);ctx.lineTo(VP_X,y+(H-VP_Y)*.07);ctx.stroke();
   }
   ctx.globalAlpha=1;
+  // step progress (same idea as Battlefield section bar)
+  const st=gmState&&GM_BF_STEPS[gmState.stepIdx];
+  if(st){
+   const stepKills=gmState?kills-gmState.stepKillBase:0;
+   const pct=st.kills?Math.min(100,stepKills/st.kills*100):st.run?Math.min(100,gmState.runProgress/st.run*100):0;
+   ctx.fillStyle='rgba(201,169,79,.55)';ctx.font='600 9px IBM Plex Mono,monospace';ctx.textAlign='center';
+   ctx.fillText(`STEP ${gmState.stepIdx+1}/${GM_BF_STEPS.length}: ${st.name.toUpperCase()}`,VP_X,VP_Y-22);
+   ctx.fillStyle='rgba(255,255,255,.15)';ctx.fillRect(VP_X-80,VP_Y-14,160,5);
+   ctx.fillStyle='rgba(201,169,79,.85)';ctx.fillRect(VP_X-80,VP_Y-14,160*(pct/100),5);
+  }
   // sector depth marker
   ctx.fillStyle='rgba(201,169,79,.55)';ctx.font='600 9px IBM Plex Mono,monospace';ctx.textAlign='center';
   ctx.fillText('SECTOR '+(sector+1)+' · DEPTH '+Math.floor(sector*42+t/1200)+'m',VP_X,VP_Y-10);
@@ -17041,52 +17639,70 @@ async function startGemMotion(){
   ctx.restore();
  }
  function handPositions(landmarks){
-  const freeOn=performance.now()<freeHands.activeUntil||freeHands.pointers.size>0;
   const lh=landmarks&&landmarks[15],rh=landmarks&&landmarks[16];
   const poseL=landmarks&&visible(lh),poseR=landmarks&&visible(rh);
-  let lx,ly,rx,ry,hasL,hasR;
-  if(freeOn){
-   lx=freeHands.left.x;ly=freeHands.left.y;
-   rx=freeHands.right.x;ry=freeHands.right.y;
-   hasL=true;hasR=true;
-  }else{
-   lx=poseL?lmX(lh):(freeHands.left.x);
-   ly=poseL?lmY(lh):(freeHands.left.y);
-   rx=poseR?lmX(rh):(freeHands.right.x);
-   ry=poseR?lmY(rh):(freeHands.right.y);
-   hasL=poseL||true;hasR=poseR||true;
-   /* keep freeHands synced to pose so pointer pickup feels continuous */
+  const dragging=freeHands.pointers.size>0;
+  if(dragging){
+   syncFreeHandsFromPointers();
+   return{
+    lx:Math.max(4,Math.min(W-4,freeHands.left.x)),
+    ly:Math.max(4,Math.min(H-4,freeHands.left.y)),
+    rx:Math.max(4,Math.min(W-4,freeHands.right.x)),
+    ry:Math.max(4,Math.min(H-4,freeHands.right.y)),
+    hasL:true,hasR:true,freeOn:true,poseOn:false
+   };
+  }
+  if(poseL||poseR){
+   const lx=poseL?lmX(lh):freeHands.left.x;
+   const ly=poseL?lmY(lh):freeHands.left.y;
+   const rx=poseR?lmX(rh):freeHands.right.x;
+   const ry=poseR?lmY(rh):freeHands.right.y;
    if(poseL){freeHands.left.x=lx;freeHands.left.y=ly;}
    if(poseR){freeHands.right.x=rx;freeHands.right.y=ry;}
+   return{
+    lx:Math.max(4,Math.min(W-4,lx)),
+    ly:Math.max(4,Math.min(H-4,ly)),
+    rx:Math.max(4,Math.min(W-4,rx)),
+    ry:Math.max(4,Math.min(H-4,ry)),
+    hasL:poseL,hasR:poseR,freeOn:false,poseOn:true
+   };
   }
-  /* clamp only to canvas edges — hands can go anywhere on the field */
-  lx=Math.max(4,Math.min(W-4,lx));ly=Math.max(4,Math.min(H-4,ly));
-  rx=Math.max(4,Math.min(W-4,rx));ry=Math.max(4,Math.min(H-4,ry));
-  return{lx,ly,rx,ry,hasL,hasR,freeOn};
+  return{
+   lx:Math.max(4,Math.min(W-4,freeHands.left.x)),
+   ly:Math.max(4,Math.min(H-4,freeHands.left.y)),
+   rx:Math.max(4,Math.min(W-4,freeHands.right.x)),
+   ry:Math.max(4,Math.min(H-4,freeHands.right.y)),
+   hasL:true,hasR:true,freeOn:false,poseOn:false
+  };
  }
  function drawFPWeaponHands(landmarks){
   const {lx,ly,rx,ry,hasL,hasR}=handPositions(landmarks);
+  const hero=gmState&&gmState.hero;
+  const walking=hero&&performance.now()<hero.walkingUntil;
+  const attacking=hero&&performance.now()<hero.attackingUntil;
+  const bob=walking?Math.sin(t/250)*7:(hero?hero.y*.08:0);
+  const lx2=lx,ly2=ly+bob,rx2=rx,ry2=ry+bob;
   ctx.save();
   /* Weapons/shields at hand positions — no hand orbs */
   if(weapon.id!=='none'){
    ctx.globalAlpha=hasL?.95:.75;
-   drawWeaponShape(lx+18,ly-6,false,1.15);
+   drawWeaponShape(lx2+(attacking?-14:0)+18,ly2-6,false,attacking?1.35:1.15);
    ctx.globalAlpha=1;
   }
   if(shield.id!=='none'){
    ctx.globalAlpha=hasR?.95:.75;
-   drawCrystalShieldShape(rx-6,ry-4,.9,shieldActiveT>0);
+   drawCrystalShieldShape(rx2-6,ry2-4,.9,shieldActiveT>0);
    ctx.globalAlpha=1;
   }else if(weapon.id!=='none'){
    ctx.globalAlpha=hasR?.95:.75;
-   drawWeaponShape(rx-18,ry-6,true,1.1);
+   drawWeaponShape(rx2+(attacking?14:0)-18,ry2-6,true,attacking?1.3:1.1);
    ctx.globalAlpha=1;
   }
   /* arm lines from lower torso toward hands for FP feel */
-  const rootY=H*.92,rootLX=W*.38,rootRX=W*.62;
+  const rootY=H*.92+bob*.3,rootLX=W*.38,rootRX=W*.62;
   ctx.strokeStyle='rgba(255,255,255,.18)';ctx.lineWidth=3;ctx.lineCap='round';
-  ctx.beginPath();ctx.moveTo(rootLX,rootY);ctx.quadraticCurveTo(lx, (ly+rootY)/2, lx,ly);ctx.stroke();
-  ctx.beginPath();ctx.moveTo(rootRX,rootY);ctx.quadraticCurveTo(rx, (ry+rootY)/2, rx,ry);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(rootLX,rootY);ctx.quadraticCurveTo(lx2, (ly2+rootY)/2, lx2,ly2);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(rootRX,rootY);ctx.quadraticCurveTo(rx2, (ry2+rootY)/2, rx2,ry2);ctx.stroke();
   ctx.restore();
  }
  function catchRadius(c){
@@ -17126,7 +17742,27 @@ async function startGemMotion(){
   return lmY(lh)<shoulderY-30&&lmY(rh)<shoulderY-30;
  }
  function drawSkeleton(landmarks){
-  /* skeleton drawn in body-cam PIP only */
+  if(!landmarks)return;
+  ctx.save();
+  ctx.lineCap='round';
+  ctx.globalAlpha=.72;
+  for(const [a,b] of GM_SKELETON){
+   const pa=landmarks[a],pb=landmarks[b];
+   if(!visible(pa)||!visible(pb))continue;
+   ctx.strokeStyle=avatar.rainbow?gmRainbowGlow(t,a*.05):avatar.glow.replace(/[\d.]+\)$/,'.58)');
+   ctx.lineWidth=5;
+   ctx.beginPath();ctx.moveTo(lmX(pa),lmY(pa));ctx.lineTo(lmX(pb),lmY(pb));ctx.stroke();
+  }
+  for(const idx of GM_JOINTS){
+   const p=landmarks[idx];if(!visible(p))continue;
+   const r=idx===0?8:idx===15||idx===16?10:6;
+   ctx.beginPath();ctx.arc(lmX(p),lmY(p),r,0,Math.PI*2);
+   ctx.fillStyle=avatar.rainbow?gmRainbowColor(t,idx*.05):idx===15||idx===16?avatar.joint:avatar.color;
+   ctx.fill();
+   ctx.strokeStyle='rgba(255,255,255,.55)';ctx.lineWidth=1.5;ctx.stroke();
+  }
+  ctx.globalAlpha=1;
+  ctx.restore();
  }
  function drawCatchZones(_points){
   /* catch zone rings hidden — collision still uses catchPoints() */
@@ -17194,8 +17830,10 @@ async function startGemMotion(){
   return Math.max(1,weapon.dmg||1);
  }
  function attackPoints(landmarks){
+  const boost=gmState&&performance.now()<gmState.attackBoostUntil;
   const pts=catchPoints(landmarks).filter(p=>p.idx===15||p.idx===16||(weapon.headMul&&p.idx===0));
-  return pts.map(p=>({...p,r:p.r*1.12+10}));
+  const mul=boost?1.45:1.12;
+  return pts.map(p=>({...p,r:p.r*mul+10+(boost?18:0)}));
  }
  function monsterHitsAttack(m,points){
   if(m.z<.55||m.z>1.02)return false;
@@ -17500,12 +18138,19 @@ async function startGemMotion(){
   }
   gmUpdateGearStrip(loadout,{live:true,powerReady:ready});
  }
- function gameOver(){
+ function gameOver(won){
   gmSetHi(score);
   gmState.running=false;
   overlay.hidden=false;
-  overlayTitle.textContent='Battlefield cleared';
-  overlayMsg.textContent=`Score ${score} · Monsters smashed ${kills}. Best: ${gmHi()}. Change gear in the Gem Armory, then tap Enter battlefield again!`;
+  const gmControls=document.getElementById('gm-controls');
+  if(gmControls)gmControls.hidden=true;
+  if(won||gmState.won){
+   overlayTitle.textContent='You escaped the mine!';
+   overlayMsg.textContent=`All ${GM_BF_STEPS.length} Battlefield steps complete! Score ${score} · Kills ${kills}. Best: ${gmHi()}.`;
+  }else{
+   overlayTitle.textContent='Battle over';
+   overlayMsg.textContent=`Reached step ${gmState.stepIdx+1}/${GM_BF_STEPS.length}. Score ${score} · Kills ${kills}. Best: ${gmHi()}. Try again!`;
+  }
   if(trackStatus){trackStatus.textContent='Camera off';trackStatus.classList.remove('on');}
   const hiEl=document.getElementById('gm-hi');
   if(hiEl)hiEl.textContent=gmHi();
@@ -17532,6 +18177,7 @@ async function startGemMotion(){
   if(monsterSpawnT>=mInterval){monsterSpawnT=0;spawnMonsterWave();}
 
   const landmarks=gmState.landmarks;
+  const hands=handPositions(landmarks);
   const points=catchPoints(landmarks);
   const atkPts=attackPoints(landmarks);
   const torso=torsoCenter(landmarks);
@@ -17549,6 +18195,7 @@ async function startGemMotion(){
   drawBattlefieldFP(tw);
   drawAvatarVisor();
   drawVisorPIP(landmarks);
+  drawSkeleton(landmarks);
   drawEquippedShield(torso);
   drawCatchZones(points);
   drawShieldBubble(torso);
@@ -17603,6 +18250,7 @@ async function startGemMotion(){
      kills++;
      score+=Math.round(m.points*(1+Math.floor(combo/5)*.35));
      enemies.splice(i,1);
+     gmCheckStepAdvance();
      continue;
     }
    }
@@ -17618,12 +18266,20 @@ async function startGemMotion(){
    }
   }
 
-  if(freeHands.pointers.size===0&&performance.now()>=freeHands.activeUntil&&!(landmarks&&visible(landmarks[15])&&visible(landmarks[16]))){
+  if(hands.poseOn){
+   ctx.fillStyle='rgba(62,207,138,.92)';ctx.font='600 12px Space Grotesk,system-ui,sans-serif';
+   ctx.textAlign='center';ctx.fillText('📷 Body cam — move your arms to catch & attack!',W/2,36);
+  }else if(freeHands.pointers.size===0&&!(landmarks&&visible(landmarks[15])&&visible(landmarks[16]))){
    ctx.fillStyle='rgba(201,169,79,.9)';ctx.font='600 13px Space Grotesk,system-ui,sans-serif';
-   ctx.textAlign='center';ctx.fillText('Drag anywhere — move your hands freely (or use body cam)',W/2,36);
+   ctx.textAlign='center';ctx.fillText('Drag to move hands — or step into frame for body cam',W/2,36);
   }else if(enemies.length){
    ctx.fillStyle='rgba(255,100,120,.85)';ctx.font='600 12px Space Grotesk,system-ui,sans-serif';
    ctx.textAlign='center';ctx.fillText('⚔ Swing hands / weapon at monsters!',W/2,H-18);
+  }
+  const runSt=GM_BF_STEPS[gmState.stepIdx];
+  if(runSt&&runSt.run&&gmState.runProgress<runSt.run){
+   ctx.fillStyle='rgba(255,211,78,.9)';ctx.font='600 11px Space Grotesk,system-ui,sans-serif';
+   ctx.textAlign='center';ctx.fillText('→ Right / Arrow Right to run forward!',W/2,H-36);
   }
 
   const scoreEl=document.getElementById('gm-score');
