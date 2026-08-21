@@ -8496,11 +8496,13 @@ const WARRIORS=[
 const EMERALD_GUARDIAN_INDEX=3;
 const BOSSES_DEFEATED_KEY='lithos_bosses_defeated';
 const OWNER_FLAG_KEY='lithos_owner';
+const STAFF_FLAG_KEY='lithos_staff';
 const GLITCH_PACK_KEY='lithos_glitch_pack';
 const RAINBOW_PACK_KEY='lithos_rainbow_pack';
 const BOSS_PROGRESS_MIGRATION_KEY='lithos_boss_progress_v2';
 let bossesDefeated=0;
 let isOwner=false;
+let isStaff=false;
 let hasPlasmaMace=false;
 let hasPlasmaTitan=false;
 let cheatGemPower=false;
@@ -8514,6 +8516,7 @@ function effectiveBossProgress(){
 function loadGameProgress(){
  try{
  isOwner=localStorage.getItem(OWNER_FLAG_KEY)==='1';
+ isStaff=localStorage.getItem(STAFF_FLAG_KEY)==='1';
  if(!isOwner&&!localStorage.getItem(BOSS_PROGRESS_MIGRATION_KEY)){
  // One-time: old cheat codes persisted inflated boss counts — clear for non-owners
  bossesDefeated=0;
@@ -8531,7 +8534,7 @@ function loadGameProgress(){
  try{ localStorage.setItem(BOSS_PROGRESS_MIGRATION_KEY,'1'); }catch(e){}
  }
  }
- }catch(e){ bossesDefeated=0; isOwner=false; }
+ }catch(e){ bossesDefeated=0; isOwner=false; isStaff=false; }
  restoreOwnerUnlocks();
 }
 function saveGameProgress(){
@@ -8554,6 +8557,7 @@ function restoreOwnerArmoryUnlocks(){
 }
 function updateOwnerNav(){
  document.body.classList.toggle('is-owner',!!isOwner);
+ document.body.classList.toggle('is-staff',!!isStaff);
 }
 function warriorUnlockHint(w,i){
  if(w.codeOnly) return 'Secret code only';
@@ -12754,7 +12758,9 @@ function buildCodes(){
  send.onclick=tryCode;
  input.onkeydown=e=>{if(e.key==='Enter')tryCode();};
  document.getElementById('code-result').innerHTML=isOwner
-? `<div class="win"><b> OWNER MODE is ON!</b> You have all the best items and can play freely!</div>`
+? `<div class="win"><b> OWNER MODE is ON!</b> You have all the best items, Bomb Blaster (∞ bombs) in Gem Digger, and can play freely!</div>`
+ : isStaff
+? `<div class="win"><b> LITHOS TEAM MODE is ON!</b> Bomb Blaster unlocked in Gem Digger — unlimited bombs!</div>`
  : '';
 }
 /* ---------- Money Goal Tracker ---------- */
@@ -13793,10 +13799,24 @@ function tryCode(){
  The <b>AI Rock Teacher</b> on the Classes page<br>
  You can play freely!<br>
  NEW: <b>Owner TV</b> — your private video platform for anything you want to watch!<br>
- NEW: All <b>Motion Battlefield weaponary</b> — owner blades, shields, powers &amp; avatars!${armList}<br><br>
+ NEW: All <b>Motion Battlefield weaponary</b> — owner blades, shields, powers &amp; avatars!${armList}<br>
+ NEW: <b>Bomb Blaster</b> in Gem Digger — unlimited bombs! 💣∞<br><br>
  <button type="button" class="game-btn" onclick="switchView('video')" style="margin-top:8px">Open Owner TV now</button>
  <button type="button" class="game-btn" onclick="switchView('gemmotion')" style="margin-top:8px;margin-left:8px">Open Gem Armory</button><br><br>
  Go to the Gem Arena and check it out!
+ </div>`;
+ return;
+ }
+
+ // LITHOS STAFF — team perks (Bomb Blaster in Gem Digger)
+ if(raw==="i work at lithos"||raw==="i work at the game"||raw==="lithos staff"){
+ isStaff=true;
+ try{ localStorage.setItem(STAFF_FLAG_KEY,'1'); }catch(e){}
+ updateOwnerNav();
+ res.innerHTML=`<div class="win" style="border-color:#7ad0f0">
+ <b>WELCOME, LITHOS TEAM!</b><br><br>
+ Staff perk unlocked: <b>Bomb Blaster</b> in Gem Digger — <b>unlimited bombs</b>! 💣∞<br><br>
+ Open <b>Arcade → Gem Digger</b> and blast away!
  </div>`;
  return;
  }
@@ -13945,12 +13965,13 @@ const DG_GEMS=[
  {e:"🟡",n:"Citrine",v:6},{e:"🟣",n:"Amethyst",v:10},{e:"🟢",n:"Emerald",v:16},{e:"🔵",n:"Sapphire",v:22},
  {e:"🟠",n:"Topaz",v:28},{e:"🔴",n:"Ruby",v:38},{e:"⚪",n:"Opal",v:48},{e:"💎",n:"Diamond",v:65}
 ];
+function dgHasBombBlaster(){return !!(isOwner||isStaff);}
 function playGemDigger(){
  const old=document.getElementById('gemdig'); if(old)old.remove();
  if(dgLoop){clearInterval(dgLoop);dgLoop=null;}
  const cols=10,rows=40;
  dgGame={cols,rows,hp:[],maxhp:[],gem:[],cleared:new Array(cols*rows).fill(false),
-  money:0,drill:1,bombs:1,bombMode:false,over:false,won:false,dug:0,gemsFound:0,depth:0,
+  money:0,drill:1,bombs:1,bombMode:false,bombBlaster:dgHasBombBlaster(),over:false,won:false,dug:0,gemsFound:0,depth:0,
   heat:0,overheated:false,coolant:1};
  const g=dgGame;
  for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
@@ -13974,9 +13995,11 @@ function playGemDigger(){
    <button class="dg-shopbtn" id="dg-bomb" onclick="dgToggleBomb()"></button>
    <button class="gr-btn ghost" onclick="dgClose()">Leave</button>
   </div>
-  <div class="dg-hint">Dig blocks touching open air! ⚠️ Your drill HEATS UP as you dig — hit 100° and it locks until it fully cools! 🧊 Coolant cools faster. 💣 Bombs never overheat!</div>
+  <div class="dg-hint" id="dg-hint">Dig blocks touching open air! ⚠️ Your drill HEATS UP as you dig — hit 100° and it locks until it fully cools! 🧊 Coolant cools faster. 💣 Bombs never overheat!</div>
  </div>`;
  document.body.appendChild(wrap);
+ const dgHint=document.getElementById('dg-hint');
+ if(dgHint&&dgHasBombBlaster())dgHint.innerHTML='💣 <b>Bomb Blaster active</b> — unlimited bombs! (Owner / Lithos team perk) · Dig blocks touching open air · Bombs never overheat!';
  let html='';
  for(let i=0;i<cols*rows;i++)html+=`<button class="dg-cell" data-i="${i}" onclick="dgClick(${i})"></button>`;
  document.getElementById('dg-grid').innerHTML=html;
@@ -14031,7 +14054,8 @@ function dgSaveBest(){try{const b=dgBest(); if(dgGame&&dgGame.money>b)localStora
 function dgHUD(){
  const g=dgGame; if(!g)return;
  const hud=document.getElementById('dg-hud'); if(!hud)return;
- hud.innerHTML=`<span>💰 <b>$${g.money}</b></span><span>📏 depth <b>${g.depth}m</b></span><span>💎 <b>${g.gemsFound}</b></span><span>⛏️ Lv <b>${g.drill}</b></span><span>🧊 Lv <b>${g.coolant}</b></span><span>💣 <b>${g.bombs}</b></span><span>Best: <b>$${dgBest()}</b></span>`;
+ const bombLabel=g.bombBlaster?'∞':g.bombs;
+ hud.innerHTML=`<span>💰 <b>$${g.money}</b></span><span>📏 depth <b>${g.depth}m</b></span><span>💎 <b>${g.gemsFound}</b></span><span>⛏️ Lv <b>${g.drill}</b></span><span>🧊 Lv <b>${g.coolant}</b></span><span>💣 <b>${bombLabel}</b>${g.bombBlaster?' <em style="color:#ffde7a;font-style:normal">Blaster</em>':''}</span><span>Best: <b>$${dgBest()}</b></span>`;
  const up=document.getElementById('dg-up'),buy=document.getElementById('dg-buy'),bomb=document.getElementById('dg-bomb'),cool=document.getElementById('dg-cool');
  if(!up||!buy||!bomb)return;
  if(g.drill>=5){up.textContent='⛏️ Drill MAXED OUT'; up.disabled=true;}
@@ -14040,6 +14064,13 @@ function dgHUD(){
   const cc=[0,90,220];
   if(g.coolant>=3){cool.textContent='🧊 Coolant MAXED'; cool.disabled=true;}
   else{cool.textContent=`🧊 Coolant → Lv ${g.coolant+1} ($${cc[g.coolant]})`; cool.disabled=g.money<cc[g.coolant];}
+ }
+ if(g.bombBlaster){
+  buy.textContent='💣 Bomb Blaster (∞)'; buy.disabled=true;
+  bomb.textContent=g.bombMode?'💣 CLICK A SPOT TO BLAST!':'💣 Bomb Blaster (∞)';
+  bomb.classList.toggle('on',g.bombMode);
+  bomb.disabled=false;
+  return;
  }
  buy.textContent='🛒 Buy Bomb ($45)'; buy.disabled=g.money<45;
  bomb.textContent=g.bombMode?'💣 CLICK A SPOT TO BLAST!':`💣 Bomb Mode (x${g.bombs})`;
@@ -14081,8 +14112,8 @@ function dgClear(i,scroll){
 }
 function dgBomb(i){
  const g=dgGame; g.bombMode=false;
- if(g.bombs<=0){dgHUD(); return;}
- g.bombs--;
+ if(!g.bombBlaster&&g.bombs<=0){dgHUD(); return;}
+ if(!g.bombBlaster) g.bombs--;
  try{if(SFX&&SFX.boom)SFX.boom();}catch(e){}
  const box=document.querySelector('.dg-box'); if(box){box.classList.add('shake'); setTimeout(()=>box.classList.remove('shake'),420);}
  const [r,c]=dgRC(i);
@@ -14099,8 +14130,8 @@ function dgUpgrade(){
  try{if(SFX&&SFX.win)SFX.win();}catch(e){}
  dgFloat('⛏️ DRILL UPGRADED!'); dgHUD();
 }
-function dgBuyBomb(){const g=dgGame; if(!g||g.money<45)return; g.money-=45; g.bombs++; dgFloat('💣 +1 bomb!'); dgHUD();}
-function dgToggleBomb(){const g=dgGame; if(!g)return; g.bombMode=g.bombs>0?!g.bombMode:false; dgHUD();}
+function dgBuyBomb(){const g=dgGame; if(!g||g.bombBlaster)return; if(g.money<45)return; g.money-=45; g.bombs++; dgFloat('💣 +1 bomb!'); dgHUD();}
+function dgToggleBomb(){const g=dgGame; if(!g)return; g.bombMode=(g.bombBlaster||g.bombs>0?!g.bombMode:false); dgHUD();}
 function dgFloat(txt){
  const box=document.querySelector('.dg-box'); if(!box)return;
  const f=document.createElement('div'); f.className='dg-float'; f.textContent=txt;
