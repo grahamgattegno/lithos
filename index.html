@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- lithos-v:approach-depth-5 -->
+<!-- lithos-v:gem-rush-pairs-6 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1357,17 +1357,20 @@
   .parade-note{margin-top:24px;color:var(--text-faint);font-size:14px}
   .parade-note b{color:var(--gold)}
 
-  /* ⛏️💎 GEM RUSH — match-3 mining game */
+  /* ⛏️💎 GEM RUSH — pair-matching mining game */
   #gemrush{position:fixed;inset:0;z-index:9999;background:rgba(6,6,12,.93);display:flex;align-items:center;justify-content:center;padding:12px}
   .gr-box{background:linear-gradient(170deg,#181428,#0c0a16);border:1px solid #3a3050;border-radius:18px;padding:18px 18px 16px;width:min(96vw,520px);text-align:center;position:relative}
   .gr-title{font-family:var(--display,serif);font-size:clamp(19px,3.5vw,26px);font-weight:800;color:#7ad0f0;margin-bottom:4px}
   .gr-hud{display:flex;justify-content:center;gap:14px;font-family:var(--mono,monospace);font-size:13px;color:#b8b0cc;margin-bottom:12px;flex-wrap:wrap}
   .gr-hud b{color:#ffde7a}
   .gr-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;max-width:430px;margin:0 auto}
-  .gr-cell{aspect-ratio:1;border:none;background:#221c34;border-radius:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;position:relative;transition:transform .12s}
-  .gr-cell:hover{transform:scale(1.07)}
+  .gr-cell{aspect-ratio:1;border:none;background:#221c34;border-radius:9px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2px;position:relative;transition:transform .12s,opacity .2s}
+  .gr-cell:hover:not(.matched){transform:scale(1.07)}
   .gr-cell.sel{outline:3px solid #ffde7a;transform:scale(1.1);z-index:2}
-  .gr-gem{width:70%;height:70%;transform:rotate(45deg);border-radius:22%;box-shadow:inset -3px -3px 6px rgba(0,0,0,.45), inset 3px 3px 6px rgba(255,255,255,.35)}
+  .gr-cell.matched{opacity:.22;pointer-events:none;cursor:default}
+  .gr-gem{width:52%;height:52%;transform:rotate(45deg);border-radius:22%;box-shadow:inset -3px -3px 6px rgba(0,0,0,.45), inset 3px 3px 6px rgba(255,255,255,.35);flex-shrink:0}
+  .gr-gem-label{font-family:var(--mono,monospace);font-size:6px;letter-spacing:.04em;text-transform:uppercase;color:#b8b0cc;margin-top:3px;line-height:1;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .gr-cell.sel .gr-gem-label{color:#ffde7a}
   .gr-cell.pop .gr-gem{animation:grPop .28s ease forwards}
   @keyframes grPop{to{transform:rotate(45deg) scale(0);opacity:0}}
   .gr-combo{position:absolute;top:56px;left:50%;transform:translateX(-50%);font-family:var(--mono,monospace);font-weight:900;color:#ffde7a;font-size:18px;z-index:5;text-shadow:0 2px 8px #000;pointer-events:none}
@@ -4634,7 +4637,7 @@
  <section class="poppy-wrap game-cinema">
  <div class="eyebrow">Gem Factory — Crystal Adventure</div>
  <h1>Gem <em>Factory</em></h1>
- <p class="lede"><b>Gem Factory</b> — haunted by the FNAF 1 crew remade as gemstone animatronics: <b>Citrine Freddy</b>, <b>Amethyst Bonnie</b>, <b>Topaz Chica</b>, <b>Ruby Foxy</b>, and <b>Golden Freddy</b>. RUN, grab, hide, solve puzzles — survive Chapter 12 for multiple endings.</p>
+ <p class="lede"><b>Gem Factory</b> — haunted by the gemstone animatronic crew: <b>Sunspire</b> (citrine bear), <b>Duskveil</b> (amethyst rabbit), <b>Clatterclaw</b> (topaz chicken), <b>Redline</b> (ruby fox), and <b>Aurum</b> (gold phantom). RUN, grab, hide, solve puzzles — survive Chapter 12 for multiple endings.</p>
  <div class="poppy-char-preview" id="poppy-char-preview"></div>
  <div class="poppy-device" id="poppy-device"></div>
  <div class="poppy-grid" id="poppy-grid"></div>
@@ -5364,11 +5367,11 @@ function lithos4DClearParticles(){lithos4DParticles=[];}
 /* ---------- Games hub ---------- */
 const LITHOS_GAMES=[
  {id:'arcade',icon:'🕹️',name:'Arcade',desc:'Gem Rush, Night Shift, Gem Digger & the secret game — pick a card and play!',preview:'radial-gradient(circle at 50% 35%,rgba(122,208,240,.28),transparent 50%),radial-gradient(circle at 70% 70%,rgba(201,169,79,.22),transparent 45%),linear-gradient(180deg,#141020,#080610)'},
- {id:'gemrush',icon:'⛏️💎',name:'Gem Rush',desc:'Swap gems to match 3 or more! Chain combos — can you hit 1,000 points in 25 moves?',preview:'radial-gradient(circle at 40% 30%,rgba(255,120,160,.35),transparent 50%),radial-gradient(circle at 70% 70%,rgba(100,160,255,.3),transparent 45%),linear-gradient(180deg,#1a1028,#0a0812)'},
+ {id:'gemrush',icon:'⛏️💎',name:'Gem Rush',desc:'Match gemstone pairs — Diamond with Diamond, Ruby with Ruby! Clear the board before you run out of moves.',preview:'radial-gradient(circle at 40% 30%,rgba(255,120,160,.35),transparent 50%),radial-gradient(circle at 70% 70%,rgba(100,160,255,.3),transparent 45%),linear-gradient(180deg,#1a1028,#0a0812)'},
  {id:'gemdigger',icon:'⛏️🕳️',name:'Gem Digger',desc:'Dig deep underground! Upgrade your drill, buy bombs, reach the Legendary Rainbow Gem at 40m! 🌈',preview:'radial-gradient(circle at 50% 40%,rgba(180,120,60,.35),transparent 50%),linear-gradient(180deg,#1a1410,#0a0806)'},
  {id:'nightshift',icon:'🌙',name:'Night Shift',tag4d:true,desc:'FREE — survive until 6 AM and get paid. Then spend cash at the Market.',preview:'radial-gradient(circle at 50% 40%,rgba(201,169,79,.25),transparent 50%),radial-gradient(circle at 20% 70%,rgba(154,58,192,.3),transparent 45%),linear-gradient(180deg,#120e1a,#050508)'},
  {id:'nightshift2',icon:'⛏️',name:'Night Shift 2',tag4d:true,desc:'FREE — the Mine Below crew with unique powers: magnets, mimics, frost, swarms & glitches.',preview:'radial-gradient(circle at 50% 35%,rgba(122,208,240,.22),transparent 50%),radial-gradient(circle at 80% 70%,rgba(176,96,232,.28),transparent 45%),linear-gradient(180deg,#0e0a14,#040408)'},
- {id:'poppy',icon:'🏭',name:'Gem Factory',tag4d:true,desc:'12-chapter factory vs Freddy, Bonnie, Chica, Foxy & Golden Freddy — gemstone animatronics.',preview:'radial-gradient(circle at 50% 20%,rgba(255,77,141,.35),transparent 55%),linear-gradient(180deg,#1a1030,#07060c)'},
+ {id:'poppy',icon:'🏭',name:'Gem Factory',tag4d:true,desc:'12-chapter factory vs Sunspire, Duskveil, Clatterclaw, Redline & Aurum — gemstone animatronics.',preview:'radial-gradient(circle at 50% 20%,rgba(255,77,141,.35),transparent 55%),linear-gradient(180deg,#1a1030,#07060c)'},
  {id:'game',icon:'💎',name:'Gem Arena',tag4d:true,desc:'4D crystal battles — time-warp powers bend combat.',preview:'radial-gradient(ellipse at 55% 35%,rgba(201,169,79,.45),transparent 55%),radial-gradient(circle at 30% 70%,rgba(125,90,200,.35),transparent 50%),linear-gradient(160deg,#1a1428,#0a0b0f)'},
  {id:'battlefield',icon:'⚔',name:'Battlefield',tag4d:true,desc:'4D mine expedition — chromatic hits, time dilation on impact.',preview:'radial-gradient(ellipse at 70% 25%,rgba(255,180,80,.35),transparent 50%),linear-gradient(180deg,#2a3a5c 0%,#1a2340 45%,#3a4a2e 100%)'},
  {id:'gemhunt',icon:'🗺',name:'Gem Hunt',tag4d:true,desc:'4D scavenger hunt — temporal trails through 8 zones.',preview:'radial-gradient(circle at 40% 30%,rgba(135,206,235,.4),transparent 55%),linear-gradient(180deg,#6a9a4a,#2a4828)'},
@@ -5381,7 +5384,7 @@ const LITHOS_GAMES=[
 const LITHOS_GAME_IDS=new Set(LITHOS_GAMES.map(g=>g.id));
 const LITHOS_ARCADE_ONLY=new Set(['arcade','gemrush','gemdigger']);
 const LITHOS_ARCADE=[
- {emoji:'⛏️💎',name:'Gem Rush',desc:'Swap gems to match 3 or more! Chain combos to multiply your score — can you hit 1,000 points in 25 moves?',action:'gemrush'},
+ {emoji:'⛏️💎',name:'Gem Rush',desc:'Match pairs of the same gemstone — Diamond with Diamond, Ruby with Ruby! Clear all 32 pairs before moves run out.',action:'gemrush'},
  {emoji:'🌙🏭',name:'Night Shift at the Gem Factory',desc:'Survive all 5 nights as the factory\'s night guard! Watch the cameras, slam the doors, don\'t get caught…',action:'nightshift'},
  {emoji:'⛏️🕳️',name:'Gem Digger',desc:'Dig deep underground! Find gems, upgrade your drill, buy BOMBS — and reach the Legendary Rainbow Gem at 40m! 🌈',action:'gemdigger'},
  {emoji:'❓🔒',name:'??? Secret Game ???',desc:'A hidden game lurks somewhere on this site… it only unlocks with a secret code. Hint: how do you fall THROUGH a wall? 🟡',action:'secret',locked:true}
@@ -13820,9 +13823,9 @@ function tryCode(){
  return;
  }
 
- // GEM RUSH — match-3 mining madness! 💎⛏️
+ // GEM RUSH — pair matching! 💎⛏️
  if(raw==="gem rush"||raw==="gemrush"||raw==="match"||raw==="match 3"){
- res.innerHTML=`<div class="win" style="border-color:#7ad0f0">⛏️ GEM RUSH! Match gems, chain combos — can you hit 1,000 points?</div>`;
+ res.innerHTML=`<div class="win" style="border-color:#7ad0f0">⛏️ GEM RUSH! Match pairs — Diamond with Diamond, Ruby with Ruby!</div>`;
  playGemRush();
  return;
  }
@@ -13856,7 +13859,7 @@ function tryCode(){
  res.innerHTML=`<div class="fail"> Hmm, that's not a real code. Keep looking! </div>`;
 }
 
-// ================= ⛏️💎 GEM RUSH — match-3 mining game! =================
+// ================= ⛏️💎 GEM RUSH — pair-matching mining game! =================
 let grGame=null;
 const GR_COLORS=[
  {n:"Ruby",c1:"#ff8a9a",c2:"#c01830"},
@@ -13866,16 +13869,22 @@ const GR_COLORS=[
  {n:"Amethyst",c1:"#d0a0ff",c2:"#7a2ac0"},
  {n:"Diamond",c1:"#f0f8ff",c2:"#8aa8c0"}
 ];
+function grShuffleDeck(deck){
+ for(let i=deck.length-1;i>0;i--){
+  const j=Math.floor(Math.random()*(i+1));
+  [deck[i],deck[j]]=[deck[j],deck[i]];
+ }
+ return deck;
+}
+function grBuildBoard(){
+ const deck=[];
+ for(let t=0;t<GR_COLORS.length;t++)for(let p=0;p<5;p++){deck.push(t,t);}
+ deck.push(0,0,1,1);
+ return grShuffleDeck(deck);
+}
 function playGemRush(){
  const old=document.getElementById('gemrush'); if(old)old.remove();
- grGame={board:[],score:0,moves:25,target:1000,sel:-1,busy:false,over:false,won:false,combo:0};
- const b=grGame.board;
- for(let i=0;i<64;i++){
-  let c;
-  do{c=Math.floor(Math.random()*6);}
-  while((i%8>=2&&b[i-1]===c&&b[i-2]===c)||(Math.floor(i/8)>=2&&b[i-8]===c&&b[i-16]===c));
-  b[i]=c;
- }
+ grGame={board:grBuildBoard(),matched:new Array(64).fill(false),score:0,moves:40,target:1600,sel:-1,busy:false,over:false,won:false,pairsLeft:32};
  const wrap=document.createElement('div'); wrap.id='gemrush';
  document.body.appendChild(wrap);
  grRender();
@@ -13888,72 +13897,46 @@ function grRender(msg){
  const g=grGame; if(!g)return;
  const wrap=document.getElementById('gemrush'); if(!wrap)return;
  const cells=g.board.map((c,i)=>{
+  if(g.matched[i])return `<div class="gr-cell matched" data-i="${i}"></div>`;
   const col=GR_COLORS[c]||GR_COLORS[0];
-  return `<button class="gr-cell ${g.sel===i?'sel':''}" onclick="grPick(${i})" data-i="${i}"><div class="gr-gem" style="background:radial-gradient(circle at 32% 30%, ${col.c1}, ${col.c2})"></div></button>`;
+  return `<button class="gr-cell ${g.sel===i?'sel':''}" onclick="grPick(${i})" data-i="${i}"><div class="gr-gem" style="background:radial-gradient(circle at 32% 30%, ${col.c1}, ${col.c2})"></div><span class="gr-gem-label">${col.n}</span></button>`;
  }).join('');
  wrap.innerHTML=`<div class="gr-box">
   <div class="gr-title">⛏️ GEM RUSH 💎</div>
-  <div class="gr-hud"><span>Score: <b>${g.score}</b> / ${g.target}</span><span>Moves: <b>${g.moves}</b></span><span>Best: <b>${grBest()}</b></span></div>
+  <div class="gr-hud"><span>Score: <b>${g.score}</b> / ${g.target}</span><span>Moves: <b>${g.moves}</b></span><span>Pairs: <b>${g.pairsLeft}</b></span><span>Best: <b>${grBest()}</b></span></div>
+  <p style="font-size:12px;color:#9088a8;margin:-4px 0 10px">Tap two matching gems — <b style="color:#ffde7a">Diamond + Diamond</b>, <b style="color:#ff8a9a">Ruby + Ruby</b>, etc.</p>
   ${msg?`<div class="gr-combo">${msg}</div>`:''}
   <div class="gr-grid">${cells}</div>
   <div style="margin-top:12px"><button class="gr-btn ghost" onclick="grClose()">Leave</button></div>
-  ${g.over?`<div class="gr-end"><div class="gr-end-title">${g.won?'⛏️ TARGET SMASHED! 🎉':'😅 OUT OF MOVES!'}</div><div class="gr-end-sub">Final score: <b style="color:#ffde7a">${g.score}</b>${g.won?' — you are a master miner!':' — so close! Try again?'}</div><button class="gr-btn" onclick="playGemRush()">Play Again ⛏️</button><button class="gr-btn ghost" onclick="grClose()">Leave</button></div>`:''}
+  ${g.over?`<div class="gr-end"><div class="gr-end-title">${g.won?'⛏️ ALL PAIRS MATCHED! 🎉':'😅 OUT OF MOVES!'}</div><div class="gr-end-sub">Final score: <b style="color:#ffde7a">${g.score}</b>${g.won?' — master matcher!':' — so close! Try again?'}</div><button class="gr-btn" onclick="playGemRush()">Play Again ⛏️</button><button class="gr-btn ghost" onclick="grClose()">Leave</button></div>`:''}
  </div>`;
 }
+function grEndCheck(){
+ const g=grGame; if(!g)return;
+ if(g.pairsLeft<=0||g.score>=g.target){g.over=true; g.won=true; grSaveBest(); try{if(SFX&&SFX.win)SFX.win();}catch(e){}}
+ else if(g.moves<=0){g.over=true; g.won=false; grSaveBest(); try{if(SFX&&SFX.lose)SFX.lose();}catch(e){}}
+}
 function grPick(i){
- const g=grGame; if(!g||g.busy||g.over)return;
+ const g=grGame; if(!g||g.busy||g.over||g.matched[i])return;
  if(g.sel<0){g.sel=i; grRender(); try{if(SFX&&SFX.click)SFX.click();}catch(e){} return;}
  if(g.sel===i){g.sel=-1; grRender(); return;}
  const a=g.sel,b2=i;
- const adj=(Math.abs(a-b2)===1&&Math.floor(a/8)===Math.floor(b2/8))||Math.abs(a-b2)===8;
- if(!adj){g.sel=i; grRender(); return;}
- g.sel=-1; g.busy=true;
- [g.board[a],g.board[b2]]=[g.board[b2],g.board[a]];
- if(grFindMatches().length===0){
-  grRender();
-  setTimeout(()=>{[g.board[a],g.board[b2]]=[g.board[b2],g.board[a]]; g.busy=false; grRender('❌ no match there');},260);
+ g.sel=-1;
+ if(g.board[a]===g.board[b2]){
+  g.matched[a]=true; g.matched[b2]=true;
+  g.pairsLeft--;
+  g.score+=100;
+  try{if(SFX&&SFX.click)SFX.click();}catch(e){}
+  grRender(`💎 ${GR_COLORS[g.board[a]].n} match!`);
+  grEndCheck();
+  if(!g.over) setTimeout(()=>grRender(''),400);
   return;
  }
- g.moves--; g.combo=0;
+ g.moves--;
  try{if(SFX&&SFX.click)SFX.click();}catch(e){}
- grRender();
- setTimeout(grResolve,180);
-}
-function grFindMatches(){
- const b=grGame.board,hit=new Set();
- for(let r=0;r<8;r++)for(let c=0;c<6;c++){
-  const i=r*8+c;
-  if(b[i]!=null&&b[i]===b[i+1]&&b[i]===b[i+2]){let k=c; while(k<8&&b[r*8+k]===b[i]){hit.add(r*8+k);k++;}}
- }
- for(let c=0;c<8;c++)for(let r=0;r<6;r++){
-  const i=r*8+c;
-  if(b[i]!=null&&b[i]===b[i+8]&&b[i]===b[i+16]){let k=r; while(k<8&&b[k*8+c]===b[i]){hit.add(k*8+c);k++;}}
- }
- return [...hit];
-}
-function grResolve(){
- const g=grGame; if(!g)return;
- const hits=grFindMatches();
- if(hits.length===0){
-  g.busy=false;
-  if(g.score>=g.target){g.over=true; g.won=true; grSaveBest(); try{if(SFX&&SFX.win)SFX.win();}catch(e){}}
-  else if(g.moves<=0){g.over=true; g.won=false; grSaveBest(); try{if(SFX&&SFX.lose)SFX.lose();}catch(e){}}
-  grRender(); return;
- }
- g.combo++;
- g.score+=hits.length*10*g.combo;
- hits.forEach(i=>{const el=document.querySelector(`.gr-cell[data-i="${i}"]`); if(el)el.classList.add('pop');});
- try{if(SFX&&SFX.click)SFX.click();}catch(e){}
- setTimeout(()=>{
-  hits.forEach(i=>g.board[i]=null);
-  for(let c=0;c<8;c++){
-   let write=7;
-   for(let r=7;r>=0;r--){const i=r*8+c; if(g.board[i]!=null){g.board[write*8+c]=g.board[i]; if(write!==r)g.board[i]=null; write--;}}
-   for(let r=write;r>=0;r--)g.board[r*8+c]=Math.floor(Math.random()*6);
-  }
-  grRender(g.combo>1?`💥 COMBO x${g.combo}!`:'');
-  setTimeout(grResolve,200);
- },260);
+ g.busy=true;
+ grRender('❌ Not a pair — try again!');
+ setTimeout(()=>{g.busy=false; grEndCheck(); grRender(g.over?'':'');},520);
 }
 
 // ================= ⛏️🕳️ GEM DIGGER — dig deep, find gems, buy bombs! =================
@@ -15443,84 +15426,91 @@ if(!hasEmeraldGift()) setTimeout(()=>grantEmeraldGuardianGift(), 900);
 /* ===== Gem Factory — unified factory explorer (walk, grab, hide, run) ===== */
 const POPPY_KEY='lithos_poppy_progress_v1';
 const POPPY_DEVICE_KEY='lithos_poppy_device_v1';
+const GEM_FACTORY_CREW={
+ freddy:{name:'Sunspire',gem:'Citrine',role:'bear bandleader'},
+ bonnie:{name:'Duskveil',gem:'Amethyst',role:'rabbit guitarist'},
+ chica:{name:'Clatterclaw',gem:'Topaz',role:'chicken vocalist'},
+ foxy:{name:'Redline',gem:'Ruby',role:'pirate fox'},
+ golden:{name:'Aurum',gem:'Gold',role:'goldstone phantom'}
+};
 const POPPY_CHAPTERS=[
- {n:1,name:'Freddy Awakens',emoji:'🐻',desc:'5 shards · Citrine Freddy wakes.',decor:'lobby',mode:'explore',worldMax:155,gore:false,
-  intro:'GEM FACTORY — Night shift. Collect 5 gem shards and activate 2 ore nodes. CITRINE FREDDY (bear bandleader) sleeps at the vault… until you get close.',
+ {n:1,name:'Sunspire Awakens',emoji:'🐻',desc:'5 shards · Sunspire wakes.',decor:'lobby',mode:'explore',worldMax:155,gore:false,
+  intro:'GEM FACTORY — Night shift. Collect 5 gem shards and activate 2 ore nodes. SUNSPIRE (citrine bear bandleader) sleeps at the vault… until you get close.',
   objectives:['Collect 5 gem shards','Activate 2 ore nodes','Reach the vault'],
-  boss:{name:'Citrine Freddy',type:'freddy',phases:1},
+  boss:{name:'Sunspire',type:'freddy',phases:1},
   obstacles:[{id:'b1',x:32,type:'block'},{id:'b2',x:58,type:'block'},{id:'b3',x:84,type:'block'},{id:'b4',x:110,type:'block'},{id:'g1',x:130,type:'gate'}],
   props:[{id:'c1',x:16,type:'crate'},{id:'c2',x:34,type:'crate'},{id:'c3',x:52,type:'crate'},{id:'c4',x:70,type:'crate'},{id:'c5',x:88,type:'crate'},{id:'o1',x:42,type:'ore'},{id:'o2',x:98,type:'ore'},{id:'exit',x:148,type:'door',needs:5}],
-  monster:{x:48,dir:-1,speed:1.4,range:18,name:'Citrine Freddy',type:'freddy',sleeping:true}},
- {n:2,name:'Bonnie Hall',emoji:'🎸',desc:'4 shards · Amethyst Bonnie + Topaz Chica.',decor:'hall',mode:'patrol',worldMax:160,gore:false,
-  intro:'Amethyst hall. Collect 4 shards, defeat TOPAZ CHICA at the junction, then sneak past AMETHYST BONNIE (rabbit guitarist) to the vault.',
-  objectives:['Collect 4 gem shards','Defeat Topaz Chica','Sneak to vault'],
-  boss:{name:'Amethyst Bonnie',type:'bonnie',phases:2},
+  monster:{x:48,dir:-1,speed:1.4,range:18,name:'Sunspire',type:'freddy',sleeping:true}},
+ {n:2,name:'Duskveil Hall',emoji:'🎸',desc:'4 shards · Duskveil + Clatterclaw.',decor:'hall',mode:'patrol',worldMax:160,gore:false,
+  intro:'Amethyst hall. Collect 4 shards, defeat CLATTERCLAW at the junction, then sneak past DUSKVEIL (amethyst rabbit guitarist) to the vault.',
+  objectives:['Collect 4 gem shards','Defeat Clatterclaw','Sneak to vault'],
+  boss:{name:'Duskveil',type:'bonnie',phases:2},
   obstacles:[{id:'p1',x:38,type:'block'},{id:'p2',x:62,type:'block'},{id:'p3',x:86,type:'block'},{id:'p4',x:118,type:'block'}],
-  props:[{id:'k1',x:18,type:'crate'},{id:'k2',x:42,type:'crate'},{id:'k3',x:66,type:'crate'},{id:'k4',x:90,type:'crate'},{id:'e1',x:72,type:'encounter',hp:3,monsterType:'chica',name:'Topaz Chica'},{id:'h1',x:28,type:'hide'},{id:'h2',x:52,type:'hide'},{id:'h3',x:76,type:'hide'},{id:'h4',x:98,type:'hide'},{id:'h5',x:125,type:'hide'},{id:'exit',x:152,type:'door',needs:4}],
-  monster:{x:42,dir:-1,speed:1.5,range:16,name:'Amethyst Bonnie',type:'bonnie'}},
- {n:3,name:'Chica Power Pit',emoji:'🧁',desc:'4 switches · Topaz Chica.',decor:'power',mode:'explore',worldMax:125,gore:false,
-  intro:'Power cavern. Flip 4 crystal switches. TOPAZ CHICA (chicken vocalist — LET\'S EAT!) wakes when the last switch throws…',
-  boss:{name:'Topaz Chica',type:'chica',phases:2},
+  props:[{id:'k1',x:18,type:'crate'},{id:'k2',x:42,type:'crate'},{id:'k3',x:66,type:'crate'},{id:'k4',x:90,type:'crate'},{id:'e1',x:72,type:'encounter',hp:3,monsterType:'chica',name:'Clatterclaw'},{id:'h1',x:28,type:'hide'},{id:'h2',x:52,type:'hide'},{id:'h3',x:76,type:'hide'},{id:'h4',x:98,type:'hide'},{id:'h5',x:125,type:'hide'},{id:'exit',x:152,type:'door',needs:4}],
+  monster:{x:42,dir:-1,speed:1.5,range:16,name:'Duskveil',type:'bonnie'}},
+ {n:3,name:'Clatterclaw Power Pit',emoji:'🧁',desc:'4 switches · Clatterclaw.',decor:'power',mode:'explore',worldMax:125,gore:false,
+  intro:'Power cavern. Flip 4 crystal switches. CLATTERCLAW (topaz chicken vocalist — LET\'S EAT!) wakes when the last switch throws…',
+  boss:{name:'Clatterclaw',type:'chica',phases:2},
   obstacles:[{id:'l1',x:28,type:'laser'},{id:'l2',x:48,type:'laser'},{id:'l3',x:68,type:'laser'},{id:'l4',x:88,type:'laser'},{id:'g1',x:102,type:'gate'}],
   props:[{id:'lev',x:22,type:'lever'},{id:'s2',x:42,type:'lever'},{id:'s3',x:62,type:'lever'},{id:'s4',x:82,type:'lever'},{id:'exit',x:118,type:'door',needs:0}],
-  monster:{x:46,dir:1,speed:1.8,range:14,name:'Topaz Chica',type:'chica',sleeping:true}},
- {n:4,name:'Foxy Bay',emoji:'🏴‍☠️',desc:'5 shards · Ruby Foxy hunts.',decor:'storage',mode:'patrol',worldMax:128,gore:false,
-  intro:'Storage bay. Gather 5 shards — vault locked until all 5. RUBY FOXY (pirate fox with the hook) roams the bay. Hide, grab, repeat.',
-  boss:{name:'Ruby Foxy',type:'foxy',phases:2},
+  monster:{x:46,dir:1,speed:1.8,range:14,name:'Clatterclaw',type:'chica',sleeping:true}},
+ {n:4,name:'Redline Bay',emoji:'🏴‍☠️',desc:'5 shards · Redline hunts.',decor:'storage',mode:'patrol',worldMax:128,gore:false,
+  intro:'Storage bay. Gather 5 shards — vault locked until all 5. REDLINE (ruby pirate fox with the hook) roams the bay. Hide, grab, repeat.',
+  boss:{name:'Redline',type:'foxy',phases:2},
   obstacles:[{id:'s1',x:30,type:'shard'},{id:'s2',x:50,type:'shard'},{id:'b1',x:70,type:'block'},{id:'s3',x:90,type:'shard'},{id:'s4',x:108,type:'shard'}],
   props:[{id:'k1',x:16,type:'crate'},{id:'k2',x:36,type:'crate'},{id:'k3',x:56,type:'crate'},{id:'k4',x:76,type:'crate'},{id:'k5',x:96,type:'crate'},{id:'h1',x:24,type:'hide'},{id:'h2',x:48,type:'hide'},{id:'h3',x:72,type:'hide'},{id:'h4',x:96,type:'hide'},{id:'exit',x:122,type:'door',needs:5}],
-  monster:{x:40,dir:1,speed:1.7,range:16,name:'Ruby Foxy',type:'foxy'}},
- {n:5,name:'Freddy Chase',emoji:'💨',desc:'Grab 3 · then RUN from Freddy.',decor:'vent',mode:'chase',worldMax:135,gore:false,
-  intro:'Vent tunnel. FIRST: grab 3 power cells. THEN CITRINE FREDDY breaks in — sprint the rest of the tunnel!',
-  boss:{name:'Citrine Freddy',type:'freddy',phases:2},
+  monster:{x:40,dir:1,speed:1.7,range:16,name:'Redline',type:'foxy'}},
+ {n:5,name:'Sunspire Chase',emoji:'💨',desc:'Grab 3 · then RUN from Sunspire.',decor:'vent',mode:'chase',worldMax:135,gore:false,
+  intro:'Vent tunnel. FIRST: grab 3 power cells. THEN SUNSPIRE breaks in — sprint the rest of the tunnel!',
+  boss:{name:'Sunspire',type:'freddy',phases:2},
   obstacles:[{id:'c1',x:45,type:'collapse'},{id:'c2',x:72,type:'collapse'},{id:'c3',x:98,type:'collapse'},{id:'c4',x:118,type:'collapse'}],
   props:[{id:'k1',x:22,type:'crate'},{id:'k2',x:48,type:'crate'},{id:'k3',x:74,type:'crate'},{id:'exit',x:130,type:'door',needs:3}],
-  monster:{x:4,speed:2.3,name:'Citrine Freddy',type:'freddy',sleeping:true}},
- {n:6,name:'Bonnie Lab',emoji:'🔬',desc:'6 nodes · Amethyst Bonnie wakes.',decor:'lab',mode:'explore',worldMax:130,gore:false,
-  intro:'Experiment pit. Activate all 6 power nodes. AMETHYST BONNIE wakes when the last node goes live…',
-  boss:{name:'Amethyst Bonnie',type:'bonnie',phases:2},
+  monster:{x:4,speed:2.3,name:'Sunspire',type:'freddy',sleeping:true}},
+ {n:6,name:'Duskveil Lab',emoji:'🔬',desc:'6 nodes · Duskveil wakes.',decor:'lab',mode:'explore',worldMax:130,gore:false,
+  intro:'Experiment pit. Activate all 6 power nodes. DUSKVEIL wakes when the last node goes live…',
+  boss:{name:'Duskveil',type:'bonnie',phases:2},
   obstacles:[{id:'l1',x:22,type:'laser'},{id:'l2',x:38,type:'laser'},{id:'l3',x:54,type:'laser'},{id:'l4',x:70,type:'laser'},{id:'l5',x:86,type:'laser'},{id:'l6',x:102,type:'laser'}],
   props:[{id:'p1',x:18,type:'console'},{id:'p2',x:34,type:'console'},{id:'p3',x:50,type:'console'},{id:'p4',x:66,type:'console'},{id:'p5',x:82,type:'console'},{id:'p6',x:98,type:'console'},{id:'exit',x:125,type:'door',needs:6}],
-  monster:{x:46,dir:1,speed:2,name:'Amethyst Bonnie',type:'bonnie',sleeping:true}},
- {n:7,name:'Bonnie Music Hall',emoji:'🎵',desc:'4 nodes · silence hunt.',decor:'music',mode:'patrol',worldMax:128,gore:false,
-  intro:'Activate 4 harmonic nodes FIRST. When the music stops, hide from AMETHYST BONNIE and reach the far vault.',
-  boss:{name:'Amethyst Bonnie',type:'bonnie',phases:2},
+  monster:{x:46,dir:1,speed:2,name:'Duskveil',type:'bonnie',sleeping:true}},
+ {n:7,name:'Duskveil Music Hall',emoji:'🎵',desc:'4 nodes · silence hunt.',decor:'music',mode:'patrol',worldMax:128,gore:false,
+  intro:'Activate 4 harmonic nodes FIRST. When the music stops, hide from DUSKVEIL and reach the far vault.',
+  boss:{name:'Duskveil',type:'bonnie',phases:2},
   obstacles:[{id:'l1',x:32,type:'laser'},{id:'l2',x:56,type:'laser'},{id:'l3',x:80,type:'laser'},{id:'l4',x:104,type:'laser'}],
   props:[{id:'n1',x:20,type:'console'},{id:'n2',x:44,type:'console'},{id:'n3',x:68,type:'console'},{id:'n4',x:92,type:'console'},{id:'h1',x:28,type:'hide'},{id:'h2',x:52,type:'hide'},{id:'h3',x:76,type:'hide'},{id:'h4',x:100,type:'hide'},{id:'exit',x:122,type:'door',needs:4}],
-  monster:{x:44,dir:-1,speed:1.8,range:17,name:'Amethyst Bonnie',type:'bonnie',dance:true}},
- {n:8,name:'Chica Dock',emoji:'🚢',desc:'2 keys · Chica chase.',decor:'dock',mode:'chase',worldMax:140,gore:false,gateTimer:65,
-  intro:'Loading dock. Grab 2 vault keys, THEN the alarm — TOPAZ CHICA chase + closing gate!',
-  boss:{name:'Topaz Chica',type:'chica',phases:2},
+  monster:{x:44,dir:-1,speed:1.8,range:17,name:'Duskveil',type:'bonnie',dance:true}},
+ {n:8,name:'Clatterclaw Dock',emoji:'🚢',desc:'2 keys · Clatterclaw chase.',decor:'dock',mode:'chase',worldMax:140,gore:false,gateTimer:65,
+  intro:'Loading dock. Grab 2 vault keys, THEN the alarm — CLATTERCLAW chase + closing gate!',
+  boss:{name:'Clatterclaw',type:'chica',phases:2},
   obstacles:[{id:'c1',x:38,type:'collapse'},{id:'c2',x:68,type:'collapse'},{id:'c3',x:98,type:'collapse'},{id:'g1',x:118,type:'gate'}],
   props:[{id:'k1',x:24,type:'crate'},{id:'k2',x:72,type:'crate'},{id:'exit',x:135,type:'door',needs:2}],
-  monster:{x:3,speed:2.5,name:'Topaz Chica',type:'chica',sleeping:true}},
- {n:9,name:'Foxy Shaft',emoji:'🛗',desc:'5 switches · Foxy climbs.',decor:'elevator',mode:'explore',worldMax:130,gore:false,
-  intro:'Elevator shaft — pull all 5 cable switches. RUBY FOXY scrabbles up below you. Finish every switch before the hook catches you!',
-  boss:{name:'Ruby Foxy',type:'foxy',phases:2},
+  monster:{x:3,speed:2.5,name:'Clatterclaw',type:'chica',sleeping:true}},
+ {n:9,name:'Redline Shaft',emoji:'🛗',desc:'5 switches · Redline climbs.',decor:'elevator',mode:'explore',worldMax:130,gore:false,
+  intro:'Elevator shaft — pull all 5 cable switches. REDLINE scrabbles up below you. Finish every switch before the hook catches you!',
+  boss:{name:'Redline',type:'foxy',phases:2},
   obstacles:[{id:'f1',x:28,type:'block'},{id:'f2',x:48,type:'block'},{id:'f3',x:68,type:'block'},{id:'f4',x:88,type:'block'},{id:'f5',x:108,type:'block'}],
   props:[{id:'s1',x:20,type:'lever'},{id:'s2',x:38,type:'lever'},{id:'s3',x:56,type:'lever'},{id:'s4',x:74,type:'lever'},{id:'s5',x:92,type:'lever'},{id:'exit',x:125,type:'door',needs:5}],
-  monster:{x:44,dir:1,speed:1.6,range:12,name:'Ruby Foxy',type:'foxy',climbing:true}},
- {n:10,name:'Freddy Finale Run',emoji:'👑',desc:'4 shards · Freddy chase · finale.',decor:'escape',mode:'chase',worldMax:175,gore:false,
-  intro:'Longest tunnel. Grab 4 crown shards, solve the gem puzzle, THEN CITRINE FREDDY hunts you to the final gate.',
-  objectives:['Collect 4 crown shards','Solve gem sequence','Escape Citrine Freddy'],
-  boss:{name:'Citrine Freddy',type:'freddy',phases:3},
+  monster:{x:44,dir:1,speed:1.6,range:12,name:'Redline',type:'foxy',climbing:true}},
+ {n:10,name:'Sunspire Finale Run',emoji:'👑',desc:'4 shards · Sunspire chase · finale.',decor:'escape',mode:'chase',worldMax:175,gore:false,
+  intro:'Longest tunnel. Grab 4 crown shards, solve the gem puzzle, THEN SUNSPIRE hunts you to the final gate.',
+  objectives:['Collect 4 crown shards','Solve gem sequence','Escape Sunspire'],
+  boss:{name:'Sunspire',type:'freddy',phases:3},
   obstacles:[{id:'b1',x:28,type:'block'},{id:'l1',x:44,type:'laser'},{id:'c1',x:60,type:'collapse'},{id:'s1',x:76,type:'shard'},{id:'l2',x:92,type:'laser'},{id:'b2',x:108,type:'block'},{id:'c2',x:124,type:'collapse'},{id:'b3',x:140,type:'block'}],
   props:[{id:'k1',x:20,type:'crate'},{id:'k2',x:45,type:'crate'},{id:'k3',x:70,type:'crate'},{id:'k4',x:95,type:'crate'},{id:'puz1',x:115,type:'puzzle',seq:['ruby','sapphire','emerald']},{id:'exit',x:168,type:'door',needs:4}],
-  monster:{x:2,speed:2.4,name:'Citrine Freddy',type:'freddy',sleeping:true}},
- {n:11,name:'Golden Freddy Forge',emoji:'👻',desc:'6 ore · 3 keys · Golden Freddy.',decor:'power',mode:'explore',worldMax:185,gore:false,
-  intro:'Quantum Forge. Mine 6 ore, find 3 keys, match the crystal puzzle — then face GOLDEN FREDDY (goldstone phantom) before the gate closes.',
-  objectives:['Mine 6 ore nodes','Find 3 vault keys','Solve color puzzle','Defeat Golden Freddy'],
-  boss:{name:'Golden Freddy',type:'golden',phases:3},
+  monster:{x:2,speed:2.4,name:'Sunspire',type:'freddy',sleeping:true}},
+ {n:11,name:'Aurum Forge',emoji:'👻',desc:'6 ore · 3 keys · Aurum.',decor:'power',mode:'explore',worldMax:185,gore:false,
+  intro:'Quantum Forge. Mine 6 ore, find 3 keys, match the crystal puzzle — then face AURUM (goldstone phantom) before the gate closes.',
+  objectives:['Mine 6 ore nodes','Find 3 vault keys','Solve color puzzle','Defeat Aurum'],
+  boss:{name:'Aurum',type:'golden',phases:3},
   obstacles:[{id:'l1',x:25,type:'laser'},{id:'l2',x:48,type:'laser'},{id:'c1',x:72,type:'collapse'},{id:'l3',x:96,type:'laser'},{id:'b1',x:120,type:'block'},{id:'c2',x:145,type:'collapse'},{id:'g1',x:165,type:'gate'}],
-  props:[{id:'o1',x:14,type:'ore'},{id:'o2',x:32,type:'ore'},{id:'o3',x:50,type:'ore'},{id:'o4',x:68,type:'ore'},{id:'o5',x:86,type:'ore'},{id:'o6',x:104,type:'ore'},{id:'key1',x:38,type:'key'},{id:'key2',x:78,type:'key'},{id:'key3',x:128,type:'key'},{id:'puz1',x:112,type:'puzzle',seq:['amethyst','topaz','diamond']},{id:'e1',x:140,type:'encounter',hp:4,monsterType:'golden',name:'Golden Freddy'},{id:'h1',x:58,type:'hide'},{id:'h2',x:118,type:'hide'},{id:'exit',x:178,type:'door',needs:6}],
-  monster:{x:48,dir:1,speed:2.1,range:14,name:'Golden Freddy',type:'golden',sleeping:true}},
- {n:12,name:'Golden Overlord',emoji:'⏳',desc:'Final gauntlet · Golden Freddy · endings.',decor:'escape',mode:'chase',worldMax:200,gore:false,gateTimer:75,
-  intro:'THE TEMPORAL CORE. Activate 5 nodes, collect 3 crown keys, survive 4D zones, then outrun GOLDEN FREDDY. Escape clean for a good ending — fail, and the mountain buries you… animatronics take your gemstone core.',
-  objectives:['Activate 5 machinery nodes','Collect 3 crown keys','Survive 4D zones','Escape Golden Freddy'],
-  boss:{name:'Golden Freddy',type:'golden',phases:3},
+  props:[{id:'o1',x:14,type:'ore'},{id:'o2',x:32,type:'ore'},{id:'o3',x:50,type:'ore'},{id:'o4',x:68,type:'ore'},{id:'o5',x:86,type:'ore'},{id:'o6',x:104,type:'ore'},{id:'key1',x:38,type:'key'},{id:'key2',x:78,type:'key'},{id:'key3',x:128,type:'key'},{id:'puz1',x:112,type:'puzzle',seq:['amethyst','topaz','diamond']},{id:'e1',x:140,type:'encounter',hp:4,monsterType:'golden',name:'Aurum'},{id:'h1',x:58,type:'hide'},{id:'h2',x:118,type:'hide'},{id:'exit',x:178,type:'door',needs:6}],
+  monster:{x:48,dir:1,speed:2.1,range:14,name:'Aurum',type:'golden',sleeping:true}},
+ {n:12,name:'Aurum Overlord',emoji:'⏳',desc:'Final gauntlet · Aurum · endings.',decor:'escape',mode:'chase',worldMax:200,gore:false,gateTimer:75,
+  intro:'THE TEMPORAL CORE. Activate 5 nodes, collect 3 crown keys, survive 4D zones, then outrun AURUM. Escape clean for a good ending — fail, and the mountain buries you… animatronics take your gemstone core.',
+  objectives:['Activate 5 machinery nodes','Collect 3 crown keys','Survive 4D zones','Escape Aurum'],
+  boss:{name:'Aurum',type:'golden',phases:3},
   obstacles:[{id:'b1',x:22,type:'block'},{id:'l1',x:38,type:'laser'},{id:'c1',x:54,type:'collapse'},{id:'s1',x:70,type:'shard'},{id:'l2',x:86,type:'laser'},{id:'b2',x:102,type:'block'},{id:'c2',x:118,type:'collapse'},{id:'l3',x:134,type:'laser'},{id:'b3',x:150,type:'block'},{id:'c3',x:166,type:'collapse'},{id:'g1',x:182,type:'gate'}],
   props:[{id:'n1',x:18,type:'console'},{id:'n2',x:42,type:'console'},{id:'n3',x:66,type:'console'},{id:'n4',x:90,type:'console'},{id:'n5',x:114,type:'console'},{id:'key1',x:48,type:'key'},{id:'key2',x:96,type:'key'},{id:'key3',x:144,type:'key'},{id:'o1',x:28,type:'ore'},{id:'o2',x:76,type:'ore'},{id:'o3',x:124,type:'ore'},{id:'puz1',x:158,type:'puzzle',seq:['ruby','diamond','emerald','sapphire']},{id:'exit',x:195,type:'door',needs:5}],
-  monster:{x:2,speed:2.8,name:'Golden Freddy',type:'golden',sleeping:true}}
+  monster:{x:2,speed:2.8,name:'Aurum',type:'golden',sleeping:true}}
 ];
 const PP_ENDINGS_KEY='lithos_poppy_endings_v1';
 const PP_ENDINGS={
@@ -16029,7 +16019,7 @@ function ppTriggerSentinelWake(){
  if(!ppGame||ppGame.chaseActive||ppGame.cfg.n!==1)return;
  const s=ppGame.state,c=ppGame.cfg;
  ppGame.chaseActive=true;c.mode='chase';
- if(s.monster){s.monster.sleeping=false;s.monster.x=Math.max(2,s.x-32);s.monster.type=c.monster?.type||c.boss?.type||'freddy';s.monster.name=c.monster?.name||c.boss?.name||'Citrine Freddy';}
+ if(s.monster){s.monster.sleeping=false;s.monster.x=Math.max(2,s.x-32);s.monster.type=c.monster?.type||c.boss?.type||'freddy';s.monster.name=c.monster?.name||c.boss?.name||GEM_FACTORY_CREW.freddy.name;}
  ppGame.chaseGraceUntil=Date.now()+4500;
  ppGame.msg=`💀 ${ppBossName().toUpperCase()} AWAKENS — SPRINT TO THE VAULT!!!`;
  ppSfx('roar');setTimeout(()=>ppJumpscare(),300);
@@ -16480,7 +16470,10 @@ function buildPoppyHub(){
  const prev=document.getElementById('poppy-char-preview');
  const dev=document.getElementById('poppy-device');
  if(prev){
-  const crew=['freddy','bonnie','chica','foxy','golden'].map(id=>`<div style="filter:drop-shadow(0 0 10px rgba(201,169,79,.35))">${nsBotSVG(id,ppUseKeyboard()?72:56)}</div>`).join('');
+  const crew=['freddy','bonnie','chica','foxy','golden'].map(id=>{
+   const c=GEM_FACTORY_CREW[id];
+   return `<div style="text-align:center"><div style="filter:drop-shadow(0 0 10px rgba(201,169,79,.35))">${nsBotSVG(id,ppUseKeyboard()?72:56)}</div><div style="font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-top:4px">${c.name}</div></div>`;
+  }).join('');
   prev.innerHTML=`<div style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;justify-content:center">${crew}</div><div style="margin-top:10px;opacity:.85">${ppPlayerHTML(ppUseKeyboard()?70:56,'idle')}</div>`;
  }
  if(dev){
