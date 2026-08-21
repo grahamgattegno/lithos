@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- lithos-v:nuke-levels-8 -->
+<!-- lithos-v:making-of-11 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1389,12 +1389,51 @@
   .dg-gridwrap{max-height:400px;overflow-y:auto;border:1px solid #2a2440;border-radius:12px;background:#0a0812}
   .dg-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:3px;padding:6px}
   .dg-cell{aspect-ratio:1;border:none;border-radius:6px;cursor:default;padding:0;position:relative;font-size:15px;box-shadow:inset 0 -3px 0 rgba(0,0,0,.25)}
-  .dg-cell.d1{background:#7a5834}.dg-cell.d2{background:#6a4a2a}.dg-cell.d3{background:#5f5548}
-  .dg-cell.d4{background:#565664}.dg-cell.d5{background:#40404e}.dg-cell.d6{background:#2e2e3a}
+  /* default / shallow mine */
+  .dg-theme-mine{background:linear-gradient(170deg,#1e1810,#100c08);border-color:#5a4830}
+  .dg-theme-mine .dg-gridwrap{background:#141008;border-color:#3a3020}
+  .dg-theme-mine .dg-cell.d1{background:#9a7848}.dg-theme-mine .dg-cell.d2{background:#7a5834}
+  .dg-theme-mine .dg-cell.d3{background:#6a4a2a}.dg-theme-mine .dg-cell.d4{background:#5f5548}
+  .dg-theme-mine .dg-cell.d5{background:#565664}.dg-theme-mine .dg-cell.d6{background:#40404e}
+  .dg-theme-mine .dg-cell.open{background:radial-gradient(circle at 50% 28%,#3a3020,#181008);box-shadow:inset 0 2px 7px rgba(0,0,0,.65)}
+  .dg-theme-mine .dg-levelbar{color:#d4b878}
+  /* crystal cavern */
+  .dg-theme-crystal{background:linear-gradient(170deg,#1a1438,#0c0a20);border-color:#6a58b8}
+  .dg-theme-crystal .dg-gridwrap{background:#100e24;border-color:#4a4080}
+  .dg-theme-crystal .dg-cell.d1{background:#d8c8f0}.dg-theme-crystal .dg-cell.d2{background:#b8a0e0}
+  .dg-theme-crystal .dg-cell.d3{background:#8898d8}.dg-theme-crystal .dg-cell.d4{background:#6878c0}
+  .dg-theme-crystal .dg-cell.d5{background:#5058a0}.dg-theme-crystal .dg-cell.d6{background:#383868}
+  .dg-theme-crystal .dg-cell.open{background:radial-gradient(circle at 50% 30%,#4838a0,#181030);box-shadow:inset 0 0 12px rgba(140,120,255,.35),inset 0 2px 7px rgba(0,0,0,.5)}
+  .dg-theme-crystal .dg-levelbar{color:#b8a8ff}
+  /* magma vault */
+  .dg-theme-magma{background:linear-gradient(170deg,#281008,#140804);border-color:#aa5020}
+  .dg-theme-magma .dg-gridwrap{background:#180604;border-color:#6a2810}
+  .dg-theme-magma .dg-cell.d1{background:#5a4038}.dg-theme-magma .dg-cell.d2{background:#6a3828}
+  .dg-theme-magma .dg-cell.d3{background:#8a4020}.dg-theme-magma .dg-cell.d4{background:#aa5020}
+  .dg-theme-magma .dg-cell.d5{background:#cc6020}.dg-theme-magma .dg-cell.d6{background:#e85818;box-shadow:inset 0 -3px 0 rgba(0,0,0,.25),0 0 8px rgba(255,100,30,.25)}
+  .dg-theme-magma .dg-cell.open{background:radial-gradient(circle at 50% 35%,#ff7820,#2a0c04);box-shadow:inset 0 0 14px rgba(255,120,40,.45),inset 0 2px 7px rgba(0,0,0,.55)}
+  .dg-theme-magma .dg-levelbar{color:#ff9850}
+  .dg-theme-magma.overheat{box-shadow:0 0 0 2px #ff5a1a,0 0 40px rgba(255,90,20,.55)}
+  /* abyss pit */
+  .dg-theme-abyss{background:linear-gradient(170deg,#100818,#06040c);border-color:#3a2850}
+  .dg-theme-abyss .dg-gridwrap{background:#060408;border-color:#2a1838}
+  .dg-theme-abyss .dg-cell.d1{background:#3a3a48}.dg-theme-abyss .dg-cell.d2{background:#323040}
+  .dg-theme-abyss .dg-cell.d3{background:#2a2838}.dg-theme-abyss .dg-cell.d4{background:#222030}
+  .dg-theme-abyss .dg-cell.d5{background:#1a1828}.dg-theme-abyss .dg-cell.d6{background:#101018}
+  .dg-theme-abyss .dg-cell.open{background:radial-gradient(circle at 50% 32%,#1a1030,#040208);box-shadow:inset 0 0 10px rgba(80,40,120,.25),inset 0 2px 8px rgba(0,0,0,.75)}
+  .dg-theme-abyss .dg-levelbar{color:#a878d8}
+  /* rainbow core */
+  .dg-theme-rainbow{background:linear-gradient(135deg,#201028,#100818,#081018);border-color:#8868c8}
+  .dg-theme-rainbow .dg-gridwrap{background:#0a0814;border-color:#504070}
+  .dg-theme-rainbow .dg-cell.d1{background:#e86888}.dg-theme-rainbow .dg-cell.d2{background:#e8b848}
+  .dg-theme-rainbow .dg-cell.d3{background:#58c878}.dg-theme-rainbow .dg-cell.d4{background:#48b8d8}
+  .dg-theme-rainbow .dg-cell.d5{background:#5878e8}.dg-theme-rainbow .dg-cell.d6{background:#9858e8}
+  .dg-theme-rainbow .dg-cell.open{background:radial-gradient(circle at 50% 30%,rgba(255,100,200,.35),rgba(80,180,255,.2),#0c0818);box-shadow:inset 0 0 16px rgba(255,180,255,.3),inset 0 2px 7px rgba(0,0,0,.5)}
+  .dg-theme-rainbow .dg-levelbar{color:#ffb8ff}
   .dg-cell.can{filter:brightness(1.25);cursor:pointer}
   .dg-cell.can:hover{filter:brightness(1.45)}
   .dg-cell.crack{background-image:linear-gradient(135deg,transparent 42%,rgba(0,0,0,.55) 46%,transparent 50%),linear-gradient(45deg,transparent 58%,rgba(0,0,0,.45) 62%,transparent 66%)}
-  .dg-cell.open{background:radial-gradient(circle at 50% 32%,#241d38,#110d1c);box-shadow:inset 0 2px 7px rgba(0,0,0,.65);cursor:default}
+  .dg-cell.open{cursor:default}
   .dg-gemflash{display:inline-block;animation:dgGem .62s ease forwards}
   @keyframes dgGem{0%{transform:scale(.3)}55%{transform:scale(1.35)}100%{transform:scale(0);opacity:0}}
   .dg-shop{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:10px}
@@ -3806,7 +3845,7 @@
     </div>
    </div>
    <div class="lap-cta-row" id="lap-cta-row">
-    <button type="button" class="primary" data-lap-action="memberships">Join — $67.50</button>
+    <button type="button" class="primary" data-lap-action="memberships">Join — $99</button>
     <button type="button" data-lap-action="catalog">Browse catalog</button>
     <button type="button" data-lap-action="games">Play games</button>
     <a class="lap-cta" data-partner="gemsny" data-partner-path="gems" href="https://www.gemsny.com/gems" target="_blank" rel="sponsored noopener noreferrer">Shop GemsNY ↗</a>
@@ -3835,7 +3874,7 @@
  <button data-view="feedback">Feedback</button>
  <button data-view="crafts">Crafts</button>
  <button data-view="memberships">Memberships</button>
- <a class="buy-cta" href="#memberships" onclick="switchView('memberships');return false;">Join — from $67.50</a>
+ <a class="buy-cta" href="#memberships" onclick="switchView('memberships');return false;">Join — from $99</a>
  <button type="button" id="games-nav-btn" onclick="openGamesHub()">Games</button>
  <button data-view="arcade">🕹️ Arcade</button>
  <button data-view="donate">Donate</button>
@@ -3860,7 +3899,7 @@
  <div class="hero-tour-launch">
   <button type="button" class="primary" id="hero-watch-tour"><span class="hero-tour-sparkle">✦</span> Watch the tour</button>
   <button type="button" id="hero-play-games" onclick="openGamesHub()">Play games</button>
-  <a class="hero-tour-link" href="#memberships" onclick="switchView('memberships');return false;">Join — from $67.50</a>
+  <a class="hero-tour-link" href="#memberships" onclick="switchView('memberships');return false;">Join — from $99</a>
  </div>
 </section>
 
@@ -4114,7 +4153,7 @@
  <a class="plan-btn class-buy" data-plan="home" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=9000&name=Venture+1" target="_blank" rel="noopener noreferrer">Choose this plan — $90</a>
  </div>
  </div>
- <p class="plan-note">Both class checkouts are live — a grown-up should complete the payment. Members pay less: see the Memberships page. After checkout, unlock class lessons and the AI Rock Teacher below.</p>
+ <p class="plan-note">Both class checkouts are live — a grown-up should complete the payment. <b>Silver members</b> get the lowest class-plan prices; see Memberships for Gold, Diamond, and Sapphire tiers.</p>
 
  <div id="class-lessons-entry" class="class-lessons-entry" hidden>
  <a class="plan-btn" href="#class-lessons" onclick="switchView('class-lessons');return false;">Open class lessons</a>
@@ -4527,39 +4566,39 @@
  <section class="mem-hero">
  <div class="eyebrow">Join &amp; Save</div>
  <h1>Become a <em>member</em></h1>
- <p class="lede">Four tiers — Silver from <b>$67.50/year</b> up to <b>Diamond at $399/year</b>. Higher tiers save more on class plans and unlock live AI, voice, and exclusive perks.</p>
+ <p class="lede">Four tiers — Silver from <b>$99/year</b> (lowest member class rates) up to <b>Sapphire at $499/year</b> (elite perks). Diamond sits in the middle on price; higher tiers unlock live AI, voice, and exclusive flair — not the cheapest class checkout.</p>
  </section>
  <div class="mem-grid">
  <div class="mem-card">
  <div class="mem-tier">Silver Member</div>
- <div class="mem-join-price">Join for <b>$67.50</b> <span>/ year</span></div>
- <div class="mem-off">25% OFF</div>
- <div class="mem-line">Teacher plan: <s>$220</s> <b>$165</b></div>
- <div class="mem-line">Home plan: <s>$90</s> <b>$67.50</b></div>
+ <div class="mem-join-price">Join for <b>$99</b> <span>/ year</span></div>
+ <div class="mem-off">Lowest rates</div>
+ <div class="mem-line">Teacher plan: <s>$220</s> <b>$189</b></div>
+ <div class="mem-line">Home plan: <s>$90</s> <b>$79</b></div>
  <ul class="mem-list">
- <li>25% off Teacher &amp; Home class plans</li>
+ <li>Lowest member prices on Teacher &amp; Home class plans</li>
  <li>Deep catalog Rock Teacher (formulas, compare, crystal systems)</li>
  <li>Class lessons track</li>
  <li>Silver badge on feedback</li>
  <li>Cancel anytime</li>
  </ul>
  <div class="mem-btns">
- <a class="mem-btn class-buy" data-plan="silver-membership" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=6750&name=Venture+1" target="_blank" rel="noopener noreferrer">Join Silver — $67.50/yr</a>
+ <a class="mem-btn class-buy" data-plan="silver-membership" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=9900&name=Venture+1" target="_blank" rel="noopener noreferrer">Join Silver — $99/yr</a>
  </div>
  <div class="mem-class-head">Member class prices</div>
  <div class="mem-btns">
- <a class="mem-btn alt class-buy" data-plan="silver-teacher" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=16500&name=Venture+1" target="_blank" rel="noopener noreferrer">Teacher plan — $165</a>
- <a class="mem-btn alt class-buy" data-plan="silver-home" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=6750&name=Venture+1" target="_blank" rel="noopener noreferrer">Home plan — $67.50</a>
+ <a class="mem-btn alt class-buy" data-plan="silver-teacher" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=18900&name=Venture+1" target="_blank" rel="noopener noreferrer">Teacher plan — $189</a>
+ <a class="mem-btn alt class-buy" data-plan="silver-home" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=7900&name=Venture+1" target="_blank" rel="noopener noreferrer">Home plan — $79</a>
  </div>
  </div>
  <div class="mem-card gold">
  <div class="mem-tier">Gold Member</div>
- <div class="mem-join-price">Join for <b>$165</b> <span>/ year</span></div>
- <div class="mem-off">50% OFF</div>
- <div class="mem-line">Teacher plan: <s>$220</s> <b>$110</b></div>
- <div class="mem-line">Home plan: <s>$90</s> <b>$45</b></div>
+ <div class="mem-join-price">Join for <b>$199</b> <span>/ year</span></div>
+ <div class="mem-off">Live AI tier</div>
+ <div class="mem-line">Teacher plan: <s>$220</s> <b>$199</b></div>
+ <div class="mem-line">Home plan: <s>$90</s> <b>$84</b></div>
  <ul class="mem-list">
- <li><b>50% off</b> Teacher &amp; Home class plans</li>
+ <li>Member class pricing — step up from Silver</li>
  <li>Everything in Silver, plus:</li>
  <li>Live Gemini AI Rock Teacher (site-powered)</li>
  <li>Voice on by default — speak &amp; listen</li>
@@ -4568,23 +4607,23 @@
  <li>Cancel anytime</li>
  </ul>
  <div class="mem-btns">
- <a class="mem-btn class-buy" data-plan="gold-membership" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=16500&name=Venture+1" target="_blank" rel="noopener noreferrer">Join Gold — $165/yr</a>
+ <a class="mem-btn class-buy" data-plan="gold-membership" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=19900&name=Venture+1" target="_blank" rel="noopener noreferrer">Join Gold — $199/yr</a>
  </div>
  <div class="mem-class-head">Member class prices</div>
  <div class="mem-btns">
- <a class="mem-btn alt class-buy" data-plan="gold-teacher" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=11000&name=Venture+1" target="_blank" rel="noopener noreferrer">Teacher plan — $110</a>
- <a class="mem-btn alt class-buy" data-plan="gold-home" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=4500&name=Venture+1" target="_blank" rel="noopener noreferrer">Home plan — $45</a>
+ <a class="mem-btn alt class-buy" data-plan="gold-teacher" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=19900&name=Venture+1" target="_blank" rel="noopener noreferrer">Teacher plan — $199</a>
+ <a class="mem-btn alt class-buy" data-plan="gold-home" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=8400&name=Venture+1" target="_blank" rel="noopener noreferrer">Home plan — $84</a>
  </div>
  </div>
  <div class="mem-card sapphire">
  <div class="mem-badge" style="background:#4a7fd4;color:#fff">Elite</div>
  <div class="mem-tier">Sapphire Member</div>
- <div class="mem-join-price">Join for <b>$275</b> <span>/ year</span></div>
- <div class="mem-off">65% OFF</div>
- <div class="mem-line">Teacher plan: <s>$220</s> <b>$77</b></div>
- <div class="mem-line">Home plan: <s>$90</s> <b>$31.50</b></div>
+ <div class="mem-join-price">Join for <b>$499</b> <span>/ year</span></div>
+ <div class="mem-off">Premium tier</div>
+ <div class="mem-line">Teacher plan: <s>$220</s> <b>$219</b></div>
+ <div class="mem-line">Home plan: <s>$90</s> <b>$89</b></div>
  <ul class="mem-list">
- <li><b>65% off</b> Teacher &amp; Home — elite savings</li>
+ <li>Highest member class pricing — elite perks tier</li>
  <li>Everything in Gold, plus:</li>
  <li>Sapphire badge on feedback &amp; profile flair</li>
  <li>Monthly exclusive gem spotlight in catalog</li>
@@ -4592,23 +4631,23 @@
  <li>Cancel anytime</li>
  </ul>
  <div class="mem-btns">
- <a class="mem-btn class-buy" data-plan="sapphire-membership" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=27500&name=Venture+1" target="_blank" rel="noopener noreferrer">Join Sapphire — $275/yr</a>
+ <a class="mem-btn class-buy" data-plan="sapphire-membership" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=49900&name=Venture+1" target="_blank" rel="noopener noreferrer">Join Sapphire — $499/yr</a>
  </div>
  <div class="mem-class-head">Member class prices</div>
  <div class="mem-btns">
- <a class="mem-btn alt class-buy" data-plan="sapphire-teacher" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=7700&name=Venture+1" target="_blank" rel="noopener noreferrer">Teacher plan — $77</a>
- <a class="mem-btn alt class-buy" data-plan="sapphire-home" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=3150&name=Venture+1" target="_blank" rel="noopener noreferrer">Home plan — $31.50</a>
+ <a class="mem-btn alt class-buy" data-plan="sapphire-teacher" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=21900&name=Venture+1" target="_blank" rel="noopener noreferrer">Teacher plan — $219</a>
+ <a class="mem-btn alt class-buy" data-plan="sapphire-home" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=8900&name=Venture+1" target="_blank" rel="noopener noreferrer">Home plan — $89</a>
  </div>
  </div>
  <div class="mem-card diamond">
  <div class="mem-badge" style="background:linear-gradient(135deg,#d4ecff,#fff);color:#1a2840">Best Perks</div>
  <div class="mem-tier">Diamond Member</div>
- <div class="mem-join-price">Join for <b>$399</b> <span>/ year</span></div>
- <div class="mem-off">75% OFF</div>
- <div class="mem-line">Teacher plan: <s>$220</s> <b>$55</b></div>
- <div class="mem-line">Home plan: <s>$90</s> <b>$22.50</b></div>
+ <div class="mem-join-price">Join for <b>$349</b> <span>/ year</span></div>
+ <div class="mem-off">3rd tier pricing</div>
+ <div class="mem-line">Teacher plan: <s>$220</s> <b>$209</b></div>
+ <div class="mem-line">Home plan: <s>$90</s> <b>$88</b></div>
  <ul class="mem-list">
- <li><b>75% off</b> Teacher &amp; Home — deepest savings</li>
+ <li>Member class pricing — 3rd tier (above Gold, below Sapphire)</li>
  <li>Everything in Sapphire, plus:</li>
  <li>Diamond badge + VIP profile flair</li>
  <li>First access to new games &amp; beta features</li>
@@ -4616,18 +4655,18 @@
  <li>Cancel anytime</li>
  </ul>
  <div class="mem-btns">
- <a class="mem-btn class-buy" data-plan="diamond-membership" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=39900&name=Venture+1" target="_blank" rel="noopener noreferrer">Join Diamond — $399/yr</a>
+ <a class="mem-btn class-buy" data-plan="diamond-membership" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=34900&name=Venture+1" target="_blank" rel="noopener noreferrer">Join Diamond — $349/yr</a>
  </div>
  <div class="mem-class-head">Member class prices</div>
  <div class="mem-btns">
- <a class="mem-btn alt class-buy" data-plan="diamond-teacher" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=5500&name=Venture+1" target="_blank" rel="noopener noreferrer">Teacher plan — $55</a>
- <a class="mem-btn alt class-buy" data-plan="diamond-home" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=2250&name=Venture+1" target="_blank" rel="noopener noreferrer">Home plan — $22.50</a>
+ <a class="mem-btn alt class-buy" data-plan="diamond-teacher" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=20900&name=Venture+1" target="_blank" rel="noopener noreferrer">Teacher plan — $209</a>
+ <a class="mem-btn alt class-buy" data-plan="diamond-home" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=8800&name=Venture+1" target="_blank" rel="noopener noreferrer">Home plan — $88</a>
  </div>
  </div>
  </div>
  <div class="mem-recovery">
   <p>Already paid but still locked? Enter your unlock code from your receipt (or ask the grown-up who paid).</p>
-  <input id="mem-recovery-code" type="text" placeholder="e.g. GOLDHOME45" autocomplete="off" aria-label="Unlock code">
+  <input id="mem-recovery-code" type="text" placeholder="e.g. SILVER99" autocomplete="off" aria-label="Unlock code">
   <button type="button" id="mem-recovery-btn">Unlock with code</button>
   <p style="margin-top:12px;font-size:13px">Or open <b>Games → Secret Codes</b> in the nav.</p>
  </div>
@@ -4680,7 +4719,7 @@
  </div>
  <div class="code-result" id="code-result"></div>
  <div class="code-hint">
- <p>Secret codes unlock special powers — including one that makes you the <b>owner</b> of the whole game. Paid for a membership? Try your receipt code (e.g. <b>GOLDHOME45</b>).</p>
+ <p>Secret codes unlock special powers — including one that makes you the <b>owner</b> of the whole game. Paid for a membership? Try your receipt code (e.g. <b>SILVER99</b>).</p>
  <p style="margin-top:14px"><b>Weaponary codes</b> unlock Motion Battlefield gear — weapons, shields, powers, and avatars in the <a href="#gemmotion" onclick="switchView('gemmotion');return false;" style="color:var(--gold)">Gem Armory</a>. Owner-tier codes need owner status or the correct weaponary code.</p>
  <p style="margin-top:14px"><b>Code breaker</b> (try <em>code breaker</em>) unlocks the glitched arena pack <b>and</b> ⚡ Glitch Claw, Glitch Shield, Glitch Burst &amp; Glitched Aura in the Gem Armory. <b>Rainbow</b> unlocks the Gem Warrior God <b>and</b> 🌈 Rainbow Blade, Rainbow Shield, Rainbow Burst &amp; Rainbow Gem avatar.</p>
  <p style="margin-top:14px"><a href="#video" onclick="switchView('video');return false;" style="color:var(--gold)">Owner TV</a> — private video platform (owner code required).</p>
@@ -4835,6 +4874,7 @@
  <a href="#video" onclick="switchView('video');return false;">Owner TV</a>
  <a href="#hunt" onclick="switchView('hunt');return false;">Scavenger Hunt</a>
  <a href="#company/story" onclick="openCompanyPage('story');return false;">About Graham</a>
+ <a href="making-of-lithos.html">The Making of Lithos</a>
  <span class="partner-disclosure">Partner link · Lithos may earn commission</span>
  </div>
  <span>Hardness on the Mohs scale · Origins by prominence · Prices are approximate retail</span>
@@ -5550,13 +5590,13 @@ const LAP_SLIDES=[
  {id:'identify',tag:'Identify a Rock',accent:'#86efac',preview:'radial-gradient(circle at 60% 40%,rgba(134,239,172,.25),transparent 50%),linear-gradient(180deg,#121820,#0a0b0f)',title:'Identify a <em>rock</em>',copy:'Upload or describe a specimen — get crystal system guesses, hardness hints, and links to matching catalog entries.',stats:['<span><b>Upload</b>Photo</span>','<span><b>Match</b>Catalog</span>'],mock:'gem',action:'identify',actionLabel:'Try identify'},
  {id:'hunt',tag:'Scavenger Hunt',accent:'#fb923c',preview:'radial-gradient(circle at 40% 50%,rgba(251,146,60,.3),transparent 55%),linear-gradient(180deg,#1a1520,#0a0b0f)',title:'Hunt gems in the <em>catalog</em>',copy:'Follow clues to find hidden gemstones across the field catalog. Complete the hunt and earn your Junior Geologist certificate!',stats:['<span><b>Clues</b>Across catalog</span>','<span><b>Quiz</b>Certificate</span>'],mock:'hunt',action:'hunt',actionLabel:'Start hunt'},
  {id:'games',tag:'Games Hub',accent:'#c9a94f',preview:'radial-gradient(circle at 50% 20%,rgba(201,169,79,.25),transparent 55%),linear-gradient(180deg,#15171f,#0a0b0f)',title:'Eleven <em>crystal</em> games',copy:'Night Shift & Night Shift 2, Gem Factory, Gem Arena, Battlefield, Gem Hunt, Warriors, Motion Battlefield, Auras, Secret Codes, and the Mineral Quiz.',stats:['<span><b>4D</b>Time-warp</span>','<span><b>Free</b>Night Shift</span>'],mock:'games',action:'games',actionLabel:'Open games hub'},
- {id:'memberships',tag:'Memberships',accent:'#c9a94f',preview:'radial-gradient(circle at 50% 50%,rgba(201,169,79,.4),transparent 60%),linear-gradient(180deg,#1a1520,#0a0b0f)',title:'Join from <em>$67.50</em>/yr',copy:'Silver, Gold, Sapphire & Diamond — save up to 75% on class plans. Gold+ gets live AI Rock Teacher, voice, and shiny badge perks.',stats:['<span><b>Silver</b>$67.50</span>','<span><b>Diamond</b>$399</span>'],mock:'mem',action:'memberships',actionLabel:'See memberships'},
+ {id:'memberships',tag:'Memberships',accent:'#c9a94f',preview:'radial-gradient(circle at 50% 50%,rgba(201,169,79,.4),transparent 60%),linear-gradient(180deg,#1a1520,#0a0b0f)',title:'Join from <em>$99</em>/yr',copy:'Silver, Gold, Diamond & Sapphire — Silver has the lowest member class rates; Sapphire is the premium tier. Gold+ gets live AI Rock Teacher, voice, and badge perks.',stats:['<span><b>Silver</b>$99</span>','<span><b>Sapphire</b>$499</span>'],mock:'mem',action:'memberships',actionLabel:'See memberships'},
  {id:'crafts',tag:'Crafts',accent:'#f472b6',preview:'radial-gradient(circle at 40% 35%,rgba(244,114,182,.28),transparent 50%),linear-gradient(180deg,#15171f,#0a0b0f)',title:'Gem <em>crafts</em> &amp; projects',copy:'Hands-on geology crafts — wire wrapping, crystal growing, and specimen display ideas for young rock hounds.',stats:['<span><b>DIY</b>Projects</span>'],mock:'catalog',action:'crafts',actionLabel:'Browse crafts'},
  {id:'company',tag:'Company',accent:'#94a3b8',preview:'linear-gradient(135deg,rgba(148,163,184,.15),transparent),linear-gradient(180deg,#15171f,#0a0b0f)',title:'The Lithos <em>company</em>',copy:'Our story, partner programs, and careers — cross-promote educational content and specimen photography credits.',stats:['<span><b>Story</b>About</span>','<span><b>Partners</b>Affiliates</span>'],mock:'chat',action:'company',actionLabel:'Visit company'},
  {id:'donate',tag:'Donate',accent:'#4ade80',preview:'radial-gradient(circle at 50% 40%,rgba(74,222,128,.22),transparent 55%),linear-gradient(180deg,#121820,#0a0b0f)',title:'Support <em>Lithos</em>',copy:'Help keep the catalog free, fund new games, and grow geology education for kids everywhere.',stats:['<span><b>Any</b>Amount</span>'],mock:'gem',action:'donate',actionLabel:'Donate now'},
  {id:'moneygoal',tag:'Money Goal',accent:'#38bdf8',preview:'radial-gradient(circle at 55% 45%,rgba(56,189,248,.25),transparent 50%),linear-gradient(180deg,#121820,#0a0b0f)',title:'Track our <em>money goal</em>',copy:'See how close Lithos is to its next milestone — transparent progress toward new specimens, games, and class content.',stats:['<span><b>Live</b>Progress</span>'],mock:'slideshow',action:'moneygoal',actionLabel:'View goal'},
  {id:'partner',tag:'Shop Gems',accent:'#e0424f',preview:'radial-gradient(circle at 50% 35%,rgba(224,66,79,.3),transparent 55%),linear-gradient(180deg,#15171f,#0a0b0f)',title:'Shop <em>GemsNY</em> partner',copy:'Certified loose sapphires, rubies, and emeralds — Lithos earns up to 5% affiliate commission when you buy through our tracked link.',stats:['<span><b>5%</b>Commission</span>','<span><b>Certified</b>Stones</span>'],mock:'partner',action:'partner',actionLabel:'Shop GemsNY ↗'},
- {id:'finale',tag:'Ready?',accent:'#c9a94f',preview:'radial-gradient(circle at 50% 50%,rgba(201,169,79,.45),transparent 65%),conic-gradient(from 0deg,rgba(255,64,96,.08),rgba(74,127,212,.08),rgba(62,207,138,.08),rgba(201,169,79,.08)),linear-gradient(180deg,#15171f,#0a0b0f)',title:'Start your <em>expedition</em>',copy:'Join memberships, browse the catalog, play crystal games, or shop partner gems — your adventure awaits!',stats:['<span><b>Join</b>$67.50</span>','<span><b>Play</b>Games</span>','<span><b>Shop</b>GemsNY</span>'],mock:'gem',action:null}
+ {id:'finale',tag:'Ready?',accent:'#c9a94f',preview:'radial-gradient(circle at 50% 50%,rgba(201,169,79,.45),transparent 65%),conic-gradient(from 0deg,rgba(255,64,96,.08),rgba(74,127,212,.08),rgba(62,207,138,.08),rgba(201,169,79,.08)),linear-gradient(180deg,#15171f,#0a0b0f)',title:'Start your <em>expedition</em>',copy:'Join memberships, browse the catalog, play crystal games, or shop partner gems — your adventure awaits!',stats:['<span><b>Join</b>$99</span>','<span><b>Play</b>Games</span>','<span><b>Shop</b>GemsNY</span>'],mock:'gem',action:null}
 ];
 function lapMockHtml(type,slide){
  if(type==='catalog') return '<div class="lap-mock"><div class="lap-mock-catalog">'+[...Array(6)].map((_,i)=>'<div class="lap-mock-card" style="background:linear-gradient(145deg,hsl('+(i*47+320)+',60%,45%),hsl('+(i*47+320)+',50%,25%))"></div>').join('')+'</div></div>';
@@ -5566,7 +5606,7 @@ function lapMockHtml(type,slide){
  }
  if(type==='hunt') return '<div class="lap-mock"><div class="lap-mock-hunt"><div class="lap-hunt-pin"></div><div class="lap-hunt-pin"></div><div class="lap-hunt-pin"></div></div></div>';
  if(type==='chat') return '<div class="lap-mock"><div class="lap-mock-chat"><div class="lap-chat-bubble">What makes a ruby red?</div><div class="lap-chat-bubble">Chromium in corundum — Mohs 9!</div></div></div>';
- if(type==='mem') return '<div class="lap-mock"><div class="lap-mock-mem" style="position:relative;overflow:hidden"><div class="lap-mem-shine"></div><div class="lap-mem-price">$67.50</div><div class="lap-mem-sub">Silver · per year</div></div></div>';
+ if(type==='mem') return '<div class="lap-mock"><div class="lap-mock-mem" style="position:relative;overflow:hidden"><div class="lap-mem-shine"></div><div class="lap-mem-price">$99</div><div class="lap-mem-sub">Silver · per year</div></div></div>';
  if(type==='partner') return '<div class="lap-mock"><div class="lap-mock-partner"><div class="lap-partner-gem">💎</div>Certified loose gems</div></div>';
  return '<div class="lap-mock"><div class="lap-mock-gem"></div></div>';
 }
@@ -6496,7 +6536,8 @@ function aboutGrahamHTML(){
  </div>
  <p class="about-story">If Lithos helps you learn something new, tell a friend, try the scavenger hunt, or explore a membership to support the project. Thank you for being here — it means the world.</p>
  <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:32px">
-  <button type="button" class="btn" onclick="switchView('catalog')">Browse catalog</button>
+  <a class="btn" href="making-of-lithos.html">The Making of Lithos 📖</a>
+  <button type="button" class="btn ghost" onclick="switchView('catalog')">Browse catalog</button>
   <button type="button" class="btn ghost" onclick="openCompanyPage('mission')">Our mission</button>
   <button type="button" class="btn ghost" onclick="switchView('donate')">Support Lithos</button>
  </div>`;
@@ -7630,10 +7671,15 @@ function refreshPurchaseBanner(){
 function unlockViaRecoveryCode(code){
  const raw=(code||'').trim().toUpperCase();
  const MAP={
-  GOLDHOME45:()=>({tier:'gold',label:'Gold Home membership ($45)'}),
-  SILVER6750:()=>({tier:'silver',label:'Silver membership ($67.50)'}),
-  SAPPHIRE275:()=>({tier:'sapphire',label:'Sapphire membership ($275)'}),
-  DIAMOND399:()=>({tier:'diamond',label:'Diamond membership ($399)'}),
+  GOLDHOME45:()=>({tier:'gold',label:'Gold Home membership ($84)'}),
+  GOLDHOME84:()=>({tier:'gold',label:'Gold Home membership ($84)'}),
+  GOLD199:()=>({tier:'gold',label:'Gold membership ($199)'}),
+  SILVER6750:()=>({tier:'silver',label:'Silver membership (legacy $67.50)'}),
+  SILVER99:()=>({tier:'silver',label:'Silver membership ($99)'}),
+  SAPPHIRE275:()=>({tier:'sapphire',label:'Sapphire membership (legacy $275)'}),
+  SAPPHIRE499:()=>({tier:'sapphire',label:'Sapphire membership ($499)'}),
+  DIAMOND399:()=>({tier:'diamond',label:'Diamond membership (legacy $399)'}),
+  DIAMOND349:()=>({tier:'diamond',label:'Diamond membership ($349)'}),
   LITHOSTHANKS:()=>({tier:'gold',label:'Lithos thank-you access'})
  };
  const fn=MAP[raw];
@@ -13972,12 +14018,28 @@ const DG_GEMS=[
  {e:"🟠",n:"Topaz",v:28},{e:"🔴",n:"Ruby",v:38},{e:"⚪",n:"Opal",v:48},{e:"💎",n:"Diamond",v:65}
 ];
 const DG_LEVELS=[
- {name:'Shallow Mine',rows:38,hpMul:1,gemChance:.24,bonus:0},
- {name:'Crystal Cavern',rows:42,hpMul:1.15,gemChance:.27,bonus:75},
- {name:'Magma Vault',rows:46,hpMul:1.32,gemChance:.29,bonus:150},
- {name:'Abyss Pit',rows:50,hpMul:1.5,gemChance:.31,bonus:250},
- {name:'Rainbow Core',rows:54,hpMul:1.72,gemChance:.34,bonus:400}
+ {name:'Shallow Mine',theme:'mine',rows:38,hpMul:1,gemChance:.24,bonus:0},
+ {name:'Crystal Cavern',theme:'crystal',rows:42,hpMul:1.15,gemChance:.27,bonus:75},
+ {name:'Magma Vault',theme:'magma',rows:46,hpMul:1.32,gemChance:.29,bonus:150,heatMul:1.35},
+ {name:'Abyss Pit',theme:'abyss',rows:50,hpMul:1.5,gemChance:.31,bonus:250},
+ {name:'Rainbow Core',theme:'rainbow',rows:54,hpMul:1.72,gemChance:.34,bonus:400}
 ];
+const DG_THEMES=['mine','crystal','magma','abyss','rainbow'];
+function dgDepthClass(r,rows){return 'd'+(Math.min(5,Math.floor((r/Math.max(1,rows-1))*6))+1);}
+function dgApplyTheme(g){
+ const theme=dgLevelCfg(g.level).theme||'mine';
+ const box=document.querySelector('.dg-box');
+ const wrap=document.querySelector('.dg-gridwrap');
+ const lvlBar=document.getElementById('dg-levelbar');
+ DG_THEMES.forEach(t=>{
+  if(box)box.classList.remove('dg-theme-'+t);
+  if(wrap)wrap.classList.remove('dg-theme-'+t);
+  if(lvlBar)lvlBar.classList.remove('dg-theme-'+t);
+ });
+ if(box)box.classList.add('dg-theme-'+theme);
+ if(wrap)wrap.classList.add('dg-theme-'+theme);
+ if(lvlBar)lvlBar.classList.add('dg-theme-'+theme);
+}
 const DG_MAX_LEVEL=DG_LEVELS.length;
 const DG_LEVEL_BEST_KEY='lithos_dg_level_best';
 function dgHasBombBlaster(){return !!(isOwner||isStaff);}
@@ -14040,11 +14102,16 @@ function playGemDigger(startLevel,carry){
  if(dgHint){
   if(g.nukeBlaster)dgHint.innerHTML='☢️ <b>Nuke Blaster active</b> — owner perk: vaporize the whole level! · 💣 Bomb Blaster ∞ · Clear all <b>'+DG_MAX_LEVEL+' levels</b> to master the mine!';
   else if(g.bombBlaster)dgHint.innerHTML='💣 <b>Bomb Blaster active</b> — unlimited bombs! (Owner / Lithos team) · Beat <b>Level '+g.level+'/'+DG_MAX_LEVEL+'</b> — find the Rainbow Gem at the bottom!';
-  else dgHint.innerHTML='Dig blocks touching open air! Beat <b>Level '+g.level+'/'+DG_MAX_LEVEL+' — '+g.levelName+'</b>. Find the 🌈 Rainbow Gem at the bottom!';
+  else{
+   const th=dgLevelCfg(g.level).theme;
+   const themeHint={mine:'🪨 Earthy soil and stone.',crystal:'💎 Purple crystal walls glow as you dig.',magma:'🌋 Hot magma rock — your drill heats up faster!',abyss:'🕳️ Pitch-black abyss stone.',rainbow:'🌈 Every depth band is a different gem color!'}[th]||'';
+   dgHint.innerHTML=(themeHint?themeHint+' · ':'')+'Dig blocks touching open air! Beat <b>Level '+g.level+'/'+DG_MAX_LEVEL+' — '+g.levelName+'</b>. Find the 🌈 Rainbow Gem at the bottom!';
+  }
  }
  const nukeBtn=document.getElementById('dg-nuke');
  if(nukeBtn)nukeBtn.hidden=!g.nukeBlaster;
  dgMountGrid(g);
+ dgApplyTheme(g);
  dgHUD(); dgHeat();
  dgLoop=setInterval(dgTickHeat,150);
  syncBodyScrollLock();
@@ -14085,7 +14152,7 @@ function dgPaint(i){
  const [r]=dgRC(i);
  el.className='dg-cell';
  if(g.cleared[i]){el.classList.add('open'); el.innerHTML=''; return;}
- el.classList.add(r<7?'d1':r<14?'d2':r<21?'d3':r<28?'d4':r<35?'d5':'d6');
+ el.classList.add(dgDepthClass(r,g.rows));
  if(g.hp[i]<g.maxhp[i])el.classList.add('crack');
  if(dgCan(i))el.classList.add('can');
  el.innerHTML='';
@@ -14131,7 +14198,8 @@ function dgClick(i){
  if(g.overheated){dgFloat('🔥 Too hot! Wait for the cooldown...'); return;}
  if(g.cleared[i]||!dgCan(i))return;
  g.hp[i]-=g.drill;
- g.heat=Math.min(100,g.heat+8);
+ const cfg=dgLevelCfg(g.level);
+ g.heat=Math.min(100,g.heat+Math.round(8*(cfg.heatMul||1)));
  if(g.heat>=100){g.overheated=true; dgFloat('🔥 DRILL OVERHEATED!!'); try{if(SFX&&SFX.lose)SFX.lose();}catch(e){}}
  dgHeat();
  try{if(SFX&&SFX.click)SFX.click();}catch(e){}

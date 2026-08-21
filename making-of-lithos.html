@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Making of Lithos — How a Kid Built a Real Gem Company</title>
+<style>
+  :root{
+    --paper:#faf6ee; --paper2:#f3ecdd; --ink:#2c2a26; --soft:#6b6458;
+    --gold:#c9971e; --ruby:#c0392b; --emerald:#1e8a5a; --sapphire:#2b5fc0; --amethyst:#7a3ac0;
+    --sticky-y:#fff3b0; --sticky-p:#ffd6e8; --sticky-b:#d6ecff; --sticky-g:#dcf5dc;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:Georgia,'Times New Roman',serif;line-height:1.6}
+  .wrap{max-width:900px;margin:0 auto;padding:0 18px}
+
+  /* top nav */
+  nav{position:sticky;top:0;background:rgba(250,246,238,.94);backdrop-filter:blur(4px);border-bottom:2px solid #e3dac6;z-index:50}
+  nav .wrap{display:flex;gap:4px;align-items:center;flex-wrap:wrap;padding:10px 18px}
+  nav .brand{font-weight:bold;font-size:15px;margin-right:auto}
+  nav a{color:var(--soft);text-decoration:none;font-size:13px;padding:6px 10px;border-radius:8px}
+  nav a:hover{background:var(--paper2);color:var(--ink)}
+
+  /* hero */
+  header{padding:64px 0 44px;text-align:center;background:
+    radial-gradient(circle at 12% 20%, rgba(201,151,30,.10), transparent 34%),
+    radial-gradient(circle at 88% 30%, rgba(122,58,192,.10), transparent 34%),
+    radial-gradient(circle at 50% 90%, rgba(43,95,192,.08), transparent 40%)}
+  .eyebrow{letter-spacing:.28em;font-size:11px;color:var(--gold);text-transform:uppercase;font-family:monospace}
+  h1{font-size:clamp(30px,6vw,52px);margin:10px 0 8px;line-height:1.12}
+  h1 em{color:var(--gold)}
+  .lede{color:var(--soft);font-size:clamp(15px,2.4vw,18px);max-width:640px;margin:0 auto 22px}
+  .btnrow{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+  .btn{display:inline-block;background:var(--ink);color:var(--paper);padding:11px 20px;border-radius:10px;text-decoration:none;font-size:14.5px;font-weight:bold}
+  .btn.ghost{background:transparent;color:var(--ink);border:2px solid var(--ink)}
+  .byline{margin-top:22px;font-style:italic;color:var(--soft);font-size:14px}
+
+  section{padding:52px 0}
+  h2{font-size:clamp(22px,4vw,32px);margin:0 0 6px}
+  h2 em{color:var(--gold)}
+  .sub{color:var(--soft);margin:0 0 26px;font-size:15px}
+
+  /* numbers */
+  .stats{display:flex;flex-wrap:wrap;gap:14px;justify-content:center}
+  .stat{background:#fff;border:2px solid #e3dac6;border-radius:14px;padding:18px 16px;width:150px;text-align:center;box-shadow:3px 4px 0 #e3dac6}
+  .stat b{display:block;font-size:26px;color:var(--gold)}
+  .stat span{font-size:12.5px;color:var(--soft)}
+
+  /* timeline */
+  .tl{position:relative;margin-top:8px}
+  .tl::before{content:'';position:absolute;left:14px;top:0;bottom:0;width:3px;background:#e3dac6;border-radius:2px}
+  .tl-item{position:relative;padding:0 0 30px 46px}
+  .tl-item::before{content:'';position:absolute;left:6px;top:6px;width:19px;height:19px;border-radius:50%;background:var(--paper);border:4px solid var(--gold)}
+  .tl-item.hard::before{border-color:var(--ruby)}
+  .tl-item.win::before{border-color:var(--emerald)}
+  .tl-item h3{margin:0 0 4px;font-size:18px}
+  .tl-item p{margin:0;color:var(--soft);font-size:14.5px}
+  .tag{display:inline-block;font-size:10.5px;letter-spacing:.12em;font-family:monospace;text-transform:uppercase;padding:3px 8px;border-radius:20px;margin-left:6px;vertical-align:2px}
+  .tag.hard{background:#ffe3de;color:var(--ruby)}
+  .tag.win{background:#def5e6;color:var(--emerald)}
+
+  /* sticky-note cards */
+  .cards{display:flex;flex-wrap:wrap;gap:16px}
+  .card{width:calc(50% - 8px);border-radius:6px;padding:18px 16px 16px;box-shadow:3px 5px 10px rgba(0,0,0,.10);position:relative}
+  .card:nth-child(4n+1){background:var(--sticky-y);transform:rotate(-.7deg)}
+  .card:nth-child(4n+2){background:var(--sticky-b);transform:rotate(.6deg)}
+  .card:nth-child(4n+3){background:var(--sticky-p);transform:rotate(.8deg)}
+  .card:nth-child(4n){background:var(--sticky-g);transform:rotate(-.5deg)}
+  .card::before{content:'';position:absolute;top:-9px;left:50%;transform:translateX(-50%) rotate(-2deg);width:64px;height:18px;background:rgba(220,205,160,.75);border-radius:2px}
+  .card h3{margin:2px 0 6px;font-size:16px}
+  .card p{margin:0;font-size:13.8px;color:#4c463c}
+  @media(max-width:640px){.card{width:100%}}
+
+  /* lessons */
+  .lessons{background:#fff;border:2px solid #e3dac6;border-radius:16px;padding:8px 22px;box-shadow:3px 4px 0 #e3dac6}
+  .lessons li{margin:14px 0;font-size:15px}
+  .lessons b{color:var(--gold)}
+
+  /* slides */
+  .slidebox{background:repeating-linear-gradient(45deg,#fff,#fff 12px,#faf4e4 12px,#faf4e4 24px);border:3px dashed #d8c894;border-radius:16px;padding:44px 20px;text-align:center;color:var(--soft)}
+  .slidebox .big{font-size:40px}
+  .slidebox p{max-width:520px;margin:8px auto 0;font-size:14.5px}
+
+  footer{border-top:2px solid #e3dac6;padding:30px 0 44px;text-align:center;color:var(--soft);font-size:14px}
+  footer a{color:var(--gold)}
+  .heart{color:var(--ruby)}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap">
+  <span class="brand">📖 The Making of Lith<em style="color:var(--gold)">os</em></span>
+  <a href="index.html">← Lithos home</a>
+  <a href="#numbers">Numbers</a>
+  <a href="#timeline">Timeline</a>
+  <a href="#struggles">Struggles</a>
+  <a href="#wins">Wins</a>
+  <a href="#lessons">Lessons</a>
+  <a href="#slides">Slides</a>
+</div></nav>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow">A true builder's story</div>
+    <h1>The Making of <em>Lithos</em></h1>
+    <p class="lede">The honest story of how a kid built a real gem company website — the wins, the fails, the bugs, the do-overs, and everything in between. This site is the journey. 🧭</p>
+    <div class="btnrow">
+      <a class="btn" href="index.html">Visit Lithos 💎</a>
+      <a class="btn ghost" href="#timeline">Read the story ↓</a>
+    </div>
+    <div class="byline">Written &amp; lived by Graham — founder of Lithos 🍪</div>
+  </div>
+</header>
+
+<section id="numbers">
+  <div class="wrap">
+    <h2>By the <em>numbers</em></h2>
+    <p class="sub">What the journey looks like when you count it all up.</p>
+    <div class="stats">
+      <div class="stat"><b>1,200+</b><span>specimens in the field catalog</span></div>
+      <div class="stat"><b>6,000</b><span>total minerals in the reference set</span></div>
+      <div class="stat"><b>4</b><span>original games built (so far!)</span></div>
+      <div class="stat"><b>10</b><span>original characters invented</span></div>
+      <div class="stat"><b>5</b><span>nights to survive in Night Shift</span></div>
+      <div class="stat"><b>1st</b><span>real sale — a day I'll never forget</span></div>
+      <div class="stat"><b>∞</b><span>bugs squashed 😅</span></div>
+      <div class="stat"><b>1</b><span>kid-built company. This one.</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="timeline" style="background:var(--paper2)">
+  <div class="wrap">
+    <h2>The <em>timeline</em></h2>
+    <p class="sub">Chapter by chapter — how Lithos went from an idea to a real company website.</p>
+    <div class="tl">
+      <div class="tl-item">
+        <h3>💎 It started with gems</h3>
+        <p>The big idea: a company that helps ANYONE become a geologist. I started building a catalog of gemstones — names, colors, hardness, where they come from. One gem at a time.</p>
+      </div>
+      <div class="tl-item">
+        <h3>⚔️ The first games</h3>
+        <p>A catalog is cool, but games make learning FUN. Gem battles, warriors, quizzes, secret cheat codes. The site stopped being a list and started being a place to play.</p>
+      </div>
+      <div class="tl-item win">
+        <h3>🚀 Publishing day <span class="tag win">WIN</span></h3>
+        <p>With a grown-up's help, Lithos went LIVE on the real internet. Typing my own web address and watching my site load... best feeling ever.</p>
+      </div>
+      <div class="tl-item win">
+        <h3>💵 The first sale <span class="tag win">WIN</span></h3>
+        <p>Someone I didn't make buy it... actually paid real money for something I built. That's the day Lithos became a real business.</p>
+      </div>
+      <div class="tl-item">
+        <h3>🌙 Night Shift at the Gem Factory</h3>
+        <p>I built a survive-the-night game: cameras, doors, power, and gem animatronics that get angrier as the night goes on. Then 5 whole nights, paychecks, and a champion bonus.</p>
+      </div>
+      <div class="tl-item hard">
+        <h3>😬 The character problem <span class="tag hard">STRUGGLE</span></h3>
+        <p>Hard lesson: I wanted to use famous game characters — but you can't use someone else's characters on a website that takes real money. Even changed-up versions. That one stung.</p>
+      </div>
+      <div class="tl-item win">
+        <h3>✨ So I invented my OWN <span class="tag win">WIN</span></h3>
+        <p>Instead of borrowing characters, I created TEN originals: Sunspire, Duskveil, Clatterclaw, Redline, Aurum — and the Deep Crew: Magnapull, Prismimic, Glacivore, Swarmshard, and Nullite. Nobody can ever take them from me.</p>
+      </div>
+      <div class="tl-item win">
+        <h3>📈 Lithos grows HUGE <span class="tag win">WIN</span></h3>
+        <p>From 100 gems to 1,200+ specimens with real photos. Real partnerships with real jewelry companies. Memberships, classes, careers, donations that help real miners.</p>
+      </div>
+      <div class="tl-item">
+        <h3>🕹️ The Arcade opens</h3>
+        <p>All my games in one place: Night Shift, Gem Rush (match-3 combos!), and Gem Digger — with drills, bombs, and a heat system I designed so you can't just spam-click. Plus one secret game for code-hunters...</p>
+      </div>
+      <div class="tl-item">
+        <h3>📖 ...and the story continues</h3>
+        <p>Every new game, gem, and idea becomes a new chapter. This page never really ends.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="struggles">
+  <div class="wrap">
+    <h2>The <em>struggles</em> 😤</h2>
+    <p class="sub">The honest page. Building things is HARD sometimes — here's the stuff that went wrong (and what I did about it).</p>
+    <div class="cards">
+      <div class="card">
+        <h3>🥶 The day Cursor froze</h3>
+        <p>My code editor totally locked up — frozen, broken, would not work. I learned the builder's secret weapon: force-quit, restart the whole computer, and if all else fails, reinstall. It came back.</p>
+      </div>
+      <div class="card">
+        <h3>⚖️ The copyright lesson</h3>
+        <p>I really, REALLY wanted famous characters in my game. Finding out I couldn't use them on a money-making site felt unfair at first. But it pushed me to invent my own — and mine are cooler.</p>
+      </div>
+      <div class="card">
+        <h3>🗂️ Too many file versions</h3>
+        <p>gemstones-1, gemstones-2... gemstones-8?! I kept opening OLD copies and wondering where my new stuff went. Lesson: sort your Downloads by date and delete old copies!</p>
+      </div>
+      <div class="card">
+        <h3>🤪 The octillion incident</h3>
+        <p>I typed a fake octillion dollars into my own money tracker for fun. Then I learned: an octillion is more money than exists on Earth — and real numbers, even small ones, beat pretend ones every time.</p>
+      </div>
+      <div class="card">
+        <h3>⏳ Everything takes longer than you think</h3>
+        <p>"Quick" features took days. Big features took... more days. That's normal. Builders everywhere know this feeling.</p>
+      </div>
+      <div class="card">
+        <h3>📸 Fighting with screenshots</h3>
+        <p>Even taking a picture of my screen turned into a whole adventure (Shift + ⌘ + 4, if you're wondering). Sometimes the small stuff is the annoying stuff.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="wins" style="background:var(--paper2)">
+  <div class="wrap">
+    <h2>The <em>good times</em> 🎉</h2>
+    <p class="sub">The moments that made every struggle worth it.</p>
+    <div class="cards">
+      <div class="card">
+        <h3>🚀 Going live</h3>
+        <p>My website. On the actual internet. Anyone in the world can visit it. I still think that's amazing.</p>
+      </div>
+      <div class="card">
+        <h3>💵 The first sale</h3>
+        <p>Real money, from a real customer, for a real thing I made. The moment a project became a company.</p>
+      </div>
+      <div class="card">
+        <h3>🤝 Real partners said YES</h3>
+        <p>Actual jewelry companies partnered with a kid's gem website. Because the website is good. That's the whole secret.</p>
+      </div>
+      <div class="card">
+        <h3>👑 Ten characters of my own</h3>
+        <p>From Sunspire the citrine monarch to Nullite the glitch — a whole universe that belongs to ME, forever.</p>
+      </div>
+      <div class="card">
+        <h3>🕹️ Watching people play MY games</h3>
+        <p>Games I invented, with rules I designed — like the drill heat system in Gem Digger. Game designer unlocked.</p>
+      </div>
+      <div class="card">
+        <h3>💝 Helping real miners</h3>
+        <p>Lithos donations support Pact, a real nonprofit making mining safer and fairer. My gem company gives back to the people who find gems.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="lessons">
+  <div class="wrap">
+    <h2>Lessons for other <em>kid builders</em> 🧠</h2>
+    <p class="sub">If you want to build your own website or company, here's what I learned the real way.</p>
+    <div class="lessons">
+      <ol>
+        <li><b>Start small, then grow.</b> Lithos began with a handful of gems. Now it has 1,200+. You don't need everything on day one.</li>
+        <li><b>Make your OWN characters.</b> Borrowing famous ones feels easier — but on a real business, it's not allowed. And inventing your own is more fun anyway.</li>
+        <li><b>Real money = real rules.</b> The moment your site takes real money, be extra honest: clear prices, no tricks, and a grown-up double-checking payments.</li>
+        <li><b>Test everything.</b> Every button, every game, every night. Bugs hide where you don't look.</li>
+        <li><b>Struggles are chapters, not endings.</b> Frozen apps, hard lessons, lost files — every builder has them. Keep going.</li>
+        <li><b>Ask for help.</b> Grown-ups for publishing and payments, tools for building, friends for feedback. Builders don't build alone.</li>
+        <li><b>Keep a story like this one.</b> Future-you will love reading how it all happened.</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section id="slides" style="background:var(--paper2)">
+  <div class="wrap">
+    <h2>My summer <em>slides</em> 🖼️</h2>
+    <p class="sub">The presentation I made about Lithos — coming to this page soon!</p>
+    <div class="slidebox">
+      <div class="big">📽️</div>
+      <p><b>Slides go here!</b> This spot is saved for my summer presentation about building Lithos — every slide, right on this page, so you can see the story the way I told it.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    Built with <span class="heart">❤</span> (and many, many bugs) by <b>Graham</b> 🍪<br>
+    Visit the company this story is about: <a href="index.html">Lithos — A Field Catalog of Gemstones</a>
+  </div>
+</footer>
+
+</body>
+</html>
