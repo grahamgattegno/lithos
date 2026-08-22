@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- lithos-v:site-live-31 -->
+<!-- lithos-v:site-live-32 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -2401,6 +2401,9 @@
   .ns-market-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;text-align:left;margin:14px 0 18px}
   .ns-market-card{background:#12101c;border:1px solid #3a3448;border-radius:12px;padding:14px}
   .ns-market-card.owned{border-color:rgba(63,163,77,.55)}
+  .ns-market-card.ns-market-click{cursor:pointer;transition:border-color .15s,transform .15s}
+  .ns-market-card.ns-market-click:hover{border-color:#c9a94f;transform:translateY(-2px)}
+  .ns-market-card.ns-market-click:active{transform:translateY(0)}
   .ns-market-ico{width:72px;height:72px;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 40% 30%,rgba(255,255,255,.06),transparent 60%),#0c0a14;border:1px solid #2a2438;border-radius:12px}
   .ns-market-ico svg{display:block;filter:drop-shadow(0 4px 8px rgba(0,0,0,.45))}
   .ns-market-name{font-weight:900;color:#fff;font-size:15px}
@@ -2428,7 +2431,8 @@
   .ns-intro-title{font-family:var(--display,serif);font-size:clamp(20px,4vw,28px);font-weight:800;color:#c9a94f;margin-bottom:8px}
   .ns-intro-sub{font-size:14px;color:#d0a0e0;margin-bottom:22px}
   .ns-intro-bots{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-bottom:22px}
-  .ns-intro-bot{background:#12101c;border:1px solid #3a3448;border-radius:12px;padding:14px 10px;width:118px}
+  .ns-intro-bot{background:#12101c;border:1px solid #3a3448;border-radius:12px;padding:14px 10px;width:118px;cursor:pointer;font:inherit;color:inherit;text-align:center}
+  .ns-intro-bot:hover{border-color:#c9a94f}
   .ns-intro-role{font-family:var(--mono,monospace);font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:#7a7288;margin-top:4px}
   .ns-intro-gem{font-size:10px;color:#c9a94f;margin-top:3px;font-weight:700}
   .ns-intro-emoji{font-size:44px;animation:nsBotPeek 1.6s ease-in-out infinite}
@@ -4925,7 +4929,7 @@
  <span>Hardness on the Mohs scale · Origins by prominence · Prices are approximate retail</span>
  <div class="lithos-reload-wrap">
   <button type="button" class="lithos-device-switch" id="lithos-hard-refresh" onclick="lithosHardRefresh()">↻ Reload latest</button>
-  <span class="lithos-reload-hint">Site v31 · Mac Safari: use this button if keyboard shortcuts misbehave.</span>
+  <span class="lithos-reload-hint">Site v32 · Mac Safari: use this button if keyboard shortcuts misbehave.</span>
  </div>
  <button type="button" class="lithos-device-switch" id="lithos-device-switch">Switch layout</button>
 </footer>
@@ -4941,8 +4945,8 @@
 </nav>
 
 <script src="ai-config.js"></script>
-<script src="gems-data.js?v=deploy-31"></script>
-<script src="nightshift2.js?v=deploy-31"></script>
+<script src="gems-data.js?v=deploy-32"></script>
+<script src="nightshift2.js?v=deploy-32"></script>
 <script>
 /* ---------- Affiliate partners (tracked links where available) ---------- */
 const DEFAULT_PARTNER='gemsny';
@@ -15238,7 +15242,7 @@ function nsInvBarHTML(opts){
         pills.push(`<button type="button" class="ns-inv-pill use" onclick="nsUseItem('${item.id}')">${art} ${item.name} ×${n}</button>`);
       }
     }else{
-      pills.push(`<span class="ns-inv-pill">${art} ${item.name}${item.kind==='gear'?'':' ×'+n}</span>`);
+      pills.push(`<button type="button" class="ns-inv-pill" onclick="nsShowItemInfo('${item.id}')">${art} ${item.name}${item.kind==='gear'?'':' ×'+n}</button>`);
     }
   });
   if(opts.crowbarReady&&nsHasGear('crowbar')&&nsGame&&!nsGame.crowbarUsed){
@@ -15285,26 +15289,27 @@ function nsDoorArtHTML(side){
   const pct=Math.max(0,Math.min(100,Math.round((b.hp/b.maxHp)*100)));
   return `<div class="ns-barricade-art">${nsBarricadeDoorSVG()}</div><div class="ns-barricade-hp" title="Barricade ${pct}%"><span style="width:${pct}%"></span></div>`;
 }
-function nsApplyStartGear(){
-  if(!nsGame)return;
-  let power=100;
-  let drainMul=1;
-  let creepMul=1;
-  if(nsConsumeItem('coffee')){power+=20;drainMul*=.78;nsGame.usedCoffee=true;}
-  if(nsConsumeItem('soda')){power+=10;nsGame.usedSoda=true;}
-  if(nsConsumeItem('medkit')){creepMul*=.82;nsGame.usedMedkit=true;}
-  if(nsHasGear('flashlight')){drainMul*=.88;nsGame.hasFlashlight=true;}
-  if(nsHasGear('crowbar')){nsGame.hasCrowbar=true;nsGame.crowbarUsed=false;}
-  if(nsHasGear('radio'))nsGame.hasRadio=true;
-  if(nsHasGear('doorbrace'))nsGame.hasDoorBrace=true;
-  nsGame.leftBarricade=null;
-  nsGame.rightBarricade=null;
-  nsGame.placingBarricade=false;
-  nsGame.power=Math.min(140,power);
-  nsGame.drainMul=drainMul;
-  nsGame.creepMul=creepMul;
-  nsGame.msg='';
+function nsApplyStartGearTo(g){
+ if(!g)return;
+ let power=100;
+ let drainMul=1;
+ let creepMul=1;
+ if(nsConsumeItem('coffee')){power+=20;drainMul*=.78;g.usedCoffee=true;}
+ if(nsConsumeItem('soda')){power+=10;g.usedSoda=true;}
+ if(nsConsumeItem('medkit')){creepMul*=.82;g.usedMedkit=true;}
+ if(nsHasGear('flashlight')){drainMul*=.88;g.hasFlashlight=true;}
+ if(nsHasGear('crowbar')){g.hasCrowbar=true;g.crowbarUsed=false;}
+ if(nsHasGear('radio'))g.hasRadio=true;
+ if(nsHasGear('doorbrace'))g.hasDoorBrace=true;
+ g.leftBarricade=null;
+ g.rightBarricade=null;
+ g.placingBarricade=false;
+ g.power=Math.min(140,power);
+ g.drainMul=drainMul;
+ g.creepMul=creepMul;
+ g.msg='';
 }
+function nsApplyStartGear(){nsApplyStartGearTo(nsGame);}
 function nsStartPlaceBarricade(){
   if(!nsGame||nsGame.over||nsGame.intro||nsGame.market)return;
   if(nsInvCount('barricade')<=0){nsGame.msg='No barricades left';renderNightShift();return;}
@@ -15400,9 +15405,85 @@ function nsCloseMarket(){
   renderNightShift();
 }
 function nsBuyFromMarket(id){
-  const res=nsBuyItem(id);
-  if(nsGame){nsGame.marketMsg=res.msg;nsGame.market=true;nsGame.intro=false;}
-  renderNightShift();
+ const res=nsBuyItem(id);
+ if(nsGame){nsGame.marketMsg=res.msg;nsGame.market=true;nsGame.intro=false;renderNightShift();return;}
+ if(typeof ns2Game!=='undefined'&&ns2Game){ns2Game.marketMsg=res.msg;ns2Game.market=true;ns2Game.intro=false;renderNightShift2();return;}
+}
+function nsShowItemInfo(id){
+ const item=nsMarketItem(id);
+ if(!item)return;
+ const msg=`${item.name} — ${item.desc}`;
+ if(nsGame&&nsGame.market){nsGame.marketMsg=msg;renderNightShift();return;}
+ if(typeof ns2Game!=='undefined'&&ns2Game&&ns2Game.market){ns2Game.marketMsg=msg;renderNightShift2();return;}
+ try{showLithosToast(msg,4000);}catch(_){}
+}
+function nsMarketCardHTML(item,w){
+ const owned=item.kind==='gear'&&nsHasGear(item.id);
+ const qty=nsInvCount(item.id);
+ const canBuy=!owned&&w.cash>=item.price;
+ let ico='';
+ try{ico=nsEquipSVG(item.id,64);}catch(_){ico=item.icon||'📦';}
+ const esc=(s)=>(typeof escapeHtml==='function'?escapeHtml(String(s)):String(s));
+ const cardAct=owned||!canBuy?`onclick="nsShowItemInfo('${item.id}')"`:`onclick="nsBuyFromMarket('${item.id}')"`;
+ const btnAct=owned||!canBuy?`nsShowItemInfo('${item.id}')`:`nsBuyFromMarket('${item.id}')`;
+ const btnLabel=owned?'Info':(canBuy?'Buy':'Need $');
+ return `<div class="ns-market-card${owned?' owned':''} ns-market-click" role="button" tabindex="0" ${cardAct}>
+  <div class="ns-market-ico">${ico}</div>
+  <div class="ns-market-name">${esc(item.name)}</div>
+  <div class="ns-market-desc">${esc(item.desc)}</div>
+  <div class="ns-market-row">
+   <span class="ns-market-price">$${item.price}${owned?' · owned':(qty&&item.kind!=='gear'?` · have ${qty}`:'')}</span>
+   <button type="button" class="ns-market-buy" ${canBuy&&!owned?'':'disabled'} onclick="event.stopPropagation();${btnAct}">${btnLabel}</button>
+  </div>
+ </div>`;
+}
+function nsBuildMarketPanel(opts){
+ opts=opts||{};
+ const w=nsLoadWallet();
+ const pay=opts.lastPay;
+ let statusMsg=opts.statusMsg;
+ if(statusMsg==null){
+  if(nsGame&&nsGame.marketMsg)statusMsg=nsGame.marketMsg;
+  else if(typeof ns2Game!=='undefined'&&ns2Game&&ns2Game.marketMsg)statusMsg=ns2Game.marketMsg;
+  else statusMsg='Tap an item to buy — gear works in Night Shift & Night Shift 2.';
+ }
+ const status=typeof escapeHtml==='function'?escapeHtml(String(statusMsg)):String(statusMsg);
+ const payBanner=pay?`<div class="ns-paycheck" style="margin-bottom:16px">
+  <div class="ns-pay-head">💵 NIGHT PAY DEPOSITED</div>
+  <div class="ns-pay-row"><span>Night shift pay</span><b>$${pay.basePay}</b></div>
+  <div class="ns-pay-row"><span>Power saved bonus 🔋</span><b>$${pay.powerBonus}</b></div>
+  <div class="ns-pay-total"><span>TOTAL EARNED</span><b>$${pay.totalPay}</b></div>
+  <div class="ns-pay-note">Wallet: $${w.cash} · ${w.nights||0} night${(w.nights||0)===1?'':'s'} worked ⭐</div>
+ </div>`:'';
+ const cards=(NS_MARKET||[]).map(item=>nsMarketCardHTML(item,w)).join('');
+ const btns=(opts.buttons||[
+  `<button class="ns-btn big" onclick="${opts.onAnotherNight||'playNightShift()'}">Work Another Night 🌙</button>`,
+  `<button class="ns-btn big" onclick="${opts.onBack||'nsCloseMarket()'}">Back to Lobby</button>`,
+  `<button class="ns-btn ghost" onclick="${opts.onLeave||'nsCloseGame()'}">Leave</button>`
+ ]).join('');
+ return `<div class="ns-market">
+  <div class="ns-market-title">🛒 Night Guard Market</div>
+  <div class="ns-market-sub">${pay?'Morning cash is in — tap items to buy gear for your next shift.':'Spend paycheck cash on gear. Shared locker for Night Shift & Night Shift 2!'}</div>
+  ${payBanner}
+  ${nsWalletChipHTML()}
+  <div class="ns-market-status">${status}</div>
+  <div class="ns-market-grid">${cards}</div>
+  ${nsInvBarHTML({empty:true})}
+  ${btns}
+ </div>`;
+}
+function ns2ShowMarket(){
+ if(typeof ns2Game==='undefined'||!ns2Game)return;
+ ns2Game.market=true;
+ ns2Game.intro=false;
+ ns2Game.over=false;
+ renderNightShift2();
+}
+function ns2CloseMarket(){
+ if(typeof ns2Game==='undefined'||!ns2Game)return;
+ ns2Game.market=false;
+ ns2Game.intro=true;
+ renderNightShift2();
 }
 function nsPayNight(totalPay){
   if(!nsGame||nsGame.paidOut)return nsLoadWallet();
@@ -15624,35 +15705,11 @@ function nsWin(){
 function nsRenderMarketFallback(){
   const scr=document.getElementById('ns-screen');
   if(!scr||!nsGame)return;
-  const w=nsLoadWallet();
-  const pay=nsGame.lastPay;
-  let cards='';
   try{
-    (NS_MARKET||[]).forEach(item=>{
-      const owned=item.kind==='gear'&&nsHasGear(item.id);
-      const canBuy=!owned&&w.cash>=item.price;
-      let ico=item.icon||'📦';
-      try{ ico=nsEquipSVG(item.id,64)||ico; }catch(_){}
-      cards+=`<div class="ns-market-card${owned?' owned':''}">
-        <div class="ns-market-ico">${ico}</div>
-        <div class="ns-market-name">${item.name}</div>
-        <div class="ns-market-desc">${item.desc||''}</div>
-        <div class="ns-market-row">
-          <span class="ns-market-price">$${item.price}${owned?' · owned':''}</span>
-          <button type="button" class="ns-market-buy" ${canBuy?'':'disabled'} onclick="nsBuyFromMarket('${item.id}')">${owned?'Owned':(canBuy?'Buy':'Need $')}</button>
-        </div>
-      </div>`;
-    });
-  }catch(_){}
-  scr.innerHTML=`<div class="ns-market">
-    <div class="ns-market-title">Night Guard Market</div>
-    <div class="ns-market-sub">${pay?'You made it to morning — cash is in. Buy gear below.':'Spend paycheck cash on gear.'}</div>
-    ${pay?`<div class="ns-paycheck" style="margin-bottom:16px"><div class="ns-pay-head">PAYCHECK DEPOSITED</div><div class="ns-pay-total"><span>TOTAL</span><b>$${pay.totalPay}</b></div><div class="ns-pay-note">Wallet: $${w.cash}</div></div>`:''}
-    <div class="ns-wallet-chip">$${w.cash}</div>
-    <div class="ns-market-grid">${cards||'<p style="color:#c9a94f">Shop loading… try Open Market from the lobby.</p>'}</div>
-    <button class="ns-btn big" onclick="playNightShift()">Work Another Night</button>
-    <button class="ns-btn ghost" onclick="nsCloseGame()">Leave</button>
-  </div>`;
+    scr.innerHTML=nsBuildMarketPanel({lastPay:nsGame.lastPay,onAnotherNight:'playNightShift()',onBack:'nsCloseMarket()',onLeave:'nsCloseGame()'});
+  }catch(_){
+    scr.innerHTML=`<div class="ns-market"><div class="ns-market-title">Night Guard Market</div><p style="color:#c9a94f">Shop loading… try again.</p><button class="ns-btn big" onclick="playNightShift()">Work Another Night</button></div>`;
+  }
 }
 function nsToggleDoor(side){
   if(!nsGame||nsGame.over||nsGame.blackout)return;
@@ -15721,44 +15778,7 @@ function renderNightShift(){
   // ---- MARKET: spend your paycheck on gear ----
   if(g.market){
     try{
-      const w=nsLoadWallet();
-      const pay=g.lastPay;
-      const payBanner=pay?`<div class="ns-paycheck" style="margin-bottom:16px">
-        <div class="ns-pay-head">💵 NIGHT PAY DEPOSITED</div>
-        <div class="ns-pay-row"><span>Night shift pay</span><b>$${pay.basePay}</b></div>
-        <div class="ns-pay-row"><span>Power saved bonus 🔋</span><b>$${pay.powerBonus}</b></div>
-        <div class="ns-pay-total"><span>TOTAL EARNED</span><b>$${pay.totalPay}</b></div>
-        <div class="ns-pay-note">Wallet: $${w.cash} · ${w.nights||0} night${(w.nights||0)===1?'':'s'} worked ⭐</div>
-      </div>`:'';
-      const cards=(NS_MARKET||[]).map(item=>{
-        const owned=item.kind==='gear'&&nsHasGear(item.id);
-        const qty=nsInvCount(item.id);
-        const canBuy=!owned&&w.cash>=item.price;
-        let ico='';
-        try{ ico=nsEquipSVG(item.id,64); }catch(_){ ico=item.icon||'📦'; }
-        return `<div class="ns-market-card${owned?' owned':''}">
-          <div class="ns-market-ico">${ico}</div>
-          <div class="ns-market-name">${item.name}</div>
-          <div class="ns-market-desc">${item.desc}</div>
-          <div class="ns-market-row">
-            <span class="ns-market-price">$${item.price}${owned?' · owned':(qty&&item.kind!=='gear'?` · have ${qty}`:'')}</span>
-            <button type="button" class="ns-market-buy" ${canBuy?'':'disabled'} onclick="nsBuyFromMarket('${item.id}')">${owned?'Owned':(canBuy?'Buy':'Need $')}</button>
-          </div>
-        </div>`;
-      }).join('');
-      const status=g.marketMsg?(typeof escapeHtml==='function'?escapeHtml(String(g.marketMsg)):String(g.marketMsg)):'Pick gear — flashlight, crowbar, barricades, food…';
-      scr.innerHTML=`<div class="ns-market">
-        <div class="ns-market-title">🛒 Night Guard Market</div>
-        <div class="ns-market-sub">${pay?'You made it to morning — cash is in. Buy gear for the next shift.':'Spend paycheck cash on gear that helps you survive. Gear stays in your locker.'}</div>
-        ${payBanner}
-        ${nsWalletChipHTML()}
-        <div class="ns-market-status">${status}</div>
-        <div class="ns-market-grid">${cards}</div>
-        ${nsInvBarHTML({empty:true})}
-        <button class="ns-btn big" onclick="playNightShift()">Work Another Night 🌙</button>
-        <button class="ns-btn big" onclick="nsCloseMarket()">Back to Lobby</button>
-        <button class="ns-btn ghost" onclick="nsCloseGame()">Leave</button>
-      </div>`;
+      scr.innerHTML=nsBuildMarketPanel({lastPay:g.lastPay,onAnotherNight:'playNightShift()',onBack:'nsCloseMarket()',onLeave:'nsCloseGame()'});
     }catch(err){
       console.error('Night market render failed',err);
       nsRenderMarketFallback();
@@ -15780,15 +15800,16 @@ function renderNightShift(){
       ${nsInvBarHTML({empty:true})}
       ${nsDeskGearHTML()}
       <div class="ns-intro-bots">
-        ${g.bots.map(b=>`<div class="ns-intro-bot">
+        ${g.bots.map(b=>`<button type="button" class="ns-intro-bot" onclick="nsGame.msg='${b.name.replace(/'/g,'\\\'')} — ${(b.gem||b.role||'').replace(/'/g,'\\\'')}';renderNightShift();" title="Tap for info">
           <div class="ns-intro-emoji pose-idle" style="filter:drop-shadow(0 0 10px ${b.color})">${nsBotSVG(b.id||b.name,64)}</div>
           <div class="ns-intro-name" style="color:${b.color}">${b.name}</div>
           <div class="ns-intro-role">${b.role||''}</div>
           <div class="ns-intro-gem">${b.gem||''}</div>
           ${b.telepath?'<div class="ns-intro-power">👻 Watches when you look away</div>':''}
-        </div>`).join('')}
+        </button>`).join('')}
       </div>
-      <div class="ns-intro-tip">⌨️ <b>Space</b>/<b>C</b> cameras · <b>D</b> danger door · <b>L</b>/<b>R</b> left/right door<br>💵 Market sells flashlight, crowbar, barricades, food &amp; more — you start with $30</div>
+      ${g.msg?`<div class="ns-telepath" style="margin:8px 0">${typeof escapeHtml==='function'?escapeHtml(String(g.msg)):g.msg}</div>`:''}
+      <div class="ns-intro-tip">⌨️ <b>Space</b>/<b>C</b> cameras · <b>D</b> danger door · <b>L</b>/<b>R</b> left/right door<br>💵 Market sells flashlight, crowbar, barricades, food &amp; more — tap items to buy · you start with $30</div>
       <button class="ns-btn ghost" onclick="nsCloseGame()">Leave</button>
     </div>`;
     return;

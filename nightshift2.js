@@ -528,7 +528,8 @@ function playNightShift2(opts){
   ns2Game={
     hour:12,minute:0,power:100,
     leftDoor:false,rightDoor:false,camOpen:false,currentCam:1,
-    over:false,won:false,intro:true,msg:'',scare:0,
+    over:false,won:false,intro:!opts.openMarket,market:!!opts.openMarket,paidOut:false,
+    msg:'',marketMsg:'',scare:0,drainMul:1,creepMul:1,
     decoy:null,frost:null,corrupt:{1:0,2:0,3:0,4:0},
     bots:[
       {id:'magna',name:'Magnapull',role:'Door-Breaker',gem:'Magnetite · rips doors with magnetism',side:'left',pos:0,speed:0.14,color:'#7a8ae8'},
@@ -562,11 +563,19 @@ function ns2CloseGame(){
 }
 function ns2StartNight(){
   if(!ns2Game)return;
-  ns2Game.intro=false; ns2Game.over=false; ns2Game.won=false;
+  ns2Game.intro=false; ns2Game.market=false; ns2Game.over=false; ns2Game.won=false;
+  if(typeof nsApplyStartGearTo==='function')nsApplyStartGearTo(ns2Game);
   try{if(typeof SFX!=='undefined'){SFX.office&&SFX.office();SFX.talk&&SFX.talk('bonnie');}}catch(_){}
   renderNightShift2();
   if(ns2Loop)clearInterval(ns2Loop);
   ns2Loop=setInterval(ns2Tick,100);
+}
+function ns2BotInfo(id){
+  if(!ns2Game)return;
+  const b=ns2Game.bots.find(x=>x.id===id);
+  if(!b)return;
+  ns2Game.msg=`${b.name} — ${b.role||''}. ${b.gem||''}`;
+  renderNightShift2();
 }
 function ns2CrackFrost(){
   if(!ns2Game||!ns2Game.frost)return;
@@ -621,6 +630,16 @@ function ns2Win(){
   try{if(typeof SFX!=='undefined'&&SFX.win)SFX.win();}catch(_){}
   if(ns2Loop){clearInterval(ns2Loop);ns2Loop=null;}
   if(!ns2Game)return;
+  const basePay=140;
+  const powerBonus=Math.round(ns2Game.power||0);
+  const totalPay=basePay+powerBonus;
+  ns2Game.lastPay={basePay,powerBonus,totalPay};
+  if(!ns2Game.paidOut&&typeof nsAddCash==='function'){
+    const w=nsAddCash(totalPay);
+    w.nights=(w.nights||0)+1;
+    if(typeof nsSaveWallet==='function')nsSaveWallet(w);
+    ns2Game.paidOut=true;
+  }
   ns2Game.over=true; ns2Game.won=true;
   renderNightShift2();
 }
@@ -637,6 +656,7 @@ function ns2Tick(){
   if(g.leftDoor)drain+=0.05;
   if(g.rightDoor)drain+=0.05;
   if(g.camOpen)drain+=0.04;
+  if(g.drainMul)drain*=g.drainMul;
   g.power-=drain;
   if(g.power<=0){
     g.power=0; g.leftDoor=false; g.rightDoor=false;
@@ -743,35 +763,73 @@ function renderNightShift2(){
   if(!scr||!ns2Game)return;
   const g=ns2Game;
   const esc=typeof escapeHtml==='function'?escapeHtml:s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  if(g.market){
+    try{
+      scr.innerHTML=typeof nsBuildMarketPanel==='function'?nsBuildMarketPanel({
+        lastPay:g.lastPay,
+        onAnotherNight:'playNightShift2()',
+        onBack:'ns2CloseMarket()',
+        onLeave:'ns2CloseGame()'
+      }):'<div class="ns-market"><p>Market loading…</p></div>';
+    }catch(err){
+      console.error('NS2 market render failed',err);
+      scr.innerHTML='<div class="ns-market"><p style="color:#c9a94f">Market error — try again.</p><button class="ns-btn big" onclick="playNightShift2()">Back</button></div>';
+    }
+    const wrap=document.getElementById('nightshift2');
+    if(wrap)wrap.scrollTop=0;
+    return;
+  }
   if(g.intro){
+    const wallet=typeof nsWalletChipHTML==='function'?nsWalletChipHTML():'';
+    const inv=typeof nsInvBarHTML==='function'?nsInvBarHTML({empty:true}):'';
     scr.innerHTML=`<div class="ns-intro">
       <div class="ns-intro-title">⛏️ NIGHT SHIFT 2 — THE MINE BELOW</div>
-      <div class="ns-intro-sub">Five NEW animatronics from the abandoned mine under the factory — each with a unique game power. Survive until 6 AM!</div>
-      <button class="ns-btn big" onclick="ns2StartNight()">Descend Into the Mine 🌙</button>
-      <div class="ns-intro-bots">${g.bots.map(b=>`<div class="ns-intro-bot">
+      <div class="ns-intro-sub">Five NEW animatronics from the abandoned mine — unique powers each. Survive until 6 AM, get paid, shop the shared Night Guard Market!</div>
+      ${wallet}
+      <div class="ns-market-cta">
+        <button type="button" class="ns-btn big market" onclick="ns2ShowMarket()">🛒 Open Night Guard Market</button>
+        <button class="ns-btn big" onclick="ns2StartNight()">Descend Into the Mine 🌙</button>
+      </div>
+      ${inv}
+      <div class="ns-intro-bots">${g.bots.map(b=>`<button type="button" class="ns-intro-bot" onclick="ns2BotInfo('${b.id}')" title="Tap for info">
         <div class="ns-intro-emoji" style="filter:drop-shadow(0 0 10px ${b.color})">${ns2BotSVG(b.id,64)}</div>
         <div class="ns-intro-name" style="color:${b.color}">${b.name}</div>
         <div class="ns-intro-role">${b.role||''}</div>
         <div class="ns-intro-gem">${b.gem||''}</div>
-      </div>`).join('')}</div>
+      </button>`).join('')}</div>
+      ${g.msg?`<div class="ns-telepath" style="margin:8px 0">${esc(g.msg)}</div>`:''}
       <div class="ns-intro-tip">⌨️ <b>Space/C</b> cameras · <b>D</b> danger door · <b>L/R</b> doors<br>
-        🧲 Magnapull rips doors · 📦 click fake crates · ❄️ tap ice 3× · 💨 swarm both sides · 📺 Nullite static</div>
+        🧲 Magnapull rips doors · 📦 click fake crates · ❄️ tap ice 3× · 💨 swarm both sides · 📺 Nullite static<br>
+        💵 Market gear (flashlight, crowbar, food…) works here too!</div>
       <button class="ns-btn ghost" onclick="ns2CloseGame()">Leave</button>
     </div>`;
     return;
   }
   if(g.over){
     if(g.won){
+      const pay=g.lastPay||{basePay:140,powerBonus:0,totalPay:140};
+      const w=typeof nsLoadWallet==='function'?nsLoadWallet():{cash:0,nights:0};
       scr.innerHTML=`<div class="ns-end win"><div class="ns-end-big">☀️ 6:00 AM</div><div class="ns-end-title">YOU ESCAPED THE MINE!</div>
-        <div class="ns-end-msg">The deep crew powers down. You made it out of the mine below the factory!</div>
+        <div class="ns-end-msg">The deep crew powers down. Cash hits your Night Guard wallet — spend it at the Market!</div>
+        <div class="ns-paycheck">
+          <div class="ns-pay-head">💵 YOUR PAYCHECK 💵</div>
+          <div class="ns-pay-row"><span>Mine shift pay</span><b>$${pay.basePay}</b></div>
+          <div class="ns-pay-row"><span>Power saved bonus 🔋</span><b>$${pay.powerBonus}</b></div>
+          <div class="ns-pay-total"><span>TOTAL EARNED</span><b>$${pay.totalPay}</b></div>
+          <div class="ns-pay-note">Wallet balance: $${w.cash} · ${w.nights||0} night${(w.nights||0)===1?'':'s'} worked ⭐</div>
+        </div>
+        <button class="ns-btn big" onclick="ns2ShowMarket()">🛒 Spend at the Market</button>
         <button class="ns-btn big" onclick="playNightShift2()">Another Shift ⛏️</button>
         <button class="ns-btn ghost" onclick="ns2CloseGame()">Leave</button></div>`;
     }else{
       const bot=g.caughtBy||{name:'Something',id:'null'};
+      const wallet=typeof nsWalletChipHTML==='function'?nsWalletChipHTML():'';
       scr.innerHTML=`<div class="ns-end lose"><div class="ns-jumpscare-art">${ns2BotSVG(bot.id||bot.name,220)}</div>
         <div class="ns-end-title">${esc(bot.name).toUpperCase()} GOT YOU!</div>
-        <div class="ns-end-msg">The mine below claims another guard…</div>
+        <div class="ns-end-msg">The mine below claims another guard… Gear in your locker stays — hit the Market if you have cash.</div>
+        ${wallet}
         <button class="ns-btn big" onclick="playNightShift2()">Try Again ⛏️</button>
+        <button class="ns-btn big" onclick="ns2ShowMarket()" style="background:#3a5a3a;border-color:#5a8a5a">🛒 Market</button>
         <button class="ns-btn ghost" onclick="ns2CloseGame()">Leave</button></div>`;
     }
     return;
