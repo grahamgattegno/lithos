@@ -1,6 +1,8 @@
 .env.local
 ai-config.js
 .DS_Store
+node_modules/
+assets/.ad-build-tmp/
 ads/*.mp4
 ads/.venv/
 ads/out_frames/
