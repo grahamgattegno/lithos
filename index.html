@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- lithos-v:convoy-glitch-25 -->
+<!-- lithos-v:convoy-glitch-inf-26 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1486,6 +1486,8 @@
   .gd-turret-btn .gd-wpn-stats{margin-top:6px;display:grid;gap:3px}
   .gd-owner-tag{color:#f8d030!important;border-color:#806010!important}
   .gd-glitch-tag{color:#39ff14!important;border-color:#208010!important;text-shadow:0 0 6px rgba(57,255,20,.45)}
+  .gd-car-btn.gd-glitch-pick{border-color:#39ff14}
+  .gd-car-btn.gd-glitch-pick.locked{opacity:.72;border-color:#39ff14;box-shadow:0 0 8px rgba(57,255,20,.2),3px 3px 0 #080818}
   .gd-launcher-btn.gd-glitch-pick,.gd-turret-btn.gd-glitch-pick{border-color:#39ff14}
   .gd-launcher-btn.gd-glitch-pick.locked,.gd-turret-btn.gd-glitch-pick.locked{opacity:.72;border-color:#39ff14;box-shadow:0 0 8px rgba(57,255,20,.2),3px 3px 0 #080818}
   .gd-launcher-btn.gd-owner-pick,.gd-turret-btn.gd-owner-pick{border-color:#f8d030}
@@ -14363,7 +14365,8 @@ const GD_SPR_CAR={
  sapphire:gdSpr(['..KKKK..','.KSSSSK.','KSSSSSSK','KSSYYSSK','KKSSBSKK','.KBBBBK.','..KBBK..','...KK...']),
  emerald:gdSpr(['..KKKK..','.KEEEEK.','KEEEEEEK','KEEYYEEK','KKEBBEKK','.KBBBBK.','..KBBK..','...KK...']),
  diamond:gdSpr(['..KKKK..','.KDDDDK.','KDDDDDDK','KDDYYDDK','KKDDBDKK','.KBBBBK.','..KBBK..','...KK...']),
- owner:gdSpr(['..KKKK..','.KYYYYK.','KYYYYYYK','KYGWYGK','KYYWYYYK','.KGGGGK.','..KGGK..','...KK...'])
+ owner:gdSpr(['..KKKK..','.KYYYYK.','KYYYYYYK','KYGWYGK','KYYWYYYK','.KGGGGK.','..KGGK..','...KK...']),
+ glitch:gdSpr(['..KKKK..','.KXGXK.','KXGXGXK','KXGYGKX','KKXPXKK','.KGGGK.','..KGK..','...KK...'])
 };
 const GD_SPR_LAUNCHER=gdSpr(['..AM..','.AMAM.','AMMMMA','.AMAM.','..AM..']);
 const GD_SPR_TURRET={
@@ -14395,7 +14398,8 @@ const GD_CARS=[
  {id:'sapphire',name:'Sapphire Cruiser',speed:1.7,maxHp:100,spr:'sapphire',pal:{R:GD_PAL.SB,L:GD_PAL.SBL,B:GD_PAL.D,Y:GD_PAL.Y,K:GD_PAL.K,G:GD_PAL.GD,W:GD_PAL.W}},
  {id:'emerald',name:'Emerald Tank',speed:1.3,maxHp:140,spr:'emerald',pal:{R:GD_PAL.EM,L:GD_PAL.EML,B:GD_PAL.D,Y:GD_PAL.Y,K:GD_PAL.K,G:GD_PAL.GD,W:GD_PAL.W}},
  {id:'diamond',name:'Diamond Delux',speed:1.55,maxHp:90,spr:'diamond',pal:{R:GD_PAL.DM,L:GD_PAL.DML,B:GD_PAL.D,Y:GD_PAL.Y,K:GD_PAL.K,G:GD_PAL.GD,W:GD_PAL.W}},
- {id:'owner',name:'Owner Convoy',speed:2.5,maxHp:200,spr:'owner',pal:{Y:GD_PAL.Y,G:GD_PAL.GD,L:GD_PAL.GDL,B:GD_PAL.GDD,K:GD_PAL.K,W:GD_PAL.W},ownerOnly:true,desc:'👑 Owner-only royal chassis'}
+ {id:'owner',name:'Owner Convoy',speed:2.5,maxHp:200,spr:'owner',pal:{Y:GD_PAL.Y,G:GD_PAL.GD,L:GD_PAL.GDL,B:GD_PAL.GDD,K:GD_PAL.K,W:GD_PAL.W},ownerOnly:true,desc:'👑 Owner-only royal chassis'},
+ {id:'glitch',name:'Glitched Convoy',speed:3.5,maxHp:Infinity,spr:'glitch',pal:{X:GD_PAL.GLX,G:GD_PAL.GLXL,P:GD_PAL.GLP,L:GD_PAL.GLPL,K:GD_PAL.K,Y:GD_PAL.Y,B:GD_PAL.K},glitchOnly:true,infinite:true,desc:'⚡ ∞ HP · warp-speed glitch chassis'}
 ];
 const GD_LAUNCHERS=[
  {id:'ruby',name:'Ruby Launcher',spr:'ruby',pal:{R:GD_PAL.RB,L:GD_PAL.RBL},rate:5,dmg:7,spd:4.5,spread:0,pierce:0,shots:1,desc:'Rapid gem stream'},
@@ -14405,12 +14409,12 @@ const GD_LAUNCHERS=[
  {id:'amethyst',name:'Amethyst Launcher',spr:'amethyst',pal:{R:GD_PAL.AM,L:GD_PAL.AML},rate:11,dmg:10,spd:3.8,spread:0,pierce:0,shots:1,homing:0.08,desc:'Homing violet gems'},
  {id:'topaz',name:'Topaz Launcher',spr:'topaz',pal:{R:GD_PAL.CI,L:GD_PAL.CIL},rate:15,dmg:18,spd:3.2,spread:0,pierce:0,shots:1,mortar:true,desc:'Arcing gem bombs'},
  {id:'owner',name:'Owner Launcher',spr:'owner',pal:{R:GD_PAL.GD,L:GD_PAL.GDL,G:GD_PAL.Y},rate:4,dmg:22,spd:6,spread:0.12,pierce:5,shots:2,ownerOnly:true,desc:'👑 Royal double-pierce barrage'},
- {id:'glitch',name:'Glitched Launcher',spr:'glitch',pal:{G:GD_PAL.GLX,X:GD_PAL.GLX,L:GD_PAL.GLXL,P:GD_PAL.GLPL,R:GD_PAL.GLP},rate:7,dmg:16,spd:5,spread:0.55,pierce:1,shots:3,glitchOnly:true,glitch:true,desc:'⚡ Code Breaker chaos volley'}
+ {id:'glitch',name:'Glitched Launcher',spr:'glitch',pal:{G:GD_PAL.GLX,X:GD_PAL.GLX,L:GD_PAL.GLXL,P:GD_PAL.GLPL,R:GD_PAL.GLP},rate:1,dmg:Infinity,spd:12,spread:0.45,pierce:999,shots:8,homing:0.12,glitchOnly:true,glitch:true,infinite:true,desc:'⚡ ∞ DMG · reality-tear annihilator'}
 ];
 const GD_TURRETS=[
  {id:'none',name:'No Turret',spr:'none',pal:{K:GD_PAL.K},rate:999,dmg:0,spd:0,spread:0,pierce:0,shots:0,desc:'Launcher only — no side mount'},
  {id:'owner',name:'Owner Turret',spr:'owner',pal:{G:GD_PAL.GD,Y:GD_PAL.Y,L:GD_PAL.GDL},rate:11,dmg:14,spd:5.2,spread:0,pierce:2,shots:4,ownerOnly:true,orbit:true,desc:'👑 4-way royal crossfire'},
- {id:'glitch',name:'Glitched Turret',spr:'glitch',pal:{X:GD_PAL.GLX,G:GD_PAL.GLXL,P:GD_PAL.GLP,L:GD_PAL.GLPL},rate:8,dmg:11,spd:4.2,spread:0,pierce:0,shots:5,glitchOnly:true,glitch:true,random:true,desc:'⚡ Random glitch burst ring'}
+ {id:'glitch',name:'Glitched Turret',spr:'glitch',pal:{X:GD_PAL.GLX,G:GD_PAL.GLXL,P:GD_PAL.GLP,L:GD_PAL.GLPL},rate:1,dmg:Infinity,spd:11,pierce:999,spread:0,shots:12,glitchOnly:true,glitch:true,infinite:true,random:true,orbit:true,desc:'⚡ ∞ DMG · 360° glitch storm'}
 ];
 const GD_MON=[
  {id:'citrine',name:'Citrine Crawler',spr:'citrine',pal:{C:GD_PAL.CI,Y:GD_PAL.Y,M:GD_PAL.CIL},hp:20,spd:0.75,score:10,chase:0.042,army:2,w:6,h:6,weapon:{rate:20,dmg:4,spd:3.4,col:GD_PAL.CI}},
@@ -14420,6 +14424,14 @@ const GD_MON=[
  {id:'quartz',name:'Quartz Golem',spr:'quartz',pal:{Q:GD_PAL.QZ,L:GD_PAL.QZL,Y:GD_PAL.Y,M:GD_PAL.QZL},hp:200,spd:0.42,score:150,chase:0.034,boss:true,army:4,w:6,h:7,weapon:{rate:14,dmg:11,spd:4.2,col:GD_PAL.QZL,shots:3}}
 ];
 function gdStatBar(n,max=5){n=Math.max(0,Math.min(max,Math.round(n)));return '█'.repeat(n)+'░'.repeat(max-n);}
+function gdFmtStat(v){return(v===Infinity||!isFinite(v)||v>=1e9)?'∞':v;}
+function gdIsInfHp(item){return!!(item&&(item.infinite||item.maxHp===Infinity||!isFinite(item.maxHp)));}
+function gdIsInfDmg(item){return!!(item&&(item.infinite||item.dmg===Infinity||!isFinite(item.dmg)));}
+function gdHitEnemy(e,dmg){if(dmg===Infinity||!isFinite(dmg)||dmg>=1e9)e.hp=0;else e.hp-=dmg;}
+function gdHurtPlayer(g,amt){
+ if(g.infiniteHp)return;
+ g.hp-=amt;
+}
 function gdHasGlitchAccess(){try{restoreGlitchPack();}catch(_){}return hasGlitchItems||!!isOwner;}
 function gdCanUseGdItem(item){
  if(item.ownerOnly&&!isOwner)return false;
@@ -14439,6 +14451,15 @@ function gdWpnTagClass(item){
 }
 function gdLauncherRof(l){return l.rate>=900?0:+(60/l.rate).toFixed(1);}
 function gdWpnStatHtml(w){
+ if(w.infinite||gdIsInfDmg(w)){
+  return `<div class="gd-wpn-stats">
+   <div class="gd-wpn-stat"><span>DMG</span><i>${gdStatBar(5)}</i><em>∞</em></div>
+   <div class="gd-wpn-stat"><span>ROF</span><i>${gdStatBar(5)}</i><em>∞</em></div>
+   <div class="gd-wpn-stat"><span>SPD</span><i>${gdStatBar(5)}</i><em>∞</em></div>
+   <div class="gd-wpn-stat"><span>PIERCE</span><i>${gdStatBar(5)}</i><em>∞</em></div>
+   <span class="${gdWpnTagClass(w)}">⚡ ∞ GLITCH GOD</span>
+  </div>`;
+ }
  if(!w.dmg&&!w.shots)return '';
  const rof=gdLauncherRof(w);
  const dmgTier=Math.min(5,Math.ceil((w.dmg||1)/5));
@@ -14458,6 +14479,7 @@ function gdWpnStatHtml(w){
 }
 function gdLauncherStatHtml(l){return gdWpnStatHtml(l);}
 function gdLauncherHudLine(l){
+ if(l.infinite||gdIsInfDmg(l))return 'DMG∞ ROF∞ SPD∞ P∞';
  const rof=gdLauncherRof(l);
  return `DMG${l.dmg} ROF${rof} SPD${l.spd} P${l.pierce||0}${l.shots>1?' x'+l.shots:''}`;
 }
@@ -14557,8 +14579,9 @@ function playGemDrive(){
  document.body.appendChild(wrap);
  const grid=document.getElementById('gd-car-grid');
  grid.innerHTML=GD_CARS.map(c=>{
-  if(c.ownerOnly&&!isOwner)return gdMakePickBtn('car',c,'car',c.id);
-  return `<button type="button" class="gd-car-btn" data-car="${c.id}"><b>${c.name}</b><span>HP ${c.maxHp} · SPD ${c.speed.toFixed(1)}${c.desc?' · '+c.desc:''}</span></button>`;
+  if((c.ownerOnly&&!isOwner)||(c.glitchOnly&&!gdHasGlitchAccess()))return gdMakePickBtn('car',c,'car',c.id);
+  const hp=gdFmtStat(c.maxHp);
+  return `<button type="button" class="gd-car-btn${c.glitchOnly?' gd-glitch-pick':c.ownerOnly?' gd-owner-pick':''}" data-car="${c.id}"><b>${c.name}</b><span>HP ${hp} · SPD ${c.speed.toFixed(1)}${c.desc?' · '+c.desc:''}</span></button>`;
  }).join('');
  grid.addEventListener('click',e=>{const b=e.target.closest('[data-car]');if(!b)return;const c=GD_CARS.find(x=>x.id===b.dataset.car);if(c&&!gdCanUseGdItem(c))return;gdShowLaunchers(b.dataset.car);});
  syncBodyScrollLock(); lithos8bitSync();
@@ -14592,7 +14615,8 @@ function gdStartGame(carId,launcherId,turretId){
  const turret=GD_TURRETS.find(t=>t.id===turretId)||GD_TURRETS[0];
  document.getElementById('gd-turret-pick').hidden=true;
  const play=document.getElementById('gd-play'); play.hidden=false;
- gdGame={car,launcher,turret,W:GD_IW,H:GD_IH,scale:GD_SCALE,px:GD_IW/2,py:GD_IH-36,hp:car.maxHp,maxHp:car.maxHp,score:0,wave:0,kills:0,road:0,fireT:0,turretFireT:0,spawnT:2.5,enemies:[],bullets:[],ebullets:[],parts:[],shake:0,over:false,frame:0,flash:0};
+ const infiniteHp=gdIsInfHp(car);
+ gdGame={car,launcher,turret,W:GD_IW,H:GD_IH,scale:GD_SCALE,px:GD_IW/2,py:GD_IH-36,hp:infiniteHp?Infinity:car.maxHp,maxHp:infiniteHp?Infinity:car.maxHp,infiniteHp,score:0,wave:0,kills:0,road:0,fireT:0,turretFireT:0,spawnT:2.5,enemies:[],bullets:[],ebullets:[],parts:[],shake:0,over:false,frame:0,flash:0};
  gdBindKeys(true);
  const cv=document.getElementById('gd-canvas'); const ctx=cv.getContext('2d');
  ctx.imageSmoothingEnabled=false;
@@ -14625,7 +14649,13 @@ function gdFire(){
 }
 function gdTurretFire(){
  const g=gdGame,t=g.turret; if(!t||t.id==='none'||!t.dmg)return;
- if(t.orbit){
+ if(t.infinite||t.id==='glitch'){
+  const base=gdNearest()?Math.atan2(gdNearest().y-g.py,gdNearest().x-g.px):-Math.PI/2;
+  for(let i=0;i<(t.shots||12);i++){
+   const a=t.orbit?base+i*(Math.PI*2/(t.shots||12)):Math.random()*Math.PI*2;
+   gdPushBullet(g,g.px+(Math.cos(a)*6),g.py-8+(Math.sin(a)*3),Math.cos(a)*t.spd,Math.sin(a)*t.spd,t,{glitch:true,instantKill:true});
+  }
+ }else if(t.orbit){
   const base=gdNearest()?Math.atan2(gdNearest().y-g.py,gdNearest().x-g.px):-Math.PI/2;
   for(let i=0;i<(t.shots||4);i++){
    const a=base+i*(Math.PI/2);
@@ -14669,7 +14699,7 @@ function gdExplode(x,y,dmg,r){
  for(let i=g.enemies.length-1;i>=0;i--){
   const e=g.enemies[i],dx=e.x-x,dy=e.y-y;
   if(dx*dx+dy*dy<(r+e.w)**2){
-   e.hp-=dmg;
+   gdHitEnemy(e,dmg);
    if(e.hp<=0){g.score+=e.score;g.kills++;gdBurst(e.x,e.y,e.pal,12);g.enemies.splice(i,1);try{if(SFX&&SFX.boom)SFX.boom();}catch(_){}}
   }
  }
@@ -14696,8 +14726,9 @@ function gdUpdate(dt){
    const e=g.enemies[i],dx=b.x-e.x,dy=b.y-e.y,rr=(b.r+e.w)*0.9;
    if(dx*dx+dy*dy<rr*rr){
     if(b.mortar){gdExplode(b.x,b.y,b.dmg,16);return false;}
-    e.hp-=b.dmg; gdBurst(b.x,b.y,b.pal,5);
+    gdHitEnemy(e,b.instantKill?Infinity:(b.dmg||0)); gdBurst(b.x,b.y,b.pal,5);
     if(e.hp<=0){g.score+=e.score;g.kills++;gdBurst(e.x,e.y,e.pal,14);g.enemies.splice(i,1);try{if(SFX&&SFX.boom)SFX.boom();}catch(_){}}
+    if(b.instantKill||b.dmg===Infinity||!isFinite(b.dmg))return false;
     if(b.pierce>0){b.pierce--;return true;}
     return false;
    }
@@ -14709,7 +14740,7 @@ function gdUpdate(dt){
   gdChaseEnemy(e,g,dt);
   const dx=g.px-e.x,dy=(g.py-4)-e.y;
   if(dx*dx+dy*dy<(e.w+8)**2){
-   g.hp-=e.boss?14:(e.minion?4:6); g.shake=6; g.flash=4; gdBurst(g.px,g.py,{R:GD_PAL.RB},8);
+   gdHurtPlayer(g,e.boss?14:(e.minion?4:6)); g.shake=6; g.flash=4; gdBurst(g.px,g.py,{R:GD_PAL.RB},8);
    e.hp=0; gdBurst(e.x,e.y,e.pal,10);
    try{if(SFX&&SFX.lose)SFX.lose();}catch(_){}
   }
@@ -14720,7 +14751,7 @@ function gdUpdate(dt){
   if(eb.x<0||eb.x>g.W||eb.y<-8||eb.y>g.H+8||eb.life<=0)return false;
   const dx=g.px-eb.x,dy=(g.py-4)-eb.y;
   if(dx*dx+dy*dy<(eb.r+7)**2){
-   g.hp-=eb.dmg; g.shake=4; g.flash=3; gdBurst(g.px,g.py,{R:GD_PAL.RB},6);
+   gdHurtPlayer(g,eb.dmg); g.shake=4; g.flash=3; gdBurst(g.px,g.py,{R:GD_PAL.RB},6);
    try{if(SFX&&SFX.lose)SFX.lose();}catch(_){}
    return false;
   }
@@ -14728,7 +14759,7 @@ function gdUpdate(dt){
  });
  g.parts=g.parts.filter(p=>{p.x+=p.vx*60*dt;p.y+=p.vy*60*dt;p.life-=dt*2;return p.life>0;});
  if(g.shake>0)g.shake-=dt*24;
- if(g.hp<=0){g.hp=0;g.over=true;gdShowOver();}
+ if(g.hp<=0&&!g.infiniteHp){g.hp=0;g.over=true;gdShowOver();}
 }
 function gdDrawRoad(ctx,g){
  const W=g.W,H=g.H,off=g.road%16;
@@ -14742,10 +14773,11 @@ function gdDrawRoad(ctx,g){
  for(let y=8+off;y<H;y+=16){ctx.fillStyle=GD_PAL.BR;ctx.fillRect(26,y,1,1);ctx.fillRect(W-27,y,1,1);}
 }
 function gdDrawHUD(ctx,g,sc){
- const barW=Math.floor((g.hp/g.maxHp)*40);
- for(let i=0;i<42;i++)gdPx(ctx,4+i,4,i<barW?GD_PAL.RB:GD_PAL.D,sc);
+ const barW=g.infiniteHp?42:Math.floor((g.hp/g.maxHp)*40);
+ for(let i=0;i<42;i++)gdPx(ctx,4+i,4,i<barW?(g.infiniteHp?GD_PAL.GLX:GD_PAL.RB):GD_PAL.D,sc);
  gdText(ctx,4,12,`W${g.wave}`,sc,GD_PAL.W);
  gdText(ctx,g.W-36,12,`${g.score}`,sc,GD_PAL.Y);
+ gdText(ctx,52,4,g.infiniteHp?'HP∞':`HP${Math.ceil(g.hp)}`,sc,g.infiniteHp?GD_PAL.GLX:GD_PAL.W);
  gdText(ctx,4,g.H-18,g.car.name.slice(0,10).toUpperCase(),sc,GD_PAL.W);
  gdText(ctx,4,g.H-10,gdLauncherHudLine(g.launcher),sc,GD_PAL.SBL);
  const turretLine=g.turret&&g.turret.id!=='none'?g.turret.name.slice(0,14).toUpperCase():'NO TURRET';
@@ -14787,7 +14819,7 @@ function gdDraw(ctx){
  g.parts.forEach(p=>{ctx.globalAlpha=Math.min(1,p.life);gdPx(ctx,p.x,p.y,p.color,1);});
  ctx.globalAlpha=1;
  const aim=g.enemies.length?Math.atan2(gdNearest().y-g.py,gdNearest().x-g.px):-Math.PI/2;
- gdDrawSpr(ctx,GD_SPR_CAR[g.car.spr],g.car.pal,g.px-4,g.py-4,1,false);
+ gdDrawSpr(ctx,GD_SPR_CAR[g.car.spr],g.car.glitchOnly&&g.frame%6<3?{X:GD_PAL.GLP,G:GD_PAL.GLXL,P:GD_PAL.GLP,L:GD_PAL.GLPL,K:GD_PAL.K,Y:GD_PAL.Y,B:GD_PAL.K}:g.car.pal,g.px-4,g.py-4,1,false);
  gdDrawSpr(ctx,GD_SPR_LAUNCHER,{A:g.launcher.pal.R||g.launcher.pal.G,M:g.launcher.pal.L||g.launcher.pal.Y},g.px-2,g.py-9,1,false);
  if(g.turret&&g.turret.id!=='none'){
   const tp=g.turret.glitchOnly&&g.frame%6<3?{X:GD_PAL.GLP,G:GD_PAL.GLXL,P:GD_PAL.GLP,L:GD_PAL.GLPL,Y:GD_PAL.Y}:g.turret.pal;
