@@ -1,9 +1,12 @@
 <!DOCTYPE html>
-<!-- lithos-v:fix-restore-30 -->
+<!-- lithos-v:site-live-31 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>Lithos — A Field Catalog of Gemstones</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -4922,7 +4925,7 @@
  <span>Hardness on the Mohs scale · Origins by prominence · Prices are approximate retail</span>
  <div class="lithos-reload-wrap">
   <button type="button" class="lithos-device-switch" id="lithos-hard-refresh" onclick="lithosHardRefresh()">↻ Reload latest</button>
-  <span class="lithos-reload-hint">Mac Safari: use this button instead of keyboard shortcuts if Hide Distracting Items opens.</span>
+  <span class="lithos-reload-hint">Site v31 · Mac Safari: use this button if keyboard shortcuts misbehave.</span>
  </div>
  <button type="button" class="lithos-device-switch" id="lithos-device-switch">Switch layout</button>
 </footer>
@@ -4938,8 +4941,8 @@
 </nav>
 
 <script src="ai-config.js"></script>
-<script src="gems-data.js?v=deploy-23"></script>
-<script src="nightshift2.js?v=deploy-23"></script>
+<script src="gems-data.js?v=deploy-31"></script>
+<script src="nightshift2.js?v=deploy-31"></script>
 <script>
 /* ---------- Affiliate partners (tracked links where available) ---------- */
 const DEFAULT_PARTNER='gemsny';
@@ -17464,6 +17467,7 @@ function lithosHardRefresh(){
  const btn=document.getElementById('lithos-hard-refresh');
  if(btn){ btn.disabled=true; btn.setAttribute('aria-busy','true'); }
  showLithosToast('Loading latest version…',2000);
+ try{sessionStorage.removeItem('lithos_autofix_attempt');}catch(_){}
  if('caches' in window){
   Promise.race([
    caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k)))),
@@ -17474,9 +17478,8 @@ function lithosHardRefresh(){
  const u=new URL(location.href);
  u.searchParams.delete('_');
  u.searchParams.set('_',String(Date.now()));
- /* If navigation is blocked or Safari restores from bfcache, unlock the button again */
  setTimeout(resetLithosHardRefreshBtn,2500);
- location.assign(u.pathname+u.search+hash);
+ location.replace(u.pathname+u.search+hash);
 }
 function syncLithosHeaderOffset(){
  const header=document.querySelector('header.site');
@@ -19072,6 +19075,17 @@ async function startGemMotion(){
  initAdventurePreview();
  routeHashView();
  maybeShowAdventurePreview();
+})();
+</script>
+<script>
+(function lithosBootCheck(){
+ if(typeof switchView==='function'&&typeof GEMS!=='undefined'&&GEMS.length)return;
+ try{if(sessionStorage.getItem('lithos_autofix_attempt'))return;sessionStorage.setItem('lithos_autofix_attempt','1');}catch(_){return;}
+ const u=new URL(location.href);
+ u.searchParams.set('_',String(Date.now()));
+ const go=()=>location.replace(u.pathname+u.search+(location.hash||''));
+ if('caches' in window)Promise.race([caches.keys().then(k=>Promise.all(k.map(caches.delete))),new Promise(r=>setTimeout(r,300))]).finally(go);
+ else go();
 })();
 </script>
 </body>
