@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- lithos-v:latest-19 -->
+<!-- lithos-v:gem-convoy-fix-20 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -14407,6 +14407,7 @@ function gdLauncherHudLine(l){
  const rof=gdLauncherRof(l);
  return `DMG${l.dmg} ROF${rof} SPD${l.spd} P${l.pierce||0}${l.shots>1?' x'+l.shots:''}`;
 }
+function gdPx(ctx,x,y,c,s=1){ctx.fillStyle=c;ctx.fillRect(Math.floor(x)*s,Math.floor(y)*s,s,s);}
 function gdDrawSpr(ctx,spr,pal,x,y,scale,flip){
  const h=spr.length,w=spr[0].length;
  for(let row=0;row<h;row++)for(let col=0;col<w;col++){
@@ -14569,17 +14570,16 @@ function gdUpdate(dt){
  if(g.shake>0)g.shake-=dt*24;
  if(g.hp<=0){g.hp=0;g.over=true;gdShowOver();}
 }
-function gdDrawRoad(ctx,g,sc){
- for(let y=0;y<g.H;y++){
-  const ty=Math.floor(y+g.road)%16;
-  const side=y%2?GD_PAL.G:GD_PAL.GL;
-  for(let x=0;x<g.W;x++){
-   if(x<24||x>=g.W-24)gdPx(ctx,x,y,side,sc);
-   else gdPx(ctx,x,y,ty<8?GD_PAL.R:GD_PAL.RL,sc);
-  }
+function gdDrawRoad(ctx,g){
+ const W=g.W,H=g.H,off=g.road%16;
+ ctx.fillStyle=GD_PAL.G; ctx.fillRect(0,0,24,H);
+ ctx.fillStyle=GD_PAL.GL; ctx.fillRect(W-24,0,24,H);
+ for(let y=-16+off;y<H;y+=16){
+  ctx.fillStyle=GD_PAL.R; ctx.fillRect(24,y,W-48,8);
+  ctx.fillStyle=GD_PAL.RL; ctx.fillRect(24,y+8,W-48,8);
  }
- for(let y=-16+(g.road%16);y<g.H;y+=16)for(let x=g.W/2-1;x<g.W/2+1;x++)gdPx(ctx,x,y,GD_PAL.Y,sc);
- for(let y=8+(g.road%16);y<g.H;y+=16){gdPx(ctx,26,y,GD_PAL.BR,sc);gdPx(ctx,g.W-27,y,GD_PAL.BR,sc);}
+ for(let y=-16+off;y<H;y+=16){ctx.fillStyle=GD_PAL.Y;ctx.fillRect(W/2-1,y,2,10);}
+ for(let y=8+off;y<H;y+=16){ctx.fillStyle=GD_PAL.BR;ctx.fillRect(26,y,1,1);ctx.fillRect(W-27,y,1,1);}
 }
 function gdDrawHUD(ctx,g,sc){
  const barW=Math.floor((g.hp/g.maxHp)*40);
@@ -14602,7 +14602,7 @@ function gdDraw(ctx){
  ctx.save();
  ctx.setTransform(sc,0,0,sc,sh,sh);
  ctx.clearRect(0,0,g.W,g.H);
- gdDrawRoad(ctx,g,1);
+ gdDrawRoad(ctx,g);
  g.enemies.forEach(e=>{
   const spr=GD_SPR_MON[e.spr];
   const bob=Math.floor(e.anim)?1:0;
