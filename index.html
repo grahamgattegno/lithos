@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- lithos-v:gem-convoy-8bit-17 -->
+<!-- lithos-v:gem-convoy-stats-18 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1471,6 +1471,11 @@
   .gd-car-btn:hover,.gd-launcher-btn:hover{border-color:#ffde7a;color:#fff;transform:translate(-1px,-1px);box-shadow:4px 4px 0 #080818}
   .gd-car-btn b,.gd-launcher-btn b{display:block;font-size:12px;margin-bottom:3px;color:#ffde7a;text-transform:uppercase;letter-spacing:.06em}
   .gd-car-btn span,.gd-launcher-btn span{font-size:10px;color:#9898c8;line-height:1.35}
+  .gd-launcher-btn .gd-wpn-stats{margin-top:6px;display:grid;gap:3px}
+  .gd-launcher-btn .gd-wpn-stat{display:grid;grid-template-columns:42px 1fr 28px;align-items:center;gap:4px;font-size:9px;color:#7878a8;text-transform:uppercase;letter-spacing:.04em}
+  .gd-launcher-btn .gd-wpn-stat i{font-style:normal;color:#585888;letter-spacing:-1px}
+  .gd-launcher-btn .gd-wpn-stat em{font-style:normal;color:#ffde7a;text-align:right}
+  .gd-launcher-btn .gd-wpn-tag{display:inline-block;margin-top:5px;padding:2px 6px;background:#101028;border:1px solid #484878;color:#b868e8;font-size:9px;letter-spacing:.06em;text-transform:uppercase}
   .gd-canvas-wrap{position:relative;border:4px solid #484878;border-radius:0;overflow:hidden;background:#000;box-shadow:0 0 0 2px #080810 inset,4px 4px 0 #080818}
   .gd-canvas-wrap::after{content:'';pointer-events:none;position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.12) 0 1px,transparent 1px 3px);mix-blend-mode:multiply;z-index:2}
   #gd-canvas{display:block;width:100%;height:auto;image-rendering:pixelated;image-rendering:crisp-edges}
@@ -14381,7 +14386,27 @@ const GD_MON=[
  {id:'opal',spr:'opal',pal:{P:GD_PAL.OP,O:GD_PAL.OPL,Y:GD_PAL.Y},hp:28,spd:1.45,score:28,zig:1.4,w:5,h:5},
  {id:'quartz',spr:'quartz',pal:{Q:GD_PAL.QZ,L:GD_PAL.QZL,Y:GD_PAL.Y},hp:200,spd:0.35,score:150,boss:true,w:6,h:7}
 ];
-function gdPx(ctx,x,y,c,s=1){ctx.fillStyle=c;ctx.fillRect(Math.floor(x)*s,Math.floor(y)*s,s,s);}
+function gdStatBar(n,max=5){n=Math.max(0,Math.min(max,Math.round(n)));return '█'.repeat(n)+'░'.repeat(max-n);}
+function gdLauncherRof(l){return +(60/l.rate).toFixed(1);}
+function gdLauncherStatHtml(l){
+ const rof=gdLauncherRof(l);
+ const dmgTier=Math.min(5,Math.ceil(l.dmg/5));
+ const rofTier=Math.min(5,Math.ceil(rof/1.4));
+ const spdTier=Math.min(5,Math.ceil(l.spd/1.2));
+ const pierceTier=Math.min(5,l.pierce||0);
+ let tag=l.mortar?'Splash bombs':l.homing?'Homing gems':l.shots>1?'Spread volley':l.pierce?'Armor pierce':'Standard';
+ return `<div class="gd-wpn-stats">
+  <div class="gd-wpn-stat"><span>DMG</span><i>${gdStatBar(dmgTier)}</i><em>${l.dmg}</em></div>
+  <div class="gd-wpn-stat"><span>ROF</span><i>${gdStatBar(rofTier)}</i><em>${rof}/s</em></div>
+  <div class="gd-wpn-stat"><span>SPD</span><i>${gdStatBar(spdTier)}</i><em>${l.spd}</em></div>
+  <div class="gd-wpn-stat"><span>PIERCE</span><i>${gdStatBar(pierceTier)}</i><em>${l.pierce||0}</em></div>
+  <span class="gd-wpn-tag">${tag}${l.shots>1?' · ×'+l.shots:''}</span>
+ </div>`;
+}
+function gdLauncherHudLine(l){
+ const rof=gdLauncherRof(l);
+ return `DMG${l.dmg} ROF${rof} SPD${l.spd} P${l.pierce||0}${l.shots>1?' x'+l.shots:''}`;
+}
 function gdDrawSpr(ctx,spr,pal,x,y,scale,flip){
  const h=spr.length,w=spr[0].length;
  for(let row=0;row<h;row++)for(let col=0;col<w;col++){
@@ -14430,7 +14455,7 @@ function gdShowLaunchers(carId){
  const lbl=document.getElementById('gd-launcher-label');
  if(lbl&&car)lbl.textContent=`Step 2 — Gem launcher for ${car.name}`;
  const grid=document.getElementById('gd-launcher-grid');
- grid.innerHTML=GD_LAUNCHERS.map(l=>`<button type="button" class="gd-launcher-btn" data-launcher="${l.id}"><b>${l.name}</b><span>${l.desc}</span></button>`).join('');
+ grid.innerHTML=GD_LAUNCHERS.map(l=>`<button type="button" class="gd-launcher-btn" data-launcher="${l.id}"><b>${l.name}</b><span>${l.desc}</span>${gdLauncherStatHtml(l)}</button>`).join('');
  grid.onclick=e=>{const b=e.target.closest('[data-launcher]');if(b)gdStartGame(carId,b.dataset.launcher);};
 }
 function gdStartGame(carId,launcherId){
@@ -14561,8 +14586,9 @@ function gdDrawHUD(ctx,g,sc){
  for(let i=0;i<42;i++)gdPx(ctx,4+i,4,i<barW?GD_PAL.RB:GD_PAL.D,sc);
  gdText(ctx,4,12,`W${g.wave}`,sc,GD_PAL.W);
  gdText(ctx,g.W-36,12,`${g.score}`,sc,GD_PAL.Y);
- gdText(ctx,4,g.H-10,g.car.name.slice(0,10).toUpperCase(),sc,GD_PAL.W);
- gdText(ctx,g.W-52,g.H-10,g.launcher.name.slice(0,12).toUpperCase(),sc,GD_PAL.SBL);
+ gdText(ctx,4,g.H-18,g.car.name.slice(0,10).toUpperCase(),sc,GD_PAL.W);
+ gdText(ctx,4,g.H-10,gdLauncherHudLine(g.launcher),sc,GD_PAL.SBL);
+ gdText(ctx,g.W-52,g.H-18,g.launcher.name.slice(0,12).toUpperCase(),sc,GD_PAL.AML);
 }
 function gdText(ctx,x,y,str,sc,color){
  ctx.fillStyle=color||GD_PAL.W;
