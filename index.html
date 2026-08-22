@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- lithos-v:making-of-11 -->
+<!-- lithos-v:gem-convoy-15 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1462,6 +1462,24 @@
   .arcade-desc{font-size:13px;color:#9a92b0;line-height:1.5;margin-bottom:14px;min-height:58px}
   .arcade-play{background:linear-gradient(135deg,#3a8ac0,#7ad0f0);color:#08131a;border:none;border-radius:11px;padding:10px 22px;font-weight:800;font-size:14px;cursor:pointer}
   .arcade-play.ghost{background:transparent;border:1px solid #4a4058;color:#b0a8c0}
+  /* 🚗💎 GEMSTONE CONVOY — 8-bit drive & blast */
+  #gemdrive{position:fixed;inset:0;z-index:9999;background:rgba(6,6,12,.93);display:flex;align-items:center;justify-content:center;padding:12px}
+  .gd-box{background:linear-gradient(170deg,#141020,#080610);border:1px solid #3a3050;border-radius:18px;padding:16px;width:min(96vw,440px);text-align:center;position:relative}
+  .gd-car-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+  .gd-car-btn{background:#1a1826;border:2px solid #3a3448;border-radius:12px;padding:12px 10px;cursor:pointer;color:#d8d0ea;text-align:left;transition:border-color .15s,transform .12s}
+  .gd-car-btn:hover{border-color:var(--gold);transform:translateY(-2px)}
+  .gd-car-btn b{display:block;font-size:14px;margin-bottom:4px}
+  .gd-car-btn span{font-size:11px;color:#9a92b0;line-height:1.4}
+  .gd-canvas-wrap{position:relative;border:3px solid #2a2440;border-radius:8px;overflow:hidden;background:#0a0812;box-shadow:inset 0 0 0 2px #1a1428}
+  #gd-canvas{display:block;width:100%;height:auto;image-rendering:pixelated;image-rendering:crisp-edges}
+  .gd-hud{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;font-family:var(--mono,monospace);font-size:12px;color:#b8b0cc;margin:8px 0 4px}
+  .gd-hud b{color:#ffde7a}
+  .gd-touch{display:flex;justify-content:center;gap:16px;margin-top:8px}
+  .gd-touch button{width:64px;height:48px;font-size:22px;background:#1a1826;border:2px solid #4a4058;border-radius:10px;color:#ffde7a;cursor:pointer;touch-action:manipulation;user-select:none}
+  .gd-touch button:active{background:#2a2840;border-color:var(--gold)}
+  .gd-keys{font-size:10px;color:#8a84a0;margin-top:6px}
+  .gd-over{position:absolute;inset:0;background:rgba(6,6,12,.88);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;border-radius:8px;z-index:5}
+  .gd-over h3{margin:0;font-size:22px;color:#ffde7a}
 
   /* ---------- Secret Codes ---------- */
   .codes-wrap{max-width:760px;margin:0 auto;padding:110px var(--content-pad) 120px;text-align:center}
@@ -4896,7 +4914,7 @@
 </nav>
 
 <script src="ai-config.js"></script>
-<script src="gems-data.js"></script>
+<script src="gems-data.js?v=gem-fix-2"></script>
 <script src="nightshift2.js"></script>
 <script>
 /* ---------- Affiliate partners (tracked links where available) ---------- */
@@ -5411,9 +5429,10 @@ function lithos4DClearParticles(){lithos4DParticles=[];}
 
 /* ---------- Games hub ---------- */
 const LITHOS_GAMES=[
- {id:'arcade',icon:'🕹️',name:'Arcade',desc:'Gem Rush, Night Shift, Gem Digger & the secret game — pick a card and play!',preview:'radial-gradient(circle at 50% 35%,rgba(122,208,240,.28),transparent 50%),radial-gradient(circle at 70% 70%,rgba(201,169,79,.22),transparent 45%),linear-gradient(180deg,#141020,#080610)'},
+ {id:'arcade',icon:'🕹️',name:'Arcade',desc:'Gem Rush, Gem Digger, Gemstone Convoy, Night Shift & the secret game — pick a card and play!',preview:'radial-gradient(circle at 50% 35%,rgba(122,208,240,.28),transparent 50%),radial-gradient(circle at 70% 70%,rgba(201,169,79,.22),transparent 45%),linear-gradient(180deg,#141020,#080610)'},
  {id:'gemrush',icon:'⛏️💎',name:'Gem Rush',desc:'Match gemstone pairs — Diamond with Diamond, Ruby with Ruby! Clear the board before you run out of moves.',preview:'radial-gradient(circle at 40% 30%,rgba(255,120,160,.35),transparent 50%),radial-gradient(circle at 70% 70%,rgba(100,160,255,.3),transparent 45%),linear-gradient(180deg,#1a1028,#0a0812)'},
  {id:'gemdigger',icon:'⛏️🕳️',name:'Gem Digger',desc:'5 mine levels! Upgrade drill, buy bombs, reach the Legendary Rainbow Gem — owner gets Nuke Blaster ☢️',preview:'radial-gradient(circle at 50% 40%,rgba(180,120,60,.35),transparent 50%),linear-gradient(180deg,#1a1410,#0a0806)'},
+ {id:'gemdrive',icon:'🚗💎',name:'Gemstone Convoy',desc:'8-bit driving! Pick a gem car, mount ruby/sapphire/emerald/diamond turrets, and blast crystal monsters on the road.',preview:'radial-gradient(circle at 50% 60%,rgba(255,64,96,.3),transparent 50%),linear-gradient(180deg,#1a1020 0%,#2a1840 40%,#1a2818 100%)'},
  {id:'nightshift',icon:'🌙',name:'Night Shift',tag4d:true,desc:'FREE — survive until 6 AM and get paid. Then spend cash at the Market.',preview:'radial-gradient(circle at 50% 40%,rgba(201,169,79,.25),transparent 50%),radial-gradient(circle at 20% 70%,rgba(154,58,192,.3),transparent 45%),linear-gradient(180deg,#120e1a,#050508)'},
  {id:'nightshift2',icon:'⛏️',name:'Night Shift 2',tag4d:true,desc:'FREE — the Mine Below crew with unique powers: magnets, mimics, frost, swarms & glitches.',preview:'radial-gradient(circle at 50% 35%,rgba(122,208,240,.22),transparent 50%),radial-gradient(circle at 80% 70%,rgba(176,96,232,.28),transparent 45%),linear-gradient(180deg,#0e0a14,#040408)'},
  {id:'poppy',icon:'🏭',name:'Gem Factory',tag4d:true,desc:'12-chapter factory vs Sunspire, Duskveil, Clatterclaw, Redline & Aurum — gemstone animatronics.',preview:'radial-gradient(circle at 50% 20%,rgba(255,77,141,.35),transparent 55%),linear-gradient(180deg,#1a1030,#07060c)'},
@@ -5427,11 +5446,12 @@ const LITHOS_GAMES=[
  {id:'quiz',icon:'❓',name:'Mineral Quiz',desc:'Test your geology knowledge.',activity:true,preview:'radial-gradient(circle at 50% 30%,rgba(78,168,255,.3),transparent 55%),linear-gradient(180deg,#121820,#0a0b0f)'}
 ];
 const LITHOS_GAME_IDS=new Set(LITHOS_GAMES.map(g=>g.id));
-const LITHOS_ARCADE_ONLY=new Set(['arcade','gemrush','gemdigger']);
+const LITHOS_ARCADE_ONLY=new Set(['arcade','gemrush','gemdigger','gemdrive']);
 const LITHOS_ARCADE=[
  {emoji:'⛏️💎',name:'Gem Rush',desc:'Match pairs of the same gemstone — Diamond with Diamond, Ruby with Ruby! Clear all 32 pairs before moves run out.',action:'gemrush'},
  {emoji:'🌙🏭',name:'Night Shift at the Gem Factory',desc:'Survive all 5 nights as the factory\'s night guard! Watch the cameras, slam the doors, don\'t get caught…',action:'nightshift'},
  {emoji:'⛏️🕳️',name:'Gem Digger',desc:'Dig through 5 mine levels! Find gems, upgrade drill, buy bombs — reach the Rainbow Gem at the bottom. Owner: Nuke Blaster clears everything! ☢️',action:'gemdigger'},
+ {emoji:'🚗💎',name:'Gemstone Convoy',desc:'8-bit top-down driving! Choose a gem car, auto-fire gemstone turrets, and survive waves of crystal monsters.',action:'gemdrive'},
  {emoji:'❓🔒',name:'??? Secret Game ???',desc:'A hidden game lurks somewhere on this site… it only unlocks with a secret code. Hint: how do you fall THROUGH a wall? 🟡',action:'secret',locked:true}
 ];
 let arcadeBuilt=false;
@@ -5442,6 +5462,7 @@ function launchArcadeGame(action){
  if(action==='gemrush'){playGemRush();return;}
  if(action==='nightshift'){playNightShift();return;}
  if(action==='gemdigger'){playGemDigger();return;}
+ if(action==='gemdrive'){playGemDrive();return;}
  if(action==='secret'){switchView('codes');return;}
 }
 function buildArcade(){
@@ -5479,13 +5500,14 @@ function syncBodyScrollLock(){
   ||!!document.getElementById('brmaze')
   ||!!document.getElementById('gemrush')
   ||!!document.getElementById('gemdig')
+  ||!!document.getElementById('gemdrive')
   ||document.body.classList.contains('pp-playing');
  document.body.style.overflow=locked?'hidden':'';
 }
 function syncMobileNav(name){
  document.querySelectorAll('.mobile-bar button').forEach(b=>{
   const target=b.dataset.mnav;
-  const onGames=name==='games'||name==='arcade'||(LITHOS_GAME_IDS.has(name)&&!LITHOS_ARCADE_ONLY.has(name))||name==='nightshift'||name==='nightshift2'||name==='gemrush'||name==='gemdigger';
+  const onGames=name==='games'||name==='arcade'||(LITHOS_GAME_IDS.has(name)&&!LITHOS_ARCADE_ONLY.has(name))||name==='nightshift'||name==='nightshift2'||name==='gemrush'||name==='gemdigger'||name==='gemdrive';
   b.classList.toggle('on',onGames?target==='games':target===name);
  });
 }
@@ -5519,6 +5541,7 @@ function buildGamesHub(){
    if(id==='arcade'){closeGamesHub({skipHash:true}); switchView('arcade'); return;}
    if(id==='gemrush'){closeGamesHub({skipHash:true}); playGemRush(); return;}
    if(id==='gemdigger'){closeGamesHub({skipHash:true}); playGemDigger(); return;}
+   if(id==='gemdrive'){closeGamesHub({skipHash:true}); playGemDrive(); return;}
    if(id==='nightshift'){ closeGamesHub({skipHash:true}); playNightShift(); return; }
    if(id==='nightshift2'){ closeGamesHub({skipHash:true}); playNightShift2(); return; }
    if(id==='nightmarket'){ closeGamesHub({skipHash:true}); playNightMarket(); return; }
@@ -5536,6 +5559,7 @@ function lithosCloseGameOverlays(){
  try{stopGemMotion();}catch(_){}
  try{grClose();}catch(_){}
  try{dgClose();}catch(_){}
+ try{gdClose();}catch(_){}
 }
 function openGamesHub(opts={}){
  if(isGamesHubOpen()){
@@ -6060,6 +6084,7 @@ function routeHashView(){
  if(name==='backrooms'||name==='noclip'||name==='gembackrooms'){playBackroomsMaze();return;}
  if(name==='gemrush'){playGemRush();return;}
  if(name==='gemdigger'){playGemDigger();return;}
+ if(name==='gemdrive'){playGemDrive();return;}
  if(name==='parts'){openGamesHub({fromHash:true});return;}
  if(name==='about'){openCompanyPage('story');return;}
  if(name==='collaborate'){openCompanyPage('partners');return;}
@@ -13909,6 +13934,13 @@ function tryCode(){
  return;
  }
 
+ // GEMSTONE CONVOY — 8-bit drive & blast! 🚗💎
+ if(raw==="convoy"||raw==="gem convoy"||raw==="gemstone convoy"||raw==="gemdrive"||raw==="drive"){
+ res.innerHTML=`<div class="win" style="border-color:#e0424f">🚗 GEMSTONE CONVOY! Pick a gem car, mount your turret, and blast crystal monsters!</div>`;
+ playGemDrive();
+ return;
+ }
+
  // FREE GIFT — Emerald Guardian only (not Diamond Titan!)
  if(raw==="free gift"){
  grantEmeraldGuardianGift(true);
@@ -14297,6 +14329,204 @@ function dgWin(fromNuke){
  box.appendChild(end);
 }
 function dgClose(){dgSaveBest(); if(dgLoop){clearInterval(dgLoop);dgLoop=null;} const w=document.getElementById('gemdig'); if(w)w.remove(); dgGame=null; syncBodyScrollLock();}
+
+// ================= 🚗💎 GEMSTONE CONVOY — 8-bit drive & blast =================
+let gdGame=null,gdRaf=null,gdKeys={left:false,right:false};
+const GD_W=400,GD_H=560;
+const GD_CARS=[
+ {id:'ruby',name:'Ruby Sprint',emoji:'🔴',color:'#e0424f',accent:'#ff6080',speed:4.4,maxHp:85,rate:7,dmg:8,bspd:9,spread:0,pierce:0,shots:1,tdesc:'Rapid ruby pulse'},
+ {id:'sapphire',name:'Sapphire Cruiser',emoji:'🔵',color:'#4a7fd4',accent:'#6eb5ff',speed:3.5,maxHp:125,rate:11,dmg:14,bspd:11,spread:0,pierce:1,shots:1,tdesc:'Piercing sapphire beam'},
+ {id:'emerald',name:'Emerald Hauler',emoji:'🟢',color:'#3ecf8a',accent:'#6ae87a',speed:2.7,maxHp:175,rate:16,dmg:9,bspd:8,spread:0.32,pierce:0,shots:3,tdesc:'Triple emerald burst'},
+ {id:'diamond',name:'Diamond Delux',emoji:'💎',color:'#c8dce8',accent:'#e8f4ff',speed:3.1,maxHp:105,rate:20,dmg:26,bspd:10,spread:0,pierce:3,shots:1,tdesc:'Heavy diamond piercer'}
+];
+const GD_MON=[
+ {id:'citrine',name:'Citrine Crawler',color:'#d98a2b',gem:'🟡',hp:24,spd:1.3,r:13,score:10},
+ {id:'amethyst',name:'Amethyst Stalker',color:'#7b3fb0',gem:'🟣',hp:50,spd:2.1,r:15,score:25,homing:0.028},
+ {id:'obsidian',name:'Obsidian Brute',color:'#3a3a48',gem:'⬛',hp:100,spd:0.85,r:21,score:45},
+ {id:'opal',name:'Opal Phantom',color:'#3f7fbf',gem:'⚪',hp:34,spd:2.9,r:12,score:32,zig:1.8},
+ {id:'quartz',name:'Quartz Golem',color:'#dfe6ee',gem:'🪨',hp:240,spd:0.65,r:28,score:180,boss:true}
+];
+function gdBindKeys(on){
+ const down=(e)=>{if(e.key==='ArrowLeft'||e.key==='a'||e.key==='A')gdKeys.left=true;if(e.key==='ArrowRight'||e.key==='d'||e.key==='D')gdKeys.right=true;};
+ const up=(e)=>{if(e.key==='ArrowLeft'||e.key==='a'||e.key==='A')gdKeys.left=false;if(e.key==='ArrowRight'||e.key==='d'||e.key==='D')gdKeys.right=false;};
+ if(on){window.addEventListener('keydown',down);window.addEventListener('keyup',up);gdBindKeys._d=down;gdBindKeys._u=up;}
+ else if(gdBindKeys._d){window.removeEventListener('keydown',gdBindKeys._d);window.removeEventListener('keyup',gdBindKeys._u);gdBindKeys._d=null;gdKeys.left=gdKeys.right=false;}
+}
+function playGemDrive(){
+ const old=document.getElementById('gemdrive'); if(old)old.remove();
+ if(gdRaf){cancelAnimationFrame(gdRaf);gdRaf=null;}
+ gdBindKeys(false);
+ const wrap=document.createElement('div'); wrap.id='gemdrive';
+ wrap.innerHTML=`<div class="gd-box">
+  <div class="gr-title">🚗 GEMSTONE CONVOY 💎</div>
+  <p id="gd-intro" style="font-size:13px;color:#9a92b0;margin:6px 0 10px">Pick a gem car — each mounts a different turret. Blast crystal monsters!</p>
+  <div class="gd-car-grid" id="gd-car-grid"></div>
+  <div id="gd-play" hidden>
+   <div class="gd-hud" id="gd-hud"></div>
+   <div class="gd-canvas-wrap"><canvas id="gd-canvas" width="${GD_W}" height="${GD_H}"></canvas></div>
+   <div class="gd-touch"><button type="button" id="gd-left" aria-label="Steer left">◀</button><button type="button" id="gd-right" aria-label="Steer right">▶</button></div>
+   <p class="gd-keys">← → or A D to steer · Turret auto-fires at gem monsters</p>
+  </div>
+  <div style="margin-top:10px"><button class="gr-btn ghost" type="button" onclick="gdClose()">Leave</button></div>
+ </div>`;
+ document.body.appendChild(wrap);
+ const grid=document.getElementById('gd-car-grid');
+ grid.innerHTML=GD_CARS.map(c=>`<button type="button" class="gd-car-btn" data-car="${c.id}"><b>${c.emoji} ${c.name}</b><span>${c.tdesc} · HP ${c.maxHp} · SPD ${c.speed.toFixed(1)}</span></button>`).join('');
+ grid.addEventListener('click',e=>{const b=e.target.closest('[data-car]');if(b)gdStartCar(b.dataset.car);});
+ syncBodyScrollLock();
+ lithos8bitSync();
+}
+function gdStartCar(carId){
+ const car=GD_CARS.find(c=>c.id===carId)||GD_CARS[0];
+ document.getElementById('gd-car-grid').style.display='none';
+ const intro=document.getElementById('gd-intro'); if(intro)intro.style.display='none';
+ const play=document.getElementById('gd-play'); play.hidden=false;
+ gdGame={phase:'play',car,W:GD_W,H:GD_H,px:GD_W/2,py:GD_H-72,hp:car.maxHp,maxHp:car.maxHp,score:0,wave:0,kills:0,road:0,fireT:0,spawnT:2.5,enemies:[],bullets:[],parts:[],shake:0,over:false};
+ gdBindKeys(true);
+ const cv=document.getElementById('gd-canvas'); const ctx=cv.getContext('2d');
+ ctx.imageSmoothingEnabled=false;
+ const touch=(id,on)=>{const el=document.getElementById(id); if(!el)return; const set=v=>()=>{if(id==='gd-left')gdKeys.left=v;else gdKeys.right=v;}; el.onpointerdown=set(on); el.onpointerup=set(false); el.onpointerleave=set(false); el.onpointercancel=set(false);};
+ touch('gd-left',true); touch('gd-right',false);
+ let last=performance.now();
+ function frame(t){
+  if(!gdGame){return;}
+  const dt=Math.min(0.05,(t-last)/1000); last=t;
+  gdUpdate(dt); gdDraw(ctx); gdHUD();
+  gdRaf=requestAnimationFrame(frame);
+ }
+ gdRaf=requestAnimationFrame(frame);
+}
+function gdNearest(){
+ const g=gdGame; if(!g||!g.enemies.length)return null;
+ let best=null,bd=1e9;
+ g.enemies.forEach(e=>{const d=(e.x-g.px)**2+(e.y-g.py)**2; if(d<bd){bd=d;best=e;}});
+ return best;
+}
+function gdFire(){
+ const g=gdGame,c=g.car,t=gdNearest(); if(!t)return;
+ const ang=Math.atan2(t.y-g.py,t.x-g.px);
+ const n=c.shots||1;
+ for(let i=0;i<n;i++){
+  const a=ang+(i-(n-1)/2)*c.spread;
+  g.bullets.push({x:g.px,y:g.py-18,vx:Math.cos(a)*c.bspd,vy:Math.sin(a)*c.bspd,dmg:c.dmg,pierce:c.pierce,color:c.accent,r:4,life:2});
+ }
+ try{if(SFX&&SFX.click)SFX.click();}catch(e){}
+}
+function gdSpawnWave(){
+ const g=gdGame; g.wave++;
+ const n=3+Math.min(8,g.wave);
+ for(let i=0;i<n;i++){
+  const pool=GD_MON.filter(m=>!m.boss||g.wave%5===0);
+  const t=pool[Math.floor(Math.random()*pool.length)];
+  if(t.boss&&g.enemies.some(e=>e.boss))continue;
+  const x=40+Math.random()*(g.W-80);
+  g.enemies.push({...t,hp:t.hp+(g.wave-1)*4,maxHp:t.hp+(g.wave-1)*4,x,y:-30-Math.random()*80,vx:(Math.random()-.5)*0.6,t:Math.random()*6});
+ }
+}
+function gdBurst(x,y,color,n){
+ const g=gdGame;
+ for(let i=0;i<(n||10);i++){
+  const a=Math.random()*Math.PI*2,s=1+Math.random()*3;
+  g.parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:1,color,size:2+Math.random()*3});
+ }
+}
+function gdUpdate(dt){
+ const g=gdGame; if(!g||g.over)return;
+ g.road=(g.road+140*dt)%48;
+ g.fireT-=dt; if(g.fireT<=0){gdFire(); g.fireT=g.car.rate/60;}
+ g.spawnT-=dt;
+ if(g.spawnT<=0&&g.enemies.length<14){gdSpawnWave(); g.spawnT=Math.max(2.2,5.5-g.wave*0.15);}
+ const spd=g.car.speed*60*dt;
+ if(gdKeys.left)g.px-=spd; if(gdKeys.right)g.px+=spd;
+ g.px=Math.max(28,Math.min(g.W-28,g.px));
+ g.bullets=g.bullets.filter(b=>{
+  b.x+=b.vx*60*dt; b.y+=b.vy*60*dt; b.life-=dt;
+  if(b.x<0||b.x>g.W||b.y<0||b.y>g.H||b.life<=0)return false;
+  for(let i=g.enemies.length-1;i>=0;i--){
+   const e=g.enemies[i],dx=b.x-e.x,dy=b.y-e.y;
+   if(dx*dx+dy*dy<(b.r+e.r)**2){
+    e.hp-=b.dmg; gdBurst(b.x,b.y,b.color,6);
+    if(e.hp<=0){g.score+=e.score; g.kills++; gdBurst(e.x,e.y,e.color,16); g.enemies.splice(i,1); try{if(SFX&&SFX.boom)SFX.boom();}catch(_){}}
+    if(b.pierce>0){b.pierce--;return true;}
+    return false;
+   }
+  }
+  return true;
+ });
+ g.enemies.forEach(e=>{
+  e.t+=dt;
+  if(e.homing){e.x+=(g.px-e.x)*e.homing*60*dt; e.y+=e.spd*55*dt;}
+  else if(e.zig){e.x+=Math.sin(e.t*e.zig)*1.8*60*dt; e.y+=e.spd*55*dt;}
+  else{e.x+=e.vx*60*dt; e.y+=e.spd*55*dt;}
+  const dx=g.px-e.x,dy=(g.py-8)-e.y;
+  if(dx*dx+dy*dy<(e.r+16)**2){
+   g.hp-=e.boss?18:8; g.shake=8; gdBurst(g.px,g.py,'#ff4060',8);
+   e.hp=0; gdBurst(e.x,e.y,e.color,12);
+   try{if(SFX&&SFX.lose)SFX.lose();}catch(_){}
+  }
+ });
+ g.enemies=g.enemies.filter(e=>e.hp>0&&e.y<g.H+40);
+ g.parts=g.parts.filter(p=>{p.x+=p.vx*60*dt; p.y+=p.vy*60*dt; p.life-=dt*1.8; return p.life>0;});
+ if(g.shake>0)g.shake-=dt*30;
+ if(g.hp<=0){g.hp=0; g.over=true; gdShowOver();}
+}
+function gdDraw8Car(ctx,x,y,car,aim){
+ ctx.save(); ctx.translate(x,y);
+ ctx.fillStyle='#1a1826'; ctx.fillRect(-16,-22,32,38);
+ ctx.fillStyle=car.color; ctx.fillRect(-14,-20,28,14);
+ ctx.fillStyle='#2a2840'; ctx.fillRect(-12,2,24,12);
+ ctx.fillStyle=car.accent; ctx.fillRect(-3,-28,6,10);
+ const tx=Math.cos(aim)*14,ty=Math.sin(aim)*14;
+ ctx.strokeStyle=car.accent; ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(0,-24); ctx.lineTo(tx,-24+ty); ctx.stroke();
+ ctx.restore();
+}
+function gdDrawMonster(ctx,e){
+ ctx.save(); ctx.translate(e.x,e.y);
+ ctx.fillStyle=e.color;
+ if(e.boss){ctx.fillRect(-e.r,-e.r,e.r*2,e.r*2); ctx.fillStyle='#fff'; ctx.fillRect(-4,-4,8,8);}
+ else{ctx.beginPath(); ctx.moveTo(0,-e.r); ctx.lineTo(e.r,e.r); ctx.lineTo(-e.r,e.r); ctx.closePath(); ctx.fill();}
+ ctx.font=`${e.r}px serif`; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(e.gem,0,1);
+ ctx.restore();
+}
+function gdDraw(ctx){
+ const g=gdGame; if(!g)return;
+ const sh=g.shake?((Math.random()-.5)*g.shake):0;
+ ctx.save(); ctx.translate(sh,sh);
+ ctx.fillStyle='#1a1810'; ctx.fillRect(0,0,g.W,g.H);
+ ctx.fillStyle='#2a2820'; ctx.fillRect(32,0,g.W-64,g.H);
+ for(let y=-48+g.road%48;y<g.H;y+=48){
+  ctx.fillStyle='#4a4840'; ctx.fillRect(g.W/2-3,y,6,28);
+  ctx.strokeStyle='#3a3830'; ctx.strokeRect(34,y+4,g.W-68,40);
+ }
+ g.parts.forEach(p=>{ctx.globalAlpha=p.life; ctx.fillStyle=p.color; ctx.fillRect(p.x,p.y,p.size,p.size);});
+ ctx.globalAlpha=1;
+ g.enemies.forEach(e=>gdDrawMonster(ctx,e));
+ g.bullets.forEach(b=>{ctx.fillStyle=b.color; ctx.fillRect(b.x-3,b.y-3,6,6);});
+ const aim=g.enemies.length?Math.atan2(gdNearest().y-g.py,gdNearest().x-g.px):-Math.PI/2;
+ gdDraw8Car(ctx,g.px,g.py,g.car,aim);
+ ctx.restore();
+}
+function gdHUD(){
+ const g=gdGame,h=document.getElementById('gd-hud'); if(!g||!h)return;
+ h.innerHTML=`<span>❤️ <b>${Math.ceil(g.hp)}</b>/${g.maxHp}</span><span>🌊 Wave <b>${g.wave}</b></span><span>💎 <b>${g.score}</b></span><span>👾 <b>${g.kills}</b></span><span>${g.car.emoji} <b>${g.car.name}</b></span>`;
+}
+function gdShowOver(){
+ gdBindKeys(false);
+ const box=document.querySelector('.gd-canvas-wrap'); if(!box||box.querySelector('.gd-over'))return;
+ const g=gdGame;
+ const ov=document.createElement('div'); ov.className='gd-over';
+ ov.innerHTML=`<h3>💥 Convoy Down!</h3><p style="color:#b8b0cc;margin:0">Wave ${g.wave} · ${g.kills} monsters · Score ${g.score}</p>
+  <button class="gr-btn" type="button" id="gd-retry">Try again</button>`;
+ box.appendChild(ov);
+ ov.querySelector('#gd-retry').onclick=()=>{gdClose(); playGemDrive();};
+ try{if(SFX&&SFX.lose)SFX.lose();}catch(e){}
+}
+function gdClose(){
+ gdBindKeys(false);
+ if(gdRaf){cancelAnimationFrame(gdRaf);gdRaf=null;}
+ const w=document.getElementById('gemdrive'); if(w)w.remove();
+ gdGame=null; syncBodyScrollLock();
+}
 
 // ===== NIGHT SHIFT AT THE GEM FACTORY — a spooky survive-the-night game! 🎃🏭 =====
 let nsGame=null, nsLoop=null;
@@ -16869,6 +17099,11 @@ function cleanCacheBustParam(){
  }catch(e){}
 }
 let lithosHardRefreshBusy=false;
+function resetLithosHardRefreshBtn(){
+ lithosHardRefreshBusy=false;
+ const btn=document.getElementById('lithos-hard-refresh');
+ if(btn){ btn.disabled=false; btn.removeAttribute('aria-busy'); }
+}
 function lithosHardRefresh(){
  if(lithosHardRefreshBusy) return;
  lithosHardRefreshBusy=true;
@@ -16885,6 +17120,8 @@ function lithosHardRefresh(){
  const u=new URL(location.href);
  u.searchParams.delete('_');
  u.searchParams.set('_',String(Date.now()));
+ /* If navigation is blocked or Safari restores from bfcache, unlock the button again */
+ setTimeout(resetLithosHardRefreshBtn,2500);
  location.assign(u.pathname+u.search+hash);
 }
 function syncLithosHeaderOffset(){
@@ -16900,6 +17137,8 @@ function initLithosDeviceMode(){
  });
  const sw=document.getElementById('lithos-device-switch');
  if(sw) sw.addEventListener('click',openLithosDevicePicker);
+ resetLithosHardRefreshBtn();
+ window.addEventListener('pageshow',e=>{ if(e.persisted) resetLithosHardRefreshBtn(); });
  /* Narrow viewports always get usable chrome via CSS; keep stored preference for wider screens */
  setLithosDeviceMode(getLithosDeviceMode()||detectLithosDeviceMode());
  syncLithosHeaderOffset();
