@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- lithos-v:site-live-34 -->
+<!-- lithos-v:site-live-36 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1648,11 +1648,21 @@
   .bf-ceiling-hatch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:72%;height:18%;z-index:1;background:linear-gradient(180deg,rgba(255,60,40,.35),transparent);border-bottom:3px solid rgba(255,80,60,.6);animation:bfHatchOpen 1.2s ease forwards}
   @keyframes bfHatchOpen{0%{height:0;opacity:0}100%{height:18%;opacity:1}}
   .bf-scrap-part{position:absolute;z-index:3;transform:translateX(-50%);filter:drop-shadow(0 4px 8px rgba(0,0,0,.5));pointer-events:none}
+  .bf-scrap-part.magnetizing{filter:drop-shadow(0 0 10px rgba(255,160,40,.85)) drop-shadow(0 4px 8px rgba(0,0,0,.5))}
+  .bf-weld-flash{position:absolute;z-index:5;pointer-events:none;font-size:22px;animation:sparkPop .35s ease forwards;line-height:0}
   .bf-mangled-bot{position:absolute;z-index:4;transform:translateX(-50%);filter:drop-shadow(0 0 16px rgba(255,80,40,.45))}
-  .bf-mangled-bot.forming{animation:bfBotForm .8s ease-in-out infinite alternate}
+  .bf-mangled-bot.forming{animation:bfBotForm .8s ease-in-out infinite alternate;opacity:var(--form-opacity,.35)}
   @keyframes bfBotForm{from{transform:translateX(-50%) scale(.82) rotate(-4deg)}to{transform:translateX(-50%) scale(1.05) rotate(3deg)}}
   .bf-mangled-bot.chasing{animation:bfBotChase .22s steps(2) infinite}
   @keyframes bfBotChase{0%{transform:translateX(-50%) translateY(0)}100%{transform:translateX(-50%) translateY(-3px)}}
+  .bf-mangled-bot.pounding{animation:bfBotPound .32s ease-in-out infinite alternate}
+  @keyframes bfBotPound{from{transform:translateX(-50%) translateX(0) scale(1)}to{transform:translateX(-50%) translateX(10px) scale(1.06)}}
+  .bf-robot-shard{position:absolute;z-index:8;transform:translateX(-50%);pointer-events:none;line-height:0;filter:drop-shadow(0 2px 6px rgba(0,0,0,.65))}
+  .bf-fire-burst{position:absolute;z-index:7;pointer-events:none;border-radius:50%;transform:translateX(-50%);
+    background:radial-gradient(circle,#ffe060 0%,#ff6020 35%,#ff2010 55%,transparent 72%);
+    animation:bfFireFlicker .12s steps(2) infinite}
+  @keyframes bfFireFlicker{0%{opacity:.95;transform:translateX(-50%) scale(1)}100%{opacity:.65;transform:translateX(-50%) scale(1.18)}}
+  .bf-field.door-slam-shake{animation:slamShake .07s steps(3) infinite}
   .bf-safe-room{position:absolute;right:0;top:0;bottom:0;width:28%;z-index:0;background:linear-gradient(90deg,transparent,rgba(60,180,100,.12) 40%,rgba(40,140,80,.22));border-left:3px solid rgba(80,220,120,.45)}
   .bf-safe-label{position:absolute;right:6%;top:18%;font-family:var(--mono);font-size:11px;font-weight:900;letter-spacing:.14em;color:#6feca8;text-transform:uppercase;z-index:2}
   .bf-mag-door{position:absolute;right:-4%;top:8%;bottom:8%;width:14%;z-index:7;background:linear-gradient(180deg,#3a4048,#1a1e24);border:4px solid #6a7580;border-radius:6px;box-shadow:inset 0 0 20px rgba(120,180,255,.25), -8px 0 24px rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;font-weight:900;color:#9ecbff;letter-spacing:.08em;text-transform:uppercase;transition:left .08s linear, right .08s linear}
@@ -2631,6 +2641,7 @@
   .fp-scene{position:absolute;inset:0;overflow:hidden;perspective:600px}
   .fp-scene.shake{animation:fpShake .3s ease}
   @keyframes fpShake{0%,100%{transform:translate(0,0)}25%{transform:translate(-4px,2px)}75%{transform:translate(4px,-2px)}}
+  @keyframes fpLoom{0%{filter:drop-shadow(0 6px 10px rgba(0,0,0,.6))}100%{filter:drop-shadow(0 10px 18px rgba(0,0,0,.75)) drop-shadow(0 0 16px rgba(255,90,60,.35))}}
   .fp-horizon{position:absolute;left:0;right:0;top:0;height:55%;background:linear-gradient(180deg,#12141c 0%,#20242f 60%,#2a2f3c 100%)}
   .fp-floor-persp{position:absolute;left:0;right:0;bottom:0;height:45%;
     background:linear-gradient(180deg,#2a2f3c 0%,#1a1d26 100%);
@@ -2638,8 +2649,8 @@
       repeating-linear-gradient(90deg, rgba(120,130,150,.15) 0 2px, transparent 2px 60px),
       linear-gradient(180deg,#2a2f3c 0%,#14161e 100%);
     transform:perspective(300px) rotateX(60deg);transform-origin:bottom;box-shadow:inset 0 20px 40px rgba(0,0,0,.5)}
-  .fp-enemy{position:absolute;line-height:0;pointer-events:none;transition:bottom .08s linear,left .08s linear,transform .08s linear;filter:drop-shadow(0 6px 10px rgba(0,0,0,.6));transform-origin:center bottom}
-  .fp-enemy.close-up{filter:drop-shadow(0 10px 18px rgba(0,0,0,.75)) drop-shadow(0 0 16px rgba(255,90,60,.35))}
+  .fp-enemy{position:absolute;line-height:0;pointer-events:none;transition:bottom .1s linear,left .1s linear,transform .1s linear,opacity .1s linear;filter:drop-shadow(0 6px 10px rgba(0,0,0,.6));transform-origin:center bottom;will-change:transform,left,bottom}
+  .fp-enemy.close-up{filter:drop-shadow(0 10px 18px rgba(0,0,0,.75)) drop-shadow(0 0 16px rgba(255,90,60,.35));animation:fpLoom .55s ease-out}
   /* wall pillars that scroll past so you can SEE yourself moving */
   .fp-pillar{position:absolute;width:14px;height:120px;transform-origin:bottom;
     background:linear-gradient(90deg,rgba(90,100,120,.5),rgba(40,46,58,.7),rgba(90,100,120,.5));
@@ -4825,14 +4836,15 @@
  <div class="donate-grid">
  <a class="donate-card" href="https://donatenow.networkforgood.org/pactworld" target="_blank" rel="noopener noreferrer"><div class="d-gem"><img src="images/hematite.jpg" alt="Hematite"></div><div class="d-amt">$3</div><div class="d-note">Supports safer mining</div></a>
  <a class="donate-card" href="https://donatenow.networkforgood.org/pactworld" target="_blank" rel="noopener noreferrer"><div class="d-gem"><img src="images/garnet.jpg" alt="Garnet"></div><div class="d-amt">$5</div><div class="d-note">Helps mining communities</div></a>
- <a class="donate-card featured" href="https://donatenow.networkforgood.org/pactworld" target="_blank" rel="noopener noreferrer"><div class="d-badge">Most Needed</div><div class="d-gem"><img src="images/ruby.jpg" alt="Ruby"></div><div class="d-amt">$15</div><div class="d-note">Advances fair livelihoods</div></a>
+ <a class="donate-card" href="https://donatenow.networkforgood.org/pactworld" target="_blank" rel="noopener noreferrer"><div class="d-gem"><img src="images/ruby.jpg" alt="Ruby"></div><div class="d-amt">$15</div><div class="d-note">Advances fair livelihoods</div></a>
  <a class="donate-card" href="https://donatenow.networkforgood.org/pactworld" target="_blank" rel="noopener noreferrer"><div class="d-gem"><img src="images/sapphire.jpg" alt="Sapphire"></div><div class="d-amt">$25</div><div class="d-note">Fights child labor in mines</div></a>
  <a class="donate-card" href="https://donatenow.networkforgood.org/pactworld" target="_blank" rel="noopener noreferrer"><div class="d-gem"><img src="images/emerald.jpg" alt="Emerald"></div><div class="d-amt">$50</div><div class="d-note">Funds safer mine training</div></a>
  <a class="donate-card" href="https://donatenow.networkforgood.org/pactworld" target="_blank" rel="noopener noreferrer"><div class="d-gem"><img src="images/amethyst.jpg" alt="Amethyst"></div><div class="d-amt">$100</div><div class="d-note">Expands community programs</div></a>
  <a class="donate-card" href="https://donatenow.networkforgood.org/pactworld" target="_blank" rel="noopener noreferrer"><div class="d-gem"><img src="images/tanzanite.jpg" alt="Tanzanite"></div><div class="d-amt">$250</div><div class="d-note">Protects kids from mine work</div></a>
  <a class="donate-card" href="https://donatenow.networkforgood.org/pactworld" target="_blank" rel="noopener noreferrer"><div class="d-gem"><img src="images/diamond-specimen.jpg" alt="Diamond"></div><div class="d-amt">$500</div><div class="d-note">Powers lasting change</div></a>
+ <a class="donate-card featured" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=1000000&name=Venture+1" target="_blank" rel="noopener noreferrer"><div class="d-badge">$10k Goal</div><div class="d-gem"><img src="images/diamond-specimen.jpg" alt="Diamond"></div><div class="d-amt">$10,000</div><div class="d-note">Please I really need this for my website — supports Pact &amp; Lithos</div></a>
  </div>
- <p class="donate-tip-cue">Also optional: <a href="#donate" onclick="event.preventDefault();document.getElementById('maker-tip').scrollIntoView({behavior:'smooth',block:'start'})">Tip the Lithos maker</a> ($1–$25) — a separate thank-you to Graham, not Pact.</p>
+ <p class="donate-tip-cue">Also optional: <a href="#donate" onclick="event.preventDefault();document.getElementById('maker-tip').scrollIntoView({behavior:'smooth',block:'start'})">Tip the Lithos maker</a> ($1–$25, or $10,000 for the website) — a separate thank-you to Graham, not Pact.</p>
  <div class="donate-maker" id="maker-tip">
  <div class="maker-label">Optional · separate checkout</div>
  <h2>Tip the Lithos maker</h2>
@@ -4843,6 +4855,7 @@
  <a class="donate-tip" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=500&name=Venture+1" target="_blank" rel="noopener noreferrer" onclick="tipMaker('$5')">Tip $5</a>
  <a class="donate-tip" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=1000&name=Venture+1" target="_blank" rel="noopener noreferrer" onclick="tipMaker('$10')">Tip $10</a>
  <a class="donate-tip" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=2500&name=Venture+1" target="_blank" rel="noopener noreferrer" onclick="tipMaker('$25')">Tip $25</a>
+ <a class="donate-tip" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=1000000&name=Venture+1" target="_blank" rel="noopener noreferrer" onclick="tipMaker('$10,000')">$10,000 — Please I really need this for my website</a>
  </div>
  </div>
  <div class="donate-custom">
@@ -9411,6 +9424,51 @@ function scrapPartSVG(kind, size){
  if(kind===2) return `<svg viewBox="0 0 24 24" width="${size}" height="${size}"><rect x="4" y="6" width="16" height="12" rx="2" fill="#5a6068" stroke="#222"/></svg>`;
  return `<svg viewBox="0 0 24 24" width="${size}" height="${size}"><circle cx="12" cy="12" r="8" fill="#888" stroke="#444"/><line x1="8" y1="8" x2="16" y2="16" stroke="#ff4040"/></svg>`;
 }
+function initRobotFormation(){
+ const cx=22, cy=40;
+ const offsets=[
+  {dx:-7,dy:-10,kind:0},{dx:0,dy:-12,kind:1},{dx:7,dy:-10,kind:2},
+  {dx:-9,dy:-2,kind:0},{dx:0,dy:-2,kind:1},{dx:9,dy:-2,kind:2},
+  {dx:-6,dy:6,kind:2},{dx:0,dy:8,kind:0},{dx:6,dy:6,kind:1},
+  {dx:-4,dy:14,kind:1},{dx:4,dy:14,kind:2},
+  {dx:-11,dy:4,kind:0},{dx:11,dy:4,kind:1}
+ ];
+ bf.scrapParts=offsets.map((o,i)=>{
+  const floor=bf.scrapParts&&bf.scrapParts[i];
+  return {
+   x: floor?Math.max(6,floor.x):8+Math.random()*72,
+   y: floor?Math.max(4,floor.y):6+Math.random()*18,
+   tx:cx+o.dx, ty:cy+o.dy,
+   kind:o.kind, rot:Math.random()*360, magnet:true
+  };
+ });
+ bf.formCenter={x:cx,y:cy};
+}
+function shatterMangledRobot(){
+ const bot=bf.mangledRobot;
+ if(!bot||bot.shattered) return;
+ bot.shattered=true;
+ const cx=bot.x||68;
+ bf.robotShards=[];
+ for(let i=0;i<18;i++){
+  const ang=(i/18)*Math.PI*2+Math.random()*0.4;
+  const spd=2.5+Math.random()*5;
+  bf.robotShards.push({
+   x:cx+(Math.random()-0.5)*6, y:34+Math.random()*8,
+   vx:Math.cos(ang)*spd, vy:Math.sin(ang)*spd-1.5,
+   rot:Math.random()*360, vr:(Math.random()-0.5)*24,
+   kind:i%3, life:48+Math.floor(Math.random()*24)
+  });
+ }
+ bf.fires=bf.fires||[];
+ for(let i=0;i<14;i++){
+  bf.fires.push({x:64+Math.random()*14, y:22+Math.random()*28, life:32+Math.random()*18, size:18+Math.random()*26});
+ }
+ for(let i=0;i<24;i++) addSparks(66+Math.random()*12, 28+Math.random()*22);
+ for(let i=0;i<10;i++) addExplosion(62+Math.random()*18, 16+Math.random()*48);
+ bf.doorShake=36;
+ try{ if(typeof SFX!=='undefined'&&SFX.boss)SFX.boss(); if(SFX&&SFX.debris)SFX.debris(); }catch(e){}
+}
 // Crystal Spider — eight-legged amethyst gem predator (no robots!)
 function crystalSpiderSVG(size, hurt, color){
  size = size || 60;
@@ -11648,7 +11706,7 @@ function startArmyBattle(){
  spawnTimer:0,
  over:false,
  fpv:true,
- log:" Corrupted gem mine! Gem monsters are pouring in from EVERYWHERE! Shatter them all!",
+ log:" First-person gem mine! Monsters get BIGGER as they get closer — shatter them!",
  quizShown:{},
  bossSpawnQueued:false
  };
@@ -11791,8 +11849,7 @@ function bfSwing(){
  if(bf.bossBeatPending){ renderBattlefieldFrame(); return; }
  bf.bossBeatPending=true;
  const startEscape=()=>{ startSirenHall(); };
- if(bf.quizShown.boss) startEscape();
- else showStageQuiz('boss', ()=>{ bf.quizShown.boss=true; startEscape(); });
+ startEscape();
  }
  } else {
  bf.log=` Too far! Get close to the giant boss! `;
@@ -11851,8 +11908,7 @@ function spawnBoss(){
  bf.log=` The GIANT CORRUPTED CRYSTAL LORD appears! It's HUGE and TOUGH! Shatter it! `;
  renderBattlefieldFrame();
  };
- if(bf.quizShown&&bf.quizShown.golems) go();
- else showStageQuiz('golems', ()=>{ if(!bf.quizShown)bf.quizShown={}; bf.quizShown.golems=true; go(); });
+ go();
 }
 function startSirenHall(){
  bf.phase="sirenhall";
@@ -11866,6 +11922,9 @@ function startSirenHall(){
  bf.safeT=0;
  bf.debris=[];
  bf.explosions=[];
+ bf.robotShards=[];
+ bf.fires=[];
+ bf.doorShake=0;
  bf.ceilingOpen=true;
  bf.log=` CRYSTAL LORD SHATTERED! EMERGENCY SIRENS! The ceiling hatch BURSTS OPEN — robot scrap rains down! RUN RIGHT! `;
  try{ bfPlaySiren(); }catch(e){}
@@ -11875,6 +11934,7 @@ function startCollapseEscape(){
  bf.phase="escape"; bf.collapse=0; bf.heroX=8;
  bf.section=1; bf.totalSections=4; bf.debris=[]; bf.explosions=[];
  bf.mangledRobot=null; bf.scrapParts=[]; bf.ceilingOpen=false;
+ bf.robotShards=[]; bf.fires=[]; bf.doorShake=0;
  bf.log=` The 500-TON MAGNETIC DOOR CRUSHED the mangled robot! But the mine is STILL COLLAPSING — RUN through all ${bf.totalSections} sections! `;
  renderBattlefieldFrame();
 }
@@ -11893,7 +11953,7 @@ function bfPlaySiren(){
   osc.start(); osc.stop(ctx.currentTime+.55);
   if(bfSirenInterval) clearInterval(bfSirenInterval);
   bfSirenInterval=setInterval(()=>{
-   if(!bf||!['sirenhall','robotform','robotchase'].includes(bf.phase)){
+   if(!bf||!['sirenhall','robotform','robotchase','safroom','doorslam'].includes(bf.phase)){
     clearInterval(bfSirenInterval); bfSirenInterval=null; return;
    }
    const c=new (window.AudioContext||window.webkitAudioContext)();
@@ -11974,8 +12034,7 @@ function spawnCreator(){
  bf.log=` THE CORRUPTED OVERGEM! A monstrous dark crystal colossus! This is the FINAL battle — DEFEAT IT! `;
  renderBattlefieldFrame();
  };
- if(bf.quizShown.hallway) go();
- else showStageQuiz('hallway', ()=>{ bf.quizShown.hallway=true; go(); });
+ go();
 }
 // ===== THE SECRET FINALE — after the Overgem is defeated =====
 function creatorDefeated(){
@@ -11991,13 +12050,12 @@ function creatorDefeated(){
  }
  renderBattlefieldFrame();
  };
- if(bf.quizShown.creator) proceed();
- else showStageQuiz('creator', ()=>{ bf.quizShown.creator=true; proceed(); });
+ proceed();
 }
 function startTunnel(){
  bf.phase="tunnel";
  bf.heroX=6; bf.heroY=0; bf.lasers=[]; bf.debris=[];
- bf.enemies=[]; bf.spiders=[]; bf.creator=null; bf.fpv=false;
+ bf.enemies=[]; bf.spiders=[]; bf.creator=null; // keep first-person (closer = bigger)
  bf.log=` A hidden crystal tunnel opens behind the Overgem... walk through it! `;
  renderBattlefieldFrame();
 }
@@ -12009,8 +12067,7 @@ function startFaceScan(){
  bf.log=` A GEM SCANNER blocks the door! Tap SCAN to try to unlock it. `;
  renderBattlefieldFrame();
  };
- if(bf.quizShown.tunnel) go();
- else showStageQuiz('tunnel', ()=>{ bf.quizShown.tunnel=true; go(); });
+ go();
 }
 function tryFaceScan(){
  if(!bf||bf.phase!=="facescan"||bf.scanResult==="scanning")return;
@@ -12041,8 +12098,7 @@ function startBrainBoss(){
  bf.log=` The OVERGEM'S HEART CRYSTAL! It controls a MEGA GEM GOLEM! Fight it! `;
  renderBattlefieldFrame();
  };
- if(bf.quizShown.facescan) go();
- else showStageQuiz('facescan', ()=>{ bf.quizShown.facescan=true; go(); });
+ go();
 }
 function pullPipes(){
  if(!bf||bf.phase!=="brainboss"||bf.pipesPulled)return;
@@ -12061,8 +12117,7 @@ function pullPipes(){
  bf.log=` The golem is shattered! RUN for the exit — ESCAPE! `;
  renderBattlefieldFrame();
  };
- if(bf.quizShown.brainboss) run();
- else showStageQuiz('brainboss', ()=>{ bf.quizShown.brainboss=true; run(); });
+ run();
  }, 1800);
  }, 1400);
 }
@@ -12199,8 +12254,7 @@ function bfTick(){
  // SECTION 3 = the LAB with trapped gem warriors!
  if(bf.section===3 &&!bf.labDone){
  const openLab=()=>{ bf.phase="lab"; bf.log=` A hidden LAB! Trapped gem warriors need your help!`; renderBattlefieldFrame(); };
- if(bf.quizShown.lab) openLab();
- else showStageQuiz('lab', ()=>{ bf.quizShown.lab=true; openLab(); });
+ openLab();
  } else {
  bf.log=` Made it to Section ${bf.section}! Keep running! `;
  }
@@ -12212,8 +12266,7 @@ function bfTick(){
  bf.log=` The floor breaks open! You're falling into the vents! `;
  renderBattlefieldFrame();
  };
- if(bf.quizShown.escape) drop();
- else showStageQuiz('escape', ()=>{ bf.quizShown.escape=true; drop(); });
+ drop();
  }
  } else if(bf.collapse>=100){
  bfEndLose('collapse',' The gem mine collapsed before you got out! Run faster and jump the debris! ');
@@ -12271,7 +12324,7 @@ function bfTick(){
  bf.explosions=(bf.explosions||[]).filter(x=>{x.life--;return x.life>0;});
  if((bf.scrapFallen||0)>=14 || bf.heroX>=32){
   bf.phase="robotform"; bf.formT=0;
-  bf.scrapParts=bf.scrapParts.slice(-10);
+  initRobotFormation();
   bf.log=` The scrap parts are MAGNETIZING TOGETHER... a mangled robot is FORMING! `;
  } else {
   bf.log=` EMERGENCY SIRENS! Scrap raining from the ceiling! RUN! (${bf.scrapFallen||0} parts fallen)`;
@@ -12279,61 +12332,92 @@ function bfTick(){
  }
  else if(bf.phase==="robotform"){
  bf.formT=(bf.formT||0)+1;
- const cx=16+Math.min(12,bf.formT*0.22);
+ const pull=0.07+Math.min(0.14,bf.formT*0.003);
  bf.scrapParts.forEach((p,i)=>{
-  p.x += (cx+(i%3)*4 - p.x)*0.12;
-  p.y += (38+(i%2)*6 - p.y)*0.12;
+  const tx=p.tx!=null?p.tx:(bf.formCenter.x+(i%3)*4);
+  const ty=p.ty!=null?p.ty:(bf.formCenter.y+(i%2)*6);
+  p.x += (tx-p.x)*pull;
+  p.y += (ty-p.y)*pull;
+  p.rot=(p.rot||0)+5+pull*20;
+  if(Math.random()<0.12){ addSparks(p.x,p.y); }
  });
- if(bf.formT>=45){
+ if(bf.formT%8===0 && Math.random()<0.5) addExplosion(bf.formCenter.x+(Math.random()-0.5)*8, 30+Math.random()*12);
+ bf.explosions=(bf.explosions||[]).filter(x=>{x.life--;return x.life>0;});
+ if(bf.formT>=55){
   bf.phase="robotchase";
-  bf.mangledRobot={x:10, speed:1.55, crushed:false};
+  bf.mangledRobot={x:Math.max(8,bf.formCenter.x-4), speed:1.45, crushed:false, shattered:false};
   bf.scrapParts=[];
-  bf.log=` IT'S ALIVE! The MANGLED SCRAP ROBOT lurches after you — RUN TO THE SAFE ROOM! `;
+  bf.log=` IT'S ALIVE! Scrap welded into a MANGLED ROBOT — it's LURCHING AFTER YOU! RUN TO THE SAFE ROOM! `;
  } else {
-  bf.log=` Scrap parts welding together... the mangled robot is taking shape! (${Math.round(bf.formT/45*100)}%)`;
+  bf.log=` Scrap parts snapping together... welding sparks fly! (${Math.round(bf.formT/55*100)}%)`;
  }
  }
  else if(bf.phase==="robotchase"){
  const bot=bf.mangledRobot;
- if(bot){
-  bot.speed=Math.min(2.4, bot.speed+0.004);
-  bot.x+=bot.speed;
-  if(bot.x>=bf.heroX-5 && !bot.crushed){
+ if(bot && !bot.shattered){
+  bot.speed=Math.min(2.55, bot.speed+0.005);
+  const gap=bf.heroX-bot.x;
+  bot.x+=Math.max(0.9, bot.speed-(gap>20?0.3:0));
+  if(bot.x>=bf.heroX-4){
    bf.hero.hp=Math.max(0,bf.hero.hp-afterShield(Math.round(bf.golemMaxHP*0.06+4)));
-   bf.heroX=Math.min(97,bf.heroX+4);
+   bf.heroX=Math.min(97,bf.heroX+3);
    addSparks(bf.heroX,40);
    bf.log=` The mangled robot GRABS at you! RUN FASTER! `;
    if(bf.hero.hp<=0) bfEndLose('caught',' The mangled scrap robot caught you! Sprint to the safe room!');
   }
   if(bf.heroX>=68){
    bf.phase="safroom"; bf.safeT=0;
-   bf.log=` SAFE ROOM! You're inside — but the mangled robot is pounding the doorway! `;
+   bot.x=Math.max(56, bf.heroX-10);
+   bf.log=` SAFE ROOM! You're inside — the mangled robot is SLAMMING the doorway! `;
   } else {
-   bf.log=` IT'S CHASING YOU! Safe room ahead — RUN! (${Math.round(68-bf.heroX)}% to go)`;
+   bf.log=` IT'S CHASING YOU! Scrap-bot closing in — safe room ahead! (${Math.round(68-bf.heroX)}% to go)`;
   }
  }
- if(Math.random()<0.1) addExplosion(Math.random()*100,20+Math.random()*50);
+ if(Math.random()<0.12) addExplosion(Math.random()*100,20+Math.random()*50);
  bf.explosions=(bf.explosions||[]).filter(x=>{x.life--;return x.life>0;});
  }
  else if(bf.phase==="safroom"){
  bf.safeT=(bf.safeT||0)+1;
- if(bf.safeT>=28){
+ const bot=bf.mangledRobot;
+ if(bot && !bot.shattered){
+  bot.x=62+Math.sin(bf.safeT/3.5)*2.5;
+  if(bf.safeT%6===0) addSparks(bot.x,38);
+ }
+ if(bf.safeT>=32){
   bf.phase="doorslam"; bf.doorSlamT=0;
-  bf.log=` MAGNETIC LOCK ENGAGED! 500-TON DOOR SLAMMING SHUT ON THE ROBOT! `;
+  if(bot) bot.x=64;
+  bf.log=` MAGNETIC LOCK ENGAGED! 500-TON DOOR SLAMMING — the robot is about to get CRUSHED! `;
  } else {
-  bf.log=` SAFE ROOM — sirens screaming! The mangled robot slams the entrance... hold on!`;
+  bf.log=` SAFE ROOM — the mangled robot POUNDS the entrance! Sirens screaming...`;
  }
  }
  else if(bf.phase==="doorslam"){
  bf.doorSlamT=(bf.doorSlamT||0)+1;
  const bot=bf.mangledRobot;
- if(bf.doorSlamT===16 && bot){
-  bot.crushed=true;
-  for(let i=0;i<10;i++) addExplosion(72+Math.random()*18,20+Math.random()*50);
-  addSparks(78,42); addSparks(82,38);
+ if(bot && !bot.shattered){
+  bot.x=Math.min(70, (bot.x||64)+0.42);
+ }
+ if(bf.doorSlamT===14 && bot && !bot.shattered){
+  shatterMangledRobot();
   stopBfSiren();
-  bf.log=` SLAM!! The 500-TON MAGNETIC DOOR CRUSHES the mangled robot! SPARKS EVERYWHERE! `;
- } else if(bf.doorSlamT>=50){
+  bf.log=` SLAM!! The 500-TON DOOR CRUSHES the robot — it EXPLODES into scrap! SPARKS & FIRE EVERYWHERE! `;
+ } else if(bf.doorSlamT===14){
+  stopBfSiren();
+ }
+ if(bf.robotShards){
+  bf.robotShards.forEach(s=>{
+   s.x+=s.vx*0.18; s.y+=s.vy*0.14; s.vy+=0.06; s.rot+=s.vr; s.life--;
+  });
+  bf.robotShards=bf.robotShards.filter(s=>s.life>0);
+  if(bf.doorSlamT%4===0 && bf.robotShards.length) addSparks(68+Math.random()*8, 26+Math.random()*18);
+ }
+ if(bf.fires){
+  bf.fires.forEach(f=>{ f.life-=0.6; f.y+=0.04; f.size=Math.max(8,f.size-0.15); });
+  bf.fires=bf.fires.filter(f=>f.life>0);
+ }
+ if(bf.doorShake>0) bf.doorShake--;
+ bf.explosions=(bf.explosions||[]).filter(x=>{x.life--;return x.life>0;});
+ if(bf.doorSlamT>=52){
   startCollapseEscape();
  }
  }
@@ -12453,8 +12537,7 @@ function bfTick(){
  else if(bf.phase==="finalescape"){
  if(bf.heroX>=92){
  const win=()=>bfEndWin();
- if(bf.quizShown.win) win();
- else showStageQuiz('win', ()=>{ bf.quizShown.win=true; win(); });
+ win();
  } else {
  bf.log=` RUN! Get to the exit before the lair collapses! `;
  }
@@ -12481,8 +12564,7 @@ function bfTick(){
  }
  renderBattlefieldFrame();
  };
- if(bf.quizShown.underground) land();
- else showStageQuiz('underground', ()=>{ bf.quizShown.underground=true; land(); });
+ land();
  }
  }
  else if(bf.phase==="underground"){
@@ -12577,8 +12659,7 @@ function bfTick(){
  bf.log=` You made it to the LADDER! Press A or ↑ to CLIMB up to the exit hallway! `;
  renderBattlefieldFrame();
  };
- if(bf.quizShown.ladder) climb();
- else showStageQuiz('ladder', ()=>{ bf.quizShown.ladder=true; climb(); });
+ climb();
  }
  } else if(bf.collapse>=100){
  bfEndLose('sealed',' The vents caved in! Try again — go faster! ');
@@ -12752,31 +12833,41 @@ function renderBattlefieldFrame(){
  fieldStuff=`${emptyPile}${sleeper}`;
  statusLine=` Carry the Crystal Core to the Onyx Warrior &nbsp;•&nbsp; Cave-in: ${Math.min(100,Math.round(bf.collapse))}%`;
  } else if(bf.phase==="sirenhall"||bf.phase==="robotform"||bf.phase==="robotchase"||bf.phase==="safroom"||bf.phase==="doorslam"){
- let scrap=(bf.scrapParts||[]).map(p=>`<div class="bf-scrap-part" style="left:${p.x}%;bottom:${Math.max(2,p.y*0.35+2)}%;transform:translateX(-50%) rotate(${p.rot||0}deg)">${scrapPartSVG(p.kind,22+((p.kind||0)*4))}</div>`).join('');
+ let scrap=(bf.scrapParts||[]).map(p=>{
+  const mag=p.magnet?' magnetizing':'';
+  return `<div class="bf-scrap-part${mag}" style="left:${p.x}%;bottom:${Math.max(2,p.y*0.35+2)}%;transform:translateX(-50%) rotate(${p.rot||0}deg)">${scrapPartSVG(p.kind,22+((p.kind||0)*4))}</div>`;
+ }).join('');
  let booms=bf.explosions?bf.explosions.map(x=>`<div class="bf-boom" style="left:${x.x}%;bottom:${x.y}%">${explosionSVG(44)}</div>`).join(''):'';
+ const sparksHTML=(bf.sparks||[]).map(s=>`<div class="bf-spark" style="left:${s.x}%;bottom:${s.y}%">${sparkSVG()}</div>`).join('');
+ let shards=(bf.robotShards||[]).map(s=>`<div class="bf-robot-shard" style="left:${s.x}%;bottom:${Math.max(0,s.y*0.35+2)}%;transform:translateX(-50%) rotate(${s.rot||0}deg)">${scrapPartSVG(s.kind,16+(s.life%8))}</div>`).join('');
+ let fires=(bf.fires||[]).map(f=>`<div class="bf-fire-burst" style="left:${f.x}%;bottom:${f.y*0.35+2}%;width:${f.size}px;height:${f.size}px;opacity:${Math.min(1,f.life/20)}"></div>`).join('');
  let bot='';
- if(bf.mangledRobot){
-  const cls=bf.phase==="robotform"?' forming':(bf.phase==="robotchase"?' chasing':'')+(bf.mangledRobot.crushed?' bf-robot-crush':'');
-  bot=`<div class="bf-mangled-bot${cls}" style="left:${bf.mangledRobot.x}%;bottom:32%">${mangledRobotSVG(bf.phase==="robotform"?90:110, bf.phase==="robotform")}</div>`;
+ const formPct=bf.formT?Math.min(1,bf.formT/55):0;
+ if(bf.mangledRobot && !bf.mangledRobot.shattered){
+  let cls='';
+  if(bf.phase==="robotform") cls=' forming';
+  else if(bf.phase==="robotchase") cls=' chasing';
+  else if(bf.phase==="safroom") cls=' pounding';
+  bot=`<div class="bf-mangled-bot${cls}" style="left:${bf.mangledRobot.x}%;bottom:32%;--form-opacity:${0.35+formPct*0.65}">${mangledRobotSVG(bf.phase==="robotform"?Math.round(70+formPct*40):110, bf.phase==="robotform")}</div>`;
  } else if(bf.phase==="robotform"){
-  bot=`<div class="bf-mangled-bot forming" style="left:18%;bottom:34%">${mangledRobotSVG(70,true)}</div>`;
+  bot=`<div class="bf-mangled-bot forming" style="left:${(bf.formCenter?.x||22)}%;bottom:34%;--form-opacity:${0.2+formPct*0.55}">${mangledRobotSVG(Math.round(60+formPct*50),true)}</div>`;
  }
  const hatch=bf.ceilingOpen!==false?`<div class="bf-ceiling-hatch"></div>`:'';
  const siren=`<div class="bf-siren-banner"> EMERGENCY SIREN — EVACUATE </div>`;
  const safe=(bf.phase==="safroom"||bf.phase==="doorslam")?`<div class="bf-safe-room"></div><div class="bf-safe-label">SAFE ROOM</div>`:'';
  let door='';
  if(bf.phase==="doorslam"){
-  const slamCls=bf.doorSlamT>=8?' slamming':'';
-  const crushCls=bf.mangledRobot&&bf.mangledRobot.crushed?' crushed':'';
+  const slamCls=bf.doorSlamT>=6?' slamming':'';
+  const crushCls=bf.mangledRobot&&bf.mangledRobot.shattered?' crushed':'';
   door=`<div class="bf-mag-door${slamCls}${crushCls}">500T<br>MAG</div>`;
-  if(bf.doorSlamT>=16) door+=`<div class="bf-door-sparks" style="left:74%;bottom:38%">${explosionSVG(56)}</div>`;
+  if(bf.doorSlamT>=14) door+=`<div class="bf-door-sparks" style="left:72%;bottom:36%">${explosionSVG(64)}</div><div class="bf-door-sparks" style="left:76%;bottom:42%">${sparkSVG()}</div>`;
  }
- fieldStuff=`${hatch}${siren}${safe}${door}${scrap}${bot}${booms}`;
+ fieldStuff=`${hatch}${siren}${safe}${door}${scrap}${bot}${shards}${fires}${booms}${sparksHTML}`;
  const phaseLabel={
-  sirenhall:'Siren Hallway', robotform:'Robot Forming', robotchase:'ROBOT CHASE!',
-  safroom:'Safe Room', doorslam:'Magnetic Door'
+  sirenhall:'Siren Hallway', robotform:'Scrap Forming...', robotchase:'ROBOT CHASE!',
+  safroom:'Safe Room', doorslam:'DOOR SLAM!'
  }[bf.phase]||'Evacuation';
- statusLine=` ${fmtHP(h.hp)} / ${fmtHP(h.maxhp)} &nbsp;•&nbsp; ${phaseLabel}${bf.mangledRobot&&!bf.mangledRobot.crushed?` &nbsp;•&nbsp; Robot: ${Math.round(bf.mangledRobot.x)}%`:''}`;
+ statusLine=` ${fmtHP(h.hp)} / ${fmtHP(h.maxhp)} &nbsp;•&nbsp; ${phaseLabel}${bf.mangledRobot&&!bf.mangledRobot.shattered?` &nbsp;•&nbsp; Robot: ${Math.round(bf.mangledRobot.x)}%`:''}`;
  } else if(bf.phase==="hallway"){
  let debris=bf.debris?bf.debris.map(d=>`<div class="bf-debris2" style="left:${d.x}%;bottom:${Math.max(0,d.y*0.4+2)}%">${rockSVG(28)}</div>`).join(''):'';
  let booms=bf.explosions?bf.explosions.map(x=>`<div class="bf-boom" style="left:${x.x}%;bottom:${x.y}%">${explosionSVG(44)}</div>`).join(''):'';
@@ -12837,43 +12928,47 @@ function renderBattlefieldFrame(){
  }
 
  // ===== FIRST-PERSON VIEW =====
- // Show enemies coming toward the camera, scaled bigger as they get close,
- // plus your own arms + weapon reaching out at the bottom.
+ // Depth like real sight: far = tiny near vanishing point, close = huge in your face.
+ // (Same idea as side-view approach size, mapped into true first-person.)
+ const fpDepth=(worldX)=>{
+  const dist=Math.abs(worldX-bf.heroX);
+  const depth=Math.min(1, dist/48); // 0 = on top of you, 1 = far
+  const scale=0.16 + (1-depth)*3.6; // ~3.76 close → ~0.16 far
+  const side=worldX-bf.heroX;
+  const leftPct=50 + side*(0.4 + depth*1.15); // close enemies hug center
+  const bottomPct=5 + (1-depth)*30; // close = lower / fills frame
+  const z=Math.round(200-dist*4);
+  const opacity=dist>38?0.35:1;
+  return {dist, depth, scale, side, leftPct, bottomPct, z, opacity, closeUp:dist<12};
+ };
  let playInner;
  if(bf.fpv){
  let fpEnemies='';
  if(bf.phase==="golems"){
  fpEnemies=bf.enemies.filter(e=>e.alive).map(e=>{
- const dist=Math.abs(e.x-bf.heroX);
- const scale=Math.max(0.22, 2.85 - dist*0.068);
- const side=(e.x-bf.heroX);
- const face=side<=0?1:-1;
- const leftPct=50 + side*1.4;
- const bottomPct=10 + Math.max(0,(32-dist))*0.92 - e.jump*0.35;
- const z=Math.round(100-dist);
- const closeUp=dist<10?' close-up':'';
- return `<div class="fp-enemy${closeUp}" style="left:${leftPct}%;bottom:${bottomPct}%;transform:translateX(-50%) scale(${face*scale}, ${scale});z-index:${z};opacity:${dist>30?0.42:1}">${shardGolemSVG(90,e.hurt,e.color)}</div>`;
+ const d=fpDepth(e.x);
+ const face=d.side<=0?1:-1;
+ const bottom=d.bottomPct - (e.jump||0)*0.35;
+ return `<div class="fp-enemy${d.closeUp?' close-up':''}" style="left:${d.leftPct}%;bottom:${bottom}%;transform:translateX(-50%) scale(${face*d.scale}, ${d.scale});z-index:${d.z};opacity:${d.opacity}">${shardGolemSVG(90,e.hurt,e.color)}</div>`;
  }).join('');
  } else if(bf.phase==="boss"){
- const boss=bf.boss; const dist=Math.abs(boss.x-bf.heroX);
- const scale=Math.max(1.35, 5.2 - dist*0.09);
- const leftPct=50 + (boss.x-bf.heroX)*1.2;
- fpEnemies=`<div class="fp-enemy close-up" style="left:${leftPct}%;bottom:${8+Math.max(0,(28-dist))*0.75}%;transform:translateX(-50%) scale(${scale})">${megaGolemSVG(120,boss.hurt)}</div>`;
- if(bf.lasers){fpEnemies+=bf.lasers.map(lz=>{const d=Math.abs(lz.x-bf.heroX);const sc=Math.max(.45,2.4-d*0.07);return `<div class="fp-laser" style="left:${50+(lz.x-bf.heroX)*1.4}%;bottom:${26+Math.max(0,18-d)*0.4}%;transform:translateX(-50%) scale(${sc})">${laserSVG(40)}</div>`;}).join('');}
+ const boss=bf.boss; const d=fpDepth(boss.x);
+ const scale=Math.max(1.5, d.scale*1.35);
+ fpEnemies=`<div class="fp-enemy close-up" style="left:${d.leftPct}%;bottom:${Math.max(4,d.bottomPct-4)}%;transform:translateX(-50%) scale(${scale});z-index:${d.z}">${megaGolemSVG(120,boss.hurt)}</div>`;
+ if(bf.lasers){fpEnemies+=bf.lasers.map(lz=>{const ld=fpDepth(lz.x);return `<div class="fp-laser" style="left:${ld.leftPct}%;bottom:${18+ld.bottomPct*0.35}%;transform:translateX(-50%) scale(${Math.max(.5,ld.scale*0.7)});z-index:${ld.z}">${laserSVG(40)}</div>`;}).join('');}
  } else if(bf.phase==="underground"){
  fpEnemies=(bf.spiders||[]).filter(s=>s.alive).map(s=>{
- const dist=Math.abs(s.x-bf.heroX); const scale=Math.max(0.22,2.85-dist*0.068);
- const side=(s.x-bf.heroX); const face=side<=0?1:-1;
- return `<div class="fp-enemy${dist<10?' close-up':''}" style="left:${50+(s.x-bf.heroX)*1.4}%;bottom:${10+Math.max(0,(32-dist))*0.92}%;transform:translateX(-50%) scale(${face*scale}, ${scale})">${crystalSpiderSVG(90,s.hurt,s.color)}</div>`;
+ const d=fpDepth(s.x); const face=d.side<=0?1:-1;
+ return `<div class="fp-enemy${d.closeUp?' close-up':''}" style="left:${d.leftPct}%;bottom:${d.bottomPct}%;transform:translateX(-50%) scale(${face*d.scale}, ${d.scale});z-index:${d.z};opacity:${d.opacity}">${crystalSpiderSVG(90,s.hurt,s.color)}</div>`;
  }).join('');
- if(bf.lasers){fpEnemies+=bf.lasers.map(lz=>`<div class="fp-laser" style="left:${50+(lz.x-bf.heroX)*1.4}%;bottom:30%;transform:translateX(-50%)">${laserSVG(40)}</div>`).join('');}
+ if(bf.lasers){fpEnemies+=bf.lasers.map(lz=>{const ld=fpDepth(lz.x);return `<div class="fp-laser" style="left:${ld.leftPct}%;bottom:${18+ld.bottomPct*0.35}%;transform:translateX(-50%) scale(${Math.max(.5,ld.scale*0.7)});z-index:${ld.z}">${laserSVG(40)}</div>`;}).join('');}
  }
  // your own hands + weapon reaching out in front (viewmodel)
  const wpFP = equippedWeapon>=0 && WEAPONS[equippedWeapon]
 ? `<div class="fp-weapon ${(bf.heroAnim==='attacking'&&Date.now()<bf.heroAnimUntil)?'swing':''}">${WEAPONS[equippedWeapon].art?weaponSVG(WEAPONS[equippedWeapon].art,120):WEAPONS[equippedWeapon].emoji}</div>`
  : '';
  const hands=`<div class="fp-hand left" style="background:${h.color}"></div><div class="fp-hand right ${(bf.heroAnim==='attacking'&&Date.now()<bf.heroAnimUntil)?'punch':''}" style="background:${h.color}"></div>`;
- const fpSparks=(bf.sparks||[]).map(s=>`<div class="bf-spark" style="left:${50+(s.x-bf.heroX)*1.4}%;bottom:34%;transform:translateX(-50%) scale(1.6)">${sparkSVG()}</div>`).join('');
+ const fpSparks=(bf.sparks||[]).map(s=>{const sd=fpDepth(s.x);return `<div class="bf-spark" style="left:${sd.leftPct}%;bottom:${22+sd.bottomPct*0.4}%;transform:translateX(-50%) scale(${Math.max(1,sd.scale*0.55)});z-index:${sd.z}">${sparkSVG()}</div>`;}).join('');
  // MOVEMENT FEEDBACK: floor lines + wall pillars that scroll past as you walk,
  // so you can SEE yourself moving even when no enemy is nearby.
  const scroll = (bf.heroX*3) % 24; // shifts with your position
@@ -12915,7 +13010,8 @@ function renderBattlefieldFrame(){
 
  const isUnder = (bf.phase==="underground"||bf.phase==="ladder"||bf.phase==="falling");
  const isSiren = ['sirenhall','robotform','robotchase','safroom','doorslam'].includes(bf.phase);
- const factoryClass = isSiren ? ' siren-hall' : ((bf.phase==="escape"||bf.phase==="escaped")?" collapsing" : (isUnder?" underground" : ""));
+ const doorShakeCls = (bf.doorShake>0)?' door-slam-shake':'';
+ const factoryClass = (isSiren ? ' siren-hall' : ((bf.phase==="escape"||bf.phase==="escaped")?" collapsing" : (isUnder?" underground" : ""))) + doorShakeCls;
  wrap.innerHTML=`
  <div id="bf-arena"><div class="bf-field bf-factory${factoryClass}${bf.fpv?' fpv':''}">
  <div class="bf-dust" aria-hidden="true">${Array.from({length:14},(_,i)=>`<i style="left:${8+(i*6.5)%88}%;animation-duration:${6+(i%5)*2}s;animation-delay:${-i*1.3}s;width:${2+(i%3)}px;height:${2+(i%3)}px"></i>`).join('')}</div>
@@ -12957,7 +13053,7 @@ function renderBattlefieldFrame(){
  ${bf.phase==="facescan" ? `<div class="bf-controls" style="margin-top:8px"><button class="game-btn" id="fin-scan" style="background:#2a6aa8;border-color:#4ea8ff">SCAN GEM ID</button></div>` : ''}
  ${bf.phase==="brainboss" && bf.showPipes && !bf.pipesPulled ? `<div class="bf-controls" style="margin-top:8px"><button class="game-btn" id="fin-pipes" style="background:#1f7a8a;border-color:#3ad">PULL CONDUITS!</button></div>` : ''}`}
  <div class="bf-btns" style="margin-top:12px">
- <button class="game-btn" id="bf-view">${bf.fpv?' Side View':' First-Person'}</button>
+ <button class="game-btn" id="bf-view">${bf.fpv?' Side View':' First-Person (closer = bigger)'}</button>
  <button class="game-btn ghost" id="bf-leave">Leave gem mine</button>
  </div>
  </div></div>`;
