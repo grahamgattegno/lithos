@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- lithos-v:site-live-37 -->
+<!-- lithos-v:site-live-38 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -2649,8 +2649,9 @@
       repeating-linear-gradient(90deg, rgba(120,130,150,.15) 0 2px, transparent 2px 60px),
       linear-gradient(180deg,#2a2f3c 0%,#14161e 100%);
     transform:perspective(300px) rotateX(60deg);transform-origin:bottom;box-shadow:inset 0 20px 40px rgba(0,0,0,.5)}
-  .fp-enemy{position:absolute;line-height:0;pointer-events:none;transition:bottom .1s linear,left .1s linear,transform .1s linear,opacity .1s linear;filter:drop-shadow(0 6px 10px rgba(0,0,0,.6));transform-origin:center bottom;will-change:transform,left,bottom}
+  .fp-enemy{position:absolute;line-height:0;pointer-events:none;filter:drop-shadow(0 6px 10px rgba(0,0,0,.6));transform-origin:center bottom;will-change:transform,left,bottom;transition:none}
   .fp-enemy.close-up{filter:drop-shadow(0 10px 18px rgba(0,0,0,.75)) drop-shadow(0 0 16px rgba(255,90,60,.35));animation:fpLoom .55s ease-out}
+  .fp-prop{position:absolute;line-height:0;pointer-events:none;transform-origin:center bottom;will-change:transform,left,bottom;transition:none}
   /* wall pillars that scroll past so you can SEE yourself moving */
   .fp-pillar{position:absolute;width:14px;height:120px;transform-origin:bottom;
     background:linear-gradient(90deg,rgba(90,100,120,.5),rgba(40,46,58,.7),rgba(90,100,120,.5));
@@ -4980,8 +4981,8 @@
 </nav>
 
 <script src="ai-config.js"></script>
-<script src="gems-data.js?v=deploy-37"></script>
-<script src="nightshift2.js?v=deploy-37"></script>
+<script src="gems-data.js?v=deploy-38"></script>
+<script src="nightshift2.js?v=deploy-38"></script>
 <script>
 /* ---------- Affiliate partners (tracked links where available) ---------- */
 const DEFAULT_PARTNER='gemsny';
@@ -12698,14 +12699,39 @@ function updateLabSparks(){
  });
 }
 function bfApproachDepth(x,jump,baseBottom){
- if(!bf) return {scale:1,bottom:baseBottom||34,z:1};
+ if(!bf) return {scale:1,bottom:baseBottom||34,z:1,t:0,dist:48};
  const dist=Math.abs(x-bf.heroX);
  const t=Math.max(0,1-Math.min(dist,48)/48);
- return {scale:0.42+t*1.22,bottom:(baseBottom||34)+(jump||0)*0.4+t*13,z:Math.round(1+t*16)};
+ return {scale:0.42+t*1.22,bottom:(baseBottom||34)+(jump||0)*0.4+t*13,z:Math.round(1+t*16),t,dist,side:x-bf.heroX};
 }
 function bfDepthStyle(x,jump,baseBottom){
  const d=bfApproachDepth(x,jump,baseBottom);
  return `transform:translateX(-50%) scale(${d.scale.toFixed(2)});bottom:${d.bottom.toFixed(1)}%;z-index:${d.z}`;
+}
+// First-person depth — same distance curve as side view, mapped into your face (closer = MUCH bigger)
+function fpDepth(worldX, jump){
+ if(!bf) return {scale:1,leftPct:50,bottomPct:20,z:1,opacity:1,closeUp:false,t:0,dist:48,side:0};
+ const dist=Math.abs(worldX-bf.heroX);
+ const t=Math.max(0,1-Math.min(dist,48)/48);
+ const side=worldX-bf.heroX;
+ const scale=0.14+t*5.4;
+ const leftPct=50+side*(0.22+(1-t)*0.12);
+ const bottomPct=2+(1-t)*34+(jump||0)*0.28;
+ const z=Math.round(280-dist*5);
+ const opacity=dist>44?0.28:Math.min(1,0.45+t*0.55);
+ return {dist,t,scale,side,leftPct,bottomPct,z,opacity,closeUp:dist<11};
+}
+function fpEntity(worldX, jump, html, extraScale, cls){
+ const d=fpDepth(worldX, jump);
+ const face=d.side<=0?1:-1;
+ const sc=(extraScale||1)*d.scale;
+ const bottom=d.bottomPct-(jump||0)*0.35;
+ return `<div class="fp-enemy${d.closeUp?' close-up':''}${cls?' '+cls:''}" style="left:${d.leftPct}%;bottom:${bottom}%;transform:translateX(-50%) scale(${face*sc}, ${sc});z-index:${d.z};opacity:${d.opacity}">${html}</div>`;
+}
+function fpProp(worldX, html, extraScale){
+ const d=fpDepth(worldX, 0);
+ const sc=(extraScale||1)*d.scale;
+ return `<div class="fp-prop" style="left:${d.leftPct}%;bottom:${d.bottomPct}%;transform:translateX(-50%) scale(${sc});z-index:${d.z};opacity:${d.opacity}">${html}</div>`;
 }
 function renderBattlefieldFrame(){
  if(!bf)return;
@@ -12928,41 +12954,58 @@ function renderBattlefieldFrame(){
  }
 
  // ===== FIRST-PERSON VIEW =====
- // Depth like real sight: far = tiny near vanishing point, close = huge in your face.
- // (Same idea as side-view approach size, mapped into true first-person.)
- const fpDepth=(worldX)=>{
-  const dist=Math.abs(worldX-bf.heroX);
-  const depth=Math.min(1, dist/48); // 0 = on top of you, 1 = far
-  const scale=0.16 + (1-depth)*3.6; // ~3.76 close → ~0.16 far
-  const side=worldX-bf.heroX;
-  const leftPct=50 + side*(0.4 + depth*1.15); // close enemies hug center
-  const bottomPct=5 + (1-depth)*30; // close = lower / fills frame
-  const z=Math.round(200-dist*4);
-  const opacity=dist>38?0.35:1;
-  return {dist, depth, scale, side, leftPct, bottomPct, z, opacity, closeUp:dist<12};
- };
+ // Same distance curve as side view — far = tiny, close = huge in your face.
  let playInner;
  if(bf.fpv){
  let fpEnemies='';
  if(bf.phase==="golems"){
- fpEnemies=bf.enemies.filter(e=>e.alive).map(e=>{
- const d=fpDepth(e.x);
- const face=d.side<=0?1:-1;
- const bottom=d.bottomPct - (e.jump||0)*0.35;
- return `<div class="fp-enemy${d.closeUp?' close-up':''}" style="left:${d.leftPct}%;bottom:${bottom}%;transform:translateX(-50%) scale(${face*d.scale}, ${d.scale});z-index:${d.z};opacity:${d.opacity}">${shardGolemSVG(90,e.hurt,e.color)}</div>`;
- }).join('');
+ fpEnemies=bf.enemies.filter(e=>e.alive).map(e=>fpEntity(e.x,e.jump,shardGolemSVG(90,e.hurt,e.color))).join('');
  } else if(bf.phase==="boss"){
- const boss=bf.boss; const d=fpDepth(boss.x);
- const scale=Math.max(1.5, d.scale*1.35);
- fpEnemies=`<div class="fp-enemy close-up" style="left:${d.leftPct}%;bottom:${Math.max(4,d.bottomPct-4)}%;transform:translateX(-50%) scale(${scale});z-index:${d.z}">${megaGolemSVG(120,boss.hurt)}</div>`;
- if(bf.lasers){fpEnemies+=bf.lasers.map(lz=>{const ld=fpDepth(lz.x);return `<div class="fp-laser" style="left:${ld.leftPct}%;bottom:${18+ld.bottomPct*0.35}%;transform:translateX(-50%) scale(${Math.max(.5,ld.scale*0.7)});z-index:${ld.z}">${laserSVG(40)}</div>`;}).join('');}
+ const boss=bf.boss;
+ fpEnemies=fpEntity(boss.x,boss.jump,megaGolemSVG(120,boss.hurt),1.35);
+ if(bf.lasers){fpEnemies+=bf.lasers.map(lz=>fpProp(lz.x,laserSVG(40),0.75)).join('');}
  } else if(bf.phase==="underground"){
- fpEnemies=(bf.spiders||[]).filter(s=>s.alive).map(s=>{
- const d=fpDepth(s.x); const face=d.side<=0?1:-1;
- return `<div class="fp-enemy${d.closeUp?' close-up':''}" style="left:${d.leftPct}%;bottom:${d.bottomPct}%;transform:translateX(-50%) scale(${face*d.scale}, ${d.scale});z-index:${d.z};opacity:${d.opacity}">${crystalSpiderSVG(90,s.hurt,s.color)}</div>`;
+ fpEnemies=(bf.spiders||[]).filter(s=>s.alive).map(s=>fpEntity(s.x,0,crystalSpiderSVG(90,s.hurt,s.color))).join('');
+ if(bf.lasers){fpEnemies+=bf.lasers.map(lz=>fpProp(lz.x,laserSVG(40),0.75)).join('');}
+ if(bf.debris){fpEnemies+=bf.debris.map(d=>fpProp(d.x,rockSVG(28),d.block?1.1:0.85)).join('');}
+ } else if(bf.phase==="escape"||bf.phase==="escaped"){
+ if(bf.debris){fpEnemies+=bf.debris.map(d=>fpProp(d.x,rockSVG(30),0.9)).join('');}
+ const exitX=bf.section>=bf.totalSections?92:88;
+ fpEnemies+=fpProp(exitX,'<div class="bf-exit next"><div class="next-arrow"></div></div>',1.2);
+ if(bf.allies&&bf.allyList){
+ fpEnemies+=bf.allyList.map((a,i)=>{
+ const ax=Math.max(2,bf.heroX-8-i*7);
+ const art=a.kind==="titan"?gemWarriorSVG(a.color,44,true):(a.kind==="onyx"?onyxWarriorSVG(44):gemWarriorSVG(a.color,44));
+ return fpEntity(ax,0,art,0.85);
  }).join('');
- if(bf.lasers){fpEnemies+=bf.lasers.map(lz=>{const ld=fpDepth(lz.x);return `<div class="fp-laser" style="left:${ld.leftPct}%;bottom:${18+ld.bottomPct*0.35}%;transform:translateX(-50%) scale(${Math.max(.5,ld.scale*0.7)});z-index:${ld.z}">${laserSVG(40)}</div>`;}).join('');}
  }
+ } else if(['sirenhall','robotform','robotchase','safroom','doorslam'].includes(bf.phase)){
+ const formPct=bf.formT?Math.min(1,bf.formT/55):0;
+ if(bf.scrapParts){fpEnemies+=bf.scrapParts.map(p=>fpProp(p.x,scrapPartSVG(p.kind,22+((p.kind||0)*4)),0.7)).join('');}
+ if(bf.mangledRobot&&!bf.mangledRobot.shattered){
+ const sz=bf.phase==="robotform"?Math.round(70+formPct*40):110;
+ fpEnemies+=fpEntity(bf.mangledRobot.x,0,mangledRobotSVG(sz,bf.phase==="robotform"),bf.phase==="robotchase"?1.15:1);
+ } else if(bf.phase==="robotform"){
+ fpEnemies+=fpEntity(bf.formCenter?.x||22,0,mangledRobotSVG(Math.round(60+formPct*50),true),0.9);
+ }
+ if(bf.robotShards){fpEnemies+=bf.robotShards.map(s=>fpProp(s.x,scrapPartSVG(s.kind,16+(s.life%8)),0.65)).join('');}
+ if(bf.phase==="doorslam") fpEnemies+=fpProp(72,'<div class="bf-mag-door">500T MAG</div>',1.3);
+ } else if(bf.phase==="hallway"){
+ if(bf.debris){fpEnemies+=bf.debris.map(d=>fpProp(d.x,rockSVG(28),0.9)).join('');}
+ fpEnemies+=fpProp(92,'<div class="bf-boss-door"></div>',1.25);
+ } else if(bf.phase==="creator"){
+ const boss=bf.creator;
+ fpEnemies=fpEntity(boss.x,boss.jump,creatorSVG(200,boss.hurt),1.4);
+ if(bf.lasers){fpEnemies+=bf.lasers.map(lz=>fpProp(lz.x,laserSVG(40),0.8)).join('');}
+ } else if(bf.phase==="brainboss"){
+ const sb=bf.superbot;
+ if(sb) fpEnemies=fpEntity(sb.x,0,megaGolemSVG(120,bf.superbotMalfunction),1.35);
+ if(bf.brain) fpEnemies+=fpProp(bf.brain.x,'<div class="fin-brain-jar"></div>',1.1);
+ if(bf.lasers){fpEnemies+=bf.lasers.map(lz=>fpProp(lz.x,laserSVG(36),0.75)).join('');}
+ } else if(bf.phase==="tunnel"||bf.phase==="finalescape"){
+ fpEnemies=fpProp(bf.phase==="finalescape"?96:94,'<div class="fin-exit-light"></div>',1.5);
+ }
+ if(bf.explosions){fpEnemies+=(bf.explosions||[]).map(x=>fpProp(x.x,explosionSVG(44),0.85)).join('');}
  // your own hands + weapon reaching out in front (viewmodel)
  const wpFP = equippedWeapon>=0 && WEAPONS[equippedWeapon]
 ? `<div class="fp-weapon ${(bf.heroAnim==='attacking'&&Date.now()<bf.heroAnimUntil)?'swing':''}">${WEAPONS[equippedWeapon].art?weaponSVG(WEAPONS[equippedWeapon].art,120):WEAPONS[equippedWeapon].emoji}</div>`
