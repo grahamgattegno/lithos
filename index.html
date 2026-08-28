@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- lithos-v:site-live-40 -->
+<!-- lithos-v:site-live-41 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -3582,6 +3582,10 @@
     font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;
   }
   #lithos-purchase-banner button:hover{filter:brightness(1.06)}
+  #lithos-purchase-banner-code{
+    font-family:var(--mono);font-size:15px;font-weight:800;letter-spacing:.12em;
+    color:var(--gold);background:rgba(0,0,0,.35);padding:6px 12px;border-radius:8px;border:1px solid rgba(201,169,79,.35);
+  }
   #lithos-toast{
     position:fixed;left:50%;bottom:calc(80px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(12px);
     z-index:60;max-width:min(92vw,520px);padding:14px 20px;border-radius:12px;
@@ -3939,8 +3943,9 @@
  </div>
 </div>
 <div id="lithos-purchase-banner" hidden>
- <span>Finished paying? Tap here to unlock your membership.</span>
- <button type="button" id="lithos-purchase-unlock">Unlock now</button>
+ <span id="lithos-purchase-banner-msg">Finished paying? Enter your unlock code below.</span>
+ <code id="lithos-purchase-banner-code" aria-label="Your unlock code"></code>
+ <button type="button" id="lithos-purchase-unlock">Enter unlock code</button>
 </div>
 
 <header class="site">
@@ -4238,7 +4243,7 @@
  <a class="plan-btn class-buy" data-plan="home" href="https://www.foundersweekends.com/api/pay?venture=60a22652-a2d0-456f-a967-59dafd51a843&amount=9000&name=Venture+1" target="_blank" rel="noopener noreferrer">Choose this plan — $90</a>
  </div>
  </div>
- <p class="plan-note">Both class checkouts are live — a grown-up should complete the payment. <b>Silver members</b> get the lowest class-plan prices; see Memberships for Gold, Diamond, and Sapphire tiers.</p>
+ <p class="plan-note">Both class checkouts are live — a grown-up should complete the payment. After paying, use your unlock code (<b>TEACHER220</b> or <b>HOME90</b>) on Memberships or Secret Codes. <b>Silver members</b> get the lowest class-plan prices; see Memberships for Gold, Diamond, and Sapphire tiers.</p>
 
  <div id="class-lessons-entry" class="class-lessons-entry" hidden>
  <a class="plan-btn" href="#class-lessons" onclick="switchView('class-lessons');return false;">Open class lessons</a>
@@ -4263,10 +4268,10 @@
   <span class="class-ai-premium-label">Member preview</span>
   <div class="class-ai-lock class-ai-stage-inner">
   <div class="lock-ico">Locked · Members &amp; class buyers</div>
-  <p>Purchase a class plan or membership, then tap unlock. You’ll get the gem video backdrop, crystal thinking animation, and the full catalog teacher.</p>
+  <p>Purchase a class plan or membership, then enter your unlock code. You’ll get the gem video backdrop, crystal thinking animation, and the full catalog teacher.</p>
   <div class="class-ai-actions">
    <a class="plan-btn" href="#memberships" onclick="switchView('memberships');return false;">See memberships</a>
-   <button type="button" class="plan-btn ghost" id="class-ai-unlock-btn">I’ve purchased — unlock</button>
+   <button type="button" class="plan-btn ghost" id="class-ai-unlock-btn">I’ve purchased — enter unlock code</button>
   </div>
   </div>
  </div>
@@ -4327,7 +4332,7 @@
  <p>This page is for people who purchased a class plan or membership. Buy on Classes, then unlock on this device — same unlock as the AI Rock Teacher.</p>
  <div class="class-ai-actions">
  <a class="plan-btn" href="#classes" onclick="switchView('classes');return false;">Go to Classes</a>
- <button type="button" class="plan-btn ghost" id="class-lessons-unlock-btn">I’ve purchased — unlock</button>
+ <button type="button" class="plan-btn ghost" id="class-lessons-unlock-btn">I’ve purchased — enter unlock code</button>
  </div>
  </div>
  <div id="class-lessons-open" hidden>
@@ -4651,7 +4656,7 @@
  <section class="mem-hero">
  <div class="eyebrow">Join &amp; Save</div>
  <h1>Become a <em>member</em></h1>
- <p class="lede">Four tiers — Silver from <b>$99/year</b> (lowest member class rates). <b>Sapphire &amp; Diamond are both $400/year</b> — Diamond adds best perks on top of Sapphire. Higher tiers unlock live AI, voice, and exclusive flair.</p>
+ <p class="lede">Four tiers — Silver from <b>$99/year</b> (lowest member class rates). <b>Sapphire &amp; Diamond are both $400/year</b> — Diamond adds best perks on top of Sapphire. Higher tiers unlock live AI, voice, and exclusive flair. <b>After checkout you get an unlock code</b> — enter it below or on Secret Codes.</p>
  </section>
  <div class="mem-grid">
  <div class="mem-card">
@@ -4750,12 +4755,12 @@
  </div>
  </div>
  <div class="mem-recovery">
-  <p>Already paid but still locked? Enter your unlock code from your receipt (or ask the grown-up who paid).</p>
+  <p><b>Step 2 — Unlock with your code.</b> After checkout, use the unlock code from your receipt (shown on screen too).</p>
   <input id="mem-recovery-code" type="text" placeholder="e.g. SILVER99" autocomplete="off" aria-label="Unlock code">
   <button type="button" id="mem-recovery-btn">Unlock with code</button>
-  <p style="margin-top:12px;font-size:13px">Or open <b>Games → Secret Codes</b> in the nav.</p>
+  <p style="margin-top:12px;font-size:13px">Or open <b>Games → Secret Codes</b> in the nav and type the same code.</p>
  </div>
- <p class="mem-note">All membership checkouts are live — a grown-up should complete the payment. After checkout you’ll return here automatically; if not, use the banner at the top or tap unlock on Classes.</p>
+ <p class="mem-note">All membership checkouts are live — a grown-up should complete the payment. You’ll get a code like <b>SILVER99</b> or <b>GOLD199</b> to unlock on this device.</p>
 </div><!-- /view-memberships -->
 
 <div class="view" id="view-game" hidden>
@@ -4797,7 +4802,7 @@
  <section class="codes-wrap">
  <div class="eyebrow">Secret Cheat Codes</div>
  <h1>Enter a <em>code</em></h1>
- <p class="lede">Got a secret code? Type it in to unlock special powers! Only real codes work — try to find them all!</p>
+ <p class="lede">Got a secret code? Type it in to unlock special powers! <b>Membership codes</b> (like <b>SILVER99</b>) unlock class lessons and the AI Rock Teacher after checkout.</p>
  <div class="code-box">
  <input id="code-input" type="text" placeholder="Type your secret code…" autocomplete="off">
  <button id="code-send">Unlock! </button>
@@ -4983,8 +4988,8 @@
 </nav>
 
 <script src="ai-config.js"></script>
-<script src="gems-data.js?v=deploy-40"></script>
-<script src="nightshift2.js?v=deploy-40"></script>
+<script src="gems-data.js?v=deploy-41"></script>
+<script src="nightshift2.js?v=deploy-41"></script>
 <script>
 /* ---------- Affiliate partners (tracked links where available) ---------- */
 const DEFAULT_PARTNER='gemsny';
@@ -6360,7 +6365,7 @@ function refreshClassLessons(){
  try{
  if(!unlocked&&localStorage.getItem(CLASS_CHECKOUT_PENDING)){
  const btn=document.getElementById('class-lessons-unlock-btn');
- if(btn) btn.textContent="Back from checkout? Unlock now";
+ if(btn) btn.textContent="Enter unlock code";
  }
  }catch(e){}
 }
@@ -7716,10 +7721,72 @@ function updateClassAiMode(){
 function markClassCheckoutPending(plan){
  const p=plan||'class';
  try{ localStorage.setItem(CLASS_CHECKOUT_PENDING,p); }catch(e){}
- if(/^diamond-/i.test(p)) setMemberTier('diamond');
- else if(/^sapphire-/i.test(p)) setMemberTier('sapphire');
- else if(/^gold-/i.test(p)) setMemberTier('gold');
- else if(/^silver-/i.test(p)) setMemberTier('silver');
+}
+const PLAN_UNLOCK_CODES={
+ teacher:{code:'TEACHER220',tier:'',label:'Teacher class plan ($220)'},
+ home:{code:'HOME90',tier:'',label:'Home class plan ($90)'},
+ 'silver-membership':{code:'SILVER99',tier:'silver',label:'Silver membership ($99/yr)'},
+ 'silver-teacher':{code:'SILVER189',tier:'silver',label:'Silver Teacher class ($189)'},
+ 'silver-home':{code:'SILVER79',tier:'silver',label:'Silver Home class ($79)'},
+ 'gold-membership':{code:'GOLD199',tier:'gold',label:'Gold membership ($199/yr)'},
+ 'gold-teacher':{code:'GOLD199',tier:'gold',label:'Gold Teacher class ($199)'},
+ 'gold-home':{code:'GOLDHOME84',tier:'gold',label:'Gold Home class ($84)'},
+ 'sapphire-membership':{code:'SAPPHIRE400',tier:'sapphire',label:'Sapphire membership ($400/yr)'},
+ 'sapphire-teacher':{code:'SAPPHIRE219',tier:'sapphire',label:'Sapphire Teacher class ($219)'},
+ 'sapphire-home':{code:'SAPPHIRE89',tier:'sapphire',label:'Sapphire Home class ($89)'},
+ 'diamond-membership':{code:'DIAMOND400',tier:'diamond',label:'Diamond membership ($400/yr)'},
+ 'diamond-teacher':{code:'DIAMOND209',tier:'diamond',label:'Diamond Teacher class ($209)'},
+ 'diamond-home':{code:'DIAMOND88',tier:'diamond',label:'Diamond Home class ($88)'}
+};
+const UNLOCK_CODE_ALIASES={
+ GOLDHOME45:'GOLDHOME84',
+ SILVER6750:'SILVER99',
+ SAPPHIRE275:'SAPPHIRE400',
+ SAPPHIRE499:'SAPPHIRE400',
+ DIAMOND399:'DIAMOND400',
+ DIAMOND349:'DIAMOND400',
+ LITHOSTHANKS:'GOLD199'
+};
+function getPlanUnlockInfo(plan){
+ return PLAN_UNLOCK_CODES[plan||'']||null;
+}
+function lookupUnlockCode(raw){
+ const key=(raw||'').trim().toUpperCase();
+ if(!key) return null;
+ const alias=UNLOCK_CODE_ALIASES[key]||key;
+ for(const info of Object.values(PLAN_UNLOCK_CODES)){
+  if(info.code===alias) return info;
+ }
+ if(alias==='LITHOSTHANKS') return PLAN_UNLOCK_CODES['gold-membership'];
+ return null;
+}
+function applyClassUnlock(info){
+ if(!info) return;
+ if(info.tier) setMemberTier(info.tier);
+ else setMemberTier('');
+ setClassAccess(true);
+ try{ localStorage.removeItem(CLASS_CHECKOUT_PENDING); }catch(e){}
+ refreshPurchaseBanner();
+ if(isGoldMember()){
+  try{ localStorage.setItem(VOICE_PREF_KEY,'1'); }catch(e){}
+  lithosVoiceOn=true;
+  syncVoiceToggleUI();
+ }
+ refreshClassAI();
+ refreshClassLessons();
+ const open=document.getElementById('class-ai-open');
+ if(open&&!document.getElementById('view-classes').hidden) open.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function promptForUnlockCode(prefill){
+ let pending='';
+ try{ pending=localStorage.getItem(CLASS_CHECKOUT_PENDING)||''; }catch(e){}
+ const hint=getPlanUnlockInfo(pending);
+ const msg=hint
+  ? 'Enter your unlock code from checkout.\n\nPlan: '+hint.label+'\nYour code: '+hint.code
+  : 'Enter your unlock code from your receipt (e.g. SILVER99 or GOLD199):';
+ const code=prompt(msg,prefill||(hint?hint.code:''));
+ if(!code) return null;
+ return code;
 }
 function lithosPurchaseReturnUrl(plan){
  const path=location.pathname.endsWith('/')?location.pathname:(location.pathname.replace(/\/[^/]*$/,'')+'/');
@@ -7757,32 +7824,24 @@ function showLithosToast(msg,ms){
 function refreshPurchaseBanner(){
  const banner=document.getElementById('lithos-purchase-banner');
  if(!banner) return;
- let pending=false;
- try{ pending=!!localStorage.getItem(CLASS_CHECKOUT_PENDING)&&!hasClassAccess(); }catch(e){}
- banner.hidden=!pending;
- document.body.classList.toggle('lithos-purchase-pending',pending);
+ let pending='';
+ try{ pending=localStorage.getItem(CLASS_CHECKOUT_PENDING)||''; }catch(e){}
+ const show=!!pending&&!hasClassAccess();
+ banner.hidden=!show;
+ document.body.classList.toggle('lithos-purchase-pending',show);
+ const msgEl=document.getElementById('lithos-purchase-banner-msg');
+ const codeEl=document.getElementById('lithos-purchase-banner-code');
+ const info=getPlanUnlockInfo(pending);
+ if(msgEl) msgEl.textContent=info?'Finished paying? Your unlock code:':'Finished paying? Enter your unlock code:';
+ if(codeEl){
+  if(info){ codeEl.textContent=info.code; codeEl.hidden=false; }
+  else{ codeEl.textContent=''; codeEl.hidden=true; }
+ }
 }
 function unlockViaRecoveryCode(code){
- const raw=(code||'').trim().toUpperCase();
- const MAP={
-  GOLDHOME45:()=>({tier:'gold',label:'Gold Home membership ($84)'}),
-  GOLDHOME84:()=>({tier:'gold',label:'Gold Home membership ($84)'}),
-  GOLD199:()=>({tier:'gold',label:'Gold membership ($199)'}),
-  SILVER6750:()=>({tier:'silver',label:'Silver membership (legacy $67.50)'}),
-  SILVER99:()=>({tier:'silver',label:'Silver membership ($99)'}),
-  SAPPHIRE275:()=>({tier:'sapphire',label:'Sapphire membership (legacy $275)'}),
-  SAPPHIRE400:()=>({tier:'sapphire',label:'Sapphire membership ($400)'}),
-  SAPPHIRE499:()=>({tier:'sapphire',label:'Sapphire membership (legacy $499)'}),
-  DIAMOND400:()=>({tier:'diamond',label:'Diamond membership ($400)'}),
-  DIAMOND399:()=>({tier:'diamond',label:'Diamond membership (legacy $399)'}),
-  DIAMOND349:()=>({tier:'diamond',label:'Diamond membership (legacy $349)'}),
-  LITHOSTHANKS:()=>({tier:'gold',label:'Lithos thank-you access'})
- };
- const fn=MAP[raw];
- if(!fn) return null;
- const info=fn();
- setMemberTier(info.tier);
- unlockClassAccess(false);
+ const info=lookupUnlockCode(code);
+ if(!info) return null;
+ applyClassUnlock(info);
  return info;
 }
 function handlePurchaseReturn(){
@@ -7794,9 +7853,18 @@ function handlePurchaseReturn(){
   if(!plan) try{ plan=localStorage.getItem(CLASS_CHECKOUT_PENDING)||''; }catch(e){}
   if(success){
    if(plan) markClassCheckoutPending(plan);
-   unlockClassAccess(false);
    cleanPurchaseParams();
-   showLithosToast('Welcome! Your membership is unlocked — enjoy class lessons and the AI Rock Teacher.');
+   refreshPurchaseBanner();
+   const info=getPlanUnlockInfo(plan);
+   if(info){
+    const inp=document.getElementById('mem-recovery-code');
+    if(inp) inp.value=info.code;
+    switchView('memberships');
+    showLithosToast('Payment received! Your unlock code is '+info.code+' — enter it below to unlock.');
+   }else{
+    showLithosToast('Payment received! Enter your unlock code on Memberships or Secret Codes.');
+    switchView('memberships');
+   }
    return true;
   }
  }catch(e){}
@@ -7804,22 +7872,15 @@ function handlePurchaseReturn(){
  return false;
 }
 function unlockClassAccess(fromBtn){
- if(fromBtn){
-  const ok=confirm('Did a grown-up finish paying for a Lithos class or membership?\n\nTap OK to unlock class lessons and the AI Rock Teacher on this device.');
-  if(!ok) return;
+ if(!fromBtn) return;
+ const code=promptForUnlockCode('');
+ if(!code) return;
+ const info=unlockViaRecoveryCode(code);
+ if(!info){
+  alert('That code didn\'t work. Check your receipt, try Memberships, or Secret Codes.');
+  return;
  }
- setClassAccess(true);
- try{ localStorage.removeItem(CLASS_CHECKOUT_PENDING); }catch(e){}
- refreshPurchaseBanner();
- if(isGoldMember()){
- try{ localStorage.setItem(VOICE_PREF_KEY,'1'); }catch(e){}
- lithosVoiceOn=true;
- syncVoiceToggleUI();
- }
- refreshClassAI();
- refreshClassLessons();
- const open=document.getElementById('class-ai-open');
- if(open&&!document.getElementById('view-classes').hidden) open.scrollIntoView({behavior:'smooth',block:'start'});
+ showLithosToast('Unlocked: '+info.label);
 }
 function refreshClassAI(){
  const locked=document.getElementById('class-ai-locked');
@@ -7836,7 +7897,7 @@ function refreshClassAI(){
  try{
  if(localStorage.getItem(CLASS_CHECKOUT_PENDING)){
  const btn=document.getElementById('class-ai-unlock-btn');
- if(btn) btn.textContent="Back from checkout? Unlock now";
+ if(btn) btn.textContent="Enter unlock code";
  }
  }catch(e){}
  }
@@ -8177,9 +8238,13 @@ async function classAiOpenAIAnswer(q, cfg, system, context, history){
  wireClassCheckoutLinks();
  document.querySelectorAll('.class-buy').forEach(a=>{
   a.addEventListener('click',()=>{
-   markClassCheckoutPending(a.dataset.plan||'class');
+   const plan=a.dataset.plan||'class';
+   markClassCheckoutPending(plan);
    refreshPurchaseBanner();
-   showLithosToast('After paying, you\'ll return here automatically. If not, go to Classes and tap Unlock — or use your code on the Codes page.');
+   const info=getPlanUnlockInfo(plan);
+   showLithosToast(info
+    ? 'After paying, unlock with code '+info.code+' on Memberships or Secret Codes.'
+    : 'After paying, enter your unlock code on Memberships or Secret Codes.');
   });
  });
  const btn=document.getElementById('class-ai-unlock-btn');
@@ -8187,7 +8252,14 @@ async function classAiOpenAIAnswer(q, cfg, system, context, history){
  const lessonsBtn=document.getElementById('class-lessons-unlock-btn');
  if(lessonsBtn) lessonsBtn.addEventListener('click',()=>unlockClassAccess(true));
  const bannerUnlock=document.getElementById('lithos-purchase-unlock');
- if(bannerUnlock) bannerUnlock.addEventListener('click',()=>unlockClassAccess(false));
+ if(bannerUnlock) bannerUnlock.addEventListener('click',()=>{
+  const info=getPlanUnlockInfo(localStorage.getItem(CLASS_CHECKOUT_PENDING)||'');
+  const code=promptForUnlockCode(info?info.code:'');
+  if(!code) return;
+  const unlocked=unlockViaRecoveryCode(code);
+  if(unlocked) showLithosToast('Unlocked: '+unlocked.label);
+  else alert('That code didn\'t work. Check your receipt or try Secret Codes.');
+ });
  const memRecoveryBtn=document.getElementById('mem-recovery-btn');
  const memRecoveryInput=document.getElementById('mem-recovery-code');
  if(memRecoveryBtn&&memRecoveryInput){
@@ -15620,9 +15692,9 @@ function nsDeskGearHTML(){
     if(!n)return;
     if(id==='barricade'||id==='battery'||id==='sandwich'){
       if(shift&&!shift.intro&&!shift.market&&!shift.over) bits.push(`<div class="ns-eq" title="${id}">${nsEquipSVG(id,32)}</div>`);
-      else if(n) bits.push(`<div class="ns-eq" title="${id}">${nsEquipSVG(id,32)}</div>`);
+      else if(n) bits.push(`<button type="button" class="ns-eq ns-desk-use" data-ns-info="${id}" title="${id}">${nsEquipSVG(id,32)}</button>`);
     }else if(nsHasGear(id)||(shift&&((id==='flashlight'&&shift.hasFlashlight)||(id==='crowbar'&&shift.hasCrowbar)||(id==='radio'&&shift.hasRadio)||(id==='doorbrace'&&shift.hasDoorBrace)))){
-      bits.push(`<div class="ns-eq ns-eq-glow" title="${id}">${nsEquipSVG(id,32)}</div>`);
+      bits.push(`<button type="button" class="ns-eq ns-eq-glow ns-desk-use" data-ns-info="${id}" title="${id}">${nsEquipSVG(id,32)}</button>`);
     }
   });
   // during night, show equipped gear from game flags
