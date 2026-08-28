@@ -530,6 +530,8 @@ function playNightShift2(opts){
     leftDoor:false,rightDoor:false,camOpen:false,currentCam:1,
     over:false,won:false,intro:!opts.openMarket,market:!!opts.openMarket,paidOut:false,
     msg:'',marketMsg:'',scare:0,drainMul:1,creepMul:1,
+    leftBarricade:null,rightBarricade:null,placingBarricade:false,
+    hasFlashlight:false,hasCrowbar:false,hasRadio:false,hasDoorBrace:false,crowbarUsed:false,
     decoy:null,frost:null,corrupt:{1:0,2:0,3:0,4:0},
     bots:[
       {id:'magna',name:'Magnapull',role:'Door-Breaker',gem:'Magnetite · rips doors with magnetism',side:'left',pos:0,speed:0.14,color:'#7a8ae8'},
@@ -655,7 +657,7 @@ function ns2Tick(){
   let drain=0.045;
   if(g.leftDoor)drain+=0.05;
   if(g.rightDoor)drain+=0.05;
-  if(g.camOpen)drain+=0.04;
+  if(g.camOpen)drain+=g.hasFlashlight?0.025:0.04;
   if(g.drainMul)drain*=g.drainMul;
   g.power-=drain;
   if(g.power<=0){
@@ -665,7 +667,9 @@ function ns2Tick(){
   const hoursPassed=(g.hour===12)?0:g.hour;
   g.anger=hoursPassed;
   const angerCurve=[0.07,0.22,0.50,0.95,1.6,2.4];
-  const angerBoost=angerCurve[Math.min(5,g.anger||0)];
+  const angerBoost=angerCurve[Math.min(5,g.anger||0)]*(g.creepMul||1);
+  const pushChance=(g.hasCrowbar?0.16:0.06)+(g.hasDoorBrace?0.08:0);
+  const telepathChance=g.hasFlashlight?0.08:0.14;
   g.scare=0; g.telepathSensed=false;
   let doorBot=null;
   const wakeHour=[0,1,2,3,4];
@@ -684,7 +688,7 @@ function ns2Tick(){
         }
       }
       const watching=g.camOpen&&((g.currentCam===1&&bot.side==='left')||(g.currentCam===bot.pos));
-      if(!watching&&Math.random()<0.1*angerBoost) bot.pos+=1;
+      if(!watching&&Math.random()<telepathChance*angerBoost){bot.pos+=1;g.telepathSensed=true;}
       if(bot.pos>4)bot.pos=4;
     }else if(bot.id==='swarm'){
       if(Math.random()<bot.speed*angerBoost){ if(Math.random()<0.5) bot.swarmL=Math.min(4,(bot.swarmL||0)+1); else bot.swarmR=Math.min(4,(bot.swarmR||0)+1); }
@@ -700,6 +704,7 @@ function ns2Tick(){
       try{if(bid==='glaci'&&SFX.clack)SFX.clack();else if(bid==='magna'&&SFX.stomp)SFX.stomp();else if(SFX.walk)SFX.walk(bid);}catch(_){}
       if(Math.random()<0.22){try{if(SFX.talk)SFX.talk(bid);}catch(_){}}
     }
+    if(bot.pos<4)bot._radioWarned=false;
     bot._prevPos=bot.pos;
   });
   Object.keys(g.corrupt).forEach(k=>{if(g.corrupt[k]>0)g.corrupt[k]--;});
@@ -723,14 +728,33 @@ function ns2Tick(){
   }
   if(doorBot){
     g.scare=1;
+    if(g.hasRadio&&!doorBot._radioWarned){
+      doorBot._radioWarned=true;
+      g.msg='RADIO: '+doorBot.name+' is at the '+doorBot.side+' door!';
+      try{if(SFX.boss)SFX.boss();SFX.talk(doorBot.id||doorBot.name);}catch(_){}
+    }
     try{if(SFX.heartbeat)SFX.heartbeat();}catch(_){}
     const side=doorBot.side;
     const doorClosed=(side==='left'&&g.leftDoor)||(side==='right'&&g.rightDoor);
-    if(doorBot.id==='magna'&&doorClosed&&Math.random()<0.09){
+    const bar=side==='left'?g.leftBarricade:g.rightBarricade;
+    const boarded=bar&&bar.hp>0;
+    if(doorBot.id==='magna'&&doorClosed&&!boarded&&Math.random()<0.09){
       if(side==='left')g.leftDoor=false; else g.rightDoor=false;
       g.msg='MAGNETIC GROAN — Magnapull ripped the '+side+' door open! Slam it again!';
       try{if(SFX.door)SFX.door(false);}catch(_){}
-    }else if(!doorClosed){
+    }else if(doorClosed||boarded){
+      if(boarded&&Math.random()<0.12*(g.hasDoorBrace?0.7:1)){
+        bar.hp-=1;
+        if(bar.hp<=0){
+          if(side==='left')g.leftBarricade=null; else g.rightBarricade=null;
+          g.msg='Barricade on the '+side+' door smashed!';
+          try{if(SFX.lose)SFX.lose();}catch(_){}
+        }else{
+          try{if(SFX.clack)SFX.clack();}catch(_){}
+        }
+      }
+      if(Math.random()<pushChance){doorBot.pos=1;doorBot._radioWarned=false;}
+    }else if(!doorClosed&&!boarded){
       if(!g.camOpen||g.blackout){ns2Lose(doorBot);return;}
     }
   }
@@ -740,11 +764,13 @@ function ns2Tick(){
       if(count<3)continue;
       g.scare=1;
       const closed=(side==='left'&&g.leftDoor)||(side==='right'&&g.rightDoor);
-      if(!closed&&(!g.camOpen||g.blackout)){
+      const bar=side==='left'?g.leftBarricade:g.rightBarricade;
+      const boarded=bar&&bar.hp>0;
+      if(!closed&&!boarded&&(!g.camOpen||g.blackout)){
         ns2Lose({id:'swarm',name:'Swarmshard',side});
         return;
       }
-      if(count>=4&&!closed&&(!g.camOpen||g.blackout)){
+      if(count>=4&&!closed&&!boarded&&(!g.camOpen||g.blackout)){
         ns2Lose({id:'swarm',name:'Swarmshard',side});
         return;
       }
@@ -791,6 +817,7 @@ function renderNightShift2(){
         <button class="ns-btn big" onclick="ns2StartNight()">Descend Into the Mine 🌙</button>
       </div>
       ${inv}
+      ${typeof nsDeskGearHTML==='function'?nsDeskGearHTML():''}
       <div class="ns-intro-bots">${g.bots.map(b=>`<button type="button" class="ns-intro-bot" onclick="ns2BotInfo('${b.id}')" title="Tap for info">
         <div class="ns-intro-emoji" style="filter:drop-shadow(0 0 10px ${b.color})">${ns2BotSVG(b.id,64)}</div>
         <div class="ns-intro-name" style="color:${b.color}">${b.name}</div>
@@ -800,7 +827,7 @@ function renderNightShift2(){
       ${g.msg?`<div class="ns-telepath" style="margin:8px 0">${esc(g.msg)}</div>`:''}
       <div class="ns-intro-tip">⌨️ <b>Space/C</b> cameras · <b>D</b> danger door · <b>L/R</b> doors<br>
         🧲 Magnapull rips doors · 📦 click fake crates · ❄️ tap ice 3× · 💨 swarm both sides · 📺 Nullite static<br>
-        💵 Market gear (flashlight, crowbar, food…) works here too!</div>
+        💵 Tap gear pills above to use sandwich, battery, barricade & crowbar — same Market locker as Night Shift 1!</div>
       <button class="ns-btn ghost" onclick="ns2CloseGame()">Leave</button>
     </div>`;
     return;
@@ -837,6 +864,12 @@ function renderNightShift2(){
   const hourStr=`${g.hour}:${String(Math.floor(g.minute)).padStart(2,'0')} AM`;
   const powerPct=Math.min(100,Math.max(0,g.power));
   const powerColor=g.power>40?'#3fa34d':(g.power>15?'#e0a020':'#c0392b');
+  const gearHUD=typeof nsInvBarHTML==='function'?nsInvBarHTML({usable:true,crowbarReady:true}):'';
+  const placeBar=g.placingBarricade?`<div class="ns-place-bar">
+    <button type="button" class="ns-btn door" onclick="nsPlaceBarricade('left')">🪵 Board LEFT door</button>
+    <button type="button" class="ns-btn door" onclick="nsPlaceBarricade('right')">🪵 Board RIGHT door</button>
+    <button type="button" class="ns-btn ghost" onclick="nsCancelPlaceBarricade()">Cancel</button>
+  </div>`:'';
   const msgHTML=g.msg?`<div class="ns-telepath" style="margin:6px 0">${esc(g.msg)}</div>`:'';
   const frostHTML=g.frost?`<div class="ns2-frost" onclick="ns2CrackFrost()" title="Tap to crack the ice!">🧊 FROZEN — tap ${g.frost.clicks}× to break ice!</div>`:'';
   if(g.camOpen){
@@ -849,15 +882,16 @@ function renderNightShift2(){
       if(cam===3)return b.pos===3;
       return b.side==='right'&&b.pos<=1;
     });
+    const glow=g.hasFlashlight?18:8;
     const botDots=camBots.map(b=>{
       const bid=b.id||ns2BotId(b.name);
-      return `<div class="ns-cam-bot" style="left:${20+Math.random()*55}%;top:${30+Math.random()*40}%"><div style="width:52px;filter:drop-shadow(0 0 8px ${b.color})">${ns2BotSVG(bid,52)}</div><div class="ns-cam-name">${b.name}</div></div>`;
+      return `<div class="ns-cam-bot" style="left:${20+Math.random()*55}%;top:${30+Math.random()*40}%"><div style="width:${g.hasFlashlight?60:52}px;filter:drop-shadow(0 0 ${glow}px ${b.color})">${ns2BotSVG(bid,g.hasFlashlight?60:52)}</div><div class="ns-cam-name">${b.name}</div></div>`;
     }).join('');
     const decoyHTML=(g.decoy&&g.decoy.cam===cam)?`<button type="button" class="ns2-decoy" onclick="ns2ClickDecoy()" style="left:${35+Math.random()*20}%;top:${45+Math.random()*15}%">📦<span class="ns2-blink">👁</span></button>`:'';
     scr.innerHTML=`<div class="ns-topbar"><div class="ns-clock">🕛 ${hourStr}</div><div class="ns-power">🔋 <div class="ns-power-bar"><span style="width:${powerPct}%;background:${powerColor}"></span></div> ${Math.round(g.power)}%</div></div>
-      ${frostHTML}${msgHTML}
+      ${gearHUD}${placeBar}${frostHTML}${msgHTML}
       <div class="ns-camview ${corrupt?'ns2-corrupt':''} ${g.scare?'scare':''}"><div class="ns-cam-decor">${ns2CamDecor(cam)}</div><div class="ns-static" style="opacity:${corrupt?0.35:0.08}"></div>
-      <div class="ns-cam-label">📹 MINE CAM ${cam}${corrupt?' · 📺 STATIC':''}</div>${botDots}${decoyHTML||'<div class="ns-cam-empty">...tunnel clear...</div>'}
+      <div class="ns-cam-label">📹 MINE CAM ${cam}${corrupt?' · 📺 STATIC':''}${g.hasFlashlight?' · 🔦 flashlight':''}</div>${botDots}${decoyHTML||'<div class="ns-cam-empty">...tunnel clear...</div>'}
       </div><div class="ns-cam-btns">${[1,2,3,4].map(n=>`<button class="ns-cam-select ${cam===n?'on':''}" ${g.frost?'disabled':''} onclick="ns2SetCam(${n})">CAM ${n}</button>`).join('')}</div>
       <button class="ns-btn wide" ${g.frost?'disabled':''} onclick="ns2ToggleCam()">⬇️ Close Cameras</button>`;
     return;
@@ -871,26 +905,34 @@ function renderNightShift2(){
   const swarmL=swarm?swarm.swarmL:0, swarmR=swarm?swarm.swarmR:0;
   const leftWarn=leftAtDoor?'👹 AT DOOR!':(swarmL>=3?'💨 SWARM!':(leftBot.pos>=2?'👀 close…':''));
   const rightWarn=rightAtDoor?'👹 AT DOOR!':(swarmR>=3?'💨 SWARM!':(rightBot.pos>=2?'👀 close…':''));
-  const hallBots=g.bots.filter(b=>!b.asleep&&b.id!=='swarm'&&b.pos>=1&&b.pos<=3).map(b=>{
+  const minPos=g.hasFlashlight?0:1;
+  const hallBots=g.bots.filter(b=>!b.asleep&&b.id!=='swarm'&&b.pos>=minPos&&b.pos<=3).map(b=>{
     const side=b.side==='left'?'left':'right';
-    const depth=b.pos;
+    const depth=Math.max(1,b.pos);
     const bid=b.id||ns2BotId(b.name);
-    return `<div class="ns-hallbot ${side}" style="${side}:${6+depth*10}%;bottom:${30+depth*6}%;width:${18+depth*10}px;filter:drop-shadow(0 0 ${depth*4}px ${b.color})">${ns2BotSVG(bid,18+depth*10)}<div class="ns-hallbot-name">${b.name}</div></div>`;
+    const size=(g.hasFlashlight?22:18)+depth*10;
+    const glow=(g.hasFlashlight?depth*5+8:depth*3);
+    return `<div class="ns-hallbot ${side}" style="${side}:${6+depth*10}%;bottom:${30+depth*6}%;width:${size}px;filter:drop-shadow(0 0 ${glow}px ${b.color})">${ns2BotSVG(bid,size)}<div class="ns-hallbot-name">${b.name}</div></div>`;
   }).join('');
   const swarmHall=(swarmL>0?`<div class="ns-hallbot left" style="left:8%;bottom:28%;width:24px;opacity:${0.5+swarmL*0.12}">${ns2BotSVG('swarm',24)}<div class="ns-hallbot-name">×${swarmL}</div></div>`:'')+
     (swarmR>0?`<div class="ns-hallbot right" style="right:8%;bottom:28%;width:24px;opacity:${0.5+swarmR*0.12}">${ns2BotSVG('swarm',24)}<div class="ns-hallbot-name">×${swarmR}</div></div>`:'');
-  scr.innerHTML=`<div class="ns-topbar"><div class="ns-clock">⛏️ ${hourStr}</div><div class="ns-mood" style="color:#7ad0f0">Mine Level · Anger ${g.anger||0}/5</div>
+  const doorArt=typeof nsDoorArtHTML==='function'?nsDoorArtHTML:null;
+  const fpYou=g.hasFlashlight&&typeof nsEquipSVG==='function'?nsEquipSVG('flashlight',40):'⛏️';
+  const deskGear=typeof nsDeskGearHTML==='function'?nsDeskGearHTML():'';
+  const gearTags=[g.hasFlashlight?' · FL':'',g.hasCrowbar?' · CB':'',g.hasDoorBrace?' · BR':'',g.hasRadio?' · RD':''].join('');
+  scr.innerHTML=`<div class="ns-topbar"><div class="ns-clock">⛏️ ${hourStr}</div><div class="ns-mood" style="color:#7ad0f0">Mine Level · Anger ${g.anger||0}/5${gearTags}</div>
     <div class="ns-power">🔋 <div class="ns-power-bar"><span style="width:${powerPct}%;background:${powerColor}"></span></div> ${Math.round(g.power)}%</div></div>
-    ${frostHTML}${msgHTML}
+    ${gearHUD}${placeBar}${frostHTML}${msgHTML}
     <div class="ns-office fpv ${g.scare?'scare':''} ${g.blackout?'blackout':''}">
       ${g.blackout?'<div class="ns-blackout-msg">⚡ POWER OUT!</div>':''}
+      ${g.telepathSensed?'<div class="ns-telepath">👻 Nullite is watching from the static…</div>':''}
       <div class="ns-fp-hall"><div class="ns-fp-depth"></div><div class="ns-fp-floor"></div>${hallBots}${swarmHall}</div>
-      <div class="ns-door-area left"><div class="ns-door ${g.leftDoor?'closed':'open'}">${g.leftDoor?'🚪':(leftAtDoor?`<span class="ns-doorbot">${ns2BotSVG(doorBot.id,60)}</span>`:'')}</div>
-        <div class="ns-door-warn">${leftWarn}</div><button class="ns-btn door ${g.leftDoor?'on':''}" ${g.frost||g.blackout?'disabled':''} onclick="ns2ToggleDoor('left')">${g.leftDoor?'🔒 Left SHUT':'🚪 Left'}</button></div>
-      <div class="ns-desk"><div class="ns-fp-you">⛏️</div><div class="ns-desk-label">Deep Guard</div>
-        <div class="ns-hint">Night Shift 2 · Mine Below crew</div></div>
-      <div class="ns-door-area right"><div class="ns-door ${g.rightDoor?'closed':'open'}">${g.rightDoor?'🚪':(rightAtDoor?`<span class="ns-doorbot">${ns2BotSVG(doorBot.id,60)}</span>`:'')}</div>
-        <div class="ns-door-warn">${rightWarn}</div><button class="ns-btn door ${g.rightDoor?'on':''}" ${g.frost||g.blackout?'disabled':''} onclick="ns2ToggleDoor('right')">${g.rightDoor?'🔒 Right SHUT':'🚪 Right'}</button></div>
+      <div class="ns-door-area left"><div class="ns-door ${g.leftDoor||(g.leftBarricade&&g.leftBarricade.hp>0)?'closed':'open'}">${g.leftDoor?'🚪':(leftAtDoor&&!(g.leftBarricade&&g.leftBarricade.hp>0)?`<span class="ns-doorbot">${ns2BotSVG(doorBot.id,60)}</span>`:'')}${doorArt?doorArt('left'):''}</div>
+        <div class="ns-door-warn">${leftWarn}${g.leftBarricade&&g.leftBarricade.hp>0?' · 🪵 boarded':''}</div><button class="ns-btn door ${g.leftDoor?'on':''}" ${g.frost||g.blackout?'disabled':''} onclick="ns2ToggleDoor('left')">${g.leftDoor?'🔒 Left SHUT':'🚪 Left'}</button></div>
+      <div class="ns-desk">${deskGear}<div class="ns-fp-you">${fpYou}</div><div class="ns-desk-label">Deep Guard</div>
+        <div class="ns-hint">⌨️ <b>Space/C</b> cameras · <b>D</b> danger door · tap gear above · barricades board doors · survive to 6 AM ☀️</div></div>
+      <div class="ns-door-area right"><div class="ns-door ${g.rightDoor||(g.rightBarricade&&g.rightBarricade.hp>0)?'closed':'open'}">${g.rightDoor?'🚪':(rightAtDoor&&!(g.rightBarricade&&g.rightBarricade.hp>0)?`<span class="ns-doorbot">${ns2BotSVG(doorBot.id,60)}</span>`:'')}${doorArt?doorArt('right'):''}</div>
+        <div class="ns-door-warn">${rightWarn}${g.rightBarricade&&g.rightBarricade.hp>0?' · 🪵 boarded':''}</div><button class="ns-btn door ${g.rightDoor?'on':''}" ${g.frost||g.blackout?'disabled':''} onclick="ns2ToggleDoor('right')">${g.rightDoor?'🔒 Right SHUT':'🚪 Right'}</button></div>
     </div>
     <button class="ns-btn wide" ${g.frost?'disabled':''} onclick="ns2ToggleCam()">📹 Mine Cameras</button>`;
 }

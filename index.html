@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- lithos-v:site-live-38 -->
+<!-- lithos-v:site-live-39 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -4981,8 +4981,8 @@
 </nav>
 
 <script src="ai-config.js"></script>
-<script src="gems-data.js?v=deploy-38"></script>
-<script src="nightshift2.js?v=deploy-38"></script>
+<script src="gems-data.js?v=deploy-39"></script>
+<script src="nightshift2.js?v=deploy-39"></script>
 <script>
 /* ---------- Affiliate partners (tracked links where available) ---------- */
 const DEFAULT_PARTNER='gemsny';
@@ -15584,6 +15584,7 @@ function nsEqThumb(id,size){
 }
 function nsInvBarHTML(opts){
   opts=opts||{};
+  const g=nsActiveShift();
   const pills=[];
   NS_MARKET.forEach(item=>{
     const n=nsInvCount(item.id);
@@ -15599,36 +15600,36 @@ function nsInvBarHTML(opts){
       pills.push(`<button type="button" class="ns-inv-pill" onclick="nsShowItemInfo('${item.id}')">${art} ${item.name}${item.kind==='gear'?'':' ×'+n}</button>`);
     }
   });
-  if(opts.crowbarReady&&nsHasGear('crowbar')&&nsGame&&!nsGame.crowbarUsed){
+  if(opts.crowbarReady&&g&&g.hasCrowbar&&!g.crowbarUsed){
     pills.push(`<button type="button" class="ns-inv-pill use" onclick="nsUseCrowbar()">${nsEqThumb('crowbar',20)} Crowbar shove</button>`);
   }
-  if(opts.usable&&nsGame&&nsGame.placingBarricade){
+  if(opts.usable&&g&&g.placingBarricade){
     pills.push(`<span class="ns-inv-pill use">Pick a door below →</span>`);
   }
   if(!pills.length)return opts.empty?`<div class="ns-inv-bar"><span class="ns-inv-pill out">No gear yet — visit the Market after payday</span></div>`:'';
   return `<div class="ns-inv-bar">${pills.join('')}</div>`;
 }
 function nsDeskGearHTML(){
+  const shift=nsCurrentShift();
   const ids=['flashlight','crowbar','doorbrace','radio','barricade','battery','sandwich'];
   const bits=[];
   ids.forEach(id=>{
     const n=nsInvCount(id);
     if(!n)return;
     if(id==='barricade'||id==='battery'||id==='sandwich'){
-      if(nsGame&&!nsGame.intro&&!nsGame.market&&!nsGame.over) bits.push(`<div class="ns-eq" title="${id}">${nsEquipSVG(id,32)}</div>`);
+      if(shift&&!shift.intro&&!shift.market&&!shift.over) bits.push(`<div class="ns-eq" title="${id}">${nsEquipSVG(id,32)}</div>`);
       else if(n) bits.push(`<div class="ns-eq" title="${id}">${nsEquipSVG(id,32)}</div>`);
-    }else if(nsHasGear(id)||(nsGame&&((id==='flashlight'&&nsGame.hasFlashlight)||(id==='crowbar'&&nsGame.hasCrowbar)||(id==='radio'&&nsGame.hasRadio)||(id==='doorbrace'&&nsGame.hasDoorBrace)))){
+    }else if(nsHasGear(id)||(shift&&((id==='flashlight'&&shift.hasFlashlight)||(id==='crowbar'&&shift.hasCrowbar)||(id==='radio'&&shift.hasRadio)||(id==='doorbrace'&&shift.hasDoorBrace)))){
       bits.push(`<div class="ns-eq ns-eq-glow" title="${id}">${nsEquipSVG(id,32)}</div>`);
     }
   });
   // during night, show equipped gear from game flags
-  if(nsGame&&!nsGame.intro&&!nsGame.market){
-    const shown=new Set();
+  if(shift&&!shift.intro&&!shift.market){
     bits.length=0;
-    if(nsGame.hasFlashlight){bits.push(`<div class="ns-eq ns-eq-glow" title="Flashlight">${nsEquipSVG('flashlight',32)}</div>`);shown.add('flashlight');}
-    if(nsGame.hasCrowbar){bits.push(`<div class="ns-eq ns-eq-glow" title="Crowbar">${nsEquipSVG('crowbar',32)}</div>`);shown.add('crowbar');}
-    if(nsGame.hasDoorBrace){bits.push(`<div class="ns-eq ns-eq-glow" title="Door Brace">${nsEquipSVG('doorbrace',32)}</div>`);shown.add('doorbrace');}
-    if(nsGame.hasRadio){bits.push(`<div class="ns-eq ns-eq-glow" title="Radio">${nsEquipSVG('radio',32)}</div>`);shown.add('radio');}
+    if(shift.hasFlashlight)bits.push(`<div class="ns-eq ns-eq-glow" title="Flashlight">${nsEquipSVG('flashlight',32)}</div>`);
+    if(shift.hasCrowbar)bits.push(`<div class="ns-eq ns-eq-glow" title="Crowbar">${nsEquipSVG('crowbar',32)}</div>`);
+    if(shift.hasDoorBrace)bits.push(`<div class="ns-eq ns-eq-glow" title="Door Brace">${nsEquipSVG('doorbrace',32)}</div>`);
+    if(shift.hasRadio)bits.push(`<div class="ns-eq ns-eq-glow" title="Radio">${nsEquipSVG('radio',32)}</div>`);
     if(nsInvCount('barricade'))bits.push(`<div class="ns-eq" title="Barricade">${nsEquipSVG('barricade',32)}</div>`);
     if(nsInvCount('sandwich'))bits.push(`<div class="ns-eq" title="Sandwich">${nsEquipSVG('sandwich',32)}</div>`);
     if(nsInvCount('battery'))bits.push(`<div class="ns-eq" title="Battery">${nsEquipSVG('battery',32)}</div>`);
@@ -15637,8 +15638,9 @@ function nsDeskGearHTML(){
   return `<div class="ns-desk-gear">${bits.join('')}</div>`;
 }
 function nsDoorArtHTML(side){
-  if(!nsGame)return '';
-  const b=side==='left'?nsGame.leftBarricade:nsGame.rightBarricade;
+  const g=nsActiveShift()||nsCurrentShift();
+  if(!g)return '';
+  const b=side==='left'?g.leftBarricade:g.rightBarricade;
   if(!b||b.hp<=0)return '';
   const pct=Math.max(0,Math.min(100,Math.round((b.hp/b.maxHp)*100)));
   return `<div class="ns-barricade-art">${nsBarricadeDoorSVG()}</div><div class="ns-barricade-hp" title="Barricade ${pct}%"><span style="width:${pct}%"></span></div>`;
@@ -15663,66 +15665,86 @@ function nsApplyStartGearTo(g){
  g.creepMul=creepMul;
  g.msg='';
 }
+function nsCurrentShift(){
+ if(typeof ns2Game!=='undefined'&&ns2Game&&document.getElementById('nightshift2'))return ns2Game;
+ if(nsGame&&document.getElementById('nightshift'))return nsGame;
+ return nsGame||(typeof ns2Game!=='undefined'?ns2Game:null);
+}
+function nsActiveShift(){
+ const g=nsCurrentShift();
+ if(!g||g.over||g.intro||g.market)return null;
+ return g;
+}
+function nsRenderShift(){
+ if(typeof ns2Game!=='undefined'&&ns2Game&&document.getElementById('nightshift2'))renderNightShift2();
+ else if(nsGame&&document.getElementById('nightshift'))renderNightShift();
+}
 function nsApplyStartGear(){nsApplyStartGearTo(nsGame);}
 function nsStartPlaceBarricade(){
-  if(!nsGame||nsGame.over||nsGame.intro||nsGame.market)return;
-  if(nsInvCount('barricade')<=0){nsGame.msg='No barricades left';renderNightShift();return;}
-  nsGame.placingBarricade=true;
-  nsGame.msg='🪵 Pick LEFT or RIGHT door to board up';
-  renderNightShift();
+  const g=nsActiveShift();
+  if(!g)return;
+  if(nsInvCount('barricade')<=0){g.msg='No barricades left';nsRenderShift();return;}
+  g.placingBarricade=true;
+  g.msg='🪵 Pick LEFT or RIGHT door to board up';
+  nsRenderShift();
 }
 function nsPlaceBarricade(side){
-  if(!nsGame||nsGame.over||!nsGame.placingBarricade)return;
+  const g=nsActiveShift();
+  if(!g||!g.placingBarricade)return;
   if(side!=='left'&&side!=='right')return;
   const key=side==='left'?'leftBarricade':'rightBarricade';
-  if(nsGame[key]&&nsGame[key].hp>0){nsGame.msg='That door is already boarded';renderNightShift();return;}
+  if(g[key]&&g[key].hp>0){g.msg='That door is already boarded';nsRenderShift();return;}
   if(!nsConsumeItem('barricade'))return;
-  const maxHp=nsGame.hasDoorBrace?14:9;
-  nsGame[key]={hp:maxHp,maxHp};
-  nsGame.placingBarricade=false;
-  nsGame.msg=`🪵 Barricade nailed on the ${side} door!`;
+  const maxHp=g.hasDoorBrace?14:9;
+  g[key]={hp:maxHp,maxHp};
+  g.placingBarricade=false;
+  g.msg=`🪵 Barricade nailed on the ${side} door!`;
   try{if(SFX&&SFX.hammer)SFX.hammer();else if(SFX&&SFX.click)SFX.click();}catch(_){}
-  renderNightShift();
+  nsRenderShift();
 }
 function nsCancelPlaceBarricade(){
-  if(!nsGame)return;
-  nsGame.placingBarricade=false;
-  nsGame.msg='';
-  renderNightShift();
+  const g=nsActiveShift();
+  if(!g)return;
+  g.placingBarricade=false;
+  g.msg='';
+  nsRenderShift();
 }
 function nsSideBlocked(side){
-  if(!nsGame)return false;
-  const door=(side==='left'&&nsGame.leftDoor)||(side==='right'&&nsGame.rightDoor);
-  const bar=side==='left'?nsGame.leftBarricade:nsGame.rightBarricade;
+  const g=nsActiveShift();
+  if(!g)return false;
+  const door=(side==='left'&&g.leftDoor)||(side==='right'&&g.rightDoor);
+  const bar=side==='left'?g.leftBarricade:g.rightBarricade;
   const boarded=bar&&bar.hp>0;
   return !!(door||boarded);
 }
 function nsUseItem(id){
-  if(!nsGame||nsGame.over||nsGame.intro||nsGame.market)return;
+  const g=nsActiveShift();
+  if(!g)return;
   if(id==='sandwich'){
     if(!nsConsumeItem('sandwich'))return;
-    nsGame.power=Math.min(140,(nsGame.power||0)+30);
-    nsGame.msg='Sandwich! +30 power';
+    g.power=Math.min(140,(g.power||0)+30);
+    g.msg='Sandwich! +30 power';
   }else if(id==='battery'){
     if(!nsConsumeItem('battery'))return;
-    nsGame.power=Math.min(140,(nsGame.power||0)+40);
-    nsGame.msg='Spare battery! +40 power';
+    g.power=Math.min(140,(g.power||0)+40);
+    g.msg='Spare battery! +40 power';
   }else if(id==='barricade'){
     nsStartPlaceBarricade();return;
   }else return;
   try{if(SFX&&SFX.code)SFX.code();}catch(_){}
-  renderNightShift();
+  nsRenderShift();
 }
 function nsUseCrowbar(){
-  if(!nsGame||nsGame.over||!nsGame.hasCrowbar||nsGame.crowbarUsed)return;
-  const atDoor=nsGame.bots.filter(b=>b.pos>=4);
-  if(!atDoor.length){nsGame.msg='No bot at the door to shove';renderNightShift();return;}
+  const g=nsActiveShift();
+  if(!g||!g.hasCrowbar||g.crowbarUsed)return;
+  const atDoor=g.bots.filter(b=>b.pos>=4);
+  if(!atDoor.length){g.msg='No bot at the door to shove';nsRenderShift();return;}
   atDoor.forEach(b=>{b.pos=1;});
-  nsGame.crowbarUsed=true;
-  nsGame.scare=0;
-  nsGame.msg='CROWBAR BASH — bots shoved back!';
+  g.crowbarUsed=true;
+  g.scare=0;
+  g.msg='CROWBAR BASH — bots shoved back!';
   try{if(SFX&&SFX.boss)SFX.boss();}catch(_){}
-  renderNightShift();
+  nsRenderShift();
 }
 function nsSetHashQuiet(hash){
   try{
@@ -15733,6 +15755,10 @@ function nsSetHashQuiet(hash){
   }catch(_){}
 }
 function nsShowMarket(){
+  if(!nsGame&&typeof ns2Game!=='undefined'&&ns2Game){
+    playNightShift2({openMarket:true});
+    return;
+  }
   if(!nsGame){
     playNightShift({openMarket:true});
     return;
