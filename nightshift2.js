@@ -866,9 +866,9 @@ function renderNightShift2(){
   const powerColor=g.power>40?'#3fa34d':(g.power>15?'#e0a020':'#c0392b');
   const gearHUD=typeof nsInvBarHTML==='function'?nsInvBarHTML({usable:true,crowbarReady:true}):'';
   const placeBar=g.placingBarricade?`<div class="ns-place-bar">
-    <button type="button" class="ns-btn door" onclick="nsPlaceBarricade('left')">🪵 Board LEFT door</button>
-    <button type="button" class="ns-btn door" onclick="nsPlaceBarricade('right')">🪵 Board RIGHT door</button>
-    <button type="button" class="ns-btn ghost" onclick="nsCancelPlaceBarricade()">Cancel</button>
+    <button type="button" class="ns-btn door" data-ns-barricade="left">🪵 Board LEFT door</button>
+    <button type="button" class="ns-btn door" data-ns-barricade="right">🪵 Board RIGHT door</button>
+    <button type="button" class="ns-btn ghost" data-ns-cancel-barricade="1">Cancel</button>
   </div>`:'';
   const msgHTML=g.msg?`<div class="ns-telepath" style="margin:6px 0">${esc(g.msg)}</div>`:'';
   const frostHTML=g.frost?`<div class="ns2-frost" onclick="ns2CrackFrost()" title="Tap to crack the ice!">🧊 FROZEN — tap ${g.frost.clicks}× to break ice!</div>`:'';

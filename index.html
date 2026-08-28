@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- lithos-v:site-live-39 -->
+<!-- lithos-v:site-live-40 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -2419,8 +2419,8 @@
   .ns-pay-total{display:flex;justify-content:space-between;font-size:17px;font-weight:900;color:#2a6a2a;padding-top:10px;margin-top:6px}
   .ns-pay-note{text-align:center;font-size:11px;color:#8a7a4a;margin-top:10px}
   .ns-wallet-chip{display:inline-flex;align-items:center;gap:6px;background:rgba(201,169,79,.15);border:1px solid rgba(201,169,79,.45);color:#ffd87a;border-radius:999px;padding:6px 12px;font-weight:800;font-size:12px;margin:0 4px 10px}
-  .ns-inv-bar{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:8px 0 12px}
-  .ns-inv-pill{background:#1a1826;border:1px solid #3a3448;border-radius:999px;padding:5px 10px;font-size:11px;font-weight:800;color:#d0c8e0}
+  .ns-inv-bar{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:8px 0 12px;position:relative;z-index:6}
+  .ns-inv-pill{background:#1a1826;border:1px solid #3a3448;border-radius:999px;padding:5px 10px;font-size:11px;font-weight:800;color:#d0c8e0;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
   .ns-inv-pill.use{cursor:pointer;border-color:#c9a94f;color:#ffd87a}
   .ns-inv-pill.use:hover{background:#2a2438}
   .ns-inv-pill.out{opacity:.4}
@@ -2448,8 +2448,10 @@
   .ns-inv-pill{display:inline-flex;align-items:center;gap:6px}
   .ns-inv-pill .ns-eq{width:22px;height:22px;flex:0 0 auto}
   .ns-inv-pill .ns-eq svg{width:22px;height:22px;display:block}
-  .ns-desk-gear{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:8px 0 4px;min-height:36px}
+  .ns-desk-gear{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:8px 0 4px;min-height:36px;position:relative;z-index:6}
   .ns-desk-gear .ns-eq{width:36px;height:36px;background:rgba(0,0,0,.35);border:1px solid #3a3448;border-radius:8px;padding:3px}
+  .ns-desk-gear .ns-desk-use{cursor:pointer;touch-action:manipulation;border-color:#c9a94f;background:rgba(201,169,79,.12)}
+  .ns-desk-gear .ns-desk-use:hover{background:rgba(201,169,79,.22)}
   .ns-desk-gear .ns-eq svg{width:100%;height:100%;display:block}
   .ns-door{position:relative;overflow:hidden}
   .ns-barricade-art{position:absolute;inset:8% 10%;pointer-events:none;z-index:2}
@@ -4981,8 +4983,8 @@
 </nav>
 
 <script src="ai-config.js"></script>
-<script src="gems-data.js?v=deploy-39"></script>
-<script src="nightshift2.js?v=deploy-39"></script>
+<script src="gems-data.js?v=deploy-40"></script>
+<script src="nightshift2.js?v=deploy-40"></script>
 <script>
 /* ---------- Affiliate partners (tracked links where available) ---------- */
 const DEFAULT_PARTNER='gemsny';
@@ -15592,16 +15594,16 @@ function nsInvBarHTML(opts){
     const art=nsEqThumb(item.id,20);
     if(item.kind==='use'&&opts.usable){
       if(item.id==='barricade'){
-        pills.push(`<button type="button" class="ns-inv-pill use" onclick="nsStartPlaceBarricade()">${art} Barricade ×${n}</button>`);
+        pills.push(`<button type="button" class="ns-inv-pill use" data-ns-start-barricade="1">${art} Barricade ×${n}</button>`);
       }else{
-        pills.push(`<button type="button" class="ns-inv-pill use" onclick="nsUseItem('${item.id}')">${art} ${item.name} ×${n}</button>`);
+        pills.push(`<button type="button" class="ns-inv-pill use" data-ns-use="${item.id}">${art} ${item.name} ×${n}</button>`);
       }
     }else{
-      pills.push(`<button type="button" class="ns-inv-pill" onclick="nsShowItemInfo('${item.id}')">${art} ${item.name}${item.kind==='gear'?'':' ×'+n}</button>`);
+      pills.push(`<button type="button" class="ns-inv-pill" data-ns-info="${item.id}">${art} ${item.name}${item.kind==='gear'?'':' ×'+n}</button>`);
     }
   });
   if(opts.crowbarReady&&g&&g.hasCrowbar&&!g.crowbarUsed){
-    pills.push(`<button type="button" class="ns-inv-pill use" onclick="nsUseCrowbar()">${nsEqThumb('crowbar',20)} Crowbar shove</button>`);
+    pills.push(`<button type="button" class="ns-inv-pill use" data-ns-crowbar="1">${nsEqThumb('crowbar',20)} Crowbar shove</button>`);
   }
   if(opts.usable&&g&&g.placingBarricade){
     pills.push(`<span class="ns-inv-pill use">Pick a door below →</span>`);
@@ -15626,13 +15628,14 @@ function nsDeskGearHTML(){
   // during night, show equipped gear from game flags
   if(shift&&!shift.intro&&!shift.market){
     bits.length=0;
-    if(shift.hasFlashlight)bits.push(`<div class="ns-eq ns-eq-glow" title="Flashlight">${nsEquipSVG('flashlight',32)}</div>`);
-    if(shift.hasCrowbar)bits.push(`<div class="ns-eq ns-eq-glow" title="Crowbar">${nsEquipSVG('crowbar',32)}</div>`);
-    if(shift.hasDoorBrace)bits.push(`<div class="ns-eq ns-eq-glow" title="Door Brace">${nsEquipSVG('doorbrace',32)}</div>`);
-    if(shift.hasRadio)bits.push(`<div class="ns-eq ns-eq-glow" title="Radio">${nsEquipSVG('radio',32)}</div>`);
-    if(nsInvCount('barricade'))bits.push(`<div class="ns-eq" title="Barricade">${nsEquipSVG('barricade',32)}</div>`);
-    if(nsInvCount('sandwich'))bits.push(`<div class="ns-eq" title="Sandwich">${nsEquipSVG('sandwich',32)}</div>`);
-    if(nsInvCount('battery'))bits.push(`<div class="ns-eq" title="Battery">${nsEquipSVG('battery',32)}</div>`);
+    if(shift.hasFlashlight)bits.push(`<div class="ns-eq ns-eq-glow" title="Flashlight (passive)">${nsEquipSVG('flashlight',32)}</div>`);
+    if(shift.hasCrowbar&&!shift.crowbarUsed)bits.push(`<button type="button" class="ns-eq ns-eq-glow ns-desk-use" data-ns-crowbar="1" title="Crowbar shove">${nsEquipSVG('crowbar',32)}</button>`);
+    else if(shift.hasCrowbar)bits.push(`<div class="ns-eq" title="Crowbar used">${nsEquipSVG('crowbar',32)}</div>`);
+    if(shift.hasDoorBrace)bits.push(`<div class="ns-eq ns-eq-glow" title="Door Brace (passive)">${nsEquipSVG('doorbrace',32)}</div>`);
+    if(shift.hasRadio)bits.push(`<div class="ns-eq ns-eq-glow" title="Radio (passive)">${nsEquipSVG('radio',32)}</div>`);
+    if(nsInvCount('barricade'))bits.push(`<button type="button" class="ns-eq ns-desk-use" data-ns-start-barricade="1" title="Use barricade">${nsEquipSVG('barricade',32)}</button>`);
+    if(nsInvCount('sandwich'))bits.push(`<button type="button" class="ns-eq ns-desk-use" data-ns-use="sandwich" title="Eat sandwich (+30 power)">${nsEquipSVG('sandwich',32)}</button>`);
+    if(nsInvCount('battery'))bits.push(`<button type="button" class="ns-eq ns-desk-use" data-ns-use="battery" title="Use battery (+40 power)">${nsEquipSVG('battery',32)}</button>`);
   }
   if(!bits.length)return '';
   return `<div class="ns-desk-gear">${bits.join('')}</div>`;
@@ -15645,6 +15648,28 @@ function nsDoorArtHTML(side){
   const pct=Math.max(0,Math.min(100,Math.round((b.hp/b.maxHp)*100)));
   return `<div class="ns-barricade-art">${nsBarricadeDoorSVG()}</div><div class="ns-barricade-hp" title="Barricade ${pct}%"><span style="width:${pct}%"></span></div>`;
 }
+function nsHandleShiftAction(el){
+  if(!el||!el.closest('#nightshift,#nightshift2'))return false;
+  if(el.dataset.nsUse){nsUseItem(el.dataset.nsUse);return true;}
+  if(el.dataset.nsStartBarricade){nsStartPlaceBarricade();return true;}
+  if(el.dataset.nsBarricade){nsPlaceBarricade(el.dataset.nsBarricade);return true;}
+  if(el.dataset.nsCancelBarricade){nsCancelPlaceBarricade();return true;}
+  if(el.dataset.nsCrowbar){nsUseCrowbar();return true;}
+  if(el.dataset.nsBuy){nsBuyFromMarket(el.dataset.nsBuy);return true;}
+  if(el.dataset.nsInfo){nsShowItemInfo(el.dataset.nsInfo);return true;}
+  return false;
+}
+function nsBindShiftUI(){
+  if(window._nsShiftUIBound)return;
+  window._nsShiftUIBound=true;
+  document.addEventListener('pointerdown',function(e){
+    const el=e.target.closest('[data-ns-use],[data-ns-start-barricade],[data-ns-barricade],[data-ns-cancel-barricade],[data-ns-crowbar],[data-ns-buy],[data-ns-info]');
+    if(!el||!el.closest('#nightshift,#nightshift2'))return;
+    if(el.disabled||el.getAttribute('aria-disabled')==='true')return;
+    if(nsHandleShiftAction(el))e.preventDefault();
+  },true);
+}
+nsBindShiftUI();
 function nsApplyStartGearTo(g){
  if(!g)return;
  let power=100;
@@ -15786,8 +15811,9 @@ function nsCloseMarket(){
 }
 function nsBuyFromMarket(id){
  const res=nsBuyItem(id);
- if(nsGame){nsGame.marketMsg=res.msg;nsGame.market=true;nsGame.intro=false;renderNightShift();return;}
- if(typeof ns2Game!=='undefined'&&ns2Game){ns2Game.marketMsg=res.msg;ns2Game.market=true;ns2Game.intro=false;renderNightShift2();return;}
+ if(nsGame&&document.getElementById('nightshift')){nsGame.marketMsg=res.msg;nsGame.market=true;nsGame.intro=false;renderNightShift();return;}
+ if(typeof ns2Game!=='undefined'&&ns2Game&&document.getElementById('nightshift2')){ns2Game.marketMsg=res.msg;ns2Game.market=true;ns2Game.intro=false;renderNightShift2();return;}
+ try{showLithosToast(res.msg,3500);}catch(_){}
 }
 function nsShowItemInfo(id){
  const item=nsMarketItem(id);
@@ -15804,8 +15830,8 @@ function nsMarketCardHTML(item,w){
  let ico='';
  try{ico=nsEquipSVG(item.id,64);}catch(_){ico=item.icon||'📦';}
  const esc=(s)=>(typeof escapeHtml==='function'?escapeHtml(String(s)):String(s));
- const cardAct=owned||!canBuy?`onclick="nsShowItemInfo('${item.id}')"`:`onclick="nsBuyFromMarket('${item.id}')"`;
- const btnAct=owned||!canBuy?`nsShowItemInfo('${item.id}')`:`nsBuyFromMarket('${item.id}')`;
+ const cardAct=owned||!canBuy?`data-ns-info="${item.id}"`:`data-ns-buy="${item.id}"`;
+ const btnAct=owned||!canBuy?`data-ns-info="${item.id}"`:`data-ns-buy="${item.id}"`;
  const btnLabel=owned?'Info':(canBuy?'Buy':'Need $');
  return `<div class="ns-market-card${owned?' owned':''} ns-market-click" role="button" tabindex="0" ${cardAct}>
   <div class="ns-market-ico">${ico}</div>
@@ -15813,7 +15839,7 @@ function nsMarketCardHTML(item,w){
   <div class="ns-market-desc">${esc(item.desc)}</div>
   <div class="ns-market-row">
    <span class="ns-market-price">$${item.price}${owned?' · owned':(qty&&item.kind!=='gear'?` · have ${qty}`:'')}</span>
-   <button type="button" class="ns-market-buy" ${canBuy&&!owned?'':'disabled'} onclick="event.stopPropagation();${btnAct}">${btnLabel}</button>
+   <button type="button" class="ns-market-buy" ${canBuy&&!owned?'':'disabled'} ${btnAct}>${btnLabel}</button>
   </div>
  </div>`;
 }
@@ -16241,9 +16267,9 @@ function renderNightShift(){
   const gearHUD=nsInvBarHTML({usable:true,crowbarReady:true});
   const msgHTML=g.msg?`<div class="ns-telepath" style="margin:6px 0">${escapeHtml(g.msg)}</div>`:'';
   const placeBar=g.placingBarricade?`<div class="ns-place-bar">
-    <button type="button" class="ns-btn door" onclick="nsPlaceBarricade('left')">🪵 Board LEFT door</button>
-    <button type="button" class="ns-btn door" onclick="nsPlaceBarricade('right')">🪵 Board RIGHT door</button>
-    <button type="button" class="ns-btn ghost" onclick="nsCancelPlaceBarricade()">Cancel</button>
+    <button type="button" class="ns-btn door" data-ns-barricade="left">🪵 Board LEFT door</button>
+    <button type="button" class="ns-btn door" data-ns-barricade="right">🪵 Board RIGHT door</button>
+    <button type="button" class="ns-btn ghost" data-ns-cancel-barricade="1">Cancel</button>
   </div>`:'';
   // ---- CAMERA VIEW ----
   if(g.camOpen){
