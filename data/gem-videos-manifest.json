@@ -1,0 +1,1200 @@
+{
+  "generated": "2026-08-29T23:05:53.297Z",
+  "count": 199,
+  "gems": [
+    {
+      "slug": "diamond-specimen",
+      "name": "Diamond",
+      "video": "videos/gems/diamond-specimen.mp4",
+      "img": "images/diamond-specimen.jpg"
+    },
+    {
+      "slug": "ruby",
+      "name": "Ruby",
+      "video": "videos/gems/ruby.mp4",
+      "img": "images/ruby.jpg"
+    },
+    {
+      "slug": "sapphire",
+      "name": "Sapphire",
+      "video": "videos/gems/sapphire.mp4",
+      "img": "images/sapphire.jpg"
+    },
+    {
+      "slug": "emerald",
+      "name": "Emerald",
+      "video": "videos/gems/emerald.mp4",
+      "img": "images/emerald.jpg"
+    },
+    {
+      "slug": "amethyst",
+      "name": "Amethyst",
+      "video": "videos/gems/amethyst.mp4",
+      "img": "images/amethyst.jpg"
+    },
+    {
+      "slug": "topaz-specimen",
+      "name": "Topaz",
+      "video": "videos/gems/topaz-specimen.mp4",
+      "img": "images/topaz-specimen.jpg"
+    },
+    {
+      "slug": "opal",
+      "name": "Opal",
+      "video": "videos/gems/opal.mp4",
+      "img": "images/opal.jpg"
+    },
+    {
+      "slug": "garnet",
+      "name": "Garnet",
+      "video": "videos/gems/garnet.mp4",
+      "img": "images/garnet.jpg"
+    },
+    {
+      "slug": "aquamarine",
+      "name": "Aquamarine",
+      "video": "videos/gems/aquamarine.mp4",
+      "img": "images/aquamarine.jpg"
+    },
+    {
+      "slug": "tourmaline",
+      "name": "Tourmaline",
+      "video": "videos/gems/tourmaline.mp4",
+      "img": "images/tourmaline.jpg"
+    },
+    {
+      "slug": "peridot",
+      "name": "Peridot",
+      "video": "videos/gems/peridot.mp4",
+      "img": "images/peridot.jpg"
+    },
+    {
+      "slug": "spinel",
+      "name": "Spinel",
+      "video": "videos/gems/spinel.mp4",
+      "img": "images/spinel.jpg"
+    },
+    {
+      "slug": "tanzanite",
+      "name": "Tanzanite",
+      "video": "videos/gems/tanzanite.mp4",
+      "img": "images/tanzanite.jpg"
+    },
+    {
+      "slug": "citrine",
+      "name": "Citrine",
+      "video": "videos/gems/citrine.mp4",
+      "img": "images/citrine.jpg"
+    },
+    {
+      "slug": "jade",
+      "name": "Jade",
+      "video": "videos/gems/jade.mp4",
+      "img": "images/jade.jpg"
+    },
+    {
+      "slug": "alexandrite",
+      "name": "Alexandrite",
+      "video": "videos/gems/alexandrite.mp4",
+      "img": "images/alexandrite.jpg"
+    },
+    {
+      "slug": "para-ba-tourmaline",
+      "name": "Paraíba Tourmaline",
+      "video": "videos/gems/para-ba-tourmaline.mp4",
+      "img": "images/para-ba-tourmaline.jpg"
+    },
+    {
+      "slug": "black-opal",
+      "name": "Black Opal",
+      "video": "videos/gems/black-opal.mp4",
+      "img": "images/black-opal.jpg"
+    },
+    {
+      "slug": "benitoite",
+      "name": "Benitoite",
+      "video": "videos/gems/benitoite.mp4",
+      "img": "images/benitoite.jpg"
+    },
+    {
+      "slug": "moissanite",
+      "name": "Moissanite",
+      "video": "videos/gems/moissanite.mp4",
+      "img": "images/moissanite.jpg"
+    },
+    {
+      "slug": "ammolite",
+      "name": "Ammolite",
+      "video": "videos/gems/ammolite.mp4",
+      "img": "images/ammolite.jpg"
+    },
+    {
+      "slug": "painite",
+      "name": "Painite",
+      "video": "videos/gems/painite.mp4",
+      "img": "images/painite.jpg"
+    },
+    {
+      "slug": "grandidierite",
+      "name": "Grandidierite",
+      "video": "videos/gems/grandidierite.mp4",
+      "img": "images/grandidierite.jpg"
+    },
+    {
+      "slug": "larimar",
+      "name": "Larimar",
+      "video": "videos/gems/larimar.mp4",
+      "img": "images/larimar.jpg"
+    },
+    {
+      "slug": "musgravite",
+      "name": "Musgravite",
+      "video": "videos/gems/musgravite.mp4",
+      "img": "images/musgravite.jpg"
+    },
+    {
+      "slug": "turquoise",
+      "name": "Turquoise",
+      "video": "videos/gems/turquoise.mp4",
+      "img": "images/turquoise.jpg"
+    },
+    {
+      "slug": "moonstone",
+      "name": "Moonstone",
+      "video": "videos/gems/moonstone.mp4",
+      "img": "images/moonstone.jpg"
+    },
+    {
+      "slug": "lapis-lazuli",
+      "name": "Lapis Lazuli",
+      "video": "videos/gems/lapis-lazuli.mp4",
+      "img": "images/lapis-lazuli.jpg"
+    },
+    {
+      "slug": "pearl",
+      "name": "Pearl",
+      "video": "videos/gems/pearl.mp4",
+      "img": "images/pearl.jpg"
+    },
+    {
+      "slug": "onyx",
+      "name": "Onyx",
+      "video": "videos/gems/onyx.mp4",
+      "img": "images/onyx.jpg"
+    },
+    {
+      "slug": "rose-quartz",
+      "name": "Rose Quartz",
+      "video": "videos/gems/rose-quartz.mp4",
+      "img": "images/rose-quartz.jpg"
+    },
+    {
+      "slug": "zircon",
+      "name": "Zircon",
+      "video": "videos/gems/zircon.mp4",
+      "img": "images/zircon.jpg"
+    },
+    {
+      "slug": "kunzite",
+      "name": "Kunzite",
+      "video": "videos/gems/kunzite.mp4",
+      "img": "images/kunzite.jpg"
+    },
+    {
+      "slug": "morganite",
+      "name": "Morganite",
+      "video": "videos/gems/morganite.mp4",
+      "img": "images/morganite.jpg"
+    },
+    {
+      "slug": "iolite",
+      "name": "Iolite",
+      "video": "videos/gems/iolite.mp4",
+      "img": "images/iolite.jpg"
+    },
+    {
+      "slug": "chrysoberyl",
+      "name": "Chrysoberyl",
+      "video": "videos/gems/chrysoberyl.mp4",
+      "img": "images/chrysoberyl.jpg"
+    },
+    {
+      "slug": "sphene",
+      "name": "Sphene",
+      "video": "videos/gems/sphene.mp4",
+      "img": "images/sphene.jpg"
+    },
+    {
+      "slug": "andalusite",
+      "name": "Andalusite",
+      "video": "videos/gems/andalusite.mp4",
+      "img": "images/andalusite.jpg"
+    },
+    {
+      "slug": "chrome-diopside",
+      "name": "Chrome Diopside",
+      "video": "videos/gems/chrome-diopside.mp4",
+      "img": "images/chrome-diopside.jpg"
+    },
+    {
+      "slug": "rhodochrosite",
+      "name": "Rhodochrosite",
+      "video": "videos/gems/rhodochrosite.mp4",
+      "img": "images/rhodochrosite.jpg"
+    },
+    {
+      "slug": "rhodonite",
+      "name": "Rhodonite",
+      "video": "videos/gems/rhodonite.mp4",
+      "img": "images/rhodonite.jpg"
+    },
+    {
+      "slug": "bloodstone",
+      "name": "Bloodstone",
+      "video": "videos/gems/bloodstone.mp4",
+      "img": "images/bloodstone.jpg"
+    },
+    {
+      "slug": "carnelian",
+      "name": "Carnelian",
+      "video": "videos/gems/carnelian.mp4",
+      "img": "images/carnelian.jpg"
+    },
+    {
+      "slug": "agate",
+      "name": "Agate",
+      "video": "videos/gems/agate.mp4",
+      "img": "images/agate.jpg"
+    },
+    {
+      "slug": "malachite",
+      "name": "Malachite",
+      "video": "videos/gems/malachite.mp4",
+      "img": "images/malachite.jpg"
+    },
+    {
+      "slug": "labradorite",
+      "name": "Labradorite",
+      "video": "videos/gems/labradorite.mp4",
+      "img": "images/labradorite.jpg"
+    },
+    {
+      "slug": "sunstone",
+      "name": "Sunstone",
+      "video": "videos/gems/sunstone.mp4",
+      "img": "images/sunstone.jpg"
+    },
+    {
+      "slug": "amber",
+      "name": "Amber",
+      "video": "videos/gems/amber.mp4",
+      "img": "images/amber.jpg"
+    },
+    {
+      "slug": "jet",
+      "name": "Jet",
+      "video": "videos/gems/jet.mp4",
+      "img": "images/jet.jpg"
+    },
+    {
+      "slug": "fluorite",
+      "name": "Fluorite",
+      "video": "videos/gems/fluorite.mp4",
+      "img": "images/fluorite.jpg"
+    },
+    {
+      "slug": "apatite",
+      "name": "Apatite",
+      "video": "videos/gems/apatite.mp4",
+      "img": "images/apatite.jpg"
+    },
+    {
+      "slug": "amazonite",
+      "name": "Amazonite",
+      "video": "videos/gems/amazonite.mp4",
+      "img": "images/amazonite.jpg"
+    },
+    {
+      "slug": "hematite",
+      "name": "Hematite",
+      "video": "videos/gems/hematite.mp4",
+      "img": "images/hematite.jpg"
+    },
+    {
+      "slug": "tigers-eye",
+      "name": "Tigers Eye",
+      "video": "videos/gems/tigers-eye.mp4",
+      "img": "images/tigers-eye.jpg"
+    },
+    {
+      "slug": "prehnite",
+      "name": "Prehnite",
+      "video": "videos/gems/prehnite.mp4",
+      "img": "images/prehnite.jpg"
+    },
+    {
+      "slug": "sodalite",
+      "name": "Sodalite",
+      "video": "videos/gems/sodalite.mp4",
+      "img": "images/sodalite.jpg"
+    },
+    {
+      "slug": "blue-lace-agate",
+      "name": "Blue Lace Agate",
+      "video": "videos/gems/blue-lace-agate.mp4",
+      "img": "images/blue-lace-agate.jpg"
+    },
+    {
+      "slug": "aventurine",
+      "name": "Aventurine",
+      "video": "videos/gems/aventurine.mp4",
+      "img": "images/aventurine.jpg"
+    },
+    {
+      "slug": "chrysocolla",
+      "name": "Chrysocolla",
+      "video": "videos/gems/chrysocolla.mp4",
+      "img": "images/chrysocolla.jpg"
+    },
+    {
+      "slug": "star-sapphire",
+      "name": "Star Sapphire",
+      "video": "videos/gems/star-sapphire.mp4",
+      "img": "images/star-sapphire.jpg"
+    },
+    {
+      "slug": "obsidian",
+      "name": "Snowflake Obsidian",
+      "video": "videos/gems/obsidian.mp4",
+      "img": "images/obsidian.jpg"
+    },
+    {
+      "slug": "smoky-quartz",
+      "name": "Smoky Quartz",
+      "video": "videos/gems/smoky-quartz.mp4",
+      "img": "images/smoky-quartz.jpg"
+    },
+    {
+      "slug": "rock-crystal",
+      "name": "Rock Crystal",
+      "video": "videos/gems/rock-crystal.mp4",
+      "img": "images/rock-crystal.jpg"
+    },
+    {
+      "slug": "ametrine",
+      "name": "Ametrine",
+      "video": "videos/gems/ametrine.mp4",
+      "img": "images/ametrine.jpg"
+    },
+    {
+      "slug": "prasiolite",
+      "name": "Prasiolite",
+      "video": "videos/gems/prasiolite.mp4",
+      "img": "images/prasiolite.jpg"
+    },
+    {
+      "slug": "jasper",
+      "name": "Jasper",
+      "video": "videos/gems/jasper.mp4",
+      "img": "images/jasper.jpg"
+    },
+    {
+      "slug": "chrysoprase",
+      "name": "Chrysoprase",
+      "video": "videos/gems/chrysoprase.mp4",
+      "img": "images/chrysoprase.jpg"
+    },
+    {
+      "slug": "howlite",
+      "name": "Howlite",
+      "video": "videos/gems/howlite.mp4",
+      "img": "images/howlite.jpg"
+    },
+    {
+      "slug": "charoite",
+      "name": "Charoite",
+      "video": "videos/gems/charoite.mp4",
+      "img": "images/charoite.jpg"
+    },
+    {
+      "slug": "sugilite",
+      "name": "Sugilite",
+      "video": "videos/gems/sugilite.mp4",
+      "img": "images/sugilite.jpg"
+    },
+    {
+      "slug": "kyanite",
+      "name": "Kyanite",
+      "video": "videos/gems/kyanite.mp4",
+      "img": "images/kyanite.jpg"
+    },
+    {
+      "slug": "azurite",
+      "name": "Azurite",
+      "video": "videos/gems/azurite.mp4",
+      "img": "images/azurite.jpg"
+    },
+    {
+      "slug": "dioptase",
+      "name": "Dioptase",
+      "video": "videos/gems/dioptase.mp4",
+      "img": "images/dioptase.jpg"
+    },
+    {
+      "slug": "pyrite",
+      "name": "Pyrite",
+      "video": "videos/gems/pyrite.mp4",
+      "img": "images/pyrite.jpg"
+    },
+    {
+      "slug": "celestite",
+      "name": "Celestite",
+      "video": "videos/gems/celestite.mp4",
+      "img": "images/celestite.jpg"
+    },
+    {
+      "slug": "smithsonite",
+      "name": "Smithsonite",
+      "video": "videos/gems/smithsonite.mp4",
+      "img": "images/smithsonite.jpg"
+    },
+    {
+      "slug": "tsavorite",
+      "name": "Tsavorite",
+      "video": "videos/gems/tsavorite.mp4",
+      "img": "images/tsavorite.jpg"
+    },
+    {
+      "slug": "demantoid",
+      "name": "Demantoid",
+      "video": "videos/gems/demantoid.mp4",
+      "img": "images/demantoid.jpg"
+    },
+    {
+      "slug": "heliodor",
+      "name": "Heliodor",
+      "video": "videos/gems/heliodor.mp4",
+      "img": "images/heliodor.jpg"
+    },
+    {
+      "slug": "hiddenite",
+      "name": "Hiddenite",
+      "video": "videos/gems/hiddenite.mp4",
+      "img": "images/hiddenite.jpg"
+    },
+    {
+      "slug": "red-beryl",
+      "name": "Red Beryl",
+      "video": "videos/gems/red-beryl.mp4",
+      "img": "images/red-beryl.jpg"
+    },
+    {
+      "slug": "fire-opal",
+      "name": "Fire Opal",
+      "video": "videos/gems/fire-opal.mp4",
+      "img": "images/fire-opal.jpg"
+    },
+    {
+      "slug": "coral",
+      "name": "Coral",
+      "video": "videos/gems/coral.mp4",
+      "img": "images/coral.jpg"
+    },
+    {
+      "slug": "serpentine",
+      "name": "Serpentine",
+      "video": "videos/gems/serpentine.mp4",
+      "img": "images/serpentine.jpg"
+    },
+    {
+      "slug": "unakite",
+      "name": "Unakite",
+      "video": "videos/gems/unakite.mp4",
+      "img": "images/unakite.jpg"
+    },
+    {
+      "slug": "dumortierite",
+      "name": "Dumortierite",
+      "video": "videos/gems/dumortierite.mp4",
+      "img": "images/dumortierite.jpg"
+    },
+    {
+      "slug": "epidote",
+      "name": "Epidote",
+      "video": "videos/gems/epidote.mp4",
+      "img": "images/epidote.jpg"
+    },
+    {
+      "slug": "cuprite",
+      "name": "Cuprite",
+      "video": "videos/gems/cuprite.mp4",
+      "img": "images/cuprite.jpg"
+    },
+    {
+      "slug": "aragonite",
+      "name": "Aragonite",
+      "video": "videos/gems/aragonite.mp4",
+      "img": "images/aragonite.jpg"
+    },
+    {
+      "slug": "calcite",
+      "name": "Calcite",
+      "video": "videos/gems/calcite.mp4",
+      "img": "images/calcite.jpg"
+    },
+    {
+      "slug": "uvarovite",
+      "name": "Uvarovite",
+      "video": "videos/gems/uvarovite.mp4",
+      "img": "images/uvarovite.jpg"
+    },
+    {
+      "slug": "spessartine",
+      "name": "Spessartine",
+      "video": "videos/gems/spessartine.mp4",
+      "img": "images/spessartine.jpg"
+    },
+    {
+      "slug": "moldavite",
+      "name": "Moldavite",
+      "video": "videos/gems/moldavite.mp4",
+      "img": "images/moldavite.jpg"
+    },
+    {
+      "slug": "variscite",
+      "name": "Variscite",
+      "video": "videos/gems/variscite.mp4",
+      "img": "images/variscite.jpg"
+    },
+    {
+      "slug": "seraphinite",
+      "name": "Seraphinite",
+      "video": "videos/gems/seraphinite.mp4",
+      "img": "images/seraphinite.jpg"
+    },
+    {
+      "slug": "pietersite",
+      "name": "Pietersite",
+      "video": "videos/gems/pietersite.mp4",
+      "img": "images/pietersite.jpg"
+    },
+    {
+      "slug": "hawks-eye",
+      "name": "Hawk's Eye",
+      "video": "videos/gems/hawks-eye.mp4",
+      "img": "images/hawks-eye.jpg"
+    },
+    {
+      "slug": "cats-eye",
+      "name": "Cat's Eye",
+      "video": "videos/gems/cats-eye.mp4",
+      "img": "images/cats-eye.jpg"
+    },
+    {
+      "slug": "padparadscha",
+      "name": "Padparadscha",
+      "video": "videos/gems/padparadscha.mp4",
+      "img": "images/padparadscha.jpg"
+    },
+    {
+      "slug": "lepidolite",
+      "name": "Lepidolite",
+      "video": "videos/gems/lepidolite.mp4",
+      "img": "images/lepidolite.jpg"
+    },
+    {
+      "slug": "orthoclase",
+      "name": "Orthoclase",
+      "video": "videos/gems/orthoclase.mp4",
+      "img": "images/orthoclase.jpg"
+    },
+    {
+      "slug": "albite",
+      "name": "Albite",
+      "video": "videos/gems/albite.mp4",
+      "img": "images/albite.jpg"
+    },
+    {
+      "slug": "sanidine",
+      "name": "Sanidine",
+      "video": "videos/gems/sanidine.mp4",
+      "img": "images/sanidine.jpg"
+    },
+    {
+      "slug": "wollastonite",
+      "name": "Wollastonite",
+      "video": "videos/gems/wollastonite.mp4",
+      "img": "images/wollastonite.jpg"
+    },
+    {
+      "slug": "tremolite",
+      "name": "Tremolite",
+      "video": "videos/gems/tremolite.mp4",
+      "img": "images/tremolite.jpg"
+    },
+    {
+      "slug": "actinolite",
+      "name": "Actinolite",
+      "video": "videos/gems/actinolite.mp4",
+      "img": "images/actinolite.jpg"
+    },
+    {
+      "slug": "staurolite",
+      "name": "Staurolite",
+      "video": "videos/gems/staurolite.mp4",
+      "img": "images/staurolite.jpg"
+    },
+    {
+      "slug": "sillimanite",
+      "name": "Sillimanite",
+      "video": "videos/gems/sillimanite.mp4",
+      "img": "images/sillimanite.jpg"
+    },
+    {
+      "slug": "rutile",
+      "name": "Rutile",
+      "video": "videos/gems/rutile.mp4",
+      "img": "images/rutile.jpg"
+    },
+    {
+      "slug": "cassiterite",
+      "name": "Cassiterite",
+      "video": "videos/gems/cassiterite.mp4",
+      "img": "images/cassiterite.jpg"
+    },
+    {
+      "slug": "scheelite",
+      "name": "Scheelite",
+      "video": "videos/gems/scheelite.mp4",
+      "img": "images/scheelite.jpg"
+    },
+    {
+      "slug": "sphalerite",
+      "name": "Sphalerite",
+      "video": "videos/gems/sphalerite.mp4",
+      "img": "images/sphalerite.jpg"
+    },
+    {
+      "slug": "cinnabar",
+      "name": "Cinnabar",
+      "video": "videos/gems/cinnabar.mp4",
+      "img": "images/cinnabar.jpg"
+    },
+    {
+      "slug": "stibnite",
+      "name": "Stibnite",
+      "video": "videos/gems/stibnite.mp4",
+      "img": "images/stibnite.jpg"
+    },
+    {
+      "slug": "native-gold",
+      "name": "Native Gold",
+      "video": "videos/gems/native-gold.mp4",
+      "img": "images/native-gold.jpg"
+    },
+    {
+      "slug": "native-copper",
+      "name": "Native Copper",
+      "video": "videos/gems/native-copper.mp4",
+      "img": "images/native-copper.jpg"
+    },
+    {
+      "slug": "native-silver",
+      "name": "Native Silver",
+      "video": "videos/gems/native-silver.mp4",
+      "img": "images/native-silver.jpg"
+    },
+    {
+      "slug": "sulfur",
+      "name": "Sulfur",
+      "video": "videos/gems/sulfur.mp4",
+      "img": "images/sulfur.jpg"
+    },
+    {
+      "slug": "gypsum",
+      "name": "Gypsum",
+      "video": "videos/gems/gypsum.mp4",
+      "img": "images/gypsum.jpg"
+    },
+    {
+      "slug": "barite",
+      "name": "Barite",
+      "video": "videos/gems/barite.mp4",
+      "img": "images/barite.jpg"
+    },
+    {
+      "slug": "halite",
+      "name": "Halite",
+      "video": "videos/gems/halite.mp4",
+      "img": "images/halite.jpg"
+    },
+    {
+      "slug": "dolomite",
+      "name": "Dolomite",
+      "video": "videos/gems/dolomite.mp4",
+      "img": "images/dolomite.jpg"
+    },
+    {
+      "slug": "magnesite",
+      "name": "Magnesite",
+      "video": "videos/gems/magnesite.mp4",
+      "img": "images/magnesite.jpg"
+    },
+    {
+      "slug": "siderite",
+      "name": "Siderite",
+      "video": "videos/gems/siderite.mp4",
+      "img": "images/siderite.jpg"
+    },
+    {
+      "slug": "cerussite",
+      "name": "Cerussite",
+      "video": "videos/gems/cerussite.mp4",
+      "img": "images/cerussite.jpg"
+    },
+    {
+      "slug": "wulfenite",
+      "name": "Wulfenite",
+      "video": "videos/gems/wulfenite.mp4",
+      "img": "images/wulfenite.jpg"
+    },
+    {
+      "slug": "vanadinite",
+      "name": "Vanadinite",
+      "video": "videos/gems/vanadinite.mp4",
+      "img": "images/vanadinite.jpg"
+    },
+    {
+      "slug": "pyromorphite",
+      "name": "Pyromorphite",
+      "video": "videos/gems/pyromorphite.mp4",
+      "img": "images/pyromorphite.jpg"
+    },
+    {
+      "slug": "crocoite",
+      "name": "Crocoite",
+      "video": "videos/gems/crocoite.mp4",
+      "img": "images/crocoite.jpg"
+    },
+    {
+      "slug": "vivianite",
+      "name": "Vivianite",
+      "video": "videos/gems/vivianite.mp4",
+      "img": "images/vivianite.jpg"
+    },
+    {
+      "slug": "lazulite",
+      "name": "Lazulite",
+      "video": "videos/gems/lazulite.mp4",
+      "img": "images/lazulite.jpg"
+    },
+    {
+      "slug": "brazilianite",
+      "name": "Brazilianite",
+      "video": "videos/gems/brazilianite.mp4",
+      "img": "images/brazilianite.jpg"
+    },
+    {
+      "slug": "amblygonite",
+      "name": "Amblygonite",
+      "video": "videos/gems/amblygonite.mp4",
+      "img": "images/amblygonite.jpg"
+    },
+    {
+      "slug": "phenakite",
+      "name": "Phenakite",
+      "video": "videos/gems/phenakite.mp4",
+      "img": "images/phenakite.jpg"
+    },
+    {
+      "slug": "euclase",
+      "name": "Euclase",
+      "video": "videos/gems/euclase.mp4",
+      "img": "images/euclase.jpg"
+    },
+    {
+      "slug": "danburite",
+      "name": "Danburite",
+      "video": "videos/gems/danburite.mp4",
+      "img": "images/danburite.jpg"
+    },
+    {
+      "slug": "axinite",
+      "name": "Axinite",
+      "video": "videos/gems/axinite.mp4",
+      "img": "images/axinite.jpg"
+    },
+    {
+      "slug": "vesuvianite",
+      "name": "Vesuvianite",
+      "video": "videos/gems/vesuvianite.mp4",
+      "img": "images/vesuvianite.jpg"
+    },
+    {
+      "slug": "scapolite",
+      "name": "Scapolite",
+      "video": "videos/gems/scapolite.mp4",
+      "img": "images/scapolite.jpg"
+    },
+    {
+      "slug": "apophyllite",
+      "name": "Apophyllite",
+      "video": "videos/gems/apophyllite.mp4",
+      "img": "images/apophyllite.jpg"
+    },
+    {
+      "slug": "stilbite",
+      "name": "Stilbite",
+      "video": "videos/gems/stilbite.mp4",
+      "img": "images/stilbite.jpg"
+    },
+    {
+      "slug": "natrolite",
+      "name": "Natrolite",
+      "video": "videos/gems/natrolite.mp4",
+      "img": "images/natrolite.jpg"
+    },
+    {
+      "slug": "petalite",
+      "name": "Petalite",
+      "video": "videos/gems/petalite.mp4",
+      "img": "images/petalite.jpg"
+    },
+    {
+      "slug": "taaffeite",
+      "name": "Taaffeite",
+      "video": "videos/gems/taaffeite.mp4",
+      "img": "images/taaffeite.jpg"
+    },
+    {
+      "slug": "jeremejevite",
+      "name": "Jeremejevite",
+      "video": "videos/gems/jeremejevite.mp4",
+      "img": "images/jeremejevite.jpg"
+    },
+    {
+      "slug": "pezzottaite",
+      "name": "Pezzottaite",
+      "video": "videos/gems/pezzottaite.mp4",
+      "img": "images/pezzottaite.jpg"
+    },
+    {
+      "slug": "kornerupine",
+      "name": "Kornerupine",
+      "video": "videos/gems/kornerupine.mp4",
+      "img": "images/kornerupine.jpg"
+    },
+    {
+      "slug": "sinhalite",
+      "name": "Sinhalite",
+      "video": "videos/gems/sinhalite.mp4",
+      "img": "images/sinhalite.jpg"
+    },
+    {
+      "slug": "hackmanite",
+      "name": "Hackmanite",
+      "video": "videos/gems/hackmanite.mp4",
+      "img": "images/hackmanite.jpg"
+    },
+    {
+      "slug": "hauyne",
+      "name": "Haüyne",
+      "video": "videos/gems/hauyne.mp4",
+      "img": "images/hauyne.jpg"
+    },
+    {
+      "slug": "eudialyte",
+      "name": "Eudialyte",
+      "video": "videos/gems/eudialyte.mp4",
+      "img": "images/eudialyte.jpg"
+    },
+    {
+      "slug": "aegirine",
+      "name": "Aegirine",
+      "video": "videos/gems/aegirine.mp4",
+      "img": "images/aegirine.jpg"
+    },
+    {
+      "slug": "nepheline",
+      "name": "Nepheline",
+      "video": "videos/gems/nepheline.mp4",
+      "img": "images/nepheline.jpg"
+    },
+    {
+      "slug": "leucite",
+      "name": "Leucite",
+      "video": "videos/gems/leucite.mp4",
+      "img": "images/leucite.jpg"
+    },
+    {
+      "slug": "thulite",
+      "name": "Thulite",
+      "video": "videos/gems/thulite.mp4",
+      "img": "images/thulite.jpg"
+    },
+    {
+      "slug": "almandine",
+      "name": "Almandine",
+      "video": "videos/gems/almandine.mp4",
+      "img": "images/almandine.jpg"
+    },
+    {
+      "slug": "pyrope",
+      "name": "Pyrope",
+      "video": "videos/gems/pyrope.mp4",
+      "img": "images/pyrope.jpg"
+    },
+    {
+      "slug": "grossular",
+      "name": "Grossular",
+      "video": "videos/gems/grossular.mp4",
+      "img": "images/grossular.jpg"
+    },
+    {
+      "slug": "andradite",
+      "name": "Andradite",
+      "video": "videos/gems/andradite.mp4",
+      "img": "images/andradite.jpg"
+    },
+    {
+      "slug": "rubellite",
+      "name": "Rubellite",
+      "video": "videos/gems/rubellite.mp4",
+      "img": "images/rubellite.jpg"
+    },
+    {
+      "slug": "indicolite",
+      "name": "Indicolite",
+      "video": "videos/gems/indicolite.mp4",
+      "img": "images/indicolite.jpg"
+    },
+    {
+      "slug": "schorl",
+      "name": "Schorl",
+      "video": "videos/gems/schorl.mp4",
+      "img": "images/schorl.jpg"
+    },
+    {
+      "slug": "goshenite",
+      "name": "Goshenite",
+      "video": "videos/gems/goshenite.mp4",
+      "img": "images/goshenite.jpg"
+    },
+    {
+      "slug": "star-ruby",
+      "name": "Star Ruby",
+      "video": "videos/gems/star-ruby.mp4",
+      "img": "images/star-ruby.jpg"
+    },
+    {
+      "slug": "spectrolite",
+      "name": "Spectrolite",
+      "video": "videos/gems/spectrolite.mp4",
+      "img": "images/spectrolite.jpg"
+    },
+    {
+      "slug": "nephrite",
+      "name": "Nephrite",
+      "video": "videos/gems/nephrite.mp4",
+      "img": "images/nephrite.jpg"
+    },
+    {
+      "slug": "chalcedony",
+      "name": "Chalcedony",
+      "video": "videos/gems/chalcedony.mp4",
+      "img": "images/chalcedony.jpg"
+    },
+    {
+      "slug": "moss-agate",
+      "name": "Moss Agate",
+      "video": "videos/gems/moss-agate.mp4",
+      "img": "images/moss-agate.jpg"
+    },
+    {
+      "slug": "fire-agate",
+      "name": "Fire Agate",
+      "video": "videos/gems/fire-agate.mp4",
+      "img": "images/fire-agate.jpg"
+    },
+    {
+      "slug": "sardonyx",
+      "name": "Sardonyx",
+      "video": "videos/gems/sardonyx.mp4",
+      "img": "images/sardonyx.jpg"
+    },
+    {
+      "slug": "petrified-wood",
+      "name": "Petrified Wood",
+      "video": "videos/gems/petrified-wood.mp4",
+      "img": "images/petrified-wood.jpg"
+    },
+    {
+      "slug": "marcasite",
+      "name": "Marcasite",
+      "video": "videos/gems/marcasite.mp4",
+      "img": "images/marcasite.jpg"
+    },
+    {
+      "slug": "covellite",
+      "name": "Covellite",
+      "video": "videos/gems/covellite.mp4",
+      "img": "images/covellite.jpg"
+    },
+    {
+      "slug": "proustite",
+      "name": "Proustite",
+      "video": "videos/gems/proustite.mp4",
+      "img": "images/proustite.jpg"
+    },
+    {
+      "slug": "willemite",
+      "name": "Willemite",
+      "video": "videos/gems/willemite.mp4",
+      "img": "images/willemite.jpg"
+    },
+    {
+      "slug": "zincite",
+      "name": "Zincite",
+      "video": "videos/gems/zincite.mp4",
+      "img": "images/zincite.jpg"
+    },
+    {
+      "slug": "realgar",
+      "name": "Realgar",
+      "video": "videos/gems/realgar.mp4",
+      "img": "images/realgar.jpg"
+    },
+    {
+      "slug": "orpiment",
+      "name": "Orpiment",
+      "video": "videos/gems/orpiment.mp4",
+      "img": "images/orpiment.jpg"
+    },
+    {
+      "slug": "quartz",
+      "name": "Quartz",
+      "video": "videos/gems/quartz.mp4",
+      "img": "images/quartz.jpg"
+    },
+    {
+      "slug": "adamite",
+      "name": "Adamite",
+      "video": "videos/gems/adamite.mp4",
+      "img": "images/adamite.jpg"
+    },
+    {
+      "slug": "ulexite",
+      "name": "Ulexite",
+      "video": "videos/gems/ulexite.mp4",
+      "img": "images/ulexite.jpg"
+    },
+    {
+      "slug": "zoisite",
+      "name": "Zoisite",
+      "video": "videos/gems/zoisite.mp4",
+      "img": "images/zoisite.jpg"
+    },
+    {
+      "slug": "corundum",
+      "name": "Corundum",
+      "video": "videos/gems/corundum.mp4",
+      "img": "images/corundum.jpg"
+    },
+    {
+      "slug": "lazurite",
+      "name": "Lazurite",
+      "video": "videos/gems/lazurite.mp4",
+      "img": "images/lazurite.jpg"
+    },
+    {
+      "slug": "titanite",
+      "name": "Titanite",
+      "video": "videos/gems/titanite.mp4",
+      "img": "images/titanite.jpg"
+    },
+    {
+      "slug": "microcline",
+      "name": "Microcline",
+      "video": "videos/gems/microcline.mp4",
+      "img": "images/microcline.jpg"
+    },
+    {
+      "slug": "beryl",
+      "name": "Beryl",
+      "video": "videos/gems/beryl.mp4",
+      "img": "images/beryl.jpg"
+    },
+    {
+      "slug": "jadeite",
+      "name": "Jadeite",
+      "video": "videos/gems/jadeite.mp4",
+      "img": "images/jadeite.jpg"
+    },
+    {
+      "slug": "spodumene",
+      "name": "Spodumene",
+      "video": "videos/gems/spodumene.mp4",
+      "img": "images/spodumene.jpg"
+    },
+    {
+      "slug": "colemanite",
+      "name": "Colemanite",
+      "video": "videos/gems/colemanite.mp4",
+      "img": "images/colemanite.jpg"
+    },
+    {
+      "slug": "hessonite",
+      "name": "Hessonite",
+      "video": "videos/gems/hessonite.mp4",
+      "img": "images/hessonite.jpg"
+    },
+    {
+      "slug": "rhodolite",
+      "name": "Rhodolite",
+      "video": "videos/gems/rhodolite.mp4",
+      "img": "images/rhodolite.jpg"
+    },
+    {
+      "slug": "dravite",
+      "name": "Dravite",
+      "video": "videos/gems/dravite.mp4",
+      "img": "images/dravite.jpg"
+    },
+    {
+      "slug": "liddicoatite",
+      "name": "Liddicoatite",
+      "video": "videos/gems/liddicoatite.mp4",
+      "img": "images/liddicoatite.jpg"
+    },
+    {
+      "slug": "selenite",
+      "name": "Selenite",
+      "video": "videos/gems/selenite.mp4",
+      "img": "images/selenite.jpg"
+    },
+    {
+      "slug": "londonite",
+      "name": "Londonite",
+      "video": "videos/gems/londonite.mp4",
+      "img": "images/londonite.jpg"
+    },
+    {
+      "slug": "rhodizite",
+      "name": "Rhodizite",
+      "video": "videos/gems/rhodizite.mp4",
+      "img": "images/rhodizite.jpg"
+    },
+    {
+      "slug": "heulandite",
+      "name": "Heulandite",
+      "video": "videos/gems/heulandite.mp4",
+      "img": "images/heulandite.jpg"
+    },
+    {
+      "slug": "clinochlore",
+      "name": "Clinochlore",
+      "video": "videos/gems/clinochlore.mp4",
+      "img": "images/clinochlore.jpg"
+    }
+  ]
+}

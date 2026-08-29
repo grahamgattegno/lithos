@@ -562,6 +562,11 @@
     filter:saturate(1.08) contrast(1.05);
   }
   .drawer .d-photo img.loaded{opacity:1}
+  .drawer .d-photo video.d-vid{
+    width:100%;height:100%;object-fit:cover;object-position:center 35%;display:block;
+    filter:saturate(1.08) contrast(1.05);
+  }
+  .drawer .d-photo:has(video.d-vid.ready) img{display:none}
   .drawer .d-photo::after{
     content:"";position:absolute;inset:0;pointer-events:none;
     background:
@@ -5446,6 +5451,11 @@ function syncCatalogCount(shown,total){
 }
 
 let renderToken=0;
+function gemVideoSlug(g){
+ const stem=(g.img||'').replace(/^images\//,'').replace(/\.[^.]+$/i,'');
+ if(stem)return stem;
+ return g.name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+}
 function renderCard(g,i,realIdx){
  const el=document.createElement('button');
  el.className='card';
@@ -5510,10 +5520,12 @@ function openDrawer(i){
  const g=GEMS[i];
  lithosScavengerMarkFound(g.name);
  const radio=isRadioactive(g);
+ const vslug=gemVideoSlug(g);
+ const gemVid=g.kind==='gem'?`videos/gems/${vslug}.mp4`:'';
  drawer.style.setProperty('--stone',g.stone);
  drawer.innerHTML=`
  <button type="button" class="close" onclick="closeDrawer()" aria-label="Close"></button>
- <div class="d-photo"><img alt="${g.name}"
+ <div class="d-photo">${gemVid?`<video class="d-vid" autoplay loop muted playsinline poster="${g.img}" src="${gemVid}" onloadeddata="this.classList.add('ready')" onerror="this.remove()"></video>`:''}<img alt="${g.name}"
  onload="this.classList.add('loaded')"
  onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src=this.src.replace(/\.jpg$/i,'.svg')}else{this.parentNode.style.display='none'}"
  src="${g.img}"></div>
