@@ -1114,6 +1114,51 @@
   .careers-perk em{font-style:normal;color:var(--gold)}
   .collab-card .c-open{display:inline-block;font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;background:rgba(201,169,79,.12);color:var(--gold);padding:4px 8px;border-radius:4px;margin-left:8px;vertical-align:middle}
 
+  /* ---------- Live Events (multiplayer) ---------- */
+  .event-wrap{max-width:720px;margin:0 auto;padding:100px var(--content-pad) 120px}
+  .event-wrap h1{font-family:var(--serif);font-weight:300;font-size:clamp(36px,5vw,64px);line-height:1;margin-bottom:8px}
+  .event-wrap h1 em{font-style:italic;color:var(--gold)}
+  .event-wrap .lede{margin:0 0 32px;font-size:16px;line-height:1.6;color:var(--text-dim)}
+  .event-tabs{display:flex;gap:8px;margin-bottom:24px}
+  .event-tab{flex:1;background:var(--panel);border:1px solid var(--line);color:var(--text-dim);font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:14px;border-radius:8px;cursor:pointer}
+  .event-tab.on,.event-tab:hover{border-color:var(--gold);color:var(--gold);background:rgba(201,169,79,.08)}
+  .event-panel{display:none}
+  .event-panel.on{display:block}
+  .event-label{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint);margin:16px 0 8px}
+  .event-input{width:100%;background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:14px 16px;font-size:16px;font-family:var(--sans)}
+  .event-input:focus{outline:none;border-color:var(--gold)}
+  .event-cta{width:100%;margin-top:20px}
+  .event-note{margin-top:24px;font-size:13px;line-height:1.55;color:var(--text-faint)}
+  .event-error{background:rgba(255,80,80,.12);border:1px solid rgba(255,80,80,.35);color:#ffb0b0;padding:14px 16px;border-radius:8px;margin-bottom:20px;font-size:14px}
+  .event-code-box{text-align:center;padding:28px 20px;background:var(--panel);border:2px solid rgba(201,169,79,.35);border-radius:14px;margin-bottom:24px}
+  .event-code-label{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--text-faint);margin-bottom:10px}
+  .event-code{font-family:var(--mono);font-size:clamp(36px,8vw,52px);letter-spacing:.22em;color:var(--gold);font-weight:700}
+  .event-copy{margin-top:12px}
+  .event-mode-tag{display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);border:1px solid rgba(201,169,79,.35);padding:6px 12px;border-radius:20px;margin-bottom:16px}
+  .event-lobby-title{font-family:var(--serif);font-size:28px;margin-bottom:16px;font-weight:400}
+  .event-players{list-style:none;margin:0 0 24px;padding:0}
+  .event-players li{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line);font-size:15px}
+  .event-wait{color:var(--text-faint);font-size:14px;margin-bottom:16px}
+  .event-chat{margin-top:28px;border-top:1px solid var(--line);padding-top:20px}
+  .event-chat-log{max-height:140px;overflow-y:auto;margin-bottom:10px;font-size:13px;line-height:1.5;color:var(--text-dim)}
+  .event-chat-line{margin-bottom:6px}
+  .event-chat-row{display:flex;gap:8px}
+  .event-chat-row .event-input{flex:1}
+  .event-round{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+  .event-clue{font-family:var(--serif);font-size:clamp(22px,4vw,32px);line-height:1.25;margin-bottom:16px}
+  .event-hunt-hint{color:var(--text-dim);font-size:15px;line-height:1.55;margin-bottom:16px}
+  .event-winner{background:rgba(62,207,138,.12);border:1px solid rgba(62,207,138,.35);color:#8ef0b8;padding:14px;border-radius:8px;margin-top:16px;font-size:15px}
+  .event-quiz-opts{display:flex;flex-direction:column;gap:10px;margin:16px 0}
+  .event-quiz-opt{background:var(--panel);border:1px solid var(--line);color:var(--text);padding:16px;border-radius:8px;text-align:left;font-size:15px;cursor:pointer}
+  .event-quiz-opt:hover:not(:disabled){border-color:var(--gold);color:var(--gold)}
+  .event-quiz-opt:disabled{opacity:.55;cursor:default}
+  .event-scoreboard{margin-top:28px;padding:20px;background:var(--panel);border:1px solid var(--line);border-radius:10px}
+  .event-score-title{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint);margin-bottom:12px}
+  .event-score-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
+  .event-ended{text-align:center;padding:20px 0}
+  .event-ended h2{font-family:var(--serif);font-size:36px;margin-bottom:12px;font-weight:400}
+  .event-winner-big{font-size:20px;color:var(--gold);margin-bottom:24px}
+
   /* ---------- Crafts ---------- */
   .crafts-hero{max-width:var(--site-max);margin:0 auto;padding:110px 40px 20px;text-align:center}
   .crafts-hero .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:#4ea8ff;margin-bottom:24px}
@@ -4934,6 +4979,10 @@
  </section>
 </div><!-- /view-codes -->
 
+<div class="view" id="view-event" hidden>
+ <section class="event-wrap" id="event-wrap"></section>
+</div><!-- /view-event -->
+
 <div class="view" id="view-auras" hidden>
  <section class="auras-wrap">
  <div class="eyebrow">Power Up Your Warriors</div>
@@ -5536,6 +5585,7 @@ const drawer=document.getElementById('drawer');
 function openDrawer(i){
  const g=GEMS[i];
  lithosScavengerMarkFound(g.name);
+ if(typeof lithosEventGemOpened==='function')lithosEventGemOpened(g.name);
  const radio=isRadioactive(g);
  const vslug=gemVideoSlug(g);
  const gemVid=g.kind==='gem'?`videos/gems/${vslug}.mp4`:'';
@@ -5664,6 +5714,7 @@ const LITHOS_GAMES=[
  {id:'gemmotion',icon:'📷',name:'Motion Battlefield',tag4d:true,desc:'4D FP battlefield — catch gems AND smash crystal monsters with your weapon.',preview:'radial-gradient(circle at 50% 40%,rgba(62,207,138,.25),transparent 50%),linear-gradient(135deg,#0d1218,#1a2030)'},
  {id:'auras',icon:'✨',name:'Auras',tag4d:true,desc:'4D power boosts — temporal glow on every aura.',preview:'radial-gradient(circle at 35% 40%,rgba(201,169,79,.4),transparent 45%),radial-gradient(circle at 70% 60%,rgba(160,106,255,.35),transparent 50%),#0a0b0f'},
  {id:'codes',icon:'🔐',name:'Secret Codes',desc:'Enter codes to unlock powers and memberships.',preview:'linear-gradient(135deg,rgba(201,169,79,.2),rgba(18,138,86,.12)),linear-gradient(180deg,#15171f,#0a0b0f)'},
+ {id:'event',icon:'🎪',name:'Live Event',desc:'Host a gem hunt or quiz — share a code so friends can join and play together!',preview:'radial-gradient(circle at 40% 30%,rgba(62,207,138,.28),transparent 50%),radial-gradient(circle at 70% 70%,rgba(201,169,79,.22),transparent 45%),linear-gradient(180deg,#121820,#0a0b0f)'},
  {id:'quiz',icon:'❓',name:'Mineral Quiz',desc:'Test your geology knowledge.',activity:true,preview:'radial-gradient(circle at 50% 30%,rgba(78,168,255,.3),transparent 55%),linear-gradient(180deg,#121820,#0a0b0f)'}
 ];
 const LITHOS_GAME_IDS=new Set(LITHOS_GAMES.map(g=>g.id));
@@ -6193,6 +6244,7 @@ const views={
  parade:document.getElementById('view-parade'),
  arcade:document.getElementById('view-arcade'),
  codes:document.getElementById('view-codes'),
+ event:document.getElementById('view-event'),
  auras:document.getElementById('view-auras'),
  battlefield:document.getElementById('view-battlefield'),
  gemmotion:document.getElementById('view-gemmotion'),
@@ -6271,6 +6323,7 @@ function switchView(name){
  if(name==='archaeology'){if(typeof buildArchaeologyHub==='function')buildArchaeologyHub();}
  if(name==='catalog'&&window.LITHOS_STRATUM&&typeof stratumApplyBranding==='function')setTimeout(stratumApplyBranding,50);
  if(name==='video'){buildVideoPlatform();}
+ if(name==='event'){if(typeof buildEventHub==='function')buildEventHub();}
  lithos8bitSync();
  lithos4DSyncView(activeView);
 }
@@ -6319,6 +6372,13 @@ function routeHashView(){
   const page=(name.split('/')[1]||'story').toLowerCase();
   openCompanyPage(page);return;
  }
+ if(name.startsWith('event/')){
+  const code=(name.split('/')[1]||'').toUpperCase();
+  switchView('event');
+  if(code&&typeof lithosEventJoinByCode==='function')lithosEventJoinByCode(code);
+  return;
+ }
+ if(name==='event'){switchView('event');return;}
  if(gamesHubOpen)closeGamesHub({skipHash:true});
  const viewKey=name==='gemhunt'?'gemhunt':(name&&views[name]?name:'catalog');
  if(viewKey===activeView){syncNavHighlight(activeView);return;}
@@ -19732,7 +19792,9 @@ async function startGemMotion(){
  }
 })();
 </script>
-<script src="stratum-site.js?v=deploy-47"></script>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="lithos-events.js?v=deploy-48"></script>
+<script src="stratum-site.js?v=deploy-48"></script>
 <script>
 (function lithosBootCheck(){
  if(typeof switchView==='function'&&typeof GEMS!=='undefined'&&GEMS.length)return;
