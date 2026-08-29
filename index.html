@@ -1110,6 +1110,8 @@
   .collab-form-actions button:hover{transform:translateY(-2px)}
   .collab-form-actions button.ghost{background:transparent;color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold)}
   .collab-status{min-height:22px;margin-top:14px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);text-align:center}
+  .collab-issue-fallback{margin-top:12px;text-align:center;font-size:14px}
+  .collab-issue-fallback a{color:var(--gold);font-family:var(--mono);letter-spacing:.06em}
   .collab-list-head{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin:44px 0 18px;padding-bottom:12px;border-bottom:1px solid var(--line)}
   .collab-item{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px 20px;margin-bottom:12px}
   .collab-item .ci-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:6px;flex-wrap:wrap}
@@ -4127,6 +4129,7 @@
  <button data-view="archaeology" type="button" onclick="enterStratum();return false;">Stratum 🦴</button>
  <button data-view="hunt">Scavenger Hunt</button>
  <button data-view="company">Company</button>
+ <button data-view="collaborate">Collaborate</button>
  <button data-view="classes">Classes</button>
  <button data-view="teacher">Ask the Rock Teacher</button>
  <button data-view="identify">Identify a Rock</button>
@@ -4695,6 +4698,7 @@
  <button type="button" class="ghost" id="collab-copy">Copy as text</button>
  </div>
  <div class="collab-status" id="collab-status" aria-live="polite"></div>
+ <p class="collab-issue-fallback" id="collab-issue-fallback" hidden><a id="collab-issue-link" href="#" target="_blank" rel="noopener noreferrer">Complete submission on GitHub →</a></p>
  </form>
 
  <div class="collab-list-head">Your submitted proposals (this device)</div>
@@ -5153,6 +5157,7 @@
  <a data-partner="rockstarcrystals" data-partner-path="home" href="https://www.rockstarcrystals.com/" target="_blank" rel="noopener noreferrer">Rock Star Crystals ↗</a>
  <a href="#company" onclick="switchView('company');return false;">Company</a>
  <a href="#company/partners" onclick="openCompanyPage('partners');return false;">Partners</a>
+ <a href="#collaborate" onclick="openCompanyPage('partners');return false;">Collaborate</a>
  <a href="#company/careers" onclick="openCompanyPage('careers');return false;">Careers</a>
  <a href="#video" onclick="switchView('video');return false;">Owner TV</a>
  <a href="#hunt" onclick="switchView('hunt');return false;">Scavenger Hunt</a>
@@ -6224,6 +6229,7 @@ function lithos8bitSync(){lithos8bit.sync();}
 document.getElementById('q').addEventListener('input',e=>{query=e.target.value.trim().toLowerCase();render();});
 initGemSlideshow();
 initPartnerLinks();
+initCollabDelegation();
 if(typeof stratumInitCatalog==='function')stratumInitCatalog();
 syncHeroCounts();
 renderGemOfWeek();
@@ -6885,9 +6891,11 @@ function mountCompanyEmbed(which){
  if(which==='partners'){
   const mount=document.getElementById('co-partners-mount');
   const src=document.getElementById('view-collaborate');
-  if(!mount||!src||companyPartnersMounted)return;
-  while(src.firstChild)mount.appendChild(src.firstChild);
-  companyPartnersMounted=true;
+  if(!mount||!src)return;
+  if(!companyPartnersMounted){
+   while(src.firstChild)mount.appendChild(src.firstChild);
+   companyPartnersMounted=true;
+  }
   buildCollaborate();
  }
 }
@@ -8566,7 +8574,7 @@ const COLLAB_TYPE_LABELS={
  content:'Content, media, or museum',
  other:'Other partnership'
 };
-let collabBuilt=false;
+
 function loadCollabInquiries(){
  try{
   const raw=localStorage.getItem(COLLAB_STORAGE_KEY);
@@ -8609,8 +8617,20 @@ function collabIssueUrl(d){
 }
 function setCollabStatus(msg,isError){
  const el=document.getElementById('collab-status');
+ if(!el)return;
  el.textContent=msg||'';
  el.style.color=isError?'#e88':'var(--gold)';
+}
+function showCollabIssueLink(url){
+ const wrap=document.getElementById('collab-issue-fallback');
+ const link=document.getElementById('collab-issue-link');
+ if(!wrap||!link)return;
+ link.href=url;
+ wrap.hidden=false;
+}
+function hideCollabIssueLink(){
+ const wrap=document.getElementById('collab-issue-fallback');
+ if(wrap)wrap.hidden=true;
 }
 function highlightCollabType(type){
  document.querySelectorAll('.collab-card[data-collab-type]').forEach(card=>{
@@ -8619,6 +8639,7 @@ function highlightCollabType(type){
 }
 function renderCollabList(){
  const list=document.getElementById('collab-list');
+ if(!list)return;
  const items=loadCollabInquiries();
  if(!items.length){
   list.innerHTML='<div class="fb-empty">No proposals yet on this device — submit one above.</div>';
@@ -8642,7 +8663,8 @@ function validateCollabForm(d){
  return true;
 }
 function submitCollabProposal(e){
- e.preventDefault();
+ if(e&&e.preventDefault)e.preventDefault();
+ hideCollabIssueLink();
  const d=collabFormData();
  if(!validateCollabForm(d))return;
  const entry={...d,when:new Date().toLocaleString()};
@@ -8650,10 +8672,18 @@ function submitCollabProposal(e){
  items.unshift(entry);
  saveCollabInquiries(items);
  renderCollabList();
- window.open(collabIssueUrl(d),'_blank','noopener,noreferrer');
- document.getElementById('collab-form').reset();
+ const url=collabIssueUrl(d);
+ const text=collabProposalText(d);
+ if(navigator.clipboard&&navigator.clipboard.writeText){
+  navigator.clipboard.writeText(text).catch(()=>{});
+ }
+ const opened=window.open(url,'_blank','noopener,noreferrer');
+ showCollabIssueLink(url);
+ document.getElementById('collab-form')?.reset();
  highlightCollabType('');
- setCollabStatus('Saved locally · GitHub issue opened in a new tab.');
+ setCollabStatus(opened
+  ?'Saved on this device · Proposal copied · GitHub opened in a new tab.'
+  :'Saved on this device · Tap the GitHub link below to finish submitting.');
 }
 function copyCollabProposal(){
  const d=collabFormData();
@@ -8666,31 +8696,37 @@ function copyCollabProposal(){
  setCollabStatus('Copy not supported here — use Submit proposal.',true);
 }
 let collaborateBuilt=false;
+function bindCollabPick(type){
+ const sel=document.getElementById('collab-type');
+ if(sel&&type)sel.value=type;
+ if(type)highlightCollabType(type);
+ document.getElementById('collab-msg')?.focus();
+ document.querySelector('#co-partners-mount .collab-form-wrap, #view-collaborate .collab-form-wrap')?.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function initCollabDelegation(){
+ if(initCollabDelegation.done)return;
+ initCollabDelegation.done=true;
+ document.addEventListener('submit',e=>{
+  if(e.target&&e.target.id==='collab-form')submitCollabProposal(e);
+ });
+ document.addEventListener('click',e=>{
+  const pick=e.target.closest('.collab-pick');
+  if(pick){ e.preventDefault(); bindCollabPick(pick.dataset.collabType); return; }
+  if(e.target.closest('#collab-copy')){ e.preventDefault(); copyCollabProposal(); return; }
+  const card=e.target.closest('.collab-card[data-collab-type]');
+  if(card&&!e.target.closest('a[href],button')){
+   bindCollabPick(card.dataset.collabType);
+  }
+ });
+ document.addEventListener('change',e=>{
+  if(e.target&&e.target.id==='collab-type')highlightCollabType(e.target.value);
+ });
+}
 function buildCollaborate(){
- if(collaborateBuilt){renderCollabList();return;}
- collaborateBuilt=true;
  initPartnerLinks();
- document.querySelectorAll('.collab-pick').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-   const type=btn.dataset.collabType;
-   document.getElementById('collab-type').value=type;
-   highlightCollabType(type);
-   document.getElementById('collab-msg').focus();
-   document.querySelector('#co-partners-mount .collab-form-wrap, #view-collaborate .collab-form-wrap')?.scrollIntoView({behavior:'smooth',block:'start'});
-  });
- });
- document.querySelectorAll('.collab-card[data-collab-type]').forEach(card=>{
-  card.addEventListener('click',e=>{
-   if(e.target.closest('a[href],button'))return;
-   const type=card.dataset.collabType;
-   document.getElementById('collab-type').value=type;
-   highlightCollabType(type);
-  });
- });
- document.getElementById('collab-type')?.addEventListener('change',e=>highlightCollabType(e.target.value));
- document.getElementById('collab-form')?.addEventListener('submit',submitCollabProposal);
- document.getElementById('collab-copy')?.addEventListener('click',copyCollabProposal);
+ initCollabDelegation();
  renderCollabList();
+ collaborateBuilt=true;
 }
 
 /* ---------- Careers (Work at Lithos) ---------- */
