@@ -92,7 +92,7 @@
 
   /* ---------- Header ---------- */
   header.site{
-    position:sticky;top:0;z-index:40;
+    position:relative;z-index:40;
     display:grid;grid-template-columns:minmax(0,auto) minmax(0,1fr);
     align-items:center;gap:16px 28px;
     padding:22px max(var(--content-pad), calc((100% - var(--site-max)) / 2 + var(--content-pad)));
@@ -371,7 +371,7 @@
 
   /* ---------- Controls ---------- */
   .controls{
-    position:sticky;top:var(--header-offset,73px);z-index:30;
+    position:relative;z-index:30;
     max-width:var(--site-max);margin:0 auto;padding:0 var(--content-pad);
     min-width:0;width:100%;
   }
@@ -3256,7 +3256,6 @@
     .hero{padding:56px var(--content-pad) 88px}
     .hero .meta-row{padding-bottom:8px}
     .controls,.grid{padding-left:var(--content-pad);padding-right:var(--content-pad)}
-    .controls{top:var(--header-offset,120px)}
     .controls-inner{padding:14px 0;gap:12px}
     .search{min-width:0;width:100%;flex:1 1 100%}
     .search input{font-size:16px;padding:14px 14px 14px 42px}
@@ -3670,7 +3669,6 @@
   }
   #lithos-purchase-banner[hidden]{display:none!important}
   body.lithos-purchase-pending{padding-top:52px}
-  body.lithos-purchase-pending header.site{top:52px}
   #lithos-purchase-banner button{
     background:var(--gold);color:var(--ink);border:none;border-radius:8px;padding:8px 16px;
     font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;
