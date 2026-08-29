@@ -104,11 +104,12 @@
   if(lithosLink)lithosLink.remove();
   const a=document.createElement('a');
   a.className='site-switch-link lithos-link';
-  a.href='index.html';
+  a.href='index.html?v=49';
   a.textContent='← Lithos 💎';
   a.onclick=function(e){
    e.preventDefault();
    if(typeof leaveStratum==='function')leaveStratum();
+   else location.href='index.html?v=49';
   };
   nav.insertBefore(a,nav.firstChild);
  }
