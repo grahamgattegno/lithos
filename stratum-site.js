@@ -99,10 +99,7 @@
   a.textContent='← Lithos 💎';
   a.onclick=function(e){
    e.preventDefault();
-   try{sessionStorage.removeItem('lithos_site');}catch(_){}
-   const u=new URL('index.html',location.href);
-   u.search='';
-   location.href=u.href;
+   if(typeof leaveStratum==='function')leaveStratum();
   };
   nav.insertBefore(a,nav.firstChild);
  }

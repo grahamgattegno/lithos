@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- lithos-v:site-live-45 -->
+<!-- lithos-v:site-live-46 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -9,11 +9,30 @@
  var s=false;
  try{s=sessionStorage.getItem('lithos_site')==='stratum';}catch(_){}
  if(!s&&/[?&]site=stratum(?:&|$)/.test(location.search))s=true;
+ if(!s&&/\/stratum(?:\/|$)/.test(location.pathname))s=true;
  if(s){
   document.documentElement.classList.add('stratum-site');
   window.LITHOS_STRATUM=true;
   try{sessionStorage.setItem('lithos_site','stratum');}catch(_){}
  }
+ window.enterStratum=function(){
+  try{sessionStorage.setItem('lithos_site','stratum');}catch(_){}
+  var base=location.pathname.replace(/\/stratum\/?.*$/,'').replace(/\/[^/]*$/,'')||'';
+  if(!base.endsWith('/'))base+='/';
+  var dest=base+'index.html?site=stratum&v=46';
+  if(location.href.split('?')[0].endsWith('index.html')&&location.search.indexOf('site=stratum')>=0){
+   window.LITHOS_STRATUM=true;
+   document.documentElement.classList.add('stratum-site');
+   location.reload();
+   return;
+  }
+  location.href=dest;
+ };
+ window.leaveStratum=function(){
+  try{sessionStorage.removeItem('lithos_site');}catch(_){}
+  var base=location.pathname.replace(/\/[^/]*$/,'')+'/';
+  location.href=base+'index.html?v=46';
+ };
  window.catalogFilterLabel=function(label){
   if(!window.LITHOS_STRATUM)return label;
   var m={'Field catalog':'Excavation catalog','Gemstones':'Treasures','All minerals':'All artifacts','Mineral class':'Material class','Browse':'Browse sites','Silicates':'Ceramics & stone','Oxides':'Metalwork','Special':'Special','Bones & fossils':'Bones & fossils','Pottery':'Pottery','Tools & weapons':'Tools & weapons','Burial goods':'Burial goods','Period':'Period','Paleolithic':'Paleolithic','Bronze & Iron Age':'Bronze & Iron Age','Classical empires':'Classical empires','Medieval & later':'Medieval & later','Monuments':'Monuments','Rock & cave art':'Rock & cave art','Mummies':'Mummies'};
@@ -4029,10 +4048,10 @@
  <span class="tag">Field Catalog № 01</span>
  </div>
  <nav class="top">
- <a class="site-switch-link stratum-link" id="lithos-stratum-link" href="stratum/" title="Open Stratum archaeology site">Stratum 🏛️</a>
+ <a class="site-switch-link stratum-link" id="lithos-stratum-link" href="stratum/" onclick="enterStratum();return false;" title="Open Stratum — bones &amp; ancient things">Stratum 🦴</a>
  <button class="on" data-view="catalog">Catalog</button>
  <button data-view="learn">Learn</button>
- <button data-view="archaeology">Archaeology</button>
+ <button data-view="archaeology" type="button" onclick="enterStratum();return false;">Stratum 🦴</button>
  <button data-view="hunt">Scavenger Hunt</button>
  <button data-view="company">Company</button>
  <button data-view="classes">Classes</button>
@@ -4066,7 +4085,7 @@
  <div class="hero-tour-launch">
   <button type="button" class="primary" id="hero-watch-tour"><span class="hero-tour-sparkle">✦</span> Watch the tour</button>
   <button type="button" id="hero-play-games" onclick="openGamesHub()">Play games</button>
-  <a class="hero-tour-link" href="stratum/" id="hero-stratum-link">Stratum Archaeology 🏛️</a>
+  <a class="hero-tour-link" href="stratum/" id="hero-stratum-link" onclick="enterStratum();return false;">Stratum — bones &amp; antiquity 🦴</a>
   <a class="hero-tour-link" href="#memberships" onclick="switchView('memberships');return false;">Join — from $99</a>
  </div>
 </section>
@@ -5083,11 +5102,11 @@
 </nav>
 
 <script src="ai-config.js"></script>
-<script src="gems-data.js?v=deploy-45"></script>
-<script src="stratum-data.js?v=deploy-45"></script>
-<script src="stratum-catalog.js?v=deploy-45"></script>
-<script src="nightshift2.js?v=deploy-45"></script>
-<script src="archaeology.js?v=deploy-45"></script>
+<script src="gems-data.js?v=deploy-46"></script>
+<script src="stratum-data.js?v=deploy-46"></script>
+<script src="stratum-catalog.js?v=deploy-46"></script>
+<script src="nightshift2.js?v=deploy-46"></script>
+<script src="archaeology.js?v=deploy-46"></script>
 <script>
 /* ---------- Affiliate partners (tracked links where available) ---------- */
 const DEFAULT_PARTNER='gemsny';
@@ -6119,6 +6138,7 @@ function lithos8bitSync(){lithos8bit.sync();}
 document.getElementById('q').addEventListener('input',e=>{query=e.target.value.trim().toLowerCase();render();});
 initGemSlideshow();
 initPartnerLinks();
+if(typeof stratumInitCatalog==='function')stratumInitCatalog();
 syncHeroCounts();
 renderGemOfWeek();
 render();
@@ -19680,9 +19700,12 @@ async function startGemMotion(){
  routeHashView();
  maybeShowAdventurePreview();
  if(typeof stratumInitCatalog==='function')stratumInitCatalog();
+ if(window.LITHOS_STRATUM&&location.search.indexOf('site=stratum')<0){
+  try{history.replaceState(null,'',location.pathname+'?site=stratum&v=46'+(location.hash||''));}catch(_){}
+ }
 })();
 </script>
-<script src="stratum-site.js?v=deploy-45"></script>
+<script src="stratum-site.js?v=deploy-46"></script>
 <script>
 (function lithosBootCheck(){
  if(typeof switchView==='function'&&typeof GEMS!=='undefined'&&GEMS.length)return;

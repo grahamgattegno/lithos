@@ -2,7 +2,7 @@
 (function(){
  if(!window.LITHOS_STRATUM||typeof ARTIFACTS==='undefined')return;
 
- GEMS=ARTIFACTS;
+ window.GEMS=ARTIFACTS;
 
  window.STRATUM_FILTER_GROUPS=[
   {label:"Browse",items:[
@@ -228,7 +228,7 @@
   const slide=document.getElementById('gem-slideshow');
   if(slide)slide.hidden=true;
 
-  if(typeof renderGrid==='function')renderGrid();
+  if(typeof render==='function')render();
   if(typeof syncHeroCounts==='function')syncHeroCounts();
   if(typeof renderGemOfWeek==='function')renderGemOfWeek();
  };
