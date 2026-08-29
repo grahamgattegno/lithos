@@ -1,0 +1,51 @@
+/* Stratum — archaeology theme overrides (html.stratum-site) */
+html.stratum-site{
+  --ink:#14110e;
+  --ink-2:#1a1610;
+  --panel:#1e1812;
+  --panel-2:#252018;
+  --line:rgba(196,165,116,.12);
+  --line-2:rgba(196,165,116,.2);
+  --text:#e8dcc8;
+  --text-dim:#a89880;
+  --text-faint:#6d6254;
+  --gold:#c4a574;
+}
+html.stratum-site body{
+  background:var(--ink);
+  background-image:
+    radial-gradient(ellipse 80% 50% at 20% 0%,rgba(180,140,90,.08),transparent 55%),
+    radial-gradient(ellipse 60% 40% at 90% 20%,rgba(120,90,60,.06),transparent 50%);
+}
+html.stratum-site ::selection{background:#c4a574;color:#1a1208}
+html.stratum-site header.site{
+  background:rgba(20,17,14,.85);
+  border-bottom-color:rgba(196,165,116,.15);
+}
+html.stratum-site .brand .mark em{color:#c4a574}
+html.stratum-site nav.top button.on,
+html.stratum-site nav.top button:hover{color:#f0e6d4}
+html.stratum-site nav.top .buy-cta{background:#c4a574;color:#1a1208}
+html.stratum-site .hero{
+  background:radial-gradient(ellipse at 30% 0%,rgba(180,140,90,.15),transparent 55%),linear-gradient(180deg,#1a1610 0%,#14110e 100%);
+  border-color:rgba(196,165,116,.2);
+}
+html.stratum-site .hero h1 em{color:#c4a574}
+html.stratum-site .eyebrow{color:#c4a574}
+html.stratum-site .stat .n{color:#c4a574}
+html.stratum-site .chip.on,.html.stratum-site .filter-pills button.on{background:rgba(196,165,116,.18);border-color:#c4a574;color:#f0e6d4}
+html.stratum-site .card:hover{border-color:rgba(196,165,116,.35)}
+html.stratum-site .gem-week-card,.html.stratum-site .gem-week-badge{color:#c4a574}
+html.stratum-site .primary{background:#c4a574;color:#1a1208;border-color:#c4a574}
+html.stratum-site .primary:hover{filter:brightness(1.06)}
+html.stratum-site .arch-hero{background:linear-gradient(180deg,#1e1812,#14110e);border-color:rgba(196,165,116,.25)}
+html.stratum-site .lithos-game-card{border-color:rgba(196,165,116,.25)}
+html.stratum-site .plan-card.featured{border-color:#c4a574}
+html.stratum-site .site-switch-link{
+  flex:0 0 auto;white-space:nowrap;
+  font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  color:#c4a574;text-decoration:none;padding:8px 10px;border:1px solid rgba(196,165,116,.35);border-radius:4px;
+  transition:background .15s,color .15s;
+}
+html.stratum-site .site-switch-link:hover{background:rgba(196,165,116,.12);color:#f0e6d4}
+html.stratum-site .site-switch-link.lithos-link{color:var(--text-dim);border-color:var(--line)}

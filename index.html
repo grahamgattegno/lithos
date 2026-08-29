@@ -1,9 +1,27 @@
 <!DOCTYPE html>
-<!-- lithos-v:site-live-42 -->
+<!-- lithos-v:site-live-44 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+(function(){
+ var s=false;
+ try{s=sessionStorage.getItem('lithos_site')==='stratum';}catch(_){}
+ if(!s&&/[?&]site=stratum(?:&|$)/.test(location.search))s=true;
+ if(s){
+  document.documentElement.classList.add('stratum-site');
+  window.LITHOS_STRATUM=true;
+  try{sessionStorage.setItem('lithos_site','stratum');}catch(_){}
+ }
+ window.catalogFilterLabel=function(label){
+  if(!window.LITHOS_STRATUM)return label;
+  var m={'Field catalog':'Excavation catalog','Gemstones':'Treasures','All minerals':'All artifacts','Mineral class':'Material class','Browse':'Browse sites','Silicates':'Ceramics & stone','Oxides':'Metalwork','Special':'Special'};
+  return m[label]||label;
+ };
+})();
+</script>
+<link rel="stylesheet" href="stratum-theme.css">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
@@ -43,6 +61,15 @@
   ::selection{background:var(--gold);color:var(--ink)}
   button,a,[role="button"],.chip,.card,.plan-btn,input[type="submit"],label.cursor-pointer{cursor:pointer}
   button:focus-visible,a:focus-visible,nav.top button:focus-visible,.chip:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+  .site-switch-link{
+    flex:0 0 auto;white-space:nowrap;
+    font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--gold);text-decoration:none;padding:8px 10px;border:1px solid rgba(201,169,79,.35);border-radius:4px;
+    transition:background .15s,color .15s;
+  }
+  .site-switch-link:hover{background:rgba(201,169,79,.1);color:var(--text)}
+  nav.top .site-switch-link{align-self:center}
 
   /* ---------- Header ---------- */
   header.site{
@@ -1460,6 +1487,54 @@
   .arcade-grid{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;margin-top:18px}
   .arcade-card{background:linear-gradient(170deg,#181428,#0e0c18);border:1px solid #322a44;border-radius:16px;padding:20px 18px;width:min(92vw,300px);text-align:center}
   .arcade-card.locked{opacity:.85;border-style:dashed}
+
+  /* ===== Stratum Archaeology hub ===== */
+  .arch-wrap{max-width:960px;margin:0 auto;padding:0 0 80px}
+  .arch-hero{background:radial-gradient(ellipse at 30% 0%,rgba(180,140,90,.22),transparent 55%),radial-gradient(ellipse at 80% 40%,rgba(120,90,60,.15),transparent 50%),linear-gradient(180deg,#1a1610,#0a0b0f);border:1px solid rgba(180,140,90,.25);border-radius:16px;padding:28px 22px 32px;margin-bottom:28px}
+  .arch-hero h1 em{color:#c4a574}
+  .arch-hero .lede{max-width:640px}
+  .arch-badge{display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#c4a574;border:1px solid rgba(196,165,116,.4);border-radius:999px;padding:4px 10px;margin-bottom:12px}
+  .arch-sites-head,.arch-games-head{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#c4a574;margin:28px 0 14px}
+  .arch-sites-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+  .arch-site-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 16px;text-align:left}
+  .arch-site-emoji{font-size:32px;margin-bottom:6px}
+  .arch-site-era{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--text-dim);margin-bottom:6px}
+  .arch-site-card h3{font-size:17px;margin:0 0 8px;color:var(--text)}
+  .arch-site-card p{font-size:13px;line-height:1.5;color:var(--text-dim);margin:0}
+  .arch-games-grid{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;margin-top:8px}
+  .arch-game-card{background:linear-gradient(170deg,#1e1812,#12100c);border:1px solid rgba(180,140,90,.3);border-radius:16px;padding:20px 18px;width:min(92vw,280px);text-align:center}
+  .arch-game-emoji{font-size:40px;margin-bottom:8px}
+  .arch-game-name{font-weight:700;font-size:16px;margin-bottom:8px;color:#e8dcc8}
+  .arch-game-desc{font-size:13px;line-height:1.45;color:var(--text-dim);min-height:3.2em;margin-bottom:14px}
+  .arch-btn{background:#c4a574;color:#1a1208;border:none;border-radius:8px;padding:12px 18px;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;font-weight:700}
+  .arch-btn.wide{display:block;width:100%;margin-top:12px}
+  .arch-btn.play{width:100%}
+  .arch-btn:hover{filter:brightness(1.06)}
+  .arch-back{margin-top:24px;text-align:center}
+  .arch-back a{color:#c4a574;font-family:var(--mono);font-size:12px;letter-spacing:.08em}
+  #arch-game{position:fixed;inset:0;z-index:10001;background:rgba(8,7,5,.94);display:flex;align-items:flex-start;justify-content:center;padding:16px;overflow:auto}
+  .arch-game-panel{width:min(96vw,520px);margin:12px auto 40px;background:#14110e;border:2px solid rgba(196,165,116,.35);border-radius:14px;overflow:hidden;color:#e8dcc8}
+  .arch-game-top{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:rgba(0,0,0,.35);font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:#c4a574}
+  .arch-game-close{background:transparent;border:1px solid rgba(196,165,116,.4);color:#c4a574;border-radius:6px;padding:4px 10px;cursor:pointer}
+  .arch-game-body{padding:16px 18px 22px}
+  .arch-game-msg{text-align:center;font-size:14px;margin:0 0 12px;color:#d8ccb8}
+  .arch-dig-stats,.arch-mem-stats{display:flex;justify-content:space-between;font-family:var(--mono);font-size:12px;color:#c4a574;margin-bottom:10px}
+  .arch-dig-grid{display:grid;grid-template-columns:repeat(var(--cols,6),1fr);gap:6px;max-width:360px;margin:0 auto}
+  .arch-dig-cell{aspect-ratio:1;border:none;border-radius:8px;font-size:22px;cursor:pointer;background:#3d2e1e;color:#8a7050;transition:transform .1s}
+  .arch-dig-cell.found{background:#2a4a2a;color:#fff}
+  .arch-dig-cell.empty{background:#2a2420;color:#555;font-size:18px}
+  .arch-dig-cell:not([disabled]):hover{transform:scale(1.05)}
+  .arch-mem-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;max-width:320px;margin:0 auto}
+  .arch-mem-card{aspect-ratio:1;border:none;border-radius:10px;font-size:28px;cursor:pointer;background:#3d2e1e;color:transparent;transition:background .15s,transform .1s}
+  .arch-mem-card.up,.arch-mem-card.matched{background:#2a4a3a;color:#fff}
+  .arch-mem-card.matched{opacity:.55;cursor:default}
+  .arch-strat-stack{display:flex;flex-direction:column-reverse;gap:8px;max-width:360px;margin:0 auto}
+  .arch-strat-layer{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px 14px;border:1px solid rgba(196,165,116,.3);border-radius:10px;background:#1e1812;cursor:pointer;color:#e8dcc8}
+  .arch-strat-layer.picked{border-color:#c4a574;box-shadow:0 0 0 2px rgba(196,165,116,.25)}
+  .arch-strat-emoji{font-size:28px;flex:0 0 auto}
+  .arch-strat-label{font-weight:700;font-size:14px;display:block}
+  .arch-strat-hint{font-size:11px;color:var(--text-dim)}
+  body.arch-playing{overflow:hidden}
   .arcade-emoji{font-size:34px;margin-bottom:8px}
   .arcade-name{font-weight:800;font-size:17px;color:var(--text,#e8e0f0);margin-bottom:6px}
   .arcade-desc{font-size:13px;color:#9a92b0;line-height:1.5;margin-bottom:14px;min-height:58px}
@@ -3954,8 +4029,10 @@
  <span class="tag">Field Catalog № 01</span>
  </div>
  <nav class="top">
+ <a class="site-switch-link stratum-link" id="lithos-stratum-link" href="stratum/" title="Open Stratum archaeology site">Stratum 🏛️</a>
  <button class="on" data-view="catalog">Catalog</button>
  <button data-view="learn">Learn</button>
+ <button data-view="archaeology">Archaeology</button>
  <button data-view="hunt">Scavenger Hunt</button>
  <button data-view="company">Company</button>
  <button data-view="classes">Classes</button>
@@ -3989,6 +4066,7 @@
  <div class="hero-tour-launch">
   <button type="button" class="primary" id="hero-watch-tour"><span class="hero-tour-sparkle">✦</span> Watch the tour</button>
   <button type="button" id="hero-play-games" onclick="openGamesHub()">Play games</button>
+  <a class="hero-tour-link" href="stratum/" id="hero-stratum-link">Stratum Archaeology 🏛️</a>
   <a class="hero-tour-link" href="#memberships" onclick="switchView('memberships');return false;">Join — from $99</a>
  </div>
 </section>
@@ -4881,6 +4959,23 @@
  </section>
 </div><!-- /view-donate -->
 
+<div class="view" id="view-archaeology" hidden>
+ <section class="arch-wrap">
+  <div class="arch-hero">
+   <span class="arch-badge">Stratum · A Lithos Field Site</span>
+   <div class="eyebrow">Dig · Discover · Play</div>
+   <h1>Welcome to <em>Stratum</em></h1>
+   <p class="lede">Our archaeology companion — explore dig sites, learn how layers tell stories, and play field games. Stratum lives inside Lithos alongside the gemstone catalog and geology classes.</p>
+  </div>
+  <div class="arch-sites-head">Featured dig sites</div>
+  <div class="arch-sites-grid" id="arch-sites-grid"></div>
+  <div class="arch-games-head">Archaeology games</div>
+  <p class="lede" style="margin:-6px 0 12px;font-size:14px">Original mini-games plus links to Lithos field tools — all free to play.</p>
+  <div class="arch-games-grid" id="arch-games-grid"></div>
+  <p class="arch-back"><a href="#catalog" onclick="switchView('catalog');return false;">← Back to Lithos catalog</a> · <a href="#learn" onclick="switchView('learn');return false;">Geology lessons</a></p>
+ </section>
+</div><!-- /view-archaeology -->
+
 <div class="view" id="view-moneygoal" hidden>
  <section class="mg-wrap">
  <div class="eyebrow">Your Business Dashboard</div>
@@ -4988,8 +5083,9 @@
 </nav>
 
 <script src="ai-config.js"></script>
-<script src="gems-data.js?v=deploy-42"></script>
-<script src="nightshift2.js?v=deploy-42"></script>
+<script src="gems-data.js?v=deploy-44"></script>
+<script src="nightshift2.js?v=deploy-44"></script>
+<script src="archaeology.js?v=deploy-44"></script>
 <script>
 /* ---------- Affiliate partners (tracked links where available) ---------- */
 const DEFAULT_PARTNER='gemsny';
@@ -5244,7 +5340,7 @@ filterGroups.forEach(group=>{
  row.className='filter-row';
  const lab=document.createElement('span');
  lab.className='filter-label';
- lab.textContent=group.label;
+ lab.textContent=typeof catalogFilterLabel==='function'?catalogFilterLabel(group.label):group.label;
  row.appendChild(lab);
  const pills=document.createElement('div');
  pills.className='filter-pills';
@@ -5253,7 +5349,7 @@ filterGroups.forEach(group=>{
   const b=document.createElement('button');
   b.type='button';
   b.className='chip'+(i===0?' on':'');
-  b.textContent=f.label;
+  b.textContent=typeof catalogFilterLabel==='function'?catalogFilterLabel(f.label):f.label;
   b.onclick=()=>{
    activeFilter=i;
    filtersEl.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
@@ -5509,6 +5605,7 @@ const LITHOS_GAMES=[
  {id:'gemdrive',icon:'🚗💎',name:'Gemstone Convoy',desc:'Full 8-bit pixel driving! Pick a gem car + mount Ruby/Sapphire/Emerald/Diamond/Amethyst/Topaz launchers vs crystal monsters.',preview:'radial-gradient(circle at 50% 60%,rgba(255,64,96,.3),transparent 50%),linear-gradient(180deg,#1a1020 0%,#2a1840 40%,#1a2818 100%)'},
  {id:'nightshift',icon:'🌙',name:'Night Shift',tag4d:true,desc:'FREE — survive until 6 AM and get paid. Then spend cash at the Market.',preview:'radial-gradient(circle at 50% 40%,rgba(201,169,79,.25),transparent 50%),radial-gradient(circle at 20% 70%,rgba(154,58,192,.3),transparent 45%),linear-gradient(180deg,#120e1a,#050508)'},
  {id:'nightshift2',icon:'⛏️',name:'Night Shift 2',tag4d:true,desc:'FREE — the Mine Below crew with unique powers: magnets, mimics, frost, swarms & glitches.',preview:'radial-gradient(circle at 50% 35%,rgba(122,208,240,.22),transparent 50%),radial-gradient(circle at 80% 70%,rgba(176,96,232,.28),transparent 45%),linear-gradient(180deg,#0e0a14,#040408)'},
+ {id:'archaeology',icon:'🏛️',name:'Stratum Archaeology',desc:'Dig sites, artifact games, and field tools — our archaeology companion site.',preview:'radial-gradient(circle at 40% 30%,rgba(196,165,116,.35),transparent 50%),linear-gradient(180deg,#1a1610,#0a0b0f)'},
  {id:'poppy',icon:'🏭',name:'Gem Factory',tag4d:true,desc:'12-chapter factory vs Sunspire, Duskveil, Clatterclaw, Redline & Aurum — gemstone animatronics.',preview:'radial-gradient(circle at 50% 20%,rgba(255,77,141,.35),transparent 55%),linear-gradient(180deg,#1a1030,#07060c)'},
  {id:'game',icon:'💎',name:'Gem Arena',tag4d:true,desc:'4D crystal battles — time-warp powers bend combat.',preview:'radial-gradient(ellipse at 55% 35%,rgba(201,169,79,.45),transparent 55%),radial-gradient(circle at 30% 70%,rgba(125,90,200,.35),transparent 50%),linear-gradient(160deg,#1a1428,#0a0b0f)'},
  {id:'battlefield',icon:'⚔',name:'Battlefield',tag4d:true,desc:'4D mine expedition — chromatic hits, time dilation on impact.',preview:'radial-gradient(ellipse at 70% 25%,rgba(255,180,80,.35),transparent 50%),linear-gradient(180deg,#2a3a5c 0%,#1a2340 45%,#3a4a2e 100%)'},
@@ -5629,6 +5726,7 @@ function lithosCloseGameOverlays(){
  try{closePoppyPlay();}catch(_){}
  try{nsCloseGame();}catch(_){}
  try{ns2CloseGame();}catch(_){}
+ try{closeArchGame();}catch(_){}
  try{closeBackroomsMaze();}catch(_){}
  try{stopGemMotion();}catch(_){}
  try{grClose();}catch(_){}
@@ -6038,6 +6136,7 @@ const views={
  careers:document.getElementById('view-careers'),
  crafts:document.getElementById('view-crafts'),
  memberships:document.getElementById('view-memberships'),
+ archaeology:document.getElementById('view-archaeology'),
  game:document.getElementById('view-game'),
  poppy:document.getElementById('view-poppy'),
  parade:document.getElementById('view-parade'),
@@ -6118,6 +6217,8 @@ function switchView(name){
  if(name==='auras'){buildAuras();}
  if(name==='battlefield'){ if(gemHunt) startExpedition(); else buildBattlefield(); }
  if(name==='moneygoal'){buildMoneyGoal();}
+ if(name==='archaeology'){if(typeof buildArchaeologyHub==='function')buildArchaeologyHub();}
+ if(name==='catalog'&&window.LITHOS_STRATUM&&typeof stratumApplyBranding==='function')setTimeout(stratumApplyBranding,50);
  if(name==='video'){buildVideoPlatform();}
  lithos8bitSync();
  lithos4DSyncView(activeView);
@@ -19576,6 +19677,7 @@ async function startGemMotion(){
  maybeShowAdventurePreview();
 })();
 </script>
+<script src="stratum-site.js?v=deploy-44"></script>
 <script>
 (function lithosBootCheck(){
  if(typeof switchView==='function'&&typeof GEMS!=='undefined'&&GEMS.length)return;
