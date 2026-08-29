@@ -42,14 +42,18 @@
  ];
 
  function stratumPhotoHTML(g){
+  const emojiFallback=g.emoji||'🏺';
+  if(g.img){
+   return `<div class="photo"><img alt="${g.name}" loading="lazy"
+ onload="this.classList.add('loaded')"
+ onerror="if(!this.dataset.fb){this.dataset.fb=1;this.parentNode.outerHTML='<div class=\\'photo stratum-emoji-photo\\' style=\\'background:linear-gradient(145deg,${g.stone},${g.colorHex&&g.colorHex[1]||g.stone});display:flex;align-items:center;justify-content:center;font-size:clamp(48px,12vw,72px)\\'>${emojiFallback}</div>'}"
+ src="${g.img}"></div>`;
+  }
   if(g.emoji){
    const c2=g.colorHex&&g.colorHex[1]?g.colorHex[1]:g.stone;
    return `<div class="photo stratum-emoji-photo" style="background:linear-gradient(145deg,${g.stone},${c2});display:flex;align-items:center;justify-content:center;font-size:clamp(48px,12vw,72px);line-height:1" aria-hidden="true">${g.emoji}</div>`;
   }
-  return `<div class="photo"><img alt="${g.name}" loading="lazy"
- onload="this.classList.add('loaded')"
- onerror="if(!this.dataset.fb){this.dataset.fb=1;this.parentNode.innerHTML='<div class=\\'stratum-emoji-photo\\' style=\\'display:flex;align-items:center;justify-content:center;font-size:64px;height:100%;background:${g.stone}\\'>${g.emoji||'🏺'}</div>'}"
- src="${g.img}"></div>`;
+  return `<div class="photo stratum-emoji-photo" style="display:flex;align-items:center;justify-content:center;font-size:64px">🏺</div>`;
  }
 
  window.stratumInitCatalog=function(){
@@ -97,9 +101,10 @@
      }
     }
     drawer.style.setProperty('--stone',g.stone);
-    const photoBlock=g.emoji
-     ?`<div class="d-photo stratum-emoji-photo" style="background:linear-gradient(145deg,${g.stone},${g.colorHex&&g.colorHex[1]||g.stone});display:flex;align-items:center;justify-content:center;font-size:120px">${g.emoji}</div>`
-     :`<div class="d-photo"><img alt="${g.name}" onload="this.classList.add('loaded')" onerror="this.parentNode.innerHTML='<div style=\\'font-size:100px;text-align:center;padding:40px\\'>${g.emoji||'🏺'}</div>'" src="${g.img}"></div>`;
+    const emojiFallback=g.emoji||'🏺';
+    const photoBlock=g.img
+     ?`<div class="d-photo"><img alt="${g.name}" onload="this.classList.add('loaded')" onerror="if(!this.dataset.fb){this.dataset.fb=1;this.parentNode.outerHTML='<div class=\\'d-photo stratum-emoji-photo\\' style=\\'background:linear-gradient(145deg,${g.stone},${g.colorHex&&g.colorHex[1]||g.stone});display:flex;align-items:center;justify-content:center;font-size:120px\\'>${emojiFallback}</div>'}" src="${g.img}"></div>`
+     :`<div class="d-photo stratum-emoji-photo" style="background:linear-gradient(145deg,${g.stone},${g.colorHex&&g.colorHex[1]||g.stone});display:flex;align-items:center;justify-content:center;font-size:120px">${emojiFallback}</div>`;
     drawer.innerHTML=`
  <button type="button" class="close" onclick="closeDrawer()" aria-label="Close"></button>
  ${photoBlock}
@@ -146,7 +151,7 @@
 
   if(typeof getGemOfWeek==='function'){
    window.getGemOfWeek=function(){
-    const pool=GEMS.filter(g=>g.emoji);
+    const pool=GEMS.filter(g=>g.img||g.emoji);
     if(!pool.length)return null;
     const now=new Date();
     const seed=now.getFullYear()*100+(typeof lithosISOWeek==='function'?lithosISOWeek(now):1);
@@ -174,7 +179,7 @@
    <button type="button" class="btn" id="gem-week-open">Open find →</button>
   </div>
   <div class="gem-week-visual">
-   <div class="gem-week-photo stratum-emoji-photo" style="background:linear-gradient(145deg,${g.stone},${g.colorHex&&g.colorHex[1]||g.stone});display:flex;align-items:center;justify-content:center;font-size:80px">${g.emoji||'🏺'}</div>
+   ${g.img?`<div class="gem-week-photo"><img src="${g.img}" alt="${g.name}" loading="lazy" onerror="this.parentNode.outerHTML='<div class=\\'gem-week-photo stratum-emoji-photo\\' style=\\'display:flex;align-items:center;justify-content:center;font-size:80px;background:${g.stone}\\'>${g.emoji||'🏺'}</div>'"></div>`:`<div class="gem-week-photo stratum-emoji-photo" style="background:linear-gradient(145deg,${g.stone},${g.colorHex&&g.colorHex[1]||g.stone});display:flex;align-items:center;justify-content:center;font-size:80px">${g.emoji||'🏺'}</div>`}
   </div>
  </article>`;
     document.getElementById('gem-week-open').onclick=()=>{switchView('catalog');openDrawer(w.idx);};

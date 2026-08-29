@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- lithos-v:site-live-46 -->
+<!-- lithos-v:site-live-47 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -19,7 +19,7 @@
   try{sessionStorage.setItem('lithos_site','stratum');}catch(_){}
   var base=location.pathname.replace(/\/stratum\/?.*$/,'').replace(/\/[^/]*$/,'')||'';
   if(!base.endsWith('/'))base+='/';
-  var dest=base+'index.html?site=stratum&v=46';
+  var dest=base+'index.html?site=stratum&v=47';
   if(location.href.split('?')[0].endsWith('index.html')&&location.search.indexOf('site=stratum')>=0){
    window.LITHOS_STRATUM=true;
    document.documentElement.classList.add('stratum-site');
@@ -31,7 +31,7 @@
  window.leaveStratum=function(){
   try{sessionStorage.removeItem('lithos_site');}catch(_){}
   var base=location.pathname.replace(/\/[^/]*$/,'')+'/';
-  location.href=base+'index.html?v=46';
+  location.href=base+'index.html?v=47';
  };
  window.catalogFilterLabel=function(label){
   if(!window.LITHOS_STRATUM)return label;
@@ -5102,11 +5102,11 @@
 </nav>
 
 <script src="ai-config.js"></script>
-<script src="gems-data.js?v=deploy-46"></script>
-<script src="stratum-data.js?v=deploy-46"></script>
-<script src="stratum-catalog.js?v=deploy-46"></script>
-<script src="nightshift2.js?v=deploy-46"></script>
-<script src="archaeology.js?v=deploy-46"></script>
+<script src="gems-data.js?v=deploy-47"></script>
+<script src="stratum-data.js?v=deploy-47"></script>
+<script src="stratum-catalog.js?v=deploy-47"></script>
+<script src="nightshift2.js?v=deploy-47"></script>
+<script src="archaeology.js?v=deploy-47"></script>
 <script>
 /* ---------- Affiliate partners (tracked links where available) ---------- */
 const DEFAULT_PARTNER='gemsny';
@@ -19701,11 +19701,11 @@ async function startGemMotion(){
  maybeShowAdventurePreview();
  if(typeof stratumInitCatalog==='function')stratumInitCatalog();
  if(window.LITHOS_STRATUM&&location.search.indexOf('site=stratum')<0){
-  try{history.replaceState(null,'',location.pathname+'?site=stratum&v=46'+(location.hash||''));}catch(_){}
+  try{history.replaceState(null,'',location.pathname+'?site=stratum&v=47'+(location.hash||''));}catch(_){}
  }
 })();
 </script>
-<script src="stratum-site.js?v=deploy-46"></script>
+<script src="stratum-site.js?v=deploy-47"></script>
 <script>
 (function lithosBootCheck(){
  if(typeof switchView==='function'&&typeof GEMS!=='undefined'&&GEMS.length)return;
