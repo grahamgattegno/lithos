@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- lithos-v:site-live-47 -->
+<!-- lithos-v:site-live-48 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -14,12 +14,20 @@
   document.documentElement.classList.add('stratum-site');
   window.LITHOS_STRATUM=true;
   try{sessionStorage.setItem('lithos_site','stratum');}catch(_){}
+  document.addEventListener('DOMContentLoaded',function(){
+   var logo=document.getElementById('site-logo');
+   if(logo){logo.src='images/brand/stratum-mark.png';logo.alt='Stratum logo';}
+   var fav=document.getElementById('site-favicon');
+   if(fav)fav.href='images/brand/stratum-favicon.png';
+   var apple=document.getElementById('site-apple-icon');
+   if(apple)apple.href='images/brand/stratum-mark.png';
+  });
  }
  window.enterStratum=function(){
   try{sessionStorage.setItem('lithos_site','stratum');}catch(_){}
   var base=location.pathname.replace(/\/stratum\/?.*$/,'').replace(/\/[^/]*$/,'')||'';
   if(!base.endsWith('/'))base+='/';
-  var dest=base+'index.html?site=stratum&v=47';
+  var dest=base+'index.html?site=stratum&v=48';
   if(location.href.split('?')[0].endsWith('index.html')&&location.search.indexOf('site=stratum')>=0){
    window.LITHOS_STRATUM=true;
    document.documentElement.classList.add('stratum-site');
@@ -31,7 +39,7 @@
  window.leaveStratum=function(){
   try{sessionStorage.removeItem('lithos_site');}catch(_){}
   var base=location.pathname.replace(/\/[^/]*$/,'')+'/';
-  location.href=base+'index.html?v=47';
+  location.href=base+'index.html?v=48';
  };
  window.catalogFilterLabel=function(label){
   if(!window.LITHOS_STRATUM)return label;
@@ -45,6 +53,8 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>Lithos — A Field Catalog of Gemstones</title>
+<link rel="icon" id="site-favicon" type="image/png" href="images/brand/lithos-favicon.png">
+<link rel="apple-touch-icon" id="site-apple-icon" href="images/brand/lithos-mark.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Space+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -101,7 +111,13 @@
     backdrop-filter:blur(14px);
     border-bottom:1px solid var(--line);
   }
-  .brand{display:flex;align-items:baseline;gap:14px}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand .logo-img{
+    width:42px;height:42px;object-fit:cover;border-radius:10px;
+    border:1px solid rgba(201,169,79,.35);flex-shrink:0;
+    box-shadow:0 4px 14px rgba(0,0,0,.35);
+  }
+  html.stratum-site .brand .logo-img{border-color:rgba(196,165,116,.4)}
   .brand .mark{
     font-family:var(--serif);font-size:28px;font-weight:500;letter-spacing:.5px;
   }
@@ -4047,6 +4063,7 @@
 
 <header class="site">
  <div class="brand">
+ <img class="logo-img" id="site-logo" src="images/brand/lithos-mark.png" width="42" height="42" alt="Lithos logo">
  <span class="mark">Lith<em>os</em></span>
  <span class="tag">Field Catalog № 01</span>
  </div>

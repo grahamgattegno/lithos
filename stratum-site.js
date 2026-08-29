@@ -74,6 +74,15 @@
   if(mark)mark.innerHTML='Strat<em>um</em>';
   const tag=document.querySelector('.brand .tag');
   if(tag)tag.textContent='Bones · Fossils · Antiquity';
+  const logo=document.getElementById('site-logo');
+  if(logo){
+   logo.src='images/brand/stratum-mark.png';
+   logo.alt='Stratum logo';
+  }
+  const fav=document.getElementById('site-favicon');
+  if(fav)fav.href='images/brand/stratum-favicon.png';
+  const apple=document.getElementById('site-apple-icon');
+  if(apple)apple.href='images/brand/stratum-mark.png';
  }
 
  function applyFilters(){
