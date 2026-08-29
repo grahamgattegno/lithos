@@ -25,21 +25,35 @@
   'All minerals':'All artifacts',
   'Mineral class':'Material class',
   'Browse':'Browse sites',
-  'Silicates':'Ceramics & stone',
-  'Oxides':'Metalwork',
-  'Special':'Special'
+  'Bones & fossils':'Bones & fossils',
+  'Pottery':'Pottery',
+  'Tools & weapons':'Tools & weapons',
+  'Burial goods':'Burial goods',
+  'Period':'Period',
+  'Paleolithic':'Paleolithic',
+  'Bronze & Iron Age':'Bronze & Iron Age',
+  'Classical empires':'Classical empires',
+  'Medieval & later':'Medieval & later',
+  'Monuments':'Monuments',
+  'Rock & cave art':'Rock & cave art',
+  'Mummies':'Mummies'
  };
 
  function applyHero(){
   const eyebrow=document.querySelector('#view-catalog .hero .eyebrow');
-  if(eyebrow)eyebrow.textContent='Archaeology · Artifacts · Excavation Records · Field Photos';
+  if(eyebrow)eyebrow.textContent='Osteology · Fossils · Ancient Civilizations · Field Excavations';
   const h1=document.querySelector('#view-catalog .hero h1');
-  if(h1)h1.innerHTML='A field catalog<br>of <em>human</em> history';
+  if(h1)h1.innerHTML='A field catalog<br>of <em>bones &amp; antiquity</em>';
   const lede=document.querySelector('#view-catalog .hero .lede');
-  if(lede)lede.innerHTML='Stratum is Lithos\'s archaeology companion — same catalog power, desert-dig theme. Browse the curated <b>Excavation catalog</b> (<span id="hero-field-count-inline">1,200</span> artifacts and specimens). Filter to <b>Treasures</b> for <span id="hero-gem-count-inline">199</span> jewelry-grade finds, or <b>All artifacts</b> for the full <span id="hero-lede-count">six thousand</span>-entry reference — each lists chemistry, hardness, crystal system, and provenance.';
-  const stats=document.querySelectorAll('#view-catalog .hero .stat .l');
-  const statLabels=['Excavation catalog','Treasures','Total artifacts','Hardness range','Source regions','Material types'];
-  stats.forEach((el,i)=>{if(statLabels[i])el.textContent=statLabels[i];});
+  if(lede)lede.innerHTML='Stratum is Lithos\'s archaeology site — <b>no gemstones here</b>. Browse dinosaur bones, hominin skulls, mummies, pottery, ancient tools, and lost monuments. Every entry lists period, material, preservation, and excavation site.';
+  const stats=document.querySelectorAll('#view-catalog .hero .stat');
+  if(stats[3])stats[3].querySelector('.n').textContent='6';
+  if(stats[4])stats[4].querySelector('.n').textContent='40+';
+  if(stats[5])stats[5].querySelector('.n').textContent='12';
+  const statLabels=['Catalogued finds','Bones & fossils','Total artifacts','Artifact types','Source regions','Periods covered'];
+  stats.forEach((el,i)=>{const l=el.querySelector('.l');if(l&&statLabels[i])l.textContent=statLabels[i];});
+  const slide=document.getElementById('gem-slideshow');
+  if(slide)slide.hidden=true;
  }
 
  function applyNav(){
@@ -55,11 +69,11 @@
  }
 
  function applyBrand(){
-  document.title='Stratum — Archaeology Field Catalog';
+  document.title='Stratum — Bones, Fossils & Ancient Things';
   const mark=document.querySelector('.brand .mark');
   if(mark)mark.innerHTML='Strat<em>um</em>';
   const tag=document.querySelector('.brand .tag');
-  if(tag)tag.textContent='Archaeology Field Site № 03';
+  if(tag)tag.textContent='Bones · Fossils · Antiquity';
  }
 
  function applyFilters(){
@@ -100,7 +114,9 @@
   applyFilters();
   addSiteSwitch();
   const gw=document.querySelector('.gem-week-badge');
-  if(gw&&/gem/i.test(gw.textContent))gw.textContent='Artifact of the Week';
+  if(gw)gw.textContent=gw.textContent.replace(/Gem of the Week/i,'Find of the Week');
+  const gwo=document.getElementById('gem-week-open');
+  if(gwo)gwo.textContent='Open find →';
  }
 
  window.stratumApplyBranding=applyStratumBranding;
@@ -111,6 +127,7 @@
   window.switchView=function(name){
    orig.apply(this,arguments);
    setTimeout(applyStratumBranding,0);
+   if(name==='hunt'&&typeof buildScavengerHunt==='function')buildScavengerHunt();
   };
  }
 })();

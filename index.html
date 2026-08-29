@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- lithos-v:site-live-44 -->
+<!-- lithos-v:site-live-45 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -16,7 +16,7 @@
  }
  window.catalogFilterLabel=function(label){
   if(!window.LITHOS_STRATUM)return label;
-  var m={'Field catalog':'Excavation catalog','Gemstones':'Treasures','All minerals':'All artifacts','Mineral class':'Material class','Browse':'Browse sites','Silicates':'Ceramics & stone','Oxides':'Metalwork','Special':'Special'};
+  var m={'Field catalog':'Excavation catalog','Gemstones':'Treasures','All minerals':'All artifacts','Mineral class':'Material class','Browse':'Browse sites','Silicates':'Ceramics & stone','Oxides':'Metalwork','Special':'Special','Bones & fossils':'Bones & fossils','Pottery':'Pottery','Tools & weapons':'Tools & weapons','Burial goods':'Burial goods','Period':'Period','Paleolithic':'Paleolithic','Bronze & Iron Age':'Bronze & Iron Age','Classical empires':'Classical empires','Medieval & later':'Medieval & later','Monuments':'Monuments','Rock & cave art':'Rock & cave art','Mummies':'Mummies'};
   return m[label]||label;
  };
 })();
@@ -5083,9 +5083,11 @@
 </nav>
 
 <script src="ai-config.js"></script>
-<script src="gems-data.js?v=deploy-44"></script>
-<script src="nightshift2.js?v=deploy-44"></script>
-<script src="archaeology.js?v=deploy-44"></script>
+<script src="gems-data.js?v=deploy-45"></script>
+<script src="stratum-data.js?v=deploy-45"></script>
+<script src="stratum-catalog.js?v=deploy-45"></script>
+<script src="nightshift2.js?v=deploy-45"></script>
+<script src="archaeology.js?v=deploy-45"></script>
 <script>
 /* ---------- Affiliate partners (tracked links where available) ---------- */
 const DEFAULT_PARTNER='gemsny';
@@ -5300,8 +5302,10 @@ function isRadioactive(g){
 }
 function classOf(g){return g.class||''}
 
-const isFieldCatalog=g=>g.kind==="gem"||g.kind==="mineral";
-const filterGroups=[
+const isFieldCatalog=window.LITHOS_STRATUM
+ ? (g=>['bone','fossil','pottery','tool','art','monument','burial'].includes(g.kind))
+ : (g=>g.kind==="gem"||g.kind==="mineral");
+const filterGroups=(window.LITHOS_STRATUM&&window.STRATUM_FILTER_GROUPS)?window.STRATUM_FILTER_GROUPS:[
  {label:"Browse",items:[
   {label:"Field catalog",test:isFieldCatalog},
   {label:"Gemstones",test:g=>g.kind==="gem"},
@@ -19675,9 +19679,10 @@ async function startGemMotion(){
  initAdventurePreview();
  routeHashView();
  maybeShowAdventurePreview();
+ if(typeof stratumInitCatalog==='function')stratumInitCatalog();
 })();
 </script>
-<script src="stratum-site.js?v=deploy-44"></script>
+<script src="stratum-site.js?v=deploy-45"></script>
 <script>
 (function lithosBootCheck(){
  if(typeof switchView==='function'&&typeof GEMS!=='undefined'&&GEMS.length)return;

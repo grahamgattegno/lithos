@@ -41,6 +41,10 @@ html.stratum-site .primary:hover{filter:brightness(1.06)}
 html.stratum-site .arch-hero{background:linear-gradient(180deg,#1e1812,#14110e);border-color:rgba(196,165,116,.25)}
 html.stratum-site .lithos-game-card{border-color:rgba(196,165,116,.25)}
 html.stratum-site .plan-card.featured{border-color:#c4a574}
+html.stratum-site .stratum-emoji-photo{min-height:140px;border-radius:8px}
+html.stratum-site .card .stratum-emoji-photo{min-height:120px}
+html.stratum-site .d-photo.stratum-emoji-photo{min-height:220px}
+html.stratum-site .card .quick .k{font-size:9px}
 html.stratum-site .site-switch-link{
   flex:0 0 auto;white-space:nowrap;
   font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
