@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PopFrame — Puppet Videos!</title>
-<!-- popframe-v:52 -->
+<!-- popframe-v:53 -->
 <style>
 :root{--purple:#8b3dff;--purple2:#6b2fd4;--red:#ef4444;--bg:#f0f2f8;--white:#fff;--text:#1a1a2e;--muted:#666;--line:#ddd}
 *{box-sizing:border-box}
@@ -73,7 +73,7 @@ a.home{color:var(--purple);font-weight:700;font-size:13px;margin-left:8px}
 
  <div class="main">
   <aside class="sidebar">
-   <div class="step"><b>1.</b> Pick an <b>⚡ instant</b> puppet OR search AI ↑<br><b>2.</b> Drag arms, legs &amp; head!<br><b>3.</b> Hit 🔴 RECORD &amp; move them<br><b>4.</b> Play &amp; save 🎬</div>
+   <div class="step"><b>1.</b> Pick ⚡ instant OR search anything ↑<br><b>2.</b> AI draws YOUR idea as a puppet!<br><b>3.</b> Drag parts &amp; 🔴 RECORD<br><b>4.</b> Play &amp; save 🎬</div>
    <h2>⚡ Instant puppets</h2>
    <div class="chips" id="instant-chips"></div>
    <h2>✨ AI search (slower)</h2>
@@ -393,7 +393,7 @@ cvs.addEventListener('touchend',()=>{dragPart=null;});
 
 // Instant puppets — no waiting for AI!
 const INSTANT_TYPES=['robot','cat','dinosaur','alien','superhero'];
-const AI_CHIPS=['unicorn','pizza','dragon','pizza cat'];
+const AI_CHIPS=['dot','unicorn','pizza cat','dragon','penguin','ghost'];
 
 const PALETTES={
  robot:{head:'#cbd5e1',body:'#6366f1',limb:'#818cf8',detail:'#fbbf24',face:'#1e1b4b'},
@@ -526,11 +526,36 @@ function buildInstantSprites(pack,bw){
  };
 }
 
+function toSquareCanvas(img){
+ const S=512,c=document.createElement('canvas');
+ c.width=S;c.height=S;
+ const g=c.getContext('2d');
+ g.fillStyle='#faf5ff';g.fillRect(0,0,S,S);
+ const scale=Math.min(S/img.width,S/img.height)*0.88;
+ const w=img.width*scale,h=img.height*scale;
+ g.drawImage(img,(S-w)/2,(S-h)/2,w,h);
+ return c;
+}
+
 function scaleCanvas(src,bw){
  const c=document.createElement('canvas');
  c.width=bw;c.height=bw;
  c.getContext('2d').drawImage(src,0,0,bw,bw);
  return c;
+}
+
+function aiPrompt(q){
+ return q+', cute chibi cartoon character, full body front view, head top feet bottom, arms at sides, legs visible, centered in frame, simple clean design, soft pastel background, puppet rig pose, kid friendly, no text, no extra limbs';
+}
+
+function makePuppetFromImage(img,name){
+ const square=toSquareCanvas(img);
+ const bw=Math.min(W*.45,H*.55);
+ charImg=square;charName=name;
+ makePuppet(square,name,{
+  characterCanvas:scaleCanvas(square,bw),
+  pal:{body:'#6366f1',head:'#cbd5e1',limb:'#818cf8'}
+ });
 }
 
 function drawInstant(type){
@@ -571,12 +596,11 @@ async function doSearch(q){
  aiBusy=true;
  $('go').disabled=true;$('go').textContent='…';
  $('status-bar').textContent='✨ Drawing '+q+'… you can keep playing!';
- toast('Drawing '+q+' in background… keep playing! ✨');
+ toast('Drawing your '+q+'… ✨');
  try{
-  const img=await loadImg(aiUrl(q+', cartoon full body, arms at sides, plain background',Math.floor(Math.random()*99999)));
-  charImg=img;charName=q;
-  makePuppet(img,q);
-  toast(q+' is ready!! 🎭');
+  const img=await loadImg(aiUrl(q,Math.floor(Math.random()*99999)));
+  makePuppetFromImage(img,q);
+  toast('Your '+q+' puppet is ready!! 🎭');
  }catch(_){
   toast('AI slow — try an ⚡ instant puppet!');
   startInstant('robot');
@@ -589,7 +613,7 @@ async function doSearch(q){
 $('go').onclick=()=>doSearch($('search').value);
 $('search').onkeydown=e=>{if(e.key==='Enter')doSearch(e.target.value);};
 $('btn-puppet').onclick=()=>{
- if(charImg)makePuppet(charImg,charName);
+ if(charImg)makePuppetFromImage(charImg,charName);
  else if(puppet)puppet.keyframes=[{t:0,pose:Object.fromEntries(puppet.parts.map(p=>[p.id,p.angle]))}];
  else startInstant('robot');
  draw();toast('Puppet reset! 🎭');
@@ -597,7 +621,7 @@ $('btn-puppet').onclick=()=>{
 $('btn-upload').onclick=()=>$('file-in').click();
 $('file-in').onchange=e=>{
  const f=e.target.files[0];if(!f)return;
- const img=new Image();img.onload=()=>{charImg=img;charName=f.name;makePuppet(img,f.name);toast('Puppet ready! 🎭');};img.src=URL.createObjectURL(f);
+ const img=new Image();img.onload=()=>makePuppetFromImage(img,f.name.replace(/\.[^.]+$/,''));img.src=URL.createObjectURL(f);
 };
 
 $('instant-chips').innerHTML=INSTANT_TYPES.map(c=>'<button type="button" class="chip instant">'+c+'</button>').join('');
