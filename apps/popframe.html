@@ -124,7 +124,7 @@ const J={
  footR:[0.64,0.915],
  headTop:[0.5,0.06]
 };
-const TORSO_CROP=[0.22,0.34,0.56,0.28];
+const TORSO_CROP=[0.28,0.34,0.44,0.28];
 
 function mkPart(id,label,emoji,color,joint,end,crop,order){
  const rest=Math.atan2(end[1]-joint[1],end[0]-joint[0]);
@@ -261,8 +261,12 @@ function drawTorso(c){
 }
 
 function isAtRestPose(){
- if(!puppet||dragPart||recording||playing)return false;
+ if(!puppet||recording||playing)return false;
  return puppet.parts.every(p=>Math.abs(p.angle-p.restAngle)<0.05);
+}
+
+function useFullCharacter(){
+ return puppet.characterCanvas&&isAtRestPose()&&!dragPart;
 }
 
 function drawPartSprite(c,part){
@@ -301,7 +305,7 @@ function drawPuppetFrame(c,t,showHandles){
   sorted.filter(p=>!p.id.startsWith('leg')).forEach(p=>drawPartSprite(c,p));
  }
 
- if(showHandles&&!isAtRestPose()){
+ if(showHandles&&(selPart||!isAtRestPose())){
   puppet.parts.forEach(p=>{
    const{ax,ay,ex,ey}=partWorld(p);
    c.strokeStyle='rgba(255,255,255,.55)';c.lineWidth=3;c.lineCap='round';
@@ -512,16 +516,15 @@ function buildInstantPack(type){
 }
 
 function buildInstantSprites(pack,bw){
- const kit=pack.kit;
- const mk=(fn,j)=>instantLayer(g=>fn(g),bw,j);
+ const d=pack.kit.draw;
  return{
-  torso:instantLayer(g=>kit.draw.torso(g),bw),
+  torso:instantLayer(g=>d.torso(g),bw),
   parts:{
-   legL:mk(g=>kit.draw.legL(g),J.hipL),
-   legR:mk(g=>kit.draw.legR(g),J.hipR),
-   armL:mk(g=>kit.draw.armL(g),J.shoulderL),
-   armR:mk(g=>kit.draw.armR(g),J.shoulderR),
-   head:mk(g=>kit.draw.head(g),J.neck)
+   legL:instantLayer(g=>d.legL(g),bw,J.hipL),
+   legR:instantLayer(g=>d.legR(g),bw,J.hipR),
+   armL:instantLayer(g=>d.armL(g),bw,J.shoulderL),
+   armR:instantLayer(g=>d.armR(g),bw,J.shoulderR),
+   head:instantLayer(g=>d.head(g),bw,J.neck)
   }
  };
 }
