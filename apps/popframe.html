@@ -70,7 +70,7 @@ a.home{color:var(--purple);font-weight:700;font-size:13px;margin-left:8px}
 
  <div class="main">
   <aside class="sidebar">
-   <div class="step"><b>1.</b> Search a character ↑<br><b>2.</b> Tap <b>Make Puppet</b><br><b>3.</b> Drag body parts!<br><b>4.</b> Hit 🔴 RECORD & move them<br><b>5.</b> Play & save 🎬</div>
+   <div class="step"><b>1.</b> Search a character ↑<br><b>2.</b> Tap <b>Make Puppet</b><br><b>3.</b> Drag arms, legs &amp; head — watch them move!<br><b>4.</b> Hit 🔴 RECORD &amp; move them<br><b>5.</b> Play &amp; save 🎬</div>
    <h2>⚡ Quick search</h2>
    <div class="chips" id="chips"></div>
    <h2>🎭 Puppet</h2>
@@ -83,7 +83,7 @@ a.home{color:var(--purple);font-weight:700;font-size:13px;margin-left:8px}
   </aside>
 
   <section class="center">
-   <div class="bar" id="status-bar">👆 Drag the colored dots to move arms, legs & head!</div>
+   <div class="bar" id="status-bar">👆 Drag the dots — head, arms & legs move for real!</div>
    <div class="canvas-wrap">
     <div class="stage"><canvas id="cvs" width="1280" height="720"></canvas></div>
    </div>
@@ -107,12 +107,18 @@ const W=1280,H=720,FPS=30;
 const cvs=$('cvs'),ctx=cvs.getContext('2d');
 
 const PART_DEFS=[
- {id:'head',label:'Head',emoji:'😊',color:'#fbbf24',attach:[0,-0.42],len:70,angle:-Math.PI/2,size:28},
- {id:'armL',label:'Left arm',emoji:'💪',color:'#60a5fa',attach:[-0.32,-0.15],len:95,angle:Math.PI*.85,size:22},
- {id:'armR',label:'Right arm',emoji:'💪',color:'#60a5fa',attach:[0.32,-0.15],len:95,angle:Math.PI*.15,size:22},
- {id:'legL',label:'Left leg',emoji:'🦵',color:'#4ade80',attach:[-0.18,0.42],len:85,angle:Math.PI/2+.25,size:22},
- {id:'legR',label:'Right leg',emoji:'🦵',color:'#4ade80',attach:[0.18,0.42],len:85,angle:Math.PI/2-.25,size:22}
+ {id:'head',label:'Head',emoji:'😊',color:'#fbbf24',attach:[0,-0.38],len:70,angle:-Math.PI/2,size:28,rest:-Math.PI/2,
+  crop:[0.18,0.02,0.64,0.28],pivot:[0.5,0.92],order:5},
+ {id:'armL',label:'Left arm',emoji:'💪',color:'#60a5fa',attach:[-0.28,-0.1],len:95,angle:Math.PI*.78,size:22,rest:Math.PI*.78,
+  crop:[0.02,0.28,0.26,0.34],pivot:[0.92,0.1],order:2},
+ {id:'armR',label:'Right arm',emoji:'💪',color:'#60a5fa',attach:[0.28,-0.1],len:95,angle:Math.PI*.22,size:22,rest:Math.PI*.22,
+  crop:[0.72,0.28,0.26,0.34],pivot:[0.08,0.1],order:3},
+ {id:'legL',label:'Left leg',emoji:'🦵',color:'#4ade80',attach:[-0.14,0.38],len:85,angle:Math.PI/2+.22,size:22,rest:Math.PI/2+.22,
+  crop:[0.18,0.56,0.26,0.40],pivot:[0.5,0.06],order:0},
+ {id:'legR',label:'Right leg',emoji:'🦵',color:'#4ade80',attach:[0.14,0.38],len:85,angle:Math.PI/2-.22,size:22,rest:Math.PI/2-.22,
+  crop:[0.56,0.56,0.26,0.40],pivot:[0.5,0.06],order:1}
 ];
+const TORSO_CROP=[0.22,0.26,0.56,0.36];
 
 let dur=10,time=0,playing=false,recording=false;
 let charImg=null,charName='';
@@ -130,12 +136,34 @@ function defaultPose(){
 
 function clonePose(pose){const o={};for(const k in pose)o[k]=pose[k];return o;}
 
+function sliceSprite(img,crop,pivotNorm,bw,bh){
+ const iw=img.width,ih=img.height;
+ const sx=crop[0]*iw,sy=crop[1]*ih,sw=crop[2]*iw,sh=crop[3]*ih;
+ const w=crop[2]*bw,h=crop[3]*bh;
+ const c=document.createElement('canvas');
+ c.width=Math.max(1,Math.round(sw));
+ c.height=Math.max(1,Math.round(sh));
+ const sctx=c.getContext('2d');
+ sctx.drawImage(img,sx,sy,sw,sh,0,0,c.width,c.height);
+ return{canvas:c,w,h,pivotX:pivotNorm[0]*w,pivotY:pivotNorm[1]*h};
+}
+
+function buildPuppetSprites(img,bw,bh){
+ const torso=sliceSprite(img,TORSO_CROP,[0.5,0.5],bw,bh);
+ const parts={};
+ PART_DEFS.forEach(d=>{
+  parts[d.id]=sliceSprite(img,d.crop,d.pivot,bw,bh);
+ });
+ return{torso,parts};
+}
+
 function makePuppet(img,name){
  const bw=Math.min(W*.45,H*.55);
  const bh=bw*(img.height/img.width);
+ const sprites=buildPuppetSprites(img,bw,bh);
  puppet={
-  cx:W/2,cy:H/2+20,bw,bh,img,name,
-  parts:PART_DEFS.map(d=>({...d,angle:d.angle})),
+  cx:W/2,cy:H/2+20,bw,bh,img,name,sprites,
+  parts:PART_DEFS.map(d=>({...d,angle:d.angle,restAngle:d.rest})),
   keyframes:[{t:0,pose:defaultPose()}]
  };
  selPart='head';
@@ -145,8 +173,8 @@ function makePuppet(img,name){
   `<button type="button" class="part-btn${selPart===p.id?' on':''}" data-p="${p.id}"><span>${p.emoji}</span>${p.label}</button>`
  ).join('');
  $('parts-list').onclick=e=>{const b=e.target.closest('.part-btn');if(b){selPart=b.dataset.p;makePuppetUI();draw();}};
- $('puppet-hint').textContent='Drag the dots! Then RECORD 🔴';
- toast('Puppet ready!! Drag the body parts 🎭');
+ $('puppet-hint').textContent='Drag parts — you will SEE them move! Then RECORD 🔴';
+ toast('Puppet ready!! Drag arms & legs — they move! 🎭');
  draw();
 }
 
@@ -190,56 +218,76 @@ function partWorld(part){
  return{ax,ay,ex,ey};
 }
 
-function draw(){
- ctx.fillStyle='#1e1b2e';ctx.fillRect(0,0,W,H);
- const g=ctx.createLinearGradient(0,0,W,H);
+function drawPartSprite(c,part){
+ const spr=puppet.sprites.parts[part.id];
+ if(!spr)return;
+ const{ax,ay}=partWorld(part);
+ c.save();
+ c.translate(ax,ay);
+ c.rotate(part.angle-(part.restAngle??part.rest??0));
+ c.drawImage(spr.canvas,-spr.pivotX,-spr.pivotY,spr.w,spr.h);
+ c.restore();
+}
+
+function drawPuppetFrame(c,t,showHandles){
+ const g=c.createLinearGradient(0,0,W,H);
  g.addColorStop(0,'#312e81');g.addColorStop(1,'#0f0a1a');
- ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+ c.fillStyle=g;c.fillRect(0,0,W,H);
 
- if(!puppet){
-  ctx.fillStyle='#c4b5fd';ctx.font='bold 42px system-ui';ctx.textAlign='center';
-  ctx.fillText('Search a character ↑ then Make Puppet!',W/2,H/2);
-  updateTimeDisp();return;
- }
+ if(!puppet)return;
 
- const pose=recording?null:getPoseAt(time);
+ const pose=recording?null:getPoseAt(t);
  puppet.parts.forEach(p=>{
   if(pose)p.angle=pose[p.id];
  });
 
- // shadow
- ctx.fillStyle='rgba(0,0,0,.25)';
- ctx.beginPath();ctx.ellipse(puppet.cx,puppet.cy+puppet.bh*.52,puppet.bw*.35,18,0,0,Math.PI*2);ctx.fill();
+ c.fillStyle='rgba(0,0,0,.25)';
+ c.beginPath();c.ellipse(puppet.cx,puppet.cy+puppet.bh*.52,puppet.bw*.35,18,0,0,Math.PI*2);c.fill();
 
- // body image
- ctx.save();
- ctx.translate(puppet.cx,puppet.cy);
- ctx.drawImage(puppet.img,-puppet.bw/2,-puppet.bh/2,puppet.bw,puppet.bh);
- ctx.restore();
+ const torso=puppet.sprites.torso;
+ c.drawImage(
+  torso.canvas,
+  puppet.cx-torso.w/2,
+  puppet.cy-torso.h/2+torso.h*0.08,
+  torso.w,
+  torso.h
+ );
 
- // bones + parts (draw arms under then head on top - sort by id order is fine)
- puppet.parts.forEach(p=>{
-  const{ax,ay,ex,ey}=partWorld(p);
-  // bone line
-  ctx.strokeStyle='rgba(255,255,255,.85)';ctx.lineWidth=10;ctx.lineCap='round';
-  ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(ex,ey);ctx.stroke();
-  ctx.strokeStyle=p.color;ctx.lineWidth=6;
-  ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(ex,ey);ctx.stroke();
-  // joint dot
-  ctx.fillStyle=p.color;ctx.strokeStyle=selPart===p.id?'#fff':'rgba(0,0,0,.2)';ctx.lineWidth=selPart===p.id?4:2;
-  ctx.beginPath();ctx.arc(ex,ey,p.size,0,Math.PI*2);ctx.fill();ctx.stroke();
-  ctx.font='18px serif';ctx.textAlign='center';ctx.fillText(p.emoji,ex,ey+6);
-  if(selPart===p.id){
-   ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.setLineDash([4,4]);
-   ctx.beginPath();ctx.arc(ex,ey,p.size+8,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
-  }
- });
+ [...puppet.parts].sort((a,b)=>a.order-b.order).forEach(p=>drawPartSprite(c,p));
+
+ if(showHandles){
+  puppet.parts.forEach(p=>{
+   const{ax,ay,ex,ey}=partWorld(p);
+   c.strokeStyle='rgba(255,255,255,.55)';c.lineWidth=3;c.lineCap='round';
+   c.beginPath();c.moveTo(ax,ay);c.lineTo(ex,ey);c.stroke();
+   c.fillStyle=p.color;c.strokeStyle=selPart===p.id?'#fff':'rgba(0,0,0,.25)';c.lineWidth=selPart===p.id?4:2;
+   c.beginPath();c.arc(ex,ey,p.size,0,Math.PI*2);c.fill();c.stroke();
+   c.font='18px serif';c.textAlign='center';c.textBaseline='middle';
+   c.fillText(p.emoji,ex,ey);
+   if(selPart===p.id){
+    c.strokeStyle='#fff';c.lineWidth=2;c.setLineDash([4,4]);
+    c.beginPath();c.arc(ex,ey,p.size+8,0,Math.PI*2);c.stroke();c.setLineDash([]);
+   }
+   c.beginPath();c.arc(ax,ay,7,0,Math.PI*2);
+   c.fillStyle='rgba(255,255,255,.85)';c.fill();c.strokeStyle=p.color;c.lineWidth=2;c.stroke();
+  });
+ }
 
  if(recording){
-  ctx.fillStyle='var(--red)';ctx.beginPath();ctx.arc(40,40,14,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#fff';ctx.font='bold 16px system-ui';ctx.textAlign='left';
-  ctx.fillText('REC',62,46);
+  c.fillStyle='#ef4444';c.beginPath();c.arc(40,40,14,0,Math.PI*2);c.fill();
+  c.fillStyle='#fff';c.font='bold 16px system-ui';c.textAlign='left';c.textBaseline='alphabetic';
+  c.fillText('REC',62,46);
  }
+}
+
+function draw(){
+ ctx.fillStyle='#1e1b2e';ctx.fillRect(0,0,W,H);
+ if(!puppet){
+  ctx.fillStyle='#c4b5fd';ctx.font='bold 42px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText('Search a character ↑ then Make Puppet!',W/2,H/2);
+  updateTimeDisp();return;
+ }
+ drawPuppetFrame(ctx,time,true);
  updateTimeDisp();
 }
 
@@ -306,7 +354,7 @@ async function doSearch(q){
  $('go').disabled=true;$('go').textContent='…';
  toast('Drawing '+q+'… ✨');
  try{
-  const img=await loadImg(aiUrl(q+', cartoon character, full body, simple background, kid friendly',Math.floor(Math.random()*99999)));
+  const img=await loadImg(aiUrl(q+', cartoon character, full body standing, arms at sides, simple background, kid friendly',Math.floor(Math.random()*99999)));
   charImg=img;charName=q;lastImgEntry={img,name:q};
   $('btn-puppet').disabled=false;
   $('puppet-hint').textContent='Tap "Make Puppet"!! 🎭';
@@ -409,25 +457,8 @@ async function exportVideo(){
  const frames=Math.ceil(dur*FPS);
  for(let f=0;f<frames;f++){
   const t=f/FPS;
-  const saved=time;time=t;
-  // draw to offscreen
   octx.fillStyle='#1e1b2e';octx.fillRect(0,0,W,H);
-  const g=octx.createLinearGradient(0,0,W,H);g.addColorStop(0,'#312e81');g.addColorStop(1,'#0f0a1a');
-  octx.fillStyle=g;octx.fillRect(0,0,W,H);
-  const pose=getPoseAt(t);
-  const parts=puppet.parts.map(p=>({...p,angle:pose[p.id]}));
-  octx.fillStyle='rgba(0,0,0,.25)';octx.beginPath();octx.ellipse(puppet.cx,puppet.cy+puppet.bh*.52,puppet.bw*.35,18,0,0,Math.PI*2);octx.fill();
-  octx.drawImage(puppet.img,puppet.cx-puppet.bw/2,puppet.cy-puppet.bh/2,puppet.bw,puppet.bh);
-  parts.forEach(p=>{
-   const ax=puppet.cx+p.attach[0]*puppet.bw,ay=puppet.cy+p.attach[1]*puppet.bh;
-   const ex=ax+Math.cos(p.angle)*p.len,ey=ay+Math.sin(p.angle)*p.len;
-   octx.strokeStyle='rgba(255,255,255,.85)';octx.lineWidth=10;octx.lineCap='round';
-   octx.beginPath();octx.moveTo(ax,ay);octx.lineTo(ex,ey);octx.stroke();
-   octx.strokeStyle=p.color;octx.lineWidth=6;octx.beginPath();octx.moveTo(ax,ay);octx.lineTo(ex,ey);octx.stroke();
-   octx.fillStyle=p.color;octx.beginPath();octx.arc(ex,ey,p.size,0,Math.PI*2);octx.fill();
-   octx.font='18px serif';octx.textAlign='center';octx.fillText(p.emoji,ex,ey+6);
-  });
-  time=saved;
+  drawPuppetFrame(octx,t,false);
   $('prog').style.width=(f/frames*100)+'%';
   await new Promise(r=>setTimeout(r,1000/FPS));
  }
