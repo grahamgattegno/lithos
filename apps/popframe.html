@@ -113,10 +113,10 @@ const cvs=$('cvs'),ctx=cvs.getContext('2d');
 const PART_DEFS=[
  {id:'head',label:'Head',emoji:'😊',color:'#fbbf24',attach:[0,-0.38],len:70,angle:-Math.PI/2,size:28,rest:-Math.PI/2,
   crop:[0.18,0.02,0.64,0.28],pivot:[0.5,0.92],order:5},
- {id:'armL',label:'Left arm',emoji:'💪',color:'#60a5fa',attach:[-0.28,-0.1],len:95,angle:Math.PI*.78,size:22,rest:Math.PI*.78,
-  crop:[0.02,0.28,0.26,0.34],pivot:[0.92,0.1],order:2},
- {id:'armR',label:'Right arm',emoji:'💪',color:'#60a5fa',attach:[0.28,-0.1],len:95,angle:Math.PI*.22,size:22,rest:Math.PI*.22,
-  crop:[0.72,0.28,0.26,0.34],pivot:[0.08,0.1],order:3},
+ {id:'armL',label:'Left arm',emoji:'💪',color:'#60a5fa',attach:[-0.22,-0.14],len:118,angle:Math.PI*.82,size:24,rest:Math.PI*.82,
+  crop:[0.02,0.32,0.24,0.58],pivot:[0.88,0.08],order:2},
+ {id:'armR',label:'Right arm',emoji:'💪',color:'#60a5fa',attach:[0.22,-0.14],len:118,angle:Math.PI*.18,size:24,rest:Math.PI*.18,
+  crop:[0.74,0.32,0.24,0.58],pivot:[0.12,0.08],order:3},
  {id:'legL',label:'Left leg',emoji:'🦵',color:'#4ade80',attach:[-0.14,0.38],len:85,angle:Math.PI/2+.22,size:22,rest:Math.PI/2+.22,
   crop:[0.18,0.56,0.26,0.40],pivot:[0.5,0.06],order:0},
  {id:'legR',label:'Right leg',emoji:'🦵',color:'#4ade80',attach:[0.14,0.38],len:85,angle:Math.PI/2-.22,size:22,rest:Math.PI/2-.22,
@@ -369,14 +369,29 @@ function drawInstant(type){
 
  function limb(x,y,w,h,r){g.beginPath();g.roundRect(x,y,w,h,r);g.fill();}
  function circle(x,y,r){g.beginPath();g.arc(x,y,r,0,Math.PI*2);g.fill();}
+ function fullArm(side){
+  const left=side==='L';
+  const x=left?12:388;
+  const handX=left?72:440;
+  g.fillStyle=pal.limb;
+  limb(x,172,108,228,22);
+  if(type==='robot'){
+   g.fillStyle=pal.detail;
+   limb(left?20:396,268,92,12,4);
+  }
+  g.fillStyle=pal.limb;
+  circle(handX,418,34);
+  g.fillStyle=pal.detail;
+  circle(handX,418,16);
+ }
 
  // legs
  g.fillStyle=pal.limb;limb(132,300,88,180,28);limb(292,300,88,180,28);
  g.fillStyle=pal.detail;limb(142,450,68,28,8);limb(302,450,68,28,8);
- // arms
- g.fillStyle=pal.limb;limb(36,168,88,200,28);limb(388,168,88,200,28);
+ // full arms (drawn before torso in source — torso covers shoulders)
+ fullArm('L');fullArm('R');
  // torso
- g.fillStyle=pal.body;limb(148,168,216,200,36);
+ g.fillStyle=pal.body;limb(148,165,216,200,36);
  g.fillStyle=pal.detail;circle(256,250,22);
  // head
  g.fillStyle=pal.head;circle(256,108,92);
@@ -394,9 +409,7 @@ function drawInstant(type){
   g.fillStyle='#000';circle(236,104,10);circle(276,104,10);
   g.fillStyle=pal.limb;circle(256,148,6);
  }else if(type==='superhero'){
-  g.fillStyle=pal.limb;g.beginPath();g.moveTo(168,168);g.lineTo(128,248);g.lineTo(168,228);g.fill();
-  g.beginPath();g.moveTo(344,168);g.lineTo(384,248);g.lineTo(344,228);g.fill();
-  g.fillStyle=pal.detail;g.font='bold 48px system-ui';g.textAlign='center';g.fillText('S',256,120);
+  g.fillStyle=pal.detail;g.font='bold 48px system-ui';g.textAlign='center';g.textBaseline='middle';g.fillText('S',256,112);
   g.fillStyle=pal.face;circle(224,112,8);circle(288,112,8);
  }else{
   g.fillStyle=pal.detail;circle(256,92,18);
