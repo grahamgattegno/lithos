@@ -112,18 +112,18 @@ const cvs=$('cvs'),ctx=cvs.getContext('2d');
 
 // Shared body rig — all parts connect at these joints (0–1 on source image)
 const J={
- neck:[0.5,0.352],
+ neck:[0.5,0.355],
  shoulderL:[0.335,0.365],
  shoulderR:[0.665,0.365],
- hipL:[0.405,0.615],
- hipR:[0.595,0.615],
+ hipL:[0.405,0.598],
+ hipR:[0.595,0.598],
  handL:[0.141,0.818],
  handR:[0.859,0.818],
  footL:[0.322,0.938],
  footR:[0.678,0.938],
  headTop:[0.5,0.08]
 };
-const TORSO_CROP=[0.20,0.30,0.60,0.34];
+const TORSO_CROP=[0.16,0.32,0.68,0.36];
 
 function mkPart(id,label,emoji,color,joint,end,crop,order){
  const rest=Math.atan2(end[1]-joint[1],end[0]-joint[0]);
@@ -136,11 +136,11 @@ function mkPart(id,label,emoji,color,joint,end,crop,order){
 }
 
 const PART_DEFS=[
- mkPart('head','Head','😊','#fbbf24',J.neck,J.headTop,[0.18,0.02,0.64,0.36],5),
+ mkPart('head','Head','😊','#fbbf24',J.neck,J.headTop,[0.16,0.02,0.68,0.38],5),
  mkPart('armL','Left arm','💪','#60a5fa',J.shoulderL,J.handL,[0.02,0.28,0.30,0.58],2),
  mkPart('armR','Right arm','💪','#60a5fa',J.shoulderR,J.handR,[0.68,0.28,0.30,0.58],3),
- mkPart('legL','Left leg','🦵','#4ade80',J.hipL,J.footL,[0.15,0.52,0.30,0.46],0),
- mkPart('legR','Right leg','🦵','#4ade80',J.hipR,J.footR,[0.55,0.52,0.30,0.46],1)
+ mkPart('legL','Left leg','🦵','#4ade80',J.hipL,J.footL,[0.12,0.46,0.34,0.52],0),
+ mkPart('legR','Right leg','🦵','#4ade80',J.hipR,J.footR,[0.54,0.46,0.34,0.52],1)
 ];
 
 let dur=10,time=0,playing=false,recording=false;
@@ -182,7 +182,7 @@ function buildPuppetSprites(img,bw,bh){
 
 function makePuppet(img,name,meta){
  meta=meta||{};
- if(!meta.jointCaps)meta.jointCaps=jointCapsFor(meta.pal||{body:'#6366f1',head:'#cbd5e1'});
+ if(!meta.pal)meta.pal={body:'#6366f1',head:'#cbd5e1',limb:'#818cf8'};
  const bw=Math.min(W*.45,H*.55);
  const bh=bw*(img.height/img.width);
  const sprites=buildPuppetSprites(img,bw,bh);
@@ -253,16 +253,32 @@ function drawTorso(c){
  c.drawImage(t.canvas,x,y,t.w,t.h);
 }
 
-function drawJointCaps(c){
- const caps=puppet.meta.jointCaps;
- if(!caps)return;
+function drawBodyBridges(c){
+ const pal=puppet.meta.pal;
+ if(!pal)return;
  const bw=puppet.bw,bh=puppet.bh;
- caps.forEach(({j,r,color})=>{
-  const x=puppet.cx+(j[0]-0.5)*bw;
-  const y=puppet.cy+(j[1]-0.5)*bh;
-  c.fillStyle=color;
-  c.beginPath();c.arc(x,y,r,0,Math.PI*2);c.fill();
-  c.strokeStyle='rgba(0,0,0,.12)';c.lineWidth=2;c.stroke();
+ const pt=n=>{const x=puppet.cx+(n[0]-0.5)*bw,y=puppet.cy+(n[1]-0.5)*bh;return{x,y};};
+
+ // Neck — torso to head
+ const neck=pt(J.neck);
+ const torsoTop=puppet.cy+(TORSO_CROP[1]-0.5)*bh;
+ c.fillStyle=pal.body;
+ c.beginPath();
+ c.moveTo(neck.x-30,torsoTop);
+ c.lineTo(neck.x+30,torsoTop);
+ c.lineTo(neck.x+20,neck.y);
+ c.lineTo(neck.x-20,neck.y);
+ c.closePath();c.fill();
+ c.fillStyle=pal.head;
+ c.beginPath();c.arc(neck.x,neck.y-8,22,0,Math.PI*2);c.fill();
+
+ // Hips — connects torso bottom to legs
+ [J.hipL,J.hipR].forEach(h=>{
+  const p=pt(h);
+  c.fillStyle=pal.body;
+  c.beginPath();c.ellipse(p.x,p.y,32,24,0,0,Math.PI*2);c.fill();
+  c.fillStyle=pal.limb;
+  c.beginPath();c.ellipse(p.x,p.y+8,24,20,0,0,Math.PI*2);c.fill();
  });
 }
 
@@ -293,10 +309,10 @@ function drawPuppetFrame(c,t,showHandles){
  c.beginPath();c.ellipse(puppet.cx,puppet.cy+puppet.bh*.52,puppet.bw*.35,18,0,0,Math.PI*2);c.fill();
 
  const sorted=[...puppet.parts].sort((a,b)=>a.order-b.order);
- sorted.filter(p=>p.id.startsWith('leg')).forEach(p=>drawPartSprite(c,p));
  drawTorso(c);
+ drawBodyBridges(c);
+ sorted.filter(p=>p.id.startsWith('leg')).forEach(p=>drawPartSprite(c,p));
  sorted.filter(p=>!p.id.startsWith('leg')).forEach(p=>drawPartSprite(c,p));
- drawJointCaps(c);
 
  if(showHandles){
   puppet.parts.forEach(p=>{
@@ -427,23 +443,28 @@ function drawInstant(type){
  }
  function fullLeg(side){
   const left=side==='L';
+  const hp=j(left?J.hipL:J.hipR);
   const ft=j(left?J.footL:J.footR);
-  if(left)limb(118,305,94,ft[1]-305+20,24);
-  else limb(300,305,94,ft[1]-305+20,24);
+  g.fillStyle=pal.limb;
+  if(left)limb(108,hp[1]-36,98,ft[1]-hp[1]+52,24);
+  else limb(306,hp[1]-36,98,ft[1]-hp[1]+52,24);
   g.fillStyle=pal.detail;
-  if(left)limb(126,472,78,24,8);
-  else limb(308,472,78,24,8);
+  if(left)limb(116,472,78,24,8);
+  else limb(314,472,78,24,8);
   g.fillStyle=pal.limb;
  }
 
- // Connected body — overlapping at hips, shoulders, neck
- fullLeg('L');fullLeg('R');
- g.fillStyle=pal.body;limb(102,154,308,175,34);
+ // Torso + pelvis (legs plug into hips below)
+ g.fillStyle=pal.body;limb(98,168,316,168,34);
  g.fillStyle=pal.detail;circle(256,248,22);
- g.fillStyle=pal.body;limb(228,168,56,26,12);
+ g.beginPath();g.ellipse(207,302,36,28,0,0,Math.PI*2);g.fill();
+ g.beginPath();g.ellipse(305,302,36,28,0,0,Math.PI*2);g.fill();
+ fullLeg('L');fullLeg('R');
  fullArm('L');fullArm('R');
- g.fillStyle=pal.head;circle(256,92,90);
- g.fillStyle=pal.body;circle(256,178,22);
+ // Head + neck (neck overlaps torso top)
+ g.fillStyle=pal.head;circle(256,86,82);
+ g.fillStyle=pal.head;limb(224,158,64,32,14);
+ g.fillStyle=pal.body;limb(232,166,48,14,6);
 
  if(type==='cat'){
   g.fillStyle=pal.limb;g.beginPath();g.moveTo(188,52);g.lineTo(168,4);g.lineTo(218,44);g.fill();
@@ -470,21 +491,11 @@ function drawInstant(type){
  return c;
 }
 
-function jointCapsFor(pal){
- return[
-  {j:J.hipL,r:20,color:pal.body},
-  {j:J.hipR,r:20,color:pal.body},
-  {j:J.shoulderL,r:18,color:pal.body},
-  {j:J.shoulderR,r:18,color:pal.body},
-  {j:J.neck,r:22,color:pal.head}
- ];
-}
-
 function startInstant(type){
  const name=type.charAt(0).toUpperCase()+type.slice(1);
  const pal=PALETTES[type]||PALETTES.robot;
- makePuppet(drawInstant(type),name,{jointCaps:jointCapsFor(pal),pal});
- toast(name+' puppet — all parts connected! ⚡');
+ makePuppet(drawInstant(type),name,{pal});
+ toast(name+' — head & legs connected! ⚡');
 }
 
 // AI (optional — slower)
