@@ -576,7 +576,8 @@ function startInstant(type){
 }
 
 // AI (optional — slower)
-function aiUrl(q,s){return 'https://image.pollinations.ai/prompt/'+encodeURIComponent(q)+'?width=384&height=384&model=turbo&seed='+s+'&nologo=true';}
+// AI search — draws what you type, auto puppet!
+function aiUrl(q,s){return 'https://image.pollinations.ai/prompt/'+encodeURIComponent(aiPrompt(q))+'?width=512&height=512&model=turbo&seed='+s+'&nologo=true';}
 function loadImg(url,ms){
  return new Promise((ok,no)=>{
   const i=new Image();i.crossOrigin='anonymous';
