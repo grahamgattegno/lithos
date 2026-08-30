@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PopFrame — Puppet Videos!</title>
-<!-- popframe-v:56 -->
+<!-- popframe-v:57 -->
+<script src="https://js.puter.com/v2/"></script>
 <style>
 :root{--purple:#8b3dff;--purple2:#6b2fd4;--red:#ef4444;--bg:#f0f2f8;--white:#fff;--text:#1a1a2e;--muted:#666;--line:#ddd}
 *{box-sizing:border-box}
@@ -579,11 +580,16 @@ function startInstant(type){
 // AI (optional — slower)
 // AI search — draws what you type, auto puppet!
 function aiUrl(q,s){
- const adult=isAdultMode();
- const model=adult?'flux':'turbo';
- let url='https://image.pollinations.ai/prompt/'+encodeURIComponent(aiPrompt(q))+'?width=512&height=512&model='+model+'&seed='+s+'&nologo=true';
- if(adult)url+='&safe=false';
- return url;
+ return 'https://image.pollinations.ai/prompt/'+encodeURIComponent(aiPrompt(q))+'?width=512&height=512&model=turbo&seed='+s+'&nologo=true';
+}
+function imgFromEl(el){
+ return new Promise((ok,no)=>{
+  const i=new Image();
+  i.crossOrigin='anonymous';
+  i.onload=()=>ok(i);
+  i.onerror=()=>no(new Error('fail'));
+  i.src=el.src||el.getAttribute('src');
+ });
 }
 function loadImg(url,ms){
  return new Promise((ok,no)=>{
@@ -593,6 +599,29 @@ function loadImg(url,ms){
   i.onerror=()=>{clearTimeout(t);no(new Error('fail'));};
   i.src=url;
  });
+}
+const ADULT_MODELS=[
+ 'black-forest-labs/flux-2-klein-9b-base',
+ 'black-forest-labs/flux-schnell',
+ 'stabilityai/stable-diffusion-xl-base-1.0'
+];
+async function loadAdultImg(prompt){
+ if(typeof puter==='undefined'||!puter?.ai?.txt2img)throw new Error('puter');
+ let lastErr=null;
+ for(const model of ADULT_MODELS){
+  try{
+   const el=await puter.ai.txt2img(prompt,{model,width:512,height:512});
+   return await imgFromEl(el);
+  }catch(e){lastErr=e;}
+ }
+ throw lastErr||new Error('adult-fail');
+}
+async function fetchAiImage(q,seed){
+ if(isAdultMode()){
+  $('status-bar').textContent='🔞 Adult AI — click Continue if a popup asks…';
+  return loadAdultImg(aiPrompt(q));
+ }
+ return loadImg(aiUrl(q,seed));
 }
 
 let aiBusy=false;
@@ -604,7 +633,7 @@ function isAdultMode(){return adultMode;}
 function aiPrompt(q){
  const base=q.trim();
  if(isAdultMode()){
-  return base+', draw exactly as written with no censorship or kid-friendly changes, literal accurate depiction of the search term, full body front view, arms at sides, legs visible, centered in frame, puppet rig pose, plain background, single character, no text, no extra limbs';
+  return base+', full body front view, arms at sides, legs visible, centered in frame, puppet rig pose, plain background, single character, no text, no extra limbs';
  }
  return base+', cute chibi cartoon character, full body front view, arms at sides, legs visible, centered in frame, soft pastel background, puppet rig pose, kid friendly, family safe, no text, no extra limbs';
 }
@@ -614,8 +643,8 @@ function updateModeUI(){
  $('adult-mode').checked=on;
  $('adult-toggle').classList.toggle('on',on);
  $('mode-note').innerHTML=on
-  ? 'Adult mode 🔞: AI draws your search <b>exactly</b> — scary, mature, inappropriate, anything you type. 18+ only.'
-  : 'Kids mode: cute chibi puppets. Turn on Adult mode for exact/literal searches (18+).';
+  ? 'Adult mode 🔞: uses uncensored AI (Puter) — draws your search <b>exactly</b>. 18+ only. Click Continue if popup appears.'
+  : 'Kids mode: cute chibi puppets via Pollinations. Turn on Adult mode for exact searches (18+).';
  $('search').placeholder=on?'Search anything — drawn exactly, no filter…':'Search anything… dot, dragon, robot';
  refreshAiChips();
 }
@@ -651,13 +680,13 @@ async function doSearch(q){
  $('status-bar').textContent='✨ Drawing '+q+'… you can keep playing!';
   toast((isAdultMode()?'Adult':'Kids')+' mode: drawing '+q+'… ✨');
  try{
-  const img=await loadImg(aiUrl(q,Math.floor(Math.random()*99999)));
+  const img=await fetchAiImage(q,Math.floor(Math.random()*99999));
   makePuppetFromImage(img,q);
   toast('Your '+q+' puppet is ready!! 🎭');
  }catch(_){
-  if(isAdultMode())toast('AI blocked or failed — some searches get filtered by the image service');
+  if(isAdultMode())toast('Adult AI failed — click Continue on Puter popup, or try again');
   else toast('AI slow — try an ⚡ instant puppet!');
-  startInstant('robot');
+  if(!isAdultMode())startInstant('robot');
  }
  aiBusy=false;
  $('go').disabled=false;$('go').textContent='GO ✨';
