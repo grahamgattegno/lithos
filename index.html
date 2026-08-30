@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- lithos-v:site-live-49 -->
+<!-- lithos-v:site-live-50 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -6324,7 +6324,10 @@ function switchView(name){
  if(name==='teacher'&&!teacherBuilt){buildTeacher();teacherBuilt=true;}
  if(name==='identify'){refreshIdentifyRock();}
  if(name==='feedback'&&!feedbackBuilt){buildFeedback();feedbackBuilt=true;}
- if(name==='crafts'&&!craftsBuilt){buildCrafts();craftsBuilt=true;}
+ if(name==='crafts'){
+  const want=window.LITHOS_STRATUM?'stratum':'lithos';
+  if(!craftsBuilt||craftsMode!==want){buildCrafts();craftsBuilt=true;}
+ }
  if(name==='game'){buildGame();}
  if(name==='gemmotion'){buildGemMotion();}
  if(name==='poppy'){buildPoppyHub();}
@@ -8881,6 +8884,7 @@ function buildCareers(){
 
 /* ---------- Crafts ---------- */
 let craftsBuilt=false;
+let craftsMode=null;
 const CRAFTS=[
  {img:"images/amethyst.jpg",name:"Gem Wish Jar",easy:"Super Easy",short:"A tiny jar full of sparkly stones and glitter — like a jar of magic!",
  supplies:["A small jar or bottle","Tiny tumbled gemstones","A pinch of glitter","Ribbon or string","A little paper for a wish (optional)"],
@@ -8916,11 +8920,69 @@ const CRAFTS=[
  supplies:["A shallow pot or tray","Soil or sand","Small plants or moss","Tumbled gemstones","Tiny toys or figures (optional)"],
  steps:["Fill your tray with soil or sand.","Add little plants or moss for grass and trees.","Make a path or pond out of gemstones.","Add tiny figures to bring it to life.","Water gently and enjoy your finished gem garden."]}
 ];
+const STRATUM_CRAFTS=[
+ {img:"images/stratum/chinchorro-mummy.jpg",name:"Paper Mummy Wrap",easy:"Easy",short:"Wrap a figure in paper strips — like ancient mummy bandages.",
+ supplies:["A small doll, action figure, or toilet-paper tube person","White or beige paper strips","Glue or tape","Markers (optional for a face/mask)"],
+ steps:["Make or pick a small figure to wrap.","Cut paper into long bandage strips.","Wrap the body in layers, leaving eyes or a mask area if you like.","Glue or tape the ends so the wrap stays.","Add a name tag: your mummy is ready for the museum case!"]},
+ {img:"images/stratum/ammonite.jpg",name:"Fossil Clay Imprint",easy:"Super Easy",short:"Press shells, leaves, or toys into clay to make a fossil print.",
+ supplies:["Air-dry clay or play dough","A shell, leaf, toy bone, or coin","A flat tray","Optional: brown or gray paint when dry"],
+ steps:["Roll a thick pancake of clay.","Press your object firmly into the clay, then lift it out.","Let the imprint dry (or bake if your clay needs it — ask a grown-up).","Paint the fossil print if you want it to look ancient.","Label it with a find name and “site.”"]},
+ {img:"images/stratum/atlatl-spear-point.jpg",name:"Sandbox Dig Site",easy:"Easy",short:"Bury “artifacts” in sand or rice and excavate them with a brush.",
+ supplies:["A shallow box or tray","Sand, rice, or cornmeal","Small clean toys, coins, or clay “bones”","A soft brush or spoon","Paper and pencil for a find log"],
+ steps:["Hide 5–8 objects under the sand.","Draw a grid on paper for your dig squares.","Brush carefully — don’t yank finds out.","Log each find: what it is, which square, and a sketch.","Display your artifacts in a shoebox museum."]},
+ {img:"images/stratum/cave-painting-panel.jpg",name:"Cave Wall Painting",easy:"Easy",short:"Make charcoal and ochre-style art like Paleolithic caves.",
+ supplies:["Brown paper or cardboard","Charcoal, chalk, or brown/red/black crayons","Optional: hand for a stencil"],
+ steps:["Crumple the paper a little, then flatten it for a rock-wall look.","Draw animals, handprints, or hunting scenes.","Trace your hand and fill around it for a stencil print.","Add dots and lines like real cave marks.","Hang your “cave panel” in a dark corner for drama."]},
+ {img:"images/stratum/cuneiform-tablet.jpg",name:"Clay Cuneiform Tablet",easy:"Medium",short:"Stamp wedge marks into clay like Mesopotamian writing.",
+ supplies:["Air-dry clay","A chopstick, pencil tip, or craft stick","A flat board"],
+ steps:["Flatten clay into a small tablet rectangle.","Press short wedge shapes in rows (your “message”).","Invent symbols for your name or a short word.","Let it dry fully.","Optional: brush with dilute brown paint for an aged look."]},
+ {img:"images/stratum/greek-red-figure-vase.jpg",name:"Paper Amphora Vase",easy:"Medium",short:"Build a Greek-style vase from paper and paint red-figure scenes.",
+ supplies:["Cardstock or a paper cup + paper handles","Scissors and glue (ask a grown-up)","Black and terracotta/orange markers or paint"],
+ steps:["Cut a vase silhouette or wrap a cup in orange-brown paper.","Add two curved paper handles.","Paint a black band and a simple figure or animal.","Add geometric border patterns.","Display it with a label: Amphora · Classical period."]},
+ {img:"images/stratum/byzantine-mosaic-tessera.jpg",name:"Roman Paper Mosaic",easy:"Easy",short:"Glue tiny paper tiles into a mosaic floor pattern.",
+ supplies:["Cardboard base","Colored paper cut into tiny squares","Glue","A pencil"],
+ steps:["Draw a simple border and center shape (wave, sun, animal).","Glue paper squares along the lines like tiny tiles.","Fill the background with another color.","Leave tiny gaps between tiles for a mosaic look.","Title your floor: Villa mosaic · Roman."]},
+ {img:"images/stratum/egyptian-canopic-jar.jpg",name:"Canopic Jar Cup",easy:"Easy",short:"Turn a paper cup into an Egyptian canopic jar with an animal lid.",
+ supplies:["A paper or plastic cup","Construction paper","Markers","Tape or glue"],
+ steps:["Wrap the cup in painted or colored paper.","Draw hieroglyph-style bands around it.","Make a lid topper: jackal, falcon, baboon, or human head.","Tape the topper to a paper circle “lid.”","Write which “organ” your jar protects (for fun)."]},
+ {img:"images/stratum/trilobite.jpg",name:"Salt-Dough Dinosaur Bone",easy:"Medium",short:"Bake a salt-dough “fossil bone” for your dig collection.",
+ supplies:["1 cup flour","1/2 cup salt","1/2 cup water","Bowl and tray","Grown-up for oven"],
+ steps:["Mix flour, salt, and water into dough.","Shape a femur, tooth, or claw.","Ask a grown-up to bake at low heat until hard (or air-dry for days).","Paint bone-white or fossil-brown.","Tag it with species and period."]},
+ {img:"images/stratum/cave-painting-panel.jpg",name:"Layer Cup Stratigraphy",easy:"Super Easy",short:"Stack snack layers to show how dig sites get older toward the bottom.",
+ supplies:["Clear cup","Different snacks or colored sand (crackers, cereal, fruit)","Spoon","Paper labels"],
+ steps:["Add the oldest “layer” at the bottom.","Stack newer layers on top — don’t mix them.","Label each layer with a fake date or period.","Explain to a friend: archaeologists dig down through time.","Then you may excavate… and eat (if it’s food!)."]},
+ {img:"images/stratum/terracotta-warrior.jpg",name:"Terracotta Warrior Figure",easy:"Medium",short:"Sculpt a tiny clay soldier inspired by China’s terracotta army.",
+ supplies:["Air-dry clay","A toothpick for details","Optional paint when dry"],
+ steps:["Roll a body, head, arms, and legs.","Press armor lines and a helmet with the toothpick.","Stand your warrior on a clay base.","Let it dry completely.","Paint terracotta orange-brown and line up a whole army."]}
+];
+function activeCrafts(){
+ return (window.LITHOS_STRATUM&&STRATUM_CRAFTS&&STRATUM_CRAFTS.length)?STRATUM_CRAFTS:CRAFTS;
+}
+function applyCraftsHero(){
+ const hero=document.querySelector('#view-crafts .crafts-hero');
+ if(!hero)return;
+ const eyebrow=hero.querySelector('.eyebrow');
+ const h1=hero.querySelector('h1');
+ const lede=hero.querySelector('.lede');
+ if(window.LITHOS_STRATUM){
+  if(eyebrow)eyebrow.textContent='Field Lab · Dig Projects';
+  if(h1)h1.innerHTML='Archaeology <em>crafts</em> to make';
+  if(lede)lede.textContent='Hands-on dig-site crafts — mummies, fossils, mosaics, and clay tablets. Tap a project for supplies and steps!';
+ }else{
+  if(eyebrow)eyebrow.textContent='Make Something Sparkly';
+  if(h1)h1.innerHTML='Gem <em>crafts</em> to make';
+  if(lede)lede.textContent='Fun crafts you can make at home with gems and shiny stones. Tap a craft to see how to make it!';
+ }
+}
 function buildCrafts(){
+ const list=activeCrafts();
+ craftsMode=window.LITHOS_STRATUM?'stratum':'lithos';
+ applyCraftsHero();
  const grid=document.getElementById('crafts-grid');
- grid.innerHTML=CRAFTS.map((c,i)=>`
+ if(!grid)return;
+ grid.innerHTML=list.map((c,i)=>`
  <button class="craft" data-i="${i}">
- <div class="c-gem"><img src="${c.img}" alt=""></div>
+ <div class="c-gem"><img src="${c.img}" alt="" onerror="this.style.opacity=.35"></div>
  <div class="c-name">${c.name}</div>
  <div class="c-easy">${c.easy}</div>
  <div class="c-short">${c.short}</div>
@@ -8928,20 +8990,24 @@ function buildCrafts(){
  grid.querySelectorAll('.craft').forEach(b=>b.onclick=()=>showCraft(+b.dataset.i));
 }
 function showCraft(i){
- const c=CRAFTS[i];
+ const list=activeCrafts();
+ const c=list[i];
+ if(!c)return;
  const view=document.getElementById('view-crafts');
  view.querySelector('.crafts-hero').style.display='none';
  const grid=document.getElementById('crafts-grid');
+ const accent=window.LITHOS_STRATUM?'#c4a574':'#7cc0ff';
+ const sub=window.LITHOS_STRATUM?'#a89880':'#4ea8ff';
  grid.innerHTML=`<div class="craft-detail" style="grid-column:1/-1">
  <button class="craft-back" onclick="backToCrafts()">← Back to all crafts</button>
- <div class="c-gem" style="width:96px;height:96px;margin:16px auto"><img src="${c.img}" alt=""></div>
- <h1 style="font-family:var(--serif);font-weight:300;font-size:44px;text-align:center;margin-bottom:6px;color:#7cc0ff">${c.name}</h1>
- <p style="text-align:center;color:#4ea8ff;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase">${c.easy}</p>
+ <div class="c-gem" style="width:96px;height:96px;margin:16px auto"><img src="${c.img}" alt="" onerror="this.style.opacity=.35"></div>
+ <h1 style="font-family:var(--serif);font-weight:300;font-size:44px;text-align:center;margin-bottom:6px;color:${accent}">${c.name}</h1>
+ <p style="text-align:center;color:${sub};font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase">${c.easy}</p>
  <h3>What you need</h3>
  <ul>${c.supplies.map(s=>`<li>${s}</li>`).join('')}</ul>
  <h3>How to make it</h3>
  <ol>${c.steps.map(s=>`<li>${s}</li>`).join('')}</ol>
- <p style="color:var(--text-faint);font-size:13px;margin-top:20px">Tip: Ask a grown-up for help with glue, scissors, or small pieces.</p>
+ <p style="color:var(--text-faint);font-size:13px;margin-top:20px">Tip: Ask a grown-up for help with glue, scissors, ovens, or small pieces.</p>
  </div>`;
  grid.style.gridTemplateColumns='1fr';
  window.scrollTo({top:0});

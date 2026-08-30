@@ -120,6 +120,7 @@
   applyHero();
   applyFilters();
   addSiteSwitch();
+  if(typeof applyCraftsHero==='function')applyCraftsHero();
   const gw=document.querySelector('.gem-week-badge');
   if(gw)gw.textContent=gw.textContent.replace(/Gem of the Week/i,'Find of the Week');
   const gwo=document.getElementById('gem-week-open');
