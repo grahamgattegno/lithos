@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PopFrame Puppet Studio</title>
+<!-- popframe-puppet-v:58 -->
+<script src="https://js.puter.com/v2/"></script>
+<style>
+:root{--purple:#8b3dff;--purple2:#6b2fd4;--red:#ef4444;--bg:#f0f2f8;--white:#fff;--text:#1a1a2e;--muted:#666;--line:#ddd}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;font-family:system-ui,-apple-system,sans-serif;color:var(--text);background:var(--bg);overflow:hidden}
+button{font-family:inherit;cursor:pointer}
+.app{display:flex;flex-direction:column;height:100vh}
+.top{background:var(--white);border-bottom:3px solid var(--purple);padding:10px 14px;display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.logo{font-size:20px;font-weight:800;color:var(--purple)}
+.search-wrap{flex:1;min-width:180px;display:flex;gap:8px}
+.search-wrap input{flex:1;border:3px solid var(--purple);border-radius:14px;padding:12px 14px;font-size:16px;font-weight:600;background:#faf5ff}
+.btn-go{background:var(--purple);color:#fff;border:none;border-radius:14px;padding:12px 18px;font-size:16px;font-weight:800}
+.btn-go:disabled{opacity:.5}
+.btn{background:var(--white);border:2px solid var(--line);border-radius:12px;padding:10px 14px;font-size:14px;font-weight:700}
+.btn:hover{border-color:var(--purple)}
+.btn.purple{background:var(--purple);color:#fff;border-color:var(--purple)}
+.btn.red{background:var(--red);color:#fff;border-color:var(--red);animation:recpulse 1s infinite}
+@keyframes recpulse{50%{box-shadow:0 0 0 6px rgba(239,68,68,.35)}}
+.btn.record{font-size:16px;padding:12px 20px}
+.main{display:flex;flex:1;min-height:0}
+.sidebar{width:min(260px,34vw);background:var(--white);border-right:2px solid var(--line);padding:12px;overflow:auto}
+.sidebar h2{margin:12px 0 8px;font-size:13px;color:var(--muted);text-transform:uppercase}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:#f3ebff;border:2px solid #d8b4fe;border-radius:18px;padding:8px 12px;font-size:14px;font-weight:600}
+.chip.instant{background:#ecfdf5;border-color:#6ee7b7}
+.chip.instant::before{content:'⚡ '}
+.chip:hover{background:var(--purple);color:#fff}
+.step{background:#f3ebff;border-radius:12px;padding:12px;margin-bottom:10px;font-size:14px;line-height:1.5}
+.step b{color:var(--purple)}
+.part-btn{display:flex;align-items:center;gap:10px;width:100%;padding:12px;margin-bottom:6px;border:2px solid var(--line);border-radius:12px;background:#fafafa;font-size:15px;font-weight:700;text-align:left}
+.part-btn.on{border-color:var(--purple);background:#f3ebff}
+.part-btn span{font-size:22px}
+.center{flex:1;display:flex;flex-direction:column;background:#b8bcc4;min-width:0}
+.bar{padding:8px 12px;text-align:center;font-size:14px;font-weight:600;background:rgba(255,255,255,.9)}
+.bar.rec{background:#fee2e2;color:var(--red)}
+.canvas-wrap{flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;padding:12px}
+.stage{position:relative;line-height:0;border-radius:6px;box-shadow:0 12px 36px rgba(0,0,0,.25)}
+#cvs{display:block;max-width:100%;height:auto;touch-action:none}
+.bottom{background:var(--white);border-top:2px solid var(--line);padding:10px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.bottom input[type=range]{flex:1;min-width:100px;accent-color:var(--purple);height:10px}
+.time{font-family:monospace;font-weight:700;font-size:14px;min-width:100px}
+.toast{position:fixed;bottom:64px;left:50%;transform:translateX(-50%);background:#1a1a2e;color:#fff;padding:12px 22px;border-radius:24px;font-size:15px;font-weight:700;opacity:0;transition:opacity .25s;z-index:99;pointer-events:none;text-align:center;max-width:92vw}
+.toast.show{opacity:1}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:100}
+.modal.show{display:flex}
+.modal-box{background:#fff;border-radius:20px;padding:24px;text-align:center;max-width:340px}
+.prog{height:10px;background:#eee;border-radius:8px;overflow:hidden;margin:12px 0}
+.prog span{display:block;height:100%;background:var(--purple);width:0}
+.hint{font-size:13px;color:var(--muted);margin:0;line-height:1.45}
+.mode-toggle{display:flex;align-items:center;gap:10px;padding:10px 12px;margin:8px 0 12px;border:2px solid var(--line);border-radius:12px;background:#fafafa;font-size:14px;font-weight:700;cursor:pointer;user-select:none}
+.mode-toggle.on{border-color:#7f1d1d;background:#fef2f2;color:#7f1d1d}
+.mode-toggle input{accent-color:#7f1d1d;width:18px;height:18px;cursor:pointer}
+.mode-note{font-size:12px;color:var(--muted);margin:-6px 0 10px;line-height:1.4}
+a.home{color:var(--purple);font-weight:700;font-size:13px;margin-left:8px}
+</style>
+</head>
+<body>
+<div class="app">
+ <header class="top">
+  <div class="logo">PopFrame 🎭</div>
+  <div class="search-wrap">
+   <input id="search" placeholder="Search anything… dot, dragon, robot" autocomplete="off">
+   <button class="btn-go" id="go">GO ✨</button>
+  </div>
+  <button class="btn record red" id="btn-rec" hidden>🔴 RECORD</button>
+  <button class="btn" id="btn-stop" hidden>⏹ STOP</button>
+  <button class="btn" id="btn-play">▶ Play</button>
+  <button class="btn purple" id="btn-save">⬇ Save Video</button>
+  <a class="home" href="popframe.html?v=58">🎬 Video Editor</a>
+  <a class="home" href="../index.html?v=51">Lithos</a>
+ </header>
+
+ <div class="main">
+  <aside class="sidebar">
+   <div class="step"><b>1.</b> Pick ⚡ instant OR search anything ↑<br><b>2.</b> AI draws YOUR idea as a puppet!<br><b>3.</b> Drag parts &amp; 🔴 RECORD<br><b>4.</b> Play &amp; save 🎬</div>
+   <h2>⚡ Instant puppets</h2>
+   <div class="chips" id="instant-chips"></div>
+   <h2>✨ AI search (slower)</h2>
+   <label class="mode-toggle" id="adult-toggle"><input type="checkbox" id="adult-mode"> Adult mode 🔞</label>
+   <p class="mode-note" id="mode-note">Kids mode: cute chibi puppets. Adult mode: AI draws your search <b>exactly</b> — anything you type, no kid filter.</p>
+   <div class="chips" id="chips"></div>
+   <h2>🎭 Puppet</h2>
+   <button class="btn purple" id="btn-puppet" style="width:100%;padding:14px;font-size:16px">🔄 Remake puppet</button>
+   <p class="hint" id="puppet-hint">Instant puppets load in 1 second!</p>
+   <h2>🦴 Body parts</h2>
+   <div id="parts-list"><p class="hint">Make a puppet first!</p></div>
+   <button class="btn" id="btn-upload" style="width:100%;margin-top:8px">📷 Upload photo</button>
+   <input type="file" id="file-in" accept="image/*" hidden>
+  </aside>
+
+  <section class="center">
+   <div class="bar" id="status-bar">👆 Cute puppet — drag parts to pose &amp; record!</div>
+   <div class="canvas-wrap">
+    <div class="stage"><canvas id="cvs" width="1280" height="720"></canvas></div>
+   </div>
+  </section>
+ </div>
+
+ <footer class="bottom">
+  <button class="btn" id="tl-play">▶</button>
+  <input type="range" id="scrub" min="0" max="1000" value="0">
+  <span class="time" id="time-disp">0:00 / 0:10</span>
+  <select id="dur" class="btn"><option value="5">5 sec</option><option value="10" selected>10 sec</option><option value="15">15 sec</option></select>
+ </footer>
+</div>
+<div class="toast" id="toast"></div>
+<div class="modal" id="modal"><div class="modal-box"><h2>🎬 Saving…</h2><div class="prog"><span id="prog"></span></div></div></div>
+
+<script>
+const $=id=>document.getElementById(id);
+const toast=m=>{const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),3000);};
+const W=1280,H=720,FPS=30;
+const cvs=$('cvs'),ctx=cvs.getContext('2d');
+
+// Shared body rig — all parts connect at these joints (0–1 on source image)
+const J={
+ neck:[0.5,0.348],
+ shoulderL:[0.30,0.395],
+ shoulderR:[0.70,0.395],
+ hipL:[0.41,0.575],
+ hipR:[0.59,0.575],
+ handL:[0.10,0.78],
+ handR:[0.90,0.78],
+ footL:[0.36,0.915],
+ footR:[0.64,0.915],
+ headTop:[0.5,0.06]
+};
+const TORSO_CROP=[0.28,0.34,0.44,0.28];
+
+function mkPart(id,label,emoji,color,joint,end,crop,order){
+ const rest=Math.atan2(end[1]-joint[1],end[0]-joint[0]);
+ return{
+  id,label,emoji,color,joint,end,crop,order,
+  attach:[joint[0]-0.5,joint[1]-0.5],
+  pivot:[(joint[0]-crop[0])/crop[2],(joint[1]-crop[1])/crop[3]],
+  rest,restAngle:rest,angle:rest,size:24
+ };
+}
+
+const PART_DEFS=[
+ mkPart('head','Head','😊','#fbbf24',J.neck,J.headTop,[0.12,0.02,0.76,0.36],5),
+ mkPart('armL','Left arm','💪','#60a5fa',J.shoulderL,J.handL,[0.02,0.30,0.28,0.52],2),
+ mkPart('armR','Right arm','💪','#60a5fa',J.shoulderR,J.handR,[0.70,0.30,0.28,0.52],3),
+ mkPart('legL','Left leg','🦵','#4ade80',J.hipL,J.footL,[0.14,0.50,0.30,0.44],0),
+ mkPart('legR','Right leg','🦵','#4ade80',J.hipR,J.footR,[0.56,0.50,0.30,0.44],1)
+];
+
+let dur=10,time=0,playing=false,recording=false;
+let charImg=null,charName='';
+let puppet=null; // {cx,cy,bw,bh,parts:[{id,angle,...}],keyframes:[{t,pose}]}
+let selPart=null,dragPart=null;
+let lastImgEntry=null;
+
+function uid(){return Math.random().toString(36).slice(2,9);}
+
+function defaultPose(){
+ const p={};
+ PART_DEFS.forEach(d=>{p[d.id]=PART_DEFS.find(x=>x.id===d.id).angle;});
+ return p;
+}
+
+function clonePose(pose){const o={};for(const k in pose)o[k]=pose[k];return o;}
+
+function sliceSprite(img,crop,pivotNorm,bw,bh){
+ const iw=img.width,ih=img.height;
+ const sx=crop[0]*iw,sy=crop[1]*ih,sw=crop[2]*iw,sh=crop[3]*ih;
+ const w=crop[2]*bw,h=crop[3]*bh;
+ const c=document.createElement('canvas');
+ c.width=Math.max(1,Math.round(sw));
+ c.height=Math.max(1,Math.round(sh));
+ const sctx=c.getContext('2d');
+ sctx.drawImage(img,sx,sy,sw,sh,0,0,c.width,c.height);
+ return{canvas:c,w,h,pivotX:pivotNorm[0]*w,pivotY:pivotNorm[1]*h};
+}
+
+function buildPuppetSprites(img,bw,bh){
+ const torso=sliceSprite(img,TORSO_CROP,[0.5,0.5],bw,bh);
+ const parts={};
+ PART_DEFS.forEach(d=>{
+  parts[d.id]=sliceSprite(img,d.crop,d.pivot,bw,bh);
+ });
+ return{torso,parts};
+}
+
+function makePuppet(img,name,meta){
+ meta=meta||{};
+ if(!meta.pal)meta.pal={body:'#6366f1',head:'#cbd5e1',limb:'#818cf8'};
+ const bw=Math.min(W*.45,H*.55);
+ const bh=bw*(img.height/img.width);
+ const sprites=meta.instantSprites||buildPuppetSprites(img,bw,bh);
+ puppet={
+  cx:W/2,cy:H/2+20,bw,bh,img,name,sprites,meta,
+  characterCanvas:meta.characterCanvas||null,
+  parts:PART_DEFS.map(d=>({
+   ...d,
+   len:Math.hypot(d.end[0]-d.joint[0],d.end[1]-d.joint[1])*bw,
+   angle:d.rest,restAngle:d.rest
+  })),
+  keyframes:[{t:0,pose:defaultPose()}]
+ };
+ selPart='head';
+ $('btn-rec').hidden=false;
+ $('parts-list').innerHTML=puppet.parts.map(p=>
+  `<button type="button" class="part-btn${selPart===p.id?' on':''}" data-p="${p.id}"><span>${p.emoji}</span>${p.label}</button>`
+ ).join('');
+ $('parts-list').onclick=e=>{const b=e.target.closest('.part-btn');if(b){selPart=b.dataset.p;makePuppetUI();draw();}};
+ $('puppet-hint').textContent='Drag parts — you will SEE them move! Then RECORD 🔴';
+ toast('Puppet ready!! Drag arms & legs — they move! 🎭');
+ draw();
+}
+
+function makePuppetUI(){
+ $('parts-list').querySelectorAll('.part-btn').forEach(b=>b.classList.toggle('on',b.dataset.p===selPart));
+}
+
+function getPoseAt(t){
+ if(!puppet||!puppet.keyframes.length)return defaultPose();
+ const kf=[...puppet.keyframes].sort((a,b)=>a.t-b.t);
+ if(t<=kf[0].t)return clonePose(kf[0].pose);
+ if(t>=kf[kf.length-1].t)return clonePose(kf[kf.length-1].pose);
+ for(let i=0;i<kf.length-1;i++){
+  if(t>=kf[i].t&&t<=kf[i+1].t){
+   const a=kf[i],b=kf[i+1];
+   const f=(t-a.t)/(b.t-a.t);
+   const pose={};
+   for(const id in a.pose)pose[id]=a.pose[id]+(b.pose[id]-a.pose[id])*f;
+   return pose;
+  }
+ }
+ return defaultPose();
+}
+
+function saveKeyframe(t){
+ if(!puppet)return;
+ const pose={};
+ puppet.parts.forEach(p=>{pose[p.id]=p.angle;});
+ const kf=puppet.keyframes;
+ const idx=kf.findIndex(k=>Math.abs(k.t-t)<0.05);
+ if(idx>=0)kf[idx].pose=pose;
+ else{kf.push({t,pose});kf.sort((a,b)=>a.t-b.t);}
+}
+
+function partWorld(part){
+ const bw=puppet.bw,bh=puppet.bh;
+ const ax=puppet.cx+(part.joint[0]-0.5)*bw;
+ const ay=puppet.cy+(part.joint[1]-0.5)*bh;
+ const ex=ax+Math.cos(part.angle)*part.len;
+ const ey=ay+Math.sin(part.angle)*part.len;
+ return{ax,ay,ex,ey};
+}
+
+function drawTorso(c){
+ const t=puppet.sprites.torso,bw=puppet.bw;
+ if(puppet.meta.instantSprites){
+  c.drawImage(t.canvas,puppet.cx-t.w/2,puppet.cy-t.h/2,t.w,t.h);
+  return;
+ }
+ const bh=puppet.bh;
+ const x=puppet.cx+(TORSO_CROP[0]-0.5)*bw;
+ const y=puppet.cy+(TORSO_CROP[1]-0.5)*bh;
+ c.drawImage(t.canvas,x,y,t.w,t.h);
+}
+
+function isAtRestPose(){
+ if(!puppet||recording||playing)return false;
+ return puppet.parts.every(p=>Math.abs(p.angle-p.restAngle)<0.05);
+}
+
+function useFullCharacter(){
+ return puppet.characterCanvas&&isAtRestPose()&&!dragPart;
+}
+
+function drawPartSprite(c,part){
+ const spr=puppet.sprites.parts[part.id];
+ if(!spr)return;
+ const{ax,ay}=partWorld(part);
+ c.save();
+ c.translate(ax,ay);
+ c.rotate(part.angle-(part.restAngle??part.rest??0));
+ c.drawImage(spr.canvas,-spr.pivotX,-spr.pivotY,spr.w,spr.h);
+ c.restore();
+}
+
+function drawPuppetFrame(c,t,showHandles){
+ const g=c.createLinearGradient(0,0,W,H);
+ g.addColorStop(0,'#312e81');g.addColorStop(1,'#0f0a1a');
+ c.fillStyle=g;c.fillRect(0,0,W,H);
+
+ if(!puppet)return;
+
+ const pose=recording?null:getPoseAt(t);
+ puppet.parts.forEach(p=>{
+  if(pose)p.angle=pose[p.id];
+ });
+
+ c.fillStyle='rgba(0,0,0,.25)';
+ c.beginPath();c.ellipse(puppet.cx,puppet.cy+puppet.bh*.52,puppet.bw*.35,18,0,0,Math.PI*2);c.fill();
+
+ const bw=puppet.bw,bh=puppet.bh;
+ if(useFullCharacter()){
+  c.drawImage(puppet.characterCanvas,puppet.cx-bw/2,puppet.cy-bh/2,bw,bh);
+ }else{
+  const sorted=[...puppet.parts].sort((a,b)=>a.order-b.order);
+  sorted.filter(p=>p.id.startsWith('leg')).forEach(p=>drawPartSprite(c,p));
+  drawTorso(c);
+  sorted.filter(p=>!p.id.startsWith('leg')).forEach(p=>drawPartSprite(c,p));
+ }
+
+ const active=dragPart?dragPart.id:selPart;
+ if(showHandles&&active&&!useFullCharacter()){
+  const p=puppet.parts.find(z=>z.id===active);
+  if(p){
+   const{ax,ay,ex,ey}=partWorld(p);
+   c.strokeStyle='rgba(255,255,255,.55)';c.lineWidth=3;c.lineCap='round';
+   c.beginPath();c.moveTo(ax,ay);c.lineTo(ex,ey);c.stroke();
+   c.fillStyle=p.color;c.strokeStyle='#fff';c.lineWidth=3;
+   c.beginPath();c.arc(ex,ey,p.size,0,Math.PI*2);c.fill();c.stroke();
+   c.font='18px serif';c.textAlign='center';c.textBaseline='middle';
+   c.fillText(p.emoji,ex,ey);
+  }
+ }
+
+ if(recording){
+  c.fillStyle='#ef4444';c.beginPath();c.arc(40,40,14,0,Math.PI*2);c.fill();
+  c.fillStyle='#fff';c.font='bold 16px system-ui';c.textAlign='left';c.textBaseline='alphabetic';
+  c.fillText('REC',62,46);
+ }
+}
+
+function draw(){
+ ctx.fillStyle='#1e1b2e';ctx.fillRect(0,0,W,H);
+ if(!puppet){
+  ctx.fillStyle='#c4b5fd';ctx.font='bold 42px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText('Search a character ↑ then Make Puppet!',W/2,H/2);
+  updateTimeDisp();return;
+ }
+ drawPuppetFrame(ctx,time,true);
+ updateTimeDisp();
+}
+
+function hitPart(mx,my){
+ if(!puppet)return null;
+ for(let i=puppet.parts.length-1;i>=0;i--){
+  const p=puppet.parts[i];
+  const{ex,ey}=partWorld(p);
+  if(Math.hypot(mx-ex,my-ey)<p.size+14)return p.id;
+ }
+ // body hit
+ if(Math.abs(mx-puppet.cx)<puppet.bw/2&&Math.abs(my-puppet.cy)<puppet.bh/2)return 'body';
+ return null;
+}
+
+function canvasXY(clientX,clientY){
+ const r=cvs.getBoundingClientRect();
+ return{x:(clientX-r.left)*(W/r.width),y:(clientY-r.top)*(H/r.height)};
+}
+
+cvs.addEventListener('mousedown',e=>{
+ if(!puppet||playing)return;
+ const{x,y}=canvasXY(e.clientX,e.clientY);
+ const hit=hitPart(x,y);
+ if(hit&&hit!=='body'){
+  selPart=hit;makePuppetUI();
+  dragPart={id:hit,startX:x,startY:y,moved:false};
+  const p=puppet.parts.find(z=>z.id===hit);
+  const{ax,ay}=partWorld(p);
+  dragPart.ax=ax;dragPart.ay=ay;
+ }
+});
+cvs.addEventListener('mousemove',e=>{
+ if(!dragPart||!puppet)return;
+ const{x,y}=canvasXY(e.clientX,e.clientY);
+ if(!dragPart.moved&&Math.hypot(x-dragPart.startX,y-dragPart.startY)<4)return;
+ dragPart.moved=true;
+ const p=puppet.parts.find(z=>z.id===dragPart.id);
+ if(p){
+  p.angle=Math.atan2(y-dragPart.ay,x-dragPart.ax);
+  saveKeyframe(time);
+  draw();
+ }
+});
+cvs.addEventListener('mouseup',()=>{dragPart=null;});
+cvs.addEventListener('touchstart',e=>{
+ e.preventDefault();
+ const t=e.touches[0];
+ cvs.dispatchEvent(new MouseEvent('mousedown',{clientX:t.clientX,clientY:t.clientY}));
+},{passive:false});
+cvs.addEventListener('touchmove',e=>{
+ e.preventDefault();
+ const t=e.touches[0];
+ cvs.dispatchEvent(new MouseEvent('mousemove',{clientX:t.clientX,clientY:t.clientY}));
+},{passive:false});
+cvs.addEventListener('touchend',()=>{dragPart=null;});
+
+// Instant puppets — no waiting for AI!
+const INSTANT_TYPES=['robot','cat','dinosaur','alien','superhero'];
+
+const PALETTES={
+ robot:{head:'#cbd5e1',body:'#6366f1',limb:'#818cf8',detail:'#fbbf24',face:'#1e1b4b'},
+ cat:{head:'#fdba74',body:'#fb923c',limb:'#ea580c',detail:'#fff',face:'#431407'},
+ dinosaur:{head:'#86efac',body:'#22c55e',limb:'#15803d',detail:'#fef08a',face:'#14532d'},
+ alien:{head:'#a7f3d0',body:'#10b981',limb:'#059669',detail:'#fde047',face:'#064e3b'},
+ superhero:{head:'#fde68a',body:'#ef4444',limb:'#2563eb',detail:'#fbbf24',face:'#1e3a8a'}
+};
+
+function createDrawKit(pal,type){
+ const outline=pal.face||'#1a1a2e';
+ const shL=[154,202],shR=[358,202],hpL=[210,294],hpR=[302,294];
+ const haL=[52,400],haR=[460,400],ftL=[184,468],ftR=[328,468];
+
+ function stroke(g){g.strokeStyle=outline;g.lineWidth=5;g.stroke();}
+ function capsule(g,x1,y1,x2,y2,w){
+  const dx=x2-x1,dy=y2-y1,len=Math.hypot(dx,dy)||1;
+  const nx=-dy/len*w/2,ny=dx/len*w/2;
+  g.beginPath();g.moveTo(x1+nx,y1+ny);g.lineTo(x2+nx,y2+ny);
+  g.lineTo(x2-nx,y2-ny);g.lineTo(x1-nx,y1-ny);g.closePath();g.fill();stroke(g);
+  g.beginPath();g.arc(x1,y1,w/2,0,Math.PI*2);g.fill();stroke(g);
+  g.beginPath();g.arc(x2,y2,w/2,0,Math.PI*2);g.fill();stroke(g);
+ }
+ function circle(g,x,y,r,fill){g.fillStyle=fill;g.beginPath();g.arc(x,y,r,0,Math.PI*2);g.fill();stroke(g);}
+
+ const draw={
+  legL(g){
+   g.fillStyle=pal.limb;capsule(g,hpL[0],hpL[1],ftL[0],ftL[1],52);
+   g.fillStyle=pal.detail;g.beginPath();g.ellipse(ftL[0],ftL[1]+8,34,16,0,0,Math.PI*2);g.fill();stroke(g);
+  },
+  legR(g){
+   g.fillStyle=pal.limb;capsule(g,hpR[0],hpR[1],ftR[0],ftR[1],52);
+   g.fillStyle=pal.detail;g.beginPath();g.ellipse(ftR[0],ftR[1]+8,34,16,0,0,Math.PI*2);g.fill();stroke(g);
+  },
+  torso(g){
+   g.fillStyle=pal.body;g.beginPath();g.roundRect(156,178,200,128,48);g.fill();stroke(g);
+   const shine=g.createLinearGradient(180,190,300,290);
+   shine.addColorStop(0,'rgba(255,255,255,.35)');shine.addColorStop(1,'rgba(0,0,0,.08)');
+   g.fillStyle=shine;g.beginPath();g.roundRect(168,188,88,100,32);g.fill();
+   if(type==='robot'){
+    g.fillStyle=pal.detail;circle(g,256,230,16,pal.detail);
+    g.fillStyle='#fff';g.font='bold 14px system-ui';g.textAlign='center';g.textBaseline='middle';g.fillText('ON',256,230);
+   }
+  },
+  armL(g){
+   g.fillStyle=pal.limb;capsule(g,shL[0],shL[1],haL[0],haL[1],44);
+   g.fillStyle=pal.detail;circle(g,haL[0],haL[1],20,pal.detail);
+  },
+  armR(g){
+   g.fillStyle=pal.limb;capsule(g,shR[0],shR[1],haR[0],haR[1],44);
+   g.fillStyle=pal.detail;circle(g,haR[0],haR[1],20,pal.detail);
+  },
+  head(g){
+   circle(g,256,102,94,pal.head);
+   g.fillStyle=pal.head;g.beginPath();g.ellipse(256,178,38,22,0,0,Math.PI*2);g.fill();stroke(g);
+   g.fillStyle=pal.body;g.beginPath();g.ellipse(256,186,28,14,0,0,Math.PI*2);g.fill();
+   circle(g,220,98,18,'#fff');circle(g,292,98,18,'#fff');
+   g.fillStyle=pal.face;circle(g,224,100,9,pal.face);circle(g,296,100,9,pal.face);
+   circle(g,227,98,3,'#fff');circle(g,299,98,3,'#fff');
+   g.strokeStyle=pal.face;g.lineWidth=4;g.beginPath();g.arc(256,128,20,0.15,Math.PI-0.15);g.stroke();
+   g.fillStyle='rgba(255,150,150,.45)';circle(g,208,118,10,'rgba(255,150,150,.45)');circle(g,304,118,10,'rgba(255,150,150,.45)');
+   if(type==='robot'){
+    g.fillStyle=pal.detail;g.fillRect(242,48,28,24);g.strokeRect(242,48,28,24);
+    circle(g,256,38,8,pal.detail);
+   }else if(type==='cat'){
+    g.fillStyle=pal.limb;g.beginPath();g.moveTo(192,48);g.lineTo(176,8);g.lineTo(214,42);g.closePath();g.fill();stroke(g);
+    g.beginPath();g.moveTo(320,48);g.lineTo(336,8);g.lineTo(298,42);g.closePath();g.fill();stroke(g);
+    g.strokeStyle=pal.face;g.lineWidth=3;g.beginPath();g.moveTo(244,132);g.lineTo(256,140);g.lineTo(268,132);g.stroke();
+   }else if(type==='dinosaur'){
+    g.fillStyle=pal.limb;g.beginPath();g.moveTo(330,88);g.quadraticCurveTo(400,72,370,118);g.closePath();g.fill();stroke(g);
+    g.fillStyle=pal.detail;circle(g,256,56,12,pal.detail);
+   }else if(type==='alien'){
+    g.fillStyle=pal.face;circle(g,256,100,38,pal.face);
+    g.fillStyle='#000';circle(g,236,96,11,'#000');circle(g,276,96,11,'#000');
+    circle(g,239,93,4,'#fff');circle(g,279,93,4,'#fff');
+   }else if(type==='superhero'){
+    g.fillStyle=pal.detail;g.beginPath();g.moveTo(256,56);g.lineTo(272,88);g.lineTo(240,88);g.closePath();g.fill();stroke(g);
+    g.fillStyle=pal.detail;g.font='bold 52px system-ui';g.textAlign='center';g.textBaseline='middle';g.fillText('S',256,108);
+   }
+  },
+  all(g){
+   g.lineJoin='round';g.lineCap='round';
+   draw.legL(g);draw.legR(g);draw.torso(g);draw.armL(g);draw.armR(g);draw.head(g);
+  }
+ };
+ return{draw,pal,type};
+}
+
+function instantLayer(drawFn,bw,joint){
+ const S=512,c=document.createElement('canvas');
+ c.width=S;c.height=S;
+ const g=c.getContext('2d');
+ g.lineJoin='round';g.lineCap='round';
+ drawFn(g);
+ const spr={canvas:c,w:bw,h:bw};
+ if(joint){spr.pivotX=joint[0]*bw;spr.pivotY=joint[1]*bw;}
+ return spr;
+}
+
+function buildInstantPack(type){
+ const pal=PALETTES[type]||PALETTES.robot;
+ const kit=createDrawKit(pal,type);
+ const S=512;
+ const preview=document.createElement('canvas');
+ preview.width=S;preview.height=S;
+ const pg=preview.getContext('2d');
+ const bg=pg.createRadialGradient(256,280,40,256,280,360);
+ bg.addColorStop(0,'#faf5ff');bg.addColorStop(1,'#c4b5fd');
+ pg.fillStyle=bg;pg.fillRect(0,0,S,S);
+ kit.draw.all(pg);
+
+ const character=document.createElement('canvas');
+ character.width=S;character.height=S;
+ kit.draw.all(character.getContext('2d'));
+
+ return{pal,preview,character,kit};
+}
+
+function buildInstantSprites(pack,bw){
+ const d=pack.kit.draw;
+ return{
+  torso:instantLayer(g=>d.torso(g),bw),
+  parts:{
+   legL:instantLayer(g=>d.legL(g),bw,J.hipL),
+   legR:instantLayer(g=>d.legR(g),bw,J.hipR),
+   armL:instantLayer(g=>d.armL(g),bw,J.shoulderL),
+   armR:instantLayer(g=>d.armR(g),bw,J.shoulderR),
+   head:instantLayer(g=>d.head(g),bw,J.neck)
+  }
+ };
+}
+
+function toSquareCanvas(img){
+ const S=512,c=document.createElement('canvas');
+ c.width=S;c.height=S;
+ const g=c.getContext('2d');
+ g.fillStyle='#faf5ff';g.fillRect(0,0,S,S);
+ const scale=Math.min(S/img.width,S/img.height)*0.88;
+ const w=img.width*scale,h=img.height*scale;
+ g.drawImage(img,(S-w)/2,(S-h)/2,w,h);
+ return c;
+}
+
+function scaleCanvas(src,bw){
+ const c=document.createElement('canvas');
+ c.width=bw;c.height=bw;
+ c.getContext('2d').drawImage(src,0,0,bw,bw);
+ return c;
+}
+
+function makePuppetFromImage(img,name){
+ const square=toSquareCanvas(img);
+ const bw=Math.min(W*.45,H*.55);
+ charImg=square;charName=name;
+ makePuppet(square,name,{
+  characterCanvas:scaleCanvas(square,bw),
+  pal:{body:'#6366f1',head:'#cbd5e1',limb:'#818cf8'}
+ });
+}
+
+function drawInstant(type){
+ return buildInstantPack(type).preview;
+}
+
+function startInstant(type){
+ const name=type.charAt(0).toUpperCase()+type.slice(1);
+ const pack=buildInstantPack(type);
+ const bw=Math.min(W*.45,H*.55);
+ const instantSprites=buildInstantSprites(pack,bw);
+ makePuppet(pack.preview,name,{
+  pal:pack.pal,
+  instantSprites,
+  characterCanvas:scaleCanvas(pack.character,bw)
+ });
+ toast('New '+name+' look! 🎭✨');
+}
+
+// AI (optional — slower)
+// AI search — draws what you type, auto puppet!
+function aiUrl(q,s){
+ return 'https://image.pollinations.ai/prompt/'+encodeURIComponent(aiPrompt(q))+'?width=512&height=512&model=turbo&seed='+s+'&nologo=true';
+}
+function imgFromEl(el){
+ return new Promise((ok,no)=>{
+  const i=new Image();
+  i.crossOrigin='anonymous';
+  i.onload=()=>ok(i);
+  i.onerror=()=>no(new Error('fail'));
+  i.src=el.src||el.getAttribute('src');
+ });
+}
+function loadImg(url,ms){
+ return new Promise((ok,no)=>{
+  const i=new Image();i.crossOrigin='anonymous';
+  const t=setTimeout(()=>no(new Error('timeout')),ms||25000);
+  i.onload=()=>{clearTimeout(t);ok(i);};
+  i.onerror=()=>{clearTimeout(t);no(new Error('fail'));};
+  i.src=url;
+ });
+}
+const ADULT_MODELS=[
+ 'black-forest-labs/flux-2-klein-9b-base',
+ 'black-forest-labs/flux-schnell',
+ 'stabilityai/stable-diffusion-xl-base-1.0'
+];
+async function loadAdultImg(prompt){
+ if(typeof puter==='undefined'||!puter?.ai?.txt2img)throw new Error('puter');
+ let lastErr=null;
+ for(const model of ADULT_MODELS){
+  try{
+   const el=await puter.ai.txt2img(prompt,{model,width:512,height:512});
+   return await imgFromEl(el);
+  }catch(e){lastErr=e;}
+ }
+ throw lastErr||new Error('adult-fail');
+}
+async function fetchAiImage(q,seed){
+ if(isAdultMode()){
+  $('status-bar').textContent='🔞 Adult AI — click Continue if a popup asks…';
+  return loadAdultImg(aiPrompt(q));
+ }
+ return loadImg(aiUrl(q,seed));
+}
+
+let aiBusy=false;
+let adultMode=false;
+try{adultMode=localStorage.getItem('popframe_adult')==='1';}catch(_){}
+
+function isAdultMode(){return adultMode;}
+
+function aiPrompt(q){
+ const base=q.trim();
+ if(isAdultMode()){
+  return base+', full body front view, arms at sides, legs visible, centered in frame, puppet rig pose, plain background, single character, no text, no extra limbs';
+ }
+ return base+', cute chibi cartoon character, full body front view, arms at sides, legs visible, centered in frame, soft pastel background, puppet rig pose, kid friendly, family safe, no text, no extra limbs';
+}
+
+function updateModeUI(){
+ const on=isAdultMode();
+ $('adult-mode').checked=on;
+ $('adult-toggle').classList.toggle('on',on);
+ $('mode-note').innerHTML=on
+  ? 'Adult mode 🔞: uses uncensored AI (Puter) — draws your search <b>exactly</b>. 18+ only. Click Continue if popup appears.'
+  : 'Kids mode: cute chibi puppets via Pollinations. Turn on Adult mode for exact searches (18+).';
+ $('search').placeholder=on?'Search anything — drawn exactly, no filter…':'Search anything… dot, dragon, robot';
+ refreshAiChips();
+}
+
+const AI_CHIPS_KIDS=['dot','unicorn','pizza cat','dragon','penguin','ghost'];
+const AI_CHIPS_ADULT=['zombie','vampire','skull','werewolf','samurai','demon'];
+
+function refreshAiChips(){
+ const list=isAdultMode()?AI_CHIPS_ADULT:AI_CHIPS_KIDS;
+ $('chips').innerHTML=list.map(c=>'<button type="button" class="chip">'+c+'</button>').join('');
+}
+
+$('adult-mode').onchange=()=>{
+ adultMode=$('adult-mode').checked;
+ try{localStorage.setItem('popframe_adult',adultMode?'1':'0');}catch(_){}
+ updateModeUI();
+ if(adultMode)toast('Adult mode on — exact searches, no filter 🔞');
+};
+updateModeUI();
+async function doSearch(q){
+ q=(q||'').trim();
+ if(!q){toast('Type something! like unicorn or dragon');return;}
+ if(!isAdultMode()&&INSTANT_TYPES.includes(q.toLowerCase())){startInstant(q.toLowerCase());return;}
+ if(aiBusy){toast('Still drawing last one — wait a sec!');return;}
+ aiBusy=true;
+ $('go').disabled=true;$('go').textContent='…';
+ $('status-bar').textContent='✨ Drawing '+q+'… you can keep playing!';
+  toast((isAdultMode()?'Adult':'Kids')+' mode: drawing '+q+'… ✨');
+ try{
+  const img=await fetchAiImage(q,Math.floor(Math.random()*99999));
+  makePuppetFromImage(img,q);
+  toast('Your '+q+' puppet is ready!! 🎭');
+ }catch(_){
+  if(isAdultMode())toast('Adult AI failed — click Continue on Puter popup, or try again');
+  else toast('AI slow — try an ⚡ instant puppet!');
+  if(!isAdultMode())startInstant('robot');
+ }
+ aiBusy=false;
+ $('go').disabled=false;$('go').textContent='GO ✨';
+ $('status-bar').textContent='👆 Drag the dots — head, arms & legs move for real!';
+}
+
+$('go').onclick=()=>doSearch($('search').value);
+$('search').onkeydown=e=>{if(e.key==='Enter')doSearch(e.target.value);};
+$('btn-puppet').onclick=()=>{
+ if(charImg)makePuppetFromImage(charImg,charName);
+ else if(puppet)puppet.keyframes=[{t:0,pose:Object.fromEntries(puppet.parts.map(p=>[p.id,p.angle]))}];
+ else startInstant('robot');
+ draw();toast('Puppet reset! 🎭');
+};
+$('btn-upload').onclick=()=>$('file-in').click();
+$('file-in').onchange=e=>{
+ const f=e.target.files[0];if(!f)return;
+ const img=new Image();img.onload=()=>makePuppetFromImage(img,f.name.replace(/\.[^.]+$/,''));img.src=URL.createObjectURL(f);
+};
+
+$('instant-chips').innerHTML=INSTANT_TYPES.map(c=>'<button type="button" class="chip instant">'+c+'</button>').join('');
+$('instant-chips').onclick=e=>{const c=e.target.closest('.chip');if(c)startInstant(c.textContent.trim());};
+refreshAiChips();
+$('chips').onclick=e=>{const c=e.target.closest('.chip');if(c){$('search').value=c.textContent;doSearch(c.textContent);}};
+
+// Record
+let recInterval=null;
+$('btn-rec').onclick=()=>{
+ if(!puppet){toast('Make a puppet first!');return;}
+ recording=true;
+ time=0;
+ puppet.keyframes=[{t:0,pose:Object.fromEntries(puppet.parts.map(p=>[p.id,p.angle]))}];
+ $('btn-rec').hidden=true;$('btn-stop').hidden=false;
+ $('status-bar').className='bar rec';
+ $('status-bar').textContent='🔴 RECORDING — move the body parts now!!';
+ recInterval=setInterval(()=>{
+  time+=1/FPS;
+  if(time>=dur){stopRec();return;}
+  saveKeyframe(time);
+  draw();
+ },1000/FPS);
+ draw();
+ toast('Move the parts!! Arms, legs, head!! 🎭');
+};
+function stopRec(){
+ recording=false;
+ clearInterval(recInterval);
+ $('btn-rec').hidden=false;$('btn-stop').hidden=true;
+ $('status-bar').className='bar';
+ $('status-bar').textContent='✅ Recorded! Scrub timeline to edit · ▶ Play to watch';
+ toast('Recorded!! Hit Play to watch 🎉');
+ saveKeyframe(time);
+ draw();
+}
+$('btn-stop').onclick=stopRec;
+
+// Play / scrub
+function setTime(t){
+ if(recording)return;
+ time=Math.max(0,Math.min(dur,t));
+ if(puppet){
+  const pose=getPoseAt(time);
+  puppet.parts.forEach(p=>{p.angle=pose[p.id];});
+ }
+ draw();
+}
+$('scrub').oninput=e=>setTime(e.target.value/1000*dur);
+$('dur').onchange=e=>{dur=+e.target.value;setTime(Math.min(time,dur));};
+function updateTimeDisp(){
+ $('time-disp').textContent='0:'+String(Math.floor(time)).padStart(2,'0')+' / 0:'+String(dur).padStart(2,'0');
+ $('scrub').value=time/dur*1000;
+}
+
+function togglePlay(){
+ if(recording)return;
+ if(!puppet){toast('Make a puppet first!');return;}
+ if(playing){playing=false;$('btn-play').textContent='▶ Play';return;}
+ playing=true;$('btn-play').textContent='⏸ Pause';
+ let start=null,base=time;
+ function tick(ts){
+  if(!playing)return;
+  if(!start)start=ts;
+  time=base+(ts-start)/1000;
+  if(time>=dur){time=0;playing=false;$('btn-play').textContent='▶ Play';draw();return;}
+  draw();
+  requestAnimationFrame(tick);
+ }
+ requestAnimationFrame(tick);
+}
+$('btn-play').onclick=togglePlay;
+$('tl-play').onclick=togglePlay;
+
+// Export with puppet animation
+async function exportVideo(){
+ if(!puppet){toast('Make & record a puppet first!');return;}
+ $('modal').classList.add('show');
+ const off=document.createElement('canvas');off.width=W;off.height=H;
+ const octx=off.getContext('2d');
+ const stream=off.captureStream(FPS);
+ const rec=new MediaRecorder(stream,{mimeType:'video/webm',videoBitsPerSecond:6_000_000});
+ const chunks=[];rec.ondataavailable=e=>e.data.size&&chunks.push(e.data);
+ const done=new Promise(r=>rec.onstop=()=>r(new Blob(chunks,{type:'video/webm'})));
+ rec.start();
+ const frames=Math.ceil(dur*FPS);
+ for(let f=0;f<frames;f++){
+  const t=f/FPS;
+  octx.fillStyle='#1e1b2e';octx.fillRect(0,0,W,H);
+  drawPuppetFrame(octx,t,false);
+  $('prog').style.width=(f/frames*100)+'%';
+  await new Promise(r=>setTimeout(r,1000/FPS));
+ }
+ rec.stop();
+ const blob=await done;
+ $('modal').classList.remove('show');
+ const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='puppet-video.webm';a.click();
+ toast('Saved!! 🎉');
+}
+$('btn-save').onclick=exportVideo;
+
+document.addEventListener('keydown',e=>{
+ if(e.key===' '){e.preventDefault();togglePlay();}
+ if(e.key==='r'&&!recording&&puppet)$('btn-rec').click();
+});
+
+draw();
+startInstant('robot');
+toast('Robot puppet ready — no waiting! ⚡');
+</script>
+</body>
+</html>
