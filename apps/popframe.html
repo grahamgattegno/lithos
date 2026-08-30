@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PopFrame — Puppet Videos!</title>
-<!-- popframe-v:55 -->
+<!-- popframe-v:56 -->
 <style>
 :root{--purple:#8b3dff;--purple2:#6b2fd4;--red:#ef4444;--bg:#f0f2f8;--white:#fff;--text:#1a1a2e;--muted:#666;--line:#ddd}
 *{box-sizing:border-box}
@@ -82,7 +82,7 @@ a.home{color:var(--purple);font-weight:700;font-size:13px;margin-left:8px}
    <div class="chips" id="instant-chips"></div>
    <h2>✨ AI search (slower)</h2>
    <label class="mode-toggle" id="adult-toggle"><input type="checkbox" id="adult-mode"> Adult mode 🔞</label>
-   <p class="mode-note" id="mode-note">Kids mode: cute chibi puppets. Adult mode: AI draws your search <b>exactly</b> — horror, realistic, mature, etc.</p>
+   <p class="mode-note" id="mode-note">Kids mode: cute chibi puppets. Adult mode: AI draws your search <b>exactly</b> — anything you type, no kid filter.</p>
    <div class="chips" id="chips"></div>
    <h2>🎭 Puppet</h2>
    <button class="btn purple" id="btn-puppet" style="width:100%;padding:14px;font-size:16px">🔄 Remake puppet</button>
@@ -578,7 +578,13 @@ function startInstant(type){
 
 // AI (optional — slower)
 // AI search — draws what you type, auto puppet!
-function aiUrl(q,s){return 'https://image.pollinations.ai/prompt/'+encodeURIComponent(aiPrompt(q))+'?width=512&height=512&model=turbo&seed='+s+'&nologo=true';}
+function aiUrl(q,s){
+ const adult=isAdultMode();
+ const model=adult?'flux':'turbo';
+ let url='https://image.pollinations.ai/prompt/'+encodeURIComponent(aiPrompt(q))+'?width=512&height=512&model='+model+'&seed='+s+'&nologo=true';
+ if(adult)url+='&safe=false';
+ return url;
+}
 function loadImg(url,ms){
  return new Promise((ok,no)=>{
   const i=new Image();i.crossOrigin='anonymous';
@@ -598,9 +604,9 @@ function isAdultMode(){return adultMode;}
 function aiPrompt(q){
  const base=q.trim();
  if(isAdultMode()){
-  return base+', exactly as described, full body front view, arms at sides, legs visible, centered in frame, puppet rig pose, detailed accurate depiction, plain background, single character, no text, no extra limbs';
+  return base+', draw exactly as written with no censorship or kid-friendly changes, literal accurate depiction of the search term, full body front view, arms at sides, legs visible, centered in frame, puppet rig pose, plain background, single character, no text, no extra limbs';
  }
- return base+', cute chibi cartoon character, full body front view, arms at sides, legs visible, centered in frame, soft pastel background, puppet rig pose, kid friendly, no text, no extra limbs';
+ return base+', cute chibi cartoon character, full body front view, arms at sides, legs visible, centered in frame, soft pastel background, puppet rig pose, kid friendly, family safe, no text, no extra limbs';
 }
 
 function updateModeUI(){
@@ -608,9 +614,9 @@ function updateModeUI(){
  $('adult-mode').checked=on;
  $('adult-toggle').classList.toggle('on',on);
  $('mode-note').innerHTML=on
-  ? 'Adult mode: AI draws your search <b>literally</b> — mature, scary, realistic, anything you type.'
-  : 'Kids mode: cute chibi puppets. Turn on Adult mode for exact/literal searches.';
- $('search').placeholder=on?'Search anything — AI draws it literally…':'Search anything… dot, dragon, robot';
+  ? 'Adult mode 🔞: AI draws your search <b>exactly</b> — scary, mature, inappropriate, anything you type. 18+ only.'
+  : 'Kids mode: cute chibi puppets. Turn on Adult mode for exact/literal searches (18+).';
+ $('search').placeholder=on?'Search anything — drawn exactly, no filter…':'Search anything… dot, dragon, robot';
  refreshAiChips();
 }
 
@@ -624,7 +630,7 @@ function refreshAiChips(){
 
 $('adult-mode').onchange=()=>{
  if($('adult-mode').checked&&!adultMode){
-  if(!confirm('Adult mode lets the AI draw your search literally — including scary or mature stuff. OK?')){
+  if(!confirm('Adult mode (18+): the AI will draw your search EXACTLY as typed — including scary, mature, or inappropriate stuff. Only turn on if you are allowed to see that. OK?')){
    $('adult-mode').checked=false;
    return;
   }
@@ -632,7 +638,7 @@ $('adult-mode').onchange=()=>{
  adultMode=$('adult-mode').checked;
  try{localStorage.setItem('popframe_adult',adultMode?'1':'0');}catch(_){}
  updateModeUI();
- if(adultMode)toast('Adult mode on — AI draws your search literally 🔞');
+ if(adultMode)toast('Adult mode on — searches drawn exactly, no kid filter 🔞');
 };
 updateModeUI();
 async function doSearch(q){
@@ -649,7 +655,8 @@ async function doSearch(q){
   makePuppetFromImage(img,q);
   toast('Your '+q+' puppet is ready!! 🎭');
  }catch(_){
-  toast('AI slow — try an ⚡ instant puppet!');
+  if(isAdultMode())toast('AI blocked or failed — some searches get filtered by the image service');
+  else toast('AI slow — try an ⚡ instant puppet!');
   startInstant('robot');
  }
  aiBusy=false;
