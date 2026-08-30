@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PopFrame — free animation studio ✨</title>
+<meta name="description" content="Make fun animated videos in your browser — free, no limits, no account. Like Canva for motion!">
+<style>
+:root{
+  --bg:#0c0d12;--panel:#14161e;--panel2:#1a1d28;--line:#2a2e3a;
+  --text:#e8e6f0;--dim:#8a8698;--gold:#c9a94f;--gold2:#f0d78c;
+  --accent:#7ad0f0;--good:#3ecf8e;--bad:#e85d5d;
+  --radius:10px;--font:system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:var(--font);overflow:hidden}
+button,input,select,textarea{font:inherit;color:inherit}
+.app{display:grid;grid-template-rows:auto 1fr auto;height:100vh}
+.topbar{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.logo{font-weight:800;font-size:18px;letter-spacing:-.02em;margin-right:8px}
+.logo span{color:var(--gold)}
+.topbar .sep{width:1px;height:24px;background:var(--line);margin:0 4px}
+.tb-btn{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:7px 12px;cursor:pointer;font-size:13px}
+.tb-btn:hover{border-color:var(--gold);color:var(--gold2)}
+.tb-btn.primary{background:linear-gradient(135deg,#b8923a,var(--gold));color:#1a1208;border-color:var(--gold);font-weight:700}
+.tb-btn.primary:hover{filter:brightness(1.08)}
+.tb-btn.playing{border-color:var(--good);color:var(--good)}
+.spacer{flex:1}
+.main{display:grid;grid-template-columns:220px 1fr 260px;min-height:0}
+@media(max-width:900px){.main{grid-template-columns:1fr;grid-template-rows:auto 1fr auto}}
+.sidebar{background:var(--panel);border-right:1px solid var(--line);overflow:auto;padding:12px}
+.sidebar.right{border-right:none;border-left:1px solid var(--line)}
+.sidebar h3{margin:0 0 10px;font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--dim)}
+.tool-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.tool{background:var(--panel2);border:1px solid var(--line);border-radius:var(--radius);padding:12px 8px;text-align:center;cursor:pointer;font-size:12px;line-height:1.3}
+.tool:hover{border-color:var(--gold);background:rgba(201,169,79,.08)}
+.tool .ico{font-size:26px;display:block;margin-bottom:4px}
+.tpl-list{display:flex;flex-direction:column;gap:8px}
+.tpl{background:var(--panel2);border:1px solid var(--line);border-radius:var(--radius);padding:10px;cursor:pointer;text-align:left}
+.tpl:hover{border-color:var(--accent)}
+.tpl b{display:block;font-size:13px;margin-bottom:2px}
+.tpl small{font-size:11px;color:var(--dim)}
+.sticker-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
+.sticker{background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:6px;font-size:20px;cursor:pointer;text-align:center}
+.sticker:hover{border-color:var(--gold)}
+.stage-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;background:#08090e;padding:16px;min-height:0;overflow:auto;position:relative}
+.stage-frame{position:relative;box-shadow:0 20px 60px rgba(0,0,0,.55),0 0 0 1px var(--line);border-radius:4px;overflow:visible;max-width:100%;display:inline-block}
+#previewCanvas{display:block;max-width:100%;height:auto;touch-action:none}
+.stage-overlay{position:absolute;inset:0;pointer-events:none}
+.handle-layer{position:absolute;pointer-events:auto;border:2px solid transparent;cursor:move}
+.handle-layer.selected{border-color:var(--gold);box-shadow:0 0 0 1px rgba(201,169,79,.4)}
+.resize-handle{position:absolute;width:10px;height:10px;background:var(--gold);border:1px solid #fff;border-radius:2px;pointer-events:auto}
+.resize-handle.se{right:-5px;bottom:-5px;cursor:nwse-resize}
+.resize-handle.sw{left:-5px;bottom:-5px;cursor:nesw-resize}
+.resize-handle.ne{right:-5px;top:-5px;cursor:nesw-resize}
+.resize-handle.nw{left:-5px;top:-5px;cursor:nwse-resize}
+.prop{margin-bottom:12px}
+.prop label{display:block;font-size:11px;color:var(--dim);margin-bottom:4px;text-transform:uppercase;letter-spacing:.08em}
+.prop input,.prop select,.prop textarea{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:7px 9px;font-size:13px}
+.prop input[type=color]{height:36px;padding:4px;cursor:pointer}
+.prop-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.layer-list{display:flex;flex-direction:column;gap:4px;max-height:180px;overflow:auto;margin-bottom:12px}
+.layer-item{display:flex;align-items:center;gap:8px;padding:8px;background:var(--panel2);border:1px solid var(--line);border-radius:6px;cursor:pointer;font-size:12px}
+.layer-item.on{border-color:var(--gold);background:rgba(201,169,79,.1)}
+.layer-item .ly-ico{font-size:16px;width:20px;text-align:center}
+.layer-item .ly-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.layer-item button{background:none;border:none;color:var(--dim);cursor:pointer;padding:2px 4px;font-size:14px}
+.layer-item button:hover{color:var(--bad)}
+.timeline{background:var(--panel);border-top:1px solid var(--line);padding:10px 14px 14px}
+.time-row{display:flex;align-items:center;gap:12px;margin-bottom:8px;flex-wrap:wrap}
+.time-row label{font-size:12px;color:var(--dim)}
+.time-row input[type=range]{flex:1;min-width:120px;accent-color:var(--gold)}
+.time-display{font-family:monospace;font-size:13px;color:var(--gold2);min-width:90px}
+.track{position:relative;height:44px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.playhead{position:absolute;top:0;bottom:0;width:2px;background:var(--gold);z-index:3;pointer-events:none;box-shadow:0 0 8px var(--gold)}
+.track-bar{position:absolute;top:6px;height:32px;border-radius:6px;font-size:10px;padding:0 6px;display:flex;align-items:center;overflow:hidden;white-space:nowrap;cursor:pointer;border:1px solid rgba(255,255,255,.15);opacity:.92}
+.track-bar:hover{opacity:1;outline:1px solid var(--gold)}
+.badge{font-size:10px;background:rgba(201,169,79,.15);color:var(--gold2);padding:2px 8px;border-radius:20px;margin-left:8px}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#2a2438;color:#fff;padding:10px 18px;border-radius:20px;font-size:13px;opacity:0;transition:opacity .3s;z-index:99;pointer-events:none}
+.toast.show{opacity:1}
+.export-modal{position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;z-index:100;padding:16px}
+.export-modal.show{display:flex}
+.export-box{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px;max-width:400px;width:100%;text-align:center}
+.export-box h2{margin:0 0 8px;font-size:20px}
+.export-box p{font-size:13px;color:var(--dim);margin:0 0 16px}
+.progress{height:8px;background:var(--panel2);border-radius:8px;overflow:hidden;margin-bottom:12px}
+.progress span{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--accent));width:0%;transition:width .2s}
+.free-tag{color:var(--good);font-size:12px;font-weight:700}
+.back-link{position:fixed;top:12px;right:14px;z-index:50;font-size:12px;color:var(--dim);text-decoration:none}
+.back-link:hover{color:var(--gold)}
+</style>
+</head>
+<body>
+<a class="back-link" href="../index.html?v=50">← Lithos</a>
+<div class="app">
+ <header class="topbar">
+  <div class="logo">Pop<span>Frame</span> ✨</div>
+  <span class="free-tag">100% FREE · NO LIMITS</span>
+  <span class="sep"></span>
+  <button class="tb-btn" id="btn-new">New</button>
+  <select class="tb-btn" id="ratio">
+   <option value="16:9">16:9 Landscape</option>
+   <option value="9:16">9:16 Reels</option>
+   <option value="1:1">1:1 Square</option>
+  </select>
+  <select class="tb-btn" id="duration">
+   <option value="5">5 sec</option>
+   <option value="10" selected>10 sec</option>
+   <option value="15">15 sec</option>
+   <option value="30">30 sec</option>
+   <option value="60">60 sec</option>
+  </select>
+  <span class="spacer"></span>
+  <button class="tb-btn" id="btn-play">▶ Play</button>
+  <button class="tb-btn primary" id="btn-export">⬇ Export Video</button>
+ </header>
+
+ <div class="main">
+  <aside class="sidebar left">
+   <h3>Add stuff</h3>
+   <div class="tool-grid">
+    <div class="tool" data-add="text"><span class="ico">T</span>Text</div>
+    <div class="tool" data-add="shape"><span class="ico">◼</span>Shape</div>
+    <div class="tool" data-add="image"><span class="ico">🖼</span>Image</div>
+    <div class="tool" data-add="emoji"><span class="ico">😀</span>Emoji</div>
+   </div>
+   <input type="file" id="img-upload" accept="image/*" hidden>
+   <h3>Stickers</h3>
+   <div class="sticker-grid" id="stickers"></div>
+   <h3 style="margin-top:16px">Templates</h3>
+   <div class="tpl-list" id="templates"></div>
+  </aside>
+
+  <section class="stage-wrap">
+   <div class="stage-frame" id="stage-frame">
+    <canvas id="previewCanvas"></canvas>
+    <div class="stage-overlay" id="overlay"></div>
+   </div>
+  </section>
+
+  <aside class="sidebar right">
+   <h3>Layers <span class="badge" id="layer-count">0</span></h3>
+   <div class="layer-list" id="layer-list"></div>
+   <div id="props-panel">
+    <p style="font-size:13px;color:var(--dim);margin:0">Select a layer to edit it ✨</p>
+   </div>
+  </aside>
+ </div>
+
+ <footer class="timeline">
+  <div class="time-row">
+   <label>Time</label>
+   <input type="range" id="scrub" min="0" max="1000" value="0">
+   <span class="time-display" id="time-disp">0:00 / 0:10</span>
+   <label>FPS</label>
+   <select id="fps" class="tb-btn" style="padding:4px 8px">
+    <option value="24">24</option>
+    <option value="30" selected>30</option>
+    <option value="60">60</option>
+   </select>
+  </div>
+  <div class="track" id="track"></div>
+ </footer>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="export-modal" id="export-modal">
+ <div class="export-box">
+  <h2>🎬 Rendering your video…</h2>
+  <p>Hang tight — PopFrame is drawing every frame. Totally free, no watermark!</p>
+  <div class="progress"><span id="export-progress"></span></div>
+  <button class="tb-btn" id="export-cancel">Cancel</button>
+ </div>
+</div>
+
+<script>
+// ===== PopFrame — free browser animation studio =====
+const STICKERS=['💎','🦴','🏺','⛏️','✨','🔥','⭐','🌈','🎉','💫','🪨','🦕','👑','🎬','❤️','🌙','⚡','🎨','📸','🚀'];
+const ANIMS=[
+ {id:'none',label:'None'},
+ {id:'fadeIn',label:'Fade in'},
+ {id:'fadeOut',label:'Fade out'},
+ {id:'slideLeft',label:'Slide from right'},
+ {id:'slideUp',label:'Slide up'},
+ {id:'bounce',label:'Bounce in'},
+ {id:'spin',label:'Spin in'},
+ {id:'pulse',label:'Pulse loop'},
+ {id:'zoom',label:'Zoom in'},
+ {id:'wiggle',label:'Wiggle loop'}
+];
+const TEMPLATES=[
+ {name:'Gem title card',desc:'Big sparkly title — Lithos vibes',apply:()=>{
+   S.bg='#0a0b0f';S.layers=[];
+   addLayer({type:'shape',shape:'rect',fill:'radial-gradient(circle at 50% 30%,#2a2040,#0a0b0f)',x:0,y:0,w:S.w,h:S.h,rotation:0,opacity:1,anim:'none'});
+   addLayer({type:'emoji',emoji:'💎',fontSize:120,x:S.w/2-60,y:S.h*.22,rotation:0,opacity:1,anim:'bounce',animDur:1.2});
+   addLayer({type:'text',text:'Your Title Here',fontSize:64,color:'#f0d78c',font:'Georgia,serif',x:S.w/2,y:S.h*.52,w:800,h:80,align:'center',rotation:0,opacity:1,anim:'fadeIn',animDur:1});
+   addLayer({type:'text',text:'Edit me — it\'s free!',fontSize:28,color:'#8a8698',font:'system-ui,sans-serif',x:S.w/2,y:S.h*.65,w:600,h:40,align:'center',rotation:0,opacity:1,anim:'slideUp',animDur:1,delay:.4});
+ }},
+ {name:'Stratum dig reveal',desc:'Archaeology themed intro',apply:()=>{
+   S.bg='#f2e4c0';S.layers=[];
+   addLayer({type:'shape',shape:'rect',fill:'#f2e4c0',x:0,y:0,w:S.w,h:S.h,rotation:0,opacity:1,anim:'none'});
+   addLayer({type:'emoji',emoji:'⛏️',fontSize:90,x:S.w/2-45,y:S.h*.18,rotation:0,opacity:1,anim:'wiggle',animDur:2});
+   addLayer({type:'text',text:'THE DIG',fontSize:72,color:'#3a2a16',font:'Georgia,serif',x:S.w/2,y:S.h*.45,w:700,h:90,align:'center',rotation:0,opacity:1,anim:'zoom',animDur:1});
+   addLayer({type:'text',text:'Layer by layer…',fontSize:26,color:'#7a6540',font:'Georgia,serif',x:S.w/2,y:S.h*.58,w:500,h:40,align:'center',rotation:0,opacity:1,anim:'fadeIn',animDur:1,delay:.6});
+ }},
+ {name:'Party pop',desc:'Confetti energy 🎉',apply:()=>{
+   S.bg='linear-gradient(135deg,#1a1030,#0a1828)';S.layers=[];
+   addLayer({type:'shape',shape:'rect',fill:'linear-gradient(135deg,#1a1030,#0a1828)',x:0,y:0,w:S.w,h:S.h,rotation:0,opacity:1,anim:'none'});
+   ['🎉','✨','⭐','🌈','💫'].forEach((e,i)=>{
+    addLayer({type:'emoji',emoji:e,fontSize:60+Math.random()*40,x:80+i*(S.w/6),y:100+Math.random()*200,rotation:Math.random()*30-15,opacity:1,anim:'bounce',animDur:1.5,delay:i*.15});
+   });
+   addLayer({type:'text',text:'YAY!!',fontSize:96,color:'#fff',font:'system-ui,sans-serif',x:S.w/2,y:S.h*.55,w:500,h:100,align:'center',rotation:0,opacity:1,anim:'pulse',animDur:2});
+ }},
+ {name:'Blank canvas',desc:'Start from scratch',apply:()=>{
+   S.bg='#14161e';S.layers=[];
+   addLayer({type:'shape',shape:'rect',fill:'#14161e',x:0,y:0,w:S.w,h:S.h,rotation:0,opacity:1,anim:'none'});
+ }}
+];
+
+let S={w:1280,h:720,bg:'#14161e',duration:10,fps:30,layers:[],sel:null,time:0,playing:false,uid:1};
+let exportAbort=false;
+const canvas=document.getElementById('previewCanvas');
+const ctx=canvas.getContext('2d');
+const overlay=document.getElementById('overlay');
+let dragState=null;
+
+function toast(msg){
+ const t=document.getElementById('toast');
+ t.textContent=msg;t.classList.add('show');
+ clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2400);
+}
+
+function setRatio(r){
+ const map={'16:9':[1280,720],'9:16':[720,1280],'1:1':[1080,1080]};
+ [S.w,S.h]=map[r]||map['16:9'];
+ canvas.width=S.w;canvas.height=S.h;
+ document.getElementById('stage-frame').style.width=Math.min(S.w,window.innerWidth-480)+'px';
+ render();updateOverlay();
+}
+
+function addLayer(p){
+ const L={id:S.uid++,type:p.type,name:p.name||p.type,visible:true,
+  x:p.x??100,y:p.y??100,w:p.w??200,h:p.h??80,rotation:p.rotation??0,opacity:p.opacity??1,
+  anim:p.anim||'none',animDur:p.animDur??1,delay:p.delay??0,
+  ...p};
+ if(L.type==='text'&&!L.text)L.text='Hello!';
+ if(L.type==='text'&&!L.fontSize)L.fontSize=48;
+ if(L.type==='text'&&!L.color)L.color='#ffffff';
+ if(L.type==='text'&&!L.font)L.font='system-ui,sans-serif';
+ if(L.type==='text'&&!L.align)L.align='left';
+ if(L.type==='shape'&&!L.shape)L.shape='rect';
+ if(L.type==='shape'&&!L.fill)L.fill='#c9a94f';
+ if(L.type==='emoji'&&!L.emoji)L.emoji='✨';
+ if(L.type==='emoji'&&!L.fontSize)L.fontSize=72;
+ if(L.type==='image'&&p.src){L.src=p.src;L.img=new Image();L.img.src=p.src;}
+ S.layers.push(L);S.sel=L.id;refreshUI();render();return L;
+}
+
+function getLayer(id){return S.layers.find(l=>l.id===id);}
+function selLayer(id){S.sel=id;refreshUI();updateOverlay();}
+
+function animMod(L,t){
+ let ox=0,oy=0,sc=1,rot=0,op=L.opacity;
+ const local=Math.max(0,t-L.delay);
+ const ad=L.animDur||1;
+ if(L.anim==='fadeIn') op=L.opacity*Math.min(1,local/ad);
+ else if(L.anim==='fadeOut'){const start=S.duration-ad;op=L.opacity*Math.min(1,Math.max(0,1-(t-start)/ad));}
+ else if(L.anim==='slideLeft') ox=(1-Math.min(1,local/ad))*400;
+ else if(L.anim==='slideUp') oy=(1-Math.min(1,local/ad))*200;
+ else if(L.anim==='bounce'){const p=Math.min(1,local/ad);sc=.3+p*.7;op=L.opacity*Math.min(1,p*2);oy=(1-p)*-80;}
+ else if(L.anim==='spin'){const p=Math.min(1,local/ad);rot=(1-p)*360;op=L.opacity*p;}
+ else if(L.anim==='pulse'){sc=1+Math.sin(t*4)*.08;}
+ else if(L.anim==='zoom'){const p=Math.min(1,local/ad);sc=.5+p*.5;op=L.opacity*p;}
+ else if(L.anim==='wiggle') rot=Math.sin(t*6)*8;
+ return{x:L.x+ox,y:L.y+oy,scale:sc,rotation:L.rotation+rot,opacity:op};
+}
+
+function drawLayer(L,t){
+ if(!L.visible)return;
+ const m=animMod(L,t);
+ ctx.save();
+ ctx.globalAlpha=Math.max(0,Math.min(1,m.opacity));
+ ctx.translate(m.x+(L.w||0)/2,m.y+(L.h||0)/2);
+ ctx.rotate(m.rotation*Math.PI/180);
+ ctx.scale(m.scale,m.scale);
+ ctx.translate(-(L.w||0)/2,-(L.h||0)/2);
+ if(L.type==='shape'){
+  if(String(L.fill).includes('gradient')){
+   const g=L.fill.includes('radial')?ctx.createRadialGradient(L.w/2,L.h/2,0,L.w/2,L.h/2,Math.max(L.w,L.h)/2):ctx.createLinearGradient(0,0,L.w,L.h);
+   if(L.fill.includes('#2a2040')){g.addColorStop(0,'#2a2040');g.addColorStop(1,'#0a0b0f');}
+   else if(L.fill.includes('#1a1030')){g.addColorStop(0,'#1a1030');g.addColorStop(1,'#0a1828');}
+   else{g.addColorStop(0,'#1a1d28');g.addColorStop(1,'#0c0d12');}
+   ctx.fillStyle=g;
+  } else ctx.fillStyle=L.fill;
+  if(L.shape==='circle'){ctx.beginPath();ctx.arc(L.w/2,L.h/2,Math.min(L.w,L.h)/2,0,Math.PI*2);ctx.fill();}
+  else ctx.fillRect(0,0,L.w,L.h);
+ } else if(L.type==='text'){
+  ctx.fillStyle=L.color;ctx.font=`${L.fontSize}px ${L.font}`;ctx.textAlign=L.align||'left';
+  const tx=L.align==='center'?L.w/2:L.align==='right'?L.w:0;
+  ctx.fillText(L.text,tx,L.fontSize);
+ } else if(L.type==='emoji'){
+  ctx.font=`${L.fontSize}px serif`;ctx.textAlign='left';ctx.fillText(L.emoji,0,L.fontSize*.85);
+ } else if(L.type==='image'&&L.img&&L.img.complete){
+  ctx.drawImage(L.img,0,0,L.w,L.h);
+ }
+ ctx.restore();
+}
+
+function render(){
+ ctx.fillStyle=S.bg.includes('gradient')?'#14161e':S.bg;
+ ctx.fillRect(0,0,S.w,S.h);
+ if(S.bg.includes('gradient')){
+  const g=S.bg.includes('radial')?ctx.createRadialGradient(S.w/2,S.h/2,0,S.w/2,S.h/2,S.w/2):ctx.createLinearGradient(0,0,S.w,S.h);
+  if(S.bg.includes('#f2e4c0')){g.addColorStop(0,'#f2e4c0');g.addColorStop(1,'#d9bf8c');}
+  else{g.addColorStop(0,'#1a1030');g.addColorStop(1,'#0a1828');}
+  ctx.fillStyle=g;ctx.fillRect(0,0,S.w,S.h);
+ }
+ S.layers.forEach(L=>drawLayer(L,S.time));
+ updateTrack();updateTimeDisp();
+}
+
+function scaleFactor(){
+ const rect=canvas.getBoundingClientRect();
+ return{displayW:rect.width,displayH:rect.height,sx:rect.width/S.w,sy:rect.height/S.h};
+}
+
+function updateOverlay(){
+ overlay.innerHTML='';
+ const {sx,sy,displayW,displayH}=scaleFactor();
+ S.layers.forEach(L=>{
+  if(!L.visible)return;
+  const m=animMod(L,S.time);
+  const el=document.createElement('div');
+  el.className='handle-layer'+(S.sel===L.id?' selected':'');
+  const lw=(L.w||80)*sx,lh=(L.h||80)*sy;
+  el.style.cssText=`left:${m.x*sx}px;top:${m.y*sy}px;width:${lw}px;height:${lh}px;transform:rotate(${m.rotation}deg);transform-origin:center center;`;
+  el.dataset.id=L.id;
+  if(S.sel===L.id){
+   ['nw','ne','sw','se'].forEach(c=>{
+    const h=document.createElement('div');h.className='resize-handle '+c;h.dataset.corner=c;
+    h.onmousedown=e=>startDrag(e,L.id,'resize',c);
+    el.appendChild(h);
+   });
+  }
+  el.onmousedown=e=>{if(e.target.classList.contains('resize-handle'))return;startDrag(e,L.id,'move');};
+  el.onclick=e=>{e.stopPropagation();selLayer(L.id);};
+  overlay.appendChild(el);
+ });
+ overlay.style.width=displayW+'px';overlay.style.height=displayH+'px';
+ overlay.style.position='absolute';
+ overlay.style.left='0';overlay.style.top='0';
+}
+
+function startDrag(e,id,mode,corner){
+ e.preventDefault();e.stopPropagation();
+ selLayer(id);
+ const L=getLayer(id);if(!L)return;
+ const {sx,sy}=scaleFactor();
+ dragState={id,mode,corner,sx,sy,x0:e.clientX,y0:e.clientY,lx:L.x,ly:L.y,lw:L.w||200,lh:L.h||80};
+ document.addEventListener('mousemove',onDrag);
+ document.addEventListener('mouseup',endDrag);
+}
+
+function onDrag(e){
+ if(!dragState)return;
+ const L=getLayer(dragState.id);if(!L)return;
+ const dx=(e.clientX-dragState.x0)/dragState.sx;
+ const dy=(e.clientY-dragState.y0)/dragState.sy;
+ if(dragState.mode==='move'){L.x=dragState.lx+dx;L.y=dragState.ly+dy;}
+ else{
+  if(dragState.corner.includes('e'))L.w=Math.max(20,dragState.lw+dx);
+  if(dragState.corner.includes('s'))L.h=Math.max(20,dragState.lh+dy);
+  if(dragState.corner.includes('w')){L.x=dragState.lx+dx;L.w=Math.max(20,dragState.lw-dx);}
+  if(dragState.corner.includes('n')){L.y=dragState.ly+dy;L.h=Math.max(20,dragState.lh-dy);}
+ }
+ refreshProps();render();updateOverlay();
+}
+
+function endDrag(){
+ dragState=null;
+ document.removeEventListener('mousemove',onDrag);
+ document.removeEventListener('mouseup',endDrag);
+}
+
+function refreshLayerList(){
+ const el=document.getElementById('layer-list');
+ document.getElementById('layer-count').textContent=S.layers.length;
+ el.innerHTML=[...S.layers].reverse().map(L=>{
+  const ico=L.type==='text'?'T':L.type==='emoji'?L.emoji:L.type==='image'?'🖼':'◼';
+  return`<div class="layer-item${S.sel===L.id?' on':''}" data-id="${L.id}">
+   <span class="ly-ico">${ico}</span><span class="ly-name">${L.name||L.type}</span>
+   <button type="button" data-del="${L.id}" title="Delete">✕</button></div>`;
+ }).join('');
+ el.querySelectorAll('.layer-item').forEach(row=>{
+  row.onclick=e=>{if(e.target.dataset.del)return;selLayer(+row.dataset.id);};
+  row.querySelector('[data-del]')?.addEventListener('click',e=>{e.stopPropagation();S.layers=S.layers.filter(l=>l.id!==+e.target.dataset.del);if(S.sel===+e.target.dataset.del)S.sel=null;refreshUI();render();});
+ });
+}
+
+function refreshProps(){
+ const p=document.getElementById('props-panel');
+ const L=S.sel?getLayer(S.sel):null;
+ if(!L){p.innerHTML='<p style="font-size:13px;color:var(--dim);margin:0">Select a layer to edit it ✨</p>';return;}
+ let extra='';
+ if(L.type==='text') extra=`
+  <div class="prop"><label>Text</label><textarea id="p-text" rows="2">${L.text}</textarea></div>
+  <div class="prop-row"><div class="prop"><label>Size</label><input type="number" id="p-fontSize" value="${L.fontSize}"></div>
+  <div class="prop"><label>Color</label><input type="color" id="p-color" value="${L.color}"></div></div>`;
+ else if(L.type==='emoji') extra=`
+  <div class="prop-row"><div class="prop"><label>Emoji</label><input id="p-emoji" value="${L.emoji}"></div>
+  <div class="prop"><label>Size</label><input type="number" id="p-fontSize" value="${L.fontSize}"></div></div>`;
+ else if(L.type==='shape') extra=`
+  <div class="prop-row"><div class="prop"><label>Shape</label><select id="p-shape"><option value="rect"${L.shape==='rect'?' selected':''}>Rectangle</option><option value="circle"${L.shape==='circle'?' selected':''}>Circle</option></select></div>
+  <div class="prop"><label>Fill</label><input type="color" id="p-fill" value="${L.fill.startsWith('#')?L.fill:'#c9a94f'}"></div></div>`;
+ p.innerHTML=`
+  <div class="prop"><label>Name</label><input id="p-name" value="${L.name||''}"></div>
+  <div class="prop-row"><div class="prop"><label>X</label><input type="number" id="p-x" value="${Math.round(L.x)}"></div>
+  <div class="prop"><label>Y</label><input type="number" id="p-y" value="${Math.round(L.y)}"></div></div>
+  <div class="prop-row"><div class="prop"><label>Width</label><input type="number" id="p-w" value="${Math.round(L.w||0)}"></div>
+  <div class="prop"><label>Height</label><input type="number" id="p-h" value="${Math.round(L.h||0)}"></div></div>
+  <div class="prop-row"><div class="prop"><label>Rotation</label><input type="number" id="p-rot" value="${L.rotation}"></div>
+  <div class="prop"><label>Opacity</label><input type="range" id="p-op" min="0" max="100" value="${Math.round(L.opacity*100)}"></div></div>
+  ${extra}
+  <div class="prop"><label>Animation</label><select id="p-anim">${ANIMS.map(a=>`<option value="${a.id}"${L.anim===a.id?' selected':''}>${a.label}</option>`).join('')}</select></div>
+  <div class="prop-row"><div class="prop"><label>Anim duration (s)</label><input type="number" id="p-animDur" step=".1" min=".1" value="${L.animDur}"></div>
+  <div class="prop"><label>Delay (s)</label><input type="number" id="p-delay" step=".1" min="0" value="${L.delay}"></div></div>`;
+ ['p-name','p-x','p-y','p-w','p-h','p-rot','p-text','p-fontSize','p-color','p-emoji','p-shape','p-fill','p-anim','p-animDur','p-delay'].forEach(id=>{
+  const inp=document.getElementById(id);if(!inp)return;
+  inp.oninput=()=>{
+   if(id==='p-name')L.name=inp.value;
+   if(id==='p-x')L.x=+inp.value;if(id==='p-y')L.y=+inp.value;
+   if(id==='p-w')L.w=+inp.value;if(id==='p-h')L.h=+inp.value;
+   if(id==='p-rot')L.rotation=+inp.value;
+   if(id==='p-text')L.text=inp.value;
+   if(id==='p-fontSize')L.fontSize=+inp.value;
+   if(id==='p-color')L.color=inp.value;
+   if(id==='p-emoji')L.emoji=inp.value;
+   if(id==='p-shape')L.shape=inp.value;
+   if(id==='p-fill')L.fill=inp.value;
+   if(id==='p-anim')L.anim=inp.value;
+   if(id==='p-animDur')L.animDur=+inp.value;
+   if(id==='p-delay')L.delay=+inp.value;
+   refreshLayerList();render();updateOverlay();
+  };
+ });
+ document.getElementById('p-op').oninput=e=>{L.opacity=e.target.value/100;render();updateOverlay();};
+}
+
+function refreshUI(){refreshLayerList();refreshProps();updateTrack();}
+
+function updateTrack(){
+ const track=document.getElementById('track');
+ const pct=S.time/S.duration*100;
+ track.innerHTML=`<div class="playhead" style="left:${pct}%"></div>`+
+  S.layers.map(L=>`<div class="track-bar" style="left:0;width:100%;background:${L.type==='text'?'#4a6a9a':L.type==='emoji'?'#6a4a8a':'#4a5a3a'}" data-id="${L.id}">${L.name||L.type}</div>`).join('');
+ track.querySelectorAll('.track-bar').forEach((b,i)=>{b.style.top=(6+i*0)+'px';b.onclick=()=>selLayer(+b.dataset.id);});
+}
+
+function updateTimeDisp(){
+ const fmt=t=>`${Math.floor(t/60)}:${String(Math.floor(t%60)).padStart(2,'0')}`;
+ document.getElementById('time-disp').textContent=`${fmt(S.time)} / ${fmt(S.duration)}`;
+ document.getElementById('scrub').value=S.time/S.duration*1000;
+}
+
+function setTime(t){
+ S.time=Math.max(0,Math.min(S.duration,t));
+ render();updateOverlay();
+}
+
+let playRAF=null;
+function togglePlay(){
+ if(S.playing){S.playing=false;cancelAnimationFrame(playRAF);document.getElementById('btn-play').textContent='▶ Play';document.getElementById('btn-play').classList.remove('playing');return;}
+ S.playing=true;document.getElementById('btn-play').textContent='⏸ Pause';document.getElementById('btn-play').classList.add('playing');
+ let start=null,base=0;
+ const tick=ts=>{
+  if(!S.playing)return;
+  if(!start){start=ts;base=S.time;}
+  S.time=base+(ts-start)/1000;
+  if(S.time>=S.duration){S.time=S.duration;S.playing=false;document.getElementById('btn-play').textContent='▶ Play';document.getElementById('btn-play').classList.remove('playing');render();updateOverlay();return;}
+  render();updateOverlay();
+  playRAF=requestAnimationFrame(tick);
+ };
+ playRAF=requestAnimationFrame(tick);
+}
+
+async function exportVideo(){
+ exportAbort=false;
+ const modal=document.getElementById('export-modal');
+ const bar=document.getElementById('export-progress');
+ modal.classList.add('show');bar.style.width='0%';
+ S.fps=+document.getElementById('fps').value;
+ const off=document.createElement('canvas');
+ off.width=S.w;off.height=S.h;
+ const octx=off.getContext('2d');
+ const stream=off.captureStream(S.fps);
+ const mime=MediaRecorder.isTypeSupported('video/webm;codecs=vp9')?'video/webm;codecs=vp9':'video/webm';
+ const rec=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:8_000_000});
+ const chunks=[];
+ rec.ondataavailable=e=>{if(e.data.size)chunks.push(e.data);};
+ const done=new Promise(res=>{rec.onstop=()=>res(new Blob(chunks,{type:'video/webm'}));});
+ rec.start();
+ const totalFrames=Math.ceil(S.duration*S.fps);
+ for(let f=0;f<totalFrames;f++){
+  if(exportAbort){rec.stop();modal.classList.remove('show');toast('Export cancelled');return;}
+  const t=f/S.fps;
+  octx.fillStyle=S.bg.includes('gradient')?'#14161e':S.bg;
+  octx.fillRect(0,0,S.w,S.h);
+  if(S.bg.includes('gradient')){
+   const g=S.bg.includes('radial')?octx.createRadialGradient(S.w/2,S.h/2,0,S.w/2,S.h/2,S.w/2):octx.createLinearGradient(0,0,S.w,S.h);
+   if(S.bg.includes('#f2e4c0')){g.addColorStop(0,'#f2e4c0');g.addColorStop(1,'#d9bf8c');}
+   else{g.addColorStop(0,'#1a1030');g.addColorStop(1,'#0a1828');}
+   octx.fillStyle=g;octx.fillRect(0,0,S.w,S.h);
+  }
+  S.layers.forEach(L=>{
+   if(!L.visible)return;
+   const m=animMod(L,t);
+   octx.save();octx.globalAlpha=Math.max(0,Math.min(1,m.opacity));
+   octx.translate(m.x+(L.w||0)/2,m.y+(L.h||0)/2);octx.rotate(m.rotation*Math.PI/180);octx.scale(m.scale,m.scale);
+   octx.translate(-(L.w||0)/2,-(L.h||0)/2);
+   if(L.type==='shape'){
+    octx.fillStyle=L.fill.startsWith('#')?L.fill:'#c9a94f';
+    if(L.shape==='circle'){octx.beginPath();octx.arc(L.w/2,L.h/2,Math.min(L.w,L.h)/2,0,Math.PI*2);octx.fill();}
+    else octx.fillRect(0,0,L.w,L.h);
+   } else if(L.type==='text'){octx.fillStyle=L.color;octx.font=`${L.fontSize}px ${L.font}`;octx.textAlign=L.align||'left';octx.fillText(L.text,L.align==='center'?L.w/2:0,L.fontSize);}
+   else if(L.type==='emoji'){octx.font=`${L.fontSize}px serif`;octx.fillText(L.emoji,0,L.fontSize*.85);}
+   else if(L.type==='image'&&L.img&&L.img.complete)octx.drawImage(L.img,0,0,L.w,L.h);
+   octx.restore();
+  });
+  bar.style.width=(f/totalFrames*100)+'%';
+  await new Promise(r=>setTimeout(r,1000/S.fps));
+ }
+ rec.stop();
+ const blob=await done;
+ modal.classList.remove('show');
+ const a=document.createElement('a');
+ a.href=URL.createObjectURL(blob);
+ a.download='popframe-'+Date.now()+'.webm';
+ a.click();
+ toast('🎬 Video saved! Check your downloads folder');
+}
+
+// UI wiring
+document.getElementById('stickers').innerHTML=STICKERS.map(s=>`<button type="button" class="sticker">${s}</button>`).join('');
+document.getElementById('stickers').onclick=e=>{
+ const s=e.target.closest('.sticker');if(!s)return;
+ addLayer({type:'emoji',emoji:s.textContent,name:'Sticker',x:S.w/2-40,y:S.h/2-40,fontSize:72,w:80,h:80,anim:'bounce',animDur:1});
+ toast('Sticker added! ✨');
+};
+document.getElementById('templates').innerHTML=TEMPLATES.map((t,i)=>`<div class="tpl" data-i="${i}"><b>${t.name}</b><small>${t.desc}</small></div>`).join('');
+document.getElementById('templates').onclick=e=>{
+ const t=e.target.closest('.tpl');if(!t)return;
+ TEMPLATES[+t.dataset.i].apply();refreshUI();render();updateOverlay();toast('Template loaded! 🎨');
+};
+document.querySelectorAll('[data-add]').forEach(el=>{
+ el.onclick=()=>{
+  const k=el.dataset.add;
+  if(k==='text') addLayer({type:'text',name:'Text',text:'Hello World!',x:S.w/2-200,y:S.h/2-40,w:400,h:60,fontSize:48,anim:'fadeIn',animDur:1});
+  else if(k==='shape') addLayer({type:'shape',name:'Shape',shape:'rect',fill:'#c9a94f',x:S.w/2-100,y:S.h/2-100,w:200,h:200,anim:'zoom',animDur:1});
+  else if(k==='emoji') addLayer({type:'emoji',name:'Emoji',emoji:'✨',x:S.w/2-36,y:S.h/2-36,fontSize:72,w:72,h:72,anim:'spin',animDur:1});
+  else if(k==='image') document.getElementById('img-upload').click();
+  toast('Added! Drag it around on the canvas ✨');
+ };
+});
+document.getElementById('img-upload').onchange=e=>{
+ const f=e.target.files[0];if(!f)return;
+ const url=URL.createObjectURL(f);
+ const img=new Image();
+ img.onload=()=>{addLayer({type:'image',name:f.name.slice(0,20),src:url,img,x:S.w/2-150,y:S.h/2-100,w:300,h:300*(img.height/img.width),anim:'fadeIn',animDur:1});};
+ img.src=url;e.target.value='';
+};
+document.getElementById('ratio').onchange=e=>setRatio(e.target.value);
+document.getElementById('duration').onchange=e=>{S.duration=+e.target.value;updateTimeDisp();};
+document.getElementById('scrub').oninput=e=>setTime(e.target.value/1000*S.duration);
+document.getElementById('btn-play').onclick=togglePlay;
+document.getElementById('btn-export').onclick=exportVideo;
+document.getElementById('export-cancel').onclick=()=>{exportAbort=true;};
+document.getElementById('btn-new').onclick=()=>{if(confirm('Start fresh? (Your current project will be cleared)')){TEMPLATES[3].apply();S.time=0;refreshUI();render();updateOverlay();}};
+window.addEventListener('resize',()=>updateOverlay());
+document.addEventListener('keydown',e=>{
+ if(e.key==='Delete'&&S.sel){S.layers=S.layers.filter(l=>l.id!==S.sel);S.sel=null;refreshUI();render();updateOverlay();}
+ if(e.key===' '){e.preventDefault();togglePlay();}
+});
+
+// init
+setRatio('16:9');
+TEMPLATES[0].apply();
+refreshUI();
+render();
+setTimeout(updateOverlay,100);
+</script>
+</body>
+</html>

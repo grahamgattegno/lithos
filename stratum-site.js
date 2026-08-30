@@ -63,8 +63,25 @@
   });
   const archBtn=document.querySelector('nav.top button[data-view="archaeology"]');
   if(archBtn)archBtn.hidden=true;
+  function openStratumGames(){
+   if(typeof buildArchaeologyHub==='function')buildArchaeologyHub();
+   if(typeof switchView==='function')switchView('archaeology');
+  }
   const gamesBtn=document.getElementById('games-nav-btn');
-  if(gamesBtn)gamesBtn.textContent='Dig Games';
+  if(gamesBtn){
+   gamesBtn.textContent='Dig Games';
+   gamesBtn.onclick=function(e){e.preventDefault();openStratumGames();};
+  }
+  const heroGames=document.getElementById('hero-play-games');
+  if(heroGames){
+   heroGames.textContent='Play dig games';
+   heroGames.onclick=function(e){e.preventDefault();openStratumGames();};
+  }
+  document.querySelectorAll('.mobile-bar button[data-mnav="games"]').forEach(btn=>{
+   btn.textContent='Dig Games';
+   btn.onclick=function(e){e.preventDefault();openStratumGames();};
+  });
+  window.openStratumGames=openStratumGames;
   document.querySelectorAll('#lithos-stratum-link,#hero-stratum-link').forEach(el=>{el.hidden=true;});
  }
 
@@ -123,6 +140,10 @@
   if(typeof applyCraftsHero==='function')applyCraftsHero();
   const gw=document.querySelector('.gem-week-badge');
   if(gw)gw.textContent=gw.textContent.replace(/Gem of the Week/i,'Find of the Week');
+  const archHead=document.querySelector('#view-archaeology .arch-hero h1');
+  if(archHead)archHead.innerHTML='Stratum <em>Dig Games</em>';
+  const archLede=document.querySelector('#view-archaeology .arch-hero .lede');
+  if(archLede)archLede.textContent='Brush gently, dig smart, and remember — deeper layers hold older treasures. Start with The Dig!';
   const gwo=document.getElementById('gem-week-open');
   if(gwo)gwo.textContent='Open find →';
  }

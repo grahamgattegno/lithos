@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Dig — a Stratum field game 🦴</title>
+<style>
+  :root{
+    --sand:#f2e4c0; --sand2:#d9bf8c; --wood:#8a5a2a; --ink:#3a2a16;
+    --d3:#6a4a26; --d2:#8a6538; --d1:#b08a52; --pit:#4a3620;
+    --gold:#c9971e; --good:#1e8a5a; --bad:#c0392b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Georgia,serif;color:var(--ink);min-height:100vh;
+    background:radial-gradient(ellipse at 50% 18%, var(--sand), var(--sand2));
+    display:flex;align-items:flex-start;justify-content:center;padding:18px 10px 40px}
+  .site{width:min(96vw,560px);text-align:center}
+  h1{margin:4px 0 2px;font-size:clamp(24px,5vw,34px)}
+  h1 em{color:var(--gold)}
+  .sub{color:#7a6540;font-size:13px;margin-bottom:12px}
+  .hud{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;font-family:monospace;font-size:12.5px;margin-bottom:8px}
+  .chip{background:#fff8ea;border:2px solid #d9c7a0;border-radius:20px;padding:5px 11px}
+  .chip b{color:var(--gold)}
+  .ebar{height:10px;background:#fff8ea;border:2px solid #d9c7a0;border-radius:8px;overflow:hidden;margin:0 auto 10px;max-width:420px}
+  .ebar span{display:block;height:100%;background:linear-gradient(90deg,#1e8a5a,#8ac05a);transition:width .15s}
+  .tools{display:flex;justify-content:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+  .tool{background:#fff8ea;border:2px solid #d9c7a0;border-radius:12px;padding:9px 13px;font-family:Georgia,serif;font-size:13.5px;font-weight:bold;color:var(--ink);cursor:pointer}
+  .tool.on{background:var(--wood);color:#ffe9c4;border-color:#5a3a16}
+  .tool:disabled{opacity:.45;cursor:not-allowed}
+  .frame{background:var(--wood);padding:10px;border-radius:14px;box-shadow:0 6px 0 #5a3a16, 0 12px 22px rgba(60,40,10,.35);position:relative}
+  .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:3px;background:#5a3a16;padding:3px;border-radius:8px}
+  .cell{aspect-ratio:1;border:none;border-radius:4px;padding:0;cursor:pointer;position:relative;font-size:17px;line-height:1;
+    display:flex;align-items:center;justify-content:center;transition:transform .08s}
+  .cell:hover{transform:scale(1.08);z-index:2}
+  .cell.d3{background:var(--d3);box-shadow:inset 0 -3px 0 rgba(0,0,0,.3)}
+  .cell.d2{background:var(--d2);box-shadow:inset 0 -3px 0 rgba(0,0,0,.25)}
+  .cell.d1{background:var(--d1);box-shadow:inset 0 -3px 0 rgba(0,0,0,.2)}
+  .cell.pit{background:radial-gradient(circle at 50% 38%, #5c4428, var(--pit));box-shadow:inset 0 3px 7px rgba(0,0,0,.55);cursor:default}
+  .cell.art{cursor:pointer}
+  .cell.art.reveal{outline:2.5px solid var(--gold);animation:glow 1s infinite alternate}
+  @keyframes glow{from{box-shadow:inset 0 3px 7px rgba(0,0,0,.55),0 0 4px var(--gold)}to{box-shadow:inset 0 3px 7px rgba(0,0,0,.55),0 0 14px var(--gold)}}
+  .cell .hint{position:absolute;top:1px;right:2px;font-size:9px;font-family:monospace;font-weight:bold;color:#fff;background:#2b5fc0;border-radius:8px;padding:0 4px;pointer-events:none}
+  .cell .crack{position:absolute;inset:0;display:flex;align-items:flex-start;justify-content:flex-end;font-size:11px;pointer-events:none}
+  .cell.shake{animation:shk .28s}
+  @keyframes shk{0%,100%{transform:none}25%{transform:translate(-2px,1px) rotate(-3deg)}75%{transform:translate(2px,-1px) rotate(3deg)}}
+  .cell .dust{position:absolute;inset:0;pointer-events:none;font-size:12px;animation:dust .5s forwards}
+  @keyframes dust{from{opacity:.9;transform:translateY(0)}to{opacity:0;transform:translateY(-12px)}}
+  .legend{display:flex;justify-content:center;gap:10px;font-size:11px;color:#7a6540;margin-top:9px;flex-wrap:wrap}
+  .legend span{display:flex;align-items:center;gap:4px}
+  .sw{width:12px;height:12px;border-radius:3px;display:inline-block}
+  .toast{position:fixed;left:50%;top:14px;transform:translateX(-50%);background:#3a2a16;color:#ffe9c4;padding:9px 16px;border-radius:22px;font-size:13.5px;font-weight:bold;z-index:50;opacity:0;pointer-events:none;transition:opacity .25s;max-width:92vw}
+  .toast.show{opacity:1}
+  .end{position:fixed;inset:0;background:rgba(40,26,8,.86);display:none;align-items:center;justify-content:center;padding:14px;z-index:60}
+  .end.show{display:flex}
+  .endbox{background:var(--sand);border-radius:18px;padding:22px 20px;max-width:440px;width:100%;max-height:88vh;overflow:auto;box-shadow:0 8px 0 #5a3a16}
+  .endbox h2{margin:0 0 4px;font-size:24px}
+  .endbox .big{font-size:30px;color:var(--gold);font-weight:bold;margin:6px 0}
+  .mus{margin:12px 0;text-align:left;background:#fff8ea;border:2px solid #d9c7a0;border-radius:12px;padding:10px 12px;font-size:13.5px}
+  .mus div{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px dashed #e4d4ac}
+  .mus div:last-child{border-bottom:none}
+  .btn{background:var(--wood);color:#ffe9c4;border:none;border-radius:12px;padding:12px 22px;font-family:Georgia,serif;font-weight:bold;font-size:15px;cursor:pointer;box-shadow:0 4px 0 #5a3a16;margin:4px}
+  .btn:active{transform:translateY(2px);box-shadow:0 2px 0 #5a3a16}
+  .foot{margin-top:14px;font-size:11.5px;color:#8a7550}
+  .foot a{color:var(--gold)}
+</style>
+</head>
+<body>
+<div class="site">
+  <h1>⛏️ The <em>Dig</em> 🦴</h1>
+  <div class="sub">A Stratum field game — brush gently, dig smart, and remember: <b>deeper layers = older treasures!</b></div>
+
+  <div class="hud">
+    <span class="chip">🏆 Score <b id="score">0</b></span>
+    <span class="chip">🏺 Found <b id="found">0</b>/<b id="total">0</b></span>
+    <span class="chip">📡 Scans <b id="scans">3</b></span>
+    <span class="chip">⭐ Best <b id="best">0</b></span>
+  </div>
+  <div class="ebar"><span id="efill" style="width:100%"></span></div>
+
+  <div class="tools">
+    <button class="tool on" id="t-brush" onclick="setTool('brush')">🖌️ Brush <small>(1⚡, safe)</small></button>
+    <button class="tool" id="t-pick" onclick="setTool('pick')">⛏️ Pickaxe <small>(2⚡, risky!)</small></button>
+    <button class="tool" id="t-scan" onclick="setTool('scan')">📡 Scan <small>(3 left)</small></button>
+  </div>
+
+  <div class="frame"><div class="grid" id="grid"></div></div>
+
+  <div class="legend">
+    <span><span class="sw" style="background:var(--d1)"></span> shallow (newest)</span>
+    <span><span class="sw" style="background:var(--d2)"></span> middle</span>
+    <span><span class="sw" style="background:var(--d3)"></span> deep (oldest)</span>
+    <span>✨ glowing = ready to extract — tap it!</span>
+  </div>
+  <div class="foot">Part of <b>Stratum 🦴</b> — the archaeology companion to <a href="../index.html?site=stratum">Lithos</a>. 100% original game.</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="end" id="end">
+  <div class="endbox">
+    <h2 id="end-title">⛺ Dig Day Over!</h2>
+    <div class="big" id="end-score">0 pts</div>
+    <div id="end-sub" style="font-size:13.5px;color:#7a6540"></div>
+    <div class="mus" id="museum"></div>
+    <button class="btn" onclick="newDig()">⛏️ New Dig Site</button>
+  </div>
+</div>
+
+<script>
+// ============ ⛏️🦴 THE DIG — a Stratum excavation game (100% original) ============
+const COLS=12, ROWS=9, N=COLS*ROWS;
+const TYPES=[
+  {key:'pottery', emoji:'🏺', name:'Pottery Shard', value:50,  era:'about 800 years old',    band:[0,4]},
+  {key:'coin',    emoji:'🪙', name:'Ancient Coin',  value:80,  era:'about 1,200 years old',  band:[0,3]},
+  {key:'arrow',   emoji:'🏹', name:'Arrowhead',     value:120, era:'about 3,000 years old',  band:[3,6]},
+  {key:'bone',    emoji:'🦴', name:'Fossil Bone',   value:200, era:'65 MILLION years old!',  band:[5,9]},
+  {key:'idol',    emoji:'👑', name:'Golden Idol',   value:500, era:'from a lost civilization', band:[6,9]}
+];
+let DIG=null;
+function newDig(){
+  document.getElementById('end').classList.remove('show');
+  const depth=[], art=new Array(N).fill(-1), artifacts=[];
+  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
+    const base = r<3?1 : r<6?2 : 3;
+    depth[r*COLS+c]=Math.min(3, base + (Math.random()<0.3?1:0));
+  }
+  // bury the artifacts! (deeper = older)
+  const wants=[['pottery',2],['coin',2],['arrow',2],['bone',1],['idol',1]];
+  let id=0;
+  wants.forEach(([key,count])=>{
+    const T=TYPES.find(t=>t.key===key);
+    for(let k=0;k<count;k++){
+      for(let tries=0;tries<200;tries++){
+        const w = key==='idol'?2 : (key==='bone'&&Math.random()<0.7?2:1);
+        const h = key==='bone'&&w===1?2:1;
+        const r = T.band[0] + Math.floor(Math.random()*(T.band[1]-T.band[0]-(h-1)));
+        const c = Math.floor(Math.random()*(COLS-(w-1)));
+        let ok=true; const cells=[];
+        for(let rr=r;rr<r+h;rr++)for(let cc=c;cc<c+w;cc++){
+          const i=rr*COLS+cc;
+          if(art[i]!==-1){ok=false;break;} cells.push(i);
+        }
+        if(!ok)continue;
+        cells.forEach(i=>art[i]=id);
+        artifacts.push({id,type:T,cells,cracked:0,extracted:false,lost:false});
+        id++; break;
+      }
+    }
+  });
+  DIG={depth,art,artifacts,energy:70,maxE:70,scans:3,tool:'brush',score:0,over:false};
+  const grid=document.getElementById('grid');
+  let html='';
+  for(let i=0;i<N;i++)html+=`<button class="cell" data-i="${i}" onclick="tap(${i})"></button>`;
+  grid.innerHTML=html;
+  for(let i=0;i<N;i++)paint(i);
+  document.getElementById('total').textContent=artifacts.length;
+  setTool('brush'); hud();
+}
+function cellEl(i){return document.querySelector(`.cell[data-i="${i}"]`);}
+function paint(i){
+  const g=DIG, el=cellEl(i); if(!el)return;
+  const d=g.depth[i], a=g.art[i]>=0?g.artifacts[g.art[i]]:null;
+  el.className='cell'; el.innerHTML='';
+  if(d>0){ el.classList.add('d'+d); if(el.dataset.hint)el.innerHTML=`<span class="hint">${el.dataset.hint}</span>`; return; }
+  el.classList.add('pit');
+  if(a && !a.extracted && !a.lost){
+    el.classList.add('art');
+    const revealed=a.cells.every(j=>g.depth[j]===0);
+    if(revealed)el.classList.add('reveal');
+    el.innerHTML=a.type.emoji + (a.cracked>0?'<span class="crack">💔</span>':'');
+  }
+}
+function setTool(t){
+  if(!DIG||DIG.over)return;
+  DIG.tool=t;
+  document.getElementById('t-brush').classList.toggle('on',t==='brush');
+  document.getElementById('t-pick').classList.toggle('on',t==='pick');
+  document.getElementById('t-scan').classList.toggle('on',t==='scan');
+}
+function beep(f,d){try{const A=window.AC||(window.AC=new (window.AudioContext||window.webkitAudioContext)());const o=A.createOscillator(),g=A.createGain();o.connect(g);g.connect(A.destination);o.frequency.value=f;g.gain.value=.06;o.start();g.gain.exponentialRampToValueAtTime(.0001,A.currentTime+d);o.stop(A.currentTime+d);}catch(e){}}
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),2200);
+}
+function tap(i){
+  const g=DIG; if(!g||g.over)return;
+  const a=g.art[i]>=0?g.artifacts[g.art[i]]:null;
+  // extracting a fully revealed artifact is always free!
+  if(g.depth[i]===0 && a && !a.extracted && !a.lost && a.cells.every(j=>g.depth[j]===0)){
+    extract(a); return;
+  }
+  if(g.tool==='scan'){ scan(i); return; }
+  if(g.depth[i]===0) return;
+  if(g.tool==='brush'){
+    if(g.energy<1){ endDig(); return; }
+    g.energy--; g.depth[i]--;
+    beep(300,.05);
+    const el=cellEl(i); if(el){const d=document.createElement('span');d.className='dust';d.textContent='💨';el.appendChild(d);setTimeout(()=>d.remove(),480);}
+    paint(i); afterMove(a,i);
+  } else if(g.tool==='pick'){
+    if(g.energy<2){ endDig(); return; }
+    g.energy-=2; g.depth[i]=0;
+    beep(150,.09);
+    const el=cellEl(i); if(el){el.classList.add('shake'); setTimeout(()=>el.classList.remove('shake'),300);}
+    if(a && !a.extracted && !a.lost){
+      a.cracked++;
+      if(a.cracked>=2){ a.lost=true; toast(`💥 Oh no — the ${a.type.name} SHATTERED!`); beep(90,.25); a.cells.forEach(paint); }
+      else { toast(`💔 CRACK! You chipped a buried ${a.type.name}... brush from now on!`); }
+    }
+    paint(i); afterMove(a,i);
+  }
+}
+function afterMove(a,i){
+  const g=DIG;
+  if(a && !a.extracted && !a.lost && a.cells.every(j=>g.depth[j]===0)) a.cells.forEach(paint);
+  hud();
+  if(g.energy<=0) endDig();
+  else if(g.artifacts.every(x=>x.extracted||x.lost)) endDig(true);
+}
+function scan(i){
+  const g=DIG;
+  if(g.scans<=0){ toast('📡 No scanner charges left!'); return; }
+  g.scans--;
+  const r=Math.floor(i/COLS), c=i%COLS;
+  let n=0;
+  for(let rr=r-1;rr<=r+1;rr++)for(let cc=c-1;cc<=c+1;cc++){
+    if(rr>=0&&rr<ROWS&&cc>=0&&cc<COLS){
+      const j=rr*COLS+cc, aj=g.art[j]>=0?g.artifacts[g.art[j]]:null;
+      if(aj&&!aj.extracted&&!aj.lost) n++;
+    }
+  }
+  const el=cellEl(i); if(el){ el.dataset.hint=n; paint(i); }
+  beep(700,.12);
+  toast(n>0?`📡 PING! ${n} artifact tile${n>1?'s':''} in this 3×3 area!`:'📡 ...all clear here. Dig elsewhere!');
+  hud(); setTool('brush');
+}
+function extract(a){
+  const g=DIG;
+  a.extracted=true;
+  const mult = a.cracked===0?2:1;
+  const pts = a.type.value*mult;
+  g.score+=pts;
+  beep(880,.2); setTimeout(()=>beep(1180,.25),120);
+  toast(`${a.type.emoji} ${a.cracked===0?'PRISTINE':'Cracked'} ${a.type.name}! +${pts} pts — ${a.type.era}`);
+  a.cells.forEach(paint); hud();
+  if(g.artifacts.every(x=>x.extracted||x.lost)) endDig(true);
+}
+function best(){try{return +(localStorage.getItem('stratum_dig_best')||0);}catch(e){return 0;}}
+function hud(){
+  const g=DIG;
+  document.getElementById('score').textContent=g.score;
+  document.getElementById('found').textContent=g.artifacts.filter(a=>a.extracted).length;
+  document.getElementById('scans').textContent=g.scans;
+  document.getElementById('best').textContent=best();
+  document.getElementById('efill').style.width=Math.max(0,g.energy/g.maxE*100)+'%';
+  const sb=document.getElementById('t-scan'); if(sb){sb.innerHTML=`📡 Scan <small>(${g.scans} left)</small>`; sb.disabled=g.scans<=0;}
+}
+function endDig(cleared){
+  const g=DIG; if(g.over)return; g.over=true;
+  try{ if(g.score>best()) localStorage.setItem('stratum_dig_best', g.score); }catch(e){}
+  document.getElementById('end-title').textContent = cleared?'🏆 SITE CLEARED!':'⛺ Dig Day Over!';
+  document.getElementById('end-score').textContent = g.score+' pts';
+  const got=g.artifacts.filter(a=>a.extracted), lost=g.artifacts.filter(a=>a.lost), left=g.artifacts.filter(a=>!a.extracted&&!a.lost);
+  document.getElementById('end-sub').textContent =
+    cleared?'Every artifact accounted for — a real archaeologist\'s dig!':'The sun set on the dig site. Best: '+best()+' pts';
+  let m='';
+  got.forEach(a=>{ m+=`<div><span>${a.type.emoji} ${a.type.name} ${a.cracked===0?'✨ pristine':'💔 cracked'}</span><b>+${a.type.value*(a.cracked===0?2:1)}</b></div>`; });
+  lost.forEach(a=>{ m+=`<div><span>💥 ${a.type.name} — shattered</span><b>0</b></div>`; });
+  left.forEach(a=>{ m+=`<div><span>🕳️ Something still buried…</span><b>?</b></div>`; });
+  document.getElementById('museum').innerHTML=m||'<div><span>Nothing recovered…</span><b>0</b></div>';
+  document.getElementById('end').classList.add('show');
+  hud();
+}
+newDig();
+</script>
+</body>
+</html>

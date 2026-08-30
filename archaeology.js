@@ -11,7 +11,8 @@ const ARCH_SITES=[
 ];
 
 const ARCH_GAMES=[
- {id:'dig',emoji:'🪏',name:'Trowel Dig',desc:'Grid dig — find every artifact before your energy runs out.',action:'dig'},
+ {id:'thedig',emoji:'⛏️',name:'The Dig',desc:'Brush, pickaxe & scanner — excavate pottery, coins, bones & golden idols layer by layer.',action:'thedig',featured:true},
+ {id:'dig',emoji:'🪏',name:'Trowel Dig',desc:'Quick grid dig — find every artifact before your energy runs out.',action:'dig'},
  {id:'memory',emoji:'🧩',name:'Artifact Memory',desc:'Flip cards and match pottery, tools, and bones.',action:'memory'},
  {id:'strat',emoji:'📚',name:'Layer Stack',desc:'Put geological layers in order — oldest at the bottom.',action:'strat'},
  {id:'hunt',emoji:'🗺️',name:'Field Scavenger Hunt',desc:'Lithos scavenger hunt — real specimens hidden across the catalog.',action:'hunt',external:true},
@@ -40,9 +41,25 @@ function archShell(title,inner){
 function launchArchGame(action){
  if(action==='hunt'){closeArchGame();if(typeof switchView==='function')switchView('hunt');return;}
  if(action==='identify'){closeArchGame();if(typeof switchView==='function')switchView('identify');return;}
- if(action==='dig')playArchDig();
+ if(action==='thedig')playTheDig();
+ else if(action==='dig')playArchDig();
  else if(action==='memory')playArchMemory();
  else if(action==='strat')playArchStrat();
+}
+
+/* ---- The Dig (full field game) ---- */
+function playTheDig(){
+ closeArchGame();
+ const wrap=document.createElement('div');
+ wrap.id='arch-game';
+ wrap.innerHTML=`<div class="arch-game-panel arch-dig-full">
+  <div class="arch-game-top"><span>⛏️ The Dig · Stratum field game</span><button type="button" class="arch-game-close" onclick="closeArchGame()">✕ Close</button></div>
+  <iframe class="arch-dig-frame" src="games/the-dig.html" title="The Dig — Stratum excavation game" allow="autoplay"></iframe>
+ </div>`;
+ document.body.appendChild(wrap);
+ document.body.classList.add('arch-playing');
+ document.addEventListener('keydown',archEsc);
+ if(typeof syncBodyScrollLock==='function')syncBodyScrollLock();
 }
 
 /* ---- Trowel Dig ---- */
@@ -182,12 +199,18 @@ function buildArchaeologyHub(){
    <p>${esc(s.desc)}</p>
   </article>`).join('');
  gamesEl.innerHTML=ARCH_GAMES.map(g=>`
-  <div class="arch-game-card">
+  <div class="arch-game-card${g.featured?' featured':''}">
    <div class="arch-game-emoji">${g.emoji}</div>
    <div class="arch-game-name">${esc(g.name)}</div>
    <p class="arch-game-desc">${esc(g.desc)}</p>
-   <button type="button" class="arch-btn play" data-arch-game="${g.action}">${g.external?'Open →':'▶ Play'}</button>
+   <button type="button" class="arch-btn play" data-arch-game="${g.action}">${g.external?'Open →':g.featured?'⛏️ Play The Dig':'▶ Play'}</button>
   </div>`).join('');
+ const backEl=document.querySelector('#view-archaeology .arch-back');
+ if(backEl){
+  backEl.innerHTML=window.LITHOS_STRATUM
+   ?'<a href="#catalog" onclick="switchView(\'catalog\');return false;">← Back to artifact catalog</a> · <a href="#hunt" onclick="switchView(\'hunt\');return false;">Site Hunt</a>'
+   :'<a href="#catalog" onclick="switchView(\'catalog\');return false;">← Back to Lithos catalog</a> · <a href="#learn" onclick="switchView(\'learn\');return false;">Geology lessons</a>';
+ }
  if(!archBuilt){
   gamesEl.addEventListener('click',e=>{
    const btn=e.target.closest('[data-arch-game]');
