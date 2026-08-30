@@ -245,6 +245,8 @@ function drawPuppetFrame(c,t,showHandles){
  c.beginPath();c.ellipse(puppet.cx,puppet.cy+puppet.bh*.52,puppet.bw*.35,18,0,0,Math.PI*2);c.fill();
 
  const torso=puppet.sprites.torso;
+ const sorted=[...puppet.parts].sort((a,b)=>a.order-b.order);
+ sorted.filter(p=>p.id.startsWith('leg')).forEach(p=>drawPartSprite(c,p));
  c.drawImage(
   torso.canvas,
   puppet.cx-torso.w/2,
@@ -252,8 +254,7 @@ function drawPuppetFrame(c,t,showHandles){
   torso.w,
   torso.h
  );
-
- [...puppet.parts].sort((a,b)=>a.order-b.order).forEach(p=>drawPartSprite(c,p));
+ sorted.filter(p=>!p.id.startsWith('leg')).forEach(p=>drawPartSprite(c,p));
 
  if(showHandles){
   puppet.parts.forEach(p=>{
