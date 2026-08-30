@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Making of Stratum — How a Kid Built an Archaeology Site</title>
+<link rel="icon" type="image/png" href="images/brand/stratum-favicon.png">
+<style>
+  :root{
+    --paper:#f4ede3; --paper2:#e8dcc8; --ink:#1a1610; --soft:#6a5c48;
+    --sand:#c4a574; --terracotta:#9a5c38; --bone:#d4c4a8; --earth:#2a2218;
+    --sticky-y:#fff3b0; --sticky-p:#ffd6e8; --sticky-b:#d6ecff; --sticky-g:#dcf5dc;
+    --win:#2d7a4a; --hard:#a83828;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:Georgia,'Times New Roman',serif;line-height:1.6}
+  .wrap{max-width:900px;margin:0 auto;padding:0 18px}
+
+  nav{position:sticky;top:0;background:rgba(244,237,227,.94);backdrop-filter:blur(4px);border-bottom:2px solid var(--bone);z-index:50}
+  nav .wrap{display:flex;gap:4px;align-items:center;flex-wrap:wrap;padding:10px 18px}
+  nav .brand{font-weight:bold;font-size:15px;margin-right:auto}
+  nav a{color:var(--soft);text-decoration:none;font-size:13px;padding:6px 10px;border-radius:8px}
+  nav a:hover{background:var(--paper2);color:var(--ink)}
+
+  header{padding:64px 0 44px;text-align:center;background:
+    radial-gradient(circle at 12% 20%, rgba(196,165,116,.14), transparent 34%),
+    radial-gradient(circle at 88% 30%, rgba(154,92,56,.12), transparent 34%),
+    radial-gradient(circle at 50% 90%, rgba(42,34,24,.06), transparent 40%)}
+  .logo-mark{width:72px;height:72px;border-radius:16px;margin:0 auto 14px;display:block;box-shadow:0 8px 24px rgba(26,22,16,.18);border:2px solid rgba(196,165,116,.45)}
+  .eyebrow{letter-spacing:.28em;font-size:11px;color:var(--terracotta);text-transform:uppercase;font-family:monospace}
+  h1{font-size:clamp(30px,6vw,52px);margin:10px 0 8px;line-height:1.12}
+  h1 em{color:var(--sand)}
+  .lede{color:var(--soft);font-size:clamp(15px,2.4vw,18px);max-width:640px;margin:0 auto 22px}
+  .btnrow{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+  .btn{display:inline-block;background:var(--earth);color:var(--paper);padding:11px 20px;border-radius:10px;text-decoration:none;font-size:14.5px;font-weight:bold}
+  .btn.ghost{background:transparent;color:var(--ink);border:2px solid var(--earth)}
+  .byline{margin-top:22px;font-style:italic;color:var(--soft);font-size:14px}
+
+  section{padding:52px 0}
+  h2{font-size:clamp(22px,4vw,32px);margin:0 0 6px}
+  h2 em{color:var(--terracotta)}
+  .sub{color:var(--soft);margin:0 0 26px;font-size:15px}
+
+  .stats{display:flex;flex-wrap:wrap;gap:14px;justify-content:center}
+  .stat{background:#fff;border:2px solid var(--bone);border-radius:14px;padding:18px 16px;width:150px;text-align:center;box-shadow:3px 4px 0 var(--bone)}
+  .stat b{display:block;font-size:26px;color:var(--terracotta)}
+  .stat span{font-size:12.5px;color:var(--soft)}
+
+  .tl{position:relative;margin-top:8px}
+  .tl::before{content:'';position:absolute;left:14px;top:0;bottom:0;width:3px;background:var(--bone);border-radius:2px}
+  .tl-item{position:relative;padding:0 0 30px 46px}
+  .tl-item::before{content:'';position:absolute;left:6px;top:6px;width:19px;height:19px;border-radius:50%;background:var(--paper);border:4px solid var(--sand)}
+  .tl-item.hard::before{border-color:var(--hard)}
+  .tl-item.win::before{border-color:var(--win)}
+  .tl-item h3{margin:0 0 4px;font-size:18px}
+  .tl-item p{margin:0;color:var(--soft);font-size:14.5px}
+  .tag{display:inline-block;font-size:10.5px;letter-spacing:.12em;font-family:monospace;text-transform:uppercase;padding:3px 8px;border-radius:20px;margin-left:6px;vertical-align:2px}
+  .tag.hard{background:#ffe3de;color:var(--hard)}
+  .tag.win{background:#def5e6;color:var(--win)}
+
+  .cards{display:flex;flex-wrap:wrap;gap:16px}
+  .card{width:calc(50% - 8px);border-radius:6px;padding:18px 16px 16px;box-shadow:3px 5px 10px rgba(0,0,0,.10);position:relative}
+  .card:nth-child(4n+1){background:var(--sticky-y);transform:rotate(-.7deg)}
+  .card:nth-child(4n+2){background:var(--sticky-b);transform:rotate(.6deg)}
+  .card:nth-child(4n+3){background:var(--sticky-p);transform:rotate(.8deg)}
+  .card:nth-child(4n){background:var(--sticky-g);transform:rotate(-.5deg)}
+  .card::before{content:'';position:absolute;top:-9px;left:50%;transform:translateX(-50%) rotate(-2deg);width:64px;height:18px;background:rgba(196,165,116,.55);border-radius:2px}
+  .card h3{margin:2px 0 6px;font-size:16px}
+  .card p{margin:0;font-size:13.8px;color:#4c463c}
+  @media(max-width:640px){.card{width:100%}}
+
+  .lessons{background:#fff;border:2px solid var(--bone);border-radius:16px;padding:8px 22px;box-shadow:3px 4px 0 var(--bone)}
+  .lessons li{margin:14px 0;font-size:15px}
+  .lessons b{color:var(--terracotta)}
+
+  .slidebox{background:repeating-linear-gradient(45deg,#fff,#fff 12px,#f0e6d4 12px,#f0e6d4 24px);border:3px dashed #c4a574;border-radius:16px;padding:44px 20px;text-align:center;color:var(--soft)}
+  .slidebox .big{font-size:40px}
+  .slidebox p{max-width:520px;margin:8px auto 0;font-size:14.5px}
+
+  footer{border-top:2px solid var(--bone);padding:30px 0 44px;text-align:center;color:var(--soft);font-size:14px}
+  footer a{color:var(--terracotta)}
+  .heart{color:var(--hard)}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap">
+  <span class="brand">🦴 The Making of Strat<em style="color:var(--sand)">um</em></span>
+  <a href="index.html?site=stratum&v=50">← Stratum home</a>
+  <a href="making-of-lithos.html">Making of Lithos 💎</a>
+  <a href="#numbers">Numbers</a>
+  <a href="#timeline">Timeline</a>
+  <a href="#struggles">Struggles</a>
+  <a href="#wins">Wins</a>
+  <a href="#lessons">Lessons</a>
+</div></nav>
+
+<header>
+  <div class="wrap">
+    <img class="logo-mark" src="images/brand/stratum-mark.png" width="72" height="72" alt="Stratum logo">
+    <div class="eyebrow">A field archaeologist's story</div>
+    <h1>The Making of <em>Stratum</em></h1>
+    <p class="lede">The honest story of how Lithos grew a whole archaeology site — dinosaur bones, mummies, ancient tools, dig games, and real photos from museums around the world. No gemstones here. Just deep time. 🏛️</p>
+    <div class="btnrow">
+      <a class="btn" href="index.html?site=stratum&v=50">Visit Stratum 🦴</a>
+      <a class="btn ghost" href="#timeline">Read the story ↓</a>
+    </div>
+    <div class="byline">Written &amp; lived by Graham — founder of Lithos &amp; Stratum 🍪</div>
+  </div>
+</header>
+
+<section id="numbers">
+  <div class="wrap">
+    <h2>By the <em>numbers</em></h2>
+    <p class="sub">What Stratum looks like when you count every find in the catalog.</p>
+    <div class="stats">
+      <div class="stat"><b>85</b><span>artifacts in the field catalog</span></div>
+      <div class="stat"><b>6</b><span>dig sites to explore</span></div>
+      <div class="stat"><b>5</b><span>dig games &amp; tools</span></div>
+      <div class="stat"><b>12</b><span>historical periods covered</span></div>
+      <div class="stat"><b>40+</b><span>source regions worldwide</span></div>
+      <div class="stat"><b>1</b><span>full archaeology companion site</span></div>
+      <div class="stat"><b>0</b><span>gemstones (on purpose!)</span></div>
+      <div class="stat"><b>∞</b><span>layers to dig through 😅</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="timeline" style="background:var(--paper2)">
+  <div class="wrap">
+    <h2>The <em>timeline</em></h2>
+    <p class="sub">How Stratum went from "I want archaeology too" to a real site with bones, fossils, and games.</p>
+    <div class="tl">
+      <div class="tl-item">
+        <h3>💎 Lithos came first</h3>
+        <p>I built Lithos as a gem company — thousands of minerals, games, classes, the whole thing. But I also love archaeology. Bones. Fossils. Mummies. Ancient cities buried in sand.</p>
+      </div>
+      <div class="tl-item">
+        <h3>🏛️ "Can I have a second website?"</h3>
+        <p>The idea: an archaeology version of Lithos. Same kind of catalog, same games hub feeling — but every entry is a real artifact from human history instead of a gemstone.</p>
+      </div>
+      <div class="tl-item win">
+        <h3>🪏 The archaeology hub <span class="tag win">WIN</span></h3>
+        <p>First step inside Lithos: a dig-site hub with six places to explore — Sunrise Valley, Temple of Obsidian, Painted Cave, Harbor Wreck, Sand Tomb, and Hill Fort. Plus mini-games to practice digging.</p>
+      </div>
+      <div class="tl-item win">
+        <h3>🦴 Stratum goes live <span class="tag win">WIN</span></h3>
+        <p>Not just a section — a whole themed site at <b>/stratum/</b>. Sand and terracotta colors. "Artifact Catalog" instead of gemstones. "Ask the Archaeologist" instead of the gem teacher. Same features, different world.</p>
+      </div>
+      <div class="tl-item">
+        <h3>📋 85 real artifacts</h3>
+        <p>I wrote a whole new catalog: T. rex femurs, Neanderthal skulls, Roman gladii, Egyptian canopic jars, Aztec sun stones, Ötzi the Iceman, the Piltdown hoax (as a cautionary tale!), and dozens more — each with period, material, and excavation notes.</p>
+      </div>
+      <div class="tl-item win">
+        <h3>📸 Real photos for every find <span class="tag win">WIN</span></h3>
+        <p>Artifacts deserve real pictures — not placeholders. I built scripts to fetch museum-quality photos for the catalog. When a photo was wrong (like FIND #55, the Aboriginal grinding stone), we fixed it and busted the cache so the live site showed the right image.</p>
+      </div>
+      <div class="tl-item win">
+        <h3>⛏️ The Dig game <span class="tag win">WIN</span></h3>
+        <p>The big field game: brush, pickaxe, and scanner — excavate pottery, coins, bones, and golden idols layer by layer. Wired into Stratum's Dig Games hub so you can play without leaving the site.</p>
+      </div>
+      <div class="tl-item">
+        <h3>🎮 More dig games</h3>
+        <p>Trowel Dig (grid excavation before energy runs out), Artifact Memory (match pottery and bones), Layer Stack (put geological layers in order — oldest at the bottom), plus the scavenger hunt and Identify a Find tools from Lithos, relabeled for the field.</p>
+      </div>
+      <div class="tl-item">
+        <h3>🧱 Same engine, different strata</h3>
+        <p>Stratum reuses Lithos's site engine — catalog, field school, memberships, crafts, donations — but <b>stratum-site.js</b> rewrites every label, hero, and filter so it feels like archaeology, not geology.</p>
+      </div>
+      <div class="tl-item">
+        <h3>📖 ...and the dig continues</h3>
+        <p>Every new artifact, game, and museum partnership becomes another layer in the story. Stratum is still growing — just like a real excavation.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="struggles">
+  <div class="wrap">
+    <h2>The <em>struggles</em> 😤</h2>
+    <p class="sub">Building a second whole site inside your first site is not as simple as flipping a switch.</p>
+    <div class="cards">
+      <div class="card">
+        <h3>🔄 Gems vs. artifacts</h3>
+        <p>At first Stratum still showed gemstones with archaeology labels pasted on. That felt wrong. The fix: a whole separate <b>stratum-data.js</b> catalog with only bones, fossils, tools, pottery, and monuments.</p>
+      </div>
+      <div class="card">
+        <h3>📸 Wrong photos happen</h3>
+        <p>One find had the wrong picture live on the site — embarrassing for a catalog that's supposed to teach real archaeology. Cache busting and careful photo checks became part of every deploy.</p>
+      </div>
+      <div class="card">
+        <h3>🏷️ Relabeling EVERYTHING</h3>
+        <p>"Gem of the Week" → "Find of the Week." "Mineral class" → "Material class." "Night Shift at the Gem Factory" still exists but the nav says "Dig Games." Hundreds of labels needed swapping.</p>
+      </div>
+      <div class="card">
+        <h3>🌐 Two sites, one codebase</h3>
+        <p>Stratum lives at <b>?site=stratum</b> and <b>/stratum/</b> — same HTML file, different mode. Getting session storage, URLs, and branding to switch cleanly took careful JavaScript.</p>
+      </div>
+      <div class="card">
+        <h3>⏳ Deploy &amp; refresh</h3>
+        <p>GitHub Pages takes time to update. Sometimes the live site showed an old version until hard refresh. Version bumps (<b>v=50</b>, <b>deploy-50</b>) help — but patience is part of publishing.</p>
+      </div>
+      <div class="card">
+        <h3>📚 Getting facts right</h3>
+        <p>Every artifact description needs real dates, real places, real science. One wrong fact in a kid-facing catalog is one too many — so descriptions were written carefully, with hoaxes labeled as hoaxes.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="wins" style="background:var(--paper2)">
+  <div class="wrap">
+    <h2>The <em>good times</em> 🎉</h2>
+    <p class="sub">The moments that made every layer worth digging through.</p>
+    <div class="cards">
+      <div class="card">
+        <h3>🦕 A catalog of deep time</h3>
+        <p>From 3.2-million-year-old Lucy to Pompeii bread carbonized in AD 79 — eighty-five entries that span almost all of human (and dinosaur!) history.</p>
+      </div>
+      <div class="card">
+        <h3>⛏️ Playing The Dig</h3>
+        <p>Excavating layer by layer — brush gently, pick carefully, scan for treasure. A game that actually feels like archaeology.</p>
+      </div>
+      <div class="card">
+        <h3>🪨 Two sites, one company</h3>
+        <p>Lithos for gems. Stratum for bones and antiquity. Switch with one link. Same builder, two worlds.</p>
+      </div>
+      <div class="card">
+        <h3>📸 Photos that look real</h3>
+        <p>Museum specimens, fossils, pottery — the catalog looks like a field notebook with actual evidence, not cartoon placeholders.</p>
+      </div>
+      <div class="card">
+        <h3>🏺 Crafts that match the theme</h3>
+        <p>Paper mummy wraps, fossil clay imprints, sandbox dig sites, cave wall painting — lab crafts relabeled for young archaeologists.</p>
+      </div>
+      <div class="card">
+        <h3>🗺️ Site Hunt certificate</h3>
+        <p>Find every artifact hidden in the scavenger hunt and earn a field archaeologist certificate. Collect them all!</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="lessons">
+  <div class="wrap">
+    <h2>Lessons for other <em>kid builders</em> 🧠</h2>
+    <p class="sub">What I learned building Stratum on top of Lithos.</p>
+    <div class="lessons">
+      <ol>
+        <li><b>Companion sites can share code.</b> Stratum didn't need a blank page — it needed a theme layer on top of what already worked.</li>
+        <li><b>Replace the data, not just the paint.</b> Sand-colored buttons aren't enough. Real artifact entries make the site feel authentic.</li>
+        <li><b>Games teach the subject.</b> Layer Stack teaches stratigraphy. The Dig teaches patience. Memory teaches artifact types. Build games that match what you're teaching.</li>
+        <li><b>Label hoaxes clearly.</b> Piltdown Man is in the catalog — as a fraud lesson. Honest science builds trust.</li>
+        <li><b>Photos matter.</b> A wrong image breaks the whole catalog. Check every find before you ship.</li>
+        <li><b>Version your deploys.</b> Cache busting (<b>?v=50</b>) saves you when browsers cling to old files.</li>
+        <li><b>Keep digging.</b> Stratum started as "I want archaeology too." Now it's a real site. Your next idea can become one too.</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section id="slides" style="background:var(--paper2)">
+  <div class="wrap">
+    <h2>What's <em>next</em> 🖼️</h2>
+    <p class="sub">Stratum is live — but the excavation never really ends.</p>
+    <div class="slidebox">
+      <div class="big">🏛️</div>
+      <p><b>More finds ahead!</b> Museum partnerships, new dig games, more artifacts in the catalog, and maybe a presentation about building Stratum — the same way Lithos has its making-of story. This page grows with every layer we add.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    Built with <span class="heart">❤</span> (and many, many trowels) by <b>Graham</b> 🍪<br>
+    Visit the site this story is about: <a href="index.html?site=stratum&v=50">Stratum — Bones, Fossils &amp; Ancient Things</a>
+    · <a href="index.html?v=50">Lithos 💎</a>
+    · <a href="making-of-lithos.html">The Making of Lithos</a>
+  </div>
+</footer>
+
+</body>
+</html>

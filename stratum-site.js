@@ -146,6 +146,8 @@
   if(archLede)archLede.textContent='Brush gently, dig smart, and remember — deeper layers hold older treasures. Start with The Dig!';
   const gwo=document.getElementById('gem-week-open');
   if(gwo)gwo.textContent='Open find →';
+  const mof=document.getElementById('making-of-link');
+  if(mof){mof.href='making-of-stratum.html';mof.textContent='The Making of Stratum';}
  }
 
  window.stratumApplyBranding=applyStratumBranding;
