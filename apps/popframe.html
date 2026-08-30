@@ -27,6 +27,8 @@ button{font-family:inherit;cursor:pointer}
 .sidebar h2{margin:12px 0 8px;font-size:13px;color:var(--muted);text-transform:uppercase}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{background:#f3ebff;border:2px solid #d8b4fe;border-radius:18px;padding:8px 12px;font-size:14px;font-weight:600}
+.chip.instant{background:#ecfdf5;border-color:#6ee7b7}
+.chip.instant::before{content:'⚡ '}
 .chip:hover{background:var(--purple);color:#fff}
 .step{background:#f3ebff;border-radius:12px;padding:12px;margin-bottom:10px;font-size:14px;line-height:1.5}
 .step b{color:var(--purple)}
@@ -70,12 +72,14 @@ a.home{color:var(--purple);font-weight:700;font-size:13px;margin-left:8px}
 
  <div class="main">
   <aside class="sidebar">
-   <div class="step"><b>1.</b> Search a character ↑<br><b>2.</b> Tap <b>Make Puppet</b><br><b>3.</b> Drag arms, legs &amp; head — watch them move!<br><b>4.</b> Hit 🔴 RECORD &amp; move them<br><b>5.</b> Play &amp; save 🎬</div>
-   <h2>⚡ Quick search</h2>
+   <div class="step"><b>1.</b> Pick an <b>⚡ instant</b> puppet OR search AI ↑<br><b>2.</b> Drag arms, legs &amp; head!<br><b>3.</b> Hit 🔴 RECORD &amp; move them<br><b>4.</b> Play &amp; save 🎬</div>
+   <h2>⚡ Instant puppets</h2>
+   <div class="chips" id="instant-chips"></div>
+   <h2>✨ AI search (slower)</h2>
    <div class="chips" id="chips"></div>
    <h2>🎭 Puppet</h2>
-   <button class="btn purple" id="btn-puppet" style="width:100%;padding:14px;font-size:16px" disabled>Make Puppet from pic</button>
-   <p class="hint" id="puppet-hint">Add a picture first (search GO)</p>
+   <button class="btn purple" id="btn-puppet" style="width:100%;padding:14px;font-size:16px">🔄 Remake puppet</button>
+   <p class="hint" id="puppet-hint">Instant puppets load in 1 second!</p>
    <h2>🦴 Body parts</h2>
    <div id="parts-list"><p class="hint">Make a puppet first!</p></div>
    <button class="btn" id="btn-upload" style="width:100%;margin-top:8px">📷 Upload photo</button>
@@ -167,7 +171,6 @@ function makePuppet(img,name){
   keyframes:[{t:0,pose:defaultPose()}]
  };
  selPart='head';
- $('btn-puppet').disabled=true;
  $('btn-rec').hidden=false;
  $('parts-list').innerHTML=puppet.parts.map(p=>
   `<button type="button" class="part-btn${selPart===p.id?' on':''}" data-p="${p.id}"><span>${p.emoji}</span>${p.label}</button>`
@@ -345,36 +348,124 @@ cvs.addEventListener('touchmove',e=>{
 },{passive:false});
 cvs.addEventListener('touchend',()=>{dragPart=null;});
 
-// AI
-function aiUrl(q,s){return 'https://image.pollinations.ai/prompt/'+encodeURIComponent(q)+'?width=512&height=512&seed='+s+'&nologo=true';}
-function loadImg(url){return new Promise((ok,no)=>{const i=new Image();i.crossOrigin='anonymous';i.onload=()=>ok(i);i.onerror=no;i.src=url;});}
+// Instant puppets — no waiting for AI!
+const INSTANT_TYPES=['robot','cat','dinosaur','alien','superhero'];
+const AI_CHIPS=['unicorn','pizza','dragon','pizza cat'];
 
+const PALETTES={
+ robot:{head:'#cbd5e1',body:'#6366f1',limb:'#818cf8',detail:'#fbbf24',face:'#1e1b4b'},
+ cat:{head:'#fdba74',body:'#fb923c',limb:'#ea580c',detail:'#fff',face:'#431407'},
+ dinosaur:{head:'#86efac',body:'#22c55e',limb:'#15803d',detail:'#fef08a',face:'#14532d'},
+ alien:{head:'#a7f3d0',body:'#10b981',limb:'#059669',detail:'#fde047',face:'#064e3b'},
+ superhero:{head:'#fde68a',body:'#ef4444',limb:'#2563eb',detail:'#fbbf24',face:'#1e3a8a'}
+};
+
+function drawInstant(type){
+ const S=512,c=document.createElement('canvas');
+ c.width=S;c.height=S;
+ const g=c.getContext('2d');
+ g.fillStyle='#ddd6fe';g.fillRect(0,0,S,S);
+ const pal=PALETTES[type]||PALETTES.robot;
+
+ function limb(x,y,w,h,r){g.beginPath();g.roundRect(x,y,w,h,r);g.fill();}
+ function circle(x,y,r){g.beginPath();g.arc(x,y,r,0,Math.PI*2);g.fill();}
+
+ // legs
+ g.fillStyle=pal.limb;limb(132,300,88,180,28);limb(292,300,88,180,28);
+ g.fillStyle=pal.detail;limb(142,450,68,28,8);limb(302,450,68,28,8);
+ // arms
+ g.fillStyle=pal.limb;limb(36,168,88,200,28);limb(388,168,88,200,28);
+ // torso
+ g.fillStyle=pal.body;limb(148,168,216,200,36);
+ g.fillStyle=pal.detail;circle(256,250,22);
+ // head
+ g.fillStyle=pal.head;circle(256,108,92);
+ if(type==='cat'){
+  g.fillStyle=pal.limb;g.beginPath();g.moveTo(188,58);g.lineTo(168,8);g.lineTo(218,48);g.fill();
+  g.beginPath();g.moveTo(324,58);g.lineTo(344,8);g.lineTo(294,48);g.fill();
+  g.fillStyle=pal.face;circle(224,112,8);circle(288,112,8);
+  g.strokeStyle=pal.face;g.lineWidth=3;g.beginPath();g.moveTo(248,128);g.quadraticCurveTo(256,138,264,128);g.stroke();
+ }else if(type==='dinosaur'){
+  g.fillStyle=pal.limb;g.beginPath();g.moveTo(340,108);g.lineTo(420,88);g.lineTo(350,130);g.fill();
+  g.fillStyle=pal.face;circle(224,108,10);circle(288,108,10);
+  g.fillStyle='#fff';circle(228,106,4);circle(292,106,4);
+ }else if(type==='alien'){
+  g.fillStyle=pal.face;circle(256,108,36,0,Math.PI*2);
+  g.fillStyle='#000';circle(236,104,10);circle(276,104,10);
+  g.fillStyle=pal.limb;circle(256,148,6);
+ }else if(type==='superhero'){
+  g.fillStyle=pal.limb;g.beginPath();g.moveTo(168,168);g.lineTo(128,248);g.lineTo(168,228);g.fill();
+  g.beginPath();g.moveTo(344,168);g.lineTo(384,248);g.lineTo(344,228);g.fill();
+  g.fillStyle=pal.detail;g.font='bold 48px system-ui';g.textAlign='center';g.fillText('S',256,120);
+  g.fillStyle=pal.face;circle(224,112,8);circle(288,112,8);
+ }else{
+  g.fillStyle=pal.detail;circle(256,92,18);
+  g.fillStyle=pal.face;circle(224,112,12);circle(288,112,12);
+  g.fillStyle='#fff';circle(228,110,4);circle(292,110,4);
+  g.fillStyle=pal.detail;g.fillRect(216,138,80,10);
+ }
+ return c;
+}
+
+function startInstant(type){
+ const name=type.charAt(0).toUpperCase()+type.slice(1);
+ makePuppet(drawInstant(type),name);
+ toast(name+' puppet — ready NOW! ⚡');
+}
+
+// AI (optional — slower)
+function aiUrl(q,s){return 'https://image.pollinations.ai/prompt/'+encodeURIComponent(q)+'?width=384&height=384&model=turbo&seed='+s+'&nologo=true';}
+function loadImg(url,ms){
+ return new Promise((ok,no)=>{
+  const i=new Image();i.crossOrigin='anonymous';
+  const t=setTimeout(()=>no(new Error('timeout')),ms||25000);
+  i.onload=()=>{clearTimeout(t);ok(i);};
+  i.onerror=()=>{clearTimeout(t);no(new Error('fail'));};
+  i.src=url;
+ });
+}
+
+let aiBusy=false;
 async function doSearch(q){
  q=(q||'').trim();
- if(!q){toast('Type something! like cat or robot');return;}
+ if(!q){toast('Type something! like unicorn or dragon');return;}
+ if(INSTANT_TYPES.includes(q.toLowerCase())){startInstant(q.toLowerCase());return;}
+ if(aiBusy){toast('Still drawing last one — wait a sec!');return;}
+ aiBusy=true;
  $('go').disabled=true;$('go').textContent='…';
- toast('Drawing '+q+'… ✨');
+ $('status-bar').textContent='✨ Drawing '+q+'… you can keep playing!';
+ toast('Drawing '+q+' in background… keep playing! ✨');
  try{
-  const img=await loadImg(aiUrl(q+', cartoon character, full body standing, arms at sides, simple background, kid friendly',Math.floor(Math.random()*99999)));
-  charImg=img;charName=q;lastImgEntry={img,name:q};
-  $('btn-puppet').disabled=false;
-  $('puppet-hint').textContent='Tap "Make Puppet"!! 🎭';
-  toast('Got it! Now tap Make Puppet 🎭');
- }catch(_){toast('Try again — maybe one word?');}
+  const img=await loadImg(aiUrl(q+', cartoon full body, arms at sides, plain background',Math.floor(Math.random()*99999)));
+  charImg=img;charName=q;
+  makePuppet(img,q);
+  toast(q+' is ready!! 🎭');
+ }catch(_){
+  toast('AI slow — try an ⚡ instant puppet!');
+  startInstant('robot');
+ }
+ aiBusy=false;
  $('go').disabled=false;$('go').textContent='GO ✨';
+ $('status-bar').textContent='👆 Drag the dots — head, arms & legs move for real!';
 }
 
 $('go').onclick=()=>doSearch($('search').value);
 $('search').onkeydown=e=>{if(e.key==='Enter')doSearch(e.target.value);};
-$('btn-puppet').onclick=()=>{if(charImg)makePuppet(charImg,charName);else toast('Search a character first!');};
+$('btn-puppet').onclick=()=>{
+ if(charImg)makePuppet(charImg,charName);
+ else if(puppet)puppet.keyframes=[{t:0,pose:Object.fromEntries(puppet.parts.map(p=>[p.id,p.angle]))}];
+ else startInstant('robot');
+ draw();toast('Puppet reset! 🎭');
+};
 $('btn-upload').onclick=()=>$('file-in').click();
 $('file-in').onchange=e=>{
  const f=e.target.files[0];if(!f)return;
- const img=new Image();img.onload=()=>{charImg=img;charName=f.name;$('btn-puppet').disabled=false;toast('Now tap Make Puppet!');};img.src=URL.createObjectURL(f);
+ const img=new Image();img.onload=()=>{charImg=img;charName=f.name;makePuppet(img,f.name);toast('Puppet ready! 🎭');};img.src=URL.createObjectURL(f);
 };
 
-const CHIPS=['cat','robot','dinosaur','unicorn','superhero','pizza','dragon','alien'];
-$('chips').innerHTML=CHIPS.map(c=>'<button type="button" class="chip">'+c+'</button>').join('');
+$('instant-chips').innerHTML=INSTANT_TYPES.map(c=>'<button type="button" class="chip instant">'+c+'</button>').join('');
+$('instant-chips').onclick=e=>{const c=e.target.closest('.chip');if(c)startInstant(c.textContent.trim());};
+$('chips').innerHTML=AI_CHIPS.map(c=>'<button type="button" class="chip">'+c+'</button>').join('');
 $('chips').onclick=e=>{const c=e.target.closest('.chip');if(c){$('search').value=c.textContent;doSearch(c.textContent);}};
 
 // Record
@@ -477,7 +568,8 @@ document.addEventListener('keydown',e=>{
 });
 
 draw();
-toast('Search a character → Make Puppet → RECORD! 🎭');
+startInstant('robot');
+toast('Robot puppet ready — no waiting! ⚡');
 </script>
 </body>
 </html>
