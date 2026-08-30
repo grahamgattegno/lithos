@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PopFrame — Puppet Videos!</title>
-<!-- popframe-v:53 -->
+<!-- popframe-v:54 -->
 <style>
 :root{--purple:#8b3dff;--purple2:#6b2fd4;--red:#ef4444;--bg:#f0f2f8;--white:#fff;--text:#1a1a2e;--muted:#666;--line:#ddd}
 *{box-sizing:border-box}
@@ -53,6 +53,10 @@ button{font-family:inherit;cursor:pointer}
 .prog{height:10px;background:#eee;border-radius:8px;overflow:hidden;margin:12px 0}
 .prog span{display:block;height:100%;background:var(--purple);width:0}
 .hint{font-size:13px;color:var(--muted);margin:0;line-height:1.45}
+.mode-toggle{display:flex;align-items:center;gap:10px;padding:10px 12px;margin:8px 0 12px;border:2px solid var(--line);border-radius:12px;background:#fafafa;font-size:14px;font-weight:700;cursor:pointer;user-select:none}
+.mode-toggle.on{border-color:#7f1d1d;background:#fef2f2;color:#7f1d1d}
+.mode-toggle input{accent-color:#7f1d1d;width:18px;height:18px;cursor:pointer}
+.mode-note{font-size:12px;color:var(--muted);margin:-6px 0 10px;line-height:1.4}
 a.home{color:var(--purple);font-weight:700;font-size:13px;margin-left:8px}
 </style>
 </head>
@@ -61,7 +65,7 @@ a.home{color:var(--purple);font-weight:700;font-size:13px;margin-left:8px}
  <header class="top">
   <div class="logo">PopFrame 🎭</div>
   <div class="search-wrap">
-   <input id="search" placeholder="Search a character… cat, robot, dinosaur" autocomplete="off">
+   <input id="search" placeholder="Search anything… dot, dragon, robot" autocomplete="off">
    <button class="btn-go" id="go">GO ✨</button>
   </div>
   <button class="btn record red" id="btn-rec" hidden>🔴 RECORD</button>
@@ -77,6 +81,8 @@ a.home{color:var(--purple);font-weight:700;font-size:13px;margin-left:8px}
    <h2>⚡ Instant puppets</h2>
    <div class="chips" id="instant-chips"></div>
    <h2>✨ AI search (slower)</h2>
+   <label class="mode-toggle" id="adult-toggle"><input type="checkbox" id="adult-mode"> Adult mode 🔞</label>
+   <p class="mode-note" id="mode-note">Kids mode: cute chibi puppets. Adult mode: AI draws your search <b>exactly</b> — horror, realistic, mature, etc.</p>
    <div class="chips" id="chips"></div>
    <h2>🎭 Puppet</h2>
    <button class="btn purple" id="btn-puppet" style="width:100%;padding:14px;font-size:16px">🔄 Remake puppet</button>
@@ -393,7 +399,6 @@ cvs.addEventListener('touchend',()=>{dragPart=null;});
 
 // Instant puppets — no waiting for AI!
 const INSTANT_TYPES=['robot','cat','dinosaur','alien','superhero'];
-const AI_CHIPS=['dot','unicorn','pizza cat','dragon','penguin','ghost'];
 
 const PALETTES={
  robot:{head:'#cbd5e1',body:'#6366f1',limb:'#818cf8',detail:'#fbbf24',face:'#1e1b4b'},
@@ -544,10 +549,6 @@ function scaleCanvas(src,bw){
  return c;
 }
 
-function aiPrompt(q){
- return q+', cute chibi cartoon character, full body front view, head top feet bottom, arms at sides, legs visible, centered in frame, simple clean design, soft pastel background, puppet rig pose, kid friendly, no text, no extra limbs';
-}
-
 function makePuppetFromImage(img,name){
  const square=toSquareCanvas(img);
  const bw=Math.min(W*.45,H*.55);
@@ -589,15 +590,65 @@ function loadImg(url,ms){
 }
 
 let aiBusy=false;
+let adultMode=false;
+try{adultMode=localStorage.getItem('popframe_adult')==='1';}catch(_){}
+
+function isAdultMode(){return adultMode;}
+
+function aiPrompt(q){
+ const base=q.trim();
+ if(isAdultMode()){
+  return base+', exactly as described, full body front view, arms at sides, legs visible, centered in frame, puppet rig pose, detailed accurate depiction, plain background, single character, no text, no extra limbs';
+ }
+ return base+', cute chibi cartoon character, full body front view, arms at sides, legs visible, centered in frame, soft pastel background, puppet rig pose, kid friendly, no text, no extra limbs';
+}
+
+function updateModeUI(){
+ const on=isAdultMode();
+ $('adult-mode').checked=on;
+ $('adult-toggle').classList.toggle('on',on);
+ $('mode-note').innerHTML=on
+  ? 'Adult mode: AI draws your search <b>literally</b> — mature, scary, realistic, anything you type.'
+  : 'Kids mode: cute chibi puppets. Turn on Adult mode for exact/literal searches.';
+ $('search').placeholder=on?'Search anything — AI draws it literally…':'Search anything… dot, dragon, robot';
+ refreshAiChips();
+}
+
+const AI_CHIPS_KIDS=['dot','unicorn','pizza cat','dragon','penguin','ghost'];
+const AI_CHIPS_ADULT=['zombie','vampire','skull','werewolf','samurai','demon'];
+
+function refreshAiChips(){
+ const list=isAdultMode()?AI_CHIPS_ADULT:AI_CHIPS_KIDS;
+ $('chips').innerHTML=list.map(c=>'<button type="button" class="chip">'+c+'</button>').join('');
+}
+
+$('adult-mode').checked=adultMode;
+$('adult-toggle').onclick=e=>{
+ if(e.target.tagName==='INPUT')return;
+ $('adult-mode').checked=!$('adult-mode').checked;
+ $('adult-mode').dispatchEvent(new Event('change'));
+};
+$('adult-mode').onchange=()=>{
+ if($('adult-mode').checked&&!adultMode){
+  if(!confirm('Adult mode lets the AI draw your search literally — including scary or mature stuff. OK?')){
+   $('adult-mode').checked=false;
+   return;
+  }
+ }
+ adultMode=$('adult-mode').checked;
+ try{localStorage.setItem('popframe_adult',adultMode?'1':'0');}catch(_){}
+ updateModeUI();
+};
+updateModeUI();
 async function doSearch(q){
  q=(q||'').trim();
  if(!q){toast('Type something! like unicorn or dragon');return;}
- if(INSTANT_TYPES.includes(q.toLowerCase())){startInstant(q.toLowerCase());return;}
+ if(!isAdultMode()&&INSTANT_TYPES.includes(q.toLowerCase())){startInstant(q.toLowerCase());return;}
  if(aiBusy){toast('Still drawing last one — wait a sec!');return;}
  aiBusy=true;
  $('go').disabled=true;$('go').textContent='…';
  $('status-bar').textContent='✨ Drawing '+q+'… you can keep playing!';
- toast('Drawing your '+q+'… ✨');
+  toast((isAdultMode()?'Adult':'Kids')+' mode: drawing '+q+'… ✨');
  try{
   const img=await loadImg(aiUrl(q,Math.floor(Math.random()*99999)));
   makePuppetFromImage(img,q);
@@ -627,7 +678,7 @@ $('file-in').onchange=e=>{
 
 $('instant-chips').innerHTML=INSTANT_TYPES.map(c=>'<button type="button" class="chip instant">'+c+'</button>').join('');
 $('instant-chips').onclick=e=>{const c=e.target.closest('.chip');if(c)startInstant(c.textContent.trim());};
-$('chips').innerHTML=AI_CHIPS.map(c=>'<button type="button" class="chip">'+c+'</button>').join('');
+refreshAiChips();
 $('chips').onclick=e=>{const c=e.target.closest('.chip');if(c){$('search').value=c.textContent;doSearch(c.textContent);}};
 
 // Record
