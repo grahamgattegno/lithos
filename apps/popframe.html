@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PopFrame — Puppet Videos!</title>
-<!-- popframe-v:51 -->
+<!-- popframe-v:52 -->
 <style>
 :root{--purple:#8b3dff;--purple2:#6b2fd4;--red:#ef4444;--bg:#f0f2f8;--white:#fff;--text:#1a1a2e;--muted:#666;--line:#ddd}
 *{box-sizing:border-box}
@@ -296,7 +296,7 @@ function drawPuppetFrame(c,t,showHandles){
  c.beginPath();c.ellipse(puppet.cx,puppet.cy+puppet.bh*.52,puppet.bw*.35,18,0,0,Math.PI*2);c.fill();
 
  const bw=puppet.bw,bh=puppet.bh;
- if(puppet.characterCanvas&&isAtRestPose()){
+ if(useFullCharacter()){
   c.drawImage(puppet.characterCanvas,puppet.cx-bw/2,puppet.cy-bh/2,bw,bh);
  }else{
   const sorted=[...puppet.parts].sort((a,b)=>a.order-b.order);
@@ -305,22 +305,18 @@ function drawPuppetFrame(c,t,showHandles){
   sorted.filter(p=>!p.id.startsWith('leg')).forEach(p=>drawPartSprite(c,p));
  }
 
- if(showHandles&&(selPart||!isAtRestPose())){
-  puppet.parts.forEach(p=>{
+ const active=dragPart?dragPart.id:selPart;
+ if(showHandles&&active&&!useFullCharacter()){
+  const p=puppet.parts.find(z=>z.id===active);
+  if(p){
    const{ax,ay,ex,ey}=partWorld(p);
    c.strokeStyle='rgba(255,255,255,.55)';c.lineWidth=3;c.lineCap='round';
    c.beginPath();c.moveTo(ax,ay);c.lineTo(ex,ey);c.stroke();
-   c.fillStyle=p.color;c.strokeStyle=selPart===p.id?'#fff':'rgba(0,0,0,.25)';c.lineWidth=selPart===p.id?4:2;
+   c.fillStyle=p.color;c.strokeStyle='#fff';c.lineWidth=3;
    c.beginPath();c.arc(ex,ey,p.size,0,Math.PI*2);c.fill();c.stroke();
    c.font='18px serif';c.textAlign='center';c.textBaseline='middle';
    c.fillText(p.emoji,ex,ey);
-   if(selPart===p.id){
-    c.strokeStyle='#fff';c.lineWidth=2;c.setLineDash([4,4]);
-    c.beginPath();c.arc(ex,ey,p.size+8,0,Math.PI*2);c.stroke();c.setLineDash([]);
-   }
-   c.beginPath();c.arc(ax,ay,7,0,Math.PI*2);
-   c.fillStyle='rgba(255,255,255,.85)';c.fill();c.strokeStyle=p.color;c.lineWidth=2;c.stroke();
-  });
+  }
  }
 
  if(recording){
@@ -364,7 +360,7 @@ cvs.addEventListener('mousedown',e=>{
  const hit=hitPart(x,y);
  if(hit&&hit!=='body'){
   selPart=hit;makePuppetUI();
-  dragPart={id:hit};
+  dragPart={id:hit,startX:x,startY:y,moved:false};
   const p=puppet.parts.find(z=>z.id===hit);
   const{ax,ay}=partWorld(p);
   dragPart.ax=ax;dragPart.ay=ay;
@@ -373,11 +369,12 @@ cvs.addEventListener('mousedown',e=>{
 cvs.addEventListener('mousemove',e=>{
  if(!dragPart||!puppet)return;
  const{x,y}=canvasXY(e.clientX,e.clientY);
+ if(!dragPart.moved&&Math.hypot(x-dragPart.startX,y-dragPart.startY)<4)return;
+ dragPart.moved=true;
  const p=puppet.parts.find(z=>z.id===dragPart.id);
  if(p){
   p.angle=Math.atan2(y-dragPart.ay,x-dragPart.ax);
-  if(recording)saveKeyframe(time);
-  else saveKeyframe(time);
+  saveKeyframe(time);
   draw();
  }
 });
