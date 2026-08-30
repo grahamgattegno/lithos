@@ -74,6 +74,25 @@ button,input,select,textarea{font-family:inherit;font-size:13px}
 .uploads-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
 .upload-thumb{aspect-ratio:1;border-radius:8px;overflow:hidden;border:1px solid var(--line);cursor:pointer;position:relative}
 .upload-thumb img,.upload-thumb video{width:100%;height:100%;object-fit:cover}
+.ai-hero{background:linear-gradient(135deg,#8b3dff,#6366f1);color:#fff;border-radius:12px;padding:14px;margin-bottom:12px;font-size:12px;line-height:1.45}
+.ai-hero b{display:block;font-size:14px;margin-bottom:4px}
+.ai-row{display:flex;gap:8px;margin-bottom:10px}
+.ai-row input{flex:1;border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:#fff}
+.ai-gen{background:var(--canva);color:#fff;border:none;border-radius:8px;padding:10px 16px;font-weight:700;cursor:pointer;white-space:nowrap}
+.ai-gen:hover{background:var(--canva-dark)}
+.ai-gen:disabled{opacity:.55;cursor:wait}
+.ai-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.ai-chip{border:1px solid var(--line);background:#fafafa;border-radius:20px;padding:5px 10px;font-size:11px;cursor:pointer}
+.ai-chip:hover{border-color:var(--canva);background:var(--canva-light);color:var(--canva)}
+.ai-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ai-card{aspect-ratio:1;border-radius:10px;overflow:hidden;border:1px solid var(--line);cursor:pointer;position:relative;background:#eee}
+.ai-card img{width:100%;height:100%;object-fit:cover;display:block}
+.ai-card .skel{position:absolute;inset:0;background:linear-gradient(90deg,#eee,#f5f5f5,#eee);background-size:200% 100%;animation:shim 1.2s infinite}
+@keyframes shim{0%{background-position:100% 0}100%{background-position:-100% 0}}
+.ai-card .lbl{position:absolute;bottom:0;left:0;right:0;padding:6px 8px;background:linear-gradient(transparent,rgba(0,0,0,.65));color:#fff;font-size:10px}
+.ai-style{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px}
+.ai-style button{border:1px solid var(--line);background:#fafafa;border-radius:8px;padding:8px;font-size:11px;cursor:pointer}
+.ai-style button.on{border-color:var(--canva);background:var(--canva-light);font-weight:700;color:var(--canva)}
 .bg-swatches{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:12px}
 .bg-swatch{aspect-ratio:1;border-radius:6px;border:2px solid transparent;cursor:pointer}
 .bg-swatch.on{border-color:var(--canva);box-shadow:0 0 0 2px var(--canva-light)}
@@ -189,6 +208,7 @@ button,input,select,textarea{font-family:inherit;font-size:13px}
    <button class="rail-btn on" data-tab="design"><span class="ico">✨</span>Design</button>
    <button class="rail-btn" data-tab="elements"><span class="ico">◇</span>Elements</button>
    <button class="rail-btn" data-tab="text"><span class="ico">T</span>Text</button>
+   <button class="rail-btn" data-tab="ai"><span class="ico">🤖</span>AI Images</button>
    <button class="rail-btn" data-tab="uploads"><span class="ico">☁</span>Uploads</button>
    <button class="rail-btn" data-tab="background"><span class="ico">🎨</span>Background</button>
    <button class="rail-btn" data-tab="animate"><span class="ico">▶</span>Animate</button>
@@ -204,7 +224,10 @@ button,input,select,textarea{font-family:inherit;font-size:13px}
      <div class="tpl-grid" id="templates"></div>
     </div>
     <div class="panel-tab" id="tab-elements">
+     <input class="search" placeholder="Search elements — AI generates pics!" id="elem-search">
+     <p style="font-size:11px;color:var(--muted);margin:-4px 0 10px">Type anything & press Enter → AI makes images ✨</p>
      <div class="elem-grid" id="elements"></div>
+     <div class="ai-grid" id="elem-ai-results" style="margin-top:10px"></div>
     </div>
     <div class="panel-tab" id="tab-text">
      <div class="text-preset h1" data-t="heading">Add a heading</div>
@@ -213,6 +236,24 @@ button,input,select,textarea{font-family:inherit;font-size:13px}
      <div class="field" style="margin-top:16px"><label>Font</label>
       <select id="font-pick"><option value="Canva Sans, sans-serif">Canva Sans</option><option value="Bebas Neue, sans-serif">Bebas Neue</option><option value="Pacifico, cursive">Pacifico</option><option value="Playfair Display, serif">Playfair Display</option><option value="Georgia, serif">Georgia</option><option value="monospace">Monospace</option></select>
      </div>
+    </div>
+    <div class="panel-tab" id="tab-ai">
+     <div class="ai-hero"><b>✨ Free AI Image Generator</b>No account · no limits · type what you want and we paint it!</div>
+     <div class="ai-style" id="ai-styles">
+      <button type="button" class="on" data-style="photo">📷 Photo</button>
+      <button type="button" data-style="illustration">🎨 Illustration</button>
+      <button type="button" data-style="3d">🧊 3D render</button>
+      <button type="button" data-style="anime">✨ Anime</button>
+     </div>
+     <div class="ai-row">
+      <input id="ai-prompt" placeholder="e.g. glowing ruby gemstone on black velvet">
+      <button class="ai-gen" id="ai-generate">Generate</button>
+     </div>
+     <div class="ai-chips" id="ai-chips"></div>
+     <div class="field"><label>How many images?</label>
+      <select id="ai-count"><option value="4" selected>4 images</option><option value="6">6 images</option><option value="8">8 images</option></select>
+     </div>
+     <div class="ai-grid" id="ai-results"></div>
     </div>
     <div class="panel-tab" id="tab-uploads">
      <div class="upload-zone" id="upload-zone">📁 Click or drop images & videos</div>
@@ -298,9 +339,10 @@ const GRADS={sunset:['#ff6b6b','#feca57'],ocean:['#667eea','#764ba2'],purple:['#
 let P={
   name:'Untitled design',w:1280,h:720,zoom:1,fps:30,
   pages:[{id:uid(),duration:10,bg:{type:'solid',color:'#ffffff',grad:null},layers:[]}],
-  pageIdx:0,time:0,playing:false,sel:null,uploads:[],history:[],histIdx:-1
+  pageIdx:0,time:0,playing:false,sel:null,uploads:[],aiGallery:[],history:[],histIdx:-1
 };
 let drag=null,exportCancel=false;
+let aiStyle='photo',aiBusy=false;
 const cvs=$('cvs'),ctx=cvs.getContext('2d');
 
 function page(){return P.pages[P.pageIdx];}
@@ -838,6 +880,89 @@ function handleFiles(e){
  toast('Uploaded!');
 }
 
+// ===== AI IMAGE GENERATION (free — Pollinations) =====
+const AI_CHIPS=['💎 ruby gemstone','🦴 dinosaur fossil','🏺 ancient pottery','🌌 galaxy nebula','🐉 fantasy dragon','🌸 cherry blossoms','⛏️ archaeology dig','🔥 phoenix bird','🌊 ocean sunset','👑 golden crown','🦖 T-Rex skull','✨ magic crystals'];
+const STYLE_SUFFIX={
+ photo:', photorealistic, high detail, studio lighting, 8k',
+ illustration:', digital illustration, vibrant colors, clean lines',
+ '3d':', 3d render, octane render, soft lighting, trending on artstation',
+ anime:', anime style, cel shaded, vibrant, detailed'
+};
+
+function buildAiPrompt(raw){
+ const q=raw.trim();
+ if(!q)return'';
+ const suf=STYLE_SUFFIX[aiStyle]||STYLE_SUFFIX.photo;
+ return q.replace(/^[\p{Emoji_Presentation}\p{Extended_Pictographic}]+\s*/u,'')+suf;
+}
+
+function aiImageUrl(prompt,w,h,seed){
+ const p=encodeURIComponent(prompt.slice(0,500));
+ return `https://image.pollinations.ai/prompt/${p}?width=${w}&height=${h}&seed=${seed}&nologo=true&enhance=true`;
+}
+
+function loadAiImage(url){
+ return new Promise((resolve,reject)=>{
+  const img=new Image();
+  img.crossOrigin='anonymous';
+  img.onload=()=>resolve(img);
+  img.onerror=()=>reject(new Error('load failed'));
+  img.src=url;
+ });
+}
+
+function registerAiImage(img,prompt,url){
+ const entry={type:'image',url,name:prompt.slice(0,40),img,prompt,ai:true};
+ P.uploads.unshift(entry);
+ P.aiGallery.unshift(entry);
+ renderUploads();
+ return entry;
+}
+
+function addImageToCanvas(entry){
+ const img=entry.img;
+ const ratio=img.width/img.height;
+ let w=P.w*.55,h=w/ratio;
+ if(h>P.h*.7){h=P.h*.7;w=h*ratio;}
+ addLayer(mkLayer('image',{src:entry.url,img,name:entry.name||'AI image',x:(P.w-w)/2,y:(P.h-h)/2,w,h,animIn:'fadeIn',animDur:1}));
+ toast('Added to canvas! 🎬');
+}
+
+async function generateAiImages(prompt,containerId,count){
+ if(aiBusy){toast('AI is still painting… hang on! 🎨');return;}
+ const raw=prompt||$('ai-prompt')?.value||$('elem-search')?.value;
+ if(!raw?.trim()){toast('Type something to search first!');return;}
+ aiBusy=true;
+ const btn=$('ai-generate');if(btn){btn.disabled=true;btn.textContent='Painting…';}
+ const fullPrompt=buildAiPrompt(raw);
+ const box=$(containerId)||$('ai-results');
+ const n=count||+($('ai-count')?.value||4);
+ box.innerHTML=Array.from({length:n},(_,i)=>`<div class="ai-card" data-i="${i}"><div class="skel"></div><div class="lbl">Generating ${i+1}…</div></div>`).join('');
+ toast(`AI is making ${n} images for "${raw.trim().slice(0,40)}"… ✨`);
+ const size=Math.min(1024,Math.max(P.w,P.h));
+ let done=0;
+ for(let i=0;i<n;i++){
+  const seed=Math.floor(Math.random()*999999)+i*7919;
+  const url=aiImageUrl(fullPrompt,size,size,seed);
+  try{
+   const img=await loadAiImage(url);
+   const entry=registerAiImage(img,raw.trim(),url);
+   const card=box.querySelector(`.ai-card[data-i="${i}"]`);
+   if(card){
+    card.innerHTML=`<img src="${url}" alt=""><div class="lbl">${raw.trim().slice(0,28)}</div>`;
+    card.onclick=()=>addImageToCanvas(entry);
+   }
+   done++;
+  }catch(_){
+   const card=box.querySelector(`.ai-card[data-i="${i}"]`);
+   if(card){card.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#999;font-size:11px;padding:8px;text-align:center">Retry — tap to try again</div>`;card.onclick=()=>generateAiImages(raw,containerId,1);}
+  }
+ }
+ aiBusy=false;
+ if(btn){btn.disabled=false;btn.textContent='Generate';}
+ toast(done?`Done! ${done} AI image${done>1?'s':''} ready — click to add 🖼️`:'Some images failed — try again!');
+}
+
 function renderUploads(){
  $('uploads-grid').innerHTML=P.uploads.map((u,i)=>`<div class="upload-thumb" data-i="${i}">${u.type==='video'?`<video src="${u.url}" muted></video>`:`<img src="${u.url}">`}</div>`).join('');
  $('uploads-grid').onclick=e=>{const t=e.target.closest('.upload-thumb');if(!t)return;const u=P.uploads[+t.dataset.i];
@@ -845,6 +970,15 @@ function renderUploads(){
   else addLayer(mkLayer('video',{src:u.url,video:u.video,x:0,y:0,w:P.w,h:P.h,animIn:'fadeIn'}));
  };
 }
+
+$('ai-chips').innerHTML=AI_CHIPS.map(c=>`<button type="button" class="ai-chip">${c}</button>`).join('');
+$('ai-chips').onclick=e=>{const c=e.target.closest('.ai-chip');if(!c)return;$('ai-prompt').value=c.textContent.replace(/^[\p{Emoji_Presentation}\p{Extended_Pictographic}]+\s*/u,'');generateAiImages(c.textContent,'ai-results');};
+document.querySelectorAll('#ai-styles button').forEach(b=>{
+ b.onclick=()=>{document.querySelectorAll('#ai-styles button').forEach(x=>x.classList.remove('on'));b.classList.add('on');aiStyle=b.dataset.style;};
+});
+$('ai-generate').onclick=()=>generateAiImages(null,'ai-results');
+$('ai-prompt').onkeydown=e=>{if(e.key==='Enter')generateAiImages(null,'ai-results');};
+$('elem-search').onkeydown=e=>{if(e.key==='Enter')generateAiImages(e.target.value,'elem-ai-results',4);};
 
 $('ratio').onchange=e=>setSize(e.target.value);
 $('dur').onchange=()=>{page().duration=+$('dur').value;snap();refreshAll();};
@@ -872,7 +1006,7 @@ setSize('16:9');
 loadTemplate(TEMPLATES[0]);
 snap();
 refreshAll();
-toast('Welcome to PopFrame — free like Canva! 🎬');
+toast('Welcome to PopFrame — free like Canva! Try AI Images 🤖✨');
 </script>
 </body>
 </html>
