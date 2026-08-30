@@ -41,13 +41,20 @@
   {id:12,clue:'Life-size soldiers guarding China\'s first emperor.',artifact:'Terracotta Warrior',hint:'Qin dynasty · Xi\'an'}
  ];
 
+ function stratumImgSrc(img){
+  if(!img)return'';
+  const v=window.STRATUM_IMG_V||'deploy-50';
+  return img+(img.includes('?')?'&':'?')+'v='+encodeURIComponent(v);
+ }
+
  function stratumPhotoHTML(g){
   const emojiFallback=g.emoji||'🏺';
   if(g.img){
+   const src=stratumImgSrc(g.img);
    return `<div class="photo"><img alt="${g.name}" loading="lazy"
  onload="this.classList.add('loaded')"
  onerror="if(!this.dataset.fb){this.dataset.fb=1;this.parentNode.outerHTML='<div class=\\'photo stratum-emoji-photo\\' style=\\'background:linear-gradient(145deg,${g.stone},${g.colorHex&&g.colorHex[1]||g.stone});display:flex;align-items:center;justify-content:center;font-size:clamp(48px,12vw,72px)\\'>${emojiFallback}</div>'}"
- src="${g.img}"></div>`;
+ src="${src}"></div>`;
   }
   if(g.emoji){
    const c2=g.colorHex&&g.colorHex[1]?g.colorHex[1]:g.stone;
@@ -103,7 +110,7 @@
     drawer.style.setProperty('--stone',g.stone);
     const emojiFallback=g.emoji||'🏺';
     const photoBlock=g.img
-     ?`<div class="d-photo"><img alt="${g.name}" onload="this.classList.add('loaded')" onerror="if(!this.dataset.fb){this.dataset.fb=1;this.parentNode.outerHTML='<div class=\\'d-photo stratum-emoji-photo\\' style=\\'background:linear-gradient(145deg,${g.stone},${g.colorHex&&g.colorHex[1]||g.stone});display:flex;align-items:center;justify-content:center;font-size:120px\\'>${emojiFallback}</div>'}" src="${g.img}"></div>`
+     ?`<div class="d-photo"><img alt="${g.name}" onload="this.classList.add('loaded')" onerror="if(!this.dataset.fb){this.dataset.fb=1;this.parentNode.outerHTML='<div class=\\'d-photo stratum-emoji-photo\\' style=\\'background:linear-gradient(145deg,${g.stone},${g.colorHex&&g.colorHex[1]||g.stone});display:flex;align-items:center;justify-content:center;font-size:120px\\'>${emojiFallback}</div>'}" src="${stratumImgSrc(g.img)}"></div>`
      :`<div class="d-photo stratum-emoji-photo" style="background:linear-gradient(145deg,${g.stone},${g.colorHex&&g.colorHex[1]||g.stone});display:flex;align-items:center;justify-content:center;font-size:120px">${emojiFallback}</div>`;
     drawer.innerHTML=`
  <button type="button" class="close" onclick="closeDrawer()" aria-label="Close"></button>
@@ -179,7 +186,7 @@
    <button type="button" class="btn" id="gem-week-open">Open find →</button>
   </div>
   <div class="gem-week-visual">
-   ${g.img?`<div class="gem-week-photo"><img src="${g.img}" alt="${g.name}" loading="lazy" onerror="this.parentNode.outerHTML='<div class=\\'gem-week-photo stratum-emoji-photo\\' style=\\'display:flex;align-items:center;justify-content:center;font-size:80px;background:${g.stone}\\'>${g.emoji||'🏺'}</div>'"></div>`:`<div class="gem-week-photo stratum-emoji-photo" style="background:linear-gradient(145deg,${g.stone},${g.colorHex&&g.colorHex[1]||g.stone});display:flex;align-items:center;justify-content:center;font-size:80px">${g.emoji||'🏺'}</div>`}
+   ${g.img?`<div class="gem-week-photo"><img src="${stratumImgSrc(g.img)}" alt="${g.name}" loading="lazy" onerror="this.parentNode.outerHTML='<div class=\\'gem-week-photo stratum-emoji-photo\\' style=\\'display:flex;align-items:center;justify-content:center;font-size:80px;background:${g.stone}\\'>${g.emoji||'🏺'}</div>'"></div>`:`<div class="gem-week-photo stratum-emoji-photo" style="background:linear-gradient(145deg,${g.stone},${g.colorHex&&g.colorHex[1]||g.stone});display:flex;align-items:center;justify-content:center;font-size:80px">${g.emoji||'🏺'}</div>`}
   </div>
  </article>`;
     document.getElementById('gem-week-open').onclick=()=>{switchView('catalog');openDrawer(w.idx);};
