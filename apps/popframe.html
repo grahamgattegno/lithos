@@ -87,7 +87,7 @@ a.home{color:var(--purple);font-weight:700;font-size:13px;margin-left:8px}
   </aside>
 
   <section class="center">
-   <div class="bar" id="status-bar">👆 All parts connect at the joints — drag to move!</div>
+   <div class="bar" id="status-bar">👆 Cute puppet — drag parts to pose &amp; record!</div>
    <div class="canvas-wrap">
     <div class="stage"><canvas id="cvs" width="1280" height="720"></canvas></div>
    </div>
@@ -112,18 +112,18 @@ const cvs=$('cvs'),ctx=cvs.getContext('2d');
 
 // Shared body rig — all parts connect at these joints (0–1 on source image)
 const J={
- neck:[0.5,0.355],
- shoulderL:[0.335,0.365],
- shoulderR:[0.665,0.365],
- hipL:[0.405,0.598],
- hipR:[0.595,0.598],
- handL:[0.141,0.818],
- handR:[0.859,0.818],
- footL:[0.322,0.938],
- footR:[0.678,0.938],
- headTop:[0.5,0.08]
+ neck:[0.5,0.348],
+ shoulderL:[0.30,0.395],
+ shoulderR:[0.70,0.395],
+ hipL:[0.41,0.575],
+ hipR:[0.59,0.575],
+ handL:[0.10,0.78],
+ handR:[0.90,0.78],
+ footL:[0.36,0.915],
+ footR:[0.64,0.915],
+ headTop:[0.5,0.06]
 };
-const TORSO_CROP=[0.16,0.32,0.68,0.36];
+const TORSO_CROP=[0.22,0.34,0.56,0.28];
 
 function mkPart(id,label,emoji,color,joint,end,crop,order){
  const rest=Math.atan2(end[1]-joint[1],end[0]-joint[0]);
@@ -136,11 +136,11 @@ function mkPart(id,label,emoji,color,joint,end,crop,order){
 }
 
 const PART_DEFS=[
- mkPart('head','Head','😊','#fbbf24',J.neck,J.headTop,[0.16,0.02,0.68,0.38],5),
- mkPart('armL','Left arm','💪','#60a5fa',J.shoulderL,J.handL,[0.02,0.28,0.30,0.58],2),
- mkPart('armR','Right arm','💪','#60a5fa',J.shoulderR,J.handR,[0.68,0.28,0.30,0.58],3),
- mkPart('legL','Left leg','🦵','#4ade80',J.hipL,J.footL,[0.12,0.46,0.34,0.52],0),
- mkPart('legR','Right leg','🦵','#4ade80',J.hipR,J.footR,[0.54,0.46,0.34,0.52],1)
+ mkPart('head','Head','😊','#fbbf24',J.neck,J.headTop,[0.12,0.02,0.76,0.36],5),
+ mkPart('armL','Left arm','💪','#60a5fa',J.shoulderL,J.handL,[0.02,0.30,0.28,0.52],2),
+ mkPart('armR','Right arm','💪','#60a5fa',J.shoulderR,J.handR,[0.70,0.30,0.28,0.52],3),
+ mkPart('legL','Left leg','🦵','#4ade80',J.hipL,J.footL,[0.14,0.50,0.30,0.44],0),
+ mkPart('legR','Right leg','🦵','#4ade80',J.hipR,J.footR,[0.56,0.50,0.30,0.44],1)
 ];
 
 let dur=10,time=0,playing=false,recording=false;
@@ -253,35 +253,6 @@ function drawTorso(c){
  c.drawImage(t.canvas,x,y,t.w,t.h);
 }
 
-function drawBodyBridges(c){
- const pal=puppet.meta.pal;
- if(!pal)return;
- const bw=puppet.bw,bh=puppet.bh;
- const pt=n=>{const x=puppet.cx+(n[0]-0.5)*bw,y=puppet.cy+(n[1]-0.5)*bh;return{x,y};};
-
- // Neck — torso to head
- const neck=pt(J.neck);
- const torsoTop=puppet.cy+(TORSO_CROP[1]-0.5)*bh;
- c.fillStyle=pal.body;
- c.beginPath();
- c.moveTo(neck.x-30,torsoTop);
- c.lineTo(neck.x+30,torsoTop);
- c.lineTo(neck.x+20,neck.y);
- c.lineTo(neck.x-20,neck.y);
- c.closePath();c.fill();
- c.fillStyle=pal.head;
- c.beginPath();c.arc(neck.x,neck.y-8,22,0,Math.PI*2);c.fill();
-
- // Hips — connects torso bottom to legs
- [J.hipL,J.hipR].forEach(h=>{
-  const p=pt(h);
-  c.fillStyle=pal.body;
-  c.beginPath();c.ellipse(p.x,p.y,32,24,0,0,Math.PI*2);c.fill();
-  c.fillStyle=pal.limb;
-  c.beginPath();c.ellipse(p.x,p.y+8,24,20,0,0,Math.PI*2);c.fill();
- });
-}
-
 function drawPartSprite(c,part){
  const spr=puppet.sprites.parts[part.id];
  if(!spr)return;
@@ -309,9 +280,8 @@ function drawPuppetFrame(c,t,showHandles){
  c.beginPath();c.ellipse(puppet.cx,puppet.cy+puppet.bh*.52,puppet.bw*.35,18,0,0,Math.PI*2);c.fill();
 
  const sorted=[...puppet.parts].sort((a,b)=>a.order-b.order);
- drawTorso(c);
- drawBodyBridges(c);
  sorted.filter(p=>p.id.startsWith('leg')).forEach(p=>drawPartSprite(c,p));
+ drawTorso(c);
  sorted.filter(p=>!p.id.startsWith('leg')).forEach(p=>drawPartSprite(c,p));
 
  if(showHandles){
@@ -419,75 +389,95 @@ function drawInstant(type){
  const S=512,c=document.createElement('canvas');
  c.width=S;c.height=S;
  const g=c.getContext('2d');
- g.fillStyle='#ddd6fe';g.fillRect(0,0,S,S);
  const pal=PALETTES[type]||PALETTES.robot;
- const j=n=>[n[0]*S,n[1]*S];
+ const outline=pal.face||'#1a1a2e';
 
- function limb(x,y,w,h,r){g.beginPath();g.roundRect(x,y,w,h,r);g.fill();}
- function circle(x,y,r){g.beginPath();g.arc(x,y,r,0,Math.PI*2);g.fill();}
- function fullArm(side){
-  const left=side==='L';
-  const ha=j(left?J.handL:J.handR);
-  g.fillStyle=pal.limb;
-  if(left){
-   limb(10,179,154,ha[1]-179+28,22);
-  }else{
-   limb(348,179,154,ha[1]-179+28,22);
-  }
-  if(type==='robot'){
-   g.fillStyle=pal.detail;
-   limb(left?20:396,268,92,12,4);
-  }
-  g.fillStyle=pal.limb;circle(ha[0],ha[1],34);
-  g.fillStyle=pal.detail;circle(ha[0],ha[1],16);
+ // Soft studio backdrop
+ const bg=g.createRadialGradient(256,280,40,256,280,360);
+ bg.addColorStop(0,'#faf5ff');bg.addColorStop(1,'#c4b5fd');
+ g.fillStyle=bg;g.fillRect(0,0,S,S);
+
+ g.lineJoin='round';g.lineCap='round';
+
+ function stroke(){g.strokeStyle=outline;g.lineWidth=5;g.stroke();}
+ function capsule(x1,y1,x2,y2,w){
+  const dx=x2-x1,dy=y2-y1,len=Math.hypot(dx,dy)||1;
+  const nx=-dy/len*w/2,ny=dx/len*w/2;
+  g.beginPath();
+  g.moveTo(x1+nx,y1+ny);g.lineTo(x2+nx,y2+ny);
+  g.lineTo(x2-nx,y2-ny);g.lineTo(x1-nx,y1-ny);
+  g.closePath();g.fill();stroke();
+  g.beginPath();g.arc(x1,y1,w/2,0,Math.PI*2);g.fill();stroke();
+  g.beginPath();g.arc(x2,y2,w/2,0,Math.PI*2);g.fill();stroke();
  }
- function fullLeg(side){
-  const left=side==='L';
-  const hp=j(left?J.hipL:J.hipR);
-  const ft=j(left?J.footL:J.footR);
-  g.fillStyle=pal.limb;
-  if(left)limb(108,hp[1]-36,98,ft[1]-hp[1]+52,24);
-  else limb(306,hp[1]-36,98,ft[1]-hp[1]+52,24);
-  g.fillStyle=pal.detail;
-  if(left)limb(116,472,78,24,8);
-  else limb(314,472,78,24,8);
-  g.fillStyle=pal.limb;
+ function circle(x,y,r,fill){
+  g.fillStyle=fill;g.beginPath();g.arc(x,y,r,0,Math.PI*2);g.fill();stroke();
  }
 
- // Torso + pelvis (legs plug into hips below)
- g.fillStyle=pal.body;limb(98,168,316,168,34);
- g.fillStyle=pal.detail;circle(256,248,22);
- g.beginPath();g.ellipse(207,302,36,28,0,0,Math.PI*2);g.fill();
- g.beginPath();g.ellipse(305,302,36,28,0,0,Math.PI*2);g.fill();
- fullLeg('L');fullLeg('R');
- fullArm('L');fullArm('R');
- // Head + neck (neck overlaps torso top)
- g.fillStyle=pal.head;circle(256,86,82);
- g.fillStyle=pal.head;limb(224,158,64,32,14);
- g.fillStyle=pal.body;limb(232,166,48,14,6);
+ const shL=[154,202],shR=[358,202],hpL=[210,294],hpR=[302,294];
+ const haL=[52,400],haR=[460,400],ftL=[184,468],ftR=[328,468];
 
- if(type==='cat'){
-  g.fillStyle=pal.limb;g.beginPath();g.moveTo(188,52);g.lineTo(168,4);g.lineTo(218,44);g.fill();
-  g.beginPath();g.moveTo(324,52);g.lineTo(344,4);g.lineTo(294,44);g.fill();
-  g.fillStyle=pal.face;circle(224,96,8);circle(288,96,8);
-  g.strokeStyle=pal.face;g.lineWidth=3;g.beginPath();g.moveTo(248,112);g.quadraticCurveTo(256,122,264,112);g.stroke();
+ // Legs — chibi stubs
+ g.fillStyle=pal.limb;
+ capsule(hpL[0],hpL[1],ftL[0],ftL[1],52);
+ capsule(hpR[0],hpR[1],ftR[0],ftR[1],52);
+ g.fillStyle=pal.detail;
+ g.beginPath();g.ellipse(ftL[0],ftL[1]+8,34,16,0,0,Math.PI*2);g.fill();stroke();
+ g.beginPath();g.ellipse(ftR[0],ftR[1]+8,34,16,0,0,Math.PI*2);g.fill();stroke();
+
+ // Body — cute rounded belly
+ g.fillStyle=pal.body;
+ g.beginPath();g.roundRect(156,178,200,128,48);g.fill();stroke();
+ const shine=g.createLinearGradient(180,190,300,290);
+ shine.addColorStop(0,'rgba(255,255,255,.35)');shine.addColorStop(1,'rgba(0,0,0,.08)');
+ g.fillStyle=shine;g.beginPath();g.roundRect(168,188,88,100,32);g.fill();
+
+ // Arms — smooth capsules
+ g.fillStyle=pal.limb;
+ capsule(shL[0],shL[1],haL[0],haL[1],44);
+ capsule(shR[0],shR[1],haR[0],haR[1],44);
+ g.fillStyle=pal.detail;
+ circle(haL[0],haL[1],20,pal.detail);circle(haR[0],haR[1],20,pal.detail);
+
+ // Head — big chibi noggin
+ g.fillStyle=pal.head;
+ circle(256,102,94,pal.head);
+ // Chin/neck blend into body
+ g.fillStyle=pal.head;
+ g.beginPath();g.ellipse(256,178,38,22,0,0,Math.PI*2);g.fill();stroke();
+ g.fillStyle=pal.body;
+ g.beginPath();g.ellipse(256,186,28,14,0,0,Math.PI*2);g.fill();
+
+ // Face
+ g.fillStyle='#fff';circle(220,98,18,'#fff');circle(292,98,18,'#fff');
+ g.fillStyle=pal.face;circle(224,100,9,pal.face);circle(296,100,9,pal.face);
+ g.fillStyle='#fff';circle(227,98,3,'#fff');circle(299,98,3,'#fff');
+ g.strokeStyle=pal.face;g.lineWidth=4;g.beginPath();g.arc(256,128,20,0.15,Math.PI-0.15);g.stroke();
+ g.fillStyle='rgba(255,150,150,.45)';circle(208,118,10,'rgba(255,150,150,.45)');circle(304,118,10,'rgba(255,150,150,.45)');
+
+ if(type==='robot'){
+  g.fillStyle=pal.detail;g.fillRect(242,48,28,24);g.strokeRect(242,48,28,24);
+  circle(256,38,8,pal.detail);
+  g.fillStyle=pal.detail;circle(256,230,16,pal.detail);
+  g.fillStyle='#fff';g.font='bold 14px system-ui';g.textAlign='center';g.textBaseline='middle';g.fillText('ON',256,230);
+ }else if(type==='cat'){
+  g.fillStyle=pal.limb;g.beginPath();g.moveTo(192,48);g.lineTo(176,8);g.lineTo(214,42);g.closePath();g.fill();stroke();
+  g.beginPath();g.moveTo(320,48);g.lineTo(336,8);g.lineTo(298,42);g.closePath();g.fill();stroke();
+  g.strokeStyle=pal.face;g.lineWidth=3;g.beginPath();g.moveTo(244,132);g.lineTo(256,140);g.lineTo(268,132);g.stroke();
  }else if(type==='dinosaur'){
-  g.fillStyle=pal.limb;g.beginPath();g.moveTo(340,92);g.lineTo(420,72);g.lineTo(350,114);g.fill();
-  g.fillStyle=pal.face;circle(224,92,10);circle(288,92,10);
-  g.fillStyle='#fff';circle(228,90,4);circle(292,90,4);
+  g.fillStyle=pal.limb;g.beginPath();g.moveTo(330,88);g.quadraticCurveTo(400,72,370,118);g.closePath();g.fill();stroke();
+  g.fillStyle=pal.detail;circle(256,56,12,pal.detail);
  }else if(type==='alien'){
-  g.fillStyle=pal.face;circle(256,92,34);
-  g.fillStyle='#000';circle(236,88,10);circle(276,88,10);
-  g.fillStyle=pal.limb;circle(256,128,6);
+  g.fillStyle=pal.face;circle(256,100,38,pal.face);
+  g.fillStyle='#000';circle(236,96,11,'#000');circle(276,96,11,'#000');
+  g.fillStyle='#fff';circle(239,93,4,'#fff');circle(279,93,4,'#fff');
  }else if(type==='superhero'){
-  g.fillStyle=pal.detail;g.font='bold 48px system-ui';g.textAlign='center';g.textBaseline='middle';g.fillText('S',256,96);
-  g.fillStyle=pal.face;circle(224,96,8);circle(288,96,8);
- }else{
-  g.fillStyle=pal.detail;circle(256,76,18);
-  g.fillStyle=pal.face;circle(224,96,12);circle(288,96,12);
-  g.fillStyle='#fff';circle(228,94,4);circle(292,94,4);
-  g.fillStyle=pal.detail;g.fillRect(216,122,80,10);
+  g.fillStyle=pal.detail;g.beginPath();g.moveTo(256,56);g.lineTo(272,88);g.lineTo(240,88);g.closePath();g.fill();stroke();
+  g.fillStyle=pal.detail;g.font='bold 52px system-ui';g.textAlign='center';g.textBaseline='middle';g.fillText('S',256,108);
+  g.fillStyle=pal.limb;g.beginPath();g.moveTo(162,188);g.lineTo(128,248);g.lineTo(168,236);g.closePath();g.fill();stroke();
+  g.beginPath();g.moveTo(350,188);g.lineTo(384,248);g.lineTo(344,236);g.closePath();g.fill();stroke();
  }
+
  return c;
 }
 
@@ -495,7 +485,7 @@ function startInstant(type){
  const name=type.charAt(0).toUpperCase()+type.slice(1);
  const pal=PALETTES[type]||PALETTES.robot;
  makePuppet(drawInstant(type),name,{pal});
- toast(name+' — head & legs connected! ⚡');
+ toast(name+' puppet ready! 🎭');
 }
 
 // AI (optional — slower)
