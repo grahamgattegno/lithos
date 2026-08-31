@@ -8465,13 +8465,14 @@ async function classAiOpenAIAnswer(q, cfg, system, context, history){
  const body={
  model:cfg.model,
  messages:[
- {role:'system',content:system+' Always write complete sentences in plain spoken English (no formulas or emoji). Finish every thought.'},
+ {role:'system',content:system+' Write like a real human tutor chatting out loud: complete sentences, natural enthusiasm, finish every thought, and ask a friendly follow-up when it fits.'},
  {role:'system',content:'Catalog context:\n'+context},
- ...hist.slice(-6),
+ ...hist.slice(-12),
  {role:'user',content:q}
  ],
- temperature:0.6,
- max_tokens:1024
+ temperature:0.92,
+ max_tokens:2048,
+ top_p:0.95
  };
  const res=await fetch(cfg.base+'/chat/completions',{
  method:'POST',

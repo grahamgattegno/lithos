@@ -4,6 +4,7 @@ Gems without usable Wikimedia Commons photographic JPG
 Larnite
 Almarudite
 Jarosewichite
+Abswurmbachite
 Frankdicksonite
 Ferro-actinolite
 Mereheadite
@@ -55,6 +56,7 @@ Qusongite
 Rameauite
 Slottaite
 Touretite
+Urusovite
 Wassonite
 Ximengite
 Akimotoite
@@ -116,7 +118,6 @@ Homilite
 Huntingdonite
 Margaritasite
 Reederite-(Y)
-Schreibersite
 Skaergaardite
 Stillwaterite
 Sugarwhiteite
