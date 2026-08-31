@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PopFrame Puppet Studio</title>
-<!-- popframe-puppet-v:58 -->
+<!-- popframe-puppet-v:59 -->
 <script src="https://js.puter.com/v2/"></script>
 <style>
 :root{--purple:#8b3dff;--purple2:#6b2fd4;--red:#ef4444;--bg:#f0f2f8;--white:#fff;--text:#1a1a2e;--muted:#666;--line:#ddd}
@@ -36,7 +36,8 @@ button{font-family:inherit;cursor:pointer}
 .step b{color:var(--purple)}
 .part-btn{display:flex;align-items:center;gap:10px;width:100%;padding:12px;margin-bottom:6px;border:2px solid var(--line);border-radius:12px;background:#fafafa;font-size:15px;font-weight:700;text-align:left}
 .part-btn.on{border-color:var(--purple);background:#f3ebff}
-.part-btn span{font-size:22px}
+.part-btn .puppet-del{margin-left:auto;border:none;background:#fee2e2;color:#b91c1c;width:28px;height:28px;border-radius:8px;font-size:14px;line-height:1;flex-shrink:0}
+.part-btn .puppet-del:hover{background:#ef4444;color:#fff}
 .center{flex:1;display:flex;flex-direction:column;background:#b8bcc4;min-width:0}
 .bar{padding:8px 12px;text-align:center;font-size:14px;font-weight:600;background:rgba(255,255,255,.9)}
 .bar.rec{background:#fee2e2;color:var(--red)}
@@ -79,16 +80,17 @@ a.home{color:var(--purple);font-weight:700;font-size:13px;margin-left:8px}
 
  <div class="main">
   <aside class="sidebar">
-   <div class="step"><b>1.</b> Pick ⚡ instant OR search anything ↑<br><b>2.</b> AI draws YOUR idea as a puppet!<br><b>3.</b> Drag parts &amp; 🔴 RECORD<br><b>4.</b> Play &amp; save 🎬</div>
+   <div class="step"><b>1.</b> Add puppets — instant, search, or upload<br><b>2.</b> Click a puppet · drag parts to pose<br><b>3.</b> Drag body to move · 🔴 RECORD<br><b>4.</b> Play &amp; save 🎬</div>
    <h2>⚡ Instant puppets</h2>
    <div class="chips" id="instant-chips"></div>
    <h2>✨ AI search (slower)</h2>
    <label class="mode-toggle" id="adult-toggle"><input type="checkbox" id="adult-mode"> Adult mode 🔞</label>
    <p class="mode-note" id="mode-note">Kids mode: cute chibi puppets. Adult mode: AI draws your search <b>exactly</b> — anything you type, no kid filter.</p>
    <div class="chips" id="chips"></div>
-   <h2>🎭 Puppet</h2>
-   <button class="btn purple" id="btn-puppet" style="width:100%;padding:14px;font-size:16px">🔄 Remake puppet</button>
-   <p class="hint" id="puppet-hint">Instant puppets load in 1 second!</p>
+   <h2>🎭 Puppets on stage</h2>
+   <div id="puppet-list"><p class="hint">Add puppets below — click one to select!</p></div>
+   <p class="hint" id="puppet-count-hint">Drag a puppet body to move it on stage.</p>
+   <button class="btn purple" id="btn-puppet" style="width:100%;padding:14px;font-size:16px;margin-top:8px">🔄 Reset active puppet</button>
    <h2>🦴 Body parts</h2>
    <div id="parts-list"><p class="hint">Make a puppet first!</p></div>
    <button class="btn" id="btn-upload" style="width:100%;margin-top:8px">📷 Upload photo</button>
@@ -154,9 +156,26 @@ const PART_DEFS=[
 
 let dur=10,time=0,playing=false,recording=false;
 let charImg=null,charName='';
-let puppet=null; // {cx,cy,bw,bh,parts:[{id,angle,...}],keyframes:[{t,pose}]}
-let selPart=null,dragPart=null;
+let puppets=[];
+let activePuppetId=null;
+let selPart=null;
+let dragState=null;
 let lastImgEntry=null;
+
+function activePuppet(){return puppets.find(p=>p.id===activePuppetId)||null;}
+function puppetById(id){return puppets.find(p=>p.id===id);}
+
+const PUPPET_SLOTS=[
+ {cx:.5,cy:.56},{cx:.26,cy:.56},{cx:.74,cy:.56},{cx:.18,cy:.62},{cx:.82,cy:.62},{cx:.5,cy:.68}
+];
+function puppetScale(){
+ const n=Math.max(puppets.length,1);
+ return n<=1?1:n===2?0.78:n===3?0.66:0.58;
+}
+function slotForIndex(i){
+ const s=PUPPET_SLOTS[i%PUPPET_SLOTS.length];
+ return{cx:W*s.cx,cy:H*s.cy};
+}
 
 function uid(){return Math.random().toString(36).slice(2,9);}
 
@@ -189,14 +208,16 @@ function buildPuppetSprites(img,bw,bh){
  return{torso,parts};
 }
 
-function makePuppet(img,name,meta){
+function buildPuppetObject(img,name,meta){
  meta=meta||{};
  if(!meta.pal)meta.pal={body:'#6366f1',head:'#cbd5e1',limb:'#818cf8'};
- const bw=Math.min(W*.45,H*.55);
+ const scale=puppetScale();
+ const bw=Math.min(W*.45,H*.55)*scale;
  const bh=bw*(img.height/img.width);
  const sprites=meta.instantSprites||buildPuppetSprites(img,bw,bh);
- puppet={
-  cx:W/2,cy:H/2+20,bw,bh,img,name,sprites,meta,
+ const pos=slotForIndex(puppets.length);
+ return{
+  id:uid(),cx:pos.cx,cy:pos.cy,bw,bh,img,name,sprites,meta,
   characterCanvas:meta.characterCanvas||null,
   parts:PART_DEFS.map(d=>({
    ...d,
@@ -205,22 +226,73 @@ function makePuppet(img,name,meta){
   })),
   keyframes:[{t:0,pose:defaultPose()}]
  };
- selPart='head';
- $('btn-rec').hidden=false;
+}
+
+function refreshPuppetList(){
+ const box=$('puppet-list');
+ if(!puppets.length){
+  box.innerHTML='<p class="hint">Search or pick instant to add puppets!</p>';
+  $('puppet-count-hint').textContent='No puppets yet — add one above!';
+  $('parts-list').innerHTML='<p class="hint">Select a puppet first!</p>';
+  return;
+ }
+ box.innerHTML=puppets.map(p=>`
+  <button type="button" class="part-btn${p.id===activePuppetId?' on':''}" data-id="${p.id}">
+   <span>🎭</span><span style="flex:1;overflow:hidden;text-overflow:ellipsis">${p.name}</span>
+   <button type="button" class="puppet-del" data-del="${p.id}" title="Remove">✕</button>
+  </button>`).join('');
+ $('puppet-count-hint').textContent=puppets.length+' puppet'+(puppets.length>1?'s':'')+' — click to select · drag body to move';
+ box.onclick=e=>{
+  const del=e.target.closest('.puppet-del');
+  if(del){e.stopPropagation();removePuppet(del.dataset.del);return;}
+  const row=e.target.closest('.part-btn[data-id]');
+  if(row){selectPuppet(row.dataset.id);}
+ };
+ refreshPartsList();
+}
+
+function refreshPartsList(){
+ const puppet=activePuppet();
+ if(!puppet){
+  $('parts-list').innerHTML='<p class="hint">Select a puppet first!</p>';
+  return;
+ }
  $('parts-list').innerHTML=puppet.parts.map(p=>
   `<button type="button" class="part-btn${selPart===p.id?' on':''}" data-p="${p.id}"><span>${p.emoji}</span>${p.label}</button>`
  ).join('');
- $('parts-list').onclick=e=>{const b=e.target.closest('.part-btn');if(b){selPart=b.dataset.p;makePuppetUI();draw();}};
- $('puppet-hint').textContent='Drag parts — you will SEE them move! Then RECORD 🔴';
- toast('Puppet ready!! Drag arms & legs — they move! 🎭');
+ $('parts-list').onclick=e=>{const b=e.target.closest('.part-btn');if(b){selPart=b.dataset.p;refreshPartsList();draw();}};
+}
+
+function selectPuppet(id){
+ if(!puppetById(id))return;
+ activePuppetId=id;
+ selPart='head';
+ refreshPuppetList();
  draw();
 }
 
-function makePuppetUI(){
- $('parts-list').querySelectorAll('.part-btn').forEach(b=>b.classList.toggle('on',b.dataset.p===selPart));
+function removePuppet(id){
+ const i=puppets.findIndex(p=>p.id===id);
+ if(i<0)return;
+ puppets.splice(i,1);
+ if(activePuppetId===id)activePuppetId=puppets[Math.min(i,puppets.length-1)]?.id||null;
+ refreshPuppetList();
+ draw();
+ toast('Puppet removed');
 }
 
-function getPoseAt(t){
+function makePuppet(img,name,meta){
+ const puppet=buildPuppetObject(img,name,meta);
+ puppets.push(puppet);
+ activePuppetId=puppet.id;
+ selPart='head';
+ $('btn-rec').hidden=false;
+ refreshPuppetList();
+ toast('Added '+name+'! 🎭 ('+puppets.length+' on stage)');
+ draw();
+}
+
+function getPoseAt(t,puppet){
  if(!puppet||!puppet.keyframes.length)return defaultPose();
  const kf=[...puppet.keyframes].sort((a,b)=>a.t-b.t);
  if(t<=kf[0].t)return clonePose(kf[0].pose);
@@ -237,7 +309,7 @@ function getPoseAt(t){
  return defaultPose();
 }
 
-function saveKeyframe(t){
+function saveKeyframe(t,puppet){
  if(!puppet)return;
  const pose={};
  puppet.parts.forEach(p=>{pose[p.id]=p.angle;});
@@ -247,7 +319,7 @@ function saveKeyframe(t){
  else{kf.push({t,pose});kf.sort((a,b)=>a.t-b.t);}
 }
 
-function partWorld(part){
+function partWorld(part,puppet){
  const bw=puppet.bw,bh=puppet.bh;
  const ax=puppet.cx+(part.joint[0]-0.5)*bw;
  const ay=puppet.cy+(part.joint[1]-0.5)*bh;
@@ -256,7 +328,7 @@ function partWorld(part){
  return{ax,ay,ex,ey};
 }
 
-function drawTorso(c){
+function drawTorso(c,puppet){
  const t=puppet.sprites.torso,bw=puppet.bw;
  if(puppet.meta.instantSprites){
   c.drawImage(t.canvas,puppet.cx-t.w/2,puppet.cy-t.h/2,t.w,t.h);
@@ -268,19 +340,19 @@ function drawTorso(c){
  c.drawImage(t.canvas,x,y,t.w,t.h);
 }
 
-function isAtRestPose(){
+function isAtRestPose(puppet){
  if(!puppet||recording||playing)return false;
  return puppet.parts.every(p=>Math.abs(p.angle-p.restAngle)<0.05);
 }
 
-function useFullCharacter(){
- return puppet.characterCanvas&&isAtRestPose()&&!dragPart;
+function useFullCharacter(puppet){
+ return puppet.characterCanvas&&isAtRestPose(puppet)&&!(dragState&&dragState.puppetId===puppet.id);
 }
 
-function drawPartSprite(c,part){
+function drawPartSprite(c,part,puppet){
  const spr=puppet.sprites.parts[part.id];
  if(!spr)return;
- const{ax,ay}=partWorld(part);
+ const{ax,ay}=partWorld(part,puppet);
  c.save();
  c.translate(ax,ay);
  c.rotate(part.angle-(part.restAngle??part.rest??0));
@@ -288,36 +360,34 @@ function drawPartSprite(c,part){
  c.restore();
 }
 
-function drawPuppetFrame(c,t,showHandles){
- const g=c.createLinearGradient(0,0,W,H);
- g.addColorStop(0,'#312e81');g.addColorStop(1,'#0f0a1a');
- c.fillStyle=g;c.fillRect(0,0,W,H);
-
- if(!puppet)return;
-
- const pose=recording?null:getPoseAt(t);
- puppet.parts.forEach(p=>{
-  if(pose)p.angle=pose[p.id];
- });
+function drawOnePuppet(c,puppet,t,showHandles,isActive){
+ const pose=recording?null:getPoseAt(t,puppet);
+ puppet.parts.forEach(p=>{if(pose)p.angle=pose[p.id];});
 
  c.fillStyle='rgba(0,0,0,.25)';
  c.beginPath();c.ellipse(puppet.cx,puppet.cy+puppet.bh*.52,puppet.bw*.35,18,0,0,Math.PI*2);c.fill();
 
  const bw=puppet.bw,bh=puppet.bh;
- if(useFullCharacter()){
+ if(useFullCharacter(puppet)){
   c.drawImage(puppet.characterCanvas,puppet.cx-bw/2,puppet.cy-bh/2,bw,bh);
  }else{
   const sorted=[...puppet.parts].sort((a,b)=>a.order-b.order);
-  sorted.filter(p=>p.id.startsWith('leg')).forEach(p=>drawPartSprite(c,p));
-  drawTorso(c);
-  sorted.filter(p=>!p.id.startsWith('leg')).forEach(p=>drawPartSprite(c,p));
+  sorted.filter(p=>p.id.startsWith('leg')).forEach(p=>drawPartSprite(c,p,puppet));
+  drawTorso(c,puppet);
+  sorted.filter(p=>!p.id.startsWith('leg')).forEach(p=>drawPartSprite(c,p,puppet));
  }
 
- const active=dragPart?dragPart.id:selPart;
- if(showHandles&&active&&!useFullCharacter()){
+ if(isActive){
+  c.strokeStyle='rgba(139,61,255,.55)';c.lineWidth=2;c.setLineDash([6,4]);
+  c.strokeRect(puppet.cx-bw/2-4,puppet.cy-bh/2-4,bw+8,bh+8);
+  c.setLineDash([]);
+ }
+
+ if(showHandles&&isActive&&!useFullCharacter(puppet)){
+  const active=dragState?.type==='part'&&dragState.puppetId===puppet.id?dragState.partId:selPart;
   const p=puppet.parts.find(z=>z.id===active);
   if(p){
-   const{ax,ay,ex,ey}=partWorld(p);
+   const{ax,ay,ex,ey}=partWorld(p,puppet);
    c.strokeStyle='rgba(255,255,255,.55)';c.lineWidth=3;c.lineCap='round';
    c.beginPath();c.moveTo(ax,ay);c.lineTo(ex,ey);c.stroke();
    c.fillStyle=p.color;c.strokeStyle='#fff';c.lineWidth=3;
@@ -326,6 +396,16 @@ function drawPuppetFrame(c,t,showHandles){
    c.fillText(p.emoji,ex,ey);
   }
  }
+}
+
+function drawPuppetFrame(c,t,showHandles){
+ const g=c.createLinearGradient(0,0,W,H);
+ g.addColorStop(0,'#312e81');g.addColorStop(1,'#0f0a1a');
+ c.fillStyle=g;c.fillRect(0,0,W,H);
+
+ if(!puppets.length)return;
+
+ puppets.forEach(p=>drawOnePuppet(c,p,t,showHandles,p.id===activePuppetId));
 
  if(recording){
   c.fillStyle='#ef4444';c.beginPath();c.arc(40,40,14,0,Math.PI*2);c.fill();
@@ -336,24 +416,25 @@ function drawPuppetFrame(c,t,showHandles){
 
 function draw(){
  ctx.fillStyle='#1e1b2e';ctx.fillRect(0,0,W,H);
- if(!puppet){
+ if(!puppets.length){
   ctx.fillStyle='#c4b5fd';ctx.font='bold 42px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';
-  ctx.fillText('Search a character ↑ then Make Puppet!',W/2,H/2);
+  ctx.fillText('Add puppets — search, instant, or upload!',W/2,H/2);
   updateTimeDisp();return;
  }
  drawPuppetFrame(ctx,time,true);
  updateTimeDisp();
 }
 
-function hitPart(mx,my){
- if(!puppet)return null;
- for(let i=puppet.parts.length-1;i>=0;i--){
-  const p=puppet.parts[i];
-  const{ex,ey}=partWorld(p);
-  if(Math.hypot(mx-ex,my-ey)<p.size+14)return p.id;
+function hitTest(mx,my){
+ for(let pi=puppets.length-1;pi>=0;pi--){
+  const puppet=puppets[pi];
+  for(let i=puppet.parts.length-1;i>=0;i--){
+   const p=puppet.parts[i];
+   const{ex,ey}=partWorld(p,puppet);
+   if(Math.hypot(mx-ex,my-ey)<p.size+14)return{puppetId:puppet.id,partId:p.id};
+  }
+  if(Math.abs(mx-puppet.cx)<puppet.bw/2&&Math.abs(my-puppet.cy)<puppet.bh/2)return{puppetId:puppet.id,partId:'body'};
  }
- // body hit
- if(Math.abs(mx-puppet.cx)<puppet.bw/2&&Math.abs(my-puppet.cy)<puppet.bh/2)return 'body';
  return null;
 }
 
@@ -363,30 +444,44 @@ function canvasXY(clientX,clientY){
 }
 
 cvs.addEventListener('mousedown',e=>{
- if(!puppet||playing)return;
+ if(!puppets.length||playing)return;
  const{x,y}=canvasXY(e.clientX,e.clientY);
- const hit=hitPart(x,y);
- if(hit&&hit!=='body'){
-  selPart=hit;makePuppetUI();
-  dragPart={id:hit,startX:x,startY:y,moved:false};
-  const p=puppet.parts.find(z=>z.id===hit);
-  const{ax,ay}=partWorld(p);
-  dragPart.ax=ax;dragPart.ay=ay;
+ const hit=hitTest(x,y);
+ if(hit){
+  selectPuppet(hit.puppetId);
+  const puppet=puppetById(hit.puppetId);
+  if(hit.partId==='body'){
+   dragState={type:'move',puppetId:hit.puppetId,startX:x,startY:y,origCx:puppet.cx,origCy:puppet.cy,moved:false};
+  }else{
+   selPart=hit.partId;
+   refreshPartsList();
+   const p=puppet.parts.find(z=>z.id===hit.partId);
+   const{ax,ay}=partWorld(p,puppet);
+   dragState={type:'part',puppetId:hit.puppetId,partId:hit.partId,startX:x,startY:y,ax,ay,moved:false};
+  }
  }
 });
 cvs.addEventListener('mousemove',e=>{
- if(!dragPart||!puppet)return;
+ if(!dragState)return;
  const{x,y}=canvasXY(e.clientX,e.clientY);
- if(!dragPart.moved&&Math.hypot(x-dragPart.startX,y-dragPart.startY)<4)return;
- dragPart.moved=true;
- const p=puppet.parts.find(z=>z.id===dragPart.id);
+ if(!dragState.moved&&Math.hypot(x-dragState.startX,y-dragState.startY)<4)return;
+ dragState.moved=true;
+ const puppet=puppetById(dragState.puppetId);
+ if(!puppet)return;
+ if(dragState.type==='move'){
+  puppet.cx=dragState.origCx+(x-dragState.startX);
+  puppet.cy=dragState.origCy+(y-dragState.startY);
+  draw();
+  return;
+ }
+ const p=puppet.parts.find(z=>z.id===dragState.partId);
  if(p){
-  p.angle=Math.atan2(y-dragPart.ay,x-dragPart.ax);
-  saveKeyframe(time);
+  p.angle=Math.atan2(y-dragState.ay,x-dragState.ax);
+  saveKeyframe(time,puppet);
   draw();
  }
 });
-cvs.addEventListener('mouseup',()=>{dragPart=null;});
+cvs.addEventListener('mouseup',()=>{dragState=null;});
 cvs.addEventListener('touchstart',e=>{
  e.preventDefault();
  const t=e.touches[0];
@@ -397,7 +492,7 @@ cvs.addEventListener('touchmove',e=>{
  const t=e.touches[0];
  cvs.dispatchEvent(new MouseEvent('mousemove',{clientX:t.clientX,clientY:t.clientY}));
 },{passive:false});
-cvs.addEventListener('touchend',()=>{dragPart=null;});
+cvs.addEventListener('touchend',()=>{dragState=null;});
 
 // Instant puppets — no waiting for AI!
 const INSTANT_TYPES=['robot','cat','dinosaur','alien','superhero'];
@@ -575,7 +670,7 @@ function startInstant(type){
   instantSprites,
   characterCanvas:scaleCanvas(pack.character,bw)
  });
- toast('New '+name+' look! 🎭✨');
+ toast('Added '+name+'! 🎭 ('+puppets.length+' on stage)');
 }
 
 // AI (optional — slower)
@@ -633,9 +728,7 @@ function isAdultMode(){return adultMode;}
 
 function aiPrompt(q){
  const base=q.trim();
- if(isAdultMode()){
-  return base+', full body front view, arms at sides, legs visible, centered in frame, puppet rig pose, plain background, single character, no text, no extra limbs';
- }
+ if(isAdultMode())return base;
  return base+', cute chibi cartoon character, full body front view, arms at sides, legs visible, centered in frame, soft pastel background, puppet rig pose, kid friendly, family safe, no text, no extra limbs';
 }
 
@@ -691,10 +784,11 @@ async function doSearch(q){
 $('go').onclick=()=>doSearch($('search').value);
 $('search').onkeydown=e=>{if(e.key==='Enter')doSearch(e.target.value);};
 $('btn-puppet').onclick=()=>{
- if(charImg)makePuppetFromImage(charImg,charName);
- else if(puppet)puppet.keyframes=[{t:0,pose:Object.fromEntries(puppet.parts.map(p=>[p.id,p.angle]))}];
- else startInstant('robot');
- draw();toast('Puppet reset! 🎭');
+ const puppet=activePuppet();
+ if(puppet){
+  puppet.keyframes=[{t:0,pose:Object.fromEntries(puppet.parts.map(p=>[p.id,p.angle]))}];
+  draw();toast('Reset '+puppet.name+'! 🎭');
+ }else startInstant('robot');
 };
 $('btn-upload').onclick=()=>$('file-in').click();
 $('file-in').onchange=e=>{
@@ -710,17 +804,19 @@ $('chips').onclick=e=>{const c=e.target.closest('.chip');if(c){$('search').value
 // Record
 let recInterval=null;
 $('btn-rec').onclick=()=>{
- if(!puppet){toast('Make a puppet first!');return;}
+ if(!puppets.length){toast('Add a puppet first!');return;}
  recording=true;
  time=0;
- puppet.keyframes=[{t:0,pose:Object.fromEntries(puppet.parts.map(p=>[p.id,p.angle]))}];
+ puppets.forEach(p=>{
+  p.keyframes=[{t:0,pose:Object.fromEntries(p.parts.map(pt=>[pt.id,pt.angle]))}];
+ });
  $('btn-rec').hidden=true;$('btn-stop').hidden=false;
  $('status-bar').className='bar rec';
  $('status-bar').textContent='🔴 RECORDING — move the body parts now!!';
  recInterval=setInterval(()=>{
   time+=1/FPS;
   if(time>=dur){stopRec();return;}
-  saveKeyframe(time);
+  puppets.forEach(p=>saveKeyframe(time,p));
   draw();
  },1000/FPS);
  draw();
@@ -732,8 +828,8 @@ function stopRec(){
  $('btn-rec').hidden=false;$('btn-stop').hidden=true;
  $('status-bar').className='bar';
  $('status-bar').textContent='✅ Recorded! Scrub timeline to edit · ▶ Play to watch';
- toast('Recorded!! Hit Play to watch 🎉');
- saveKeyframe(time);
+ toast('Recorded all puppets!! Hit Play 🎉');
+ puppets.forEach(p=>saveKeyframe(time,p));
  draw();
 }
 $('btn-stop').onclick=stopRec;
@@ -742,10 +838,10 @@ $('btn-stop').onclick=stopRec;
 function setTime(t){
  if(recording)return;
  time=Math.max(0,Math.min(dur,t));
- if(puppet){
-  const pose=getPoseAt(time);
+ puppets.forEach(puppet=>{
+  const pose=getPoseAt(time,puppet);
   puppet.parts.forEach(p=>{p.angle=pose[p.id];});
- }
+ });
  draw();
 }
 $('scrub').oninput=e=>setTime(e.target.value/1000*dur);
@@ -757,7 +853,7 @@ function updateTimeDisp(){
 
 function togglePlay(){
  if(recording)return;
- if(!puppet){toast('Make a puppet first!');return;}
+ if(!puppets.length){toast('Add a puppet first!');return;}
  if(playing){playing=false;$('btn-play').textContent='▶ Play';return;}
  playing=true;$('btn-play').textContent='⏸ Pause';
  let start=null,base=time;
@@ -776,7 +872,7 @@ $('tl-play').onclick=togglePlay;
 
 // Export with puppet animation
 async function exportVideo(){
- if(!puppet){toast('Make & record a puppet first!');return;}
+ if(!puppets.length){toast('Add & record puppets first!');return;}
  $('modal').classList.add('show');
  const off=document.createElement('canvas');off.width=W;off.height=H;
  const octx=off.getContext('2d');
@@ -803,7 +899,7 @@ $('btn-save').onclick=exportVideo;
 
 document.addEventListener('keydown',e=>{
  if(e.key===' '){e.preventDefault();togglePlay();}
- if(e.key==='r'&&!recording&&puppet)$('btn-rec').click();
+ if(e.key==='r'&&!recording&&puppets.length)$('btn-rec').click();
 });
 
 draw();
