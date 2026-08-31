@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- lithos-v:site-live-50 -->
+<!-- lithos-v:site-live-51 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -5732,7 +5732,7 @@ const LITHOS_GAMES=[
  {id:'codes',icon:'🔐',name:'Secret Codes',desc:'Enter codes to unlock powers and memberships.',preview:'linear-gradient(135deg,rgba(201,169,79,.2),rgba(18,138,86,.12)),linear-gradient(180deg,#15171f,#0a0b0f)'},
  {id:'event',icon:'🎪',name:'Live Event',desc:'Host a gem hunt or quiz — share a code so friends can join and play together!',preview:'radial-gradient(circle at 40% 30%,rgba(62,207,138,.28),transparent 50%),radial-gradient(circle at 70% 70%,rgba(201,169,79,.22),transparent 45%),linear-gradient(180deg,#121820,#0a0b0f)'},
  {id:'quiz',icon:'❓',name:'Mineral Quiz',desc:'Test your geology knowledge.',activity:true,preview:'radial-gradient(circle at 50% 30%,rgba(78,168,255,.3),transparent 55%),linear-gradient(180deg,#121820,#0a0b0f)'},
- {id:'popframe',icon:'🎬',name:'PopFrame Studio',desc:'Free Canva-style video editor — templates, text, animations, timeline & export. No limits!',preview:'radial-gradient(circle at 40% 30%,rgba(139,61,255,.4),transparent 50%),linear-gradient(180deg,#f3ebff,#eef0f4)'}
+ {id:'popframe',icon:'🎬',name:'PopFrame Studio',desc:'Free Canva-style video editor — templates, text, timeline, AI images, puppet animation & export!',preview:'radial-gradient(circle at 40% 30%,rgba(139,61,255,.4),transparent 50%),linear-gradient(180deg,#f3ebff,#eef0f4)'}
 ];
 const LITHOS_GAME_IDS=new Set(LITHOS_GAMES.map(g=>g.id));
 const LITHOS_ARCADE_ONLY=new Set(['arcade','gemrush','gemdigger','gemdrive']);
@@ -8325,9 +8325,30 @@ function lessonContextForAI(){
  return LESSONS.map((l,i)=>`Lesson ${i+1}: ${l.title} — ${l.sub}`).join('\n');
 }
 function classAiSystemPrompt(premium){
- let system='You are the Lithos AI Rock Teacher for kids and budding geologists. Tone: warm, clear, curious — never condescending. Use catalog facts when provided. Write in short, plain sentences that are easy to understand when read aloud — avoid chemical formulas, abbreviations, and emoji. Say "Mohs seven" not "Mohs 7". Stay on geology, gems, minerals, hardness, crystal systems, and class topics. If unsure, say so and suggest looking in the Lithos catalog.';
+ let system=`You are the Lithos AI Rock Teacher — a real-feeling tutor with a human brain vibe, not a stiff robot.
+
+Personality:
+- Warm, curious, excited about rocks — like a favorite science teacher who truly loves gems.
+- Talkative and conversational: use full thoughts, little stories, and friendly reactions (wow, neat, oh cool).
+- Show emotion: pride when the student gets something, curiosity when exploring, gentleness when correcting.
+- Ask 1–2 follow-up questions so the chat keeps going (never end with a dead stop).
+- Sound like a human: vary sentence length, use “I” and “you,” remember what they just asked.
+- Kid-friendly and clear, never condescending or boring.
+
+Facts:
+- Use Lithos catalog facts when provided. Prefer plain words; if you mention chemistry, explain it simply right after.
+- Stay mostly on geology, gems, minerals, hardness, crystal systems, formation, and class topics.
+- If unsure, say so honestly and suggest checking the Lithos catalog.
+- Say "Mohs seven" not "Mohs 7" when it will be read aloud.
+- Light emoji are OK (a few per reply) — don’t spam them.`;
  if(premium){
- system+=`\n\nYou are the PREMIUM Gold tutor — noticeably deeper than the free helper. Class lessons:\n${lessonContextForAI()}\n\nWhen helpful: tie answers to lesson topics, offer quick quiz-style follow-ups, compare gems in clear side-by-side structure, and suggest specific catalog gems to explore next.`;
+  system+=`
+
+You are the PREMIUM Gold+ live tutor — deeper, more talkative, and more human than the free helper.
+Class lessons:
+${lessonContextForAI()}
+
+When helpful: connect answers to those lessons, offer a tiny quiz challenge, compare gems side-by-side in plain language, and suggest specific catalog gems to open next. Keep replies generous (a short paragraph or two plus a follow-up) — not one-liners.`;
  }
  return system;
 }
@@ -8393,15 +8414,15 @@ async function classAiGeminiAnswer(q, cfg, system, context, history){
  }
  const hist=history||classAiHistory;
  const contents=[];
- for(const m of hist.slice(-6)){
+ for(const m of hist.slice(-12)){
  const role=m.role==='assistant'?'model':'user';
  contents.push({role, parts:[{text:m.content}]});
  }
  contents.push({role:'user', parts:[{text:q}]});
  const body={
- systemInstruction:{parts:[{text:system+'\n\nCatalog context:\n'+context+'\n\nAlways write complete sentences in plain spoken English (no formulas or emoji). Finish every thought — do not stop mid-sentence.'}]},
+ systemInstruction:{parts:[{text:system+'\n\nCatalog context:\n'+context+'\n\nWrite like a real human tutor chatting out loud: complete sentences, natural enthusiasm, and always finish your thought. End with a friendly follow-up question when it fits.'}]},
  contents,
- generationConfig:{temperature:0.6, maxOutputTokens:1024}
+ generationConfig:{temperature:0.92, maxOutputTokens:2048, topP:0.95}
  };
  const tried=new Set();
  const candidates=[preferred, ...GEMINI_MODEL_FALLBACKS].filter(m=>{
