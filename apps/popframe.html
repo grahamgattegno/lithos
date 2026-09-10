@@ -4,8 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PopFrame Studio — Free Video Editor</title>
-<!-- popframe-v:58 -->
-<script src="https://js.puter.com/v2/"></script>
+<!-- popframe-v:60 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Canva+Sans:wght@400;600;700&family=Bebas+Neue&family=Pacifico&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 <style>
@@ -171,9 +170,6 @@ button,input,select,textarea{font-family:inherit;font-size:13px}
 .toast.show{opacity:1}
 .back-lithos{position:fixed;bottom:calc(var(--timeline) + 16px);right:16px;z-index:50;font-size:12px;color:var(--muted);text-decoration:none;background:var(--white);padding:6px 12px;border-radius:20px;border:1px solid var(--line);box-shadow:var(--shadow)}
 .back-lithos:hover{color:var(--canva)}
-.mode-adult{display:flex;align-items:center;gap:8px;padding:6px 10px;border:1px solid var(--line);border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:#fafafa}
-.mode-adult.on{border-color:#7f1d1d;background:#fef2f2;color:#7f1d1d}
-.mode-adult input{accent-color:#7f1d1d;width:16px;height:16px}
 .btn-puppet{background:#f3ebff;border:1px solid #d8b4fe;color:var(--canva);padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:700;font-size:13px;text-decoration:none}
 .btn-puppet:hover{background:var(--canva-light)}
 
@@ -204,7 +200,7 @@ button,input,select,textarea{font-family:inherit;font-size:13px}
    <option value="5">5s</option><option value="10" selected>10s</option><option value="15">15s</option><option value="30">30s</option><option value="60">60s</option>
   </select>
   <span class="free-pill">FREE · FULL EDITOR</span>
-  <a class="btn-puppet" href="popframe-puppet.html?v=59">🎭 Puppet Studio</a>
+  <a class="btn-puppet" href="popframe-puppet.html?v=60">🎭 Puppet Studio</a>
   <span class="spacer"></span>
   <button class="btn-play" id="play">▶ Preview</button>
   <button class="btn-share" id="save-json">Save project</button>
@@ -246,8 +242,7 @@ button,input,select,textarea{font-family:inherit;font-size:13px}
      </div>
     </div>
     <div class="panel-tab" id="tab-ai">
-     <div class="ai-hero"><b>✨ AI Image Generator</b>Type anything — we draw it. Adult mode = exact search, no filter.</div>
-     <label class="mode-adult" id="adult-toggle"><input type="checkbox" id="adult-mode"> Adult mode 🔞 — draw search exactly</label>
+     <div class="ai-hero"><b>✨ Free AI Image Generator</b>No account · no limits · type what you want and we paint it!</div>
      <div class="ai-style" id="ai-styles">
       <button type="button" class="on" data-style="photo">📷 Photo</button>
       <button type="button" data-style="illustration">🎨 Illustration</button>
@@ -352,9 +347,6 @@ let P={
 };
 let drag=null,exportCancel=false;
 let aiStyle='photo',aiBusy=false;
-let adultMode=false;
-try{adultMode=localStorage.getItem('popframe_adult')==='1';}catch(_){}
-function isAdultMode(){return adultMode;}
 const cvs=$('cvs'),ctx=cvs.getContext('2d');
 
 function page(){return P.pages[P.pageIdx];}
@@ -904,29 +896,8 @@ const STYLE_SUFFIX={
 function buildAiPrompt(raw){
  const q=raw.trim();
  if(!q)return'';
- if(isAdultMode())return q.replace(/^[\p{Emoji_Presentation}\p{Extended_Pictographic}]+\s*/u,'');
  const suf=STYLE_SUFFIX[aiStyle]||STYLE_SUFFIX.photo;
  return q.replace(/^[\p{Emoji_Presentation}\p{Extended_Pictographic}]+\s*/u,'')+suf;
-}
-
-function imgFromEl(el){
- return new Promise((ok,no)=>{
-  const i=new Image();i.crossOrigin='anonymous';
-  i.onload=()=>ok(i);i.onerror=()=>no(new Error('fail'));
-  i.src=el.src||el.getAttribute('src');
- });
-}
-const ADULT_MODELS=['black-forest-labs/flux-2-klein-9b-base','black-forest-labs/flux-schnell','stabilityai/stable-diffusion-xl-base-1.0'];
-async function loadAdultAiImage(prompt){
- if(typeof puter==='undefined'||!puter?.ai?.txt2img)throw new Error('puter');
- let lastErr=null;
- for(const model of ADULT_MODELS){
-  try{
-   const el=await puter.ai.txt2img(prompt,{model,width:512,height:512});
-   return await imgFromEl(el);
-  }catch(e){lastErr=e;}
- }
- throw lastErr||new Error('adult-fail');
 }
 
 function aiImageUrl(prompt,w,h,seed){
@@ -977,15 +948,8 @@ async function generateAiImages(prompt,containerId,count){
  for(let i=0;i<n;i++){
   const seed=Math.floor(Math.random()*999999)+i*7919;
   try{
-   let img,url;
-   if(isAdultMode()){
-   if(isAdultMode()&&i===0)toast('Adult AI — click Continue if Puter popup shows');
-    img=await loadAdultAiImage(fullPrompt);
-    url=img.src;
-   }else{
-    url=aiImageUrl(fullPrompt,size,size,seed);
-    img=await loadAiImage(url);
-   }
+   const url=aiImageUrl(fullPrompt,size,size,seed);
+   const img=await loadAiImage(url);
    const entry=registerAiImage(img,raw.trim(),url);
    const card=box.querySelector(`.ai-card[data-i="${i}"]`);
    if(card){
@@ -1012,14 +976,6 @@ function renderUploads(){
 }
 
 $('ai-chips').innerHTML=AI_CHIPS.map(c=>`<button type="button" class="ai-chip">${c}</button>`).join('');
-$('adult-mode').checked=adultMode;
-$('adult-toggle').classList.toggle('on',adultMode);
-$('adult-mode').onchange=()=>{
- adultMode=$('adult-mode').checked;
- $('adult-toggle').classList.toggle('on',adultMode);
- try{localStorage.setItem('popframe_adult',adultMode?'1':'0');}catch(_){}
- toast(adultMode?'Adult mode on — exact searches, no filter 🔞':'Kids mode — styled AI images');
-};
 $('ai-chips').onclick=e=>{const c=e.target.closest('.ai-chip');if(!c)return;$('ai-prompt').value=c.textContent.replace(/^[\p{Emoji_Presentation}\p{Extended_Pictographic}]+\s*/u,'');generateAiImages(c.textContent,'ai-results');};
 document.querySelectorAll('#ai-styles button').forEach(b=>{
  b.onclick=()=>{document.querySelectorAll('#ai-styles button').forEach(x=>x.classList.remove('on'));b.classList.add('on');aiStyle=b.dataset.style;};
