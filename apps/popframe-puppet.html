@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PopFrame Puppet Studio</title>
-<!-- popframe-puppet-v:60 -->
+<title>PopArt Puppet Studio</title>
+<!-- popframe-puppet-v:61 -->
 <style>
 :root{--purple:#8b3dff;--purple2:#6b2fd4;--red:#ef4444;--bg:#f0f2f8;--white:#fff;--text:#1a1a2e;--muted:#666;--line:#ddd}
 *{box-sizing:border-box}
@@ -55,12 +55,18 @@ button{font-family:inherit;cursor:pointer}
 .prog span{display:block;height:100%;background:var(--purple);width:0}
 .hint{font-size:13px;color:var(--muted);margin:0;line-height:1.45}
 a.home{color:var(--purple);font-weight:700;font-size:13px;margin-left:8px}
+.media-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0 12px}
+.media-thumb{position:relative;border:2px solid var(--line);border-radius:10px;overflow:hidden;background:#fafafa;cursor:pointer;aspect-ratio:1}
+.media-thumb.on{border-color:var(--purple);box-shadow:0 0 0 2px #f3ebff}
+.media-thumb img,.media-thumb video{width:100%;height:100%;object-fit:cover;display:block}
+.media-thumb span{position:absolute;bottom:0;left:0;right:0;padding:4px 6px;font-size:10px;font-weight:700;background:rgba(0,0,0,.55);color:#fff;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}
+.media-thumb .media-del{position:absolute;top:4px;right:4px;width:22px;height:22px;border:none;border-radius:6px;background:#fee2e2;color:#b91c1c;font-size:12px;cursor:pointer;line-height:1}
 </style>
 </head>
 <body>
 <div class="app">
  <header class="top">
-  <div class="logo">PopFrame 🎭</div>
+  <div class="logo">PopArt 🎭</div>
   <div class="search-wrap">
    <input id="search" placeholder="Search anything… dot, dragon, robot" autocomplete="off">
    <button class="btn-go" id="go">GO ✨</button>
@@ -69,7 +75,7 @@ a.home{color:var(--purple);font-weight:700;font-size:13px;margin-left:8px}
   <button class="btn" id="btn-stop" hidden>⏹ STOP</button>
   <button class="btn" id="btn-play">▶ Play</button>
   <button class="btn purple" id="btn-save">⬇ Save Video</button>
-  <a class="home" href="popframe.html?v=60">🎬 Video Editor</a>
+  <a class="home" href="popframe.html?v=61">🎬 Video Editor</a>
   <a class="home" href="../index.html?v=51">Lithos</a>
  </header>
 
@@ -79,8 +85,10 @@ a.home{color:var(--purple);font-weight:700;font-size:13px;margin-left:8px}
    <h2>⚡ Instant puppets</h2>
    <div class="chips" id="instant-chips"></div>
    <h2>✨ AI search (slower)</h2>
-   <p class="hint">Search anything — AI draws a cute chibi puppet!</p>
+   <p class="hint">Search anything — get a puppet + props, pics &amp; a video!</p>
    <div class="chips" id="chips"></div>
+   <h2>🖼 From your search</h2>
+   <div class="media-grid" id="search-media"><p class="hint" style="grid-column:1/-1">Search above to load props &amp; videos</p></div>
    <h2>🎭 Puppets on stage</h2>
    <div id="puppet-list"><p class="hint">Add puppets below — click one to select!</p></div>
    <p class="hint" id="puppet-count-hint">Drag a puppet body to move it on stage.</p>
@@ -155,6 +163,9 @@ let activePuppetId=null;
 let selPart=null;
 let dragState=null;
 let lastImgEntry=null;
+let stageProps=[];
+let stageVids=[];
+let selectedMediaId=null;
 
 function activePuppet(){return puppets.find(p=>p.id===activePuppetId)||null;}
 function puppetById(id){return puppets.find(p=>p.id===id);}
@@ -397,7 +408,9 @@ function drawPuppetFrame(c,t,showHandles){
  g.addColorStop(0,'#312e81');g.addColorStop(1,'#0f0a1a');
  c.fillStyle=g;c.fillRect(0,0,W,H);
 
- if(!puppets.length)return;
+ drawStageMedia(c,t);
+
+ if(!puppets.length&&!stageProps.length&&!stageVids.length)return;
 
  puppets.forEach(p=>drawOnePuppet(c,p,t,showHandles,p.id===activePuppetId));
 
@@ -408,26 +421,61 @@ function drawPuppetFrame(c,t,showHandles){
  }
 }
 
+function syncVideoTime(video,t){
+ if(!video||!video.duration||!isFinite(video.duration))return;
+ const want=t%video.duration;
+ if(Math.abs(video.currentTime-want)>0.12)try{video.currentTime=want;}catch(_){}
+}
+
+function drawStageMedia(c,t){
+ stageVids.forEach(v=>{
+  syncVideoTime(v.video,t);
+  if(v.video.readyState>=2){
+   c.save();c.globalAlpha=v.opacity??0.42;
+   c.drawImage(v.video,v.x,v.y,v.w,v.h);
+   c.restore();
+  }
+ });
+ stageProps.forEach(p=>{
+  if(!p.img?.complete)return;
+  if(selectedMediaId==='prop:'+p.id){
+   c.strokeStyle='#8b3dff';c.lineWidth=3;
+   c.strokeRect(p.x-p.w/2-4,p.y-p.h/2-4,p.w+8,p.h+8);
+  }
+  c.drawImage(p.img,p.x-p.w/2,p.y-p.h/2,p.w,p.h);
+ });
+}
+
 function draw(){
  ctx.fillStyle='#1e1b2e';ctx.fillRect(0,0,W,H);
- if(!puppets.length){
+ if(!puppets.length&&!stageProps.length&&!stageVids.length){
   ctx.fillStyle='#c4b5fd';ctx.font='bold 42px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';
-  ctx.fillText('Add puppets — search, instant, or upload!',W/2,H/2);
+  ctx.fillText('PopArt — search for puppet + props & video!',W/2,H/2);
   updateTimeDisp();return;
  }
  drawPuppetFrame(ctx,time,true);
  updateTimeDisp();
 }
 
+function hitProp(mx,my){
+ for(let i=stageProps.length-1;i>=0;i--){
+  const p=stageProps[i];
+  if(mx>=p.x-p.w/2&&mx<=p.x+p.w/2&&my>=p.y-p.h/2&&my<=p.y+p.h/2)return p.id;
+ }
+ return null;
+}
+
 function hitTest(mx,my){
+ const pid=hitProp(mx,my);
+ if(pid)return{kind:'prop',propId:pid};
  for(let pi=puppets.length-1;pi>=0;pi--){
   const puppet=puppets[pi];
   for(let i=puppet.parts.length-1;i>=0;i--){
    const p=puppet.parts[i];
    const{ex,ey}=partWorld(p,puppet);
-   if(Math.hypot(mx-ex,my-ey)<p.size+14)return{puppetId:puppet.id,partId:p.id};
+   if(Math.hypot(mx-ex,my-ey)<p.size+14)return{kind:'puppet',puppetId:puppet.id,partId:p.id};
   }
-  if(Math.abs(mx-puppet.cx)<puppet.bw/2&&Math.abs(my-puppet.cy)<puppet.bh/2)return{puppetId:puppet.id,partId:'body'};
+  if(Math.abs(mx-puppet.cx)<puppet.bw/2&&Math.abs(my-puppet.cy)<puppet.bh/2)return{kind:'puppet',puppetId:puppet.id,partId:'body'};
  }
  return null;
 }
@@ -438,21 +486,32 @@ function canvasXY(clientX,clientY){
 }
 
 cvs.addEventListener('mousedown',e=>{
- if(!puppets.length||playing)return;
+ if(playing)return;
  const{x,y}=canvasXY(e.clientX,e.clientY);
  const hit=hitTest(x,y);
- if(hit){
-  selectPuppet(hit.puppetId);
-  const puppet=puppetById(hit.puppetId);
-  if(hit.partId==='body'){
-   dragState={type:'move',puppetId:hit.puppetId,startX:x,startY:y,origCx:puppet.cx,origCy:puppet.cy,moved:false};
-  }else{
-   selPart=hit.partId;
-   refreshPartsList();
-   const p=puppet.parts.find(z=>z.id===hit.partId);
-   const{ax,ay}=partWorld(p,puppet);
-   dragState={type:'part',puppetId:hit.puppetId,partId:hit.partId,startX:x,startY:y,ax,ay,moved:false};
-  }
+ if(!hit)return;
+ if(hit.kind==='prop'){
+  selectedMediaId='prop:'+hit.propId;
+  activePuppetId=null;
+  refreshPuppetList();
+  refreshMediaPanel();
+  const p=stageProps.find(z=>z.id===hit.propId);
+  dragState={type:'prop',propId:hit.propId,startX:x,startY:y,origX:p.x,origY:p.y,moved:false};
+  draw();
+  return;
+ }
+ selectedMediaId=null;
+ refreshMediaPanel();
+ selectPuppet(hit.puppetId);
+ const puppet=puppetById(hit.puppetId);
+ if(hit.partId==='body'){
+  dragState={type:'move',puppetId:hit.puppetId,startX:x,startY:y,origCx:puppet.cx,origCy:puppet.cy,moved:false};
+ }else{
+  selPart=hit.partId;
+  refreshPartsList();
+  const p=puppet.parts.find(z=>z.id===hit.partId);
+  const{ax,ay}=partWorld(p,puppet);
+  dragState={type:'part',puppetId:hit.puppetId,partId:hit.partId,startX:x,startY:y,ax,ay,moved:false};
  }
 });
 cvs.addEventListener('mousemove',e=>{
@@ -460,6 +519,11 @@ cvs.addEventListener('mousemove',e=>{
  const{x,y}=canvasXY(e.clientX,e.clientY);
  if(!dragState.moved&&Math.hypot(x-dragState.startX,y-dragState.startY)<4)return;
  dragState.moved=true;
+ if(dragState.type==='prop'){
+  const p=stageProps.find(z=>z.id===dragState.propId);
+  if(p){p.x=dragState.origX+(x-dragState.startX);p.y=dragState.origY+(y-dragState.startY);draw();}
+  return;
+ }
  const puppet=puppetById(dragState.puppetId);
  if(!puppet)return;
  if(dragState.type==='move'){
@@ -672,6 +736,11 @@ function startInstant(type){
 function aiUrl(q,s){
  return 'https://image.pollinations.ai/prompt/'+encodeURIComponent(aiPrompt(q))+'?width=512&height=512&model=turbo&seed='+s+'&nologo=true';
 }
+function aiUrlCustom(prompt,s){
+ return 'https://image.pollinations.ai/prompt/'+encodeURIComponent(prompt)+'?width=512&height=512&model=turbo&seed='+s+'&nologo=true';
+}
+function propPrompt(q){return q.trim()+', cute cartoon stage prop object, single item, chibi style, soft colors, plain background, kid friendly';}
+function picPrompt(q){return q.trim()+', beautiful reference picture illustration, clear subject, vibrant, kid friendly, no text';}
 function loadImg(url,ms){
  return new Promise((ok,no)=>{
   const i=new Image();i.crossOrigin='anonymous';
@@ -694,6 +763,113 @@ function refreshAiChips(){
  $('chips').innerHTML=AI_CHIPS.map(c=>'<button type="button" class="chip">'+c+'</button>').join('');
 }
 refreshAiChips();
+
+const PROP_SLOTS=[{x:.14,y:.38},{x:.86,y:.38},{x:.12,y:.72},{x:.88,y:.72}];
+
+function addStageProp(img,label,kind){
+ const i=stageProps.length;
+ const s=PROP_SLOTS[i%PROP_SLOTS.length];
+ const w=W*0.17;
+ const h=w*(img.height/img.width);
+ stageProps.push({id:uid(),img,x:W*s.x,y:H*s.y,w,h,label,kind});
+ refreshMediaPanel();
+ draw();
+}
+
+function setStageVideo(video,label){
+ stageVids.forEach(v=>{try{v.video.pause();}catch(_){}});
+ stageVids=[{id:uid(),video,x:0,y:0,w:W,h:H,label,opacity:0.42}];
+ video.play().catch(()=>{});
+ refreshMediaPanel();
+ draw();
+}
+
+async function loadVideoFromUrl(url){
+ const video=document.createElement('video');
+ video.crossOrigin='anonymous';
+ video.muted=true;
+ video.loop=true;
+ video.playsInline=true;
+ await new Promise((ok,no)=>{
+  video.onloadeddata=()=>ok();
+  video.onerror=()=>no(new Error('vid'));
+  video.src=url;
+ });
+ return video;
+}
+
+async function fetchWikiVideo(q){
+ const api='https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch='
+  +encodeURIComponent(q)+'&gsrnamespace=6&gsrlimit=10&prop=imageinfo&iiprop=url|mime&format=json&origin=*';
+ const data=await (await fetch(api)).json();
+ const pages=data?.query?.pages||{};
+ for(const page of Object.values(pages)){
+  const ii=page.imageinfo?.[0];
+  if(!ii?.url)continue;
+  if(!/^video\//.test(ii.mime||''))continue;
+  return loadVideoFromUrl(ii.url);
+ }
+ throw new Error('no wiki video');
+}
+
+function refreshMediaPanel(){
+ const box=$('search-media');
+ const items=[];
+ stageProps.forEach(p=>{
+  items.push({type:'prop',id:p.id,label:p.label,src:p.img.src,kind:p.kind});
+ });
+ stageVids.forEach(v=>{
+  items.push({type:'vid',id:v.id,label:v.label||'Video',src:v.video.src});
+ });
+ if(!items.length){
+  box.innerHTML='<p class="hint" style="grid-column:1/-1">Search above to load props & videos</p>';
+  return;
+ }
+ box.innerHTML=items.map(it=>{
+  const on=selectedMediaId===(it.type==='prop'?'prop:'+it.id:'vid:'+it.id);
+  const tag=it.type==='vid'?`<video src="${it.src}" muted loop playsinline autoplay></video>`:`<img src="${it.src}" alt="">`;
+  return `<div class="media-thumb${on?' on':''}" data-type="${it.type}" data-id="${it.id}">${tag}<span>${it.label}</span><button type="button" class="media-del" data-del="${it.type}:${it.id}">✕</button></div>`;
+ }).join('');
+ box.onclick=e=>{
+  const del=e.target.closest('.media-del');
+  if(del){removeMedia(del.dataset.del);return;}
+  const th=e.target.closest('.media-thumb');
+  if(!th)return;
+  if(th.dataset.type==='prop'){
+   selectedMediaId='prop:'+th.dataset.id;
+   activePuppetId=null;
+   refreshPuppetList();
+  }else{
+   selectedMediaId='vid:'+th.dataset.id;
+  }
+  refreshMediaPanel();
+  draw();
+ };
+}
+
+function removeMedia(key){
+ const [type,id]=key.split(':');
+ if(type==='prop')stageProps=stageProps.filter(p=>p.id!==id);
+ if(type==='vid'){
+  const v=stageVids.find(x=>x.id===id);
+  if(v)try{v.video.pause();}catch(_){}
+  stageVids=stageVids.filter(x=>x.id!==id);
+ }
+ if(selectedMediaId===type+':'+id)selectedMediaId=null;
+ refreshMediaPanel();
+ draw();
+}
+
+async function loadSearchPack(q,seed){
+ const jobs=[
+  loadImg(aiUrl(q,seed)).then(img=>makePuppetFromImage(img,q)),
+  loadImg(aiUrlCustom(propPrompt(q),seed+111)).then(img=>addStageProp(img,q+' prop','prop')).catch(()=>{}),
+  loadImg(aiUrlCustom(picPrompt(q),seed+222)).then(img=>addStageProp(img,q+' pic','pic')).catch(()=>{}),
+  fetchWikiVideo(q).then(v=>setStageVideo(v,q+' video')).catch(()=>{})
+ ];
+ await Promise.allSettled(jobs);
+}
+
 async function doSearch(q){
  q=(q||'').trim();
  if(!q){toast('Type something! like unicorn or dragon');return;}
@@ -701,19 +877,21 @@ async function doSearch(q){
  if(aiBusy){toast('Still drawing last one — wait a sec!');return;}
  aiBusy=true;
  $('go').disabled=true;$('go').textContent='…';
- $('status-bar').textContent='✨ Drawing '+q+'… you can keep playing!';
- toast('Drawing '+q+'… ✨');
+ $('status-bar').textContent='✨ PopArt pack: puppet + props + video for '+q+'…';
+ $('search-media').innerHTML='<p class="hint" style="grid-column:1/-1">Loading puppet, props, pic & video…</p>';
+ toast('Loading full search pack for '+q+'… ✨');
+ const seed=Math.floor(Math.random()*99999);
  try{
-  const img=await loadImg(aiUrl(q,Math.floor(Math.random()*99999)));
-  makePuppetFromImage(img,q);
-  toast('Your '+q+' puppet is ready!! 🎭');
+  await loadSearchPack(q,seed);
+  toast('PopArt pack ready — puppet, props, pic & video! 🎭');
  }catch(_){
   toast('AI slow — try an ⚡ instant puppet!');
   startInstant('robot');
  }
  aiBusy=false;
  $('go').disabled=false;$('go').textContent='GO ✨';
- $('status-bar').textContent='👆 Drag the dots — head, arms & legs move for real!';
+ $('status-bar').textContent='👆 Drag puppets & props — video plays in back!';
+ refreshMediaPanel();
 }
 
 $('go').onclick=()=>doSearch($('search').value);
@@ -788,14 +966,15 @@ function updateTimeDisp(){
 function togglePlay(){
  if(recording)return;
  if(!puppets.length){toast('Add a puppet first!');return;}
- if(playing){playing=false;$('btn-play').textContent='▶ Play';return;}
+ if(playing){playing=false;$('btn-play').textContent='▶ Play';stageVids.forEach(v=>{try{v.video.pause();}catch(_){}});return;}
  playing=true;$('btn-play').textContent='⏸ Pause';
+ stageVids.forEach(v=>{v.video.play().catch(()=>{});});
  let start=null,base=time;
  function tick(ts){
   if(!playing)return;
   if(!start)start=ts;
   time=base+(ts-start)/1000;
-  if(time>=dur){time=0;playing=false;$('btn-play').textContent='▶ Play';draw();return;}
+  if(time>=dur){time=0;playing=false;$('btn-play').textContent='▶ Play';stageVids.forEach(v=>{try{v.video.pause();}catch(_){}});draw();return;}
   draw();
   requestAnimationFrame(tick);
  }

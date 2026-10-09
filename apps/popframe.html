@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PopFrame Studio — Free Video Editor</title>
-<!-- popframe-v:60 -->
+<!-- popframe-v:61 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Canva+Sans:wght@400;600;700&family=Bebas+Neue&family=Pacifico&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 <style>
@@ -200,7 +200,7 @@ button,input,select,textarea{font-family:inherit;font-size:13px}
    <option value="5">5s</option><option value="10" selected>10s</option><option value="15">15s</option><option value="30">30s</option><option value="60">60s</option>
   </select>
   <span class="free-pill">FREE · FULL EDITOR</span>
-  <a class="btn-puppet" href="popframe-puppet.html?v=60">🎭 Puppet Studio</a>
+  <a class="btn-puppet" href="popframe-puppet.html?v=61">🎭 PopArt Studio</a>
   <span class="spacer"></span>
   <button class="btn-play" id="play">▶ Preview</button>
   <button class="btn-share" id="save-json">Save project</button>
@@ -242,7 +242,7 @@ button,input,select,textarea{font-family:inherit;font-size:13px}
      </div>
     </div>
     <div class="panel-tab" id="tab-ai">
-     <div class="ai-hero"><b>✨ Free AI Image Generator</b>No account · no limits · type what you want and we paint it!</div>
+     <div class="ai-hero"><b>✨ Free AI Image Generator</b>Search = images + prop pics + free video clips!</div>
      <div class="ai-style" id="ai-styles">
       <button type="button" class="on" data-style="photo">📷 Photo</button>
       <button type="button" data-style="illustration">🎨 Illustration</button>
@@ -965,6 +965,55 @@ async function generateAiImages(prompt,containerId,count){
  aiBusy=false;
  if(btn){btn.disabled=false;btn.textContent='Generate';}
  toast(done?`Done! ${done} AI image${done>1?'s':''} ready — click to add 🖼️`:'Some images failed — try again!');
+ appendSearchMediaExtras(raw.trim());
+}
+
+function propPromptEditor(q){return q+', cartoon prop object, single item, sticker style, plain background';}
+function picPromptEditor(q){return q+', reference photo illustration, vibrant, clear subject';}
+
+async function loadEditorVideo(url){
+ const video=document.createElement('video');
+ video.crossOrigin='anonymous';
+ video.muted=true;
+ video.loop=true;
+ video.playsInline=true;
+ await new Promise((ok,no)=>{video.onloadeddata=ok;video.onerror=no;video.src=url;});
+ return video;
+}
+
+async function fetchEditorWikiVideo(q){
+ const api='https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch='
+  +encodeURIComponent(q)+'&gsrnamespace=6&gsrlimit=8&prop=imageinfo&iiprop=url|mime&format=json&origin=*';
+ const data=await (await fetch(api)).json();
+ for(const page of Object.values(data?.query?.pages||{})){
+  const ii=page.imageinfo?.[0];
+  if(ii?.url&&/^video\//.test(ii.mime||''))return loadEditorVideo(ii.url);
+ }
+ throw new Error('none');
+}
+
+async function appendSearchMediaExtras(q){
+ if(!q)return;
+ const seed=Math.floor(Math.random()*99999);
+ const size=512;
+ try{
+  const url=aiImageUrl(propPromptEditor(q),size,size,seed+50);
+  const img=await loadAiImage(url);
+  registerAiImage(img,q+' prop',url);
+  toast('Added prop pic to Uploads 🎭');
+ }catch(_){}
+ try{
+  const url2=aiImageUrl(picPromptEditor(q),size,size,seed+60);
+  const img2=await loadAiImage(url2);
+  registerAiImage(img2,q+' reference',url2);
+ }catch(_){}
+ try{
+  const video=await fetchEditorWikiVideo(q);
+  const url=video.src;
+  P.uploads.unshift({type:'video',url,name:q+' video clip',video});
+  renderUploads();
+  toast('Found a video clip for "'+q+'" — in Uploads 🎬');
+ }catch(_){}
 }
 
 function renderUploads(){
