@@ -1,0 +1,68 @@
+{
+  "siteUrl": "https://grahamgattegno.github.io/lithos/",
+  "title": "Lithos — Discover Real Gems | 6,000 Mineral Catalog + Games",
+  "description": "Discover real gems with Lithos — a field catalog of 6,000 mineral specimens, plus classes, games, and Rock Teacher.\n\nExplore: https://grahamgattegno.github.io/lithos/\n\nCreated by Graham Gattegno.",
+  "captionShort": "6,000 real gems in one catalog 💎 Lithos — minerals, games, Rock Teacher & more → grahamgattegno.github.io/lithos",
+  "tags": ["Lithos", "gems", "minerals", "gemstones", "geology", "mineral catalog", "rock teacher", "science education"],
+  "platforms": {
+    "youtube": {
+      "video": "assets/social/lithos-ad-youtube.mp4",
+      "url": "https://studio.youtube.com/channel/UC/videos/upload?d=ud",
+      "title": "Lithos — Discover Real Gems | 6,000 Mineral Catalog + Games",
+      "description": "Discover real gems with Lithos — a field catalog of 6,000 mineral specimens, plus classes, games, and Rock Teacher.\n\nExplore the catalog:\nhttps://grahamgattegno.github.io/lithos/\n\nCreated by Graham Gattegno.\n\n#Lithos #Gems #Minerals #Geology #RockHounding #Mineralogy #Gemstones #ScienceEducation"
+    },
+    "tiktok": {
+      "video": "assets/social/lithos-ad-tiktok.mp4",
+      "url": "https://www.tiktok.com/upload?lang=en",
+      "caption": "6,000 real gems in one catalog 💎 Lithos — minerals, games, Rock Teacher & more. Link in bio → grahamgattegno.github.io/lithos #Lithos #Gems #Geology #Minerals #RockHounding #Gemstones #ScienceTok #LearnOnTikTok"
+    },
+    "instagram": {
+      "video": "assets/social/lithos-ad-instagram-reels.mp4",
+      "url": "https://www.instagram.com/",
+      "caption": "6,000 real gems. One catalog. 💎\n\nLithos — minerals, Rock Teacher, scavenger hunts, Night Shift, Gemstone Convoy & more.\n\nLink in bio → grahamgattegno.github.io/lithos\n\n#Lithos #Gems #Geology #Minerals #RockHounding #Gemstones #Reels #ScienceEducation"
+    },
+    "facebook": {
+      "video": "assets/social/lithos-ad-facebook.mp4",
+      "url": "https://www.facebook.com/reels/create",
+      "text": "Discover real gems with Lithos — 6,000 mineral specimens, classes, games, and Rock Teacher.\n\nExplore the catalog: https://grahamgattegno.github.io/lithos/"
+    },
+    "dailymotion": {
+      "video": "assets/social/lithos-ad-youtube.mp4",
+      "url": "https://www.dailymotion.com/upload",
+      "title": "Lithos — Discover Real Gems | 6,000 Mineral Catalog + Games",
+      "description": "Discover real gems with Lithos. Explore: https://grahamgattegno.github.io/lithos/"
+    },
+    "vimeo": {
+      "video": "assets/social/lithos-ad-youtube.mp4",
+      "url": "https://vimeo.com/upload",
+      "title": "Lithos — Discover Real Gems",
+      "description": "6,000 mineral specimens, classes, games, Rock Teacher. https://grahamgattegno.github.io/lithos/"
+    },
+    "streamable": {
+      "video": "assets/social/lithos-ad-youtube.mp4",
+      "url": "https://streamable.com/",
+      "title": "Lithos Gems Ad"
+    },
+    "twitch": {
+      "video": "assets/social/lithos-ad-youtube.mp4",
+      "url": "https://dashboard.twitch.tv/content/video-producer",
+      "title": "Lithos — Discover Real Gems",
+      "description": "https://grahamgattegno.github.io/lithos/"
+    },
+    "kick": {
+      "video": "assets/social/lithos-ad-youtube.mp4",
+      "url": "https://kick.com/dashboard/videos",
+      "title": "Lithos — Discover Real Gems",
+      "description": "https://grahamgattegno.github.io/lithos/"
+    },
+    "x": {
+      "video": "assets/social/lithos-ad-x.mp4",
+      "url": "https://x.com/compose/post",
+      "text": "Lithos is live — 6,000 mineral specimens, Rock Teacher, games & more 💎\n\nExplore: https://grahamgattegno.github.io/lithos/\n\n#Lithos #Gems #Geology #Minerals"
+    }
+  },
+  "notUploadable": {
+    "reason": "These are paid streaming services or enterprise-only hosts — they do not accept public video uploads.",
+    "platforms": ["Netflix", "Amazon Prime Video", "Disney+", "Hulu", "Max", "Brightcove", "Kaltura", "Wistia", "IBM Cloud Video", "Panopto", "Dacast"]
+  }
+}

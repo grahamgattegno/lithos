@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Gem Heli Siege — Lithos 🚁💎</title>
+<style>
+  :root{--gold:#c9a94f;--ink:#0a0c14;--panel:#121828;--line:#2a3550}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,sans-serif;background:var(--ink);color:#e8ecf4;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:10px 8px 24px;touch-action:none;user-select:none}
+  h1{margin:4px 0 2px;font-size:clamp(18px,4.5vw,26px);letter-spacing:.06em;text-transform:uppercase}
+  h1 span{color:var(--gold)}
+  .sub{font-size:12px;color:#8898b8;margin-bottom:8px;text-align:center;max-width:520px}
+  .hud{width:min(96vw,720px);display:flex;flex-wrap:wrap;gap:6px;justify-content:center;font-size:11px;font-weight:700;margin-bottom:6px}
+  .chip{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:4px 10px}
+  .chip b{color:var(--gold);font-weight:800}
+  .wrap{position:relative;width:min(96vw,720px);aspect-ratio:4/3;max-height:72vh;border:2px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.45)}
+  canvas{display:block;width:100%;height:100%;background:#060810}
+  .overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:14px;background:rgba(4,6,12,.88);z-index:5}
+  .overlay[hidden]{display:none!important}
+  .panel{background:linear-gradient(160deg,#161c2e,#0e121c);border:1px solid var(--line);border-radius:14px;padding:16px 14px;max-width:420px;width:100%;max-height:90%;overflow:auto;text-align:center}
+  .panel h2{margin:0 0 8px;font-size:20px;color:var(--gold)}
+  .panel p{font-size:13px;line-height:1.45;color:#a8b4cc;margin:0 0 10px}
+  .maps{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin:10px 0}
+  .maps button,.upg-grid button,.btn{font:inherit;cursor:pointer;border-radius:10px;border:1px solid var(--line);background:#1a2238;color:#e8ecf4;padding:8px 6px;font-size:11px;font-weight:700;touch-action:manipulation}
+  .maps button.on{border-color:var(--gold);background:rgba(201,169,79,.15)}
+  .maps button:disabled{opacity:.35;cursor:not-allowed}
+  .upg-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0;text-align:left}
+  .upg-grid button{text-align:left;padding:10px}
+  .upg-grid small{display:block;color:#8898b8;font-weight:500;margin-top:2px}
+  .btn{display:inline-block;margin:4px;padding:10px 18px;font-size:13px;background:linear-gradient(135deg,#3a5080,#2a3860);border-color:#4a6090}
+  .btn.primary{background:linear-gradient(135deg,var(--gold),#a08030);color:#1a1008;border-color:#e0c878}
+  .foot{margin-top:10px;font-size:11px}
+  .foot a{color:var(--gold)}
+  .bar{height:6px;background:#1a2238;border-radius:4px;overflow:hidden;margin:6px 0 10px}
+  .bar span{display:block;height:100%;background:linear-gradient(90deg,#e04060,#c9a94f);transition:width .2s}
+</style>
+</head>
+<body>
+<h1>🚁 Gem <span>Heli Siege</span> 💎</h1>
+<p class="sub">Fly the crystal chopper, spin the gemstone turret, and blast gemstone zombies — beat the boss on every map!</p>
+<div class="hud">
+  <span class="chip">🗺 Map <b id="h-map">1</b>/10</span>
+  <span class="chip">🌊 Wave <b id="h-wave">1</b></span>
+  <span class="chip">💎 Shards <b id="h-shards">0</b></span>
+  <span class="chip">❤️ Hull <b id="h-hp">100</b></span>
+  <span class="chip">🏆 Score <b id="h-score">0</b></span>
+</div>
+<div class="wrap">
+  <canvas id="cv" width="720" height="540"></canvas>
+  <div class="overlay" id="menu">
+    <div class="panel">
+      <h2>Gem Heli Siege</h2>
+      <p>Pick a map. Clear waves, spend shards on upgrades between waves, and destroy the map boss!</p>
+      <div class="maps" id="map-pick"></div>
+      <p style="font-size:11px;color:#7888a8">Move: ← → or A D · Aim: mouse / touch · Hold click or Space to fire</p>
+      <button type="button" class="btn primary" id="btn-start">Launch helicopter</button>
+    </div>
+  </div>
+  <div class="overlay" id="upgrade" hidden>
+    <div class="panel">
+      <h2>Wave clear!</h2>
+      <p>Spend gemstone shards on your turret and chopper before the next wave.</p>
+      <div class="bar"><span id="boss-bar" style="width:0%"></span></div>
+      <div class="upg-grid" id="upg-grid"></div>
+      <button type="button" class="btn primary" id="btn-next">Next wave</button>
+    </div>
+  </div>
+  <div class="overlay" id="gameover" hidden>
+    <div class="panel">
+      <h2 id="go-title">Chopper down!</h2>
+      <p id="go-msg"></p>
+      <button type="button" class="btn primary" id="btn-retry">Try again</button>
+      <button type="button" class="btn" id="btn-menu">Map select</button>
+    </div>
+  </div>
+</div>
+<p class="foot"><a href="../index.html#games">← Back to Lithos Games</a></p>
+<script>
+const MAPS=[
+  {name:'Crystal Canyon',sky:['#1a2840','#0a1020'],ground:'#2a4030',tint:'#7ec8ff',zSpeed:28,boss:'Quartz Colossus'},
+  {name:'Ruby Ravine',sky:['#401828','#180810'],ground:'#502028',tint:'#ff4060',zSpeed:32,boss:'Ruby Revenant'},
+  {name:'Sapphire Skyline',sky:['#182848','#080818'],ground:'#203050',tint:'#4080ff',zSpeed:34,boss:'Sapphire Shrieker'},
+  {name:'Emerald Expanse',sky:['#183828','#081810'],ground:'#285838',tint:'#40c878',zSpeed:36,boss:'Emerald Entomb'},
+  {name:'Amethyst Abyss',sky:['#281838','#100818'],ground:'#382848',tint:'#b060e0',zSpeed:38,boss:'Amethyst Archon'},
+  {name:'Diamond Dunes',sky:['#283848','#101820'],ground:'#484038',tint:'#e0f0ff',zSpeed:40,boss:'Diamond Doombringer'},
+  {name:'Obsidian Outpost',sky:['#101018','#040408'],ground:'#282028',tint:'#808890',zSpeed:42,boss:'Obsidian Overlord'},
+  {name:'Moonstone Mesa',sky:['#303848','#181820'],ground:'#505860',tint:'#d0e8f0',zSpeed:44,boss:'Moonstone Monolith'},
+  {name:'Topaz Tundra',sky:['#403820','#201810'],ground:'#605040',tint:'#ffc040',zSpeed:46,boss:'Topaz Titan'},
+  {name:'Rainbow Rift',sky:['#382040','#201028'],ground:'#403050',tint:'#ff80c0',zSpeed:50,boss:'Prismatic Patriarch'}
+];
+const GEMS=['💎','♦️','🔮','💠','🟣','🔴','🔵','🟢'];
+const cv=document.getElementById('cv');
+const ctx=cv.getContext('2d');
+const W=cv.width,H=cv.height;
+
+let mapIdx=0,mapUnlocked=JSON.parse(localStorage.getItem('ghs-unlock')||'1');
+let state='menu',wave=1,shards=0,score=0,boss=null,bossPhase=false;
+let heli={x:W/2,y:H-72,hp:100,maxHp:100,spd:220};
+let upg={dmg:1,rate:1,spd:1,spread:0,hull:0};
+let bullets=[],enemies=[],parts=[],aim={x:W/2,y:0},keys={},fireHeld=false,fireT=0,spawnT=0,waveQuota=0,waveKilled=0,bossSpawned=false,shake=0,last=0,raf=null;
+
+function saveUnlock(){localStorage.setItem('ghs-unlock',JSON.stringify(mapUnlocked));}
+
+function buildMapPick(){
+  const el=document.getElementById('map-pick');
+  el.innerHTML=MAPS.map((m,i)=>{
+    const ok=i<mapUnlocked;
+    return `<button type="button" data-m="${i}" class="${i===mapIdx?'on':''}" ${ok?'':'disabled'}>${i+1}. ${m.name}</button>`;
+  }).join('');
+  el.onclick=e=>{const b=e.target.closest('[data-m]');if(!b||b.disabled)return;mapIdx=+b.dataset.m;buildMapPick();};
+}
+
+function resetRun(){
+  wave=1;shards=0;score=0;boss=null;bossPhase=false;
+  heli={x:W/2,y:H-72,hp:100+upg.hull*15,maxHp:100+upg.hull*15,spd:220+upg.spd*25};
+  upg={dmg:1,rate:1,spd:1,spread:0,hull:0};
+  bullets=[];enemies=[];parts=[];waveQuota=8;waveKilled=0;bossSpawned=false;spawnT=0;
+}
+
+function startMap(){
+  resetRun();
+  document.getElementById('menu').hidden=true;
+  document.getElementById('gameover').hidden=true;
+  document.getElementById('upgrade').hidden=true;
+  state='play';
+  last=performance.now();
+  if(raf)cancelAnimationFrame(raf);
+  raf=requestAnimationFrame(loop);
+}
+
+function spawnZombie(){
+  const m=MAPS[mapIdx];
+  const x=40+Math.random()*(W-80);
+  const tough=1+(mapIdx*0.12)+(wave*0.08);
+  enemies.push({
+    x,y:-20,hp:18*tough,maxHp:18*tough,spd:m.zSpeed*(0.85+Math.random()*0.3),gem:GEMS[(Math.random()*GEMS.length)|0],
+    wobble:Math.random()*6,r:14+Math.random()*4,boss:false
+  });
+}
+
+function spawnBoss(){
+  const m=MAPS[mapIdx];
+  const tough=2.2+mapIdx*0.35+wave*0.15;
+  boss={
+    x:W/2,y:-80,hp:400*tough,maxHp:400*tough,spd:m.zSpeed*0.55,name:m.boss,gem:'👹',r:48,boss:true,phase:0
+  };
+  enemies.push(boss);
+  bossPhase=true;
+}
+
+function fire(){
+  const dx=aim.x-heli.x,dy=aim.y-(heli.y-8);
+  const base=Math.atan2(dy,dx);
+  const n=1+upg.spread;
+  for(let i=0;i<n;i++){
+    const a=base+((i-(n-1)/2)*0.12);
+    const spd=520;
+    bullets.push({x:heli.x,y:heli.y-12,vx:Math.cos(a)*spd,vy:Math.sin(a)*spd,dmg:12*upg.dmg,life:1.2,gem:['💎','🔷','✨'][(Math.random()*3)|0]});
+  }
+}
+
+function hitEnemy(e,b){
+  e.hp-=b.dmg;
+  parts.push({x:b.x,y:b.y,vx:(Math.random()-.5)*80,vy:(Math.random()-.5)*80,life:.35,gem:'✨'});
+  if(e.hp<=0&&!e.dead){
+    e.dead=true;
+    score+=e.boss?500:25;
+    shards+=e.boss?80:3+((wave/3)|0);
+    waveKilled++;
+    for(let i=0;i<(e.boss?24:8);i++)parts.push({x:e.x,y:e.y,vx:(Math.random()-.5)*160,vy:(Math.random()-.5)*160,life:.6,gem:e.gem||'💎'});
+    if(e.boss){boss=null;bossPhase=false;}
+  }
+}
+
+function update(dt){
+  const m=MAPS[mapIdx];
+  if(keys.left||keys.a)heli.x-=heli.spd*dt;
+  if(keys.right||keys.d)heli.x+=heli.spd*dt;
+  heli.x=Math.max(36,Math.min(W-36,heli.x));
+
+  fireT-=dt;
+  if((fireHeld||keys.space)&&fireT<=0){
+    fireT=Math.max(0.08,0.22/upg.rate);
+    fire();
+  }
+
+  spawnT-=dt;
+  if(state==='play'&&!bossPhase&&waveKilled<waveQuota&&enemies.filter(e=>!e.dead&&!e.boss).length<12&&spawnT<=0){
+    spawnZombie();
+    spawnT=0.55-Math.min(0.25,wave*0.02);
+  }
+
+  bullets.forEach(b=>{b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;});
+  bullets=bullets.filter(b=>b.life>0&&b.x>-20&&b.x<W+20&&b.y>-20&&b.y<H+20);
+
+  enemies.forEach(e=>{
+    if(e.dead)return;
+    e.y+=e.spd*dt;
+    e.x+=Math.sin(e.y*0.02+e.wobble)*18*dt;
+    if(e.boss&&e.hp<e.maxHp*0.5){e.phase=1;e.spd=m.zSpeed*0.75;}
+    if(Math.hypot(e.x-heli.x,e.y-heli.y)<e.r+22){
+      heli.hp-=e.boss?35*dt:12*dt;
+      shake=8;
+    }
+  });
+  enemies=enemies.filter(e=>!e.dead&&e.y<H+60);
+
+  bullets.forEach(b=>{
+    enemies.forEach(e=>{
+      if(e.dead)return;
+      if(Math.hypot(b.x-e.x,b.y-e.y)<e.r+6){hitEnemy(e,b);b.life=0;}
+    });
+  });
+
+  parts.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt;});
+  parts=parts.filter(p=>p.life>0);
+
+  if(heli.hp<=0){
+    state='dead';
+    document.getElementById('go-title').textContent='Chopper down!';
+    document.getElementById('go-msg').textContent=`Score ${score} on ${MAPS[mapIdx].name} — wave ${wave}.`;
+    document.getElementById('gameover').hidden=false;
+  }
+
+  if(state==='play'&&waveKilled>=waveQuota&&wave%3===0&&!bossSpawned&&!boss){
+    spawnBoss();bossSpawned=true;
+  }
+  if(state==='play'&&waveKilled>=waveQuota&&(!boss||boss.dead)&&!enemies.some(e=>!e.dead)){
+    if(wave>=5){
+      state='win';
+      if(mapIdx+1>=mapUnlocked)mapUnlocked=Math.min(10,mapIdx+2);
+      saveUnlock();
+      document.getElementById('go-title').textContent='Map cleared! 🎉';
+      document.getElementById('go-msg').textContent=`${MAPS[mapIdx].name} secured! Score ${score}. Next map unlocked.`;
+      document.getElementById('gameover').hidden=false;
+    }else{
+      state='upgrade';
+      showUpgrade();
+    }
+  }
+
+  document.getElementById('h-map').textContent=mapIdx+1;
+  document.getElementById('h-wave').textContent=wave;
+  document.getElementById('h-shards').textContent=shards;
+  document.getElementById('h-hp').textContent=Math.max(0,heli.hp|0);
+  document.getElementById('h-score').textContent=score;
+}
+
+const UPGRADES=[
+  {id:'dmg',name:'Turret power',desc:'+25% gem shot damage',cost:15,fn:()=>{upg.dmg+=0.25;}},
+  {id:'rate',name:'Fire rate',desc:'Shoot faster',cost:18,fn:()=>{upg.rate+=0.2;}},
+  {id:'spd',name:'Engine boost',desc:'Move quicker',cost:12,fn:()=>{heli.spd+=35;upg.spd+=0.15;}},
+  {id:'spread',name:'Triple facet',desc:'+1 bullet per shot',cost:25,fn:()=>{upg.spread=Math.min(4,upg.spread+1);}},
+  {id:'hull',name:'Crystal armor',desc:'+15 max hull',cost:20,fn:()=>{upg.hull++;heli.maxHp+=15;heli.hp+=15;}},
+  {id:'repair',name:'Field repair',desc:'Restore 40 hull',cost:10,fn:()=>{heli.hp=Math.min(heli.maxHp,heli.hp+40);}}
+];
+
+function showUpgrade(){
+  document.getElementById('upgrade').hidden=false;
+  const grid=document.getElementById('upg-grid');
+  grid.innerHTML=UPGRADES.map(u=>`<button type="button" data-u="${u.id}"><b>${u.name}</b> (${u.cost}💎)<small>${u.desc}</small></button>`).join('');
+  grid.onclick=e=>{
+    const b=e.target.closest('[data-u]');
+    if(!b)return;
+    const u=UPGRADES.find(x=>x.id===b.dataset.u);
+    if(shards<u.cost)return;
+    shards-=u.cost;u.fn();
+    showUpgrade();
+  };
+}
+
+function nextWave(){
+  wave++;
+  waveKilled=0;
+  bossSpawned=false;
+  waveQuota=6+wave*2+(mapIdx|0);
+  document.getElementById('upgrade').hidden=true;
+  state='play';
+  heli.hp=Math.min(heli.maxHp,heli.hp+8);
+}
+
+function draw(){
+  const m=MAPS[mapIdx];
+  const g=ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,m.sky[0]);g.addColorStop(1,m.sky[1]);
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  ctx.fillStyle=m.ground;ctx.fillRect(0,H-48,W,48);
+  ctx.strokeStyle='rgba(255,255,255,.06)';ctx.lineWidth=1;
+  for(let i=0;i<8;i++){ctx.beginPath();ctx.moveTo(i*100,0);ctx.lineTo(i*100-200,H);ctx.stroke();}
+
+  const sx=(Math.random()-.5)*shake;shake*=0.85;
+  ctx.save();ctx.translate(sx,0);
+
+  parts.forEach(p=>{ctx.globalAlpha=p.life*2;ctx.font='14px serif';ctx.fillText(p.gem,p.x,p.y);});
+  ctx.globalAlpha=1;
+
+  bullets.forEach(b=>{
+    ctx.fillStyle=m.tint;ctx.beginPath();ctx.arc(b.x,b.y,4,0,Math.PI*2);ctx.fill();
+    ctx.font='10px serif';ctx.fillText(b.gem,b.x-5,b.y+3);
+  });
+
+  enemies.forEach(e=>{
+    if(e.dead)return;
+    ctx.font=`${e.r*1.6}px serif`;ctx.textAlign='center';ctx.fillText(e.gem,e.x,e.y);
+    if(e.boss){
+      ctx.fillStyle='rgba(0,0,0,.4)';ctx.fillRect(e.x-40,e.y-e.r-16,80,8);
+      ctx.fillStyle='#ff4060';ctx.fillRect(e.x-40,e.y-e.r-16,80*(e.hp/e.maxHp),8);
+      ctx.font='11px sans-serif';ctx.fillStyle='#fff';ctx.fillText(e.name,e.x,e.y-e.r-20);
+    }
+  });
+
+  ctx.font='28px serif';ctx.textAlign='center';
+  ctx.fillText('🚁',heli.x,heli.y);
+  ctx.font='16px serif';ctx.fillText('💎',heli.x,heli.y-18);
+  const ang=Math.atan2(aim.y-(heli.y-8),aim.x-heli.x);
+  ctx.strokeStyle=m.tint;ctx.lineWidth=3;ctx.beginPath();
+  ctx.moveTo(heli.x,heli.y-10);ctx.lineTo(heli.x+Math.cos(ang)*28,heli.y-10+Math.sin(ang)*28);ctx.stroke();
+
+  ctx.restore();
+}
+
+function loop(t){
+  if(state!=='play'){if(state==='dead'||state==='win'){}else{raf=requestAnimationFrame(loop);return;}}
+  const dt=Math.min(0.033,(t-last)/1000);last=t;
+  if(state==='play')update(dt);
+  draw();
+  raf=requestAnimationFrame(loop);
+}
+
+function setAim(clientX,clientY){
+  const r=cv.getBoundingClientRect();
+  aim.x=(clientX-r.left)*(W/r.width);
+  aim.y=(clientY-r.top)*(H/r.height);
+}
+
+cv.addEventListener('pointermove',e=>setAim(e.clientX,e.clientY));
+cv.addEventListener('pointerdown',e=>{fireHeld=true;setAim(e.clientX,e.clientY);});
+cv.addEventListener('pointerup',()=>fireHeld=false);
+cv.addEventListener('pointerleave',()=>fireHeld=false);
+
+window.addEventListener('keydown',e=>{
+  if(e.key==='ArrowLeft'||e.key==='a')keys.left=true;
+  if(e.key==='ArrowRight'||e.key==='d')keys.right=true;
+  if(e.key===' ')keys.space=true;
+});
+window.addEventListener('keyup',e=>{
+  if(e.key==='ArrowLeft'||e.key==='a')keys.left=false;
+  if(e.key==='ArrowRight'||e.key==='d')keys.right=false;
+  if(e.key===' ')keys.space=false;
+});
+
+document.getElementById('btn-start').onclick=startMap;
+document.getElementById('btn-next').onclick=nextWave;
+document.getElementById('btn-retry').onclick=()=>{document.getElementById('gameover').hidden=true;startMap();};
+document.getElementById('btn-menu').onclick=()=>{
+  document.getElementById('gameover').hidden=true;
+  document.getElementById('menu').hidden=false;
+  state='menu';
+  buildMapPick();
+  if(raf)cancelAnimationFrame(raf);
+};
+
+buildMapPick();
+</script>
+</body>
+</html>
