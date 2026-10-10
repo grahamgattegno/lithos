@@ -1638,6 +1638,46 @@
   .arcade-desc{font-size:13px;color:#9a92b0;line-height:1.5;margin-bottom:14px;min-height:58px}
   .arcade-play{background:linear-gradient(135deg,#3a8ac0,#7ad0f0);color:#08131a;border:none;border-radius:11px;padding:10px 22px;font-weight:800;font-size:14px;cursor:pointer}
   .arcade-play.ghost{background:transparent;border:1px solid #4a4058;color:#b0a8c0}
+  /* 🚁💎 GEM COPTER — heli + gemstone turret vs gem zombies */
+  #gemcopter{position:fixed;inset:0;z-index:9999;background:#071018;display:flex;align-items:center;justify-content:center;padding:12px;font-family:"Courier New",Courier,monospace}
+  .gc-box{background:#102028;border:4px solid #3a6878;border-radius:0;padding:14px;width:min(96vw,560px);text-align:center;position:relative;box-shadow:4px 4px 0 #040c10,0 0 0 2px #040c10 inset}
+  .gc-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px;text-align:left}
+  .gc-title{font-size:16px;letter-spacing:.1em;text-transform:uppercase;color:#7dffd4;text-shadow:2px 2px 0 #104030;font-weight:800}
+  .gc-sub{font-size:11px;color:#88a8b8;margin-top:2px;letter-spacing:.04em}
+  .gc-btn{background:#183040;border:3px solid #4a7888;border-radius:0;padding:8px 14px;cursor:pointer;color:#7dffd4;font-family:inherit;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;box-shadow:3px 3px 0 #040c10}
+  .gc-btn:hover{border-color:#7dffd4;color:#fff}
+  .gc-btn.ghost{background:transparent;color:#88a8b8}
+  .gc-lede{font-size:12px;color:#a8c8d8;line-height:1.45;margin:8px 0 10px;text-align:left}
+  .gc-lede b{color:#7dffd4}
+  .gc-map-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0;max-height:42vh;overflow:auto}
+  .gc-map{background:#183040;border:3px solid #4a7888;border-radius:0;padding:10px 8px;cursor:pointer;color:#d8f0ff;text-align:left;box-shadow:3px 3px 0 #040c10;font-family:inherit;font-size:11px}
+  .gc-map:hover:not(.locked):not(:disabled){border-color:#7dffd4;color:#fff;transform:translate(-1px,-1px);box-shadow:4px 4px 0 #040c10}
+  .gc-map.locked,.gc-map:disabled{opacity:.55;cursor:not-allowed;border-style:dashed}
+  .gc-map b{display:block;font-size:12px;margin-bottom:3px;color:#7dffd4;text-transform:uppercase;letter-spacing:.06em}
+  .gc-map span{font-size:10px;color:#88a8b8;line-height:1.35}
+  .gc-hint{font-size:10px;color:#688898;margin-top:6px;letter-spacing:.04em;text-transform:uppercase}
+  #gc-play{position:relative}
+  #gc-canvas{display:block;width:100%;height:auto;image-rendering:pixelated;image-rendering:crisp-edges;border:4px solid #3a6878;background:#000;box-shadow:0 0 0 2px #040c10 inset,4px 4px 0 #040c10}
+  .gc-hud{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:8px;font-size:11px;color:#7dffd4;text-transform:uppercase;letter-spacing:.05em}
+  .gc-hud span{background:#0c1820;border:2px solid #3a6878;padding:4px 8px}
+  .gc-touch{display:flex;justify-content:center;gap:10px;margin-top:8px;flex-wrap:wrap}
+  .gc-touch button{min-width:72px;height:48px;padding:0 12px;font-size:16px;background:#183040;border:3px solid #4a7888;border-radius:0;color:#7dffd4;cursor:pointer;touch-action:manipulation;user-select:none;box-shadow:3px 3px 0 #040c10;font-family:inherit}
+  .gc-touch button:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #040c10}
+  .gc-shop{display:flex;align-items:center;justify-content:center;padding:8px 0;font-family:inherit}
+  .gc-overlay{position:absolute;inset:0;background:rgba(4,12,16,.92);display:flex;align-items:center;justify-content:center;z-index:5;padding:12px;font-family:inherit}
+  .gc-shop[hidden],.gc-overlay[hidden],#gc-play[hidden],#gc-menu[hidden]{display:none!important}
+  .gc-shop-inner,.gc-card{background:#102028;border:4px solid #3a6878;padding:16px;width:min(100%,420px);box-shadow:4px 4px 0 #040c10;margin:0 auto}
+  .gc-shop-inner h2,.gc-card h2{margin:0 0 8px;font-size:16px;color:#7dffd4;text-transform:uppercase;letter-spacing:.1em;text-shadow:2px 2px 0 #104030}
+  .gc-shop-inner p,.gc-card p{margin:0 0 8px;font-size:12px;color:#88a8b8}
+  .gc-up-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0;text-align:left}
+  .gc-up{background:#183040;border:3px solid #4a7888;border-radius:0;padding:10px 8px;cursor:pointer;color:#d8f0ff;text-align:left;box-shadow:3px 3px 0 #040c10;font-family:inherit;font-size:11px}
+  .gc-up:hover:not(:disabled){border-color:#7dffd4}
+  .gc-up:disabled,.gc-up.maxed{opacity:.55;cursor:not-allowed}
+  .gc-up b{display:block;color:#7dffd4;margin-bottom:2px;text-transform:uppercase;letter-spacing:.05em}
+  .gc-up span{display:block;font-size:10px;color:#88a8b8;line-height:1.35}
+  .gc-up-meta{margin-top:4px;color:#7dffd4!important}
+  .gc-shop-actions{display:flex;flex-direction:column;gap:8px;align-items:center;margin-top:8px}
+  .gc-card .gc-btn{margin:4px}
   /* 🚗💎 GEMSTONE CONVOY — 8-bit drive & blast */
   #gemdrive{position:fixed;inset:0;z-index:9999;background:#0a0818;display:flex;align-items:center;justify-content:center;padding:12px;font-family:"Courier New",Courier,monospace}
   .gd-box{background:#181830;border:4px solid #484878;border-radius:0;padding:14px;width:min(96vw,460px);text-align:center;position:relative;box-shadow:4px 4px 0 #080810,0 0 0 2px #080810 inset}
@@ -5192,6 +5232,7 @@
 <script src="stratum-catalog.js?v=deploy-50"></script>
 <script src="nightshift2.js?v=deploy-47"></script>
 <script src="archaeology.js?v=deploy-50"></script>
+<script src="gemcopter.js?v=deploy-51"></script>
 <script>
 /* ---------- Affiliate partners (tracked links where available) ---------- */
 const DEFAULT_PARTNER='gemsny';
@@ -5719,6 +5760,7 @@ const LITHOS_GAMES=[
  {id:'gemrush',icon:'⛏️💎',name:'Gem Rush',desc:'Match gemstone pairs — Diamond with Diamond, Ruby with Ruby! Clear the board before you run out of moves.',preview:'radial-gradient(circle at 40% 30%,rgba(255,120,160,.35),transparent 50%),radial-gradient(circle at 70% 70%,rgba(100,160,255,.3),transparent 45%),linear-gradient(180deg,#1a1028,#0a0812)'},
  {id:'gemdigger',icon:'⛏️🕳️',name:'Gem Digger',desc:'5 mine levels! Upgrade drill, buy bombs, reach the Legendary Rainbow Gem — owner gets Nuke Blaster ☢️',preview:'radial-gradient(circle at 50% 40%,rgba(180,120,60,.35),transparent 50%),linear-gradient(180deg,#1a1410,#0a0806)'},
  {id:'gemdrive',icon:'🚗💎',name:'Gemstone Convoy',desc:'Full 8-bit pixel driving! Pick a gem car + mount Ruby/Sapphire/Emerald/Diamond/Amethyst/Topaz launchers vs crystal monsters.',preview:'radial-gradient(circle at 50% 60%,rgba(255,64,96,.3),transparent 50%),linear-gradient(180deg,#1a1020 0%,#2a1840 40%,#1a2818 100%)'},
+ {id:'gemheli',icon:'🚁💎',name:'Gem Copter',desc:'Helicopter + gemstone turret! Blast gemstone zombies across 10 maps, buy upgrades, and drop epic bosses.',preview:'radial-gradient(circle at 50% 25%,rgba(126,200,255,.35),transparent 50%),radial-gradient(circle at 70% 80%,rgba(201,169,79,.25),transparent 45%),linear-gradient(180deg,#0a1428,#060810)'},
  {id:'nightshift',icon:'🌙',name:'Night Shift',tag4d:true,desc:'FREE — survive until 6 AM and get paid. Then spend cash at the Market.',preview:'radial-gradient(circle at 50% 40%,rgba(201,169,79,.25),transparent 50%),radial-gradient(circle at 20% 70%,rgba(154,58,192,.3),transparent 45%),linear-gradient(180deg,#120e1a,#050508)'},
  {id:'nightshift2',icon:'⛏️',name:'Night Shift 2',tag4d:true,desc:'FREE — the Mine Below crew with unique powers: magnets, mimics, frost, swarms & glitches.',preview:'radial-gradient(circle at 50% 35%,rgba(122,208,240,.22),transparent 50%),radial-gradient(circle at 80% 70%,rgba(176,96,232,.28),transparent 45%),linear-gradient(180deg,#0e0a14,#040408)'},
  {id:'archaeology',icon:'🏛️',name:'Stratum Archaeology',desc:'Dig sites, artifact games, and field tools — our archaeology companion site.',preview:'radial-gradient(circle at 40% 30%,rgba(196,165,116,.35),transparent 50%),linear-gradient(180deg,#1a1610,#0a0b0f)'},
@@ -5735,12 +5777,13 @@ const LITHOS_GAMES=[
  {id:'popframe',icon:'🎬',name:'PopFrame Studio',desc:'Free Canva-style video editor — templates, text, timeline, AI images, puppet animation & export!',preview:'radial-gradient(circle at 40% 30%,rgba(139,61,255,.4),transparent 50%),linear-gradient(180deg,#f3ebff,#eef0f4)'}
 ];
 const LITHOS_GAME_IDS=new Set(LITHOS_GAMES.map(g=>g.id));
-const LITHOS_ARCADE_ONLY=new Set(['arcade','gemrush','gemdigger','gemdrive']);
+const LITHOS_ARCADE_ONLY=new Set(['arcade','gemrush','gemdigger','gemdrive','gemheli','gemcopter']);
 const LITHOS_ARCADE=[
  {emoji:'⛏️💎',name:'Gem Rush',desc:'Match pairs of the same gemstone — Diamond with Diamond, Ruby with Ruby! Clear all 32 pairs before moves run out.',action:'gemrush'},
  {emoji:'🌙🏭',name:'Night Shift at the Gem Factory',desc:'Survive all 5 nights as the factory\'s night guard! Watch the cameras, slam the doors, don\'t get caught…',action:'nightshift'},
  {emoji:'⛏️🕳️',name:'Gem Digger',desc:'Dig through 5 mine levels! Find gems, upgrade drill, buy bombs — reach the Rainbow Gem at the bottom. Owner: Nuke Blaster clears everything! ☢️',action:'gemdigger'},
  {emoji:'🚗💎',name:'Gemstone Convoy',desc:'8-bit top-down driving! Choose a gem car, auto-fire gemstone turrets, and survive waves of crystal monsters.',action:'gemdrive'},
+ {emoji:'🚁💎',name:'Gem Copter',desc:'Helicopter + gemstone turret! Blast gemstone zombies across 10 maps, buy upgrades, and defeat epic bosses.',action:'gemcopter'},
  {emoji:'❓🔒',name:'??? Secret Game ???',desc:'A hidden game lurks somewhere on this site… it only unlocks with a secret code. Hint: how do you fall THROUGH a wall? 🟡',action:'secret',locked:true}
 ];
 let arcadeBuilt=false;
@@ -5752,6 +5795,7 @@ function launchArcadeGame(action){
  if(action==='nightshift'){playNightShift();return;}
  if(action==='gemdigger'){playGemDigger();return;}
  if(action==='gemdrive'){playGemDrive();return;}
+ if(action==='gemcopter'||action==='gemheli'){playGemCopter();return;}
  if(action==='secret'){switchView('codes');return;}
 }
 function buildArcade(){
@@ -5790,13 +5834,14 @@ function syncBodyScrollLock(){
   ||!!document.getElementById('gemrush')
   ||!!document.getElementById('gemdig')
   ||!!document.getElementById('gemdrive')
+  ||!!document.getElementById('gemcopter')
   ||document.body.classList.contains('pp-playing');
  document.body.style.overflow=locked?'hidden':'';
 }
 function syncMobileNav(name){
  document.querySelectorAll('.mobile-bar button').forEach(b=>{
   const target=b.dataset.mnav;
-  const onGames=name==='games'||name==='arcade'||(LITHOS_GAME_IDS.has(name)&&!LITHOS_ARCADE_ONLY.has(name))||name==='nightshift'||name==='nightshift2'||name==='gemrush'||name==='gemdigger'||name==='gemdrive';
+  const onGames=name==='games'||name==='arcade'||(LITHOS_GAME_IDS.has(name)&&!LITHOS_ARCADE_ONLY.has(name))||name==='nightshift'||name==='nightshift2'||name==='gemrush'||name==='gemdigger'||name==='gemdrive'||name==='gemheli'||name==='gemcopter';
   b.classList.toggle('on',onGames?target==='games':target===name);
  });
 }
@@ -5831,6 +5876,7 @@ function buildGamesHub(){
    if(id==='gemrush'){closeGamesHub({skipHash:true}); playGemRush(); return;}
    if(id==='gemdigger'){closeGamesHub({skipHash:true}); playGemDigger(); return;}
    if(id==='gemdrive'){closeGamesHub({skipHash:true}); playGemDrive(); return;}
+   if(id==='gemheli'||id==='gemcopter'){closeGamesHub({skipHash:true}); playGemCopter(); return;}
    if(id==='nightshift'){ closeGamesHub({skipHash:true}); playNightShift(); return; }
    if(id==='nightshift2'){ closeGamesHub({skipHash:true}); playNightShift2(); return; }
    if(id==='nightmarket'){ closeGamesHub({skipHash:true}); playNightMarket(); return; }
@@ -5851,6 +5897,7 @@ function lithosCloseGameOverlays(){
  try{grClose();}catch(_){}
  try{dgClose();}catch(_){}
  try{gdClose();}catch(_){}
+ try{gcClose();}catch(_){}
 }
 function openGamesHub(opts={}){
  if(isGamesHubOpen()){
@@ -6386,6 +6433,7 @@ function routeHashView(){
  if(name==='gemrush'){playGemRush();return;}
  if(name==='gemdigger'){playGemDigger();return;}
  if(name==='gemdrive'){playGemDrive();return;}
+ if(name==='gemheli'||name==='gemcopter'){playGemCopter();return;}
  if(name==='parts'){openGamesHub({fromHash:true});return;}
  if(name==='about'){openCompanyPage('story');return;}
  if(name==='collaborate'){openCompanyPage('partners');return;}
