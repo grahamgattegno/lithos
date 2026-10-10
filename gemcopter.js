@@ -1,6 +1,7 @@
 /* Gem Copter — helicopter + gemstone turret vs gem zombies, bosses, upgrades, 10 maps */
 (function(){
 'use strict';
+const GEM_COPTER_BUILD=54;
 
 let GC_W=960, GC_H=540;
 function gcGroundY(){ return GC_H*0.82; }
@@ -90,6 +91,15 @@ function gcKeyUp(e){
 }
 
 function playGemCopter(){
+ if(window.GEM_COPTER_BUILD!==GEM_COPTER_BUILD){
+  try{
+   const u=new URL(location.href);
+   u.searchParams.set('_gc',String(GEM_COPTER_BUILD));
+   u.searchParams.set('_',String(Date.now()));
+   location.replace(u.pathname+u.search+(location.hash||'#gemcopter'));
+  }catch(_){ location.reload(); }
+  return;
+ }
  try{if(typeof lithosCloseGameOverlays==='function')lithosCloseGameOverlays();}catch(_){}
  gcClose();
  const wrap=document.createElement('div');
@@ -520,6 +530,8 @@ function gcDraw(){
  ctx.strokeStyle=m.accent; ctx.globalAlpha=0.25; ctx.setLineDash([6,6]);
  ctx.beginPath(); ctx.moveTo(s.x,s.y-8); ctx.lineTo(gcPointer.x,gcPointer.y); ctx.stroke();
  ctx.setLineDash([]); ctx.globalAlpha=1;
+ ctx.fillStyle='rgba(125,255,212,.85)'; ctx.font='10px monospace'; ctx.textAlign='left';
+ ctx.fillText(`GEM COPTER · build ${GEM_COPTER_BUILD} · WASD fly · ground zombies`,12,18);
  ctx.restore();
 }
 
@@ -595,6 +607,7 @@ function gcRenderShop(){
  };
 }
 
+window.GEM_COPTER_BUILD=GEM_COPTER_BUILD;
 window.playGemCopter=playGemCopter;
 window.gcClose=gcClose;
 })();
