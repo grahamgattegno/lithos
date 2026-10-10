@@ -2,7 +2,33 @@
 (function(){
 'use strict';
 
-const GC_W=960, GC_H=540;
+let GC_W=960, GC_H=540;
+function gcGroundY(){ return GC_H*0.82; }
+function gcOnResize(){ gcResizeViewport(); }
+function gcResizeViewport(){
+ const cv=document.getElementById('gc-canvas');
+ const wrap=document.getElementById('gemcopter');
+ if(!cv||!wrap||!wrap.classList.contains('gc-play-mode'))return;
+ GC_W=Math.max(720, window.innerWidth|0);
+ GC_H=Math.max(480, window.innerHeight|0);
+ cv.width=GC_W;
+ cv.height=GC_H;
+ if(gcState){
+  gcState.x=Math.min(GC_W-30, Math.max(30, gcState.x));
+  gcState.y=Math.min(GC_H-40, Math.max(50, gcState.y));
+ }
+ gcPointer.x=Math.min(GC_W, Math.max(0, gcPointer.x));
+ gcPointer.y=Math.min(GC_H, Math.max(0, gcPointer.y));
+}
+function gcEnterPlayMode(){
+ const wrap=document.getElementById('gemcopter');
+ if(wrap)wrap.classList.add('gc-play-mode');
+ gcResizeViewport();
+}
+function gcLeavePlayMode(){
+ const wrap=document.getElementById('gemcopter');
+ if(wrap)wrap.classList.remove('gc-play-mode');
+}
 const GC_MAPS=[
  {id:1,name:'Ruby Ridge',sky:['#1a0610','#3a1020'],ground:'#4a1828',accent:'#ff4060',boss:'Crimson Colossus',waves:4},
  {id:2,name:'Sapphire Coast',sky:['#061018','#102838'],ground:'#183848',accent:'#4ea8ff',boss:'Tide Titan',waves:4},
@@ -38,6 +64,8 @@ function gcClose(){
  if(gcRaf){cancelAnimationFrame(gcRaf);gcRaf=null;}
  window.removeEventListener('keydown',gcKeyDown);
  window.removeEventListener('keyup',gcKeyUp);
+ window.removeEventListener('resize',gcOnResize);
+ gcLeavePlayMode();
  const w=document.getElementById('gemcopter');
  if(w)w.remove();
  gcState=null;
@@ -78,18 +106,20 @@ function playGemCopter(){
    <div id="gc-menu" class="gc-menu">
     <p class="gc-lede">Pilot a helicopter with a <b>gemstone turret</b>. Blast gemstone zombies, beat bosses, buy upgrades, clear all <b>10 maps</b>!</p>
     <div class="gc-map-grid" id="gc-map-grid"></div>
-    <p class="gc-hint">WASD / arrows move · mouse aim · click or Space fire · Esc quit</p>
+    <p class="gc-hint">WASD / arrows fly in 4 directions · mouse aim · click or Space fire · Esc quit</p>
    </div>
    <div id="gc-play" hidden>
+    <div class="gc-play-frame">
     <canvas id="gc-canvas" width="${GC_W}" height="${GC_H}"></canvas>
-    <div class="gc-hud">
+    <div class="gc-hud gc-hud-float">
      <span id="gc-hp">HP 100</span>
      <span id="gc-gems">💎 0</span>
      <span id="gc-wave">Wave 1</span>
      <span id="gc-kills">Kills 0</span>
     </div>
-    <div class="gc-touch">
+    <div class="gc-touch gc-touch-float">
      <button type="button" id="gc-fire">🔥 Fire</button>
+    </div>
     </div>
    </div>
    <div id="gc-shop" class="gc-shop" hidden></div>
@@ -113,6 +143,7 @@ function playGemCopter(){
  };
  window.addEventListener('keydown',gcKeyDown);
  window.addEventListener('keyup',gcKeyUp);
+ window.addEventListener('resize',gcOnResize);
  try{if(typeof syncBodyScrollLock==='function')syncBodyScrollLock();}catch(_){}
  try{if(typeof lithos8bitSync==='function')lithos8bitSync();}catch(_){}
 }
@@ -126,10 +157,11 @@ function gcStartMap(mapId, carry){
  document.getElementById('gc-shop').hidden=true;
  document.getElementById('gc-overlay').hidden=true;
  document.getElementById('gc-play').hidden=false;
+ gcEnterPlayMode();
  document.getElementById('gc-mapname').textContent=`Map ${map.id}: ${map.name}`;
  gcState={
   map, upgrades, gems,
-  x:GC_W*0.5, y:GC_H*0.72, vx:0, vy:0,
+  x:GC_W*0.5, y:GC_H*0.38, vx:0, vy:0,
   hp:upgrades.maxHp, maxHp:upgrades.maxHp,
   fireT:0, wave:1, waveT:0, spawnLeft:0, spawnGap:0,
   kills:0, boss:null, bossSpawned:false, cleared:false, over:false,
@@ -169,25 +201,23 @@ function gcBindCanvas(){
 }
 
 function gcSpawnZombie(elite){
- const s=gcState, m=s.map;
- const edge=Math.floor(Math.random()*4);
- let x,y;
- if(edge===0){x=Math.random()*GC_W;y=-20;}
- else if(edge===1){x=GC_W+20;y=Math.random()*GC_H;}
- else if(edge===2){x=Math.random()*GC_W;y=GC_H+20;}
- else{x=-20;y=Math.random()*GC_H;}
+ const s=gcState;
+ const gy=gcGroundY();
+ const fromLeft=Math.random()<0.5;
+ const x=fromLeft?-28:GC_W+28;
  const hp=(elite?70:28)+s.map.id*8+s.wave*4;
  s.zombies.push({
-  x,y,hp,maxHp:hp,elite:!!elite,
-  speed:(elite?55:70)+Math.random()*25+s.map.id*2,
-  r:elite?18:13, hurt:0, t:Math.random()*6
+  x,y:gy,gy,hp,maxHp:hp,elite:!!elite,
+  speed:(elite?70:92)+Math.random()*28+s.map.id*3,
+  r:elite?20:14, hurt:0, t:Math.random()*6
  });
 }
 
 function gcSpawnBoss(){
  const s=gcState, m=s.map;
+ const gy=gcGroundY();
  s.boss={
-  name:m.boss, x:GC_W/2, y:90,
+  name:m.boss, x:GC_W/2, y:gy, gy,
   hp:420+m.id*160, maxHp:420+m.id*160,
   r:36+m.id*1.2, t:0, phase:0, shootT:2, hurt:0
  };
@@ -196,8 +226,8 @@ function gcSpawnBoss(){
 
 function gcStartWave(){
  const s=gcState;
- s.spawnLeft=8+s.wave*3+s.map.id;
- s.spawnGap=0.35;
+ s.spawnLeft=16+s.wave*6+s.map.id*4;
+ s.spawnGap=0.22;
  s.waveT=0;
  if(s.wave===s.map.waves) gcSpawnBoss();
 }
@@ -247,25 +277,29 @@ function gcUpdate(dt){
    gcStartWave();
   }
  }
- if(s.spawnLeft>0){
+ const maxZ=24+s.wave*3+s.map.id*3;
+ if(s.spawnLeft>0&&s.zombies.length<maxZ){
   s.spawnGap-=dt;
   if(s.spawnGap<=0){
    gcSpawnZombie(s.spawnLeft%7===0);
    s.spawnLeft--;
-   s.spawnGap=Math.max(0.18,0.55-s.wave*0.03);
+   s.spawnGap=Math.max(0.08,0.42-s.wave*0.025);
   }
  }
  if(s.wave===1&&s.spawnLeft===0&&s.zombies.length===0&&!s.bossSpawned&&s.waveT===0){
   gcStartWave();
  }
 
- // zombies
+ // zombies (ground only — shuffle toward your shadow)
  s.zombies.forEach(z=>{
   z.t+=dt; z.hurt=Math.max(0,z.hurt-dt);
-  const ang=Math.atan2(s.y-z.y,s.x-z.x);
-  z.x+=Math.cos(ang)*z.speed*dt;
-  z.y+=Math.sin(ang)*z.speed*dt;
-  if(Math.hypot(z.x-s.x,z.y-s.y)<z.r+16){
+  const gy=z.gy!=null?z.gy:gcGroundY();
+  const dir=s.x>z.x?1:-1;
+  z.x+=dir*z.speed*dt;
+  z.y=gy+Math.sin(z.t*5)*2.5;
+  const hDist=Math.abs(s.x-z.x);
+  const vGap=s.y-gy;
+  if(hDist<z.r+20&&vGap>-20&&vGap<110){
    s.hp-=(z.elite?18:10)*dt;
    s.shake=3;
   }
@@ -274,8 +308,9 @@ function gcUpdate(dt){
  // boss
  if(s.boss){
   const b=s.boss; b.t+=dt; b.hurt=Math.max(0,b.hurt-dt);
-  b.x=GC_W/2+Math.sin(b.t*0.7)*140;
-  b.y=90+Math.sin(b.t*1.3)*18;
+  const gy=b.gy!=null?b.gy:gcGroundY();
+  b.x=GC_W/2+Math.sin(b.t*0.7)*Math.min(220,GC_W*0.38);
+  b.y=gy-b.r+Math.sin(b.t*1.3)*4;
   b.shootT-=dt;
   if(b.shootT<=0){
    b.shootT=1.1-Math.min(0.5,s.map.id*0.04);
@@ -387,15 +422,19 @@ function gcDraw(){
  const grd=ctx.createLinearGradient(0,0,0,GC_H);
  grd.addColorStop(0,m.sky[0]); grd.addColorStop(1,m.sky[1]);
  ctx.fillStyle=grd; ctx.fillRect(0,0,GC_W,GC_H);
+ const gy=gcGroundY();
  // ground band
- ctx.fillStyle=m.ground; ctx.globalAlpha=0.55;
- ctx.fillRect(0,GC_H*0.62,GC_W,GC_H*0.38);
+ ctx.fillStyle=m.ground; ctx.globalAlpha=0.72;
+ ctx.fillRect(0,gy-8,GC_W,GC_H-gy+8);
  ctx.globalAlpha=1;
- // hills
+ ctx.strokeStyle=m.accent; ctx.lineWidth=3; ctx.globalAlpha=0.45;
+ ctx.beginPath(); ctx.moveTo(0,gy); ctx.lineTo(GC_W,gy); ctx.stroke();
+ ctx.globalAlpha=1;
+ // hills behind ground
  ctx.fillStyle=m.accent; ctx.globalAlpha=0.12;
- for(let i=0;i<8;i++){
+ for(let i=0;i<12;i++){
   const hx=(i*140+(s.rotor*3))% (GC_W+120)-60;
-  ctx.beginPath(); ctx.moveTo(hx,GC_H*0.68); ctx.lineTo(hx+60,GC_H*0.55); ctx.lineTo(hx+120,GC_H*0.68); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(hx,gy); ctx.lineTo(hx+60,gy-48); ctx.lineTo(hx+120,gy); ctx.fill();
  }
  ctx.globalAlpha=1;
 
@@ -502,6 +541,7 @@ function gcShowVictory(){
  const s=gcState; if(!s)return;
  if(gcRaf){cancelAnimationFrame(gcRaf);gcRaf=null;}
  document.getElementById('gc-play').hidden=true;
+ gcLeavePlayMode();
  const shop=document.getElementById('gc-shop');
  shop.hidden=false;
  document.getElementById('gc-mapname').textContent=`Cleared ${s.map.name}! Upgrade shop`;

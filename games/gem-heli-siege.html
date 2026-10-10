@@ -8,6 +8,10 @@
   :root{--gold:#c9a94f;--ink:#0a0c14;--panel:#121828;--line:#2a3550}
   *{box-sizing:border-box}
   body{margin:0;font-family:system-ui,-apple-system,sans-serif;background:var(--ink);color:#e8ecf4;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:10px 8px 24px;touch-action:none;user-select:none}
+  body.fs-play{padding:0;overflow:hidden}
+  body.fs-play h1,body.fs-play .sub,body.fs-play .foot{display:none}
+  body.fs-play .hud{position:fixed;top:8px;left:8px;right:8px;width:auto;z-index:6;margin:0;justify-content:flex-start}
+  body.fs-play .wrap{position:fixed;inset:0;width:100%;max-height:none;aspect-ratio:auto;border:none;border-radius:0}
   h1{margin:4px 0 2px;font-size:clamp(18px,4.5vw,26px);letter-spacing:.06em;text-transform:uppercase}
   h1 span{color:var(--gold)}
   .sub{font-size:12px;color:#8898b8;margin-bottom:8px;text-align:center;max-width:520px}
@@ -53,7 +57,7 @@
       <h2>Gem Heli Siege</h2>
       <p>Pick a map. Clear waves, spend shards on upgrades between waves, and destroy the map boss!</p>
       <div class="maps" id="map-pick"></div>
-      <p style="font-size:11px;color:#7888a8">Move: ← → or A D · Aim: mouse / touch · Hold click or Space to fire</p>
+      <p style="font-size:11px;color:#7888a8">WASD / arrows fly · zombies stay on the ground · fullscreen · mouse aim · Space fire</p>
       <button type="button" class="btn primary" id="btn-start">Launch helicopter</button>
     </div>
   </div>
@@ -92,7 +96,14 @@ const MAPS=[
 const GEMS=['💎','♦️','🔮','💠','🟣','🔴','🔵','🟢'];
 const cv=document.getElementById('cv');
 const ctx=cv.getContext('2d');
-const W=cv.width,H=cv.height;
+let W=720,H=540;
+function groundY(){return H*0.82;}
+function resizePlay(){
+  W=Math.max(720,window.innerWidth|0);
+  H=Math.max(480,window.innerHeight|0);
+  cv.width=W;cv.height=H;
+  if(heli){heli.x=Math.min(W-36,Math.max(36,heli.x));heli.y=Math.min(H-40,Math.max(50,heli.y));}
+}
 
 let mapIdx=0,mapUnlocked=JSON.parse(localStorage.getItem('ghs-unlock')||'1');
 let state='menu',wave=1,shards=0,score=0,boss=null,bossPhase=false;
@@ -120,6 +131,8 @@ function resetRun(){
 
 function startMap(){
   resetRun();
+  document.body.classList.add('fs-play');
+  resizePlay();
   document.getElementById('menu').hidden=true;
   document.getElementById('gameover').hidden=true;
   document.getElementById('upgrade').hidden=true;
@@ -131,10 +144,12 @@ function startMap(){
 
 function spawnZombie(){
   const m=MAPS[mapIdx];
-  const x=40+Math.random()*(W-80);
+  const gy=groundY();
+  const fromLeft=Math.random()<0.5;
+  const x=fromLeft?-24:W+24;
   const tough=1+(mapIdx*0.12)+(wave*0.08);
   enemies.push({
-    x,y:-20,hp:18*tough,maxHp:18*tough,spd:m.zSpeed*(0.85+Math.random()*0.3),gem:GEMS[(Math.random()*GEMS.length)|0],
+    x,y:gy,gy,hp:18*tough,maxHp:18*tough,spd:m.zSpeed*(0.9+Math.random()*0.35),gem:GEMS[(Math.random()*GEMS.length)|0],
     wobble:Math.random()*6,r:14+Math.random()*4,boss:false
   });
 }
@@ -142,8 +157,9 @@ function spawnZombie(){
 function spawnBoss(){
   const m=MAPS[mapIdx];
   const tough=2.2+mapIdx*0.35+wave*0.15;
+  const gy=groundY();
   boss={
-    x:W/2,y:-80,hp:400*tough,maxHp:400*tough,spd:m.zSpeed*0.55,name:m.boss,gem:'👹',r:48,boss:true,phase:0
+    x:W/2,y:gy,gy,hp:400*tough,maxHp:400*tough,spd:m.zSpeed*0.55,name:m.boss,gem:'👹',r:48,boss:true,phase:0
   };
   enemies.push(boss);
   bossPhase=true;
@@ -175,9 +191,14 @@ function hitEnemy(e,b){
 
 function update(dt){
   const m=MAPS[mapIdx];
-  if(keys.left||keys.a)heli.x-=heli.spd*dt;
-  if(keys.right||keys.d)heli.x+=heli.spd*dt;
-  heli.x=Math.max(36,Math.min(W-36,heli.x));
+  let mx=0,my=0;
+  if(keys.left||keys.a)mx-=1;
+  if(keys.right||keys.d)mx+=1;
+  if(keys.up||keys.w)my-=1;
+  if(keys.down||keys.s)my+=1;
+  const ml=Math.hypot(mx,my)||1;
+  heli.x=Math.max(36,Math.min(W-36,heli.x+(mx/ml)*heli.spd*dt));
+  heli.y=Math.max(50,Math.min(H-36,heli.y+(my/ml)*heli.spd*dt));
 
   fireT-=dt;
   if((fireHeld||keys.space)&&fireT<=0){
@@ -186,7 +207,8 @@ function update(dt){
   }
 
   spawnT-=dt;
-  if(state==='play'&&!bossPhase&&waveKilled<waveQuota&&enemies.filter(e=>!e.dead&&!e.boss).length<12&&spawnT<=0){
+  const maxZ=22+wave*2+mapIdx*2;
+  if(state==='play'&&!bossPhase&&waveKilled<waveQuota&&enemies.filter(e=>!e.dead&&!e.boss).length<maxZ&&spawnT<=0){
     spawnZombie();
     spawnT=0.55-Math.min(0.25,wave*0.02);
   }
@@ -196,15 +218,24 @@ function update(dt){
 
   enemies.forEach(e=>{
     if(e.dead)return;
-    e.y+=e.spd*dt;
-    e.x+=Math.sin(e.y*0.02+e.wobble)*18*dt;
-    if(e.boss&&e.hp<e.maxHp*0.5){e.phase=1;e.spd=m.zSpeed*0.75;}
-    if(Math.hypot(e.x-heli.x,e.y-heli.y)<e.r+22){
+    const gy=e.gy!=null?e.gy:groundY();
+    if(e.boss){
+      e.x=W/2+Math.sin(e.wobble)*Math.min(180,W*0.35);
+      e.y=gy-e.r+Math.sin(e.wobble*2)*3;
+    }else{
+      e.x+=(heli.x>e.x?1:-1)*e.spd*dt;
+      e.y=gy+Math.sin(e.wobble+e.x*0.02)*2.5;
+    }
+    e.wobble+=dt;
+    if(e.boss&&e.hp<e.maxHp*0.5){e.phase=1;}
+    const hDist=Math.abs(heli.x-e.x);
+    const vGap=heli.y-gy;
+    if(hDist<e.r+22&&vGap>-20&&vGap<110){
       heli.hp-=e.boss?35*dt:12*dt;
       shake=8;
     }
   });
-  enemies=enemies.filter(e=>!e.dead&&e.y<H+60);
+  enemies=enemies.filter(e=>!e.dead);
 
   bullets.forEach(b=>{
     enemies.forEach(e=>{
@@ -285,7 +316,9 @@ function draw(){
   const g=ctx.createLinearGradient(0,0,0,H);
   g.addColorStop(0,m.sky[0]);g.addColorStop(1,m.sky[1]);
   ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
-  ctx.fillStyle=m.ground;ctx.fillRect(0,H-48,W,48);
+  const gy=groundY();
+  ctx.fillStyle=m.ground;ctx.fillRect(0,gy-6,W,H-gy+6);
+  ctx.strokeStyle=m.tint;ctx.globalAlpha=.4;ctx.beginPath();ctx.moveTo(0,gy);ctx.lineTo(W,gy);ctx.stroke();ctx.globalAlpha=1;
   ctx.strokeStyle='rgba(255,255,255,.06)';ctx.lineWidth=1;
   for(let i=0;i<8;i++){ctx.beginPath();ctx.moveTo(i*100,0);ctx.lineTo(i*100-200,H);ctx.stroke();}
 
@@ -340,21 +373,30 @@ cv.addEventListener('pointerup',()=>fireHeld=false);
 cv.addEventListener('pointerleave',()=>fireHeld=false);
 
 window.addEventListener('keydown',e=>{
-  if(e.key==='ArrowLeft'||e.key==='a')keys.left=true;
-  if(e.key==='ArrowRight'||e.key==='d')keys.right=true;
-  if(e.key===' ')keys.space=true;
+  const k=e.key.toLowerCase();
+  if(['arrowleft','arrowright','arrowup','arrowdown',' ','w','a','s','d'].includes(k))e.preventDefault();
+  if(k==='arrowleft'||k==='a')keys.left=true;
+  if(k==='arrowright'||k==='d')keys.right=true;
+  if(k==='arrowup'||k==='w')keys.up=true;
+  if(k==='arrowdown'||k==='s')keys.down=true;
+  if(k===' ')keys.space=true;
 });
 window.addEventListener('keyup',e=>{
-  if(e.key==='ArrowLeft'||e.key==='a')keys.left=false;
-  if(e.key==='ArrowRight'||e.key==='d')keys.right=false;
-  if(e.key===' ')keys.space=false;
+  const k=e.key.toLowerCase();
+  if(k==='arrowleft'||k==='a')keys.left=false;
+  if(k==='arrowright'||k==='d')keys.right=false;
+  if(k==='arrowup'||k==='w')keys.up=false;
+  if(k==='arrowdown'||k==='s')keys.down=false;
+  if(k===' ')keys.space=false;
 });
+window.addEventListener('resize',()=>{if(document.body.classList.contains('fs-play'))resizePlay();});
 
 document.getElementById('btn-start').onclick=startMap;
 document.getElementById('btn-next').onclick=nextWave;
 document.getElementById('btn-retry').onclick=()=>{document.getElementById('gameover').hidden=true;startMap();};
 document.getElementById('btn-menu').onclick=()=>{
   document.getElementById('gameover').hidden=true;
+  document.body.classList.remove('fs-play');
   document.getElementById('menu').hidden=false;
   state='menu';
   buildMapPick();
