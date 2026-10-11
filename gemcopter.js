@@ -1,7 +1,7 @@
 /* Gem Copter — helicopter + gemstone turret vs gem zombies, bosses, upgrades, 10 maps */
 (function(){
 'use strict';
-const GEM_COPTER_BUILD=66;
+const GEM_COPTER_BUILD=67;
 
 const gcSfx=(()=>{
  let ctx=null,gain=null,lastBoom=0,lastHit=0,lastGroan=0,lastPew=0,lastWhoosh=0,audioReady=false;
@@ -226,7 +226,7 @@ const GC_OWNER_UPGRADES=[
  {id:'auric',name:'Auric Overdrive',ownerOnly:true,desc:'Fastest rapid fire in Lithos',max:4,cost:45,fn:u=>{u.cooldown=Math.max(0.025,0.12-(u.levels.firerate||0)*0.014-(u.levels.auric||0)*0.026);}},
  {id:'devastator',name:'Devastator Core',ownerOnly:true,desc:'Huge gem bullet damage',max:4,cost:50,fn:u=>{u.damage=10+(u.levels.damage||0)*6+(u.levels.devastator||0)*18;}},
  {id:'titan',name:'Titan Plating',ownerOnly:true,desc:'+100 hull per level',max:5,cost:55,fn:u=>{u.maxHp=100+(u.levels.armor||0)*25+(u.levels.titan||0)*100;}},
- {id:'warpath',name:'Gem Volley',ownerOnly:true,desc:'+10 gem turret damage per level',max:3,cost:40,fn:u=>{u.warpathDmg=(u.levels.warpath||0)*10;}},
+ {id:'warpath',name:'Warpath Command',ownerOnly:true,desc:'Ground squad shoots harder',max:3,cost:40,fn:u=>{u.militaryMult=1+(u.levels.warpath||0)*0.5;}},
  {id:'stragem',name:'Stragem Missiles',ownerOnly:true,desc:'Missile power & faster salvo',max:4,cost:55,fn:u=>{u.missileMult=1+(u.levels.stragem||0)*0.6;u.missileInterval=Math.max(0.32,0.85-(u.levels.stragem||0)*0.13);}},
  {id:'prism',name:'Prism Crown',ownerOnly:true,desc:'+2 extra spread beams per level',max:2,cost:70,fn:u=>{u.spread=Math.min(8,(u.levels.spread||0)+(u.levels.prism||0)*2);}}
 ];
@@ -237,7 +237,7 @@ function gcDefaultUpgrades(){
  return {
   levels:{firerate:0,damage:0,spread:0,armor:0,speed:0,magnet:0,auric:0,devastator:0,titan:0,warpath:0,stragem:0,prism:0},
   cooldown:0.12,damage:10,spread:0,maxHp:100,speed:220,magnet:40,
-  warpathDmg:0,missileMult:1,missileInterval:0.85
+  militaryMult:1,missileMult:1,missileInterval:0.85
  };
 }
 function gcMaxAllUpgrades(u){
@@ -312,7 +312,7 @@ function playGemCopter(){
     <button type="button" class="gc-btn ghost" id="gc-leave">Leave</button>
    </div>
    <div id="gc-menu" class="gc-menu">
-    <p class="gc-lede">Pick a <b>helicopter</b>, then a map. Fly, shoot, and clear zombie waves — <b>just you and your chopper</b> (no ground army).</p>
+    <p class="gc-lede">Pick a <b>helicopter</b>, then a map. Your <b>ground squad</b> holds the line while you fly and shoot from above!</p>
     <div class="gc-heli-grid" id="gc-heli-grid"></div>
     <div class="gc-map-grid" id="gc-map-grid"></div>
     <p class="gc-version-banner" id="gc-version-banner">Build ${GEM_COPTER_BUILD} — pick a helicopter, then a map ↓</p>
@@ -327,6 +327,7 @@ function playGemCopter(){
      <span id="gc-gems">💎 0</span>
      <span id="gc-wave">Wave 1</span>
      <span id="gc-kills">Kills 0</span>
+     <span id="gc-army">Squad 4</span>
     </div>
     <div class="gc-touch gc-touch-float">
      <button type="button" id="gc-fire">🔥 Fire</button>
@@ -419,8 +420,10 @@ function gcStartMap(mapId, carry, heliId){
   fireT:0, missileT:0, wave:1, waveT:0, spawnLeft:0, spawnGap:0,
   kills:0, boss:null, bossSpawned:false, cleared:false, over:false,
   zombies:[], bullets:[], missiles:[], particles:[], pickups:[],
+  military:[],
   rotor:0, shake:0, shopPause:false, waveShopPending:false
  };
+ gcInitMilitary(gcState);
  gcBindCanvas();
  gcStartLoop();
 }
@@ -455,6 +458,16 @@ function gcBindCanvas(){
   fire.onpointerdown=e=>{e.preventDefault();gcUnlockAudio();gcPointer.down=true;};
   fire.onpointerup=()=>{gcPointer.down=false;};
  }
+}
+
+function gcInitMilitary(s){
+ const gy=gcGroundY();
+ const xs=[0.18,0.38,0.58,0.78];
+ s.military=xs.map((f,i)=>({
+  x:GC_W*f,y:gy-6,gy,
+  fireT:0.12+i*0.09,t:Math.random()*6,face:1,aim:0,
+  hp:80,r:14,dmg:9+s.map.id,range:340
+ }));
 }
 
 function gcSpawnZombie(elite){
@@ -541,7 +554,7 @@ function gcFire(){
   s.bullets.push({
    x:s.x, y:s.y-8,
    vx:Math.cos(sh.ang)*520, vy:Math.sin(sh.ang)*520,
-   life:1.2, dmg:u.damage+(u.warpathDmg||0), r:4
+   life:1.2, dmg:u.damage, r:4
   });
  });
  gcSfx.pew();
@@ -585,6 +598,35 @@ function gcUpdate(dt){
    s.spawnLeft--;
    s.spawnGap=Math.max(0.06,0.34-s.wave*0.028);
   }
+ }
+ if(s.military){
+  s.military.forEach(unit=>{
+   unit.t+=dt;
+   unit.fireT-=dt;
+   let best=null,bd=1e12;
+   s.zombies.forEach(z=>{
+    const d=(z.x-unit.x)**2+(z.y-unit.y)**2;
+    if(d<bd&&d<unit.range*unit.range){bd=d;best=z;}
+   });
+   if(!best&&s.boss){
+    const d=(s.boss.x-unit.x)**2+(s.boss.y-unit.y)**2;
+    if(d<unit.range*unit.range)best=s.boss;
+   }
+   if(best){
+    unit.face=best.x>=unit.x?1:-1;
+    unit.aim=Math.atan2((best.y-10)-unit.y,best.x-unit.x);
+    if(unit.fireT<=0){
+     unit.fireT=0.32;
+     const ang=Math.atan2(best.y-unit.y,best.x-unit.x);
+     s.bullets.push({
+      x:unit.x,y:unit.y-12,
+      vx:Math.cos(ang)*420,vy:Math.sin(ang)*420,
+      life:1,dmg:unit.dmg*(s.upgrades.militaryMult||1),r:3,ally:true
+     });
+     gcSfx.pew();
+    }
+   }
+  });
  }
  if(s.wave===1&&s.spawnLeft===0&&s.zombies.length===0&&!s.bossSpawned&&s.waveT===0){
   gcStartWave();
@@ -635,6 +677,21 @@ function gcUpdate(dt){
   if(bu.enemy){
    if(Math.hypot(bu.x-s.x,bu.y-s.y)<14+bu.r){
     s.hp-=12; bu.life=0; s.shake=4;
+   }
+   return;
+  }
+  if(bu.ally){
+   s.zombies.forEach(z=>{
+    if(bu.life<=0)return;
+    if(Math.hypot(bu.x-z.x,bu.y-z.y)<z.r+bu.r){
+     z.hp-=bu.dmg; z.hurt=0.15; bu.life=0;
+     gcSpark(bu.x,bu.y,'#7dff9a',4);
+     gcSfx.hit();
+    }
+   });
+   if(s.boss&&bu.life>0&&Math.hypot(bu.x-s.boss.x,bu.y-s.boss.y)<s.boss.r+bu.r){
+    s.boss.hp-=bu.dmg; s.boss.hurt=0.12; bu.life=0;
+    gcSpark(bu.x,bu.y,'#7dff9a',4);
    }
    return;
   }
@@ -810,6 +867,38 @@ function gcDrawZombieBody(ctx,z,m){
  }
 }
 
+function gcDrawSoldierBody(ctx,u,m){
+ const sc=1.08;
+ const walk=Math.sin(u.t*7)*0.35;
+ ctx.scale(u.face,1);
+ ctx.fillStyle='#2a4030';
+ ctx.fillRect(-4*sc,-1+walk*2,3*sc,9*sc);
+ ctx.fillRect(1*sc,-1-walk*2,3*sc,9*sc);
+ ctx.fillStyle='#3d6b48';
+ ctx.fillRect(-6*sc,-16*sc,12*sc,14*sc);
+ ctx.fillStyle='#2e5238';
+ ctx.fillRect(-6*sc,-14*sc,12*sc,5*sc);
+ ctx.fillStyle='#c9a94f';
+ ctx.fillRect(-1*sc,-8*sc,2*sc,2*sc);
+ ctx.fillStyle='#4a3828';
+ ctx.fillRect(-6*sc,-4*sc,12*sc,2*sc);
+ ctx.fillStyle='#d8b090';
+ ctx.fillRect(-5*sc,-13*sc,3*sc,7*sc);
+ ctx.fillStyle='#4a5a44';
+ ctx.beginPath(); ctx.arc(0,-19*sc,5*sc,0,Math.PI*2); ctx.fill();
+ ctx.fillStyle='#6a7a62';
+ ctx.fillRect(-4*sc,-22*sc,8*sc,3*sc);
+ ctx.save();
+ ctx.translate(3*sc,-11*sc);
+ ctx.rotate(u.aim||0);
+ ctx.fillStyle='#3a3028';
+ ctx.fillRect(-2,0,15,3);
+ ctx.fillRect(11,-1,4,5);
+ ctx.fillStyle='#1a1814';
+ ctx.fillRect(2,1,8,1);
+ ctx.restore();
+}
+
 function gcHud(){
  const s=gcState; if(!s)return;
  const hp=document.getElementById('gc-hp');
@@ -820,6 +909,8 @@ function gcHud(){
  if(gems)gems.textContent=`💎 ${s.gems}`;
  if(wave)wave.textContent=s.boss?`BOSS`:`Wave ${s.wave}/${s.map.waves}`;
  if(kills)kills.textContent=`Kills ${s.kills}`;
+ const armyEl=document.getElementById('gc-army');
+ if(armyEl&&s.military)armyEl.textContent=`Squad ${s.military.length}`;
 }
 
 function gcDraw(){
@@ -849,6 +940,15 @@ function gcDraw(){
   ctx.beginPath(); ctx.moveTo(hx,gy); ctx.lineTo(hx+60,gy-48); ctx.lineTo(hx+120,gy); ctx.fill();
  }
  ctx.globalAlpha=1;
+
+ if(s.military){
+  s.military.forEach(u=>{
+   ctx.save();
+   ctx.translate(u.x,u.y);
+   gcDrawSoldierBody(ctx,u,m);
+   ctx.restore();
+  });
+ }
 
  // pickups
  s.pickups.forEach(p=>{
