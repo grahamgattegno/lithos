@@ -1,7 +1,7 @@
 /* Gem Copter — helicopter + gemstone turret vs gem zombies, bosses, upgrades, 10 maps */
 (function(){
 'use strict';
-const GEM_COPTER_BUILD=69;
+const GEM_COPTER_BUILD=70;
 const GC_BULLET_LINES=5;
 
 const gcSfx=(()=>{
@@ -148,12 +148,12 @@ function gcHeliMissileMode(heli){
 function gcHeliMissileInterval(s){
  const h=s.heli;
  const base=h?.missileInterval||(gcHeliMissileMode(h)==='dual'?(s.upgrades.missileInterval||0.85):1.15);
- return base;
+ return base*(gcHeliMissileMode(h)==='dual'?1.15:1.45);
 }
 function gcHeliMissileDamage(s){
  const h=s.heli;
  const mult=(s.upgrades?.missileMult||1)*(h?.missileMult||1);
- return ((gcHeliMissileMode(h)==='dual'?78:58)*mult+s.map.id*6)*0.85;
+ return ((gcHeliMissileMode(h)==='dual'?52:38)*mult+s.map.id*4)*0.65;
 }
 function gcLaneSpacing(u){
  return u.laneSpread||14;
@@ -240,7 +240,7 @@ let gcRaf=null, gcKeys={}, gcPointer={x:GC_W/2,y:GC_H/2,down:false}, gcState=nul
 function gcDefaultUpgrades(){
  return {
   levels:{firerate:0,damage:0,spread:0,armor:0,speed:0,magnet:0,auric:0,devastator:0,titan:0,warpath:0,stragem:0,prism:0},
-  cooldown:0.16,damage:8,spread:0,laneSpread:14,maxHp:100,speed:220,magnet:40,
+  cooldown:0.22,damage:7,spread:0,laneSpread:14,maxHp:100,speed:220,magnet:40,
   militaryMult:1,missileMult:1,missileInterval:0.85
  };
 }
@@ -465,13 +465,19 @@ function gcBindCanvas(){
  }
 }
 
+function gcZombieMaxHp(elite,map,wave){
+ let hp=(elite?340:135)+map.id*42+wave*24;
+ if(gcIsOwner())hp=Math.round(hp*2.8);
+ return hp;
+}
+
 function gcInitMilitary(s){
  const gy=gcGroundY();
  const xs=[0.18,0.38,0.58,0.78];
  s.military=xs.map((f,i)=>({
   x:GC_W*f,y:gy-6,gy,
   fireT:0.12+i*0.09,t:Math.random()*6,face:1,aim:0,
-  hp:80,r:14,dmg:4+Math.round(s.map.id*0.9),range:340
+  hp:80,r:14,dmg:2+Math.round(s.map.id*0.5),range:320
  }));
 }
 
@@ -479,12 +485,12 @@ function gcSpawnZombie(elite){
  const s=gcState;
  const gy=gcGroundY();
  const fromLeft=Math.random()<0.5;
- const x=fromLeft?-28:GC_W+28;
- const hp=(elite?130:52)+s.map.id*18+s.wave*12;
+ const x=fromLeft?-110:GC_W+110;
+ const hp=gcZombieMaxHp(!!elite,s.map,s.wave);
  s.zombies.push({
   x,y:gy,gy,hp,maxHp:hp,elite:!!elite,
-  speed:(elite?68:82)+Math.random()*22+s.map.id*2,
-  r:elite?22:16, hurt:0, t:Math.random()*6, face:1
+  speed:(elite?48:58)+Math.random()*18+s.map.id*1.5,
+  r:elite?22:16, hurt:0, t:Math.random()*6, face:1, hitCD:0, missCD:0
  });
 }
 
@@ -553,7 +559,7 @@ function gcFire(){
  const perp=ang+Math.PI/2;
  const spacing=gcLaneSpacing(u);
  const mid=(GC_BULLET_LINES-1)/2;
- const bulletDmg=Math.max(3,Math.round(u.damage*0.38));
+ const bulletDmg=Math.max(2,Math.round(u.damage*0.2));
  for(let i=0;i<GC_BULLET_LINES;i++){
   const off=(i-mid)*spacing;
   const ox=Math.cos(perp)*off, oy=Math.sin(perp)*off;
@@ -596,13 +602,13 @@ function gcUpdate(dt){
    return;
   }
  }
- const maxZ=34+s.wave*4+s.map.id*4;
+ const maxZ=22+s.wave*3+s.map.id*2;
  if(s.spawnLeft>0&&s.zombies.length<maxZ){
   s.spawnGap-=dt;
   if(s.spawnGap<=0){
    gcSpawnZombie(s.spawnLeft%5===0);
    s.spawnLeft--;
-   s.spawnGap=Math.max(0.12,0.48-s.wave*0.022);
+   s.spawnGap=Math.max(0.28,0.72-s.wave*0.018);
   }
  }
  if(s.military){
@@ -622,7 +628,7 @@ function gcUpdate(dt){
     unit.face=best.x>=unit.x?1:-1;
     unit.aim=Math.atan2((best.y-10)-unit.y,best.x-unit.x);
     if(unit.fireT<=0){
-     unit.fireT=0.32;
+     unit.fireT=0.58;
      const ang=Math.atan2(best.y-unit.y,best.x-unit.x);
      s.bullets.push({
       x:unit.x,y:unit.y-12,
@@ -641,6 +647,8 @@ function gcUpdate(dt){
  // zombies (ground only — shuffle toward your shadow)
  s.zombies.forEach(z=>{
   z.t+=dt; z.hurt=Math.max(0,z.hurt-dt);
+  z.hitCD=Math.max(0,(z.hitCD||0)-dt);
+  z.missCD=Math.max(0,(z.missCD||0)-dt);
   const gy=z.gy!=null?z.gy:gcGroundY();
   const dir=s.x>z.x?1:-1;
   z.face=dir;
@@ -704,9 +712,16 @@ function gcUpdate(dt){
   s.zombies.forEach(z=>{
    if(bu.life<=0)return;
    if(Math.hypot(bu.x-z.x,bu.y-z.y)<z.r+bu.r){
-    z.hp-=bu.dmg; z.hurt=0.15; bu.life=0;
-    gcSpark(bu.x,bu.y,s.map.accent,4);
-    gcSfx.hit();
+    bu.life=0;
+    z.hurt=0.15;
+    if((z.hitCD||0)<=0){
+     z.hp-=bu.dmg;
+     z.hitCD=0.42;
+     gcSpark(bu.x,bu.y,s.map.accent,4);
+     gcSfx.hit();
+    }else{
+     gcSpark(bu.x,bu.y,s.map.accent,2);
+    }
    }
   });
   if(s.boss&&bu.life>0&&Math.hypot(bu.x-s.boss.x,bu.y-s.boss.y)<s.boss.r+bu.r){
@@ -734,7 +749,15 @@ function gcUpdate(dt){
    }
    return false;
   };
-  s.zombies.forEach(z=>{if(hit(z.x,z.y,z.r)){z.hp-=ms.dmg;z.hurt=0.2;gcBoom(ms.x,ms.y,'#f8d030',0.85);}});
+  s.zombies.forEach(z=>{
+   if(!hit(z.x,z.y,z.r))return;
+   z.hurt=0.2;
+   if((z.missCD||0)<=0){
+    z.hp-=ms.dmg;
+    z.missCD=0.95;
+    gcBoom(z.x,z.y-8,s.map.accent,0.75);
+   }else gcSpark(ms.x,ms.y,'#f8d030',3);
+  });
   if(s.boss&&hit(s.boss.x,s.boss.y,s.boss.r)){s.boss.hp-=ms.dmg;s.boss.hurt=0.2;gcBoom(ms.x,ms.y,'#f8d030',0.9);}
  });
  s.missiles=s.missiles.filter(ms=>ms.life>0&&ms.x>-60&&ms.x<GC_W+60&&ms.y>-60&&ms.y<GC_H+60);
