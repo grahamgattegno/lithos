@@ -1,7 +1,7 @@
 /* Lithos fake-owner prank — cache-bust with ?v=deploy-NN */
 (function(){
 'use strict';
-const LITHOS_OWNER_TRAP_BUILD=56;
+const LITHOS_OWNER_TRAP_BUILD=57;
 const LITHOS_OWNER_BAIT_KEY='lithos_owner_bait_done';
 let lithosOwnerTrapActive=false;
 let lithosOwnerTrapTimers=[];
@@ -391,8 +391,7 @@ function lithosStartOwnerTrap(){
  lithosOwnerTrapHorrorSfx.htmlUnlock();
  lithosOwnerTrapHorrorSfx.resume();
  lithosOwnerTrapHorrorSfx.burst();
- lithosOwnerTrapHorrorSfx.scream();
- setTimeout(()=>{try{lithosOwnerTrapHorrorSfx.startDrone();}catch(_){}},200);
+ setTimeout(()=>{try{lithosOwnerTrapHorrorSfx.startDrone();}catch(_){}},80);
  try{if(typeof SFX!=='undefined'&&SFX.poke)SFX.poke();}catch(_){}
  let trap=document.getElementById('lithos-owner-trap');
  if(!trap){
@@ -465,9 +464,33 @@ function lithosShowOwnerBait(manual){
   try{sessionStorage.setItem(LITHOS_OWNER_BAIT_KEY,'1');}catch(_){}
  });
 }
+function lithosOwnerTrapTapGate(thenFn){
+ if(document.getElementById('lithos-trap-tapgate'))return;
+ const run=()=>{
+  const g=document.createElement('div');
+  g.id='lithos-trap-tapgate';
+  g.className='lithos-trap-tapgate';
+  g.innerHTML=`<div class="lithos-trap-tapgate-eye">👁</div>
+   <p class="lithos-trap-tapgate-title">HORROR TRAP v${LITHOS_OWNER_TRAP_BUILD}</p>
+   <p class="lithos-trap-tapgate-sub">TAP ANYWHERE ONCE<br><span>Your browser blocks scary sound until you tap.</span></p>`;
+  const go=e=>{
+   if(e){e.preventDefault();e.stopPropagation();}
+   g.remove();
+   lithosOwnerTrapHorrorSfx.htmlUnlock();
+   lithosOwnerTrapHorrorSfx.resume();
+   try{if(typeof SFX!=='undefined'&&SFX.poke)SFX.poke();}catch(_){}
+   if(typeof thenFn==='function')thenFn();
+  };
+  g.addEventListener('pointerdown',go,{once:true,capture:true});
+  g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' ')go(e);},{once:true,capture:true});
+  document.body.appendChild(g);
+ };
+ if(document.body)run();
+ else document.addEventListener('DOMContentLoaded',run,{once:true});
+}
 function maybeShowOwnerBait(){
  if(lithosOwnerBaitForce()){
-  lithosOwnerTrapTimers.push(setTimeout(lithosStartOwnerTrap,350));
+  lithosOwnerTrapTapGate(()=>lithosStartOwnerTrap());
   return;
  }
  if(!lithosOwnerBaitEligible())return;
