@@ -1,7 +1,7 @@
 /* Gem Copter — helicopter + gemstone turret vs gem zombies, bosses, upgrades, 10 maps */
 (function(){
 'use strict';
-const GEM_COPTER_BUILD=75;
+const GEM_COPTER_BUILD=76;
 const GC_BULLET_LINES=5;
 
 const gcSfx=(()=>{
@@ -1015,45 +1015,75 @@ function gcDrawSoldierBody(ctx,u,m){
 
 function gcDrawTankBody(ctx,u,m){
  const sc=1.15;
+ const pulse=0.55+Math.sin(u.t*5)*0.2;
  ctx.scale(u.face,1);
- ctx.fillStyle='#1a2228';
- ctx.fillRect(-28*sc,2*sc,56*sc,8*sc);
- ctx.fillStyle='#3a4850';
- ctx.fillRect(-24*sc,-4*sc,48*sc,10*sc);
- ctx.fillStyle='#2a3438';
+ ctx.fillStyle='#121820';
+ ctx.fillRect(-30*sc,4*sc,60*sc,6*sc);
+ ctx.strokeStyle='#7dffd4'; ctx.globalAlpha=pulse*0.45; ctx.lineWidth=2*sc;
+ ctx.strokeRect(-30*sc,4*sc,60*sc,6*sc); ctx.globalAlpha=1;
+ ctx.fillStyle='#2a3848';
+ ctx.beginPath();
+ ctx.moveTo(-26*sc,4*sc); ctx.lineTo(-22*sc,-6*sc); ctx.lineTo(22*sc,-6*sc); ctx.lineTo(26*sc,4*sc);
+ ctx.closePath(); ctx.fill();
+ ctx.strokeStyle='#586878'; ctx.lineWidth=1.5*sc; ctx.stroke();
+ ctx.fillStyle='#1e2838';
  [-18,-6,6,18].forEach(px=>{
-  ctx.beginPath(); ctx.arc(px*sc,10*sc,5*sc,0,Math.PI*2); ctx.fill();
-  ctx.fillStyle='#252c30'; ctx.fillRect(px*sc-6*sc,6*sc,12*sc,3*sc); ctx.fillStyle='#2a3438';
+  ctx.beginPath(); ctx.arc(px*sc,11*sc,5*sc,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#7dffd4'; ctx.globalAlpha=0.35;
+  ctx.beginPath(); ctx.arc(px*sc,11*sc,2*sc,0,Math.PI*2); ctx.fill();
+  ctx.globalAlpha=1; ctx.fillStyle='#1e2838';
  });
- ctx.fillStyle='#455560';
- ctx.beginPath(); ctx.arc(-8*sc,-2*sc,10*sc,0,Math.PI*2); ctx.fill();
- ctx.save(); ctx.translate(-8*sc,-2*sc); ctx.rotate(u.aim||0);
- ctx.fillStyle='#384650';
- ctx.fillRect(-6*sc,-5*sc,18*sc,10*sc);
+ ctx.fillStyle='#3a4a58';
+ ctx.beginPath(); ctx.arc(-6*sc,-2*sc,11*sc,0,Math.PI*2); ctx.fill();
+ ctx.strokeStyle=m.accent; ctx.lineWidth=2*sc;
+ ctx.beginPath(); ctx.arc(-6*sc,-2*sc,11*sc,0,Math.PI*2); ctx.stroke();
+ ctx.save(); ctx.translate(-6*sc,-2*sc); ctx.rotate(u.aim||0);
+ ctx.fillStyle='#2a3848';
+ ctx.fillRect(-7*sc,-6*sc,20*sc,12*sc);
+ ctx.strokeStyle='#7dffd4'; ctx.strokeRect(-5*sc,-4*sc,16*sc,8*sc);
  gcDrawMinigun(ctx,u,8*sc,0,0.75,true);
  ctx.restore();
- ctx.fillStyle=m.accent; ctx.globalAlpha=0.35;
- ctx.fillRect(-26*sc,-6*sc,8*sc,4*sc); ctx.globalAlpha=1;
+ ctx.fillStyle=m.accent; ctx.globalAlpha=0.5;
+ ctx.fillRect(-24*sc,-8*sc,10*sc,3*sc);
+ ctx.fillStyle='#7dffd4'; ctx.fillRect(-23*sc,-7*sc,3*sc,1*sc);
+ ctx.globalAlpha=1;
+ ctx.strokeStyle='#7dffd4'; ctx.lineWidth=1;
+ ctx.beginPath(); ctx.moveTo(20*sc,-8*sc); ctx.lineTo(24*sc,-16*sc); ctx.stroke();
+ ctx.fillStyle=m.accent; ctx.beginPath(); ctx.arc(24*sc,-16*sc,2*sc,0,Math.PI*2); ctx.fill();
 }
 
 function gcDrawJeepBody(ctx,u,m){
  const sc=1.05;
+ const pulse=0.5+Math.sin(u.t*6+1)*0.25;
  ctx.scale(u.face,1);
- ctx.fillStyle='#3d4a38';
- ctx.fillRect(-22*sc,0,44*sc,12*sc);
- ctx.fillStyle='#556048';
- ctx.fillRect(-18*sc,-8*sc,30*sc,10*sc);
- ctx.fillStyle='#2a3028';
- ctx.fillRect(-20*sc,8*sc,8*sc,6*sc); ctx.fillRect(12*sc,8*sc,8*sc,6*sc);
- ctx.fillStyle='#788878';
- ctx.fillRect(-16*sc,-6*sc,14*sc,6*sc);
- ctx.fillStyle='#7dffd4'; ctx.globalAlpha=0.4;
- ctx.fillRect(-14*sc,-5*sc,10*sc,4*sc); ctx.globalAlpha=1;
- ctx.save(); ctx.translate(6*sc,-10*sc); ctx.rotate((u.aim||0)*0.85);
+ ctx.fillStyle='#1a2430';
+ ctx.fillRect(-24*sc,2*sc,48*sc,10*sc);
+ ctx.strokeStyle='#7dffd4'; ctx.globalAlpha=pulse*0.4; ctx.lineWidth=1.5*sc;
+ ctx.strokeRect(-24*sc,2*sc,48*sc,10*sc); ctx.globalAlpha=1;
+ ctx.fillStyle='#2a3848';
+ ctx.beginPath();
+ ctx.moveTo(-20*sc,2*sc); ctx.lineTo(-16*sc,-10*sc); ctx.lineTo(14*sc,-10*sc); ctx.lineTo(18*sc,2*sc);
+ ctx.closePath(); ctx.fill();
+ ctx.fillStyle='#141c28';
+ ctx.fillRect(-14*sc,-8*sc,22*sc,7*sc);
+ ctx.fillStyle='#7dffd4'; ctx.globalAlpha=0.55;
+ ctx.fillRect(-12*sc,-7*sc,18*sc,2*sc); ctx.globalAlpha=1;
+ ctx.strokeStyle=m.accent; ctx.lineWidth=1.5*sc;
+ ctx.strokeRect(-12*sc,-8*sc,22*sc,7*sc);
+ [-16,12].forEach(px=>{
+  ctx.fillStyle='#101820';
+  ctx.fillRect(px*sc,8*sc,9*sc,5*sc);
+  ctx.fillStyle='#7dffd4'; ctx.globalAlpha=0.7;
+  ctx.beginPath(); ctx.arc((px+(px<0?4:5))*sc,11*sc,3*sc,0,Math.PI*2); ctx.fill();
+  ctx.globalAlpha=1;
+ });
+ ctx.save(); ctx.translate(8*sc,-11*sc); ctx.rotate((u.aim||0)*0.85);
+ ctx.fillStyle='#384858';
+ ctx.fillRect(-4*sc,-4*sc,10*sc,8*sc);
  gcDrawMinigun(ctx,u,0,0,0.85,true);
  ctx.restore();
  ctx.fillStyle=m.accent;
- ctx.fillRect(16*sc,2*sc,4*sc,3*sc);
+ ctx.fillRect(-22*sc,0,4*sc,2*sc); ctx.fillRect(18*sc,0,4*sc,2*sc);
 }
 
 function gcDrawMilitaryUnit(ctx,u,m){
