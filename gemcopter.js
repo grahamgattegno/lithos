@@ -1,7 +1,7 @@
 /* Gem Copter — helicopter + gemstone turret vs gem zombies, bosses, upgrades, 10 maps */
 (function(){
 'use strict';
-const GEM_COPTER_BUILD=65;
+const GEM_COPTER_BUILD=66;
 
 const gcSfx=(()=>{
  let ctx=null,gain=null,lastBoom=0,lastHit=0,lastGroan=0,lastPew=0,lastWhoosh=0,audioReady=false;
@@ -226,7 +226,7 @@ const GC_OWNER_UPGRADES=[
  {id:'auric',name:'Auric Overdrive',ownerOnly:true,desc:'Fastest rapid fire in Lithos',max:4,cost:45,fn:u=>{u.cooldown=Math.max(0.025,0.12-(u.levels.firerate||0)*0.014-(u.levels.auric||0)*0.026);}},
  {id:'devastator',name:'Devastator Core',ownerOnly:true,desc:'Huge gem bullet damage',max:4,cost:50,fn:u=>{u.damage=10+(u.levels.damage||0)*6+(u.levels.devastator||0)*18;}},
  {id:'titan',name:'Titan Plating',ownerOnly:true,desc:'+100 hull per level',max:5,cost:55,fn:u=>{u.maxHp=100+(u.levels.armor||0)*25+(u.levels.titan||0)*100;}},
- {id:'warpath',name:'Warpath Command',ownerOnly:true,desc:'Military squad damage boost',max:3,cost:40,fn:u=>{u.militaryMult=1+(u.levels.warpath||0)*0.5;}},
+ {id:'warpath',name:'Gem Volley',ownerOnly:true,desc:'+10 gem turret damage per level',max:3,cost:40,fn:u=>{u.warpathDmg=(u.levels.warpath||0)*10;}},
  {id:'stragem',name:'Stragem Missiles',ownerOnly:true,desc:'Missile power & faster salvo',max:4,cost:55,fn:u=>{u.missileMult=1+(u.levels.stragem||0)*0.6;u.missileInterval=Math.max(0.32,0.85-(u.levels.stragem||0)*0.13);}},
  {id:'prism',name:'Prism Crown',ownerOnly:true,desc:'+2 extra spread beams per level',max:2,cost:70,fn:u=>{u.spread=Math.min(8,(u.levels.spread||0)+(u.levels.prism||0)*2);}}
 ];
@@ -237,7 +237,7 @@ function gcDefaultUpgrades(){
  return {
   levels:{firerate:0,damage:0,spread:0,armor:0,speed:0,magnet:0,auric:0,devastator:0,titan:0,warpath:0,stragem:0,prism:0},
   cooldown:0.12,damage:10,spread:0,maxHp:100,speed:220,magnet:40,
-  militaryMult:1,missileMult:1,missileInterval:0.85
+  warpathDmg:0,missileMult:1,missileInterval:0.85
  };
 }
 function gcMaxAllUpgrades(u){
@@ -312,7 +312,7 @@ function playGemCopter(){
     <button type="button" class="gc-btn ghost" id="gc-leave">Leave</button>
    </div>
    <div id="gc-menu" class="gc-menu">
-    <p class="gc-lede">Pick a <b>helicopter</b>, then a map. Destroy <b>4 zombie hearts</b> — your <b>military</b> helps on the ground!</p>
+    <p class="gc-lede">Pick a <b>helicopter</b>, then a map. Fly, shoot, and clear zombie waves — <b>just you and your chopper</b> (no ground army).</p>
     <div class="gc-heli-grid" id="gc-heli-grid"></div>
     <div class="gc-map-grid" id="gc-map-grid"></div>
     <p class="gc-version-banner" id="gc-version-banner">Build ${GEM_COPTER_BUILD} — pick a helicopter, then a map ↓</p>
@@ -327,8 +327,6 @@ function playGemCopter(){
      <span id="gc-gems">💎 0</span>
      <span id="gc-wave">Wave 1</span>
      <span id="gc-kills">Kills 0</span>
-     <span id="gc-hearts">♥ 4/4</span>
-     <span id="gc-army">🪖 4</span>
     </div>
     <div class="gc-touch gc-touch-float">
      <button type="button" id="gc-fire">🔥 Fire</button>
@@ -421,10 +419,8 @@ function gcStartMap(mapId, carry, heliId){
   fireT:0, missileT:0, wave:1, waveT:0, spawnLeft:0, spawnGap:0,
   kills:0, boss:null, bossSpawned:false, cleared:false, over:false,
   zombies:[], bullets:[], missiles:[], particles:[], pickups:[],
-  hearts:[], military:[],
   rotor:0, shake:0, shopPause:false, waveShopPending:false
  };
- gcInitField(gcState);
  gcBindCanvas();
  gcStartLoop();
 }
@@ -461,39 +457,14 @@ function gcBindCanvas(){
  }
 }
 
-function gcInitField(s){
- const gy=gcGroundY();
- const xs=[0.12,0.35,0.65,0.88];
- s.hearts=xs.map((f,i)=>({
-  id:i,x:GC_W*f,y:gy-18,gy,
-  hp:200+s.map.id*45,maxHp:200+s.map.id*45,
-  r:24,spawnT:0.8+i*0.35,pulse:0,hurt:0,alive:true
- }));
- s.military=xs.map((f,i)=>({
-  x:GC_W*(0.18+i*0.22),y:gy-6,gy,
-  fireT:0.15+i*0.08,hp:80,r:11,dmg:9+s.map.id,range:340
- }));
-}
-
-function gcAliveHearts(s){return s.hearts?s.hearts.filter(h=>h.alive):[];}
-
-function gcSpawnZombie(elite,heartId){
+function gcSpawnZombie(elite){
  const s=gcState;
  const gy=gcGroundY();
- let x,fromHeart=null;
- if(heartId!=null&&s.hearts){
-  fromHeart=s.hearts.find(h=>h.id===heartId&&h.alive);
- }
- if(fromHeart){
-  x=fromHeart.x+(Math.random()-0.5)*100;
- }else{
-  const fromLeft=Math.random()<0.5;
-  x=fromLeft?-28:GC_W+28;
- }
+ const fromLeft=Math.random()<0.5;
+ const x=fromLeft?-28:GC_W+28;
  const hp=(elite?62:24)+s.map.id*7+s.wave*3;
  s.zombies.push({
   x,y:gy,gy,hp,maxHp:hp,elite:!!elite,
-  heartId:fromHeart?fromHeart.id:null,
   speed:(elite?82:102)+Math.random()*32+s.map.id*4,
   r:elite?22:16, hurt:0, t:Math.random()*6, face:1
  });
@@ -525,7 +496,6 @@ function gcPickTarget(s){
   if(d<bd){bd=d;best={x,y,r:(r||14)};}
  };
  s.zombies.forEach(z=>tryT(z,z.x,z.y,z.r));
- if(s.hearts)s.hearts.forEach(h=>{if(h.alive)tryT(h,h.x,h.y,h.r);});
  if(s.boss)tryT(s.boss,s.boss.x,s.boss.y,s.boss.r);
  return best;
 }
@@ -571,7 +541,7 @@ function gcFire(){
   s.bullets.push({
    x:s.x, y:s.y-8,
    vx:Math.cos(sh.ang)*520, vy:Math.sin(sh.ang)*520,
-   life:1.2, dmg:u.damage, r:4
+   life:1.2, dmg:u.damage+(u.warpathDmg||0), r:4
   });
  });
  gcSfx.pew();
@@ -611,44 +581,10 @@ function gcUpdate(dt){
  if(s.spawnLeft>0&&s.zombies.length<maxZ){
   s.spawnGap-=dt;
   if(s.spawnGap<=0){
-   const alive=gcAliveHearts(s);
-   const hid=alive.length?alive[(Math.random()*alive.length)|0].id:null;
-   gcSpawnZombie(s.spawnLeft%7===0,hid);
+   gcSpawnZombie(s.spawnLeft%7===0);
    s.spawnLeft--;
    s.spawnGap=Math.max(0.06,0.34-s.wave*0.028);
   }
- }
- // zombie hearts — each commands walkers from its lane
- if(s.hearts){
-  s.hearts.forEach(h=>{
-   if(!h.alive)return;
-   h.pulse+=dt*3; h.hurt=Math.max(0,h.hurt-dt);
-   h.spawnT-=dt;
-   if(h.spawnT<=0&&s.zombies.length<maxZ){
-    gcSpawnZombie(false,h.id);
-    h.spawnT=Math.max(0.32,0.88-s.wave*0.07);
-   }
-  });
- }
- // your military — ground squad auto-fires at zombies
- if(s.military){
-  s.military.forEach(unit=>{
-   unit.fireT-=dt;
-   let best=null,bd=1e12;
-   s.zombies.forEach(z=>{
-    const d=(z.x-unit.x)**2+(z.y-unit.y)**2;
-    if(d<bd&&d<unit.range*unit.range){bd=d;best=z;}
-   });
-   if(best&&unit.fireT<=0){
-    unit.fireT=0.28;
-    const ang=Math.atan2(best.y-unit.y,best.x-unit.x);
-    s.bullets.push({
-     x:unit.x,y:unit.y-10,
-     vx:Math.cos(ang)*420,vy:Math.sin(ang)*420,
-     life:1,dmg:unit.dmg*(s.upgrades.militaryMult||1),r:3,ally:true
-    });
-   }
-  });
  }
  if(s.wave===1&&s.spawnLeft===0&&s.zombies.length===0&&!s.bossSpawned&&s.waveT===0){
   gcStartWave();
@@ -702,17 +638,6 @@ function gcUpdate(dt){
    }
    return;
   }
-  if(bu.ally){
-   s.zombies.forEach(z=>{
-    if(bu.life<=0)return;
-    if(Math.hypot(bu.x-z.x,bu.y-z.y)<z.r+bu.r){
-     z.hp-=bu.dmg; z.hurt=0.15; bu.life=0;
-     gcSpark(bu.x,bu.y,'#7dff9a',4);
-     gcSfx.hit();
-    }
-   });
-   return;
-  }
   s.zombies.forEach(z=>{
    if(bu.life<=0)return;
    if(Math.hypot(bu.x-z.x,bu.y-z.y)<z.r+bu.r){
@@ -721,15 +646,6 @@ function gcUpdate(dt){
     gcSfx.hit();
    }
   });
-  if(s.hearts){
-   s.hearts.forEach(h=>{
-    if(!h.alive||bu.life<=0)return;
-    if(Math.hypot(bu.x-h.x,bu.y-h.y)<h.r+bu.r){
-     h.hp-=bu.dmg; h.hurt=0.2; bu.life=0;
-     gcSpark(bu.x,bu.y,'#ff4060');
-    }
-   });
-  }
   if(s.boss&&bu.life>0&&Math.hypot(bu.x-s.boss.x,bu.y-s.boss.y)<s.boss.r+bu.r){
    s.boss.hp-=bu.dmg; s.boss.hurt=0.12; bu.life=0;
    gcSpark(bu.x,bu.y,s.map.accent);
@@ -756,20 +672,11 @@ function gcUpdate(dt){
    return false;
   };
   s.zombies.forEach(z=>{if(hit(z.x,z.y,z.r)){z.hp-=ms.dmg;z.hurt=0.2;gcBoom(ms.x,ms.y,'#f8d030',0.85);}});
-  if(s.hearts)s.hearts.forEach(h=>{if(h.alive&&hit(h.x,h.y,h.r)){h.hp-=ms.dmg;h.hurt=0.25;gcSpark(ms.x,ms.y,'#ff4060');}});
-  if(s.boss&&hit(s.boss.x,s.boss.y,s.boss.r)){s.boss.hp-=ms.dmg;s.boss.hurt=0.2;gcSpark(ms.x,ms.y,'#f8d030');}
+  if(s.boss&&hit(s.boss.x,s.boss.y,s.boss.r)){s.boss.hp-=ms.dmg;s.boss.hurt=0.2;gcBoom(ms.x,ms.y,'#f8d030',0.9);}
  });
  s.missiles=s.missiles.filter(ms=>ms.life>0&&ms.x>-60&&ms.x<GC_W+60&&ms.y>-60&&ms.y<GC_H+60);
 
  // deaths / pickups
- if(s.hearts){
-  s.hearts.forEach(h=>{
-   if(!h.alive||h.hp>0)return;
-   h.alive=false;
-   s.zombies.forEach(z=>{if(z.heartId===h.id)z.hp=0;});
-   gcBoom(h.x,h.y,'#ff2060',1.6);
-  });
- }
  s.zombies=s.zombies.filter(z=>{
   if(z.hp>0)return true;
   s.kills++;
@@ -913,13 +820,6 @@ function gcHud(){
  if(gems)gems.textContent=`💎 ${s.gems}`;
  if(wave)wave.textContent=s.boss?`BOSS`:`Wave ${s.wave}/${s.map.waves}`;
  if(kills)kills.textContent=`Kills ${s.kills}`;
- const heartsEl=document.getElementById('gc-hearts');
- const armyEl=document.getElementById('gc-army');
- if(heartsEl&&s.hearts){
-  const alive=s.hearts.filter(h=>h.alive).length;
-  heartsEl.textContent=`♥ ${alive}/4`;
- }
- if(armyEl&&s.military)armyEl.textContent=`🪖 ${s.military.length}`;
 }
 
 function gcDraw(){
@@ -950,37 +850,6 @@ function gcDraw(){
  }
  ctx.globalAlpha=1;
 
- // zombie hearts (command nodes)
- if(s.hearts){
-  s.hearts.forEach(h=>{
-   if(!h.alive)return;
-   ctx.save(); ctx.translate(h.x,h.y);
-   const pulse=1+Math.sin(h.pulse)*0.08;
-   ctx.scale(pulse,pulse);
-   ctx.fillStyle=h.hurt>0?'#fff':'#4a0820';
-   ctx.beginPath();
-   ctx.moveTo(0,8); ctx.bezierCurveTo(-22,-10,-22,14,0,26); ctx.bezierCurveTo(22,14,22,-10,0,8);
-   ctx.fill();
-   ctx.strokeStyle='#ff6080'; ctx.lineWidth=2; ctx.stroke();
-   ctx.font='14px serif'; ctx.textAlign='center'; ctx.fillText('💜',0,14);
-   ctx.fillStyle='rgba(0,0,0,.5)'; ctx.fillRect(-26,-32,52,6);
-   ctx.fillStyle='#ff4060'; ctx.fillRect(-26,-32,52*(h.hp/h.maxHp),6);
-   ctx.font='9px monospace'; ctx.fillStyle='#ffb0c0'; ctx.fillText('Z-HIVE',0,-36);
-   ctx.restore();
-  });
- }
-
- // military
- if(s.military){
-  s.military.forEach(u=>{
-   ctx.save(); ctx.translate(u.x,u.y);
-   ctx.font='18px serif'; ctx.textAlign='center'; ctx.fillText('🪖',0,4);
-   ctx.fillStyle='rgba(0,0,0,.4)'; ctx.fillRect(-10,-16,20,3);
-   ctx.fillStyle='#3ecf8a'; ctx.fillRect(-10,-16,20,3);
-   ctx.restore();
-  });
- }
-
  // pickups
  s.pickups.forEach(p=>{
   ctx.fillStyle='#c9a94f';
@@ -991,11 +860,6 @@ function gcDraw(){
  s.zombies.forEach(z=>{
   ctx.save();
   ctx.translate(z.x,z.y);
-  if(z.heartId!=null&&s.hearts&&s.hearts[z.heartId]?.alive){
-   ctx.strokeStyle='rgba(255,64,96,.25)'; ctx.lineWidth=1;
-   ctx.beginPath(); ctx.moveTo(0,0);
-   ctx.lineTo(s.hearts[z.heartId].x-z.x,s.hearts[z.heartId].y-z.y); ctx.stroke();
-  }
   ctx.rotate(Math.sin(z.t*6)*0.06);
   gcDrawZombieBody(ctx,z,m);
   const barY=-34*(z.elite?1.22:1);
