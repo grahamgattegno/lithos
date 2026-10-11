@@ -2,7 +2,9 @@
 (function(){
 'use strict';
 
-const MH_STORE_KEY='lithos_morph_hunt_v3';
+const MH_STORE_KEY='lithos_morph_hunt_v4';
+const MH_BUILD='named-noobies-v5';
+const MH_BODIES=['classic','tall','chibi','robot','ghost','builder','wide'];
 const MH_WEAR_KEY='lithos_noobie_wear';
 const MH_NORMAL_COUNT=268;
 const MH_EXCLUSIVE_COUNT=104;
@@ -149,7 +151,8 @@ function mhBuildMorphs(){
    face:['smile','grin','o','flat','w'][i%5],
    stripe:i%4===1,
    glasses:i%9===2,
-   hat:i%17===0?'star':i%23===0?'crown':i%31===0?'headphones':i%29===0?'bow':null
+   hat:i%17===0?'star':i%23===0?'crown':i%31===0?'headphones':i%29===0?'bow':null,
+   body:MH_BODIES[i%MH_BODIES.length]
   });
  }
  for(let i=0;i<MH_EXCLUSIVE_COUNT;i++){
@@ -167,6 +170,7 @@ function mhBuildMorphs(){
    stripe:i%3===0,
    glasses:i%5===1,
    hat:i%7===0?'gem':i%5===0?'party':i%3===0?'crown':i%11===0?'star':null,
+   body:MH_BODIES[(i+2)%MH_BODIES.length],
    vaultOnly:true
   });
  }
@@ -260,10 +264,64 @@ function mhFacePath(face){
  return '<path d="M42 30 Q50 34 58 30" stroke="#1a1a20" stroke-width="1.8" fill="none" stroke-linecap="round"/>';
 }
 
-/** Full R6-style body (head, torso, arms, legs) */
+function mhBodyShape(m){
+ const h=m.head||'#F5CD30', t=m.torso||'#0085DB', l=m.legs||'#A4BD47', a=m.arms||h;
+ const body=m.body||'classic';
+ if(body==='ghost'){
+  return `<ellipse cx="50" cy="124" rx="18" ry="3" fill="#000" opacity=".15"/>
+   <path d="M34 44 Q50 36 66 44 L66 98 Q58 92 50 98 Q42 92 34 98 Z" fill="${t}" opacity=".95"/>
+   <rect x="33" y="8" width="34" height="34" rx="4" fill="${h}"/>`;
+ }
+ if(body==='robot'){
+  return `<ellipse cx="50" cy="124" rx="22" ry="4" fill="#000" opacity=".2"/>
+   <rect x="32" y="68" width="14" height="32" rx="1" fill="${l}"/><rect x="54" y="68" width="14" height="32" rx="1" fill="${l}"/>
+   <rect x="28" y="42" width="44" height="26" rx="2" fill="${t}"/>
+   <rect x="10" y="44" width="16" height="24" rx="1" fill="${a}"/><rect x="74" y="44" width="16" height="24" rx="1" fill="${a}"/>
+   <rect x="31" y="6" width="38" height="36" rx="2" fill="${h}"/>
+   <rect x="38" y="16" width="8" height="8" fill="#00e8ff"/><rect x="54" y="16" width="8" height="8" fill="#00e8ff"/>
+   <rect x="42" y="30" width="16" height="4" fill="#303840"/>`;
+ }
+ if(body==='chibi'){
+  return `<ellipse cx="50" cy="118" rx="16" ry="3" fill="#000" opacity=".2"/>
+   <rect x="36" y="72" width="12" height="22" rx="2" fill="${l}"/><rect x="52" y="72" width="12" height="22" rx="2" fill="${l}"/>
+   <rect x="34" y="52" width="32" height="20" rx="3" fill="${t}"/>
+   <rect x="22" y="54" width="10" height="18" rx="2" fill="${a}"/><rect x="68" y="54" width="10" height="18" rx="2" fill="${a}"/>
+   <rect x="28" y="14" width="44" height="40" rx="5" fill="${h}"/>`;
+ }
+ if(body==='tall'){
+  return `<ellipse cx="50" cy="126" rx="20" ry="4" fill="#000" opacity=".2"/>
+   <rect x="33" y="62" width="14" height="42" rx="2" fill="${l}"/><rect x="53" y="62" width="14" height="42" rx="2" fill="${l}"/>
+   <rect x="31" y="38" width="38" height="26" rx="3" fill="${t}"/>
+   <rect x="16" y="40" width="12" height="26" rx="2" fill="${a}"/><rect x="72" y="40" width="12" height="26" rx="2" fill="${a}"/>
+   <rect x="35" y="10" width="30" height="28" rx="4" fill="${h}"/>`;
+ }
+ if(body==='wide'){
+  return `<ellipse cx="50" cy="124" rx="26" ry="4" fill="#000" opacity=".2"/>
+   <rect x="30" y="66" width="18" height="34" rx="2" fill="${l}"/><rect x="52" y="66" width="18" height="34" rx="2" fill="${l}"/>
+   <rect x="24" y="40" width="52" height="28" rx="3" fill="${t}"/>
+   <rect x="8" y="42" width="18" height="28" rx="2" fill="${a}"/><rect x="74" y="42" width="18" height="28" rx="2" fill="${a}"/>
+   <rect x="33" y="8" width="34" height="34" rx="4" fill="${h}"/>`;
+ }
+ if(body==='builder'){
+  return `<ellipse cx="50" cy="124" rx="22" ry="4" fill="#000" opacity=".2"/>
+   <rect x="32" y="66" width="16" height="34" rx="2" fill="${l}"/><rect x="52" y="66" width="16" height="34" rx="2" fill="${l}"/>
+   <rect x="30" y="40" width="40" height="28" rx="3" fill="${t}"/>
+   <rect x="14" y="42" width="14" height="28" rx="2" fill="${a}"/><rect x="72" y="42" width="14" height="28" rx="2" fill="${a}"/>
+   <rect x="33" y="8" width="34" height="34" rx="4" fill="${h}"/>
+   <polygon points="50,0 62,10 38,10" fill="#f4c430"/>`;
+ }
+ return `<ellipse cx="50" cy="124" rx="22" ry="4" fill="#000" opacity=".2"/>
+  <rect x="32" y="66" width="16" height="34" rx="2" fill="${l}"/>
+  <rect x="52" y="66" width="16" height="34" rx="2" fill="${l}"/>
+  <rect x="30" y="40" width="40" height="28" rx="3" fill="${t}"/>
+  <rect x="14" y="42" width="14" height="28" rx="2" fill="${a}"/>
+  <rect x="72" y="42" width="14" height="28" rx="2" fill="${a}"/>
+  <rect x="33" y="8" width="34" height="34" rx="4" fill="${h}"/>`;
+}
+
+/** Full R6-style body (head, torso, arms, legs) + archetypes */
 function mhClassicNoobSvg(m){
  if(!m) return '';
- const h=m.head||'#F5CD30', t=m.torso||'#0085DB', l=m.legs||'#A4BD47', a=m.arms||h;
  let hat='';
  if(m.hat==='crown') hat='<polygon points="50,2 58,14 42,14" fill="#ffd700"/><rect x="42" y="12" width="16" height="5" fill="#e8b020"/>';
  if(m.hat==='star') hat='<polygon points="50,0 52,10 62,10 54,16 57,26 50,20 43,26 46,16 38,10 48,10" fill="#ffe060"/>';
@@ -272,22 +330,18 @@ function mhClassicNoobSvg(m){
  if(m.hat==='gem') hat='<polygon points="50,0 58,14 50,20 42,14" fill="#80e0ff" stroke="#fff" stroke-width="1"/>';
  if(m.hat==='headphones') hat='<path d="M32 24 Q32 8 50 8 Q68 8 68 24" fill="none" stroke="#303840" stroke-width="4"/><rect x="28" y="22" width="8" height="14" rx="2" fill="#404850"/><rect x="64" y="22" width="8" height="14" rx="2" fill="#404850"/>';
  if(m.hat==='bow') hat='<polygon points="50,10 58,4 58,16" fill="#ff5090"/><polygon points="50,10 42,4 42,16" fill="#ff5090"/><circle cx="50" cy="10" r="3" fill="#ffc0d8"/>';
- const stripe=m.stripe?`<rect x="30" y="48" width="40" height="7" fill="rgba(255,255,255,.28)"/><rect x="30" y="58" width="40" height="5" fill="rgba(0,0,0,.12)"/>`:'';
- const glasses=m.glasses?'<rect x="36" y="18" width="11" height="9" rx="2" fill="rgba(200,230,255,.35)" stroke="#1a1a20" stroke-width="1.2"/><rect x="53" y="18" width="11" height="9" rx="2" fill="rgba(200,230,255,.35)" stroke="#1a1a20" stroke-width="1.2"/><line x1="47" y1="22" x2="53" y2="22" stroke="#1a1a20" stroke-width="1.2"/>':'';
- return `<g>
-  <ellipse cx="50" cy="124" rx="22" ry="4" fill="#000" opacity=".2"/>
-  <rect x="32" y="66" width="16" height="34" rx="2" fill="${l}"/>
-  <rect x="52" y="66" width="16" height="34" rx="2" fill="${l}"/>
-  <rect x="30" y="40" width="40" height="28" rx="3" fill="${t}"/>
-  ${stripe}
-  <rect x="14" y="42" width="14" height="28" rx="2" fill="${a}"/>
-  <rect x="72" y="42" width="14" height="28" rx="2" fill="${a}"/>
-  <rect x="33" y="8" width="34" height="34" rx="4" fill="${h}"/>
-  <rect x="35" y="10" width="14" height="10" rx="2" fill="#fff" opacity=".12"/>
+ const stripe=m.stripe&&m.body!=='ghost'?`<rect x="30" y="48" width="40" height="7" fill="rgba(255,255,255,.28)"/><rect x="30" y="58" width="40" height="5" fill="rgba(0,0,0,.12)"/>`:'';
+ const glasses=m.glasses&&m.body!=='robot'?'<rect x="36" y="18" width="11" height="9" rx="2" fill="rgba(200,230,255,.35)" stroke="#1a1a20" stroke-width="1.2"/><rect x="53" y="18" width="11" height="9" rx="2" fill="rgba(200,230,255,.35)" stroke="#1a1a20" stroke-width="1.2"/><line x1="47" y1="22" x2="53" y2="22" stroke="#1a1a20" stroke-width="1.2"/>':'';
+ const face=m.body==='robot'?'':mhFacePath(m.face||'smile');
+ const headShine=m.body==='robot'?'':`<rect x="35" y="10" width="14" height="10" rx="2" fill="#fff" opacity=".12"/>
   <circle cx="42" cy="22" r="3" fill="#1a1a20"/><circle cx="58" cy="22" r="3" fill="#1a1a20"/>
-  <circle cx="43" cy="21" r="1" fill="#fff" opacity=".5"/><circle cx="59" cy="21" r="1" fill="#fff" opacity=".5"/>
+  <circle cx="43" cy="21" r="1" fill="#fff" opacity=".5"/><circle cx="59" cy="21" r="1" fill="#fff" opacity=".5"/>`;
+ return `<g>
+  ${mhBodyShape(m)}
+  ${stripe}
+  ${headShine}
   ${glasses}
-  ${mhFacePath(m.face||'smile')}
+  ${face}
   ${hat}
  </g>`;
 }
@@ -447,10 +501,11 @@ function mhRenderHunt(save, wi){
  const spots=morphs.map(m=>{
   const got=mhHasMorph(save,m.id);
   const r=MH_RARITY[m.rarity]||MH_RARITY.common;
-  const label=got?m.name:'???';
-  return `<button type="button" class="mh-spot${got?' got':''}" style="left:${m.x}%;top:${m.y}%;--mh-glow:${r.glow};--mh-rarity:${r.color};--mh-scale:${m.scale||1}" data-mh-id="${m.id}" title="${got?m.name+' — tap to morph':'Hidden noobie — tap to find!'}">
-   <svg viewBox="0 0 100 130" class="mh-spot-svg">${mhClassicNoobSvg(m)}</svg>
-   <span class="mh-spot-label">${label}</span>
+  return `<button type="button" class="mh-spot${got?' got':''}" style="left:${m.x}%;top:${m.y}%;--mh-glow:${r.glow};--mh-rarity:${r.color};--mh-scale:${m.scale||1}" data-mh-id="${m.id}" title="${m.name}${got?' — tap to morph':' — tap to find!'}">
+   <span class="mh-spot-inner">
+    <svg viewBox="0 0 100 130" class="mh-spot-svg">${mhClassicNoobSvg(m)}</svg>
+    <span class="mh-spot-label">${m.name}</span>
+   </span>
    ${got?'<span class="mh-spot-check">✓</span>':''}
   </button>`;
  }).join('');
@@ -486,7 +541,7 @@ function mhRenderIndex(save){
   const r=MH_RARITY[m.rarity]||MH_RARITY.common;
   return `<div class="mh-codex-card${got?' got':''}" style="--mh-rarity:${r.color}">
    <div class="mh-codex-art">${got?`<svg viewBox="0 0 100 130">${mhClassicNoobSvg(m)}</svg>`:'<div class="mh-silhouette">?</div>'}</div>
-   <div class="mh-codex-meta"><b class="mh-noob-name">${got?m.name:'???'}</b><span class="mh-codex-rarity">${m.exclusive?'Exclusive':r.label}</span></div>
+   <div class="mh-codex-meta"><b class="mh-noob-name${got?'':' locked'}">${m.name}</b><span class="mh-codex-rarity">${m.exclusive?'Exclusive':r.label}${got?'':' · not found yet'}</span></div>
   </div>`;
  }).join('');
  return `<div class="mh-index">
@@ -582,7 +637,7 @@ function mhRender(){
   <header class="mh-ftn-banner">
    <div class="mh-ftn-banner-text">
     <h2 class="mh-title">Find The Noobies Morphs</h2>
-    <p class="mh-ftn-tag">🔎 ${MH_NORMAL_COUNT} normal + ${MH_EXCLUSIVE_COUNT} exclusive noobies · 🎭 Morph · 🎲 Gacha · ${owner?'Owner: ALL unlocked':''}</p>
+    <p class="mh-ftn-tag">🔎 ${MH_NORMAL_COUNT} normal + ${MH_EXCLUSIVE_COUNT} exclusive · each has a <b>unique name</b> &amp; body type · Build <b>${MH_BUILD}</b> · ${owner?'Owner: ALL unlocked':''}</p>
    </div>
   </header>
   <div class="mh-head">
