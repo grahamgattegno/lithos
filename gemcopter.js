@@ -1,7 +1,7 @@
 /* Gem Copter — helicopter + gemstone turret vs gem zombies, bosses, upgrades, 10 maps */
 (function(){
 'use strict';
-const GEM_COPTER_BUILD=58;
+const GEM_COPTER_BUILD=59;
 
 const GC_HELIS=[
  {id:'scout',name:'Gem Scout',emoji:'🚁',desc:'Balanced starter',speedMult:1,hpMult:1,dmgMult:1,hull:'#c9a94f'},
@@ -16,6 +16,8 @@ let gcPickHeli='scout';
 function gcIsOwner(){
  try{
   if(typeof isOwner!=='undefined'&&isOwner)return true;
+  if(typeof window!=='undefined'&&window.isOwner)return true;
+  if(typeof document!=='undefined'&&document.body&&document.body.classList.contains('is-owner'))return true;
   return localStorage.getItem('lithos_owner')==='1';
  }catch(_){return false;}
 }
@@ -99,7 +101,7 @@ function gcApplyUpgrades(u){
  if(gcIsOwner()) GC_OWNER_UPGRADES.forEach(up=>up.fn(u));
 }
 function gcShopUpgrades(){
- return gcIsOwner()?GC_UPGRADES.concat(GC_OWNER_UPGRADES):GC_UPGRADES;
+ return GC_UPGRADES.concat(GC_OWNER_UPGRADES);
 }
 
 function gcClose(){
@@ -192,6 +194,11 @@ function playGemCopter(){
  }
  document.getElementById('gc-leave').onclick=()=>gcClose();
  const heliGrid=document.getElementById('gc-heli-grid');
+ const ownerOn=gcIsOwner();
+ const ownerNote=document.createElement('p');
+ ownerNote.className='gc-owner-shop-tag';
+ ownerNote.textContent=ownerOn?'👑 Owner mode ON — gold 👑 upgrades in shop after each wave!':'🔒 Owner? Enter your code in Games → Secret Codes to unlock 👑 upgrades + Omega Strike.';
+ heliGrid.parentElement.insertBefore(ownerNote,heliGrid);
  heliGrid.innerHTML=GC_HELIS.map(h=>{
   const locked=!!(h.ownerOnly&&!gcIsOwner());
   const on=h.id===gcPickHeli;
@@ -234,6 +241,12 @@ function gcStartMap(mapId, carry, heliId){
  if(heli.ownerOnly&&!gcIsOwner())heli=GC_HELIS[0];
  const upgrades=carry&&carry.upgrades?carry.upgrades:gcDefaultUpgrades();
  gcApplyUpgrades(upgrades);
+ if(gcIsOwner()&&!carry){
+  ['auric','devastator','titan'].forEach(id=>{
+   if((upgrades.levels[id]||0)<1)upgrades.levels[id]=1;
+  });
+  gcApplyUpgrades(upgrades);
+ }
  gcApplyHeliToUpgrades(upgrades,heli);
  let gems=carry&&typeof carry.gems==='number'?carry.gems:0;
  if(gcIsOwner()&&!carry)gems+=120;
@@ -251,19 +264,23 @@ function gcStartMap(mapId, carry, heliId){
   kills:0, boss:null, bossSpawned:false, cleared:false, over:false,
   zombies:[], bullets:[], missiles:[], particles:[], pickups:[],
   hearts:[], military:[],
-  rotor:0, shake:0
+  rotor:0, shake:0, shopPause:false, waveShopPending:false
  };
  gcInitField(gcState);
  gcBindCanvas();
+ gcStartLoop();
+}
+
+function gcStartLoop(){
+ if(gcRaf)cancelAnimationFrame(gcRaf);
  let last=performance.now();
  function loop(t){
-  if(!gcState||gcState.over)return;
+  if(!gcState||gcState.over||gcState.shopPause)return;
   const dt=Math.min(0.05,(t-last)/1000); last=t;
   gcUpdate(dt);
   gcDraw();
   gcRaf=requestAnimationFrame(loop);
  }
- if(gcRaf)cancelAnimationFrame(gcRaf);
  gcRaf=requestAnimationFrame(loop);
 }
 
@@ -397,7 +414,7 @@ function gcFire(){
 }
 
 function gcUpdate(dt){
- const s=gcState; if(!s||s.over)return;
+ const s=gcState; if(!s||s.over||s.shopPause)return;
  s.rotor+=dt*28;
  if(s.shake>0)s.shake=Math.max(0,s.shake-dt*8);
  s.fireT=Math.max(0,s.fireT-dt);
@@ -418,11 +435,12 @@ function gcUpdate(dt){
  s.y=Math.max(40,Math.min(GC_H-30,s.y+s.vy*dt));
  if(gcPointer.down||gcKeys.space||gcKeys[' ']) gcFire();
 
- // waves
- if(!s.bossSpawned && s.spawnLeft<=0 && s.zombies.length===0){
+ // waves — open upgrade shop between waves
+ if(!s.bossSpawned && s.spawnLeft<=0 && s.zombies.length===0&&!s.waveShopPending){
   if(s.wave<s.map.waves){
-   s.wave++;
-   gcStartWave();
+   s.waveShopPending=true;
+   gcShowWaveShop();
+   return;
   }
  }
  const maxZ=24+s.wave*3+s.map.id*3;
@@ -828,6 +846,38 @@ function gcShowDefeat(){
  document.getElementById('gc-menu-btn').onclick=()=>{gcClose();playGemCopter();};
 }
 
+function gcShowWaveShop(){
+ const s=gcState; if(!s)return;
+ if(gcRaf){cancelAnimationFrame(gcRaf);gcRaf=null;}
+ s.shopPause=true;
+ document.getElementById('gc-play').hidden=true;
+ gcLeavePlayMode();
+ const shop=document.getElementById('gc-shop');
+ shop.hidden=false;
+ document.getElementById('gc-mapname').textContent=`Wave ${s.wave} cleared — upgrade!`;
+ shop.innerHTML=`
+  <div class="gc-shop-inner">
+   <h2>Wave ${s.wave} cleared!</h2>
+   <p>Spend 💎 <b id="gc-shop-gems">${s.gems}</b> · ${gcIsOwner()?'👑 Owner gold upgrades unlocked':'Regular upgrades only (owner code unlocks 👑)'}</p>
+   ${gcIsOwner()?'<p class="gc-owner-shop-tag">👑 Owner arsenal</p>':''}
+   <div class="gc-up-grid" id="gc-up-grid"></div>
+   <div class="gc-shop-actions">
+    <button type="button" class="gc-btn" id="gc-wave-continue">Continue → Wave ${s.wave+1}</button>
+   </div>
+  </div>`;
+ gcRenderShop();
+ document.getElementById('gc-wave-continue').onclick=()=>{
+  s.shopPause=false;
+  s.waveShopPending=false;
+  s.wave++;
+  shop.hidden=true;
+  document.getElementById('gc-play').hidden=false;
+  gcEnterPlayMode();
+  gcStartWave();
+  gcStartLoop();
+ };
+}
+
 function gcShowVictory(){
  const s=gcState; if(!s)return;
  if(gcRaf){cancelAnimationFrame(gcRaf);gcRaf=null;}
@@ -865,11 +915,13 @@ function gcRenderShop(){
   const lvl=s.upgrades.levels[up.id]||0;
   const maxed=lvl>=up.max;
   const cost=up.cost+lvl*(up.ownerOnly?12:15);
-  const can=s.gems>=cost&&!maxed&&(!up.ownerOnly||gcIsOwner());
-  return `<button type="button" class="gc-up${maxed?' maxed':''}${up.ownerOnly?' owner':''}" data-up="${up.id}" ${can?'':'disabled'}>
+  const ownerLocked=!!(up.ownerOnly&&!gcIsOwner());
+  const can=!ownerLocked&&s.gems>=cost&&!maxed;
+  const meta=maxed?'MAX':ownerLocked?'🔒 Secret Codes → owner unlock':`Lv ${lvl}/${up.max} · 💎 ${cost}`;
+  return `<button type="button" class="gc-up${maxed?' maxed':''}${up.ownerOnly?' owner':''}${ownerLocked?' locked':''}" data-up="${up.id}" ${can?'':'disabled'}>
    <b>${up.ownerOnly?'👑 ':''}${up.name}</b>
    <span>${up.desc}</span>
-   <span class="gc-up-meta">${maxed?'MAX':`Lv ${lvl}/${up.max} · 💎 ${cost}`}</span>
+   <span class="gc-up-meta">${meta}</span>
   </button>`;
  }).join('');
  grid.onclick=e=>{
