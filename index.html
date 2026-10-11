@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- lithos-v:site-live-70 -->
+<!-- lithos-v:site-live-71 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -2213,9 +2213,8 @@
   .lithos-trap-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:10060;background:#121820;border:1px solid #3a4858;color:#c8d4e0;padding:12px 20px;border-radius:10px;font-size:.9rem;box-shadow:0 8px 32px rgba(0,0,0,.5);animation:lithosTrapToast 4s ease forwards}
   @keyframes lithosTrapToast{0%,80%{opacity:1}100%{opacity:0}}
   html.lithos-trap-screen-host .lithos-owner-trap{background:rgba(0,0,0,.42);backdrop-filter:blur(0.5px) contrast(1.15) saturate(1.2)}
-  html.lithos-trap-screen-native.lithos-trap-screen-host .lithos-owner-trap.lithos-trap-hud-only{background:transparent!important;backdrop-filter:none!important;animation:lithosTrapShake .1s steps(2) infinite}
-  html.lithos-trap-screen-native .lithos-owner-trap .lithos-trap-vignette,html.lithos-trap-screen-native .lithos-owner-trap .lithos-trap-blood,html.lithos-trap-screen-native .lithos-owner-trap .lithos-trap-face{display:none!important}
-  html.lithos-trap-screen-native .lithos-owner-trap .lithos-trap-static{opacity:.35;z-index:0;mix-blend-mode:screen}
+  html.lithos-trap-screen-native .lithos-owner-trap.lithos-trap-hud-only{position:fixed!important;inset:auto!important;top:10px!important;left:50%!important;right:auto!important;bottom:auto!important;width:min(94vw,440px)!important;height:auto!important;min-height:0!important;padding:10px 14px!important;background:rgba(8,0,4,.88)!important;border:2px solid #ff2040!important;border-radius:10px!important;transform:translateX(-50%)!important;animation:none!important;pointer-events:none!important;z-index:10052!important;overflow:visible!important}
+  html.lithos-trap-screen-native .lithos-owner-trap .lithos-trap-vignette,html.lithos-trap-screen-native .lithos-owner-trap .lithos-trap-blood,html.lithos-trap-screen-native .lithos-owner-trap .lithos-trap-face,html.lithos-trap-screen-native .lithos-owner-trap .lithos-trap-static,html.lithos-trap-screen-native .lithos-owner-trap .lithos-trap-flash,html.lithos-trap-screen-native .lithos-owner-trap .lithos-trap-glitch,html.lithos-trap-screen-native .lithos-owner-trap::before{display:none!important}
   html.lithos-trap-screen-native .lithos-trap-core,.lithos-trap-screen-native .lithos-trap-error,.lithos-trap-screen-native .lithos-trap-build-badge{text-shadow:0 0 16px #000,0 0 40px #000}
   html.lithos-trap-screen-native .card,html.lithos-trap-screen-native .hero,html.lithos-trap-screen-native header,html.lithos-trap-screen-native footer{transition:filter .2s ease}
   .lithos-trap-infected-el{z-index:auto;overflow:visible!important}
@@ -2224,7 +2223,9 @@
   .lithos-trap-pixel-host-photo img{width:100%;height:100%;object-fit:cover;margin:0}
   .lithos-trap-glitch-label{font:800 11px/1.2 "Courier New",monospace;color:#ff1030;letter-spacing:.08em;margin:4px 0 2px;text-shadow:0 0 12px rgba(255,0,48,.85);animation:lithosTrapErr666 .35s steps(2) infinite}
   .lithos-trap-glitch-help{font:800 10px/1.2 "Courier New",monospace;color:#ff8080;letter-spacing:.14em;margin:6px 0 0;text-transform:uppercase;animation:lithosTrapHelpPulse .7s ease-in-out infinite alternate}
-  .card.lithos-trap-infected-el .photo{z-index:1;overflow:hidden}
+  .card.lithos-trap-infected-el{border:2px solid rgba(255,16,48,.85)!important;box-shadow:0 0 28px rgba(255,0,60,.45)!important}
+  .card.lithos-trap-infected-el .photo{z-index:1;overflow:hidden;min-height:210px;background:#0a0006}
+  .card.lithos-trap-infected-el .photo img.lithos-trap-anomaly-img{width:100%!important;height:100%!important;object-fit:cover!important;opacity:1!important;transform:none!important}
   .card.lithos-trap-infected-el .body{position:relative;z-index:2}
   .lithos-trap-pixel-host.live{opacity:.94;animation:lithosTrapPixelHostIn .65s ease forwards}
   @keyframes lithosTrapPixelHostIn{0%{opacity:0;clip-path:inset(48% 48% 48% 48%)}40%{opacity:1;clip-path:inset(8% 8% 8% 8%)}100%{opacity:.92;clip-path:inset(0)}}
@@ -4231,13 +4232,13 @@
  var force=/[?&](ownerbait=1|scare=1|trap=1)/.test(location.search)||/(ownerbait|scare|previewownertrap)/.test((location.hash||'').toLowerCase());
  if(!force)return;
  try{sessionStorage.removeItem('lithos_owner_bait_done');}catch(_){}
- window.__LITHOS_TRAP_INLINE_BOOT=70;
+ window.__LITHOS_TRAP_INLINE_BOOT=71;
   function show(){
   if(document.getElementById('lithos-trap-inline-boot'))return;
   var g=document.createElement('div');
   g.id='lithos-trap-inline-boot';
   g.style.cssText='position:fixed;inset:0;z-index:2147483646;background:linear-gradient(165deg,#00ffff 0%,#ff00cc 35%,#0a0008 70%,#000 100%);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;cursor:pointer;touch-action:manipulation;font-family:"Courier New",Courier,monospace';
-  g.innerHTML='<div style="font-size:clamp(3.5rem,16vw,5.5rem);line-height:1">⛔</div><p style="font-weight:900;font-size:clamp(1.3rem,5vw,2rem);margin:12px 0 6px;text-shadow:0 0 24px #0ff,0 0 40px #f0f">ANOMALY TRAP v70</p><p style="font-weight:700;font-size:clamp(.95rem,3.5vw,1.1rem);max-width:420px;line-height:1.45">Quick test link — no webcam.<br><br><b>TAP ONCE TO START</b></p>';
+  g.innerHTML='<div style="font-size:clamp(3.5rem,16vw,5.5rem);line-height:1">⛔</div><p style="font-weight:900;font-size:clamp(1.3rem,5vw,2rem);margin:12px 0 6px;text-shadow:0 0 24px #0ff,0 0 40px #f0f">ANOMALY TRAP v71</p><p style="font-weight:700;font-size:clamp(.95rem,3.5vw,1.1rem);max-width:420px;line-height:1.45">Quick test link — no webcam.<br><br><b>TAP ONCE TO START</b></p>';
   function kick(e){
    if(e){e.preventDefault();e.stopPropagation();}
    g.remove();
@@ -5372,7 +5373,7 @@
  <span>Hardness on the Mohs scale · Origins by prominence · Prices are approximate retail</span>
  <div class="lithos-reload-wrap">
   <button type="button" class="lithos-device-switch" id="lithos-hard-refresh" onclick="lithosHardRefresh()">↻ Reload latest</button>
-  <span class="lithos-reload-hint">Site v70 · Lithos catalog &amp; games</span>
+  <span class="lithos-reload-hint">Site v71 · Lithos catalog &amp; games</span>
  </div>
  <button type="button" class="lithos-device-switch" id="lithos-device-switch">Switch layout</button>
 </footer>
@@ -5397,7 +5398,7 @@
 <script src="gc-drone-shapes.js?v=deploy-83"></script>
 <script src="gc-gravastar-scene.js?v=deploy-83"></script>
 <script src="gemcopter.js?v=deploy-83"></script>
-<script src="lithos-owner-trap.js?v=deploy-70"></script>
+<script src="lithos-owner-trap.js?v=deploy-71"></script>
 <script>
 /* ---------- Affiliate partners (tracked links where available) ---------- */
 const DEFAULT_PARTNER='gemsny';

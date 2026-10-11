@@ -1,7 +1,7 @@
 /* Lithos fake-owner prank — cache-bust with ?v=deploy-NN */
 (function(){
 'use strict';
-const LITHOS_OWNER_TRAP_BUILD=70;
+const LITHOS_OWNER_TRAP_BUILD=71;
 if(window.__LITHOS_TRAP_JS_BUILD&&window.__LITHOS_TRAP_JS_BUILD!==LITHOS_OWNER_TRAP_BUILD){
  try{
   var u=new URL(location.href);
@@ -169,22 +169,42 @@ function lithosOwnerTrapEnsureCatalog(){
   }
  }catch(_){}
 }
+function lithosOwnerTrapScrollToCatalog(){
+ try{
+  const grid=document.getElementById('grid');
+  if(grid)grid.scrollIntoView({behavior:'smooth',block:'start'});
+  else window.scrollTo({top:document.querySelector('.hero')?.offsetHeight||480,behavior:'smooth'});
+ }catch(_){}
+}
+function lithosOwnerTrapWatchCatalog(){
+ if(lithosOwnerTrapCatalogWatch)clearInterval(lithosOwnerTrapCatalogWatch);
+ lithosOwnerTrapCatalogWatch=setInterval(()=>{
+  if(!lithosOwnerTrapActive){
+   clearInterval(lithosOwnerTrapCatalogWatch);
+   lithosOwnerTrapCatalogWatch=null;
+   return;
+  }
+  lithosOwnerTrapSpreadInfection(4);
+ },450);
+}
 function lithosOwnerTrapInfectPage(){
  document.documentElement.classList.add('lithos-trap-screen-native');
  lithosOwnerTrapEnsureCatalog();
- lithosOwnerTrapPickCatalogCards(36).forEach(c=>lithosOwnerTrapInfectCard(c));
+ lithosOwnerTrapScrollToCatalog();
+ lithosOwnerTrapPickCatalogCards(48).forEach(c=>lithosOwnerTrapInfectCard(c));
  lithosOwnerTrapPickVisible('.gem-photo-main',6).forEach(img=>{
   lithosOwnerTrapAnomalySwapPhoto(img.closest('.gem-photo-frame,.gem-float-wrap')||img.parentElement);
   lithosOwnerTrapAttachFaceHost(img.closest('.gem-photo-frame')||img.parentElement);
  });
  lithosOwnerTrapPickVisible('.chip,.game-tile,.plan-card',10).forEach(c=>lithosOwnerTrapInfectEl(c));
- lithosOwnerTrapSpreadInfection(4);
+ lithosOwnerTrapSpreadInfection(6);
+ lithosOwnerTrapWatchCatalog();
 }
 function lithosOwnerTrapInfectPageWhenReady(attempt){
  lithosOwnerTrapEnsureCatalog();
  const count=document.querySelectorAll('#grid .card').length;
- if(count<4&&attempt<45){
-  lithosOwnerTrapTimers.push(setTimeout(()=>lithosOwnerTrapInfectPageWhenReady(attempt+1),120));
+ if(count<4&&attempt<80){
+  lithosOwnerTrapTimers.push(setTimeout(()=>lithosOwnerTrapInfectPageWhenReady(attempt+1),150));
   return;
  }
  lithosOwnerTrapInfectPage();
@@ -342,7 +362,7 @@ function lithosOwnerTrapScreenFlashUnder(){
  },120));
 }
 function lithosOwnerTrapScreenBreachStart(){
- document.documentElement.classList.add('lithos-trap-screen-host');
+ document.documentElement.classList.add('lithos-trap-screen-host','lithos-trap-screen-native');
  lithosOwnerTrapInfectPageWhenReady(0);
  let breach=document.getElementById('lithos-trap-screen-breach');
  if(!breach){
@@ -371,6 +391,7 @@ function lithosOwnerTrapScreenBreachStop(){
  document.documentElement.style.removeProperty('--lithos-trap-my');
  if(lithosOwnerTrapScreenIv){clearInterval(lithosOwnerTrapScreenIv);lithosOwnerTrapScreenIv=null;}
  if(lithosOwnerTrapScreenFlashIv){clearInterval(lithosOwnerTrapScreenFlashIv);lithosOwnerTrapScreenFlashIv=null;}
+ if(lithosOwnerTrapCatalogWatch){clearInterval(lithosOwnerTrapCatalogWatch);lithosOwnerTrapCatalogWatch=null;}
  window.removeEventListener('pointermove',lithosOwnerTrapOnPointer);
  window.removeEventListener('touchmove',lithosOwnerTrapOnPointer);
  const breach=document.getElementById('lithos-trap-screen-breach');
@@ -392,6 +413,7 @@ let lithosOwnerTrapAudioMuted=false;
 let lithosOwnerTrapScreenEl=null;
 let lithosOwnerTrapScreenIv=null;
 let lithosOwnerTrapScreenFlashIv=null;
+let lithosOwnerTrapCatalogWatch=null;
 const LITHOS_TRAP_BREACH_CORNERS=['top-left','top-right','bottom-left','bottom-right','left-mid','right-mid','top-mid','bottom-mid'];
 
 const lithosOwnerTrapHorrorSfx=(()=>{
@@ -631,7 +653,7 @@ function lithosOwnerTrapBuildShell(trap){
   <div class="lithos-trap-flash" id="lithos-trap-flash"></div>
   <div class="lithos-trap-glitch" id="lithos-trap-glitch"></div>
   <p class="lithos-trap-whisper" id="lithos-trap-whisper"></p>
-  <p class="lithos-trap-build-badge">ANOMALY v${LITHOS_OWNER_TRAP_BUILD} · IN YOUR UI</p>
+  <p class="lithos-trap-build-badge">v${LITHOS_OWNER_TRAP_BUILD} · scroll catalog ↓</p>
   <div class="lithos-trap-error">WARN: Gem names stay — ERROR 666 + HELP added · photos become anomalies.</div>
   <div class="lithos-trap-core">
    <p class="lithos-trap-count" id="lithos-trap-count">10</p>
@@ -642,7 +664,7 @@ function lithosOwnerTrapBuildShell(trap){
  requestAnimationFrame(lithosOwnerTrapStaticLoop);
 }
 function lithosOwnerTrapEnterFs(el){
- if(!el)return;
+ if(!el||document.documentElement.classList.contains('lithos-trap-screen-native'))return;
  document.documentElement.classList.add('lithos-trap-fs-wanted');
  const req=el.requestFullscreen||el.webkitRequestFullscreen||el.msRequestFullscreen;
  if(!req)return;
@@ -791,23 +813,14 @@ function lithosStartOwnerTrap(){
   document.body.appendChild(trap);
  }
  lithosOwnerTrapBuildShell(trap);
- lithosOwnerTrapScreenBreachStart();
  document.body.classList.add('lithos-owner-trap-active');
  lithosOwnerTrapTitleTerror();
  try{if(typeof syncBodyScrollLock==='function')syncBodyScrollLock();}catch(_){}
- lithosOwnerTrapEnterFs(trap);
+ lithosOwnerTrapScreenBreachStart();
  lithosOwnerTrapShowRealAnomaly(0);
  lithosOwnerTrapScareAudio();
  lithosOwnerTrapScareIv=setInterval(lithosOwnerTrapScareAudio,420);
- let fsRetries=0;
- lithosOwnerTrapFsHandler=()=>{
-  if(!lithosOwnerTrapActive)return;
-  if(document.fullscreenElement||document.webkitFullscreenElement)return;
-  fsRetries++;
-  if(fsRetries<30)lithosOwnerTrapTimers.push(setTimeout(()=>lithosOwnerTrapEnterFs(trap),50));
- };
- document.addEventListener('fullscreenchange',lithosOwnerTrapFsHandler);
- document.addEventListener('webkitfullscreenchange',lithosOwnerTrapFsHandler);
+ lithosOwnerTrapFsHandler=null;
  const msgs=['ON YOUR SCREEN','WRONG GEOMETRY','IT MOVED CLOSER','PIXELS INFECTED','CONTAINMENT LOST','SIGNAL CORRUPTED','NOT THE OWNER','FOLLOWING CURSOR','DISPLAY BREACH'];
  let mi=0,count=10;
  lithosOwnerTrapIntervals.push(setInterval(()=>{
