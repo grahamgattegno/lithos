@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- lithos-v:site-live-75 -->
+<!-- lithos-v:site-live-76 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1504,6 +1504,57 @@
   .gr-end-sub{color:#b8b0cc;font-size:14px}
   .gr-btn{background:linear-gradient(135deg,#3a8ac0,#7ad0f0);color:#08131a;border:none;border-radius:11px;padding:11px 20px;font-weight:800;font-size:14.5px;cursor:pointer}
   .gr-btn.ghost{background:transparent;border:1px solid #4a4058;color:#b0a8c0}
+  /* Morph Hunt — find unique morphs across worlds */
+  #morphhunt{position:fixed;inset:0;z-index:9999;background:rgba(4,6,14,.94);display:flex;align-items:stretch;justify-content:center;padding:10px;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));overflow:auto}
+  .mh-panel{width:min(1100px,100%);margin:auto;display:flex;flex-direction:column;gap:10px;font-family:var(--font,system-ui,sans-serif);color:var(--text,#e8e4f0)}
+  .mh-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;align-items:flex-start;border-bottom:1px solid rgba(201,169,79,.25);padding-bottom:10px}
+  .mh-title{margin:0;font-family:var(--display,serif);font-size:clamp(22px,4vw,28px);color:var(--gold,#c9a94f)}
+  .mh-sub{margin:4px 0 0;font-size:13px;color:var(--text-faint,#a0a8b8);max-width:520px}
+  .mh-head-stats{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:12px;font-family:var(--mono,monospace);color:#b8b0cc}
+  .mh-head-stats b{color:#ffde7a}
+  .mh-owner-tag{color:#f8d030;border:1px solid rgba(248,208,48,.45);padding:4px 8px;border-radius:6px;font-size:10px;letter-spacing:.06em;text-transform:uppercase}
+  .mh-btn.ghost{background:transparent;border:1px solid #4a5060;color:#c0c8d8;border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer}
+  .mh-world-tabs{display:flex;flex-wrap:wrap;gap:6px}
+  .mh-world-tab{border:1px solid #3a4050;background:#121820;color:#a8b0c0;border-radius:999px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer}
+  .mh-world-tab.on{border-color:var(--gold,#c9a94f);color:#f8e8c8;background:rgba(201,169,79,.12)}
+  .mh-world-tab.locked{opacity:.45;cursor:not-allowed}
+  .mh-main{display:grid;grid-template-columns:1fr min(300px,34%);gap:12px;align-items:start}
+  @media(max-width:860px){.mh-main{grid-template-columns:1fr}}
+  .mh-scene-wrap{display:flex;flex-direction:column;gap:6px}
+  .mh-scene{position:relative;border-radius:16px;border:2px solid rgba(255,255,255,.08);min-height:min(52vh,420px);overflow:hidden;box-shadow:inset 0 0 80px rgba(0,0,0,.35)}
+  .mh-prop{position:absolute;pointer-events:none;border-radius:8px}
+  .mh-prop-boulder{background:linear-gradient(145deg,#6a6058,#3a3428);box-shadow:inset 0 -6px 0 rgba(0,0,0,.25)}
+  .mh-prop-cap{width:18%;height:22%;background:radial-gradient(ellipse at 50% 30%,#a060c0,#502868 70%);border-radius:50% 50% 20% 20%}
+  .mh-prop-antenna{width:3px;height:18%;background:#506070;box-shadow:40px 0 0 #506070}
+  .mh-prop-fog{inset:0;background:linear-gradient(180deg,transparent,rgba(20,16,32,.55))}
+  .mh-prop-grid{border:1px dashed rgba(120,160,255,.25);border-radius:12px}
+  .mh-prop-beam{width:2px;height:100%;background:linear-gradient(180deg,rgba(255,220,120,.5),transparent);transform:translateX(-50%);opacity:.6}
+  .mh-spot{position:absolute;border:none;background:transparent;padding:0;cursor:pointer;width:min(18vw,88px);height:min(14vw,70px);z-index:2;filter:drop-shadow(0 4px 8px rgba(0,0,0,.45));transform:translate(-50%,-50%) scale(var(--mh-scale,1));transform-origin:center center}
+  .mh-spot-svg{width:100%;height:100%;display:block}
+  .mh-spot:not(.got){opacity:.88;animation:mhPulse 2.4s ease-in-out infinite}
+  .mh-spot:not(.got):hover,.mh-spot:not(.got):focus{outline:2px solid var(--mh-rarity,#fff);outline-offset:3px;opacity:1}
+  .mh-spot.got{opacity:.55;cursor:default;animation:none}
+  .mh-spot-check{position:absolute;right:-4px;top:-4px;width:14px;height:14px;border-radius:50%;background:#4caf7d;border:2px solid #0a1018}
+  @keyframes mhPulse{0%,100%{transform:translate(-50%,-50%) scale(var(--mh-scale,1))}50%{transform:translate(-50%,-52%) scale(calc(var(--mh-scale,1) * 1.06))}}
+  .mh-scene-hint,.mh-progress{margin:0;font-size:12px;color:var(--text-faint,#98a0b0)}
+  .mh-progress b{color:#ffde7a}
+  .mh-codex{background:#10141c;border:1px solid #2a3040;border-radius:14px;padding:12px;max-height:min(70vh,520px);overflow:auto}
+  .mh-codex h3{margin:0 0 8px;font-size:14px;color:var(--gold,#c9a94f)}
+  .mh-filters{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
+  .mh-filter{border:1px solid #3a4050;background:#0c1018;color:#9098a8;border-radius:6px;padding:4px 8px;font-size:10px;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:.04em}
+  .mh-filter.on{border-color:#7ad0f0;color:#d0f0ff}
+  .mh-codex-grid{display:flex;flex-direction:column;gap:8px}
+  .mh-codex-card{display:flex;gap:10px;align-items:center;border:1px solid #2a3040;border-left:3px solid var(--mh-rarity,#666);border-radius:10px;padding:8px;background:#0a0e14}
+  .mh-codex-card:not(.got){opacity:.75}
+  .mh-codex-art{width:52px;height:42px;flex-shrink:0;background:#141820;border-radius:8px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .mh-codex-art svg{width:100%;height:100%}
+  .mh-silhouette{width:70%;height:55%;background:#252830;border-radius:6px;clip-path:polygon(30% 0,70% 0,85% 100%,15% 100%)}
+  .mh-codex-meta{display:flex;flex-direction:column;gap:2px;font-size:11px}
+  .mh-codex-meta b{font-size:12px;color:#e8e4f0}
+  .mh-codex-rarity{color:var(--mh-rarity,#aaa);font-weight:800;font-size:10px;text-transform:uppercase;letter-spacing:.05em}
+  .mh-codex-cat{color:#788898;font-size:10px}
+  .mh-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(12px);background:#121820;border:1px solid var(--gold,#c9a94f);color:#f8e8c8;padding:10px 18px;border-radius:10px;font-size:13px;font-weight:700;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:10002;max-width:90vw;text-align:center}
+  .mh-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   /* ⛏️🕳️ GEM DIGGER — dig deep underground */
   #gemdig{position:fixed;inset:0;z-index:9999;background:rgba(6,6,12,.93);display:flex;align-items:center;justify-content:center;padding:12px}
   .dg-box{background:linear-gradient(170deg,#181428,#0c0a16);border:1px solid #3a3050;border-radius:18px;padding:16px 16px 14px;width:min(96vw,520px);text-align:center;position:relative}
@@ -5267,7 +5318,7 @@
  <span>Hardness on the Mohs scale · Origins by prominence · Prices are approximate retail</span>
  <div class="lithos-reload-wrap">
   <button type="button" class="lithos-device-switch" id="lithos-hard-refresh" onclick="lithosHardRefresh()">↻ Reload latest</button>
-  <span class="lithos-reload-hint">Site v75 · Gem catalog &amp; games</span>
+  <span class="lithos-reload-hint">Site v76 · Gem catalog &amp; games</span>
  </div>
  <button type="button" class="lithos-device-switch" id="lithos-device-switch">Switch layout</button>
 </footer>
@@ -5292,6 +5343,7 @@
 <script src="gc-drone-shapes.js?v=deploy-83"></script>
 <script src="gc-gravastar-scene.js?v=deploy-83"></script>
 <script src="gemcopter.js?v=deploy-85"></script>
+<script src="morph-hunt.js?v=deploy-1"></script>
 <script>
 /* ---------- Affiliate partners (tracked links where available) ---------- */
 const DEFAULT_PARTNER='gemsny';
@@ -5816,6 +5868,7 @@ function lithos4DClearParticles(){lithos4DParticles=[];}
 /* ---------- Games hub ---------- */
 const LITHOS_GAMES=[
  {id:'arcade',icon:'🕹️',name:'Arcade',desc:'Gem Rush, Gem Digger, Gemstone Convoy, Night Shift & the secret game — pick a card and play!',preview:'radial-gradient(circle at 50% 35%,rgba(122,208,240,.28),transparent 50%),radial-gradient(circle at 70% 70%,rgba(201,169,79,.22),transparent 45%),linear-gradient(180deg,#141020,#080610)'},
+ {id:'morphhunt',icon:'◈',name:'Morph Hunt',desc:'Find hidden morphs in each world — fun, weird, spooky & exclusive noobies. Rarities, codex, next worlds unlock when you collect them all. Owner gets every morph.',preview:'radial-gradient(circle at 35% 35%,rgba(255,110,180,.35),transparent 50%),radial-gradient(circle at 70% 65%,rgba(126,200,255,.3),transparent 45%),linear-gradient(180deg,#141828,#080a12)'},
  {id:'gemrush',icon:'⛏️💎',name:'Gem Rush',desc:'Match gemstone pairs — Diamond with Diamond, Ruby with Ruby! Clear the board before you run out of moves.',preview:'radial-gradient(circle at 40% 30%,rgba(255,120,160,.35),transparent 50%),radial-gradient(circle at 70% 70%,rgba(100,160,255,.3),transparent 45%),linear-gradient(180deg,#1a1028,#0a0812)'},
  {id:'gemdigger',icon:'⛏️🕳️',name:'Gem Digger',desc:'5 mine levels! Upgrade drill, buy bombs, reach the Legendary Rainbow Gem — owner gets Nuke Blaster ☢️',preview:'radial-gradient(circle at 50% 40%,rgba(180,120,60,.35),transparent 50%),linear-gradient(180deg,#1a1410,#0a0806)'},
  {id:'gemdrive',icon:'🚗💎',name:'Gemstone Convoy',desc:'Full 8-bit pixel driving! Pick a gem car + mount Ruby/Sapphire/Emerald/Diamond/Amethyst/Topaz launchers vs crystal monsters.',preview:'radial-gradient(circle at 50% 60%,rgba(255,64,96,.3),transparent 50%),linear-gradient(180deg,#1a1020 0%,#2a1840 40%,#1a2818 100%)'},
@@ -5836,8 +5889,9 @@ const LITHOS_GAMES=[
  {id:'popframe',icon:'🎬',name:'PopFrame Studio',desc:'Free Canva-style video editor — templates, text, timeline, AI images, puppet animation & export!',preview:'radial-gradient(circle at 40% 30%,rgba(139,61,255,.4),transparent 50%),linear-gradient(180deg,#f3ebff,#eef0f4)'}
 ];
 const LITHOS_GAME_IDS=new Set(LITHOS_GAMES.map(g=>g.id));
-const LITHOS_ARCADE_ONLY=new Set(['arcade','gemrush','gemdigger','gemdrive','gemheli','gemcopter']);
+const LITHOS_ARCADE_ONLY=new Set(['arcade','morphhunt','gemrush','gemdigger','gemdrive','gemheli','gemcopter']);
 const LITHOS_ARCADE=[
+ {emoji:'◈',name:'Morph Hunt',desc:'Hunt unique morph creatures across worlds — rarities, categories & exclusive noobies. Clear a world to unlock the next!',action:'morphhunt'},
  {emoji:'⛏️💎',name:'Gem Rush',desc:'Match pairs of the same gemstone — Diamond with Diamond, Ruby with Ruby! Clear all 32 pairs before moves run out.',action:'gemrush'},
  {emoji:'🌙🏭',name:'Night Shift at the Gem Factory',desc:'Survive all 5 nights as the factory\'s night guard! Watch the cameras, slam the doors, don\'t get caught…',action:'nightshift'},
  {emoji:'⛏️🕳️',name:'Gem Digger',desc:'Dig through 5 mine levels! Find gems, upgrade drill, buy bombs — reach the Rainbow Gem at the bottom. Owner: Nuke Blaster clears everything! ☢️',action:'gemdigger'},
@@ -5850,6 +5904,7 @@ let gamesHubBuilt=false;
 function launchArcadeGame(action){
  try{closeGamesHub({skipHash:true});}catch(_){}
  lithosCloseGameOverlays();
+ if(action==='morphhunt'){playMorphHunt();return;}
  if(action==='gemrush'){playGemRush();return;}
  if(action==='nightshift'){playNightShift();return;}
  if(action==='gemdigger'){playGemDigger();return;}
@@ -5890,6 +5945,7 @@ function syncBodyScrollLock(){
   ||!!document.getElementById('nightshift')
   ||!!document.getElementById('nightshift2')
   ||!!document.getElementById('brmaze')
+  ||!!document.getElementById('morphhunt')
   ||!!document.getElementById('gemrush')
   ||!!document.getElementById('gemdig')
   ||!!document.getElementById('gemdrive')
@@ -5900,7 +5956,7 @@ function syncBodyScrollLock(){
 function syncMobileNav(name){
  document.querySelectorAll('.mobile-bar button').forEach(b=>{
   const target=b.dataset.mnav;
-  const onGames=name==='games'||name==='arcade'||(LITHOS_GAME_IDS.has(name)&&!LITHOS_ARCADE_ONLY.has(name))||name==='nightshift'||name==='nightshift2'||name==='gemrush'||name==='gemdigger'||name==='gemdrive'||name==='gemheli'||name==='gemcopter';
+  const onGames=name==='games'||name==='arcade'||(LITHOS_GAME_IDS.has(name)&&!LITHOS_ARCADE_ONLY.has(name))||name==='nightshift'||name==='nightshift2'||name==='morphhunt'||name==='gemrush'||name==='gemdigger'||name==='gemdrive'||name==='gemheli'||name==='gemcopter';
   b.classList.toggle('on',onGames?target==='games':target===name);
  });
 }
@@ -5932,6 +5988,7 @@ function buildGamesHub(){
    if(!card)return;
    const id=card.dataset.game;
    if(id==='arcade'){closeGamesHub({skipHash:true}); switchView('arcade'); return;}
+   if(id==='morphhunt'){closeGamesHub({skipHash:true}); playMorphHunt(); return;}
    if(id==='gemrush'){closeGamesHub({skipHash:true}); playGemRush(); return;}
    if(id==='gemdigger'){closeGamesHub({skipHash:true}); playGemDigger(); return;}
    if(id==='gemdrive'){closeGamesHub({skipHash:true}); playGemDrive(); return;}
@@ -5953,6 +6010,7 @@ function lithosCloseGameOverlays(){
  try{closeArchGame();}catch(_){}
  try{closeBackroomsMaze();}catch(_){}
  try{stopGemMotion();}catch(_){}
+ try{mhClose();}catch(_){}
  try{grClose();}catch(_){}
  try{dgClose();}catch(_){}
  try{gdClose();}catch(_){}
@@ -6489,6 +6547,7 @@ function routeHashView(){
   playNightMarket();return;
  }
  if(name==='backrooms'||name==='noclip'||name==='gembackrooms'){playBackroomsMaze();return;}
+ if(name==='morphhunt'){playMorphHunt();return;}
  if(name==='gemrush'){playGemRush();return;}
  if(name==='gemdigger'){playGemDigger();return;}
  if(name==='gemdrive'){playGemDrive();return;}
@@ -14839,6 +14898,12 @@ function tryCode(){
  }
 
  // GEM RUSH — pair matching! 💎⛏️
+ if(raw==="morph hunt"||raw==="morphhunt"||raw==="find morphs"||raw==="morphs"){
+ res.innerHTML=`<div class="win" style="border-color:#ff6eb4">Morph Hunt! Find every morph across worlds — owner gets the full codex.</div>`;
+ playMorphHunt();
+ return;
+ }
+
  if(raw==="gem rush"||raw==="gemrush"||raw==="match"||raw==="match 3"){
  res.innerHTML=`<div class="win" style="border-color:#7ad0f0">⛏️ GEM RUSH! Match pairs — Diamond with Diamond, Ruby with Ruby!</div>`;
  playGemRush();
