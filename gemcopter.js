@@ -1,7 +1,7 @@
 /* Gem Copter — helicopter + gemstone turret vs gem zombies, bosses, upgrades, 10 maps */
 (function(){
 'use strict';
-const GEM_COPTER_BUILD=71;
+const GEM_COPTER_BUILD=72;
 const GC_BULLET_LINES=5;
 
 const gcSfx=(()=>{
@@ -327,7 +327,7 @@ function playGemCopter(){
     <button type="button" class="gc-btn ghost" id="gc-leave">Leave</button>
    </div>
    <div id="gc-menu" class="gc-menu">
-    <p class="gc-lede">Pick a <b>helicopter</b>, then a map. Your <b>ground squad</b> holds the line while you fly and shoot from above!</p>
+    <p class="gc-lede">Fly your gem-chopper vs <b>hostile helicopter drones</b> — your <b>tech squad</b> on the ground backs you up!</p>
     <div class="gc-heli-grid" id="gc-heli-grid"></div>
     <div class="gc-map-grid" id="gc-map-grid"></div>
     <p class="gc-version-banner" id="gc-version-banner">Build ${GEM_COPTER_BUILD} — pick a helicopter, then a map ↓</p>
@@ -865,77 +865,71 @@ function gcBoom(x,y,color,scale){
  gcExplosionSfx(sc);
 }
 
-function gcDrawZombieBody(ctx,z,m){
+function gcDrawHostileHeli(ctx,z,m){
  const elite=z.elite;
- const sc=elite?1.22:1;
- const walk=Math.sin(z.t*8);
- const arm=Math.sin(z.t*6+1)*0.35;
- const skin=z.hurt>0?'#e8ece8':(elite?'#5a7060':'#6a8270');
- const rags=elite?m.accent:'#4a5848';
+ const sc=elite?1.28:1;
+ const hop=Math.sin(z.t*8)*2.2;
+ const hull=z.hurt>0?'#a0a8b0':(elite?'#3a5048':'#424c44');
  ctx.scale(z.face,1);
- ctx.translate(0,-2);
- // legs
- ctx.fillStyle='#3a4038';
- ctx.fillRect(-5*sc,-2+walk*3,4*sc,10*sc);
- ctx.fillRect(1*sc,-2-walk*3,4*sc,10*sc);
- // torso
- ctx.fillStyle=skin;
- ctx.fillRect(-7*sc,-18*sc,14*sc,16*sc);
- ctx.fillStyle=rags;
- ctx.fillRect(-8*sc,-14*sc,16*sc,8*sc);
- // gem wound on chest
- ctx.strokeStyle=m.accent; ctx.lineWidth=2;
- ctx.beginPath(); ctx.moveTo(-4*sc,-10*sc); ctx.lineTo(0,-4*sc); ctx.lineTo(5*sc,-11*sc); ctx.stroke();
- // arms
- ctx.fillStyle=skin;
- ctx.save(); ctx.translate(-8*sc,-12*sc); ctx.rotate(0.5+arm);
- ctx.fillRect(-2*sc,0,4*sc,11*sc); ctx.restore();
- ctx.save(); ctx.translate(8*sc,-12*sc); ctx.rotate(-0.4-arm*0.7);
- ctx.fillRect(-2*sc,0,4*sc,11*sc); ctx.restore();
- // head
- ctx.fillStyle=skin;
- ctx.beginPath(); ctx.arc(0,-22*sc,6*sc,0,Math.PI*2); ctx.fill();
- ctx.fillStyle='#1a2018';
- ctx.fillRect(-4*sc,-24*sc,3*sc,3*sc); ctx.fillRect(1*sc,-24*sc,3*sc,3*sc);
- ctx.fillStyle=m.accent; ctx.globalAlpha=0.85;
- ctx.fillRect(-3*sc,-23*sc,2*sc,2*sc); ctx.fillRect(2*sc,-23*sc,2*sc,2*sc);
- ctx.globalAlpha=1;
+ ctx.translate(0,hop);
+ ctx.strokeStyle='#353a40'; ctx.lineWidth=2;
+ ctx.beginPath(); ctx.moveTo(-10*sc,7*sc); ctx.lineTo(-5*sc,11*sc); ctx.lineTo(10*sc,11*sc); ctx.lineTo(14*sc,7*sc); ctx.stroke();
+ ctx.fillStyle=hull;
+ ctx.beginPath();
+ ctx.moveTo(-14*sc,8*sc); ctx.lineTo(14*sc,8*sc); ctx.lineTo(18*sc,0); ctx.lineTo(12*sc,-8*sc); ctx.lineTo(-14*sc,-8*sc); ctx.lineTo(-18*sc,0);
+ ctx.closePath(); ctx.fill();
+ ctx.fillStyle='#2a3028';
+ ctx.fillRect(-16*sc,-3*sc,7*sc,4*sc);
+ ctx.fillStyle='#1a2820';
+ ctx.beginPath(); ctx.ellipse(5*sc,-1*sc,7*sc,5*sc,0,0,Math.PI*2); ctx.fill();
+ ctx.fillStyle=m.accent; ctx.globalAlpha=0.75;
+ ctx.fillRect(3*sc,-2*sc,4*sc,3*sc); ctx.globalAlpha=1;
+ ctx.strokeStyle=m.accent; ctx.lineWidth=1.5;
+ ctx.beginPath(); ctx.moveTo(-6*sc,2*sc); ctx.lineTo(0,6*sc); ctx.lineTo(7*sc,1*sc); ctx.stroke();
+ const spin=z.t*22;
+ ctx.save(); ctx.translate(0,-10*sc);
+ ctx.strokeStyle=elite?'rgba(255,120,120,.75)':'rgba(160,100,100,.55)'; ctx.lineWidth=2;
+ ctx.beginPath(); ctx.moveTo(Math.cos(spin)*15*sc,0); ctx.lineTo(Math.cos(spin+Math.PI)*15*sc,0); ctx.stroke();
  if(elite){
-  ctx.strokeStyle=m.accent; ctx.lineWidth=2;
-  ctx.beginPath(); ctx.moveTo(-3*sc,-28*sc); ctx.lineTo(0,-32*sc); ctx.lineTo(4*sc,-27*sc); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(Math.cos(spin+1.2)*11*sc,-2); ctx.lineTo(Math.cos(spin+1.2+Math.PI)*11*sc,-2); ctx.stroke();
+  ctx.strokeStyle=m.accent; ctx.lineWidth=2; ctx.strokeRect(-15*sc,-9*sc,28*sc,16*sc);
  }
+ ctx.restore();
 }
 
 function gcDrawSoldierBody(ctx,u,m){
- const sc=1.08;
- const walk=Math.sin(u.t*7)*0.35;
+ const sc=1.12;
+ const walk=Math.sin(u.t*7)*0.32;
  ctx.scale(u.face,1);
- ctx.fillStyle='#2a4030';
- ctx.fillRect(-4*sc,-1+walk*2,3*sc,9*sc);
- ctx.fillRect(1*sc,-1-walk*2,3*sc,9*sc);
- ctx.fillStyle='#3d6b48';
- ctx.fillRect(-6*sc,-16*sc,12*sc,14*sc);
- ctx.fillStyle='#2e5238';
- ctx.fillRect(-6*sc,-14*sc,12*sc,5*sc);
- ctx.fillStyle='#c9a94f';
- ctx.fillRect(-1*sc,-8*sc,2*sc,2*sc);
- ctx.fillStyle='#4a3828';
- ctx.fillRect(-6*sc,-4*sc,12*sc,2*sc);
- ctx.fillStyle='#d8b090';
- ctx.fillRect(-5*sc,-13*sc,3*sc,7*sc);
- ctx.fillStyle='#4a5a44';
- ctx.beginPath(); ctx.arc(0,-19*sc,5*sc,0,Math.PI*2); ctx.fill();
- ctx.fillStyle='#6a7a62';
- ctx.fillRect(-4*sc,-22*sc,8*sc,3*sc);
- ctx.save();
- ctx.translate(3*sc,-11*sc);
- ctx.rotate(u.aim||0);
- ctx.fillStyle='#3a3028';
- ctx.fillRect(-2,0,15,3);
- ctx.fillRect(11,-1,4,5);
- ctx.fillStyle='#1a1814';
- ctx.fillRect(2,1,8,1);
- ctx.restore();
+ ctx.fillStyle='#243040';
+ ctx.fillRect(-5*sc,-1+walk*2,4*sc,10*sc);
+ ctx.fillRect(1*sc,-1-walk*2,4*sc,10*sc);
+ ctx.fillStyle='#4ec8ff'; ctx.globalAlpha=0.55;
+ ctx.fillRect(-4*sc,7+walk*2,2*sc,2*sc); ctx.fillRect(2*sc,7-walk*2,2*sc,2*sc);
+ ctx.globalAlpha=1;
+ ctx.fillStyle='#3a4a5c';
+ ctx.fillRect(-8*sc,-18*sc,16*sc,16*sc);
+ ctx.fillStyle='#1e2838';
+ ctx.fillRect(-6*sc,-15*sc,12*sc,9*sc);
+ ctx.strokeStyle='#7dffd4'; ctx.lineWidth=1;
+ ctx.strokeRect(-5*sc,-13*sc,10*sc,6*sc);
+ ctx.fillStyle=m.accent;
+ ctx.beginPath(); ctx.arc(0,-10*sc,3*sc,0,Math.PI*2); ctx.fill();
+ ctx.fillStyle='#586878';
+ ctx.fillRect(-10*sc,-17*sc,4*sc,7*sc); ctx.fillRect(6*sc,-17*sc,4*sc,7*sc);
+ ctx.fillStyle='#2a3848';
+ ctx.beginPath(); ctx.arc(0,-21*sc,6*sc,0,Math.PI*2); ctx.fill();
+ ctx.fillStyle='#7dffd4'; ctx.globalAlpha=0.9;
+ ctx.fillRect(-5*sc,-22*sc,10*sc,3*sc); ctx.globalAlpha=1;
+ ctx.strokeStyle='#7dffd4'; ctx.lineWidth=1.5;
+ ctx.beginPath(); ctx.moveTo(6*sc,-23*sc); ctx.lineTo(9*sc,-30*sc); ctx.stroke();
+ ctx.fillStyle='#7dffd4'; ctx.fillRect(8*sc,-31*sc,2*sc,2*sc);
+ ctx.save(); ctx.translate(5*sc,-13*sc); ctx.rotate(u.aim||0);
+ ctx.fillStyle='#4a5568';
+ ctx.fillRect(-2,0,18,4);
+ ctx.fillStyle='#7dffd4'; ctx.globalAlpha=0.85;
+ ctx.fillRect(14,1,8,2); ctx.globalAlpha=1;
+ ctx.fillStyle='#a0e8ff'; ctx.fillRect(20,1.5,3,1); ctx.restore();
 }
 
 function gcHud(){
@@ -1000,8 +994,8 @@ function gcDraw(){
   ctx.save();
   ctx.translate(z.x,z.y);
   ctx.rotate(Math.sin(z.t*6)*0.06);
-  gcDrawZombieBody(ctx,z,m);
-  const barY=-34*(z.elite?1.22:1);
+  gcDrawHostileHeli(ctx,z,m);
+  const barY=-36*(z.elite?1.28:1);
   ctx.fillStyle='rgba(0,0,0,.45)'; ctx.fillRect(-z.r, barY, z.r*2, 4);
   ctx.fillStyle='#3ecf8a'; ctx.fillRect(-z.r, barY, z.r*2*(z.hp/z.maxHp), 4);
   ctx.restore();
@@ -1135,9 +1129,13 @@ function gcDraw(){
  ctx.beginPath(); ctx.ellipse(8,-1,9,6.5,0,0,Math.PI*2); ctx.fill();
  ctx.fillStyle='rgba(120,180,220,.35)';
  ctx.beginPath(); ctx.ellipse(10,-2,5,3.5,0,0,Math.PI*2); ctx.fill();
- // engine / gem stripe
+ // engine / gem stripe + tech HUD
  ctx.fillStyle=trim; ctx.globalAlpha=0.85;
  ctx.fillRect(-4,-5,14,3); ctx.globalAlpha=1;
+ ctx.strokeStyle='#7dffd4'; ctx.lineWidth=1; ctx.globalAlpha=0.65;
+ ctx.strokeRect(-6,-7,18,7);
+ ctx.fillStyle='#7dffd4'; ctx.globalAlpha=0.35;
+ ctx.fillRect(10,-6,3,2); ctx.globalAlpha=1;
  // wing hardpoints + missiles
  if(gcHeliMissileMode(s.heli)!=='none'){
   const dual=gcHeliMissileMode(s.heli)==='dual';
@@ -1152,7 +1150,7 @@ function gcDraw(){
   });
  }
  // belly gem turret (under nose, rotates toward aim)
- const ang=Math.atan2(gcPointer.y-s.y,gcPointer.x-s.x)-tilt;
+ const ang=Math.atan2(gcPointer.y-s.y,gcPointer.x-s.x);
  ctx.save();
  ctx.translate(12,4);
  ctx.rotate(ang);
