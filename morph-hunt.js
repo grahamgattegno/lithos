@@ -1,57 +1,116 @@
-/* Morph Hunt — find unique morphs across worlds (Lithos) */
+/* Find The Noobies Morphs — Lithos (268 normal + 104 exclusive) */
 (function(){
 'use strict';
 
-const MH_STORE_KEY='lithos_morph_hunt_v1';
+const MH_STORE_KEY='lithos_morph_hunt_v3';
+const MH_WEAR_KEY='lithos_noobie_wear';
+const MH_NORMAL_COUNT=268;
+const MH_EXCLUSIVE_COUNT=104;
+const MH_COINS_PER_FIND=15;
+const MH_GACHA_COST=50;
+const MH_GACHA_EX_COST=120;
+const MH_WORLDS_COUNT=8;
+
 const MH_RARITY={
- common:{label:'Common',color:'#8a9aaa',glow:'rgba(138,154,170,.35)'},
- uncommon:{label:'Uncommon',color:'#4caf7d',glow:'rgba(76,175,125,.4)'},
- rare:{label:'Rare',color:'#4ea8ff',glow:'rgba(78,168,255,.45)'},
- epic:{label:'Epic',color:'#b060e8',glow:'rgba(176,96,232,.5)'},
- legendary:{label:'Legendary',color:'#f8d030',glow:'rgba(248,208,48,.55)'},
- exclusive:{label:'Exclusive',color:'#ff6eb4',glow:'rgba(255,110,180,.55)'}
+ common:{label:'Common',color:'#b8c0c8',glow:'rgba(184,192,200,.4)'},
+ uncommon:{label:'Uncommon',color:'#4caf7d',glow:'rgba(76,175,125,.45)'},
+ rare:{label:'Rare',color:'#4ea8ff',glow:'rgba(78,168,255,.5)'},
+ epic:{label:'Epic',color:'#b060e8',glow:'rgba(176,96,232,.55)'},
+ legendary:{label:'Legendary',color:'#f8d030',glow:'rgba(248,208,48,.6)'},
+ exclusive:{label:'Exclusive',color:'#ff6eb4',glow:'rgba(255,110,180,.6)'},
+ secret:{label:'Secret',color:'#39ff14',glow:'rgba(57,255,20,.5)'}
 };
-const MH_CATS={fun:'Fun',weird:'Weird',spooky:'Spooky',cosmic:'Cosmic',noobie:'Noobie'};
 
 const MH_WORLDS=[
- {id:'quarry',name:'Quarry Gleam',tagline:'Bright rocks hide silly wanderers.',bg:'linear-gradient(180deg,#87b8d8 0%,#c9e8a8 45%,#8a7a58 100%)',prop:'quarry'},
- {id:'fungal',name:'Fungal Overpass',tagline:'Caps, spores, and things with too many eyes.',bg:'linear-gradient(180deg,#2a1840 0%,#4a2860 40%,#1a3028 100%)',prop:'fungal'},
- {id:'hollow',name:'Hollow Signal',tagline:'Static, silhouettes, and distant humming.',bg:'linear-gradient(180deg,#0a0814 0%,#1a1428 50%,#081018 100%)',prop:'hollow'},
- {id:'nexus',name:'Noob Nexus',tagline:'Block legends and the rarest noobies.',bg:'linear-gradient(180deg,#1a2040 0%,#304878 35%,#181828 100%)',prop:'nexus'}
+ {id:'w0',name:'Buddy Plaza',emoji:'🏠',tagline:'Start here — noobies everywhere!',bg:'#87CEEB',ground:'#7ec850'},
+ {id:'w1',name:'Rainbow Fair',emoji:'🎡',tagline:'Colorful fair noobies.',bg:'#ffb8d0',ground:'#98d868'},
+ {id:'w2',name:'Blocky Beach',emoji:'🏖',tagline:'Sand, surf, and sunny morphs.',bg:'#70c8f0',ground:'#e8d878'},
+ {id:'w3',name:'Crystal Cave',emoji:'💎',tagline:'Gem-colored noobies glimmer.',bg:'#483868',ground:'#685888'},
+ {id:'w4',name:'Shadow Backrooms',emoji:'🚪',tagline:'Spooky fluorescent halls.',bg:'#c8c4a8',ground:'#a8a890'},
+ {id:'w5',name:'Sky Islands',emoji:'☁',tagline:'Floating platforms in the clouds.',bg:'#a8d8ff',ground:'#88c8f0'},
+ {id:'w6',name:'Lava Park',emoji:'🌋',tagline:'Hot zones — rare spawns!',bg:'#ff8860',ground:'#8a4030'},
+ {id:'w7',name:'Legend Nexus',emoji:'👑',tagline:'Last normal zone before exclusives.',bg:'#6080c0',ground:'#506898'}
 ];
 
-/** @type {{id:string,name:string,cat:keyof MH_CATS,rarity:keyof MH_RARITY,world:number,x:number,y:number,scale?:number}[]} */
-const MH_MORPHS=[
- {id:'pebble-hopper',name:'Pebble Hopper',cat:'fun',rarity:'common',world:0,x:18,y:72,scale:1},
- {id:'spring-snout',name:'Spring Snout',cat:'fun',rarity:'uncommon',world:0,x:42,y:58,scale:1.05},
- {id:'tri-tooth',name:'Tri-Tooth Grin',cat:'fun',rarity:'common',world:0,x:68,y:70,scale:.95},
- {id:'loop-tail',name:'Loop-Tail Scout',cat:'fun',rarity:'rare',world:0,x:82,y:48,scale:1},
- {id:'kite-fin',name:'Kite Fin Diver',cat:'fun',rarity:'uncommon',world:0,x:28,y:38,scale:1.1},
- {id:'sun-chime',name:'Sun Chime Blob',cat:'fun',rarity:'legendary',world:0,x:55,y:28,scale:1.15},
+const MH_CODES={
+ welcomebuddy:{morph:'ex-welcome',coins:0,title:''},
+ coinplease:{coins:100},
+ thanksforverified:{coins:100},
+ bubblebuddy:{title:'Bubble Buddy'},
+ lithosgem:{morph:'ex-gemcrown'},
+ happyanniversaryftn1:{morph:'ex-party'}
+};
 
- {id:'cap-walker',name:'Cap Walker',cat:'weird',rarity:'common',world:1,x:15,y:65,scale:1},
- {id:'tube-eye',name:'Tube-Eye Floater',cat:'weird',rarity:'uncommon',world:1,x:38,y:55,scale:1},
- {id:'fork-root',name:'Fork-Root Crawler',cat:'weird',rarity:'rare',world:1,x:62,y:68,scale:1.05},
- {id:'bell-jelly',name:'Bell Jelly',cat:'weird',rarity:'common',world:1,x:78,y:42,scale:1},
- {id:'spiral-maw',name:'Spiral Maw',cat:'weird',rarity:'epic',world:1,x:48,y:32,scale:1.1},
- {id:'puff-ladder',name:'Puff Ladder Beast',cat:'weird',rarity:'legendary',world:1,x:22,y:28,scale:1.2},
+const MH_RARITY_N=['common','common','uncommon','common','uncommon','rare','common','uncommon','rare','epic','uncommon','legendary'];
 
- {id:'wire-wisp',name:'Wire Wisp',cat:'spooky',rarity:'common',world:2,x:20,y:60,scale:1},
- {id:'hinge-face',name:'Hinge-Face Stalker',cat:'spooky',rarity:'uncommon',world:2,x:45,y:72,scale:1},
- {id:'antenna-kneel',name:'Antenna Kneeler',cat:'spooky',rarity:'rare',world:2,x:70,y:55,scale:1.05},
- {id:'void-moth',name:'Void Moth',cat:'spooky',rarity:'epic',world:2,x:85,y:38,scale:1},
- {id:'rack-spine',name:'Rack Spine',cat:'spooky',rarity:'legendary',world:2,x:52,y:30,scale:1.15},
- {id:'echo-hand',name:'Echo Hand',cat:'spooky',rarity:'rare',world:2,x:30,y:35,scale:1},
+function mhHsl(i,off,s,l){
+ const h=(i*137.508+off*40)%360;
+ return `hsl(${Math.round(h)},${s}%,${l}%)`;
+}
+function mhPal(i){
+ return{
+  head:mhHsl(i,0,72,62),
+  torso:mhHsl(i,1,68,48),
+  legs:mhHsl(i,2,58,40),
+  arms:mhHsl(i,0,72,62)
+ };
+}
+function mhSpotPos(idx,total){
+ const cols=11;
+ const row=Math.floor(idx/cols);
+ const col=idx%cols;
+ return{
+  x:6+col*(88/(cols-1)),
+  y:22+row*(58/Math.max(1,Math.ceil(total/cols)-1))
+ };
+}
 
- {id:'prism-skate',name:'Prism Skater',cat:'cosmic',rarity:'rare',world:3,x:12,y:68,scale:1},
- {id:'orbit-key',name:'Orbit Key',cat:'cosmic',rarity:'epic',world:3,x:35,y:55,scale:1},
- {id:'rivet-noob',name:'Rivet Noobie',cat:'noobie',rarity:'exclusive',world:3,x:58,y:72,scale:1.12},
- {id:'vault-noob',name:'Vault Noobie',cat:'noobie',rarity:'exclusive',world:3,x:75,y:48,scale:1.15},
- {id:'shard-noob',name:'Shard Noobie',cat:'noobie',rarity:'exclusive',world:3,x:48,y:28,scale:1.18},
- {id:'apex-noob',name:'Apex Noobie',cat:'noobie',rarity:'exclusive',world:3,x:22,y:32,scale:1.25},
- {id:'comet-latch',name:'Comet Latch',cat:'cosmic',rarity:'legendary',world:3,x:88,y:62,scale:1},
- {id:'gate-crawler',name:'Gate Crawler',cat:'weird',rarity:'epic',world:3,x:65,y:38,scale:1.05}
-];
+function mhBuildMorphs(){
+ const list=[];
+ const perWorld=Math.ceil(MH_NORMAL_COUNT/MH_WORLDS_COUNT);
+ for(let i=0;i<MH_NORMAL_COUNT;i++){
+  const wi=Math.min(MH_WORLDS_COUNT-1,Math.floor(i/perWorld));
+  const idx=i-wi*perWorld;
+  const pos=mhSpotPos(idx,perWorld);
+  const pal=mhPal(i);
+  list.push({
+   id:'n-'+i,
+   name:'Noobie #'+(i+1),
+   exclusive:false,
+   world:wi,
+   x:pos.x,y:pos.y,
+   scale:1,
+   ...pal,
+   rarity:MH_RARITY_N[i%MH_RARITY_N.length],
+   hat:i%17===0?'star':i%23===0?'crown':null
+  });
+ }
+ for(let i=0;i<MH_EXCLUSIVE_COUNT;i++){
+  const pal=mhPal(i+1000);
+  list.push({
+   id:'ex-'+i,
+   name:i===0?'Welcome Noobie':i===1?'Party Noobie':i===2?'Gem Crown Noobie':'Exclusive Noobie #'+(i+1),
+   exclusive:true,
+   world:MH_WORLDS_COUNT,
+   x:50,y:40,
+   scale:1.05+(i%5)*0.02,
+   ...pal,
+   rarity:i<12?'secret':i<40?'legendary':'exclusive',
+   hat:i%7===0?'gem':i%5===0?'party':i%3===0?'crown':null,
+   vaultOnly:true
+  });
+ }
+ const welcome=list.find(m=>m.id==='ex-0');
+ if(welcome){ welcome.id='ex-welcome'; welcome.name='Welcome Noobie'; welcome.hat='wave'; }
+ const party=list.find(m=>m.id==='ex-1');
+ if(party){ party.id='ex-party'; party.name='Party Noobie'; party.hat='party'; }
+ const gem=list.find(m=>m.id==='ex-2');
+ if(gem){ gem.id='ex-gemcrown'; gem.name='Gem Crown Noobie'; gem.hat='gem'; }
+ return list;
+}
+const MH_MORPHS=mhBuildMorphs();
+const MH_NORMALS=MH_MORPHS.filter(m=>!m.exclusive);
+const MH_EXCLUSIVES=MH_MORPHS.filter(m=>m.exclusive);
 
 function mhIsOwner(){
  if(typeof isOwner!=='undefined'&&isOwner)return true;
@@ -59,113 +118,109 @@ function mhIsOwner(){
  try{return localStorage.getItem('lithos_owner')==='1';}catch(_){return false;}
 }
 
+function mhLoadWearId(){
+ try{
+  const w=localStorage.getItem(MH_WEAR_KEY);
+  if(w&&MH_MORPHS.some(m=>m.id===w))return w;
+ }catch(_){}
+ return null;
+}
+function mhSaveWearId(id){
+ try{
+  if(id) localStorage.setItem(MH_WEAR_KEY,id);
+  else localStorage.removeItem(MH_WEAR_KEY);
+ }catch(_){}
+ window.LITHOS_NOOBIE_WEAR=id||null;
+ try{
+  document.dispatchEvent(new CustomEvent('lithos-noobie-morph',{detail:mhMorph(id)}));
+ }catch(_){}
+ mhRefreshTeacherNoob();
+}
+
 function mhDefaultSave(){
- return{collected:[],worldsUnlocked:1};
+ return{collected:[],worldsUnlocked:1,coins:100,wearing:null,title:'',codesUsed:[]};
 }
 function mhLoadSave(){
+ const wear=mhLoadWearId();
  if(mhIsOwner()){
-  return{collected:MH_MORPHS.map(m=>m.id),worldsUnlocked:MH_WORLDS.length};
+  return{
+   collected:MH_MORPHS.map(m=>m.id),
+   worldsUnlocked:MH_WORLDS.length,
+   coins:99999,
+   wearing:wear||'ex-welcome',
+   title:'Collector',
+   codesUsed:[]
+  };
  }
  try{
   const raw=JSON.parse(localStorage.getItem(MH_STORE_KEY)||'null');
-  if(!raw||!Array.isArray(raw.collected))return mhDefaultSave();
+  if(!raw||!Array.isArray(raw.collected))return {...mhDefaultSave(),wearing:wear};
   return{
    collected:raw.collected.filter(id=>MH_MORPHS.some(m=>m.id===id)),
-   worldsUnlocked:Math.max(1,Math.min(MH_WORLDS.length,+(raw.worldsUnlocked||1)))
+   worldsUnlocked:Math.max(1,Math.min(MH_WORLDS.length,+(raw.worldsUnlocked||1))),
+   coins:Math.max(0,+(raw.coins||100)),
+   wearing:(raw.wearing&&MH_MORPHS.some(m=>m.id===raw.wearing))?raw.wearing:wear,
+   title:typeof raw.title==='string'?raw.title:'',
+   codesUsed:Array.isArray(raw.codesUsed)?raw.codesUsed:[]
   };
- }catch(_){return mhDefaultSave();}
+ }catch(_){return {...mhDefaultSave(),wearing:wear};}
 }
 function mhSaveSave(data){
- if(mhIsOwner())return;
+ if(mhIsOwner()){
+  if(data.wearing) mhSaveWearId(data.wearing);
+  return;
+ }
  try{localStorage.setItem(MH_STORE_KEY,JSON.stringify(data));}catch(_){}
+ if(data.wearing) mhSaveWearId(data.wearing);
 }
 
 function mhMorph(id){return MH_MORPHS.find(m=>m.id===id);}
-function mhWorldMorphs(wi){return MH_MORPHS.filter(m=>m.world===wi);}
+function mhWorldMorphs(wi){return MH_MORPHS.filter(m=>!m.exclusive&&m.world===wi);}
 function mhHasMorph(save,id){return save.collected.includes(id);}
 function mhWorldComplete(save,wi){
  const need=mhWorldMorphs(wi);
  return need.length>0&&need.every(m=>mhHasMorph(save,m.id));
 }
 
-function mhSvgArt(id){
- switch(id){
- case 'pebble-hopper':
-  return '<ellipse cx="32" cy="52" rx="22" ry="14" fill="#6a8a5a"/><circle cx="44" cy="38" r="12" fill="#7a9a6a"/><rect x="18" y="48" width="8" height="14" rx="2" fill="#5a7a4a" transform="rotate(-25 22 55)"/>';
- case 'spring-snout':
-  return '<path d="M20 50 Q32 20 44 50 Q56 20 68 50" fill="none" stroke="#e08040" stroke-width="8" stroke-linecap="round"/><circle cx="52" cy="42" r="10" fill="#f0a060"/>';
- case 'tri-tooth':
-  return '<rect x="22" y="36" width="36" height="28" rx="8" fill="#5090c0"/><polygon points="28,36 32,24 36,36" fill="#fff"/><polygon points="38,36 42,22 46,36" fill="#fff"/><polygon points="48,36 52,26 56,36" fill="#fff"/>';
- case 'loop-tail':
-  return '<circle cx="36" cy="40" r="14" fill="#c06090"/><path d="M48 44 C70 20 70 70 48 58" fill="none" stroke="#804060" stroke-width="6"/>';
- case 'kite-fin':
-  return '<polygon points="32,55 50,25 68,55 50,45" fill="#40a0d0"/><line x1="50" y1="25" x2="50" y2="60" stroke="#2080a0" stroke-width="3"/>';
- case 'sun-chime':
-  return '<circle cx="50" cy="42" r="18" fill="#ffd060"/><line x1="50" y1="10" x2="50" y2="24" stroke="#c9a040" stroke-width="4"/><line x1="30" y1="18" x2="40" y2="28" stroke="#c9a040" stroke-width="3"/><line x1="70" y1="18" x2="60" y2="28" stroke="#c9a040" stroke-width="3"/>';
-
- case 'cap-walker':
-  return '<ellipse cx="50" cy="58" rx="26" ry="10" fill="#503868"/><path d="M30 58 Q50 18 70 58 Z" fill="#8060a8"/><circle cx="42" cy="48" r="4" fill="#ffe080"/><circle cx="58" cy="48" r="7" fill="#ffe080"/>';
- case 'tube-eye':
-  return '<rect x="38" y="30" width="24" height="40" rx="12" fill="#60a080"/><circle cx="50" cy="38" r="8" fill="#102018"/><circle cx="50" cy="38" r="3" fill="#80ffc0"/>';
- case 'fork-root':
-  return '<path d="M50 20 L50 65 M50 45 L25 65 M50 45 L75 65" stroke="#a07050" stroke-width="6" stroke-linecap="round"/><circle cx="50" cy="18" r="8" fill="#c09060"/>';
- case 'bell-jelly':
-  return '<path d="M30 55 Q50 25 70 55 L65 62 Q50 50 35 62 Z" fill="#80d0e0" opacity=".9"/><line x1="50" y1="25" x2="50" y2="12" stroke="#608090" stroke-width="2"/>';
- case 'spiral-maw':
-  return '<path d="M50 50 m-20 0 a20 20 0 1 1 40 0 a16 16 0 1 1 -32 0 a12 12 0 1 1 24 0" fill="none" stroke="#d04080" stroke-width="5"/><circle cx="50" cy="50" r="4" fill="#ff80a0"/>';
- case 'puff-ladder':
-  return '<rect x="28" y="22" width="14" height="14" fill="#90c070"/><rect x="42" y="36" width="14" height="14" fill="#70a050"/><rect x="56" y="50" width="14" height="14" fill="#508030"/><circle cx="35" cy="29" r="5" fill="#ffe0a0"/>';
-
- case 'wire-wisp':
-  return '<path d="M25 55 Q40 15 55 55 T85 55" fill="none" stroke="#a0a8b8" stroke-width="2"/><circle cx="40" cy="35" r="6" fill="#6080a0"/>';
- case 'hinge-face':
-  return '<rect x="28" y="32" width="44" height="32" rx="4" fill="#303038"/><line x1="50" y1="32" x2="50" y2="64" stroke="#101018" stroke-width="3"/><circle cx="38" cy="48" r="5" fill="#ff4040"/><rect x="58" y="44" width="10" height="3" fill="#808088"/>';
- case 'antenna-kneel':
-  return '<line x1="50" y1="20" x2="50" y2="35" stroke="#8090a0" stroke-width="3"/><circle cx="50" cy="16" r="5" fill="#ff6060"/><path d="M35 65 L45 40 L55 65 Z" fill="#404858"/><path d="M55 65 L65 40 L75 65 Z" fill="#404858"/>';
- case 'void-moth':
-  return '<ellipse cx="50" cy="45" rx="8" ry="14" fill="#181820"/><path d="M20 40 Q50 10 80 40 L50 55 Z" fill="#282830" opacity=".85"/>';
- case 'rack-spine':
-  return '<line x1="50" y1="18" x2="50" y2="62" stroke="#909098" stroke-width="4"/><line x1="35" y1="28" x2="65" y2="28" stroke="#707078" stroke-width="3"/><line x1="32" y1="38" x2="68" y2="38" stroke="#707078" stroke-width="3"/><line x1="35" y1="48" x2="65" y2="48" stroke="#707078" stroke-width="3"/>';
- case 'echo-hand':
-  return '<path d="M30 60 L30 35 L38 35 L38 45 L46 25 L54 45 L54 35 L62 35 L62 60 Z" fill="#506070" opacity=".9"/>';
-
- case 'prism-skate':
-  return '<polygon points="25,55 45,30 65,55 45,48" fill="#80a0ff"/><polygon points="45,30 55,55 35,55" fill="#c0d8ff" opacity=".6"/>';
- case 'orbit-key':
-  return '<circle cx="50" cy="45" r="16" fill="none" stroke="#60c0ff" stroke-width="4"/><rect x="46" y="20" width="8" height="18" rx="2" fill="#f0d060"/><circle cx="50" cy="58" r="6" fill="#4080c0"/>';
-
- case 'rivet-noob':
-  return '<rect x="38" y="22" width="24" height="22" rx="2" fill="#d0a858"/><rect x="34" y="44" width="32" height="26" rx="2" fill="#3060a8"/><rect x="28" y="46" width="10" height="22" fill="#d0a858"/><rect x="62" y="44" width="14" height="8" fill="#8090a0" transform="rotate(-20 69 48)"/><rect x="40" y="70" width="10" height="14" fill="#208040"/><rect x="52" y="70" width="10" height="14" fill="#208040"/>';
- case 'vault-noob':
-  return '<rect x="36" y="20" width="28" height="24" rx="3" fill="#e8c878"/><rect x="32" y="44" width="36" height="28" rx="2" fill="#505868"/><rect x="32" y="50" width="36" height="6" fill="#9098a8"/><rect x="38" y="72" width="12" height="12" fill="#303840"/><rect x="52" y="72" width="12" height="12" fill="#303840"/><polygon points="50,44 58,36 42,36" fill="#c0a040"/>';
- case 'shard-noob':
-  return '<polygon points="50,18 62,32 58,48 42,48 38,32" fill="#90e0ff"/><rect x="36" y="48" width="28" height="22" fill="#4080c0"/><polygon points="30,52 36,48 36,72 24,68" fill="#90e0ff"/><polygon points="70,52 64,48 64,72 76,68" fill="#90e0ff"/><rect x="40" y="70" width="8" height="14" fill="#2060a0"/><rect x="52" y="70" width="8" height="14" fill="#2060a0"/>';
- case 'apex-noob':
-  return '<polygon points="50,12 58,28 42,28" fill="#ffd700"/><rect x="38" y="28" width="24" height="20" rx="1" fill="#f0c060"/><rect x="34" y="48" width="32" height="24" fill="#8020a0"/><rect x="30" y="50" width="8" height="20" fill="#f0c060"/><rect x="62" y="50" width="8" height="20" fill="#f0c060"/><rect x="38" y="72" width="10" height="12" fill="#401060"/><rect x="52" y="72" width="10" height="12" fill="#401060"/><line x1="50" y1="12" x2="50" y2="6" stroke="#ffd700" stroke-width="3"/>';
-
- case 'comet-latch':
-  return '<polygon points="20,50 55,25 75,45 45,60" fill="#ffa060"/><circle cx="72" cy="42" r="8" fill="#fff8e0"/>';
- case 'gate-crawler':
-  return '<rect x="22" y="40" width="56" height="8" fill="#607080"/><circle cx="32" cy="52" r="10" fill="#8090a0"/><circle cx="50" cy="58" r="8" fill="#708898"/><circle cx="68" cy="52" r="10" fill="#8090a0"/>';
- default:
-  return '<circle cx="50" cy="45" r="16" fill="#808890"/>';
- }
+/** Full R6-style body (head, torso, arms, legs) */
+function mhClassicNoobSvg(m){
+ if(!m) return '';
+ const h=m.head||'#F5CD30', t=m.torso||'#0085DB', l=m.legs||'#A4BD47', a=m.arms||h;
+ let hat='';
+ if(m.hat==='crown') hat='<polygon points="50,2 58,14 42,14" fill="#ffd700"/><rect x="42" y="12" width="16" height="5" fill="#e8b020"/>';
+ if(m.hat==='star') hat='<polygon points="50,0 52,10 62,10 54,16 57,26 50,20 43,26 46,16 38,10 48,10" fill="#ffe060"/>';
+ if(m.hat==='wave') hat='<text x="68" y="18" font-size="12">👋</text>';
+ if(m.hat==='party') hat='<circle cx="40" cy="8" r="4" fill="#ff4080"/><circle cx="60" cy="10" r="3" fill="#40c0ff"/>';
+ if(m.hat==='gem') hat='<polygon points="50,0 58,14 50,20 42,14" fill="#80e0ff" stroke="#fff" stroke-width="1"/>';
+ return `<g>
+  <ellipse cx="50" cy="124" rx="22" ry="4" fill="#000" opacity=".2"/>
+  <rect x="32" y="66" width="16" height="34" rx="2" fill="${l}"/>
+  <rect x="52" y="66" width="16" height="34" rx="2" fill="${l}"/>
+  <rect x="30" y="40" width="40" height="28" rx="3" fill="${t}"/>
+  <rect x="14" y="42" width="14" height="28" rx="2" fill="${a}"/>
+  <rect x="72" y="42" width="14" height="28" rx="2" fill="${a}"/>
+  <rect x="33" y="8" width="34" height="34" rx="4" fill="${h}"/>
+  <rect x="35" y="10" width="14" height="10" rx="2" fill="#fff" opacity=".12"/>
+  <circle cx="42" cy="22" r="3" fill="#1a1a20"/><circle cx="58" cy="22" r="3" fill="#1a1a20"/>
+  <circle cx="43" cy="21" r="1" fill="#fff" opacity=".5"/><circle cx="59" cy="21" r="1" fill="#fff" opacity=".5"/>
+  <path d="M42 30 Q50 34 58 30" stroke="#1a1a20" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+  ${hat}
+ </g>`;
 }
 
-function mhPropsHtml(prop){
- if(prop==='quarry'){
-  return '<div class="mh-prop mh-prop-boulder" style="left:8%;bottom:18%;width:28%;height:22%"></div><div class="mh-prop mh-prop-boulder" style="right:10%;bottom:22%;width:22%;height:18%;opacity:.7"></div>';
- }
- if(prop==='fungal'){
-  return '<div class="mh-prop mh-prop-cap" style="left:5%;bottom:25%"></div><div class="mh-prop mh-prop-cap" style="left:55%;bottom:15%;transform:scale(1.3)"></div><div class="mh-prop mh-prop-cap" style="right:8%;bottom:30%;transform:scale(.85)"></div>';
- }
- if(prop==='hollow'){
-  return '<div class="mh-prop mh-prop-antenna" style="left:12%;top:18%"></div><div class="mh-prop mh-prop-antenna" style="right:18%;top:22%"></div><div class="mh-prop mh-prop-fog"></div>';
- }
- return '<div class="mh-prop mh-prop-grid" style="inset:15%"></div><div class="mh-prop mh-prop-beam" style="left:50%;top:0"></div>';
+function mhRefreshTeacherNoob(){
+ const id=window.LITHOS_NOOBIE_WEAR||mhLoadWearId();
+ const m=mhMorph(id);
+ const html=m?`<svg viewBox="0 0 100 130" class="teacher-noob-svg">${mhClassicNoobSvg(m)}</svg><span class="teacher-noob-name">Rock Teacher morphed into <b>${m.name}</b></span>`:'';
+ document.querySelectorAll('.teacher-noob-slot,#teacher-noob-slot,#class-teacher-noob-slot').forEach(el=>{
+  if(!el) return;
+  el.innerHTML=html;
+  el.hidden=!m;
+ });
 }
 
 let mhState=null;
+let mhPendingFound=null;
 
 function mhClose(){
  const el=document.getElementById('morphhunt');
@@ -180,7 +235,36 @@ function mhToast(msg){
  t.textContent=msg;
  t.classList.add('show');
  clearTimeout(t._tm);
- t._tm=setTimeout(()=>t.classList.remove('show'),2200);
+ t._tm=setTimeout(()=>t.classList.remove('show'),2400);
+}
+
+function mhShowFound(m){
+ const modal=document.getElementById('mh-found-modal');
+ if(!modal)return;
+ const r=MH_RARITY[m.rarity]||MH_RARITY.common;
+ modal.innerHTML=`<div class="mh-found-card" style="--mh-rarity:${r.color}">
+  <div class="mh-found-badge">${m.exclusive?'Exclusive':r.label} Noobie!</div>
+  <svg viewBox="0 0 100 130" class="mh-found-svg">${mhClassicNoobSvg(m)}</svg>
+  <h3>You found ${m.name}!</h3>
+  <button type="button" class="mh-btn primary" id="mh-found-morph">Morph into this noobie!</button>
+  <button type="button" class="mh-btn ghost" id="mh-found-ok">Keep hunting</button>
+ </div>`;
+ modal.hidden=false;
+ modal.querySelector('#mh-found-morph').onclick=()=>{ mhWear(m.id,true); modal.hidden=true; mhSetTab('morph'); };
+ modal.querySelector('#mh-found-ok').onclick=()=>{ modal.hidden=true; };
+}
+
+function mhWear(id,silent){
+ if(!mhState)return;
+ if(!mhHasMorph(mhState.save,id)&&!mhIsOwner()){ mhToast('Find this noobie first!'); return; }
+ if(!mhHasMorph(mhState.save,id)&&mhIsOwner()){
+  if(!mhState.save.collected.includes(id)) mhState.save.collected.push(id);
+ }
+ mhState.save.wearing=id;
+ mhSaveSave(mhState.save);
+ mhSaveWearId(id);
+ if(!silent) mhToast('You morphed into '+mhMorph(id).name+'!');
+ mhRender();
 }
 
 function mhCollect(id){
@@ -188,22 +272,61 @@ function mhCollect(id){
  if(!m||!mhState)return;
  const save=mhState.save;
  if(mhHasMorph(save,id)){
-  mhToast('Already logged: '+m.name);
+  mhWear(id);
   return;
  }
+ if(m.exclusive&&!mhIsOwner()){ mhToast('Exclusive noobies come from codes or Exclusive Gacha!'); return; }
  save.collected.push(id);
+ save.coins+=MH_COINS_PER_FIND;
  mhSaveSave(save);
  const wi=m.world;
- if(mhWorldComplete(save,wi)&&save.worldsUnlocked<=wi+1&&wi+1<MH_WORLDS.length){
+ if(!m.exclusive&&mhWorldComplete(save,wi)&&save.worldsUnlocked<=wi+1&&wi+1<MH_WORLDS.length){
   save.worldsUnlocked=Math.max(save.worldsUnlocked,wi+2);
   mhSaveSave(save);
-  mhToast('World complete! Unlocked: '+MH_WORLDS[wi+1].name);
+  mhToast('Zone cleared! Unlocked: '+MH_WORLDS[wi+1].emoji+' '+MH_WORLDS[wi+1].name);
   try{if(typeof SFX!=='undefined'&&SFX.win)SFX.win();}catch(_){}
- }else{
-  mhToast('Found: '+m.name+' ('+MH_RARITY[m.rarity].label+')');
-  try{if(typeof SFX!=='undefined'&&SFX.ui)SFX.ui();}catch(_){}
- }
+ }else try{if(typeof SFX!=='undefined'&&SFX.ui)SFX.ui();}catch(_){}
  mhRender();
+ mhShowFound(m);
+}
+
+function mhRedeemCode(raw){
+ const key=String(raw||'').trim().toLowerCase().replace(/\s+/g,'');
+ if(!key||!mhState)return false;
+ const pack=MH_CODES[key];
+ if(!pack){ mhToast('Invalid code — try WELCOMEBUDDY'); return false; }
+ const save=mhState.save;
+ if(save.codesUsed.includes(key)){ mhToast('Code already used!'); return false; }
+ save.codesUsed.push(key);
+ if(pack.coins) save.coins+=pack.coins;
+ if(pack.title) save.title=pack.title;
+ if(pack.morph&&MH_MORPHS.some(m=>m.id===pack.morph)){
+  if(!mhHasMorph(save,pack.morph)) save.collected.push(pack.morph);
+  mhWear(pack.morph,true);
+ }
+ mhSaveSave(save);
+ mhToast('Code redeemed!');
+ mhRender();
+ return true;
+}
+
+function mhGacha(exclusive){
+ const save=mhState.save;
+ const cost=exclusive?MH_GACHA_EX_COST:MH_GACHA_COST;
+ if(save.coins<cost){ mhToast('Need '+cost+' coins!'); return; }
+ const pool=MH_MORPHS.filter(m=>
+  (exclusive?m.exclusive:!m.exclusive)&&!mhHasMorph(save,m.id)
+ );
+ if(!pool.length){ mhToast('No '+ (exclusive?'exclusive ':'')+'noobies left in gacha!'); return; }
+ save.coins-=cost;
+ const weights={common:40,uncommon:28,rare:18,epic:10,legendary:4,exclusive:8,secret:3};
+ let bag=[];
+ pool.forEach(m=>{ const w=weights[m.rarity]||5; for(let i=0;i<w;i++) bag.push(m); });
+ const pick=bag[Math.floor(Math.random()*bag.length)];
+ save.collected.push(pick.id);
+ mhSaveSave(save);
+ mhRender();
+ mhShowFound(pick);
 }
 
 function mhSetWorld(wi){
@@ -213,10 +336,145 @@ function mhSetWorld(wi){
  mhRender();
 }
 
-function mhSetFilter(cat){
+function mhSetTab(tab){
  if(!mhState)return;
- mhState.filter=cat;
+ mhState.tab=tab;
+ mhState.page=0;
  mhRender();
+}
+
+function mhFilterList(list,q){
+ q=String(q||'').trim().toLowerCase();
+ if(!q) return list;
+ return list.filter(m=>m.name.toLowerCase().includes(q)||m.id.includes(q));
+}
+
+function mhPaginate(arr,page,size){
+ const p=Math.max(0,page||0);
+ const start=p*size;
+ return{slice:arr.slice(start,start+size),page:p,pages:Math.max(1,Math.ceil(arr.length/size)),total:arr.length};
+}
+
+function mhRenderHunt(save, wi){
+ const world=MH_WORLDS[wi];
+ const morphs=mhWorldMorphs(wi);
+ const found=morphs.filter(m=>mhHasMorph(save,m.id)).length;
+ const wear=mhMorph(save.wearing);
+ const spots=morphs.map(m=>{
+  const got=mhHasMorph(save,m.id);
+  const r=MH_RARITY[m.rarity]||MH_RARITY.common;
+  return `<button type="button" class="mh-spot${got?' got':''}" style="left:${m.x}%;top:${m.y}%;--mh-glow:${r.glow};--mh-rarity:${r.color};--mh-scale:${m.scale||1}" data-mh-id="${m.id}" title="${got?'Tap to morph':'Find!'}">
+   <svg viewBox="0 0 100 130" class="mh-spot-svg">${mhClassicNoobSvg(m)}</svg>
+   ${got?'<span class="mh-spot-check">✓</span>':''}
+  </button>`;
+ }).join('');
+ const worldTabs=MH_WORLDS.map((w,i)=>{
+  const locked=i>=save.worldsUnlocked;
+  const done=mhWorldComplete(save,i);
+  return `<button type="button" class="mh-world-tab${i===wi?' on':''}${locked?' locked':''}" data-mh-world="${i}" ${locked?'disabled':''}>${w.emoji} ${w.name}${done?' ✓':''}</button>`;
+ }).join('');
+ const nFound=save.collected.filter(id=>mhMorph(id)&&!mhMorph(id).exclusive).length;
+ const xFound=save.collected.filter(id=>mhMorph(id)&&mhMorph(id).exclusive).length;
+ return `<div class="mh-world-tabs">${worldTabs}</div>
+ <div class="mh-hub-wrap">
+  <div class="mh-hub" style="--mh-sky:${world.bg};--mh-grass:${world.ground}">
+   <div class="mh-hub-path"></div><div class="mh-hub-stud"></div>${spots}
+   ${wear?`<div class="mh-you morphed" style="left:6%;bottom:8%"><svg viewBox="0 0 100 130">${mhClassicNoobSvg(wear)}</svg><span>You · ${wear.name}</span></div>`:''}
+  </div>
+  <p class="mh-scene-hint">🔎 Tap noobies to collect. Tap again to <b>morph</b> into them!</p>
+  <p class="mh-progress">Zone: <b>${found}/${morphs.length}</b> &nbsp;•&nbsp; Normal: <b>${nFound}/${MH_NORMAL_COUNT}</b> &nbsp;•&nbsp; Exclusive: <b>${xFound}/${MH_EXCLUSIVE_COUNT}</b></p>
+ </div>`;
+}
+
+function mhRenderIndex(save){
+ const q=mhState.filter||'';
+ const kind=mhState.indexKind||'all';
+ let list=MH_MORPHS.slice();
+ if(kind==='normal') list=MH_NORMALS;
+ if(kind==='exclusive') list=MH_EXCLUSIVES;
+ list=mhFilterList(list,q);
+ list.sort((a,b)=>a.exclusive!==b.exclusive? (a.exclusive?1:-1) : a.name.localeCompare(b.name));
+ const pg=mhPaginate(list,mhState.page||0,48);
+ const cards=pg.slice.map(m=>{
+  const got=mhHasMorph(save,m.id);
+  const r=MH_RARITY[m.rarity]||MH_RARITY.common;
+  return `<div class="mh-codex-card${got?' got':''}" style="--mh-rarity:${r.color}">
+   <div class="mh-codex-art">${got?`<svg viewBox="0 0 100 130">${mhClassicNoobSvg(m)}</svg>`:'<div class="mh-silhouette">?</div>'}</div>
+   <div class="mh-codex-meta"><b>${got?m.name:'???'}</b><span class="mh-codex-rarity">${m.exclusive?'Exclusive':r.label}</span></div>
+  </div>`;
+ }).join('');
+ return `<div class="mh-index">
+  <h3>📖 Noobie Index</h3>
+  <div class="mh-index-tools">
+   <button type="button" class="mh-filter${kind==='all'?' on':''}" data-mh-kind="all">All ${MH_MORPHS.length}</button>
+   <button type="button" class="mh-filter${kind==='normal'?' on':''}" data-mh-kind="normal">Normal ${MH_NORMAL_COUNT}</button>
+   <button type="button" class="mh-filter${kind==='exclusive'?' on':''}" data-mh-kind="exclusive">Exclusive ${MH_EXCLUSIVE_COUNT}</button>
+   <input type="search" id="mh-search" placeholder="Search noobies…" value="${q.replace(/"/g,'&quot;')}"/>
+  </div>
+  <div class="mh-codex-grid index">${cards}</div>
+  <div class="mh-pager">${pg.page>0?'<button type="button" class="mh-btn" data-mh-page="'+(pg.page-1)+'">← Prev</button>':''}<span>Page ${pg.page+1} / ${pg.pages}</span>${pg.page+1<pg.pages?'<button type="button" class="mh-btn" data-mh-page="'+(pg.page+1)+'">Next →</button>':''}</div>
+ </div>`;
+}
+
+function mhRenderMorph(save){
+ const q=mhState.filter||'';
+ let list=save.collected.map(id=>mhMorph(id)).filter(Boolean);
+ list=mhFilterList(list,q);
+ const pg=mhPaginate(list,mhState.page||0,24);
+ if(!list.length) return `<div class="mh-morph-tab"><p class="mh-scene-hint">Find noobies in Hunt or Gacha, then morph here!</p></div>`;
+ const cards=pg.slice.map(m=>{
+  const on=save.wearing===m.id;
+  const r=MH_RARITY[m.rarity]||MH_RARITY.common;
+  return `<button type="button" class="mh-morph-wear${on?' on':''}" data-mh-wear="${m.id}" style="--mh-rarity:${r.color}">
+   <svg viewBox="0 0 100 130">${mhClassicNoobSvg(m)}</svg><span>${m.name}</span>${on?'<em>Morphed</em>':'<em>Tap to morph</em>'}
+  </button>`;
+ }).join('');
+ const wear=mhMorph(save.wearing);
+ return `<div class="mh-morph-tab">
+  <h3>🎭 Morph &amp; Roleplay</h3>
+  <p class="mh-scene-hint">Turn into any noobie you own — your morph also shows on the Rock Teacher!</p>
+  <div class="mh-morph-preview large">${wear?`<svg viewBox="0 0 100 130">${mhClassicNoobSvg(wear)}</svg><b>${wear.name}</b><button type="button" class="mh-btn primary" data-mh-wear="${wear.id}">Stay morphed</button>`:'<span>Pick a noobie below</span>'}</div>
+  <input type="search" id="mh-search" placeholder="Search your morphs…" value="${q.replace(/"/g,'&quot;')}"/>
+  <div class="mh-morph-grid">${cards}</div>
+  <div class="mh-pager">${pg.page>0?'<button type="button" class="mh-btn" data-mh-page="'+(pg.page-1)+'">←</button>':''}<span>${pg.page+1}/${pg.pages}</span>${pg.page+1<pg.pages?'<button type="button" class="mh-btn" data-mh-page="'+(pg.page+1)+'">→</button>':''}</div>
+ </div>`;
+}
+
+function mhRenderGacha(save){
+ return `<div class="mh-gacha-tab">
+  <h3>🎲 Noobie Gacha</h3>
+  <p class="mh-scene-hint">Normal pool: ${MH_NORMAL_COUNT} · Exclusive pool: ${MH_EXCLUSIVE_COUNT}</p>
+  <div class="mh-gacha-row">
+   <div class="mh-gacha-machine"><div class="mh-gacha-window">?</div><button type="button" class="mh-btn primary" id="mh-gacha-roll">Normal roll — ${MH_GACHA_COST}💰</button></div>
+   <div class="mh-gacha-machine exclusive"><div class="mh-gacha-window">★</div><button type="button" class="mh-btn primary" id="mh-gacha-ex">Exclusive roll — ${MH_GACHA_EX_COST}💰</button></div>
+  </div>
+  <p>Coins: <b>${save.coins}</b></p>
+  <div class="mh-code-box"><label>Promo code</label>
+   <div class="mh-code-row"><input type="text" id="mh-code-in" placeholder="WELCOMEBUDDY" autocomplete="off"/><button type="button" class="mh-btn" id="mh-code-go">Redeem</button></div>
+  </div>
+ </div>`;
+}
+
+function mhBind(root){
+ root.querySelector('#mh-leave')?.addEventListener('click',mhClose);
+ root.querySelectorAll('[data-mh-id]').forEach(btn=>btn.addEventListener('click',()=>mhCollect(btn.dataset.mhId)));
+ root.querySelectorAll('[data-mh-world]').forEach(btn=>btn.addEventListener('click',()=>mhSetWorld(+btn.dataset.mhWorld)));
+ root.querySelectorAll('[data-mh-tab]').forEach(btn=>btn.addEventListener('click',()=>mhSetTab(btn.dataset.mhTab)));
+ root.querySelectorAll('[data-mh-wear]').forEach(btn=>btn.addEventListener('click',()=>mhWear(btn.dataset.mhWear)));
+ root.querySelector('#mh-gacha-roll')?.addEventListener('click',()=>mhGacha(false));
+ root.querySelector('#mh-gacha-ex')?.addEventListener('click',()=>mhGacha(true));
+ root.querySelectorAll('[data-mh-kind]').forEach(btn=>btn.addEventListener('click',()=>{ mhState.indexKind=btn.dataset.mhKind; mhState.page=0; mhRender(); }));
+ root.querySelectorAll('[data-mh-page]').forEach(btn=>btn.addEventListener('click',()=>{ mhState.page=+btn.dataset.mhPage; mhRender(); }));
+ const search=root.querySelector('#mh-search');
+ if(search){
+  search.oninput=()=>{ mhState.filter=search.value; mhState.page=0; mhRender(); search.focus(); };
+ }
+ const codeGo=root.querySelector('#mh-code-go');
+ const codeIn=root.querySelector('#mh-code-in');
+ if(codeGo&&codeIn){
+  codeGo.onclick=()=>mhRedeemCode(codeIn.value);
+  codeIn.onkeydown=e=>{ if(e.key==='Enter') mhRedeemCode(codeIn.value); };
+ }
 }
 
 function mhRender(){
@@ -226,105 +484,47 @@ function mhRender(){
  if(!root)return;
  const save=st.save;
  const wi=st.world;
- const world=MH_WORLDS[wi];
- const morphs=mhWorldMorphs(wi);
- const found=morphs.filter(m=>mhHasMorph(save,m.id)).length;
  const owner=mhIsOwner();
+ const tab=st.tab||'hunt';
+ let body='';
+ if(tab==='hunt') body=mhRenderHunt(save,wi);
+ else if(tab==='index') body=mhRenderIndex(save);
+ else if(tab==='morph') body=mhRenderMorph(save);
+ else if(tab==='gacha') body=mhRenderGacha(save);
 
- let codex=MH_MORPHS.filter(m=>{
-  if(st.filter!=='all'&&m.cat!==st.filter)return false;
-  if(!mhHasMorph(save,m.id)&&m.world>save.worldsUnlocked-1)return false;
-  return true;
- });
- codex.sort((a,b)=>{
-  const ro=Object.keys(MH_RARITY);
-  return ro.indexOf(b.rarity)-ro.indexOf(a.rarity)||a.name.localeCompare(b.name);
- });
-
- const spots=morphs.map(m=>{
-  const got=mhHasMorph(save,m.id);
-  const r=MH_RARITY[m.rarity];
-  const sc=m.scale||1;
-  return `<button type="button" class="mh-spot${got?' got':''}" style="left:${m.x}%;top:${m.y}%;--mh-glow:${r.glow};--mh-rarity:${r.color};--mh-scale:${sc}" data-mh-id="${m.id}" title="${got?'Collected':'Tap to scan'}">
-   <svg viewBox="0 0 100 80" class="mh-spot-svg" aria-hidden="true">${mhSvgArt(m.id)}</svg>
-   ${got?'<span class="mh-spot-check"></span>':''}
-  </button>`;
- }).join('');
-
- const worldTabs=MH_WORLDS.map((w,i)=>{
-  const locked=i>=save.worldsUnlocked;
-  const done=mhWorldComplete(save,i);
-  return `<button type="button" class="mh-world-tab${i===wi?' on':''}${locked?' locked':''}" data-mh-world="${i}" ${locked?'disabled':''}>${w.name}${done?' ✓':''}</button>`;
- }).join('');
-
- const filters=['all',...Object.keys(MH_CATS)].map(c=>{
-  const on=st.filter===c;
-  const label=c==='all'?'All':MH_CATS[c];
-  return `<button type="button" class="mh-filter${on?' on':''}" data-mh-filter="${c}">${label}</button>`;
- }).join('');
-
- const codexHtml=codex.map(m=>{
-  const got=mhHasMorph(save,m.id);
-  const r=MH_RARITY[m.rarity];
-  return `<div class="mh-codex-card${got?' got':''}" style="--mh-rarity:${r.color}">
-   <div class="mh-codex-art">${got?`<svg viewBox="0 0 100 80">${mhSvgArt(m.id)}</svg>`:'<div class="mh-silhouette"></div>'}</div>
-   <div class="mh-codex-meta">
-    <b>${got?m.name:'???'}</b>
-    <span class="mh-codex-rarity">${r.label}</span>
-    <span class="mh-codex-cat">${MH_CATS[m.cat]}</span>
-   </div>
-  </div>`;
- }).join('');
-
- root.innerHTML=`<div class="mh-panel">
-  <header class="mh-head">
-   <div>
-    <h2 class="mh-title">Morph Hunt</h2>
-    <p class="mh-sub">${world.tagline}</p>
-   </div>
-   <div class="mh-head-stats">
-    <span><b>${save.collected.length}</b> / ${MH_MORPHS.length} morphs</span>
-    ${owner?'<span class="mh-owner-tag">Owner — full codex</span>':''}
-    <button type="button" class="mh-btn ghost" id="mh-leave">Leave</button>
+ root.innerHTML=`<div class="mh-panel mh-ftn">
+  <header class="mh-ftn-banner">
+   <div class="mh-ftn-banner-text">
+    <h2 class="mh-title">Find The Noobies Morphs</h2>
+    <p class="mh-ftn-tag">🔎 ${MH_NORMAL_COUNT} normal + ${MH_EXCLUSIVE_COUNT} exclusive noobies · 🎭 Morph · 🎲 Gacha · ${owner?'Owner: ALL unlocked':''}</p>
    </div>
   </header>
-  <div class="mh-world-tabs">${worldTabs}</div>
-  <div class="mh-main">
-   <div class="mh-scene-wrap">
-    <div class="mh-scene" style="background:${world.bg}">
-     ${mhPropsHtml(world.prop)}
-     ${spots}
-    </div>
-    <p class="mh-scene-hint">Tap creatures hiding in the scene. Find every morph in this world to unlock the next.</p>
-    <p class="mh-progress">This world: <b>${found}</b> / ${morphs.length}</p>
+  <div class="mh-head">
+   <div class="mh-tabs">
+    <button type="button" class="mh-tab${tab==='hunt'?' on':''}" data-mh-tab="hunt">🗺️ Hunt</button>
+    <button type="button" class="mh-tab${tab==='index'?' on':''}" data-mh-tab="index">📖 Index</button>
+    <button type="button" class="mh-tab${tab==='morph'?' on':''}" data-mh-tab="morph">🎭 Morph</button>
+    <button type="button" class="mh-tab${tab==='gacha'?' on':''}" data-mh-tab="gacha">🎲 Gacha</button>
    </div>
-   <aside class="mh-codex">
-    <h3>Codex</h3>
-    <div class="mh-filters">${filters}</div>
-    <div class="mh-codex-grid">${codexHtml}</div>
-   </aside>
+   <div class="mh-head-stats">
+    <span class="mh-coins">💰 <b>${save.coins}</b></span>
+    <span>Normal <b>${save.collected.filter(id=>!mhMorph(id)?.exclusive).length}</b>/${MH_NORMAL_COUNT} · Excl. <b>${save.collected.filter(id=>mhMorph(id)?.exclusive).length}</b>/${MH_EXCLUSIVE_COUNT}</span>
+    ${owner?'<span class="mh-owner-tag">Owner — all '+MH_MORPHS.length+' unlocked</span>':''}
+    <button type="button" class="mh-btn ghost" id="mh-leave">Leave</button>
+   </div>
   </div>
+  <div class="mh-main ftn">${body}</div>
   <div id="mh-toast" class="mh-toast"></div>
+  <div id="mh-found-modal" class="mh-found-modal" hidden></div>
  </div>`;
-
- root.querySelector('#mh-leave')?.addEventListener('click',mhClose);
- root.querySelectorAll('[data-mh-id]').forEach(btn=>{
-  btn.addEventListener('click',()=>mhCollect(btn.dataset.mhId));
- });
- root.querySelectorAll('[data-mh-world]').forEach(btn=>{
-  btn.addEventListener('click',()=>mhSetWorld(+btn.dataset.mhWorld));
- });
- root.querySelectorAll('[data-mh-filter]').forEach(btn=>{
-  btn.addEventListener('click',()=>mhSetFilter(btn.dataset.mhFilter));
- });
+ mhBind(root);
+ if(save.wearing) mhSaveWearId(save.wearing);
 }
 
 function playMorphHunt(){
  mhClose();
- if(typeof lithosCloseGameOverlays==='function'){
-  try{lithosCloseGameOverlays();}catch(_){}
- }
- mhState={save:mhLoadSave(),world:0,filter:'all'};
+ if(typeof lithosCloseGameOverlays==='function'){ try{lithosCloseGameOverlays();}catch(_){} }
+ mhState={save:mhLoadSave(),world:0,tab:'hunt',page:0,filter:'',indexKind:'all'};
  const wrap=document.createElement('div');
  wrap.id='morphhunt';
  document.body.appendChild(wrap);
@@ -332,6 +532,15 @@ function playMorphHunt(){
  if(typeof syncBodyScrollLock==='function')syncBodyScrollLock();
 }
 
+function mhGetWearingMorph(){ return mhMorph(mhLoadWearId()||window.LITHOS_NOOBIE_WEAR); }
+
 window.playMorphHunt=playMorphHunt;
 window.mhClose=mhClose;
+window.mhRedeemMorphCode=mhRedeemCode;
+window.mhGetWearingMorph=mhGetWearingMorph;
+window.mhClassicNoobSvg=mhClassicNoobSvg;
+window.mhRefreshTeacherNoob=mhRefreshTeacherNoob;
+
+document.addEventListener('DOMContentLoaded',()=>{ mhRefreshTeacherNoob(); });
+if(document.readyState!=='loading') mhRefreshTeacherNoob();
 })();

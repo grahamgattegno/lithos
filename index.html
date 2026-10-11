@@ -1555,6 +1555,66 @@
   .mh-codex-cat{color:#788898;font-size:10px}
   .mh-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(12px);background:#121820;border:1px solid var(--gold,#c9a94f);color:#f8e8c8;padding:10px 18px;border-radius:10px;font-size:13px;font-weight:700;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:10002;max-width:90vw;text-align:center}
   .mh-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  /* FTN-style (Find The Noobies Morphs) */
+  .mh-panel.mh-ftn{gap:8px}
+  .mh-ftn-banner{background:linear-gradient(135deg,#0085db 0%,#00a2ff 40%,#6ec4ff 100%);border-radius:14px;padding:14px 18px;box-shadow:0 4px 0 #005a9e,0 8px 24px rgba(0,100,200,.35)}
+  .mh-ftn-banner .mh-title{color:#fff;text-shadow:0 2px 0 #005080;font-size:clamp(20px,4.5vw,26px)}
+  .mh-ftn-tag{margin:6px 0 0;font-size:12px;color:#e8f4ff;line-height:1.45}
+  .mh-tabs{display:flex;flex-wrap:wrap;gap:6px}
+  .mh-tab{border:2px solid #3a5060;background:#0e141c;color:#a0b0c0;border-radius:10px;padding:8px 14px;font-size:12px;font-weight:800;cursor:pointer}
+  .mh-tab.on{border-color:#00a2ff;background:rgba(0,162,255,.15);color:#d0f0ff}
+  .mh-coins{color:#ffd060}
+  .mh-main.ftn{display:block}
+  .mh-hub-wrap{display:flex;flex-direction:column;gap:6px}
+  .mh-hub{position:relative;border-radius:16px;border:3px solid #2a4030;min-height:min(54vh,440px);overflow:hidden;background:linear-gradient(180deg,var(--mh-sky,#87CEEB) 0%,var(--mh-sky,#87CEEB) 55%,var(--mh-grass,#7ec850) 55%,var(--mh-grass,#6ab840) 100%);box-shadow:inset 0 -8px 0 rgba(0,0,0,.12)}
+  .mh-hub-stud{position:absolute;inset:0;pointer-events:none;opacity:.08;background-image:radial-gradient(circle,#000 18%,transparent 19%);background-size:24px 24px}
+  .mh-hub-path{position:absolute;left:5%;right:5%;bottom:8%;height:22%;background:#909098;border-radius:8px;box-shadow:inset 0 4px 0 #707078}
+  .mh-you{position:absolute;z-index:3;width:min(16vw,72px);text-align:center;font-size:10px;font-weight:800;color:#fff;text-shadow:0 1px 3px #000}
+  .mh-you svg{width:100%;height:auto;display:block;filter:drop-shadow(0 4px 6px rgba(0,0,0,.4))}
+  .mh-spot{width:min(14vw,72px);height:min(22vw,96px)}
+  .mh-you.morphed{width:min(18vw,90px);filter:drop-shadow(0 0 12px rgba(0,162,255,.6))}
+  .mh-morph-preview.large svg{width:140px;height:auto}
+  .mh-index-tools{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:10px}
+  .mh-index-tools input{flex:1;min-width:140px;padding:8px 10px;border-radius:8px;border:1px solid #4a5060;background:#0a0e14;color:#fff}
+  .mh-pager{display:flex;gap:10px;align-items:center;justify-content:center;margin-top:12px;font-size:12px;color:#a0a8b8}
+  .mh-gacha-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:640px){.mh-gacha-row{grid-template-columns:1fr}}
+  .mh-gacha-machine.exclusive{border-color:#ff6eb4}
+  .teacher-noob-slot{display:flex;align-items:center;gap:12px;padding:12px 14px;margin-bottom:12px;background:linear-gradient(135deg,rgba(0,133,219,.15),rgba(0,0,0,.2));border:2px solid #0085db;border-radius:12px}
+  .teacher-noob-slot[hidden]{display:none!important}
+  .teacher-noob-svg{width:64px;height:auto;flex-shrink:0}
+  .teacher-noob-name{font-weight:800;color:#d0f0ff;font-size:13px}
+  .msg.bot.with-noob{display:flex;gap:10px;align-items:flex-start}
+  .msg-noob-icon{width:48px;flex-shrink:0}
+  .msg-noob-icon svg{width:100%;height:auto;display:block}
+  .mh-spot-check{position:absolute;right:-2px;top:-2px;width:18px;height:18px;border-radius:50%;background:#4caf7d;color:#fff;font-size:11px;line-height:18px;text-align:center;border:2px solid #0a1018;font-weight:900}
+  .mh-found-modal{position:fixed;inset:0;z-index:10003;background:rgba(0,20,40,.75);display:flex;align-items:center;justify-content:center;padding:16px}
+  .mh-found-modal[hidden]{display:none!important}
+  .mh-found-card{background:linear-gradient(180deg,#1a2840,#0c1018);border:3px solid var(--mh-rarity,#ffd060);border-radius:18px;padding:24px;text-align:center;max-width:320px;animation:mhPop .35s ease}
+  @keyframes mhPop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+  .mh-found-badge{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--mh-rarity,#ffd060)}
+  .mh-found-svg{width:120px;height:auto;margin:12px auto;display:block;filter:drop-shadow(0 6px 12px rgba(0,0,0,.5))}
+  .mh-found-card h3{margin:8px 0;color:#fff;font-size:20px}
+  .mh-found-card p{font-size:13px;color:#a8b0c0;margin:0 0 16px}
+  .mh-btn.primary{background:linear-gradient(135deg,#0085db,#00c0ff);color:#fff;border:none;border-radius:10px;padding:10px 22px;font-weight:800;cursor:pointer;box-shadow:0 3px 0 #005080}
+  .mh-btn{border:1px solid #4a5868;background:#1a2430;color:#e0e8f0;border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer}
+  .mh-codex-grid.index{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+  .mh-codex-card.locked{border-style:dashed;opacity:.6}
+  .mh-morph-tab h3,.mh-gacha-tab h3,.mh-index h3{margin:0 0 8px;color:var(--gold,#c9a94f);font-size:16px}
+  .mh-morph-preview{display:flex;flex-direction:column;align-items:center;gap:8px;padding:20px;background:#101820;border-radius:14px;border:2px solid #0085db;margin:12px 0}
+  .mh-morph-preview svg{width:100px;height:auto}
+  .mh-morph-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px}
+  .mh-morph-wear{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px;border:2px solid #3a4050;border-radius:12px;background:#0c1018;cursor:pointer;color:#c0c8d8;font-size:11px;font-weight:700}
+  .mh-morph-wear.on{border-color:var(--mh-rarity,#00a2ff);box-shadow:0 0 16px var(--mh-rarity,#00a2ff)}
+  .mh-morph-wear svg{width:64px;height:auto}
+  .mh-morph-wear em{font-style:normal;font-size:9px;color:#4caf7d;text-transform:uppercase}
+  .mh-gacha-machine{text-align:center;padding:24px;background:linear-gradient(180deg,#281840,#141020);border-radius:16px;border:2px solid #8040c0;margin:12px 0}
+  .mh-gacha-window{width:100px;height:100px;margin:0 auto 16px;border-radius:16px;background:#0a0810;border:3px solid #ffd060;display:flex;align-items:center;justify-content:center;font-size:48px;font-weight:900;color:#ffd060}
+  .mh-code-box{margin-top:16px;padding:14px;background:#10141c;border-radius:12px;border:1px solid #3a4050}
+  .mh-code-box label{font-size:11px;font-weight:800;text-transform:uppercase;color:#9098a8}
+  .mh-code-row{display:flex;gap:8px;margin-top:8px}
+  .mh-code-row input{flex:1;padding:10px;border-radius:8px;border:1px solid #4a5060;background:#0a0e14;color:#fff;font-weight:700}
+  .mh-code-hint{font-size:11px;color:#788898;margin:8px 0 0}
   /* ⛏️🕳️ GEM DIGGER — dig deep underground */
   #gemdig{position:fixed;inset:0;z-index:9999;background:rgba(6,6,12,.93);display:flex;align-items:center;justify-content:center;padding:12px}
   .dg-box{background:linear-gradient(170deg,#181428,#0c0a16);border:1px solid #3a3050;border-radius:18px;padding:16px 16px 14px;width:min(96vw,520px);text-align:center;position:relative}
@@ -4614,6 +4674,7 @@
   <div class="class-ai-stage-inner">
   <div style="text-align:center"><span class="class-ai-badge">Unlocked</span></div>
   <div class="chat-premium-wrap">
+  <div class="teacher-noob-slot" id="class-teacher-noob-slot" hidden></div>
   <div class="chat chat-premium" id="class-chat">
    <div class="msg bot" id="class-ai-welcome"><span class="ai-tag">Class member</span>Welcome! Ask about any gem in the catalog — watch the gem slideshow behind the chat and the crystal spinner while I think.</div>
   </div>
@@ -4670,7 +4731,8 @@
  <section class="teacher-wrap">
  <div class="eyebrow">Your Friendly Geology Helper</div>
  <h1>Ask the <em>Rock Teacher</em></h1>
- <p class="lede">Free quick helper — short answers from a built-in gem guide. Class members unlock a <b>deeper catalog teacher</b> (formulas, crystal systems, compare mode). <b>Gold</b> adds live Gemini AI + voice on the Classes page.</p>
+ <p class="lede">Free quick helper — short answers from a built-in gem guide. Class members unlock a <b>deeper catalog teacher</b> (formulas, crystal systems, compare mode). <b>Gold</b> adds live Gemini AI + voice on the Classes page. Morph in <a href="#morphhunt" onclick="switchView('morphhunt');return false;" style="color:var(--gold)">Find The Noobies Morphs</a> and the teacher matches your noobie!</p>
+ <div class="teacher-noob-slot" id="teacher-noob-slot" hidden></div>
  <div class="chat" id="chat">
   <div class="msg bot">Welcome! I’m the free Rock Teacher — good for quick questions about gems, hardness, and how stones form. For compare mode, full catalog data, class lessons, live AI, and voice, see <a href="#memberships" onclick="switchView('memberships');return false;" style="color:var(--gold)">memberships</a>.</div>
  </div>
@@ -5343,7 +5405,7 @@
 <script src="gc-drone-shapes.js?v=deploy-83"></script>
 <script src="gc-gravastar-scene.js?v=deploy-83"></script>
 <script src="gemcopter.js?v=deploy-85"></script>
-<script src="morph-hunt.js?v=deploy-1"></script>
+<script src="morph-hunt.js?v=deploy-3"></script>
 <script>
 /* ---------- Affiliate partners (tracked links where available) ---------- */
 const DEFAULT_PARTNER='gemsny';
@@ -5868,7 +5930,7 @@ function lithos4DClearParticles(){lithos4DParticles=[];}
 /* ---------- Games hub ---------- */
 const LITHOS_GAMES=[
  {id:'arcade',icon:'🕹️',name:'Arcade',desc:'Gem Rush, Gem Digger, Gemstone Convoy, Night Shift & the secret game — pick a card and play!',preview:'radial-gradient(circle at 50% 35%,rgba(122,208,240,.28),transparent 50%),radial-gradient(circle at 70% 70%,rgba(201,169,79,.22),transparent 45%),linear-gradient(180deg,#141020,#080610)'},
- {id:'morphhunt',icon:'◈',name:'Morph Hunt',desc:'Find hidden morphs in each world — fun, weird, spooky & exclusive noobies. Rarities, codex, next worlds unlock when you collect them all. Owner gets every morph.',preview:'radial-gradient(circle at 35% 35%,rgba(255,110,180,.35),transparent 50%),radial-gradient(circle at 70% 65%,rgba(126,200,255,.3),transparent 45%),linear-gradient(180deg,#141828,#080a12)'},
+ {id:'morphhunt',icon:'◈',name:'Find The Noobies Morphs',desc:'268 normal + 104 exclusive noobies! Full bodies, morph & roleplay, gacha, codes — owner gets all 372. WELCOMEBUDDY…',preview:'radial-gradient(circle at 35% 35%,rgba(255,110,180,.35),transparent 50%),radial-gradient(circle at 70% 65%,rgba(126,200,255,.3),transparent 45%),linear-gradient(180deg,#141828,#080a12)'},
  {id:'gemrush',icon:'⛏️💎',name:'Gem Rush',desc:'Match gemstone pairs — Diamond with Diamond, Ruby with Ruby! Clear the board before you run out of moves.',preview:'radial-gradient(circle at 40% 30%,rgba(255,120,160,.35),transparent 50%),radial-gradient(circle at 70% 70%,rgba(100,160,255,.3),transparent 45%),linear-gradient(180deg,#1a1028,#0a0812)'},
  {id:'gemdigger',icon:'⛏️🕳️',name:'Gem Digger',desc:'5 mine levels! Upgrade drill, buy bombs, reach the Legendary Rainbow Gem — owner gets Nuke Blaster ☢️',preview:'radial-gradient(circle at 50% 40%,rgba(180,120,60,.35),transparent 50%),linear-gradient(180deg,#1a1410,#0a0806)'},
  {id:'gemdrive',icon:'🚗💎',name:'Gemstone Convoy',desc:'Full 8-bit pixel driving! Pick a gem car + mount Ruby/Sapphire/Emerald/Diamond/Amethyst/Topaz launchers vs crystal monsters.',preview:'radial-gradient(circle at 50% 60%,rgba(255,64,96,.3),transparent 50%),linear-gradient(180deg,#1a1020 0%,#2a1840 40%,#1a2818 100%)'},
@@ -5891,7 +5953,7 @@ const LITHOS_GAMES=[
 const LITHOS_GAME_IDS=new Set(LITHOS_GAMES.map(g=>g.id));
 const LITHOS_ARCADE_ONLY=new Set(['arcade','morphhunt','gemrush','gemdigger','gemdrive','gemheli','gemcopter']);
 const LITHOS_ARCADE=[
- {emoji:'◈',name:'Morph Hunt',desc:'Hunt unique morph creatures across worlds — rarities, categories & exclusive noobies. Clear a world to unlock the next!',action:'morphhunt'},
+ {emoji:'◈',name:'Find The Noobies Morphs',desc:'372 noobies (268+104)! Morph into them — even the Rock Teacher copies your noob!',action:'morphhunt'},
  {emoji:'⛏️💎',name:'Gem Rush',desc:'Match pairs of the same gemstone — Diamond with Diamond, Ruby with Ruby! Clear all 32 pairs before moves run out.',action:'gemrush'},
  {emoji:'🌙🏭',name:'Night Shift at the Gem Factory',desc:'Survive all 5 nights as the factory\'s night guard! Watch the cameras, slam the doors, don\'t get caught…',action:'nightshift'},
  {emoji:'⛏️🕳️',name:'Gem Digger',desc:'Dig through 5 mine levels! Find gems, upgrade drill, buy bombs — reach the Rainbow Gem at the bottom. Owner: Nuke Blaster clears everything! ☢️',action:'gemdigger'},
@@ -7625,12 +7687,23 @@ function buildTeacher(){
  document.getElementById('chat-input').addEventListener('keydown',e=>{if(e.key==='Enter')sendChat();});
  initLithosVoiceUI();
  wireChatMic('chat-mic','chat-input',sendChat);
+ if(typeof mhRefreshTeacherNoob==='function') mhRefreshTeacherNoob();
+ document.addEventListener('lithos-noobie-morph',()=>{ if(typeof mhRefreshTeacherNoob==='function') mhRefreshTeacherNoob(); });
+}
+function lithosNoobMsgPrefix(){
+ if(typeof mhGetWearingMorph!=='function'||typeof mhClassicNoobSvg!=='function') return '';
+ const m=mhGetWearingMorph();
+ if(!m) return '';
+ return `<div class="msg-noob-icon"><svg viewBox="0 0 100 130">${mhClassicNoobSvg(m)}</svg></div>`;
 }
 function addMsg(text,who){
  const c=document.getElementById('chat');
  const d=document.createElement('div');
- d.className='msg '+who;
- d.textContent=text;
+ d.className='msg '+who+(who==='bot'&&lithosNoobMsgPrefix()?' with-noob':'');
+ if(who==='bot'&&lithosNoobMsgPrefix()){
+  d.innerHTML=lithosNoobMsgPrefix()+'<div class="msg-noob-text"></div>';
+  d.querySelector('.msg-noob-text').textContent=text;
+ }else d.textContent=text;
  c.appendChild(d);
  c.scrollTop=c.scrollHeight;
  return d;
@@ -8321,6 +8394,7 @@ function buildClassAI(){
  initLithosVoiceUI();
  syncClassVoicePerks();
  wireChatMic('class-chat-mic','class-chat-input',sendClassChat);
+ if(typeof mhRefreshTeacherNoob==='function') mhRefreshTeacherNoob();
  const welcome=document.getElementById('class-ai-welcome');
  if(welcome){
  const tier=getMemberTier();
@@ -8340,7 +8414,24 @@ function buildClassAI(){
 function addClassMsg(text,who,tag){
  const c=document.getElementById('class-chat');
  const d=document.createElement('div');
- d.className='msg '+who;
+ d.className='msg '+who+(who==='bot'&&lithosNoobMsgPrefix()?' with-noob':'');
+ if(who==='bot'&&lithosNoobMsgPrefix()){
+  const wrap=document.createElement('div');
+  wrap.style.display='flex';
+  wrap.style.gap='10px';
+  wrap.style.alignItems='flex-start';
+  wrap.innerHTML=lithosNoobMsgPrefix();
+  const body=document.createElement('div');
+  if(tag){
+   const t=document.createElement('span');
+   t.className='ai-tag';
+   t.textContent=tag;
+   body.appendChild(t);
+  }
+  body.appendChild(document.createTextNode(text));
+  wrap.appendChild(body);
+  d.appendChild(wrap);
+ }else{
  if(tag){
  const t=document.createElement('span');
  t.className='ai-tag';
@@ -8348,6 +8439,7 @@ function addClassMsg(text,who,tag){
  d.appendChild(t);
  }
  d.appendChild(document.createTextNode(text));
+ }
  c.appendChild(d);
  c.scrollTop=c.scrollHeight;
  return d;
