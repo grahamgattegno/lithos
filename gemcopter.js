@@ -1,7 +1,7 @@
 /* Gem Copter — helicopter + gemstone turret vs gem zombies, bosses, upgrades, 10 maps */
 (function(){
 'use strict';
-const GEM_COPTER_BUILD=59;
+const GEM_COPTER_BUILD=60;
 
 const GC_HELIS=[
  {id:'scout',name:'Gem Scout',emoji:'🚁',desc:'Balanced starter',speedMult:1,hpMult:1,dmgMult:1,hull:'#c9a94f'},
@@ -96,9 +96,19 @@ function gcDefaultUpgrades(){
   militaryMult:1,missileMult:1,missileInterval:0.85
  };
 }
+function gcMaxAllUpgrades(u){
+ GC_UPGRADES.forEach(up=>{ u.levels[up.id]=up.max; });
+ GC_OWNER_UPGRADES.forEach(up=>{ u.levels[up.id]=up.max; });
+}
+
 function gcApplyUpgrades(u){
  GC_UPGRADES.forEach(up=>up.fn(u));
  if(gcIsOwner()) GC_OWNER_UPGRADES.forEach(up=>up.fn(u));
+}
+
+function gcPrepareUpgrades(u){
+ if(gcIsOwner()) gcMaxAllUpgrades(u);
+ gcApplyUpgrades(u);
 }
 function gcShopUpgrades(){
  return GC_UPGRADES.concat(GC_OWNER_UPGRADES);
@@ -197,7 +207,7 @@ function playGemCopter(){
  const ownerOn=gcIsOwner();
  const ownerNote=document.createElement('p');
  ownerNote.className='gc-owner-shop-tag';
- ownerNote.textContent=ownerOn?'👑 Owner mode ON — gold 👑 upgrades in shop after each wave!':'🔒 Owner? Enter your code in Games → Secret Codes to unlock 👑 upgrades + Omega Strike.';
+ ownerNote.textContent=ownerOn?'👑 Owner mode ON — ALL upgrades MAXED every mission + Omega Strike + missiles!':'🔒 Owner? Enter your code in Games → Secret Codes to unlock 👑 upgrades + Omega Strike.';
  heliGrid.parentElement.insertBefore(ownerNote,heliGrid);
  heliGrid.innerHTML=GC_HELIS.map(h=>{
   const locked=!!(h.ownerOnly&&!gcIsOwner());
@@ -239,14 +249,12 @@ function gcStartMap(mapId, carry, heliId){
  const map=GC_MAPS.find(m=>m.id===mapId)||GC_MAPS[0];
  let heli=GC_HELIS.find(h=>h.id===(carry?.heliId||heliId||gcPickHeli))||GC_HELIS[0];
  if(heli.ownerOnly&&!gcIsOwner())heli=GC_HELIS[0];
- const upgrades=carry&&carry.upgrades?carry.upgrades:gcDefaultUpgrades();
- gcApplyUpgrades(upgrades);
- if(gcIsOwner()&&!carry){
-  ['auric','devastator','titan'].forEach(id=>{
-   if((upgrades.levels[id]||0)<1)upgrades.levels[id]=1;
-  });
-  gcApplyUpgrades(upgrades);
+ if(gcIsOwner()){
+  const omega=GC_HELIS.find(h=>h.id==='omega');
+  if(omega)heli=omega;
  }
+ const upgrades=carry&&carry.upgrades?JSON.parse(JSON.stringify(carry.upgrades)):gcDefaultUpgrades();
+ gcPrepareUpgrades(upgrades);
  gcApplyHeliToUpgrades(upgrades,heli);
  let gems=carry&&typeof carry.gems==='number'?carry.gems:0;
  if(gcIsOwner()&&!carry)gems+=120;
@@ -932,9 +940,11 @@ function gcRenderShop(){
   if(lvl>=up.max)return;
   const cost=up.cost+lvl*(up.ownerOnly?12:15);
   if(s.gems<cost)return;
-  s.gems-=cost;
-  s.upgrades.levels[up.id]=lvl+1;
-  gcApplyUpgrades(s.upgrades);
+  if(!gcIsOwner()){
+   s.gems-=cost;
+   s.upgrades.levels[up.id]=lvl+1;
+  }
+  gcPrepareUpgrades(s.upgrades);
   const prevMax=s.maxHp;
   s.maxHp=s.upgrades.maxHp;
   s.hp=Math.min(s.upgrades.maxHp,s.hp+(s.maxHp-prevMax));
