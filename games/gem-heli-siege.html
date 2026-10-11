@@ -285,6 +285,7 @@ function fire(){
 }
 
 function hitEnemy(e,b){
+  if(e.dead)return;
   e.hp-=b.dmg;
   e.hurt=0.15;
   parts.push({kind:'spark',x:b.x,y:b.y,vx:(Math.random()-.5)*80,vy:(Math.random()-.5)*80,life:.35,maxLife:.35,color:MAPS[mapIdx].tint});
@@ -493,6 +494,14 @@ function draw(){
   });
   ctx.globalAlpha=1;
 
+  missiles.forEach(ms=>{
+    ctx.save();ctx.translate(ms.x,ms.y);
+    ctx.rotate(Math.atan2(ms.vy,ms.vx));
+    ctx.fillStyle='#f8d030';ctx.fillRect(-10,-3,14,6);
+    ctx.fillStyle='#ff6040';ctx.beginPath();ctx.moveTo(8,0);ctx.lineTo(14,-4);ctx.lineTo(14,4);ctx.fill();
+    ctx.restore();
+  });
+
   bullets.forEach(b=>{
     ctx.fillStyle=m.tint;ctx.beginPath();ctx.arc(b.x,b.y,4,0,Math.PI*2);ctx.fill();
     ctx.font='10px serif';ctx.fillText(b.gem,b.x-5,b.y+3);
@@ -519,6 +528,7 @@ function draw(){
   ctx.font='28px serif';ctx.textAlign='center';
   ctx.fillText('🚁',heli.x,heli.y);
   ctx.font='16px serif';ctx.fillText('💎',heli.x,heli.y-18);
+  ctx.fillStyle='#f8d030';ctx.fillRect(heli.x-2,heli.y-14,4,6);
   const ang=Math.atan2(aim.y-(heli.y-8),aim.x-heli.x);
   ctx.strokeStyle=m.tint;ctx.lineWidth=3;ctx.beginPath();
   ctx.moveTo(heli.x,heli.y-10);ctx.lineTo(heli.x+Math.cos(ang)*28,heli.y-10+Math.sin(ang)*28);ctx.stroke();
@@ -553,6 +563,7 @@ window.addEventListener('keydown',e=>{
   if(k==='arrowup'||k==='w')keys.up=true;
   if(k==='arrowdown'||k==='s')keys.down=true;
   if(k===' ')keys.space=true;
+  if(k==='e')keys.e=true;
   if(state==='play')unlockAudio();
 });
 window.addEventListener('keyup',e=>{
@@ -562,6 +573,7 @@ window.addEventListener('keyup',e=>{
   if(k==='arrowup'||k==='w')keys.up=false;
   if(k==='arrowdown'||k==='s')keys.down=false;
   if(k===' ')keys.space=false;
+  if(k==='e')keys.e=false;
 });
 window.addEventListener('resize',()=>{if(document.body.classList.contains('fs-play'))resizePlay();});
 
