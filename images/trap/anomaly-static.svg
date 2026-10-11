@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 480" aria-hidden="true">
+  <rect width="400" height="480" fill="#101014"/>
+  <g opacity=".9">
+    <rect x="20" y="40" width="360" height="400" fill="#18181c" stroke="#404050"/>
+    <ellipse cx="200" cy="220" rx="90" ry="110" fill="#000"/>
+    <ellipse cx="165" cy="200" rx="18" ry="22" fill="#ff1030"/>
+    <ellipse cx="235" cy="200" rx="18" ry="22" fill="#ff1030"/>
+    <rect x="120" y="280" width="160" height="4" fill="#303038"/>
+    <rect x="40" y="80" width="320" height="2" fill="#fff" opacity=".08"/>
+    <rect x="40" y="120" width="320" height="2" fill="#fff" opacity=".06"/>
+    <rect x="40" y="160" width="320" height="2" fill="#fff" opacity=".07"/>
+  </g>
+  <text x="200" y="460" text-anchor="middle" fill="#8090a0" font-family="monospace" font-size="12">SIGNAL INTERFERENCE</text>
+</svg>

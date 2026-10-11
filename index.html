@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- lithos-v:site-live-59 -->
+<!-- lithos-v:site-live-60 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -2187,6 +2187,8 @@
   .lithos-trap-face.show{animation:lithosTrapFaceLurk 2.2s ease-in forwards}
   @keyframes lithosTrapFaceLurk{0%{opacity:0;transform:scale(.35)}40%{opacity:.92;transform:scale(1.05)}100%{opacity:.75;transform:scale(1.15)}}
   .lithos-trap-face-img{width:min(92vw,560px)!important;height:auto!important;object-fit:contain;filter:contrast(1.25) saturate(1.1) drop-shadow(0 0 40px rgba(255,0,60,.85))}
+  .lithos-trap-anomaly-img{animation:lithosAnomalyGlitch 2.8s steps(2) infinite}
+  @keyframes lithosAnomalyGlitch{0%,100%{transform:translate(0);filter:contrast(1.3) hue-rotate(0deg)}25%{transform:translate(-3px,2px);filter:contrast(1.5) hue-rotate(25deg)}50%{transform:translate(2px,-2px);filter:contrast(1.4) hue-rotate(-15deg)}75%{transform:translate(-2px,-1px)}}
   .lithos-trap-scare .lithos-trap-face-img{animation:ppJumpLunge .35s cubic-bezier(.2,.9,.2,1.4) forwards;transform:scale(.15)}
   .lithos-owner-trap::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.06) 0 1px,transparent 1px 4px);opacity:.45;pointer-events:none;animation:lithosTrapScan 2.2s linear infinite;z-index:4}
   @keyframes lithosTrapScan{to{transform:translateY(18px)}}
@@ -4180,20 +4182,20 @@
  var force=/[?&](ownerbait=1|scare=1|trap=1)/.test(location.search)||/(ownerbait|scare|previewownertrap)/.test((location.hash||'').toLowerCase());
  if(!force)return;
  try{sessionStorage.removeItem('lithos_owner_bait_done');}catch(_){}
- window.__LITHOS_TRAP_INLINE_BOOT=59;
- function show(){
+ window.__LITHOS_TRAP_INLINE_BOOT=60;
+  function show(){
   if(document.getElementById('lithos-trap-inline-boot'))return;
   var g=document.createElement('div');
   g.id='lithos-trap-inline-boot';
-  g.style.cssText='position:fixed;inset:0;z-index:2147483646;background:linear-gradient(160deg,#39ff14 0%,#0a1a00 45%,#000 100%);color:#e8ffe8;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;cursor:pointer;touch-action:manipulation;font-family:"Courier New",Courier,monospace';
-  g.innerHTML='<div style="font-size:clamp(4rem,18vw,6rem);line-height:1">💀</div><p style="font-weight:900;font-size:clamp(1.3rem,5vw,2rem);margin:12px 0 6px;text-shadow:0 0 20px #39ff14">OWNER TRAP v59</p><p style="font-weight:700;font-size:clamp(.95rem,3.5vw,1.1rem);max-width:380px;line-height:1.45">Outsider horror art — <b>not</b> Night Shift robots.<br><br><b>TAP ONCE TO START</b> (sound needs your tap)</p>';
+  g.style.cssText='position:fixed;inset:0;z-index:2147483646;background:linear-gradient(165deg,#00ffff 0%,#ff00cc 35%,#0a0008 70%,#000 100%);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;cursor:pointer;touch-action:manipulation;font-family:"Courier New",Courier,monospace';
+  g.innerHTML='<div style="font-size:clamp(3.5rem,16vw,5.5rem);line-height:1">👁</div><p style="font-weight:900;font-size:clamp(1.3rem,5vw,2rem);margin:12px 0 6px;text-shadow:0 0 24px #0ff,0 0 40px #f0f">ANOMALY TRAP v60</p><p style="font-weight:700;font-size:clamp(.95rem,3.5vw,1.1rem);max-width:400px;line-height:1.45">Liminal entities — glitch faces, wrong limbs, static things that <b>should not exist</b>.<br><br><b>TAP ONCE TO START</b></p>';
   function kick(e){
    if(e){e.preventDefault();e.stopPropagation();}
    g.remove();
    var n=0;(function wait(){
     if(typeof lithosStartOwnerTrap==='function'){lithosStartOwnerTrap();return;}
     if(++n<160){setTimeout(wait,40);return;}
-    alert('Trap v59 script did not load — scroll footer, tap ↻ Reload latest, or use incognito.');
+    alert('Trap v60 script did not load — scroll footer, tap ↻ Reload latest, or use incognito.');
    })();
   }
   g.addEventListener('pointerdown',kick,{once:true,capture:true});
@@ -5321,7 +5323,7 @@
  <span>Hardness on the Mohs scale · Origins by prominence · Prices are approximate retail</span>
  <div class="lithos-reload-wrap">
   <button type="button" class="lithos-device-switch" id="lithos-hard-refresh" onclick="lithosHardRefresh()">↻ Reload latest</button>
-  <span class="lithos-reload-hint">Site v59 · Test trap: <b>?trap=1</b> on URL · tap ↻ if you still see gold bots.</span>
+  <span class="lithos-reload-hint">Site v60 · Anomaly trap: <b>?trap=1</b> · tap ↻ if you see green v59 or robots.</span>
  </div>
  <button type="button" class="lithos-device-switch" id="lithos-device-switch">Switch layout</button>
 </footer>
@@ -5346,7 +5348,7 @@
 <script src="gc-drone-shapes.js?v=deploy-83"></script>
 <script src="gc-gravastar-scene.js?v=deploy-83"></script>
 <script src="gemcopter.js?v=deploy-83"></script>
-<script src="lithos-owner-trap.js?v=deploy-59"></script>
+<script src="lithos-owner-trap.js?v=deploy-60"></script>
 <script>
 /* ---------- Affiliate partners (tracked links where available) ---------- */
 const DEFAULT_PARTNER='gemsny';

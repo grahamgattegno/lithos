@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 480" aria-hidden="true">
+  <rect width="400" height="480" fill="#080006"/>
+  <ellipse cx="200" cy="230" rx="150" ry="170" fill="#ece4dc" stroke="#301018"/>
+  <ellipse cx="130" cy="200" rx="8" ry="40" fill="#000" transform="rotate(-15 130 200)"/>
+  <ellipse cx="270" cy="200" rx="8" ry="40" fill="#000" transform="rotate(15 270 200)"/>
+  <path d="M60,300 Q200,420 340,300" fill="none" stroke="#000" stroke-width="6"/>
+  <path d="M70,295 Q200,400 330,295" fill="#1a0008"/>
+  <path d="M90,310 Q200,380 310,310" fill="#fff" opacity=".15"/>
+  <text x="200" y="40" text-anchor="middle" fill="#ff2040" font-family="monospace" font-size="15">ANOMALY SMILE</text>
+</svg>
