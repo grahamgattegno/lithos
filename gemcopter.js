@@ -1,7 +1,7 @@
 /* Gem Copter — helicopter + gemstone turret vs gem zombies, bosses, upgrades, 10 maps */
 (function(){
 'use strict';
-const GEM_COPTER_BUILD=70;
+const GEM_COPTER_BUILD=71;
 const GC_BULLET_LINES=5;
 
 const gcSfx=(()=>{
@@ -125,6 +125,16 @@ function gcExplosionSfx(sc){
  gcLithosCombatSfx(sc);
 }
 
+function gcDarken(hex,f){
+ const n=parseInt(String(hex).replace('#',''),16);
+ if(Number.isNaN(n))return hex;
+ let r=(n>>16)&255,g=(n>>8)&255,b=n&255;
+ r=Math.max(0,Math.min(255,Math.round(r*f)));
+ g=Math.max(0,Math.min(255,Math.round(g*f)));
+ b=Math.max(0,Math.min(255,Math.round(b*f)));
+ return `rgb(${r},${g},${b})`;
+}
+
 function gcUnlockAudio(){
  gcSfx.unlock();
  const tip=document.getElementById('gc-sound-tip');
@@ -136,7 +146,7 @@ const GC_HELIS=[
  {id:'swift',name:'Swift Sparrow',emoji:'🕊️',desc:'Fast · quick missiles',speedMult:1.38,hpMult:0.82,dmgMult:0.92,hull:'#7ec8ff',missileMode:'single',missileInterval:0.95},
  {id:'anvil',name:'Anvil Forge',emoji:'🛡️',desc:'Slow · heavy missiles',speedMult:0.78,hpMult:1.5,dmgMult:1.05,hull:'#9aa890',missileMode:'single',missileInterval:1.25},
  {id:'ruby',name:'Ruby Phantom',emoji:'💎',desc:'Strong shots · big missiles',speedMult:1.05,hpMult:0.95,dmgMult:1.3,hull:'#ff4060',missileMode:'single',missileMult:1.25},
- {id:'omega',name:'Omega Strike',emoji:'☢️',desc:'Owner · dual wing missiles',ownerOnly:true,missiles:true,missileMode:'dual',speedMult:1.12,hpMult:1.25,dmgMult:1.15,hull:'#f8d030'}
+ {id:'omega',name:'Omega Strike',emoji:'🚁',desc:'Owner · dual wing missiles',ownerOnly:true,missiles:true,missileMode:'dual',speedMult:1.12,hpMult:1.25,dmgMult:1.15,hull:'#4a5c72',trim:'#c9a94f'}
 ];
 
 function gcHeliMissileMode(heli){
@@ -1091,37 +1101,69 @@ function gcDraw(){
   ctx.globalAlpha=1;
  });
 
- // helicopter
+ // helicopter (side-view attack chopper — not a yellow blob)
  ctx.save();
  ctx.translate(s.x,s.y);
  const tilt=(gcPointer.x-s.x)*0.0015;
  ctx.rotate(Math.max(-0.35,Math.min(0.35,tilt)));
- // rotor
- ctx.strokeStyle='rgba(255,255,255,.55)'; ctx.lineWidth=3;
- ctx.beginPath(); ctx.moveTo(Math.cos(s.rotor)*28, -22+Math.sin(s.rotor)*3); ctx.lineTo(Math.cos(s.rotor+Math.PI)*28,-22+Math.sin(s.rotor+Math.PI)*3); ctx.stroke();
- ctx.beginPath(); ctx.moveTo(Math.cos(s.rotor+1.2)*22,-22); ctx.lineTo(Math.cos(s.rotor+1.2+Math.PI)*22,-22); ctx.stroke();
+ const hull=s.heli?.hull||'#6a7a62';
+ const trim=s.heli?.trim||m.accent;
+ const tailCol=gcDarken(hull,0.75);
+ // rotor mast + spinning blades
+ ctx.fillStyle='#3a4048';
+ ctx.fillRect(-2,-26,4,8);
+ ctx.strokeStyle='rgba(230,240,255,.5)'; ctx.lineWidth=2.5;
+ ctx.beginPath(); ctx.moveTo(Math.cos(s.rotor)*30,-28+Math.sin(s.rotor)*2); ctx.lineTo(Math.cos(s.rotor+Math.PI)*30,-28+Math.sin(s.rotor+Math.PI)*2); ctx.stroke();
+ ctx.lineWidth=2;
+ ctx.beginPath(); ctx.moveTo(Math.cos(s.rotor+1.1)*24,-28); ctx.lineTo(Math.cos(s.rotor+1.1+Math.PI)*24,-28); ctx.stroke();
+ // tail boom + fin
+ ctx.fillStyle=tailCol;
+ ctx.fillRect(-36,-3,22,5);
+ ctx.fillRect(-36,-14,4,12);
+ ctx.fillRect(-38,-14,3,4);
+ // skids
+ ctx.strokeStyle='#7a8490'; ctx.lineWidth=2;
+ ctx.beginPath(); ctx.moveTo(-10,9); ctx.lineTo(-6,13); ctx.lineTo(10,13); ctx.lineTo(14,9); ctx.stroke();
+ // fuselage
+ ctx.fillStyle=hull;
+ ctx.beginPath();
+ ctx.moveTo(-14,9); ctx.lineTo(16,9); ctx.lineTo(20,2); ctx.lineTo(16,-9); ctx.lineTo(-14,-9); ctx.lineTo(-18,0);
+ ctx.closePath(); ctx.fill();
+ ctx.strokeStyle=trim; ctx.lineWidth=1.5; ctx.stroke();
+ // cockpit glass
+ ctx.fillStyle='#2a4860';
+ ctx.beginPath(); ctx.ellipse(8,-1,9,6.5,0,0,Math.PI*2); ctx.fill();
+ ctx.fillStyle='rgba(120,180,220,.35)';
+ ctx.beginPath(); ctx.ellipse(10,-2,5,3.5,0,0,Math.PI*2); ctx.fill();
+ // engine / gem stripe
+ ctx.fillStyle=trim; ctx.globalAlpha=0.85;
+ ctx.fillRect(-4,-5,14,3); ctx.globalAlpha=1;
+ // wing hardpoints + missiles
  if(gcHeliMissileMode(s.heli)!=='none'){
-  ctx.fillStyle='#606878';
-  if(gcHeliMissileMode(s.heli)==='dual'){
-   ctx.fillRect(-20,-6,8,5); ctx.fillRect(12,-6,8,5);
-   ctx.fillStyle='#f8d030';
-   ctx.fillRect(-22,-4,4,8); ctx.fillRect(18,-4,4,8);
-  }else{
-   ctx.fillRect(-4,-8,8,5);
-   ctx.fillStyle='#f8d030'; ctx.fillRect(-2,-6,4,7);
-  }
+  const dual=gcHeliMissileMode(s.heli)==='dual';
+  const pods=dual?[-20,14]:[0];
+  pods.forEach(px=>{
+   ctx.fillStyle='#505868';
+   ctx.fillRect(px,-5,11,4);
+   ctx.fillStyle='#707880';
+   ctx.fillRect(px+(dual?-3:2),-3,8,2);
+   ctx.fillStyle='#a04038';
+   ctx.fillRect(px+(dual?-5:0),-2.5,2,3);
+  });
  }
- // body
- ctx.fillStyle=s.heli?.hull||'#c9a94f';
- ctx.beginPath(); ctx.ellipse(0,0,18,10,0,0,Math.PI*2); ctx.fill();
- ctx.fillStyle='#1a1520'; ctx.beginPath(); ctx.ellipse(4,-2,7,5,0,0,Math.PI*2); ctx.fill();
- // tail
- ctx.fillStyle='#a89040'; ctx.fillRect(-28,-2,14,4);
- // turret
- const ang=Math.atan2(gcPointer.y-s.y,gcPointer.x-s.x);
+ // belly gem turret (under nose, rotates toward aim)
+ const ang=Math.atan2(gcPointer.y-s.y,gcPointer.x-s.x)-tilt;
+ ctx.save();
+ ctx.translate(12,4);
  ctx.rotate(ang);
- ctx.fillStyle=m.accent; ctx.fillRect(8,-3,16,6);
- ctx.beginPath(); ctx.arc(8,0,6,0,Math.PI*2); ctx.fill();
+ ctx.fillStyle='#3a4048';
+ ctx.fillRect(-2,-4,10,8);
+ ctx.fillStyle=m.accent;
+ ctx.fillRect(4,-2,14,4);
+ ctx.beginPath(); ctx.arc(4,0,5,0,Math.PI*2); ctx.fill();
+ ctx.fillStyle=trim;
+ ctx.fillRect(16,-1.5,4,3);
+ ctx.restore();
  ctx.restore();
 
  // five parallel aim lines
