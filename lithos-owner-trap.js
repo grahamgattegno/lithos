@@ -1,7 +1,7 @@
 /* Lithos fake-owner prank — cache-bust with ?v=deploy-NN */
 (function(){
 'use strict';
-const LITHOS_OWNER_TRAP_BUILD=68;
+const LITHOS_OWNER_TRAP_BUILD=69;
 if(window.__LITHOS_TRAP_JS_BUILD&&window.__LITHOS_TRAP_JS_BUILD!==LITHOS_OWNER_TRAP_BUILD){
  try{
   var u=new URL(location.href);
@@ -66,6 +66,76 @@ function lithosOwnerTrapPickVisible(sel,limit){
  return out;
 }
 let lithosOwnerTrapInfected=[];
+let lithosOwnerTrapTextBackup=[];
+function lithosOwnerTrapSaveText(el){
+ if(!el||el.dataset.lithosTrapTextSaved)return;
+ lithosOwnerTrapTextBackup.push({el,text:el.textContent,html:el.innerHTML});
+ el.dataset.lithosTrapTextSaved='1';
+}
+function lithosOwnerTrapSaveImg(el){
+ if(!el||el.dataset.lithosTrapImgSaved)return;
+ lithosOwnerTrapTextBackup.push({el,isImg:true,src:el.getAttribute('src')||'',alt:el.getAttribute('alt')||''});
+ el.dataset.lithosTrapImgSaved='1';
+}
+function lithosOwnerTrapSetLabel(el){
+ if(!el||lithosOwnerTrapDomSkip(el))return;
+ lithosOwnerTrapSaveText(el);
+ el.textContent='ERROR 666';
+ el.classList.add('lithos-trap-error-text');
+}
+function lithosOwnerTrapSetHelp(el){
+ if(!el||lithosOwnerTrapDomSkip(el))return;
+ lithosOwnerTrapSaveText(el);
+ el.textContent='HELP';
+ el.classList.add('lithos-trap-help-text');
+}
+function lithosOwnerTrapCorruptTexts(root){
+ if(!root||lithosOwnerTrapDomSkip(root))return;
+ const scope=root.matches?.('.card,.chip,.game-tile,.plan-card,.gem-slide,.drawer')?root:root;
+ scope.querySelectorAll?.('.name,.klass,.quick .k,.idx,.g-name,.arcade-name,.d-name').forEach(lithosOwnerTrapSetLabel);
+ scope.querySelectorAll?.('.formula,.price,.quick .v,.d-formula,.d-desc').forEach(lithosOwnerTrapSetHelp);
+ if(root.matches?.('.chip,.g-name,.arcade-name'))lithosOwnerTrapSetLabel(root);
+ if(root.matches?.('.name'))lithosOwnerTrapSetLabel(root);
+ if(root.matches?.('.formula,.price'))lithosOwnerTrapSetHelp(root);
+}
+function lithosOwnerTrapAnomalySwapPhoto(container){
+ const img=container?.querySelector?.('.photo img,.gem-photo-main,.d-photo img');
+ if(!img||lithosOwnerTrapDomSkip(img))return;
+ lithosOwnerTrapSaveImg(img);
+ img.src=lithosTrapFaceSrc(Math.floor(Math.random()*LITHOS_TRAP_FACE_FILES.length));
+ img.classList.add('lithos-trap-anomaly-img','loaded');
+ img.style.opacity='1';
+}
+function lithosOwnerTrapCorruptUiBatch(){
+ lithosOwnerTrapPickVisible('.card[data-lithos-trap-infected]',40).forEach(c=>{
+  lithosOwnerTrapCorruptTexts(c);
+  if(Math.random()<0.35)lithosOwnerTrapAnomalySwapPhoto(c);
+ });
+ lithosOwnerTrapPickVisible('.chip',10).forEach(lithosOwnerTrapSetLabel);
+ lithosOwnerTrapPickVisible('.g-name,.arcade-name',8).forEach(lithosOwnerTrapSetLabel);
+ document.querySelectorAll('.gem-slide.active .gem-slide-copy h2,.gem-slide.active .gem-slide-copy p').forEach((el,i)=>{
+  if(i%2===0)lithosOwnerTrapSetLabel(el);else lithosOwnerTrapSetHelp(el);
+ });
+ const hero=document.querySelector('.hero h1,.hero h2');
+ if(hero&&Math.random()<0.5)lithosOwnerTrapSetLabel(hero);
+ const lede=document.querySelector('.hero .lede');
+ if(lede)lithosOwnerTrapSetHelp(lede);
+}
+function lithosOwnerTrapRestoreTexts(){
+ lithosOwnerTrapTextBackup.forEach(row=>{
+  const el=row.el;
+  if(!el)return;
+  if(row.isImg){
+   if(row.src)el.setAttribute('src',row.src);
+   if(row.alt!=null)el.setAttribute('alt',row.alt);
+   delete el.dataset.lithosTrapImgSaved;
+  }else if(row.html!=null)el.innerHTML=row.html;
+  else if(row.text!=null)el.textContent=row.text;
+  el.classList.remove('lithos-trap-error-text','lithos-trap-help-text','lithos-trap-anomaly-img');
+  delete el.dataset.lithosTrapTextSaved;
+ });
+ lithosOwnerTrapTextBackup=[];
+}
 function lithosOwnerTrapInfectEl(el,faceIndex){
  if(lithosOwnerTrapDomSkip(el)||el.dataset.lithosTrapInfected)return;
  el.dataset.lithosTrapInfected='1';
@@ -82,6 +152,10 @@ function lithosOwnerTrapInfectEl(el,faceIndex){
  host.innerHTML=`<img src="${lithosTrapFaceSrc(fi)}" alt="" draggable="false">`;
  el.appendChild(host);
  lithosOwnerTrapInfected.push({el,host});
+ if(el.classList.contains('card')||el.querySelector?.('.name')){
+  lithosOwnerTrapCorruptTexts(el.classList.contains('card')?el:el.closest('.card')||el);
+  if(Math.random()<0.72&&(el.classList.contains('card')||el.closest('.card')))lithosOwnerTrapAnomalySwapPhoto(el.classList.contains('card')?el:el.closest('.card'));
+ }
  requestAnimationFrame(()=>host.classList.add('live'));
 }
 function lithosOwnerTrapInfectPage(){
@@ -99,6 +173,7 @@ function lithosOwnerTrapInfectPage(){
   });
  });
  lithosOwnerTrapSpreadInfection(6);
+ lithosOwnerTrapCorruptUiBatch();
 }
 function lithosOwnerTrapSpreadInfection(n){
  const pool=[
@@ -123,6 +198,7 @@ function lithosOwnerTrapPulseInfection(faceIndex){
 }
 function lithosOwnerTrapClearInfection(){
  document.documentElement.classList.remove('lithos-trap-screen-native');
+ lithosOwnerTrapRestoreTexts();
  lithosOwnerTrapInfected.forEach(({el,host})=>{
   try{host.remove();}catch(_){}
   delete el.dataset.lithosTrapInfected;
@@ -141,6 +217,7 @@ function lithosOwnerTrapShowRealAnomaly(i){
  if(document.documentElement.classList.contains('lithos-trap-screen-native')){
   lithosOwnerTrapPulseInfection(i==null?0:i);
   if(Math.random()<0.55)lithosOwnerTrapSpreadInfection(1);
+  if(Math.random()<0.4)lithosOwnerTrapCorruptUiBatch();
   return;
  }
  const face=document.getElementById('lithos-trap-face');
@@ -520,7 +597,7 @@ function lithosOwnerTrapBuildShell(trap){
   <div class="lithos-trap-glitch" id="lithos-trap-glitch"></div>
   <p class="lithos-trap-whisper" id="lithos-trap-whisper"></p>
   <p class="lithos-trap-build-badge">ANOMALY v${LITHOS_OWNER_TRAP_BUILD} · IN YOUR UI</p>
-  <div class="lithos-trap-error">WARN: Entity embedded in Lithos layout — gems and buttons are compromised.</div>
+  <div class="lithos-trap-error">WARN: Catalog labels → ERROR 666 · descriptions → HELP · faces in gem slots.</div>
   <div class="lithos-trap-core">
    <p class="lithos-trap-count" id="lithos-trap-count">10</p>
    <p class="lithos-owner-trap-msg" id="lithos-owner-trap-msg">ANOMALY DETECTED</p>

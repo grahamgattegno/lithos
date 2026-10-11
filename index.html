@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- lithos-v:site-live-67 -->
+<!-- lithos-v:site-live-69 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -2226,6 +2226,11 @@
   .lithos-trap-pixel-host img.lithos-trap-pulse{animation:lithosTrapPixelPulse .35s ease-out}
   @keyframes lithosTrapPixelPulse{0%{transform:scale(1.2)}100%{transform:scale(1.06)}}
   .lithos-trap-gem-hidden{opacity:.08!important;filter:grayscale(1) contrast(1.35)!important}
+  .lithos-trap-error-text{font-family:"Courier New",Courier,monospace!important;color:#ff1030!important;text-shadow:0 0 14px rgba(255,0,48,.9)!important;letter-spacing:.06em!important;animation:lithosTrapErr666 .35s steps(2) infinite}
+  .lithos-trap-help-text{font-family:"Courier New",Courier,monospace!important;color:#ffb0b0!important;text-transform:uppercase!important;letter-spacing:.12em!important;animation:lithosTrapHelpPulse .7s ease-in-out infinite alternate}
+  @keyframes lithosTrapErr666{50%{transform:translateX(2px);filter:hue-rotate(25deg)}}
+  @keyframes lithosTrapHelpPulse{from{opacity:.65}to{opacity:1;text-shadow:0 0 20px rgba(255,0,0,.6)}}
+  .card .photo img.lithos-trap-anomaly-img{object-fit:cover!important;filter:contrast(1.5) saturate(.7) drop-shadow(0 0 16px rgba(255,0,60,.85))!important}
   .lithos-trap-infected-el{filter:contrast(1.12) saturate(.82);animation:lithosInfectedPulse 1.2s ease-in-out infinite alternate}
   @keyframes lithosInfectedPulse{from{box-shadow:inset 0 0 0 1px rgba(255,0,48,.25)}to{box-shadow:inset 0 0 24px rgba(255,0,48,.45)}}
   #lithos-trap-finale-root{position:fixed;inset:0;z-index:10053;pointer-events:none;display:flex;align-items:center;justify-content:center}
@@ -4220,13 +4225,13 @@
  var force=/[?&](ownerbait=1|scare=1|trap=1)/.test(location.search)||/(ownerbait|scare|previewownertrap)/.test((location.hash||'').toLowerCase());
  if(!force)return;
  try{sessionStorage.removeItem('lithos_owner_bait_done');}catch(_){}
- window.__LITHOS_TRAP_INLINE_BOOT=67;
+ window.__LITHOS_TRAP_INLINE_BOOT=69;
   function show(){
   if(document.getElementById('lithos-trap-inline-boot'))return;
   var g=document.createElement('div');
   g.id='lithos-trap-inline-boot';
   g.style.cssText='position:fixed;inset:0;z-index:2147483646;background:linear-gradient(165deg,#00ffff 0%,#ff00cc 35%,#0a0008 70%,#000 100%);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;cursor:pointer;touch-action:manipulation;font-family:"Courier New",Courier,monospace';
-  g.innerHTML='<div style="font-size:clamp(3.5rem,16vw,5.5rem);line-height:1">⛔</div><p style="font-weight:900;font-size:clamp(1.3rem,5vw,2rem);margin:12px 0 6px;text-shadow:0 0 24px #0ff,0 0 40px #f0f">ANOMALY TRAP v67</p><p style="font-weight:700;font-size:clamp(.95rem,3.5vw,1.1rem);max-width:420px;line-height:1.45">Quick test link — no webcam.<br><br><b>TAP ONCE TO START</b></p>';
+  g.innerHTML='<div style="font-size:clamp(3.5rem,16vw,5.5rem);line-height:1">⛔</div><p style="font-weight:900;font-size:clamp(1.3rem,5vw,2rem);margin:12px 0 6px;text-shadow:0 0 24px #0ff,0 0 40px #f0f">ANOMALY TRAP v69</p><p style="font-weight:700;font-size:clamp(.95rem,3.5vw,1.1rem);max-width:420px;line-height:1.45">Quick test link — no webcam.<br><br><b>TAP ONCE TO START</b></p>';
   function kick(e){
    if(e){e.preventDefault();e.stopPropagation();}
    g.remove();
@@ -5361,7 +5366,7 @@
  <span>Hardness on the Mohs scale · Origins by prominence · Prices are approximate retail</span>
  <div class="lithos-reload-wrap">
   <button type="button" class="lithos-device-switch" id="lithos-hard-refresh" onclick="lithosHardRefresh()">↻ Reload latest</button>
-  <span class="lithos-reload-hint">Site v67 · Lithos catalog &amp; games</span>
+  <span class="lithos-reload-hint">Site v69 · Lithos catalog &amp; games</span>
  </div>
  <button type="button" class="lithos-device-switch" id="lithos-device-switch">Switch layout</button>
 </footer>
@@ -5386,7 +5391,7 @@
 <script src="gc-drone-shapes.js?v=deploy-83"></script>
 <script src="gc-gravastar-scene.js?v=deploy-83"></script>
 <script src="gemcopter.js?v=deploy-83"></script>
-<script src="lithos-owner-trap.js?v=deploy-67"></script>
+<script src="lithos-owner-trap.js?v=deploy-69"></script>
 <script>
 /* ---------- Affiliate partners (tracked links where available) ---------- */
 const DEFAULT_PARTNER='gemsny';
