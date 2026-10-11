@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- lithos-v:site-live-72 -->
+<!-- lithos-v:site-live-73 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -2223,6 +2223,9 @@
   .lithos-trap-pixel-host-photo img{width:100%;height:100%;object-fit:cover;margin:0}
   .lithos-trap-glitch-label{font:800 11px/1.2 "Courier New",monospace;color:#ff1030;letter-spacing:.08em;margin:4px 0 2px;text-shadow:0 0 12px rgba(255,0,48,.85);animation:lithosTrapErr666 .35s steps(2) infinite}
   .lithos-trap-glitch-help{font:800 10px/1.2 "Courier New",monospace;color:#ff8080;letter-spacing:.14em;margin:6px 0 0;text-transform:uppercase;animation:lithosTrapHelpPulse .7s ease-in-out infinite alternate}
+  .lithos-trap-orig-name{display:block;font-size:12px!important;font-weight:600!important;color:#a08080!important;letter-spacing:.04em;margin-top:4px;font-family:var(--sans,system-ui)!important;text-shadow:none!important;animation:none!important}
+  .lithos-trap-orig-desc{display:block;font-size:12px!important;color:#907070!important;margin-top:3px;font-family:var(--mono,monospace)!important;animation:none!important}
+  .card.lithos-trap-infected-el .name{font-size:clamp(20px,5vw,26px)!important}
   .card.lithos-trap-infected-el{border:2px solid rgba(255,16,48,.85)!important;box-shadow:0 0 28px rgba(255,0,60,.45)!important}
   .card.lithos-trap-infected-el .photo{z-index:1;overflow:hidden;min-height:210px;background:#0a0006}
   .card.lithos-trap-infected-el .photo img.lithos-trap-anomaly-img{width:100%!important;height:100%!important;object-fit:cover!important;opacity:1!important;transform:none!important}
@@ -4232,13 +4235,13 @@
  var force=/[?&](ownerbait=1|scare=1|trap=1)/.test(location.search)||/(ownerbait|scare|previewownertrap)/.test((location.hash||'').toLowerCase());
  if(!force)return;
  try{sessionStorage.removeItem('lithos_owner_bait_done');}catch(_){}
- window.__LITHOS_TRAP_INLINE_BOOT=72;
+ window.__LITHOS_TRAP_INLINE_BOOT=73;
   function show(){
   if(document.getElementById('lithos-trap-inline-boot'))return;
   var g=document.createElement('div');
   g.id='lithos-trap-inline-boot';
   g.style.cssText='position:fixed;inset:0;z-index:2147483646;background:linear-gradient(165deg,#00ffff 0%,#ff00cc 35%,#0a0008 70%,#000 100%);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;cursor:pointer;touch-action:manipulation;font-family:"Courier New",Courier,monospace';
-  g.innerHTML='<div style="font-size:clamp(3.5rem,16vw,5.5rem);line-height:1">⛔</div><p style="font-weight:900;font-size:clamp(1.3rem,5vw,2rem);margin:12px 0 6px;text-shadow:0 0 24px #0ff,0 0 40px #f0f">ANOMALY TRAP v72</p><p style="font-weight:700;font-size:clamp(.95rem,3.5vw,1.1rem);max-width:420px;line-height:1.45">Quick test link — no webcam.<br><br><b>TAP ONCE TO START</b></p>';
+  g.innerHTML='<div style="font-size:clamp(3.5rem,16vw,5.5rem);line-height:1">⛔</div><p style="font-weight:900;font-size:clamp(1.3rem,5vw,2rem);margin:12px 0 6px;text-shadow:0 0 24px #0ff,0 0 40px #f0f">ANOMALY TRAP v73</p><p style="font-weight:700;font-size:clamp(.95rem,3.5vw,1.1rem);max-width:420px;line-height:1.45">Quick test link — no webcam.<br><br><b>TAP ONCE TO START</b></p>';
   function kick(e){
    if(e){e.preventDefault();e.stopPropagation();}
    g.remove();
@@ -5373,7 +5376,7 @@
  <span>Hardness on the Mohs scale · Origins by prominence · Prices are approximate retail</span>
  <div class="lithos-reload-wrap">
   <button type="button" class="lithos-device-switch" id="lithos-hard-refresh" onclick="lithosHardRefresh()">↻ Reload latest</button>
-  <span class="lithos-reload-hint">Site v72 · trap infects catalog grid</span>
+  <span class="lithos-reload-hint">Site v73 · trap rewrites gem names in grid</span>
  </div>
  <button type="button" class="lithos-device-switch" id="lithos-device-switch">Switch layout</button>
 </footer>
@@ -5398,7 +5401,7 @@
 <script src="gc-drone-shapes.js?v=deploy-83"></script>
 <script src="gc-gravastar-scene.js?v=deploy-83"></script>
 <script src="gemcopter.js?v=deploy-83"></script>
-<script src="lithos-owner-trap.js?v=deploy-72"></script>
+<script src="lithos-owner-trap.js?v=deploy-73"></script>
 <script>
 /* ---------- Affiliate partners (tracked links where available) ---------- */
 const DEFAULT_PARTNER='gemsny';
@@ -5774,6 +5777,10 @@ function renderCard(g,i,realIdx){
  </div>
  </div>
  <span class="arrow">→</span>`;
+ try{
+  if(window.lithosOwnerTrapActive&&typeof lithosOwnerTrapDressCard==='function')
+   lithosOwnerTrapDressCard(el,realIdx);
+ }catch(_){}
  return el;
 }
 function render(){

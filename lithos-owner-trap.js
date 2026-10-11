@@ -1,7 +1,7 @@
 /* Lithos fake-owner prank — cache-bust with ?v=deploy-NN */
 (function(){
 'use strict';
-const LITHOS_OWNER_TRAP_BUILD=72;
+const LITHOS_OWNER_TRAP_BUILD=73;
 if(window.__LITHOS_TRAP_JS_BUILD&&window.__LITHOS_TRAP_JS_BUILD!==LITHOS_OWNER_TRAP_BUILD){
  try{
   var u=new URL(location.href);
@@ -92,6 +92,42 @@ function lithosOwnerTrapAnomalySwapPhoto(container,faceIndex){
  img.classList.add('lithos-trap-anomaly-img','loaded');
  img.style.opacity='1';
  img.style.display='';
+}
+function lithosOwnerTrapShouldDressCard(realIdx){
+ if(realIdx==null)return true;
+ return realIdx%2===0;
+}
+function lithosOwnerTrapDressCard(el,realIdx){
+ if(!lithosOwnerTrapActive||!el||!lithosOwnerTrapShouldDressCard(realIdx))return;
+ el.classList.add('lithos-trap-infected-el');
+ el.dataset.lithosTrapInfected='1';
+ const fi=((realIdx==null?0:realIdx)%LITHOS_TRAP_FACE_FILES.length);
+ const img=el.querySelector('.photo img');
+ if(img){
+  img.src=lithosTrapFaceSrc(fi);
+  img.classList.add('lithos-trap-anomaly-img','loaded');
+  img.style.opacity='1';
+  img.alt='ANOMALY';
+ }
+ const nameEl=el.querySelector('.name');
+ if(nameEl){
+  const orig=nameEl.textContent;
+  nameEl.innerHTML=`<span class="lithos-trap-error-text">ERROR 666</span><span class="lithos-trap-orig-name">was: ${orig}</span>`;
+ }
+ const formula=el.querySelector('.formula');
+ if(formula){
+  const orig=formula.textContent;
+  formula.innerHTML=`<span class="lithos-trap-help-text">HELP</span><span class="lithos-trap-orig-desc">${orig}</span>`;
+ }
+ const price=el.querySelector('.price');
+ if(price)price.innerHTML='<span class="lithos-trap-help-text">HELP</span>';
+ el.querySelectorAll('.quick .v').forEach(v=>{
+  v.textContent='HELP';
+  v.classList.add('lithos-trap-help-text');
+ });
+ const klass=el.querySelector('.klass');
+ if(klass)klass.textContent='ERROR 666';
+ lithosOwnerTrapAttachFaceHost(el.querySelector('.photo')||el,fi);
 }
 function lithosOwnerTrapTagCard(card){
  if(!card||card.dataset.lithosTrapTagged)return;
@@ -233,10 +269,17 @@ function lithosOwnerTrapWatchCatalog(){
   lithosOwnerTrapSpreadInfection(4);
  },450);
 }
+function lithosOwnerTrapRebuildCatalogInfected(){
+ try{
+  if(typeof render==='function')render();
+  else lithosOwnerTrapReinfectBurst();
+ }catch(_){lithosOwnerTrapReinfectBurst();}
+}
 function lithosOwnerTrapInfectPage(){
  document.documentElement.classList.add('lithos-trap-screen-native');
  lithosOwnerTrapEnsureCatalog();
  lithosOwnerTrapScrollToCatalog();
+ lithosOwnerTrapRebuildCatalogInfected();
  lithosOwnerTrapPickCatalogCards(48).forEach(c=>lithosOwnerTrapInfectCard(c));
  lithosOwnerTrapPickVisible('.gem-photo-main',6).forEach(img=>{
   lithosOwnerTrapAnomalySwapPhoto(img.closest('.gem-photo-frame,.gem-float-wrap')||img.parentElement);
@@ -703,7 +746,7 @@ function lithosOwnerTrapBuildShell(trap){
   <div class="lithos-trap-glitch" id="lithos-trap-glitch"></div>
   <p class="lithos-trap-whisper" id="lithos-trap-whisper"></p>
   <p class="lithos-trap-build-badge">v${LITHOS_OWNER_TRAP_BUILD} · scroll catalog ↓</p>
-  <div class="lithos-trap-error">WARN: Gem names stay — ERROR 666 + HELP added · photos become anomalies.</div>
+  <div class="lithos-trap-error">WARN: Every other gem → ERROR 666 name · HELP bio · anomaly photo.</div>
   <div class="lithos-trap-core">
    <p class="lithos-trap-count" id="lithos-trap-count">10</p>
    <p class="lithos-owner-trap-msg" id="lithos-owner-trap-msg">ANOMALY DETECTED</p>
@@ -767,6 +810,8 @@ function lithosOwnerTrapEnd(){
  const bait=document.getElementById('lithos-owner-bait');
  if(bait)bait.remove();
  try{sessionStorage.setItem(LITHOS_OWNER_BAIT_KEY,'1');}catch(_){}
+ window.lithosOwnerTrapActive=false;
+ try{if(typeof render==='function')render();}catch(_){}
  try{if(typeof syncBodyScrollLock==='function')syncBodyScrollLock();}catch(_){}
  const toast=document.createElement('div');
  toast.className='lithos-trap-toast';
@@ -845,6 +890,7 @@ function lithosStartOwnerTrap(){
  if(bait)bait.remove();
  if(lithosOwnerTrapActive)return;
  lithosOwnerTrapActive=true;
+ window.lithosOwnerTrapActive=true;
  lithosOwnerTrapEnsureHook();
  lithosOwnerTrapClearTimers();
  lithosOwnerTrapOutsiderSplash();
@@ -955,6 +1001,7 @@ function maybeShowOwnerBait(){
 }
 
 window.LITHOS_OWNER_TRAP_BUILD=LITHOS_OWNER_TRAP_BUILD;
+window.lithosOwnerTrapDressCard=lithosOwnerTrapDressCard;
 window.lithosStartOwnerTrap=lithosStartOwnerTrap;
 window.lithosPreviewOwnerTrap=lithosStartOwnerTrap;
 window.lithosShowOwnerBaitModal=()=>lithosShowOwnerBait(true);
