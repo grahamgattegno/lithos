@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gem Copter — All 10 Bosses Preview 🚁</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,sans-serif;background:#070a10;color:#e8ecf4;padding:16px 12px 32px}
+  h1{text-align:center;font-size:clamp(20px,4vw,28px);color:#c9a94f;margin:0 0 6px}
+  .sub{text-align:center;color:#8898b8;font-size:13px;margin:0 0 20px;max-width:560px;margin-left:auto;margin-right:auto}
+  .sub a{color:#7dffd4}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;max-width:1200px;margin:0 auto}
+  .card{border:1px solid #2a3550;border-radius:14px;overflow:hidden;background:#0e121c;box-shadow:0 8px 28px rgba(0,0,0,.4)}
+  .card-head{padding:10px 12px 4px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+  .card-head b{font-size:14px;color:#c9a94f}
+  .card-head span{font-size:11px;color:#7888a8}
+  canvas{display:block;width:100%;height:auto;aspect-ratio:16/10;background:#060810}
+  .foot{text-align:center;margin-top:22px;font-size:12px;color:#6878a0}
+</style>
+</head>
+<body>
+<h1>🚁 Gem Copter Boss Gallery</h1>
+<p class="sub">Every map boss uses the same <b>mega gunship body</b> — gem glow color matches the map. <a href="../index.html#gemcopter">Play Gem Copter ↗</a></p>
+<div class="grid" id="grid"></div>
+<p class="foot">Build 73 · Rotors spin like in-game</p>
+<script>
+const MAPS=[
+ {id:1,name:'Ruby Ridge',sky:['#1a0610','#3a1020'],ground:'#4a1828',accent:'#ff4060',boss:'Crimson Colossus'},
+ {id:2,name:'Sapphire Coast',sky:['#061018','#102838'],ground:'#183848',accent:'#4ea8ff',boss:'Tide Titan'},
+ {id:3,name:'Emerald Jungle',sky:['#06140a','#14301a'],ground:'#1a4020',accent:'#3ecf8a',boss:'Vine Behemoth'},
+ {id:4,name:'Amethyst Caves',sky:['#100818','#281040'],ground:'#2a1848',accent:'#b06af0',boss:'Crystal Queen'},
+ {id:5,name:'Diamond Peak',sky:['#0c1018','#1a2838'],ground:'#2a3848',accent:'#dbe4ec',boss:'Frost Giant'},
+ {id:6,name:'Opal Oasis',sky:['#101018','#302838'],ground:'#3a3040',accent:'#ff9ad4',boss:'Mirage Sovereign'},
+ {id:7,name:'Topaz Desert',sky:['#181008','#382818'],ground:'#4a3820',accent:'#f0b429',boss:'Sand Tyrant'},
+ {id:8,name:'Garnet Volcano',sky:['#180808','#401018'],ground:'#4a1818',accent:'#e04040',boss:'Magma Overlord'},
+ {id:9,name:'Quartz Quarry',sky:['#101418','#283038'],ground:'#384048',accent:'#a8c0d0',boss:'Shard Emperor'},
+ {id:10,name:'Rainbow Crater',sky:['#100818','#201030'],ground:'#281838',accent:'#c9a94f',boss:'Auric Apocalypse'}
+];
+
+function darken(hex,f){
+ const n=parseInt(String(hex).replace('#',''),16);
+ if(Number.isNaN(n))return hex;
+ let r=(n>>16)&255,g=(n>>8)&255,b=n&255;
+ r=Math.max(0,Math.min(255,Math.round(r*f)));
+ g=Math.max(0,Math.min(255,Math.round(g*f)));
+ b=Math.max(0,Math.min(255,Math.round(b*f)));
+ return `rgb(${r},${g},${b})`;
+}
+
+function drawBossBody(ctx,b,m){
+ const sc=b.r/34;
+ const hop=Math.sin(b.t*1.3)*3;
+ const hull='#3a444c';
+ const glow=m.accent;
+ ctx.translate(0,hop);
+ ctx.strokeStyle='#252a30'; ctx.lineWidth=3*sc;
+ ctx.beginPath();
+ ctx.moveTo(-24*sc,16*sc); ctx.lineTo(-12*sc,24*sc); ctx.lineTo(26*sc,24*sc); ctx.lineTo(38*sc,16*sc);
+ ctx.stroke();
+ ctx.fillStyle='#222830';
+ ctx.fillRect(-32*sc,10*sc,64*sc,8*sc);
+ ctx.fillStyle=hull;
+ ctx.beginPath();
+ ctx.moveTo(-32*sc,14*sc); ctx.lineTo(34*sc,14*sc); ctx.lineTo(42*sc,0); ctx.lineTo(30*sc,-22*sc);
+ ctx.lineTo(-28*sc,-22*sc); ctx.lineTo(-38*sc,0);
+ ctx.closePath(); ctx.fill();
+ ctx.fillStyle=darken(glow,0.45);
+ ctx.fillRect(-26*sc,-16*sc,52*sc,10*sc);
+ ctx.strokeStyle=glow; ctx.lineWidth=2*sc;
+ ctx.beginPath(); ctx.moveTo(-14*sc,-8*sc); ctx.lineTo(0,0); ctx.lineTo(16*sc,-10*sc); ctx.stroke();
+ ctx.fillStyle='#141820';
+ ctx.beginPath(); ctx.ellipse(8*sc,-4*sc,12*sc,8*sc,0,0,Math.PI*2); ctx.fill();
+ ctx.fillStyle=glow; ctx.globalAlpha=0.85;
+ ctx.beginPath(); ctx.arc(8*sc,-4*sc,5*sc,0,Math.PI*2); ctx.fill();
+ ctx.globalAlpha=1;
+ ctx.fillStyle='#303840';
+ ctx.fillRect(-44*sc,-6*sc,12*sc,10*sc);
+ ctx.fillRect(-48*sc,-14*sc,5*sc,16*sc);
+ const spin=b.t*16;
+ [[-16*sc,-28*sc,22*sc],[18*sc,-26*sc,18*sc]].forEach(([tx,ty,len])=>{
+  ctx.save(); ctx.translate(tx,ty);
+  ctx.strokeStyle='rgba(255,100,100,.7)'; ctx.lineWidth=2.5*sc;
+  ctx.beginPath(); ctx.moveTo(Math.cos(spin)*len,0); ctx.lineTo(Math.cos(spin+Math.PI)*len,0); ctx.stroke();
+  ctx.restore();
+ });
+ ctx.fillStyle='#404850';
+ ctx.fillRect(-34*sc,4*sc,14*sc,6*sc); ctx.fillRect(22*sc,4*sc,14*sc,6*sc);
+ ctx.fillStyle='#606878';
+ [-28*sc,24*sc].forEach(px=>{
+  ctx.fillRect(px,-2*sc,10*sc,3*sc);
+  ctx.fillStyle='#a04840';
+  ctx.fillRect(px+(px<0?-2:8)*sc,0,3*sc,4*sc);
+  ctx.fillStyle='#606878';
+ });
+ ctx.fillStyle='#2a3038';
+ ctx.beginPath(); ctx.arc(28*sc,6*sc,7*sc,0,Math.PI*2); ctx.fill();
+ ctx.fillStyle=glow; ctx.beginPath(); ctx.arc(28*sc,6*sc,4*sc,0,Math.PI*2); ctx.fill();
+ ctx.fillStyle='#e8ecf4'; ctx.font=`bold ${Math.max(10,11*sc)|0}px sans-serif`; ctx.textAlign='center';
+ ctx.fillText(b.name,0,-34*sc);
+ ctx.fillStyle='rgba(0,0,0,.55)'; ctx.fillRect(-60*sc,28*sc,120*sc,8*sc);
+ ctx.fillStyle='#ff4060'; ctx.fillRect(-60*sc,28*sc,120*sc*0.72,8*sc);
+}
+
+const cards=[];
+const grid=document.getElementById('grid');
+MAPS.forEach(m=>{
+ const card=document.createElement('div');
+ card.className='card';
+ card.innerHTML=`<div class="card-head"><b>${m.boss}</b><span>Map ${m.id} · ${m.name}</span></div>`;
+ const cv=document.createElement('canvas');
+ cv.width=320; cv.height=200;
+ card.appendChild(cv);
+ grid.appendChild(card);
+ cards.push({cv,m,boss:{name:m.boss,r:40+m.id*1.35,t:0,hp:1,maxHp:1}});
+});
+
+function frame(t){
+ cards.forEach(({cv,m,boss})=>{
+  boss.t=t/1000;
+  const ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height;
+  const grd=ctx.createLinearGradient(0,0,0,H);
+  grd.addColorStop(0,m.sky[0]); grd.addColorStop(1,m.sky[1]);
+  ctx.fillStyle=grd; ctx.fillRect(0,0,W,H);
+  const gy=H*0.82;
+  ctx.fillStyle=m.ground; ctx.fillRect(0,gy-4,W,H-gy+4);
+  ctx.strokeStyle=m.accent; ctx.globalAlpha=0.35;
+  ctx.beginPath(); ctx.moveTo(0,gy); ctx.lineTo(W,gy); ctx.stroke();
+  ctx.globalAlpha=1;
+  ctx.save();
+  ctx.translate(W/2,gy-8);
+  drawBossBody(ctx,boss,m);
+  ctx.restore();
+ });
+ requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
