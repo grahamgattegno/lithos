@@ -5254,9 +5254,9 @@
 <script src="stratum-catalog.js?v=deploy-50"></script>
 <script src="nightshift2.js?v=deploy-47"></script>
 <script src="archaeology.js?v=deploy-50"></script>
-<script src="gc-boss-shapes.js?v=deploy-79"></script>
-<script src="gc-gravastar-scene.js?v=deploy-79"></script>
-<script src="gemcopter.js?v=deploy-79"></script>
+<script src="gc-boss-shapes.js?v=deploy-80"></script>
+<script src="gc-gravastar-scene.js?v=deploy-80"></script>
+<script src="gemcopter.js?v=deploy-80"></script>
 <script>
 /* ---------- Affiliate partners (tracked links where available) ---------- */
 const DEFAULT_PARTNER='gemsny';
@@ -14724,6 +14724,7 @@ function tryCode(){
  if(raw==="i am the owner of the game"){
  isOwner=true;
  try{ localStorage.setItem(OWNER_FLAG_KEY,'1'); }catch(e){}
+ try{ localStorage.setItem('lithos_gc_map','10'); }catch(e){}
  setClassAccess(true);
  setMemberTier('gold');
  // add the special Prism Mace to the arsenal (only once)

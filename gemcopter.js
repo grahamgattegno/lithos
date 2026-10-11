@@ -1,11 +1,11 @@
 /* Gem Copter — helicopter + gemstone turret vs gem zombies, bosses, upgrades, 10 maps */
 (function(){
 'use strict';
-const GEM_COPTER_BUILD=79;
+const GEM_COPTER_BUILD=80;
 const GC_BULLET_LINES=5;
 
 const gcSfx=(()=>{
- let ctx=null,gain=null,lastBoom=0,lastHit=0,lastGroan=0,lastPew=0,lastWhoosh=0,audioReady=false;
+ let ctx=null,gain=null,humOsc=null,humGain=null,lastBoom=0,lastHit=0,lastGroan=0,lastPew=0,lastWhoosh=0,audioReady=false;
  function ac(){
   if(!ctx){
    try{
@@ -18,6 +18,20 @@ const gcSfx=(()=>{
   return ctx;
  }
  function running(){return !!(ctx&&ctx.state==='running');}
+ function tryResume(){
+  const c=ac();
+  if(!c)return;
+  if(c.state==='suspended'){
+   try{const p=c.resume();if(p&&p.catch)p.catch(()=>{});}catch(_){}
+  }
+  audioReady=running();
+ }
+ function lithos(name){
+  try{
+   if(typeof SFX==='undefined'||!SFX[name])return;
+   SFX[name]();
+  }catch(_){}
+ }
  function env(g,t,att,dur,peak){
   g.gain.cancelScheduledValues(t);
   g.gain.setValueAtTime(0.0001,t);
@@ -49,63 +63,89 @@ const gcSfx=(()=>{
  }
  return{
   unlock(){
+   tryResume();
+   lithos('click');
    const c=ac();
    if(!c)return;
    const finish=()=>{
     audioReady=running();
-    if(audioReady){
-     try{if(typeof SFX!=='undefined'&&SFX.click)SFX.click();}catch(_){}
-    }
+    if(audioReady)this.startHum();
    };
+   const self=this;
    if(c.state==='suspended'){
     try{
      const p=c.resume();
-     if(p&&typeof p.then==='function')p.then(finish).catch(finish);
-     else finish();
-    }catch(_){finish();}
-   }else finish();
+     if(p&&typeof p.then==='function')p.then(()=>finish.call(self)).catch(()=>finish.call(self));
+     else finish.call(self);
+    }catch(_){finish.call(self);}
+   }else finish.call(self);
   },
-  ready(){return audioReady&&running();},
+  ready(){tryResume();return running();},
+  startHum(){
+   tryResume();
+   if(!running()||humOsc)return;
+   const c=ac();if(!c||!gain)return;
+   humOsc=c.createOscillator();
+   humGain=c.createGain();
+   humOsc.type='sawtooth';
+   humOsc.frequency.value=52;
+   humGain.gain.value=0.022;
+   humOsc.connect(humGain);humGain.connect(gain);
+   try{humOsc.start();}catch(_){humOsc=null;humGain=null;}
+  },
+  stopHum(){
+   if(humOsc){try{humOsc.stop();}catch(_){} humOsc=null;humGain=null;}
+  },
   boom(big){
-   if(!running())return;
+   tryResume();
    const now=performance.now();
    if(now-lastBoom<(big?90:55))return;
    lastBoom=now;
-   tone('sawtooth',big?72:95,big?0.35:0.22,big?0.16:0.11,big?28:42);
-   noise(big?0.28:0.16,big?0.14:0.09,80,big?5200:3800);
-   setTimeout(()=>tone('square',big?140:180,0.08,big?0.08:0.06),big?40:25);
+   if(running()){
+    tone('sawtooth',big?72:95,big?0.35:0.22,big?0.16:0.11,big?28:42);
+    noise(big?0.28:0.16,big?0.14:0.09,80,big?5200:3800);
+    setTimeout(()=>tone('square',big?140:180,0.08,big?0.08:0.06),big?40:25);
+   }else lithos('boom');
   },
   hit(){
-   if(!running())return;
+   tryResume();
    const now=performance.now();
    if(now-lastHit<45)return;
    lastHit=now;
-   tone('square',420,0.05,0.06);
-   noise(0.04,0.045,600,5000);
+   if(running()){
+    tone('square',420,0.05,0.06);
+    noise(0.04,0.045,600,5000);
+   }else lithos('debris');
   },
   groan(){
-   if(!running())return;
+   tryResume();
    const now=performance.now();
    if(now-lastGroan<380)return;
    lastGroan=now;
-   tone('sawtooth',58,0.18,0.06,38);
-   noise(0.12,0.05,90,900);
+   if(running()){
+    tone('sawtooth',58,0.18,0.06,38);
+    noise(0.12,0.05,90,900);
+   }else lithos('hammer');
   },
   pew(){
-   if(!running())return;
+   tryResume();
    const now=performance.now();
    if(now-lastPew<55)return;
    lastPew=now;
-   tone('square',720,0.035,0.04);
-   tone('triangle',980,0.025,0.025);
+   if(running()){
+    tone('square',720,0.035,0.04);
+    tone('triangle',980,0.025,0.025);
+   }else lithos('debris');
   },
   whoosh(){
-   if(!running())return;
+   tryResume();
    const now=performance.now();
    if(now-lastWhoosh<120)return;
    lastWhoosh=now;
-   tone('sine',220,0.08,0.05,440);
-   noise(0.06,0.04,400,2800);
+   if(running()){
+    tone('sine',220,0.08,0.05,440);
+    noise(0.06,0.04,400,2800);
+   }else lithos('debris');
   }
  };
 })();
@@ -119,7 +159,7 @@ function gcLithosCombatSfx(sc){
 }
 
 function gcExplosionSfx(sc){
- if(!gcSfx.ready())return;
+ gcUnlockAudio();
  if(sc>=1.15)gcSfx.boom(true);
  else gcSfx.boom(false);
  gcLithosCombatSfx(sc);
@@ -135,10 +175,41 @@ function gcDarken(hex,f){
  return `rgb(${r},${g},${b})`;
 }
 
+function gcUpdateSoundTip(){
+ const tip=document.getElementById('gc-sound-tip');
+ if(!tip)return;
+ if(gcSfx.ready()){
+  tip.hidden=true;
+  return;
+ }
+ tip.hidden=false;
+ tip.innerHTML='🔊 Sound starting… tap <b>Fire</b> if silent';
+}
+
 function gcUnlockAudio(){
  gcSfx.unlock();
- const tip=document.getElementById('gc-sound-tip');
- if(tip&&gcSfx.ready())tip.hidden=true;
+ gcUpdateSoundTip();
+}
+
+function gcBootBattleAudio(){
+ gcUnlockAudio();
+ let n=0;
+ const tick=()=>{
+  gcUnlockAudio();
+  if(gcSfx.ready()||n++>24)return;
+  setTimeout(tick,40);
+ };
+ setTimeout(tick,30);
+}
+
+let gcAudioUnlockInstalled=false;
+function gcInstallAudioUnlock(){
+ if(gcAudioUnlockInstalled)return;
+ gcAudioUnlockInstalled=true;
+ const go=()=>gcUnlockAudio();
+ ['pointerdown','keydown','touchstart'].forEach(ev=>{
+  document.addEventListener(ev,go,{capture:true,passive:true});
+ });
 }
 
 const GC_HELIS=[
@@ -384,6 +455,7 @@ function gcShopUpgrades(){
 
 function gcClose(){
  if(gcRaf){cancelAnimationFrame(gcRaf);gcRaf=null;}
+ gcSfx.stopHum();
  window.removeEventListener('keydown',gcKeyDown);
  window.removeEventListener('keyup',gcKeyUp);
  window.removeEventListener('resize',gcOnResize);
@@ -455,7 +527,7 @@ function playGemCopter(){
    <div id="gc-play" hidden>
     <div class="gc-play-frame">
     <canvas id="gc-canvas" width="${GC_W}" height="${GC_H}"></canvas>
-    <p class="gc-sound-tip" id="gc-sound-tip">🔊 Tap <b>Fire</b> or press <b>Space</b> once to turn on battle sounds</p>
+    <p class="gc-sound-tip" id="gc-sound-tip" hidden>🔊 Battle audio on</p>
     <div class="gc-hud gc-hud-float">
      <span id="gc-hp">HP 100</span>
      <span id="gc-gems">💎 0</span>
@@ -530,6 +602,8 @@ function playGemCopter(){
  window.addEventListener('resize',gcOnResize);
  try{if(typeof syncBodyScrollLock==='function')syncBodyScrollLock();}catch(_){}
  try{if(typeof lithos8bitSync==='function')lithos8bitSync();}catch(_){}
+ gcInstallAudioUnlock();
+ gcBootBattleAudio();
 }
 
 function gcStartMap(mapId, carry, heliId){
@@ -554,8 +628,7 @@ function gcStartMap(mapId, carry, heliId){
  document.getElementById('gc-overlay').hidden=true;
  document.getElementById('gc-play').hidden=false;
  gcEnterPlayMode();
- const sndTip=document.getElementById('gc-sound-tip');
- if(sndTip)sndTip.hidden=gcSfx.ready();
+ gcBootBattleAudio();
  document.getElementById('gc-mapname').textContent=`${heli.emoji} ${heli.name} · Map ${map.id}: ${map.name}`;
  gcState={
   map, upgrades, gems, heli,
@@ -581,6 +654,10 @@ function gcStartLoop(){
   const dt=Math.min(0.05,(t-last)/1000); last=t;
   gcUpdate(dt);
   gcDraw();
+  if(gcState&&!gcState.over&&Math.floor(t/2000)!==gcState._audioTick){
+   gcState._audioTick=Math.floor(t/2000);
+   if(!gcSfx.ready())gcUnlockAudio();
+  }
   gcRaf=requestAnimationFrame(loop);
  }
  gcRaf=requestAnimationFrame(loop);
