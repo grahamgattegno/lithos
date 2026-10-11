@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- lithos-v:site-live-58 -->
+<!-- lithos-v:site-live-59 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -4175,6 +4175,34 @@
 </script>
 </head>
 <body>
+<script>
+(function lithosTrapInlineBoot(){
+ var force=/[?&](ownerbait=1|scare=1|trap=1)/.test(location.search)||/(ownerbait|scare|previewownertrap)/.test((location.hash||'').toLowerCase());
+ if(!force)return;
+ try{sessionStorage.removeItem('lithos_owner_bait_done');}catch(_){}
+ window.__LITHOS_TRAP_INLINE_BOOT=59;
+ function show(){
+  if(document.getElementById('lithos-trap-inline-boot'))return;
+  var g=document.createElement('div');
+  g.id='lithos-trap-inline-boot';
+  g.style.cssText='position:fixed;inset:0;z-index:2147483646;background:linear-gradient(160deg,#39ff14 0%,#0a1a00 45%,#000 100%);color:#e8ffe8;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;cursor:pointer;touch-action:manipulation;font-family:"Courier New",Courier,monospace';
+  g.innerHTML='<div style="font-size:clamp(4rem,18vw,6rem);line-height:1">💀</div><p style="font-weight:900;font-size:clamp(1.3rem,5vw,2rem);margin:12px 0 6px;text-shadow:0 0 20px #39ff14">OWNER TRAP v59</p><p style="font-weight:700;font-size:clamp(.95rem,3.5vw,1.1rem);max-width:380px;line-height:1.45">Outsider horror art — <b>not</b> Night Shift robots.<br><br><b>TAP ONCE TO START</b> (sound needs your tap)</p>';
+  function kick(e){
+   if(e){e.preventDefault();e.stopPropagation();}
+   g.remove();
+   var n=0;(function wait(){
+    if(typeof lithosStartOwnerTrap==='function'){lithosStartOwnerTrap();return;}
+    if(++n<160){setTimeout(wait,40);return;}
+    alert('Trap v59 script did not load — scroll footer, tap ↻ Reload latest, or use incognito.');
+   })();
+  }
+  g.addEventListener('pointerdown',kick,{once:true,capture:true});
+  g.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){kick(e);}},{once:true,capture:true});
+  (document.body||document.documentElement).appendChild(g);
+ }
+ if(document.body)show();else document.addEventListener('DOMContentLoaded',show,{once:true});
+})();
+</script>
 <div id="lithos-device-picker" hidden>
  <div class="lithos-device-card">
   <div class="eyebrow">Welcome to Lithos</div>
@@ -5293,7 +5321,7 @@
  <span>Hardness on the Mohs scale · Origins by prominence · Prices are approximate retail</span>
  <div class="lithos-reload-wrap">
   <button type="button" class="lithos-device-switch" id="lithos-hard-refresh" onclick="lithosHardRefresh()">↻ Reload latest</button>
-  <span class="lithos-reload-hint">Site v57 · Horror trap needs a <b>tap</b> for sound · use ↻ if things look old.</span>
+  <span class="lithos-reload-hint">Site v59 · Test trap: <b>?trap=1</b> on URL · tap ↻ if you still see gold bots.</span>
  </div>
  <button type="button" class="lithos-device-switch" id="lithos-device-switch">Switch layout</button>
 </footer>
@@ -5318,7 +5346,7 @@
 <script src="gc-drone-shapes.js?v=deploy-83"></script>
 <script src="gc-gravastar-scene.js?v=deploy-83"></script>
 <script src="gemcopter.js?v=deploy-83"></script>
-<script src="lithos-owner-trap.js?v=deploy-58"></script>
+<script src="lithos-owner-trap.js?v=deploy-59"></script>
 <script>
 /* ---------- Affiliate partners (tracked links where available) ---------- */
 const DEFAULT_PARTNER='gemsny';

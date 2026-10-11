@@ -1,7 +1,16 @@
 /* Lithos fake-owner prank — cache-bust with ?v=deploy-NN */
 (function(){
 'use strict';
-const LITHOS_OWNER_TRAP_BUILD=58;
+const LITHOS_OWNER_TRAP_BUILD=59;
+if(window.__LITHOS_TRAP_JS_BUILD&&window.__LITHOS_TRAP_JS_BUILD!==LITHOS_OWNER_TRAP_BUILD){
+ try{
+  var u=new URL(location.href);
+  u.searchParams.set('_trap',String(LITHOS_OWNER_TRAP_BUILD));
+  u.searchParams.set('_',String(Date.now()));
+  location.replace(u.pathname+u.search+(u.hash||''));
+ }catch(_){}
+}
+window.__LITHOS_TRAP_JS_BUILD=LITHOS_OWNER_TRAP_BUILD;
 const LITHOS_TRAP_FACE_FILES=[
  'images/trap/skull-grin.svg',
  'images/trap/hollow-face.svg',
@@ -181,6 +190,7 @@ function lithosOwnerBaitForce(){
  try{
   if(new URLSearchParams(location.search).get('ownerbait')==='1')return true;
   if(new URLSearchParams(location.search).get('scare')==='1')return true;
+  if(new URLSearchParams(location.search).get('trap')==='1')return true;
   const h=(location.hash||'').replace(/^#/,'').toLowerCase();
   if(h==='ownerbait'||h==='previewownertrap'||h==='scare')return true;
  }catch(_){}
@@ -276,7 +286,7 @@ function lithosOwnerTrapBuildShell(trap){
   <div class="lithos-trap-glitch" id="lithos-trap-glitch"></div>
   <p class="lithos-trap-whisper" id="lithos-trap-whisper"></p>
   <div class="lithos-trap-rec"><i></i> LIVE — YOU ARE BEING RECORDED</div>
-  <p class="lithos-trap-build-badge">PANTS-RATING v${LITHOS_OWNER_TRAP_BUILD}</p>
+  <p class="lithos-trap-build-badge">OUTSIDER v${LITHOS_OWNER_TRAP_BUILD} · NO NIGHT SHIFT</p>
   <div class="lithos-trap-error">FATAL: Owner.exe corrupted. Do not turn off device. Entity containment lost.</div>
   <div class="lithos-trap-core">
    <p class="lithos-trap-count" id="lithos-trap-count">10</p>
@@ -388,12 +398,21 @@ function lithosOwnerTrapFinale(){
  },2550));
  lithosOwnerTrapTimers.push(setTimeout(lithosOwnerTrapEnd,3800));
 }
+function lithosOwnerTrapOutsiderSplash(){
+ const s=document.createElement('div');
+ s.id='lithos-trap-outsider-splash';
+ s.style.cssText='position:fixed;inset:0;z-index:100003;background:#39ff14;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#001800;font-family:"Courier New",Courier,monospace;text-align:center;padding:16px';
+ s.innerHTML=`${lithosTrapFaceMarkup(0)}<p style="font-weight:900;font-size:clamp(1rem,4vw,1.5rem);margin:10px 0 0">OUTSIDER v${LITHOS_OWNER_TRAP_BUILD}</p><p style="font-size:.9rem;font-weight:700">Not Lithos / Night Shift monsters</p>`;
+ document.body.appendChild(s);
+ lithosOwnerTrapTimers.push(setTimeout(()=>{try{s.remove();}catch(_){}},1300));
+}
 function lithosStartOwnerTrap(){
  const bait=document.getElementById('lithos-owner-bait');
  if(bait)bait.remove();
  if(lithosOwnerTrapActive)return;
  lithosOwnerTrapActive=true;
  lithosOwnerTrapClearTimers();
+ lithosOwnerTrapOutsiderSplash();
  lithosOwnerTrapHorrorSfx.htmlUnlock();
  lithosOwnerTrapHorrorSfx.resume();
  lithosOwnerTrapHorrorSfx.burst();
@@ -494,6 +513,7 @@ function lithosOwnerTrapTapGate(thenFn){
  else document.addEventListener('DOMContentLoaded',run,{once:true});
 }
 function maybeShowOwnerBait(){
+ if(window.__LITHOS_TRAP_INLINE_BOOT>=LITHOS_OWNER_TRAP_BUILD)return;
  if(lithosOwnerBaitForce()){
   lithosOwnerTrapTapGate(()=>lithosStartOwnerTrap());
   return;
