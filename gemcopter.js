@@ -1,30 +1,54 @@
 /* Gem Copter — helicopter + gemstone turret vs gem zombies, bosses, upgrades, 10 maps */
 (function(){
 'use strict';
-const GEM_COPTER_BUILD=81;
+const GEM_COPTER_BUILD=82;
 const GC_BULLET_LINES=5;
 
 const gcSfx=(()=>{
  let ctx=null,gain=null,humOsc=null,humGain=null,lastBoom=0,lastHit=0,lastGroan=0,lastPew=0,lastWhoosh=0,audioReady=false;
+ let unlockAudioEl=null;
  function ac(){
   if(!ctx){
    try{
     ctx=new(window.AudioContext||window.webkitAudioContext)();
     gain=ctx.createGain();
-    gain.gain.value=0.72;
+    gain.gain.value=0.88;
     gain.connect(ctx.destination);
    }catch(_){}
   }
   return ctx;
  }
  function running(){return !!(ctx&&ctx.state==='running');}
- function tryResume(){
+ function htmlUnlock(){
+  try{
+   if(!unlockAudioEl){
+    unlockAudioEl=new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA');
+    unlockAudioEl.volume=0.01;
+   }
+   const p=unlockAudioEl.play();
+   if(p&&p.catch)p.catch(()=>{});
+  }catch(_){}
+ }
+ function ensureRunning(fn,fallback){
+  htmlUnlock();
   const c=ac();
-  if(!c)return;
-  if(c.state==='suspended'){
-   try{const p=c.resume();if(p&&p.catch)p.catch(()=>{});}catch(_){}
+  if(!c){
+   if(fallback)fallback();
+   return;
   }
-  audioReady=running();
+  const go=()=>{
+   audioReady=c.state==='running';
+   if(audioReady){fn();return;}
+   if(fallback)fallback();
+  };
+  if(c.state==='running')go();
+  else{
+   try{
+    const p=c.resume();
+    if(p&&typeof p.then==='function')p.then(go).catch(go);
+    else setTimeout(go,0);
+   }catch(_){if(fallback)fallback();}
+  }
  }
  function lithos(name){
   try{
@@ -61,93 +85,80 @@ const gcSfx=(()=>{
   src.connect(hpF);hpF.connect(lpF);lpF.connect(g);g.connect(gain);
   src.start(t);src.stop(t+dur+0.03);
  }
- return{
+ const api={
   unlock(){
-   tryResume();
    lithos('click');
-   const c=ac();
-   if(!c)return;
-   const finish=()=>{
-    audioReady=running();
-    if(audioReady)this.startHum();
-   };
-   const self=this;
-   if(c.state==='suspended'){
-    try{
-     const p=c.resume();
-     if(p&&typeof p.then==='function')p.then(()=>finish.call(self)).catch(()=>finish.call(self));
-     else finish.call(self);
-    }catch(_){finish.call(self);}
-   }else finish.call(self);
+   ensureRunning(()=>{
+    tone('square',660,0.05,0.07);
+    api.startHum();
+   },()=>lithos('click'));
   },
-  ready(){tryResume();return running();},
+  ready(){return running();},
   startHum(){
-   tryResume();
-   if(!running()||humOsc)return;
-   const c=ac();if(!c||!gain)return;
-   humOsc=c.createOscillator();
-   humGain=c.createGain();
-   humOsc.type='sawtooth';
-   humOsc.frequency.value=52;
-   humGain.gain.value=0.022;
-   humOsc.connect(humGain);humGain.connect(gain);
-   try{humOsc.start();}catch(_){humOsc=null;humGain=null;}
+   if(humOsc)return;
+   ensureRunning(()=>{
+    if(humOsc)return;
+    const c=ac();if(!c||!gain)return;
+    humOsc=c.createOscillator();
+    humGain=c.createGain();
+    humOsc.type='sawtooth';
+    humOsc.frequency.value=52;
+    humGain.gain.value=0.028;
+    humOsc.connect(humGain);humGain.connect(gain);
+    try{humOsc.start();}catch(_){humOsc=null;humGain=null;}
+   });
   },
   stopHum(){
    if(humOsc){try{humOsc.stop();}catch(_){} humOsc=null;humGain=null;}
   },
   boom(big){
-   tryResume();
    const now=performance.now();
    if(now-lastBoom<(big?90:55))return;
    lastBoom=now;
-   if(running()){
-    tone('sawtooth',big?72:95,big?0.35:0.22,big?0.16:0.11,big?28:42);
-    noise(big?0.28:0.16,big?0.14:0.09,80,big?5200:3800);
-    setTimeout(()=>tone('square',big?140:180,0.08,big?0.08:0.06),big?40:25);
-   }else lithos('boom');
+   ensureRunning(()=>{
+    tone('sawtooth',big?72:95,big?0.35:0.22,big?0.18:0.12,big?28:42);
+    noise(big?0.28:0.16,big?0.16:0.1,80,big?5200:3800);
+    setTimeout(()=>tone('square',big?140:180,0.08,big?0.09:0.07),big?40:25);
+   },()=>lithos('boom'));
   },
   hit(){
-   tryResume();
    const now=performance.now();
    if(now-lastHit<45)return;
    lastHit=now;
-   if(running()){
-    tone('square',420,0.05,0.06);
-    noise(0.04,0.045,600,5000);
-   }else lithos('debris');
+   ensureRunning(()=>{
+    tone('square',420,0.05,0.08);
+    noise(0.04,0.055,600,5000);
+   },()=>lithos('debris'));
   },
   groan(){
-   tryResume();
    const now=performance.now();
    if(now-lastGroan<380)return;
    lastGroan=now;
-   if(running()){
-    tone('sawtooth',58,0.18,0.06,38);
-    noise(0.12,0.05,90,900);
-   }else lithos('hammer');
+   ensureRunning(()=>{
+    tone('sawtooth',58,0.18,0.08,38);
+    noise(0.12,0.06,90,900);
+   },()=>lithos('hammer'));
   },
   pew(){
-   tryResume();
    const now=performance.now();
    if(now-lastPew<55)return;
    lastPew=now;
-   if(running()){
-    tone('square',720,0.035,0.04);
-    tone('triangle',980,0.025,0.025);
-   }else lithos('debris');
+   ensureRunning(()=>{
+    tone('square',720,0.04,0.055);
+    tone('triangle',980,0.028,0.035);
+   },()=>lithos('debris'));
   },
   whoosh(){
-   tryResume();
    const now=performance.now();
    if(now-lastWhoosh<120)return;
    lastWhoosh=now;
-   if(running()){
-    tone('sine',220,0.08,0.05,440);
-    noise(0.06,0.04,400,2800);
-   }else lithos('debris');
+   ensureRunning(()=>{
+    tone('sine',220,0.08,0.06,440);
+    noise(0.06,0.05,400,2800);
+   },()=>lithos('debris'));
   }
  };
+ return api;
 })();
 
 function gcLithosCombatSfx(sc){
@@ -183,7 +194,7 @@ function gcUpdateSoundTip(){
   return;
  }
  tip.hidden=false;
- tip.innerHTML='🔊 Sound starting… tap <b>Fire</b> if silent';
+ tip.innerHTML='🔊 Tap <b>Fire</b> or hold <b>Space</b> — battle audio unlocks on first shot';
 }
 
 function gcUnlockAudio(){
@@ -193,13 +204,10 @@ function gcUnlockAudio(){
 
 function gcBootBattleAudio(){
  gcUnlockAudio();
- let n=0;
- const tick=()=>{
-  gcUnlockAudio();
-  if(gcSfx.ready()||n++>24)return;
-  setTimeout(tick,40);
- };
- setTimeout(tick,30);
+ setTimeout(()=>{
+  gcSfx.pew();
+  gcUpdateSoundTip();
+ },120);
 }
 
 let gcAudioUnlockInstalled=false;
@@ -924,6 +932,7 @@ function gcFireMissilesFromState(manual){
 }
 
 function gcFire(){
+ gcUnlockAudio();
  const s=gcState, u=s.upgrades;
  if(s.fireT>0)return;
  s.fireT=u.cooldown;
