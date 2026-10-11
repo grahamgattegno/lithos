@@ -1,7 +1,7 @@
 /* Gem Copter — helicopter + gemstone turret vs gem zombies, bosses, upgrades, 10 maps */
 (function(){
 'use strict';
-const GEM_COPTER_BUILD=84;
+const GEM_COPTER_BUILD=85;
 const GC_BULLET_LINES=5;
 
 const gcSfx=(()=>{
@@ -486,21 +486,28 @@ function gcSetViewMode(mode){
  });
  const tip=document.getElementById('gc-view-hint');
  if(tip)tip.textContent=gcViewMode==='fp'
-  ?'👁️ First person · WASD fly · mouse look · Space fire · V side view'
-  :'📺 Side view · WASD fly · mouse aim · Space fire · V first person';
+  ?'👁️ First person · WASD fly · ←→↑↓ look · mouse look · Space fire · V side'
+  :'📺 Side view · WASD/arrows fly · mouse aim · Space fire · V first person';
+}
+
+function gcFpSyncAim(s){
+ if(!s)return;
+ s.lookYawOff=Math.max(-1.45,Math.min(1.45,s.lookYawOff||0));
+ s.lookPitch=Math.max(-1.05,Math.min(1.05,s.lookPitch||0));
+ s.lookAng=(s.faceYaw||0)+s.lookYawOff;
+ const aimDist=360;
+ const cp=Math.cos(s.lookPitch), sp=Math.sin(s.lookPitch);
+ gcPointer.x=s.x+Math.cos(s.lookAng)*aimDist*cp;
+ gcPointer.y=s.y+Math.sin(s.lookAng)*aimDist*cp+sp*aimDist*0.9;
+ gcPointer.screenX=GC_W/2+(s.lookYawOff/1.45)*(GC_W*0.48);
+ gcPointer.screenY=GC_H/2+(s.lookPitch/1.05)*(GC_H*0.48);
 }
 
 function gcFpAimFromScreen(s,px,py){
  if(!s)return;
- gcPointer.screenX=px; gcPointer.screenY=py;
- const yawOff=(px/GC_W-0.5)*1.55;
- const pitchOff=(py/GC_H-0.5)*1.05;
- s.lookAng=(s.faceYaw||0)+yawOff;
- s.lookPitch=pitchOff;
- const aimDist=340;
- const cp=Math.cos(s.lookPitch), sp=Math.sin(s.lookPitch);
- gcPointer.x=s.x+Math.cos(s.lookAng)*aimDist*cp;
- gcPointer.y=s.y+Math.sin(s.lookAng)*aimDist*cp+sp*aimDist*0.85;
+ s.lookYawOff=(px/GC_W-0.5)*1.45;
+ s.lookPitch=(py/GC_H-0.5)*1.05;
+ gcFpSyncAim(s);
 }
 
 function gcProjectFP(wx,wy,s){
@@ -572,7 +579,7 @@ function gcKeyDown(e){
  if(k==='escape'){gcClose();return;}
  if(k==='v'){
   gcSetViewMode(gcViewMode==='fp'?'side':'fp');
-  if(gcViewMode==='fp'&&gcState)gcFpAimFromScreen(gcState,gcPointer.screenX,gcPointer.screenY);
+  if(gcViewMode==='fp'&&gcState)gcFpSyncAim(gcState);
   return;
  }
  if(gcGravastarChord(e)&&gcState.map.id===10&&gcState.boss&&!gcState.cutscene&&!gcState.over){
@@ -622,7 +629,7 @@ function playGemCopter(){
     <div class="gc-heli-grid" id="gc-heli-grid"></div>
     <div class="gc-map-grid" id="gc-map-grid"></div>
     <p class="gc-version-banner" id="gc-version-banner">Build ${GEM_COPTER_BUILD} — pick a helicopter, then a map ↓</p>
-    <p class="gc-hint" id="gc-view-hint">WASD fly · aim · Space fires <b>5 straight bullet lines</b> · missiles auto · <b>E</b> salvo · <b>V</b> camera · Esc quit</p>
+    <p class="gc-hint" id="gc-view-hint">WASD fly · ←→↑↓ look (FP) · mouse look · Space fire · <b>E</b> missiles · <b>V</b> camera · Esc quit</p>
    </div>
    <div id="gc-play" hidden>
     <div class="gc-play-frame">
@@ -744,7 +751,7 @@ function gcStartMap(mapId, carry, heliId){
  gcState={
   map, upgrades, gems, heli,
   x:GC_W*0.5, y:GC_H*0.38, vx:0, vy:0,
-  faceYaw:0.35, lookAng:0.35, lookPitch:0.25,
+  faceYaw:0.35, lookAng:0.35, lookYawOff:0, lookPitch:0.2,
   hp:upgrades.maxHp, maxHp:upgrades.maxHp,
   fireT:0, missileT:0, wave:1, waveT:0, spawnLeft:0, spawnGap:0,
   kills:0, boss:null, bossSpawned:false, cleared:false, over:false,
@@ -753,7 +760,7 @@ function gcStartMap(mapId, carry, heliId){
   rotor:0, shake:0, shopPause:false, waveShopPending:false
  };
  gcPointer.screenX=GC_W*0.5; gcPointer.screenY=GC_H*0.55;
- if(gcViewMode==='fp')gcFpAimFromScreen(gcState,gcPointer.screenX,gcPointer.screenY);
+ if(gcViewMode==='fp')gcFpSyncAim(gcState);
  else{gcPointer.x=GC_W*0.72;gcPointer.y=GC_H*0.62;}
  gcInitMilitary(gcState);
  gcBindCanvas();
@@ -1081,12 +1088,18 @@ function gcUpdate(dt){
  if(gcHeliMissileMode(s.heli)!=='none'&&s.missileT<=0)gcFireMissilesFromState(false);
  if(gcKeys.e){gcFireMissilesFromState(true);gcKeys.e=false;}
 
- // movement
+ // movement — WASD fly; in FP, arrows look instead of move
  let mx=0,my=0;
- if(gcKeys.a||gcKeys.arrowleft)mx-=1;
- if(gcKeys.d||gcKeys.arrowright)mx+=1;
- if(gcKeys.w||gcKeys.arrowup)my-=1;
- if(gcKeys.s||gcKeys.arrowdown)my+=1;
+ if(gcKeys.a)mx-=1;
+ if(gcKeys.d)mx+=1;
+ if(gcKeys.w)my-=1;
+ if(gcKeys.s)my+=1;
+ if(gcViewMode!=='fp'){
+  if(gcKeys.arrowleft)mx-=1;
+  if(gcKeys.arrowright)mx+=1;
+  if(gcKeys.arrowup)my-=1;
+  if(gcKeys.arrowdown)my+=1;
+ }
  const len=Math.hypot(mx,my)||1;
  const sp=s.upgrades.speed;
  s.vx=mx/len*sp; s.vy=my/len*sp;
@@ -1099,7 +1112,14 @@ function gcUpdate(dt){
   while(d<-Math.PI)d+=Math.PI*2;
   s.faceYaw=(s.faceYaw||0)+d*Math.min(1,dt*4.5);
  }
- if(gcViewMode==='fp')gcFpAimFromScreen(s,gcPointer.screenX,gcPointer.screenY);
+ if(gcViewMode==='fp'){
+  const lookSp=2.1;
+  if(gcKeys.arrowleft)s.lookYawOff-=lookSp*dt;
+  if(gcKeys.arrowright)s.lookYawOff+=lookSp*dt;
+  if(gcKeys.arrowup)s.lookPitch-=lookSp*dt;
+  if(gcKeys.arrowdown)s.lookPitch+=lookSp*dt;
+  gcFpSyncAim(s);
+ }
  if(gcPointer.down||gcKeys.space||gcKeys[' ']) gcFire();
 
  // waves — open upgrade shop between waves
