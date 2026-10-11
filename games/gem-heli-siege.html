@@ -51,6 +51,7 @@
   <span class="chip">💎 Shards <b id="h-shards">0</b></span>
   <span class="chip">❤️ Hull <b id="h-hp">100</b></span>
   <span class="chip">🏆 Score <b id="h-score">0</b></span>
+  <span class="chip">🚀 Missiles <b id="h-miss">on</b></span>
 </div>
 <div class="wrap">
   <canvas id="cv" width="720" height="540"></canvas>
@@ -60,7 +61,7 @@
       <h2>Gem Heli Siege</h2>
       <p>Pick a map. Clear waves, spend shards on upgrades between waves, and destroy the map boss!</p>
       <div class="maps" id="map-pick"></div>
-      <p style="font-size:11px;color:#7888a8">WASD / arrows fly · zombies stay on the ground · fullscreen · mouse aim · Space fire</p>
+      <p style="font-size:11px;color:#7888a8">WASD fly · mouse aim · Space fire · homing missiles auto · <b>E</b> extra salvo</p>
       <button type="button" class="btn primary" id="btn-start">Launch helicopter</button>
     </div>
   </div>
@@ -112,7 +113,7 @@ let mapIdx=0,mapUnlocked=JSON.parse(localStorage.getItem('ghs-unlock')||'1');
 let state='menu',wave=1,shards=0,score=0,boss=null,bossPhase=false;
 let heli={x:W/2,y:H-72,hp:100,maxHp:100,spd:220};
 let upg={dmg:1,rate:1,spd:1,spread:0,hull:0};
-let bullets=[],enemies=[],parts=[],aim={x:W/2,y:0},keys={},fireHeld=false,fireT=0,spawnT=0,waveQuota=0,waveKilled=0,bossSpawned=false,shake=0,last=0,raf=null;
+let bullets=[],missiles=[],enemies=[],parts=[],aim={x:W/2,y:0},keys={},fireHeld=false,fireT=0,missileT=0,spawnT=0,waveQuota=0,waveKilled=0,bossSpawned=false,shake=0,last=0,raf=null;
 
 const sfx=(()=>{
  let ctx=null,gain=null,lastBoom=0,lastHit=0,lastGroan=0;
@@ -207,7 +208,31 @@ function resetRun(){
   wave=1;shards=0;score=0;boss=null;bossPhase=false;
   heli={x:W/2,y:H-72,hp:100+upg.hull*15,maxHp:100+upg.hull*15,spd:220+upg.spd*25};
   upg={dmg:1,rate:1,spd:1,spread:0,hull:0};
-  bullets=[];enemies=[];parts=[];waveQuota=8;waveKilled=0;bossSpawned=false;spawnT=0;
+  bullets=[];missiles=[];enemies=[];parts=[];waveQuota=8;waveKilled=0;bossSpawned=false;spawnT=0;missileT=0;
+}
+
+function pickTarget(){
+ let best=null,bd=1e12;
+ enemies.forEach(e=>{
+  if(e.dead)return;
+  const d=(e.x-heli.x)**2+(e.y-heli.y)**2;
+  if(d<bd){bd=d;best=e;}
+ });
+ return best;
+}
+
+function launchMissile(t){
+ const ang=Math.atan2(t.y-(heli.y-6),t.x-heli.x);
+ missiles.push({x:heli.x,y:heli.y-8,vx:Math.cos(ang)*200,vy:Math.sin(ang)*200,life:2.6,dmg:55+mapIdx*6+wave*2,r:7,homing:true});
+}
+
+function fireMissiles(manual){
+ if(!manual&&missileT>0)return;
+ const t=pickTarget();
+ if(!t)return;
+ missileT=manual?0.3:1.05;
+ launchMissile(t);
+ sfx.hit();
 }
 
 function startMap(){
@@ -286,6 +311,10 @@ function update(dt){
   heli.y=Math.max(50,Math.min(H-36,heli.y+(my/ml)*heli.spd*dt));
 
   fireT-=dt;
+  missileT=Math.max(0,missileT-dt);
+  if(missileT<=0)fireMissiles(false);
+  if(keys.e){fireMissiles(true);keys.e=false;}
+
   if((fireHeld||keys.space)&&fireT<=0){
     fireT=Math.max(0.08,0.22/upg.rate);
     fire();
@@ -300,6 +329,28 @@ function update(dt){
 
   bullets.forEach(b=>{b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;});
   bullets=bullets.filter(b=>b.life>0&&b.x>-20&&b.x<W+20&&b.y>-20&&b.y<H+20);
+
+  missiles.forEach(ms=>{
+    if(ms.homing){
+      const t=pickTarget();
+      if(t){
+        const ang=Math.atan2(t.y-ms.y,t.x-ms.x);
+        ms.vx=Math.cos(ang)*320;ms.vy=Math.sin(ang)*320;
+      }
+    }
+    ms.x+=ms.vx*dt;ms.y+=ms.vy*dt;ms.life-=dt;
+  });
+  missiles=missiles.filter(ms=>ms.life>0&&ms.x>-40&&ms.x<W+40&&ms.y>-40&&ms.y<H+40);
+  missiles.forEach(ms=>{
+    enemies.forEach(e=>{
+      if(e.dead||ms.life<=0)return;
+      if(Math.hypot(ms.x-e.x,ms.y-e.y)<e.r+ms.r){
+        e.hp-=ms.dmg;e.hurt=0.2;ms.life=0;
+        boom(ms.x,ms.y,m.tint,0.9);
+        if(e.hp<=0&&!e.dead)hitEnemy(e,{x:ms.x,y:ms.y,dmg:0});
+      }
+    });
+  });
 
   enemies.forEach(e=>{
     if(e.dead)return;

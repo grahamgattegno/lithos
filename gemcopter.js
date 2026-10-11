@@ -1,7 +1,7 @@
 /* Gem Copter — helicopter + gemstone turret vs gem zombies, bosses, upgrades, 10 maps */
 (function(){
 'use strict';
-const GEM_COPTER_BUILD=63;
+const GEM_COPTER_BUILD=64;
 
 const gcSfx=(()=>{
  let ctx=null,gain=null,lastBoom=0,lastHit=0,lastGroan=0,audioReady=false;
@@ -100,12 +100,29 @@ function gcUnlockAudio(){
 }
 
 const GC_HELIS=[
- {id:'scout',name:'Gem Scout',emoji:'🚁',desc:'Balanced starter',speedMult:1,hpMult:1,dmgMult:1,hull:'#c9a94f'},
- {id:'swift',name:'Swift Sparrow',emoji:'🕊️',desc:'Fast · lighter hull',speedMult:1.38,hpMult:0.82,dmgMult:0.92,hull:'#7ec8ff'},
- {id:'anvil',name:'Anvil Forge',emoji:'🛡️',desc:'Slow · heavy armor',speedMult:0.78,hpMult:1.5,dmgMult:1.05,hull:'#9aa890'},
- {id:'ruby',name:'Ruby Phantom',emoji:'💎',desc:'Strong gem turret',speedMult:1.05,hpMult:0.95,dmgMult:1.3,hull:'#ff4060'},
- {id:'omega',name:'Omega Strike',emoji:'☢️',desc:'Owner · dual wing missiles',ownerOnly:true,missiles:true,speedMult:1.12,hpMult:1.25,dmgMult:1.15,hull:'#f8d030'}
+ {id:'scout',name:'Gem Scout',emoji:'🚁',desc:'Balanced · homing missile',speedMult:1,hpMult:1,dmgMult:1,hull:'#c9a94f',missileMode:'single'},
+ {id:'swift',name:'Swift Sparrow',emoji:'🕊️',desc:'Fast · quick missiles',speedMult:1.38,hpMult:0.82,dmgMult:0.92,hull:'#7ec8ff',missileMode:'single',missileInterval:0.95},
+ {id:'anvil',name:'Anvil Forge',emoji:'🛡️',desc:'Slow · heavy missiles',speedMult:0.78,hpMult:1.5,dmgMult:1.05,hull:'#9aa890',missileMode:'single',missileInterval:1.25},
+ {id:'ruby',name:'Ruby Phantom',emoji:'💎',desc:'Strong shots · big missiles',speedMult:1.05,hpMult:0.95,dmgMult:1.3,hull:'#ff4060',missileMode:'single',missileMult:1.25},
+ {id:'omega',name:'Omega Strike',emoji:'☢️',desc:'Owner · dual wing missiles',ownerOnly:true,missiles:true,missileMode:'dual',speedMult:1.12,hpMult:1.25,dmgMult:1.15,hull:'#f8d030'}
 ];
+
+function gcHeliMissileMode(heli){
+ if(!heli)return 'none';
+ if(heli.missileMode==='dual'||heli.missiles)return 'dual';
+ if(heli.missileMode==='single')return 'single';
+ return 'single';
+}
+function gcHeliMissileInterval(s){
+ const h=s.heli;
+ const base=h?.missileInterval||(gcHeliMissileMode(h)==='dual'?(s.upgrades.missileInterval||0.85):1.15);
+ return base;
+}
+function gcHeliMissileDamage(s){
+ const h=s.heli;
+ const mult=(s.upgrades?.missileMult||1)*(h?.missileMult||1);
+ return (gcHeliMissileMode(h)==='dual'?95:72)*mult+s.map.id*8;
+}
 
 let gcPickHeli='scout';
 
@@ -268,7 +285,7 @@ function playGemCopter(){
     <div class="gc-heli-grid" id="gc-heli-grid"></div>
     <div class="gc-map-grid" id="gc-map-grid"></div>
     <p class="gc-version-banner" id="gc-version-banner">Build ${GEM_COPTER_BUILD} — pick a helicopter, then a map ↓</p>
-    <p class="gc-hint">WASD fly · mouse aim · Space rapid fire · Owner: <b>E</b> missiles · Esc quit</p>
+    <p class="gc-hint">WASD fly · mouse aim · Space fire · homing missiles auto · <b>E</b> extra salvo · Esc quit</p>
    </div>
    <div id="gc-play" hidden>
     <div class="gc-play-frame">
@@ -485,23 +502,27 @@ function gcPickTarget(s){
 function gcLaunchMissile(s,x0,y0,target){
  if(!target)return;
  const ang=Math.atan2(target.y-y0,target.x-x0);
- const mult=s.upgrades?.missileMult||1;
  s.missiles.push({
   x:x0,y:y0,vx:Math.cos(ang)*200,vy:Math.sin(ang)*200,
-  life:2.8,dmg:(95+s.map.id*8)*mult,r:7,homing:true
+  life:2.8,dmg:gcHeliMissileDamage(s),r:7,homing:true
  });
 }
 
 function gcFireMissilesFromState(manual){
  const s=gcState;
- if(!s.heli?.missiles)return;
+ const mode=gcHeliMissileMode(s.heli);
+ if(mode==='none')return;
  if(!manual&&s.missileT>0)return;
  const t=gcPickTarget(s);
  if(!t)return;
- s.missileT=manual?0.28:(s.upgrades.missileInterval||0.85);
- gcLaunchMissile(s,s.x-16,s.y-4,t);
- gcLaunchMissile(s,s.x+16,s.y-4,t);
- try{if(SFX&&SFX.click)SFX.click();}catch(_){}
+ s.missileT=manual?0.28:gcHeliMissileInterval(s);
+ if(mode==='dual'){
+  gcLaunchMissile(s,s.x-16,s.y-4,t);
+  gcLaunchMissile(s,s.x+16,s.y-4,t);
+ }else{
+  gcLaunchMissile(s,s.x,s.y-6,t);
+ }
+ gcSfx.hit();
 }
 
 function gcFire(){
@@ -529,7 +550,7 @@ function gcUpdate(dt){
  if(s.shake>0)s.shake=Math.max(0,s.shake-dt*8);
  s.fireT=Math.max(0,s.fireT-dt);
  s.missileT=Math.max(0,s.missileT-dt);
- if(s.heli?.missiles&&s.missileT<=0)gcFireMissilesFromState(false);
+ if(gcHeliMissileMode(s.heli)!=='none'&&s.missileT<=0)gcFireMissilesFromState(false);
  if(gcKeys.e){gcFireMissilesFromState(true);gcKeys.e=false;}
 
  // movement
@@ -1007,11 +1028,16 @@ function gcDraw(){
  ctx.strokeStyle='rgba(255,255,255,.55)'; ctx.lineWidth=3;
  ctx.beginPath(); ctx.moveTo(Math.cos(s.rotor)*28, -22+Math.sin(s.rotor)*3); ctx.lineTo(Math.cos(s.rotor+Math.PI)*28,-22+Math.sin(s.rotor+Math.PI)*3); ctx.stroke();
  ctx.beginPath(); ctx.moveTo(Math.cos(s.rotor+1.2)*22,-22); ctx.lineTo(Math.cos(s.rotor+1.2+Math.PI)*22,-22); ctx.stroke();
- if(s.heli?.missiles){
+ if(gcHeliMissileMode(s.heli)!=='none'){
   ctx.fillStyle='#606878';
-  ctx.fillRect(-20,-6,8,5); ctx.fillRect(12,-6,8,5);
-  ctx.fillStyle='#f8d030';
-  ctx.fillRect(-22,-4,4,8); ctx.fillRect(18,-4,4,8);
+  if(gcHeliMissileMode(s.heli)==='dual'){
+   ctx.fillRect(-20,-6,8,5); ctx.fillRect(12,-6,8,5);
+   ctx.fillStyle='#f8d030';
+   ctx.fillRect(-22,-4,4,8); ctx.fillRect(18,-4,4,8);
+  }else{
+   ctx.fillRect(-4,-8,8,5);
+   ctx.fillStyle='#f8d030'; ctx.fillRect(-2,-6,4,7);
+  }
  }
  // body
  ctx.fillStyle=s.heli?.hull||'#c9a94f';
@@ -1031,7 +1057,8 @@ function gcDraw(){
  ctx.beginPath(); ctx.moveTo(s.x,s.y-8); ctx.lineTo(gcPointer.x,gcPointer.y); ctx.stroke();
  ctx.setLineDash([]); ctx.globalAlpha=1;
  ctx.fillStyle='rgba(125,255,212,.85)'; ctx.font='10px monospace'; ctx.textAlign='left';
- ctx.fillText(`GEM COPTER · build ${GEM_COPTER_BUILD} · ${s.heli?s.heli.name:'Scout'}${s.heli?.missiles?' · missiles':''}`,12,18);
+ const mm=gcHeliMissileMode(s.heli);
+ ctx.fillText(`GEM COPTER · build ${GEM_COPTER_BUILD} · ${s.heli?s.heli.name:'Scout'}${mm!=='none'?(mm==='dual'?' · dual missiles':' · missile'):''}`,12,18);
  ctx.restore();
 }
 
