@@ -43,6 +43,36 @@ const MH_CODES={
 
 const MH_RARITY_N=['common','common','uncommon','common','uncommon','rare','common','uncommon','rare','epic','uncommon','legendary'];
 
+const MH_ADJS=['Sunny','Blocky','Turbo','Chill','Neon','Lucky','Cosmic','Minty','Shadow','Golden','Pixel','Hyper','Jolly','Brave','Silly','Zappy','Frosty','Lava','Cloudy','Spark','Retro','Mega','Tiny','Giant','Wacky','Snappy','Bouncy','Glitch','Prism','Amber','Velvet','Coral','Indigo','Mossy','Candy','Storm','Dizzy','Royal','Rusty','Sonic','Bubble'];
+const MH_NOUNS=['Buddy','Bloxxer','Pal','Morph','Runner','Rider','Scout','Champ','Star','Builder','Skater','Surfer','Explorer','Guardian','Wizard','Knight','Pilot','DJ','Chef','Gamer','Hero','Ranger','Captain','Comet','Penguin','Fox','Panda','Tiger','Dragon','Phoenix','Robot','Alien','Ghost','Slime','Unicorn','Pirate','Ninja','Viking','Yeti','Yet'];
+const MH_ZONE_FLAVOR=[
+ ['Plaza','Starter','Town','Park','Green','Spawn','Hub','Square'],
+ ['Fair','Cotton','Ferris','Carousel','Rainbow','Ticket','Carnival','Treat'],
+ ['Beach','Sand','Wave','Tide','Shell','Surf','Palm','Boardwalk'],
+ ['Crystal','Cave','Gem','Shard','Glow','Mine','Prism','Stalactite'],
+ ['Backroom','Fluoro','Hall','Liminal','Tape','Buzz','Office','Yellow'],
+ ['Sky','Cloud','Island','Float','Breeze','Nest','Drift','Feather'],
+ ['Lava','Volcano','Magma','Ash','Ember','Heat','Basalt','Flame'],
+ ['Legend','Nexus','Crown','Throne','Myth','Epic','Final','Master']
+];
+const MH_EX_STEMS=['Vault','Neon','VIP','Turbo','Shadow','Prism','Apex','Glitch','Cosmic','Hyper','Lucky','Mint','Ruby','Bubble','Pixel','Ultra','Omega','Nova','Quantum','Stellar','Mythic','Radiant','Eclipse','Phantom','Crystal','Golden','Silver','Bronze','Diamond','Platinum','Inferno','Frost','Thunder','Solar','Lunar','Aurora','Vortex','Zenith','Nimbus','Pulse'];
+const MH_EX_TAGS=['Noobie','Morph','Legend','Star','Buddy','King','Queen','Rider','Scout','Phantom','VIP','Spark','Comet','Warden','Seeker','Champion','Oracle','Sprite','Titan','Sage'];
+
+const MH_ROBLOX_PALS=[
+ {head:'#F5CD30',torso:'#0085DB',legs:'#A4BD47',arms:'#F5CD30',label:'Classic Blue Noob'},
+ {head:'#F5CD30',torso:'#C4281C',legs:'#0085DB',arms:'#F5CD30',label:'Red Torso Noob'},
+ {head:'#F5CD30',torso:'#0085DB',legs:'#C4281C',arms:'#F5CD30',label:'Red Legs Noob'},
+ {head:'#D9BC00',torso:'#0D69AC',legs:'#A3A2A5',arms:'#D9BC00',label:'Stud Blue Noob'},
+ {head:'#F5CD30',torso:'#A3A2A5',legs:'#A3A2A5',arms:'#F5CD30',label:'Grey Team Noob'},
+ {head:'#F5CD30',torso:'#0085DB',legs:'#F5CD30',arms:'#F5CD30',label:'Yellow Legs Noob'},
+ {head:'#FF98DC',torso:'#0085DB',legs:'#A4BD47',arms:'#FF98DC',label:'Pink Head Noob'},
+ {head:'#F5CD30',torso:'#008000',legs:'#0085DB',arms:'#F5CD30',label:'Green Shirt Noob'},
+ {head:'#F5CD30',torso:'#800080',legs:'#A4BD47',arms:'#F5CD30',label:'Purple Shirt Noob'},
+ {head:'#F5CD30',torso:'#0085DB',legs:'#800080',arms:'#F5CD30',label:'Purple Pants Noob'},
+ {head:'#BFA029',torso:'#004080',legs:'#6B8E23',arms:'#BFA029',label:'Ocean Builder Noob'},
+ {head:'#E0AC00',torso:'#CC0000',legs:'#004080',arms:'#E0AC00',label:'Patriot Noob'}
+];
+
 function mhHsl(i,off,s,l){
  const h=(i*137.508+off*40)%360;
  return `hsl(${Math.round(h)},${s}%,${l}%)`;
@@ -55,6 +85,38 @@ function mhPal(i){
   arms:mhHsl(i,0,72,62)
  };
 }
+function mhPick(arr,seed){ return arr[((seed%arr.length)+arr.length)%arr.length]; }
+function mhNormalName(i,wi){
+ const a=mhPick(MH_ADJS,i*5+wi*17);
+ const n=mhPick(MH_NOUNS,i*11+wi*3);
+ const z=mhPick(MH_ZONE_FLAVOR[wi],i*7+wi);
+ const p=i%5;
+ if(p===0) return a+' '+n;
+ if(p===1) return z+' '+n;
+ if(p===2) return a+' '+z+' '+n;
+ if(p===3) return n+' of '+z;
+ return a+' '+z;
+}
+function mhExclusiveName(i){
+ if(i===0) return 'Welcome Noobie';
+ if(i===1) return 'Party Noobie';
+ if(i===2) return 'Gem Crown Noobie';
+ return mhPick(MH_EX_STEMS,i*9+3)+' '+mhPick(MH_EX_TAGS,i*13+7);
+}
+function mhUniqueNames(count,fn){
+ const used=new Set();
+ const out=[];
+ for(let i=0;i<count;i++){
+  let name=fn(i);
+  let n=2;
+  while(used.has(name)){ name=fn(i)+' '+n; n++; }
+  used.add(name);
+  out.push(name);
+ }
+ return out;
+}
+const MH_NORMAL_NAMES=mhUniqueNames(MH_NORMAL_COUNT,(i)=>mhNormalName(i,Math.min(MH_WORLDS_COUNT-1,Math.floor(i/Math.ceil(MH_NORMAL_COUNT/MH_WORLDS_COUNT)))));
+const MH_EXCLUSIVE_NAMES=mhUniqueNames(MH_EXCLUSIVE_COUNT,mhExclusiveName);
 function mhSpotPos(idx,total){
  const cols=11;
  const row=Math.floor(idx/cols);
@@ -72,31 +134,39 @@ function mhBuildMorphs(){
   const wi=Math.min(MH_WORLDS_COUNT-1,Math.floor(i/perWorld));
   const idx=i-wi*perWorld;
   const pos=mhSpotPos(idx,perWorld);
-  const pal=mhPal(i);
+  const classic=MH_ROBLOX_PALS[i%MH_ROBLOX_PALS.length];
+  const pal=i%6===0?{head:classic.head,torso:classic.torso,legs:classic.legs,arms:classic.arms}:mhPal(i);
+  const name=i%6===0?classic.label:MH_NORMAL_NAMES[i];
   list.push({
    id:'n-'+i,
-   name:'Noobie #'+(i+1),
+   name,
    exclusive:false,
    world:wi,
    x:pos.x,y:pos.y,
-   scale:1,
+   scale:0.92+(i%7)*0.03,
    ...pal,
    rarity:MH_RARITY_N[i%MH_RARITY_N.length],
-   hat:i%17===0?'star':i%23===0?'crown':null
+   face:['smile','grin','o','flat','w'][i%5],
+   stripe:i%4===1,
+   glasses:i%9===2,
+   hat:i%17===0?'star':i%23===0?'crown':i%31===0?'headphones':i%29===0?'bow':null
   });
  }
  for(let i=0;i<MH_EXCLUSIVE_COUNT;i++){
-  const pal=mhPal(i+1000);
+  const pal=i%4===0?MH_ROBLOX_PALS[(i+3)%MH_ROBLOX_PALS.length]:mhPal(i+1000);
   list.push({
    id:'ex-'+i,
-   name:i===0?'Welcome Noobie':i===1?'Party Noobie':i===2?'Gem Crown Noobie':'Exclusive Noobie #'+(i+1),
+   name:MH_EXCLUSIVE_NAMES[i],
    exclusive:true,
    world:MH_WORLDS_COUNT,
    x:50,y:40,
    scale:1.05+(i%5)*0.02,
-   ...pal,
+   head:pal.head||pal.torso,torso:pal.torso,legs:pal.legs,arms:pal.arms||pal.head,
    rarity:i<12?'secret':i<40?'legendary':'exclusive',
-   hat:i%7===0?'gem':i%5===0?'party':i%3===0?'crown':null,
+   face:['grin','smile','o'][i%3],
+   stripe:i%3===0,
+   glasses:i%5===1,
+   hat:i%7===0?'gem':i%5===0?'party':i%3===0?'crown':i%11===0?'star':null,
    vaultOnly:true
   });
  }
@@ -182,6 +252,14 @@ function mhWorldComplete(save,wi){
  return need.length>0&&need.every(m=>mhHasMorph(save,m.id));
 }
 
+function mhFacePath(face){
+ if(face==='grin') return '<path d="M40 29 Q50 36 60 29" stroke="#1a1a20" stroke-width="2" fill="none"/><rect x="46" y="31" width="8" height="3" rx="1" fill="#fff" opacity=".85"/>';
+ if(face==='o') return '<ellipse cx="50" cy="31" rx="4" ry="5" fill="none" stroke="#1a1a20" stroke-width="1.8"/>';
+ if(face==='flat') return '<line x1="43" y1="31" x2="57" y2="31" stroke="#1a1a20" stroke-width="2" stroke-linecap="round"/>';
+ if(face==='w') return '<path d="M42 28 L46 32 L50 28 L54 32 L58 28" stroke="#1a1a20" stroke-width="1.6" fill="none" stroke-linecap="round"/>';
+ return '<path d="M42 30 Q50 34 58 30" stroke="#1a1a20" stroke-width="1.8" fill="none" stroke-linecap="round"/>';
+}
+
 /** Full R6-style body (head, torso, arms, legs) */
 function mhClassicNoobSvg(m){
  if(!m) return '';
@@ -192,18 +270,24 @@ function mhClassicNoobSvg(m){
  if(m.hat==='wave') hat='<text x="68" y="18" font-size="12">👋</text>';
  if(m.hat==='party') hat='<circle cx="40" cy="8" r="4" fill="#ff4080"/><circle cx="60" cy="10" r="3" fill="#40c0ff"/>';
  if(m.hat==='gem') hat='<polygon points="50,0 58,14 50,20 42,14" fill="#80e0ff" stroke="#fff" stroke-width="1"/>';
+ if(m.hat==='headphones') hat='<path d="M32 24 Q32 8 50 8 Q68 8 68 24" fill="none" stroke="#303840" stroke-width="4"/><rect x="28" y="22" width="8" height="14" rx="2" fill="#404850"/><rect x="64" y="22" width="8" height="14" rx="2" fill="#404850"/>';
+ if(m.hat==='bow') hat='<polygon points="50,10 58,4 58,16" fill="#ff5090"/><polygon points="50,10 42,4 42,16" fill="#ff5090"/><circle cx="50" cy="10" r="3" fill="#ffc0d8"/>';
+ const stripe=m.stripe?`<rect x="30" y="48" width="40" height="7" fill="rgba(255,255,255,.28)"/><rect x="30" y="58" width="40" height="5" fill="rgba(0,0,0,.12)"/>`:'';
+ const glasses=m.glasses?'<rect x="36" y="18" width="11" height="9" rx="2" fill="rgba(200,230,255,.35)" stroke="#1a1a20" stroke-width="1.2"/><rect x="53" y="18" width="11" height="9" rx="2" fill="rgba(200,230,255,.35)" stroke="#1a1a20" stroke-width="1.2"/><line x1="47" y1="22" x2="53" y2="22" stroke="#1a1a20" stroke-width="1.2"/>':'';
  return `<g>
   <ellipse cx="50" cy="124" rx="22" ry="4" fill="#000" opacity=".2"/>
   <rect x="32" y="66" width="16" height="34" rx="2" fill="${l}"/>
   <rect x="52" y="66" width="16" height="34" rx="2" fill="${l}"/>
   <rect x="30" y="40" width="40" height="28" rx="3" fill="${t}"/>
+  ${stripe}
   <rect x="14" y="42" width="14" height="28" rx="2" fill="${a}"/>
   <rect x="72" y="42" width="14" height="28" rx="2" fill="${a}"/>
   <rect x="33" y="8" width="34" height="34" rx="4" fill="${h}"/>
   <rect x="35" y="10" width="14" height="10" rx="2" fill="#fff" opacity=".12"/>
   <circle cx="42" cy="22" r="3" fill="#1a1a20"/><circle cx="58" cy="22" r="3" fill="#1a1a20"/>
   <circle cx="43" cy="21" r="1" fill="#fff" opacity=".5"/><circle cx="59" cy="21" r="1" fill="#fff" opacity=".5"/>
-  <path d="M42 30 Q50 34 58 30" stroke="#1a1a20" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+  ${glasses}
+  ${mhFacePath(m.face||'smile')}
   ${hat}
  </g>`;
 }
@@ -363,8 +447,10 @@ function mhRenderHunt(save, wi){
  const spots=morphs.map(m=>{
   const got=mhHasMorph(save,m.id);
   const r=MH_RARITY[m.rarity]||MH_RARITY.common;
-  return `<button type="button" class="mh-spot${got?' got':''}" style="left:${m.x}%;top:${m.y}%;--mh-glow:${r.glow};--mh-rarity:${r.color};--mh-scale:${m.scale||1}" data-mh-id="${m.id}" title="${got?'Tap to morph':'Find!'}">
+  const label=got?m.name:'???';
+  return `<button type="button" class="mh-spot${got?' got':''}" style="left:${m.x}%;top:${m.y}%;--mh-glow:${r.glow};--mh-rarity:${r.color};--mh-scale:${m.scale||1}" data-mh-id="${m.id}" title="${got?m.name+' — tap to morph':'Hidden noobie — tap to find!'}">
    <svg viewBox="0 0 100 130" class="mh-spot-svg">${mhClassicNoobSvg(m)}</svg>
+   <span class="mh-spot-label">${label}</span>
    ${got?'<span class="mh-spot-check">✓</span>':''}
   </button>`;
  }).join('');
@@ -400,7 +486,7 @@ function mhRenderIndex(save){
   const r=MH_RARITY[m.rarity]||MH_RARITY.common;
   return `<div class="mh-codex-card${got?' got':''}" style="--mh-rarity:${r.color}">
    <div class="mh-codex-art">${got?`<svg viewBox="0 0 100 130">${mhClassicNoobSvg(m)}</svg>`:'<div class="mh-silhouette">?</div>'}</div>
-   <div class="mh-codex-meta"><b>${got?m.name:'???'}</b><span class="mh-codex-rarity">${m.exclusive?'Exclusive':r.label}</span></div>
+   <div class="mh-codex-meta"><b class="mh-noob-name">${got?m.name:'???'}</b><span class="mh-codex-rarity">${m.exclusive?'Exclusive':r.label}</span></div>
   </div>`;
  }).join('');
  return `<div class="mh-index">
