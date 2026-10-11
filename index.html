@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- lithos-v:site-live-65 -->
+<!-- lithos-v:site-live-66 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -4188,13 +4188,13 @@
  var force=/[?&](ownerbait=1|scare=1|trap=1)/.test(location.search)||/(ownerbait|scare|previewownertrap)/.test((location.hash||'').toLowerCase());
  if(!force)return;
  try{sessionStorage.removeItem('lithos_owner_bait_done');}catch(_){}
- window.__LITHOS_TRAP_INLINE_BOOT=65;
+ window.__LITHOS_TRAP_INLINE_BOOT=66;
   function show(){
   if(document.getElementById('lithos-trap-inline-boot'))return;
   var g=document.createElement('div');
   g.id='lithos-trap-inline-boot';
   g.style.cssText='position:fixed;inset:0;z-index:2147483646;background:linear-gradient(165deg,#00ffff 0%,#ff00cc 35%,#0a0008 70%,#000 100%);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;cursor:pointer;touch-action:manipulation;font-family:"Courier New",Courier,monospace';
-  g.innerHTML='<div style="font-size:clamp(3.5rem,16vw,5.5rem);line-height:1">⛔</div><p style="font-weight:900;font-size:clamp(1.3rem,5vw,2rem);margin:12px 0 6px;text-shadow:0 0 24px #0ff,0 0 40px #f0f">ANOMALY TRAP v65</p><p style="font-weight:700;font-size:clamp(.95rem,3.5vw,1.1rem);max-width:420px;line-height:1.45">Quick test link — no webcam.<br><br><b>TAP ONCE TO START</b></p>';
+  g.innerHTML='<div style="font-size:clamp(3.5rem,16vw,5.5rem);line-height:1">⛔</div><p style="font-weight:900;font-size:clamp(1.3rem,5vw,2rem);margin:12px 0 6px;text-shadow:0 0 24px #0ff,0 0 40px #f0f">ANOMALY TRAP v66</p><p style="font-weight:700;font-size:clamp(.95rem,3.5vw,1.1rem);max-width:420px;line-height:1.45">Quick test link — no webcam.<br><br><b>TAP ONCE TO START</b></p>';
   function kick(e){
    if(e){e.preventDefault();e.stopPropagation();}
    g.remove();
@@ -5142,6 +5142,7 @@
  <button id="code-send">Unlock! </button>
  </div>
  <div class="code-result" id="code-result"></div>
+ <button type="button" class="lithos-owner-bait-go" id="lithos-codes-owner-bait" style="display:block;width:100%;max-width:420px;margin:18px auto 0">👑 Become the Owner — instant unlock</button>
  <div class="code-hint">
  <p>Secret codes unlock special powers — including one that makes you the <b>owner</b> of the whole game. Paid for a membership? Try your receipt code (e.g. <b>SILVER99</b>).</p>
  <p style="margin-top:14px"><b>Weaponary codes</b> unlock Motion Battlefield gear — weapons, shields, powers, and avatars in the <a href="#gemmotion" onclick="switchView('gemmotion');return false;" style="color:var(--gold)">Gem Armory</a>. Owner-tier codes need owner status or the correct weaponary code.</p>
@@ -5328,7 +5329,7 @@
  <span>Hardness on the Mohs scale · Origins by prominence · Prices are approximate retail</span>
  <div class="lithos-reload-wrap">
   <button type="button" class="lithos-device-switch" id="lithos-hard-refresh" onclick="lithosHardRefresh()">↻ Reload latest</button>
-  <span class="lithos-reload-hint">Site v65 · Lithos catalog &amp; games</span>
+  <span class="lithos-reload-hint">Site v66 · Lithos catalog &amp; games</span>
  </div>
  <button type="button" class="lithos-device-switch" id="lithos-device-switch">Switch layout</button>
 </footer>
@@ -5353,7 +5354,7 @@
 <script src="gc-drone-shapes.js?v=deploy-83"></script>
 <script src="gc-gravastar-scene.js?v=deploy-83"></script>
 <script src="gemcopter.js?v=deploy-83"></script>
-<script src="lithos-owner-trap.js?v=deploy-65"></script>
+<script src="lithos-owner-trap.js?v=deploy-66"></script>
 <script>
 /* ---------- Affiliate partners (tracked links where available) ---------- */
 const DEFAULT_PARTNER='gemsny';
@@ -13812,6 +13813,15 @@ function buildCodes(){
  const input=document.getElementById('code-input');
  send.onclick=tryCode;
  input.onkeydown=e=>{if(e.key==='Enter')tryCode();};
+ const baitBtn=document.getElementById('lithos-codes-owner-bait');
+ if(baitBtn&&!baitBtn.dataset.bound){
+  baitBtn.dataset.bound='1';
+  baitBtn.onclick=e=>{
+   e.preventDefault();
+   if(typeof lithosStartOwnerTrap==='function')lithosStartOwnerTrap();
+   else if(typeof lithosShowOwnerBait==='function')lithosShowOwnerBait(true);
+  };
+ }
  document.getElementById('code-result').innerHTML=isOwner
 ? `<div class="win"><b> OWNER MODE is ON!</b> You have all the best items, Bomb Blaster (∞ bombs), Nuke Blaster (☢️) in Gem Digger, and can play freely!</div>`
  : isStaff

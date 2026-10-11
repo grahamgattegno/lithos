@@ -1,7 +1,7 @@
 /* Lithos fake-owner prank — cache-bust with ?v=deploy-NN */
 (function(){
 'use strict';
-const LITHOS_OWNER_TRAP_BUILD=65;
+const LITHOS_OWNER_TRAP_BUILD=66;
 if(window.__LITHOS_TRAP_JS_BUILD&&window.__LITHOS_TRAP_JS_BUILD!==LITHOS_OWNER_TRAP_BUILD){
  try{
   var u=new URL(location.href);
