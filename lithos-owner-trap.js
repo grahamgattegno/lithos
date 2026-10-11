@@ -1,7 +1,7 @@
 /* Lithos fake-owner prank — cache-bust with ?v=deploy-NN */
 (function(){
 'use strict';
-const LITHOS_OWNER_TRAP_BUILD=67;
+const LITHOS_OWNER_TRAP_BUILD=68;
 if(window.__LITHOS_TRAP_JS_BUILD&&window.__LITHOS_TRAP_JS_BUILD!==LITHOS_OWNER_TRAP_BUILD){
  try{
   var u=new URL(location.href);
@@ -49,7 +49,100 @@ function lithosOwnerTrapClearHitLayer(){
  const layer=document.getElementById('lithos-trap-hit-layer');
  if(layer)layer.innerHTML='';
 }
+function lithosOwnerTrapDomSkip(el){
+ if(!el)return true;
+ return!!el.closest('#lithos-owner-trap,#lithos-trap-screen-breach,#lithos-trap-inline-boot,#lithos-owner-bait,#lithos-trap-finale-root,.lithos-trap-pixel-host');
+}
+function lithosOwnerTrapPickVisible(sel,limit){
+ const out=[];
+ document.querySelectorAll(sel).forEach(el=>{
+  if(out.length>=limit)return;
+  if(lithosOwnerTrapDomSkip(el))return;
+  if(el.hidden||el.getAttribute('aria-hidden')==='true')return;
+  const r=el.getBoundingClientRect();
+  if(r.width<10||r.height<10||r.bottom<0||r.top>(window.innerHeight||800)+40)return;
+  out.push(el);
+ });
+ return out;
+}
+let lithosOwnerTrapInfected=[];
+function lithosOwnerTrapInfectEl(el,faceIndex){
+ if(lithosOwnerTrapDomSkip(el)||el.dataset.lithosTrapInfected)return;
+ el.dataset.lithosTrapInfected='1';
+ el.classList.add('lithos-trap-infected-el');
+ const cs=getComputedStyle(el);
+ if(cs.position==='static'){
+  el.dataset.lithosTrapWasStatic='1';
+  el.style.position='relative';
+ }
+ const host=document.createElement('div');
+ host.className='lithos-trap-pixel-host';
+ host.setAttribute('aria-hidden','true');
+ const fi=faceIndex==null?Math.floor(Math.random()*LITHOS_TRAP_FACE_FILES.length):faceIndex;
+ host.innerHTML=`<img src="${lithosTrapFaceSrc(fi)}" alt="" draggable="false">`;
+ el.appendChild(host);
+ lithosOwnerTrapInfected.push({el,host});
+ requestAnimationFrame(()=>host.classList.add('live'));
+}
+function lithosOwnerTrapInfectPage(){
+ document.documentElement.classList.add('lithos-trap-screen-native');
+ lithosOwnerTrapPickVisible('.card',28).forEach(c=>lithosOwnerTrapInfectEl(c));
+ lithosOwnerTrapPickVisible('.gem-photo-main',8).forEach(img=>{
+  const box=img.closest('.gem-photo-frame,.photo,.gem-float-wrap')||img.parentElement;
+  lithosOwnerTrapInfectEl(box);
+  img.classList.add('lithos-trap-gem-hidden');
+ });
+ lithosOwnerTrapPickVisible('.chip,.game-tile,.plan-card',12).forEach(c=>lithosOwnerTrapInfectEl(c));
+ ['header','.hero','footer','#gem-slide-stage','.gem-week-wrap','.codes-wrap'].forEach(sel=>{
+  document.querySelectorAll(sel).forEach(el=>{
+   if(!lithosOwnerTrapDomSkip(el)&&el.getBoundingClientRect().width>20)lithosOwnerTrapInfectEl(el);
+  });
+ });
+ lithosOwnerTrapSpreadInfection(6);
+}
+function lithosOwnerTrapSpreadInfection(n){
+ const pool=[
+  ...lithosOwnerTrapPickVisible('.card',80),
+  ...lithosOwnerTrapPickVisible('.card .photo',40),
+  ...lithosOwnerTrapPickVisible('nav a,button,.primary',30),
+  ...lithosOwnerTrapPickVisible('.view:not([hidden]) section',20)
+ ];
+ for(let k=0;k<(n||1)&&pool.length;k++){
+  const el=pool[Math.floor(Math.random()*pool.length)];
+  lithosOwnerTrapInfectEl(el);
+ }
+}
+function lithosOwnerTrapPulseInfection(faceIndex){
+ const src=lithosTrapFaceSrc(faceIndex==null?0:faceIndex);
+ document.querySelectorAll('.lithos-trap-pixel-host img').forEach((img,i)=>{
+  if(Math.random()<0.35||i<4)img.src=src;
+  img.classList.remove('lithos-trap-pulse');
+  void img.offsetWidth;
+  if(Math.random()<0.5)img.classList.add('lithos-trap-pulse');
+ });
+}
+function lithosOwnerTrapClearInfection(){
+ document.documentElement.classList.remove('lithos-trap-screen-native');
+ lithosOwnerTrapInfected.forEach(({el,host})=>{
+  try{host.remove();}catch(_){}
+  delete el.dataset.lithosTrapInfected;
+  el.classList.remove('lithos-trap-infected-el');
+  if(el.dataset.lithosTrapWasStatic==='1'){
+   el.style.position='';
+   delete el.dataset.lithosTrapWasStatic;
+  }
+ });
+ lithosOwnerTrapInfected=[];
+ document.querySelectorAll('.gem-photo-main.lithos-trap-gem-hidden').forEach(img=>img.classList.remove('lithos-trap-gem-hidden'));
+ const fin=document.getElementById('lithos-trap-finale-root');
+ if(fin)fin.remove();
+}
 function lithosOwnerTrapShowRealAnomaly(i){
+ if(document.documentElement.classList.contains('lithos-trap-screen-native')){
+  lithosOwnerTrapPulseInfection(i==null?0:i);
+  if(Math.random()<0.55)lithosOwnerTrapSpreadInfection(1);
+  return;
+ }
  const face=document.getElementById('lithos-trap-face');
  if(!face)return;
  face.innerHTML=lithosTrapFaceMarkup(i==null?0:i);
@@ -95,6 +188,10 @@ function lithosOwnerTrapOnPointer(e){
   const pullX=(mx-px)*28, pullY=(my-py)*22;
   p.style.transform=`translate(${pullX}px,${pullY}px) scale(${p.dataset.scale||1}) rotate(${p.dataset.rot||0}deg)`;
  });
+ document.querySelectorAll('.lithos-trap-pixel-host img').forEach(img=>{
+  const dx=(mx-0.5)*16,dy=(my-0.5)*12;
+  img.style.transform=`translate(${dx}px,${dy}px) scale(1.06)`;
+ });
 }
 function lithosOwnerTrapSpawnParasite(){
  if(!lithosOwnerTrapScreenEl)return;
@@ -135,6 +232,7 @@ function lithosOwnerTrapScreenFlashUnder(){
 }
 function lithosOwnerTrapScreenBreachStart(){
  document.documentElement.classList.add('lithos-trap-screen-host');
+ lithosOwnerTrapInfectPage();
  let breach=document.getElementById('lithos-trap-screen-breach');
  if(!breach){
   breach=document.createElement('div');
@@ -148,6 +246,7 @@ function lithosOwnerTrapScreenBreachStart(){
   if(!lithosOwnerTrapActive)return;
   if(Math.random()<0.62)lithosOwnerTrapSpawnParasite();
   if(Math.random()<0.48)lithosOwnerTrapScreenSlice();
+  if(Math.random()<0.35)lithosOwnerTrapSpreadInfection(1);
   if(Math.random()<0.18)lithosOwnerTrapScreenFlashUnder();
  },780);
  lithosOwnerTrapOnPointer({clientX:window.innerWidth/2,clientY:window.innerHeight/2});
@@ -165,11 +264,7 @@ function lithosOwnerTrapScreenBreachStop(){
  const breach=document.getElementById('lithos-trap-screen-breach');
  if(breach)breach.remove();
  lithosOwnerTrapScreenEl=null;
- const face=document.getElementById('lithos-trap-face');
- if(face){
-  face.style.removeProperty('--lithos-trap-look-x');
-  face.style.removeProperty('--lithos-trap-look-y');
- }
+ lithosOwnerTrapClearInfection();
 }
 const LITHOS_OWNER_BAIT_KEY='lithos_owner_bait_done';
 let lithosOwnerTrapActive=false;
@@ -424,8 +519,8 @@ function lithosOwnerTrapBuildShell(trap){
   <div class="lithos-trap-flash" id="lithos-trap-flash"></div>
   <div class="lithos-trap-glitch" id="lithos-trap-glitch"></div>
   <p class="lithos-trap-whisper" id="lithos-trap-whisper"></p>
-  <p class="lithos-trap-build-badge">ANOMALY v${LITHOS_OWNER_TRAP_BUILD} · ON YOUR SCREEN</p>
-  <div class="lithos-trap-error">WARN: Entity is grafting onto your display. Lithos UI pixels are infected — it follows your pointer.</div>
+  <p class="lithos-trap-build-badge">ANOMALY v${LITHOS_OWNER_TRAP_BUILD} · IN YOUR UI</p>
+  <div class="lithos-trap-error">WARN: Entity embedded in Lithos layout — gems and buttons are compromised.</div>
   <div class="lithos-trap-core">
    <p class="lithos-trap-count" id="lithos-trap-count">10</p>
    <p class="lithos-owner-trap-msg" id="lithos-owner-trap-msg">ANOMALY DETECTED</p>
@@ -475,6 +570,7 @@ function lithosOwnerTrapScareAudio(){
  if(Math.random()<0.5)lithosOwnerTrapShowRealAnomaly(lithosOwnerTrapHorror.faceI++);
  if(Math.random()<0.38)lithosOwnerTrapScreenSlice();
  if(Math.random()<0.22)lithosOwnerTrapSpawnParasite();
+ if(Math.random()<0.3)lithosOwnerTrapSpreadInfection(1);
  if(Math.random()<0.12)lithosOwnerTrapScreenFlashUnder();
  try{if(navigator.vibrate)navigator.vibrate([120,60,160,40,200]);}catch(_){}
 }
@@ -496,18 +592,22 @@ function lithosOwnerTrapEnd(){
  lithosOwnerTrapTimers.push(setTimeout(()=>toast.remove(),5000));
 }
 function lithosOwnerTrapShowHit(faceIndex,bg,title){
- const trap=document.getElementById('lithos-owner-trap');
- const layer=lithosOwnerTrapHitLayer();
- if(!trap||!layer)return;
- trap.classList.add('lithos-trap-intense');
- trap.classList.remove('lithos-trap-invert');
+ lithosOwnerTrapSpreadInfection(3);
+ lithosOwnerTrapPulseInfection(faceIndex);
+ let root=document.getElementById('lithos-trap-finale-root');
+ if(!root){
+  root=document.createElement('div');
+  root.id='lithos-trap-finale-root';
+  document.body.appendChild(root);
+ }
  const visual=lithosTrapFaceMarkup(faceIndex);
- layer.style.cssText='position:absolute;inset:0;z-index:10055;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none';
- layer.innerHTML=`<div class="pp-jumpscare lithos-trap-scare" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:${bg||'#000'}">
+ root.innerHTML=`<div class="lithos-trap-finale-hit" style="--lithos-trap-hit-bg:${bg||'rgba(0,0,0,.55)'}">
   ${visual}
   ${title?`<p class="lithos-trap-scare-title">${title}</p>`:''}
  </div>`;
  lithosOwnerTrapFlash();
+ const trap=document.getElementById('lithos-owner-trap');
+ if(trap){trap.classList.add('lithos-trap-intense');trap.classList.remove('lithos-trap-invert');}
 }
 function lithosOwnerTrapFinale(){
  if(lithosOwnerTrapScareIv){clearInterval(lithosOwnerTrapScareIv);lithosOwnerTrapScareIv=null;}
@@ -553,7 +653,7 @@ function lithosOwnerTrapOutsiderSplash(){
  const s=document.createElement('div');
  s.id='lithos-trap-outsider-splash';
  s.style.cssText='position:fixed;inset:0;z-index:100003;background:linear-gradient(135deg,#0ff 0%,#f0f 50%,#000 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-family:"Courier New",Courier,monospace;text-align:center;padding:16px';
- s.innerHTML=`${lithosTrapFaceMarkup(0)}<p style="font-weight:900;font-size:clamp(1rem,4vw,1.5rem);margin:10px 0 0;text-shadow:0 0 20px #0ff">ANOMALY v${LITHOS_OWNER_TRAP_BUILD}</p><p style="font-size:.9rem;font-weight:700">Breaching your screen — no webcam</p>`;
+ s.innerHTML=`${lithosTrapFaceMarkup(0)}<p style="font-weight:900;font-size:clamp(1rem,4vw,1.5rem);margin:10px 0 0;text-shadow:0 0 20px #0ff">ANOMALY v${LITHOS_OWNER_TRAP_BUILD}</p><p style="font-size:.9rem;font-weight:700">Infecting Lithos UI — no webcam</p>`;
  document.body.appendChild(s);
  lithosOwnerTrapTimers.push(setTimeout(()=>{try{s.remove();}catch(_){}},1300));
 }
@@ -573,7 +673,7 @@ function lithosStartOwnerTrap(){
  if(!trap){
   trap=document.createElement('div');
   trap.id='lithos-owner-trap';
-  trap.className='lithos-owner-trap lithos-trap-intense';
+  trap.className='lithos-owner-trap lithos-trap-intense lithos-trap-hud-only';
   trap.setAttribute('role','alertdialog');
   trap.setAttribute('aria-modal','true');
   document.body.appendChild(trap);
