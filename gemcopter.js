@@ -1,7 +1,8 @@
 /* Gem Copter — helicopter + gemstone turret vs gem zombies, bosses, upgrades, 10 maps */
 (function(){
 'use strict';
-const GEM_COPTER_BUILD=67;
+const GEM_COPTER_BUILD=68;
+const GC_BULLET_LINES=5;
 
 const gcSfx=(()=>{
  let ctx=null,gain=null,lastBoom=0,lastHit=0,lastGroan=0,lastPew=0,lastWhoosh=0,audioReady=false;
@@ -152,7 +153,10 @@ function gcHeliMissileInterval(s){
 function gcHeliMissileDamage(s){
  const h=s.heli;
  const mult=(s.upgrades?.missileMult||1)*(h?.missileMult||1);
- return (gcHeliMissileMode(h)==='dual'?95:72)*mult+s.map.id*8;
+ return ((gcHeliMissileMode(h)==='dual'?78:58)*mult+s.map.id*6)*0.85;
+}
+function gcLaneSpacing(u){
+ return u.laneSpread||14;
 }
 
 let gcPickHeli='scout';
@@ -216,7 +220,7 @@ const GC_MAPS=[
 const GC_UPGRADES=[
  {id:'firerate',name:'Rapid Crystal',desc:'Shoot faster',max:5,cost:40,fn:u=>{u.cooldown=Math.max(0.05,0.12-u.levels.firerate*0.014);}},
  {id:'damage',name:'Harder Gems',desc:'More bullet damage',max:5,cost:45,fn:u=>{u.damage=10+u.levels.damage*6;}},
- {id:'spread',name:'Prism Spread',desc:'Extra side shots',max:3,cost:70,fn:u=>{u.spread=u.levels.spread;}},
+ {id:'spread',name:'Wide Volley',desc:'Widen the 5 bullet lines',max:3,cost:70,fn:u=>{u.laneSpread=14+u.levels.spread*7;}},
  {id:'armor',name:'Jade Hull',desc:'More helicopter HP',max:5,cost:50,fn:u=>{u.maxHp=100+u.levels.armor*25;}},
  {id:'speed',name:'Spinel Thrusters',desc:'Fly faster',max:4,cost:40,fn:u=>{u.speed=220+u.levels.speed*35;}},
  {id:'magnet',name:'Lode Magnet',desc:'Pick up gems from farther',max:3,cost:35,fn:u=>{u.magnet=40+u.levels.magnet*30;}}
@@ -228,7 +232,7 @@ const GC_OWNER_UPGRADES=[
  {id:'titan',name:'Titan Plating',ownerOnly:true,desc:'+100 hull per level',max:5,cost:55,fn:u=>{u.maxHp=100+(u.levels.armor||0)*25+(u.levels.titan||0)*100;}},
  {id:'warpath',name:'Warpath Command',ownerOnly:true,desc:'Ground squad shoots harder',max:3,cost:40,fn:u=>{u.militaryMult=1+(u.levels.warpath||0)*0.5;}},
  {id:'stragem',name:'Stragem Missiles',ownerOnly:true,desc:'Missile power & faster salvo',max:4,cost:55,fn:u=>{u.missileMult=1+(u.levels.stragem||0)*0.6;u.missileInterval=Math.max(0.32,0.85-(u.levels.stragem||0)*0.13);}},
- {id:'prism',name:'Prism Crown',ownerOnly:true,desc:'+2 extra spread beams per level',max:2,cost:70,fn:u=>{u.spread=Math.min(8,(u.levels.spread||0)+(u.levels.prism||0)*2);}}
+ {id:'prism',name:'Prism Crown',ownerOnly:true,desc:'Extra-wide 5-line volley',max:2,cost:70,fn:u=>{u.laneSpread=14+(u.levels.spread||0)*7+(u.levels.prism||0)*10;}}
 ];
 
 let gcRaf=null, gcKeys={}, gcPointer={x:GC_W/2,y:GC_H/2,down:false}, gcState=null;
@@ -236,7 +240,7 @@ let gcRaf=null, gcKeys={}, gcPointer={x:GC_W/2,y:GC_H/2,down:false}, gcState=nul
 function gcDefaultUpgrades(){
  return {
   levels:{firerate:0,damage:0,spread:0,armor:0,speed:0,magnet:0,auric:0,devastator:0,titan:0,warpath:0,stragem:0,prism:0},
-  cooldown:0.12,damage:10,spread:0,maxHp:100,speed:220,magnet:40,
+  cooldown:0.16,damage:8,spread:0,laneSpread:14,maxHp:100,speed:220,magnet:40,
   militaryMult:1,missileMult:1,missileInterval:0.85
  };
 }
@@ -316,7 +320,7 @@ function playGemCopter(){
     <div class="gc-heli-grid" id="gc-heli-grid"></div>
     <div class="gc-map-grid" id="gc-map-grid"></div>
     <p class="gc-version-banner" id="gc-version-banner">Build ${GEM_COPTER_BUILD} — pick a helicopter, then a map ↓</p>
-    <p class="gc-hint">WASD fly · mouse aim · Space fire · homing missiles auto · <b>E</b> extra salvo · Esc quit</p>
+    <p class="gc-hint">WASD fly · aim · Space fires <b>5 straight bullet lines</b> · missiles auto · <b>E</b> salvo · Esc quit</p>
    </div>
    <div id="gc-play" hidden>
     <div class="gc-play-frame">
@@ -466,7 +470,7 @@ function gcInitMilitary(s){
  s.military=xs.map((f,i)=>({
   x:GC_W*f,y:gy-6,gy,
   fireT:0.12+i*0.09,t:Math.random()*6,face:1,aim:0,
-  hp:80,r:14,dmg:9+s.map.id,range:340
+  hp:80,r:14,dmg:4+Math.round(s.map.id*0.9),range:340
  }));
 }
 
@@ -475,10 +479,10 @@ function gcSpawnZombie(elite){
  const gy=gcGroundY();
  const fromLeft=Math.random()<0.5;
  const x=fromLeft?-28:GC_W+28;
- const hp=(elite?62:24)+s.map.id*7+s.wave*3;
+ const hp=(elite?130:52)+s.map.id*18+s.wave*12;
  s.zombies.push({
   x,y:gy,gy,hp,maxHp:hp,elite:!!elite,
-  speed:(elite?82:102)+Math.random()*32+s.map.id*4,
+  speed:(elite?68:82)+Math.random()*22+s.map.id*2,
   r:elite?22:16, hurt:0, t:Math.random()*6, face:1
  });
 }
@@ -496,7 +500,7 @@ function gcSpawnBoss(){
 
 function gcStartWave(){
  const s=gcState;
- s.spawnLeft=16+s.wave*6+s.map.id*4;
+ s.spawnLeft=22+s.wave*8+s.map.id*5;
  s.spawnGap=0.22;
  s.waveT=0;
  if(s.wave===s.map.waves) gcSpawnBoss();
@@ -545,18 +549,19 @@ function gcFire(){
  if(s.fireT>0)return;
  s.fireT=u.cooldown;
  const ang=Math.atan2(gcPointer.y-s.y, gcPointer.x-s.x);
- const shots=[{ang}];
- for(let i=1;i<=u.spread;i++){
-  shots.push({ang:ang-0.14*i});
-  shots.push({ang:ang+0.14*i});
- }
- shots.forEach(sh=>{
+ const perp=ang+Math.PI/2;
+ const spacing=gcLaneSpacing(u);
+ const mid=(GC_BULLET_LINES-1)/2;
+ const bulletDmg=Math.max(3,Math.round(u.damage*0.38));
+ for(let i=0;i<GC_BULLET_LINES;i++){
+  const off=(i-mid)*spacing;
+  const ox=Math.cos(perp)*off, oy=Math.sin(perp)*off;
   s.bullets.push({
-   x:s.x, y:s.y-8,
-   vx:Math.cos(sh.ang)*520, vy:Math.sin(sh.ang)*520,
-   life:1.2, dmg:u.damage, r:4
+   x:s.x+ox, y:s.y-8+oy,
+   vx:Math.cos(ang)*540, vy:Math.sin(ang)*540,
+   life:1.45, dmg:bulletDmg, r:3, line:true, ang
   });
- });
+ }
  gcSfx.pew();
 }
 
@@ -590,13 +595,13 @@ function gcUpdate(dt){
    return;
   }
  }
- const maxZ=24+s.wave*3+s.map.id*3;
+ const maxZ=34+s.wave*4+s.map.id*4;
  if(s.spawnLeft>0&&s.zombies.length<maxZ){
   s.spawnGap-=dt;
   if(s.spawnGap<=0){
-   gcSpawnZombie(s.spawnLeft%7===0);
+   gcSpawnZombie(s.spawnLeft%5===0);
    s.spawnLeft--;
-   s.spawnGap=Math.max(0.06,0.34-s.wave*0.028);
+   s.spawnGap=Math.max(0.12,0.48-s.wave*0.022);
   }
  }
  if(s.military){
@@ -996,6 +1001,19 @@ function gcDraw(){
   ctx.restore();
  });
  s.bullets.forEach(bu=>{
+  if(bu.line){
+   const a=bu.ang!=null?bu.ang:Math.atan2(bu.vy,bu.vx);
+   const len=26;
+   ctx.strokeStyle=bu.ally?'#7dff9a':m.accent;
+   ctx.lineWidth=3; ctx.lineCap='round';
+   ctx.globalAlpha=0.92;
+   ctx.beginPath();
+   ctx.moveTo(bu.x,bu.y);
+   ctx.lineTo(bu.x-Math.cos(a)*len,bu.y-Math.sin(a)*len);
+   ctx.stroke();
+   ctx.globalAlpha=1;
+   return;
+  }
   ctx.fillStyle=bu.enemy?'#ff6080':(bu.ally?'#7dff9a':m.accent);
   ctx.beginPath(); ctx.arc(bu.x,bu.y,bu.r,0,Math.PI*2); ctx.fill();
  });
@@ -1082,9 +1100,21 @@ function gcDraw(){
  ctx.beginPath(); ctx.arc(8,0,6,0,Math.PI*2); ctx.fill();
  ctx.restore();
 
- // aim laser
- ctx.strokeStyle=m.accent; ctx.globalAlpha=0.25; ctx.setLineDash([6,6]);
- ctx.beginPath(); ctx.moveTo(s.x,s.y-8); ctx.lineTo(gcPointer.x,gcPointer.y); ctx.stroke();
+ // five parallel aim lines
+ const aimAng=Math.atan2(gcPointer.y-s.y,gcPointer.x-s.x);
+ const aimPerp=aimAng+Math.PI/2;
+ const aimLen=Math.min(420,Math.hypot(gcPointer.x-s.x,gcPointer.y-s.y)+80);
+ const laneGap=gcLaneSpacing(s.upgrades);
+ const laneMid=(GC_BULLET_LINES-1)/2;
+ ctx.strokeStyle=m.accent; ctx.globalAlpha=0.22; ctx.setLineDash([8,8]); ctx.lineWidth=2;
+ for(let i=0;i<GC_BULLET_LINES;i++){
+  const off=(i-laneMid)*laneGap;
+  const sx=s.x+Math.cos(aimPerp)*off, sy=s.y-8+Math.sin(aimPerp)*off;
+  ctx.beginPath();
+  ctx.moveTo(sx,sy);
+  ctx.lineTo(sx+Math.cos(aimAng)*aimLen,sy+Math.sin(aimAng)*aimLen);
+  ctx.stroke();
+ }
  ctx.setLineDash([]); ctx.globalAlpha=1;
  ctx.fillStyle='rgba(125,255,212,.85)'; ctx.font='10px monospace'; ctx.textAlign='left';
  const mm=gcHeliMissileMode(s.heli);
