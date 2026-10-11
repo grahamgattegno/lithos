@@ -1,0 +1,578 @@
+<!DOCTYPE html><html lang="en-GB" dir="ltr" data-critters-container="" class="hydrated"><head><script async="" src="https://www.googletagmanager.com/gtag/js?id=G-FL4D9VNQ5R"></script>
+  <meta charset="utf-8"><style data-styles="">awin-interstitial-ui{visibility:hidden}.hydrated{visibility:inherit}</style><style data-styles="">platform-walkthrough-component{visibility:hidden}.hydrated{visibility:inherit}</style>
+  <title>Awin</title>
+  <base href="/idp/en/">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="google-site-verification" content="fwM6dGDsBxDav88DtFqz7IY4mYLMT6bBd2cf7ZUQrtw">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="stylesheet" type="text/css" id="theme" href="//styleguide.awin.com/dist/awin.css?v=1786226545651">
+<style>:root{--spacing:8px;--prompt-min-height:calc(var(--spacing) * 67.5);--border-radius-input:999px;--border-radius-btn:999px;--padding-button:16px;--awin-orange:#ff6600}body{margin:0;padding:0}body{font-size:14px;font-weight:400}*{margin:0}</style><link rel="stylesheet" href="styles.85471bb89d6093bd.css" media="all" onload="this.media='all'" integrity="sha384-65Ul3VzwiqCayqMqDySEVpRG0zxC25KjAgfJ0PtN2yzOHbqFC3zu/MUT+sGTQeJX" crossorigin="anonymous"><noscript><link rel="stylesheet" href="styles.85471bb89d6093bd.css"></noscript><script id="usercentrics-cmp" src="https://web.cmp.usercentrics.eu/ui/loader.js" data-settings-id="3ZW34PHaKMkCG5" async=""></script><style type="text/css"></style><script>window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-FL4D9VNQ5R');</script><script src="https://cdn.eu.amplitude.com/engagement-browser/prod/split/index.js" id="engagement-sdk-bundle" type="module"></script><link href="https://web.cmp.usercentrics.eu/ui/v/4.10.0/WebSdk.lib.1641b8cb.js" rel="preload" as="script"><script async="" type="text/javascript" src="https://web.cmp.usercentrics.eu/ui/v/4.10.0/WebSdk.lib.1641b8cb.js"></script><link href="https://web.cmp.usercentrics.eu/ui/v/4.10.0/GdprCmpController.fed10ee8.js" rel="preload" as="script"><script async="" type="text/javascript" src="https://web.cmp.usercentrics.eu/ui/v/4.10.0/GdprCmpController.fed10ee8.js"></script><link href="https://web.cmp.usercentrics.eu/ui/TvGdprCmpView.2ef6af17.js" rel="preload" as="script"><script async="" type="text/javascript" src="https://web.cmp.usercentrics.eu/ui/TvGdprCmpView.2ef6af17.js"></script><link href="https://web.cmp.usercentrics.eu/ui/v/4.10.0/UcGdprCmpView.e6f062f1.js" rel="preload" as="script"><script async="" type="text/javascript" src="https://web.cmp.usercentrics.eu/ui/v/4.10.0/UcGdprCmpView.e6f062f1.js"></script><link href="https://web.cmp.usercentrics.eu/ui/v/4.10.0/sections.5e004935.js" rel="preload" as="script"><script async="" type="text/javascript" src="https://web.cmp.usercentrics.eu/ui/v/4.10.0/sections.5e004935.js"></script><link href="https://web.cmp.usercentrics.eu/ui/v/4.10.0/secondLayer.03af4dcd.js" rel="preload" as="script"><script async="" type="text/javascript" src="https://web.cmp.usercentrics.eu/ui/v/4.10.0/secondLayer.03af4dcd.js"></script><link href="https://web.cmp.usercentrics.eu/ui/v/4.10.0/getToastifyStyle.4f0a73d7.js" rel="preload" as="script"><script async="" type="text/javascript" src="https://web.cmp.usercentrics.eu/ui/v/4.10.0/getToastifyStyle.4f0a73d7.js"></script><style>#engagement-wrapper *,
+#engagement-wrapper *:before,
+#engagement-wrapper *:after,
+.engagement-card-portal-container *,
+.engagement-card-portal-container *:before,
+.engagement-card-portal-container *:after,
+.engagement-nudge-modal *,
+.engagement-nudge-modal *:before,
+.engagement-nudge-modal *:after,
+.engagement-nudge-modal-mock *,
+.engagement-nudge-modal-mock *:before,
+.engagement-nudge-modal-mock *:after {
+  box-sizing: border-box;
+}
+
+.engagement-modal > .rc-dialog > .rc-dialog-content {
+  background-color: transparent;
+}
+
+.rc-dialog.amplitude-engagement-modal-body {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.engagement-tooltip {
+  z-index: 2147483647 !important; /*make the tooltip the highest possible z index*/
+}
+
+/*** Hack: Hide this because it's less flexible (classnames can't be changes)
+    Instead we only show its children, by translating its children ***/
+.engagement-modal > .rc-dialog > .rc-dialog-content > .rc-dialog-header {
+  max-height: 0px !important;
+  padding: 0px !important;
+}
+
+.engagement-modal > .rc-dialog {
+  left: 0px;
+  transition: left 0.3s;
+}
+
+.engagement-modal > .rc-dialog > .rc-dialog-content > .rc-dialog-body {
+  position: relative !important;
+}
+
+/* TestMode inline engagement */
+.engagement-modal-inline.rc-dialog-wrap {
+  position: relative;
+  height: 100%;
+}
+
+[id^='engagement-toast-container'] {
+  inset: 16px;
+  @media (max-width: 400px) {
+    inset: 8px;
+  }
+}
+
+[id^='engagement-toast-responsive-inner-div'] {
+  @media (max-width: 400px) {
+    width: 100%;
+  }
+}
+
+[id^='engagement-container'] > div {
+  height: 100%;
+}
+
+#engagement-home > .rc-dialog-root {
+  height: 100%;
+}
+
+#engagement-wrapper .rc-header-guidance {
+  background: rgba(174, 177, 221, 1) !important;
+  filter: brightness(135%);
+  border-radius: 2px 2px 0px 0px !important;
+  border-bottom: 0px !important;
+  padding: 8px 30px 2px 30px !important;
+  margin: 0px 10px 0px 10px;
+  box-shadow: rgba(0, 0, 0, 0.15) 0px 3px 10px !important;
+  font-weight: 400;
+  text-align: center;
+}
+
+@keyframes fontbulger {
+  0% {
+    font-size: 10px;
+  }
+  30% {
+    font-size: 15px;
+  }
+  100% {
+    font-size: 12px;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: top left;
+  }
+  100% {
+    background-position: top right;
+  }
+}
+
+.engagement-category-collapse {
+  transform: scale(1, -1);
+  transition: 0.3s ease-in;
+  cursor: pointer;
+}
+
+.engagement-category-expand {
+  transition: 0.3s ease-in;
+  cursor: pointer;
+}
+
+/* Nudges - modal */
+
+.engagement-nudge-modal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2147483644 !important;
+}
+
+.engagement-nudge-modal-mock {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 0;
+  transition: margin-right cubic-bezier(0.78, 0.14, 0.15, 0.86) 0.3s;
+  z-index: 2147483644 !important;
+}
+
+/* Nudges - media */
+
+.engagement-help-doc-title::before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, transparent 66.67%, gray 93.08%);
+  content: '';
+}
+
+/* Recorder */
+#engagement-recorder-mask {
+  background: transparent;
+}
+</style><style>/*** Guidance banner styling and animation ***/
+@keyframes example {
+  from {
+    transform: translateY(0px);
+  }
+  to {
+    transform: translateY(-30px);
+  }
+}
+
+.rc-header-guidance {
+  animation: example 0.5s;
+  animation-fill-mode: forwards;
+}
+
+/*** engagement entry animation ***/
+/*** We can't do exit animation because rc-dialog makes display: none ***/
+@keyframes onEntry {
+  0% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.engagement-opened {
+  animation: onEntry 0.1s;
+  animation-fill-mode: forwards;
+}
+
+@keyframes onSelect {
+  0% {
+    transform: translate3d(0px, 0px, 0px);
+  }
+  50% {
+    transform: translate3d(0px, 0px, -0.5px);
+  }
+  100% {
+    transform: translate3d(0px, 0px, 0px);
+  }
+}
+
+.engagement-selected {
+  animation: onSelect 0.4s;
+}
+
+@keyframes ScaleEntry {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.engagement-scale-entry-animation {
+  animation: ScaleEntry 0.3s;
+  animation-fill-mode: forwards;
+}
+
+@keyframes onEntry {
+  0% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.engagement-shortcut-tooltip {
+  opacity: 0;
+  animation: tagEntry 0.2s;
+  animation-delay: 0.5s;
+  animation-fill-mode: forwards;
+}
+
+@keyframes tagExit {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+}
+
+.engagement-shortcut-tooltip-remove {
+  animation: tagExit 0.2s;
+  animation-fill-mode: forwards;
+}
+
+.engagement-shortcut-tooltip,
+.engagement-shortcut-tooltip-remove {
+  z-index: 99999999;
+  position: absolute;
+  padding: 8px 12px;
+  background-color: rgba(0, 0, 0, 0.8);
+  font-family: proxima-nova, sans-serif;
+  color: rgba(255, 255, 255, 0.6);
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.engagement-shortcut-tooltip-tag {
+  margin-left: 10px;
+  padding: 2px 5px;
+  border-radius: 2px;
+  background-color: grey;
+}
+
+#engagement-launcher {
+  animation: 0.25s ease-out scaleIn;
+}
+
+@keyframes scaleIn {
+  0% {
+    transform: scale(0.06);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes growFromBottom {
+  0% {
+    transform: scale(1, 0.3);
+  }
+
+  100% {
+    transform: scale(1, 1);
+  }
+}
+</style><style>.rc-dialog {
+  position: relative;
+  width: auto;
+  margin: 10px;
+}
+.rc-dialog-wrap {
+  position: fixed;
+  overflow: auto;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1050;
+  -webkit-overflow-scrolling: touch;
+  outline: 0;
+}
+.rc-dialog-title {
+  margin: 0;
+  font-size: 14px;
+  line-height: 21px;
+  font-weight: bold;
+}
+.rc-dialog-content {
+  position: relative;
+  background-color: #ffffff;
+  border: none;
+  border-radius: 6px 6px;
+  background-clip: padding-box;
+}
+.rc-dialog-close {
+  cursor: pointer;
+  border: 0;
+  background: transparent;
+  font-size: 21px;
+  position: absolute;
+  right: 20px;
+  top: 12px;
+  font-weight: 700;
+  line-height: 1;
+  color: #000;
+  text-shadow: 0 1px 0 #fff;
+  filter: alpha(opacity=20);
+  opacity: 0.2;
+  text-decoration: none;
+}
+.rc-dialog-close:disabled {
+  pointer-events: none;
+}
+.rc-dialog-close-x:after {
+  content: '×';
+}
+.rc-dialog-close:hover {
+  opacity: 1;
+  filter: alpha(opacity=100);
+  text-decoration: none;
+}
+.rc-dialog-header {
+  padding: 13px 20px 14px 20px;
+  border-radius: 5px 5px 0 0;
+  background: #fff;
+  color: #666;
+  border-bottom: 1px solid #e9e9e9;
+}
+.rc-dialog-body {
+  padding: 20px;
+}
+.rc-dialog-footer {
+  border-top: 1px solid #e9e9e9;
+  padding: 10px 20px;
+  text-align: right;
+  border-radius: 0 0 5px 5px;
+}
+.rc-dialog-zoom-enter,
+.rc-dialog-zoom-appear {
+  opacity: 0;
+  animation-duration: 0.3s;
+  animation-fill-mode: both;
+  animation-timing-function: cubic-bezier(0.08, 0.82, 0.17, 1);
+  animation-play-state: paused;
+}
+.rc-dialog-zoom-leave {
+  animation-duration: 0.3s;
+  animation-fill-mode: both;
+  animation-timing-function: cubic-bezier(0.6, 0.04, 0.98, 0.34);
+  animation-play-state: paused;
+}
+.rc-dialog-zoom-enter.rc-dialog-zoom-enter-active,
+.rc-dialog-zoom-appear.rc-dialog-zoom-appear-active {
+  animation-name: rcDialogZoomIn;
+  animation-play-state: running;
+}
+.rc-dialog-zoom-leave.rc-dialog-zoom-leave-active {
+  animation-name: rcDialogZoomOut;
+  animation-play-state: running;
+}
+@keyframes rcDialogZoomIn {
+  0% {
+    opacity: 0;
+    transform: scale(0, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1, 1);
+  }
+}
+@keyframes rcDialogZoomOut {
+  0% {
+    transform: scale(1, 1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0, 0);
+  }
+}
+@media (min-width: 768px) {
+  .rc-dialog {
+    width: 600px;
+    margin: 30px auto;
+  }
+}
+.rc-dialog-mask {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  background-color: #373737;
+  background-color: rgba(55, 55, 55, 0.6);
+  height: 100%;
+  filter: alpha(opacity=50);
+  z-index: 1050;
+}
+.rc-dialog-mask-hidden {
+  display: none;
+}
+.rc-dialog-fade-enter,
+.rc-dialog-fade-appear {
+  opacity: 0;
+  animation-duration: 0.3s;
+  animation-fill-mode: both;
+  animation-timing-function: cubic-bezier(0.55, 0, 0.55, 0.2);
+  animation-play-state: paused;
+}
+.rc-dialog-fade-leave {
+  animation-duration: 0.3s;
+  animation-fill-mode: both;
+  animation-timing-function: cubic-bezier(0.55, 0, 0.55, 0.2);
+  animation-play-state: paused;
+}
+.rc-dialog-fade-enter.rc-dialog-fade-enter-active,
+.rc-dialog-fade-appear.rc-dialog-fade-appear-active {
+  animation-name: rcDialogFadeIn;
+  animation-play-state: running;
+}
+.rc-dialog-fade-leave.rc-dialog-fade-leave-active {
+  animation-name: rcDialogFadeOut;
+  animation-play-state: running;
+}
+@keyframes rcDialogFadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes rcDialogFadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+</style><style>/*
+ * Chrome for the hosted-survey renderer (SurveyRunner / StepView / SurveyEndState).
+ * Mirrors the classes in @gs/link-survey's index.css so the same components look identical
+ * whether they run in the standalone hosted app or the dashboard "hosted" preview.
+ *
+ * NOTE: this is a copy of the reusable subset of link-survey/src/index.css. If the two drift,
+ * hoist these rules into a single shared stylesheet both packages import. (POC scope: duplicated.)
+ */
+
+/* Full-bleed page layer. Sits inside the themed root so it can read theme vars; the page
+   background is the theme's secondary surface — a built-in offset of the card's primary
+   background (gray-on-white in light mode, the card lifts above it in dark). */
+.link-survey-page {
+  min-height: 100%;
+  box-sizing: border-box;
+  padding: 2rem 0;
+  background: var(--background-secondary, #fafafa);
+}
+
+.link-survey-app {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: var(--font-font-family, inherit);
+}
+
+/* Shared card chrome for every full-width state: the survey steps and the completion screen
+   all sit in the same card. */
+.survey-card {
+  background: var(--background-primary, #fff);
+  border-radius: 8px;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.05),
+    0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+/* Centered terminal states (completion / dismissal). */
+.survey-card--centered {
+  padding: 2rem 1.5rem;
+  text-align: center;
+}
+
+.survey-end__icon {
+  display: block;
+  margin: 0 auto;
+}
+
+/* Dismissed end state: muted outline glyph, distinct from the accent-filled completion mark. */
+.survey-end__icon--dismissed {
+  color: var(--content-secondary, #707070);
+}
+
+.step-view {
+  padding: 1.5rem;
+}
+
+/* Title + markdown body grouped like the nudge's title block: a tight 2px between them, with
+   the group separated from the inputs by the theme's standardized gap. */
+.step-view__header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: var(--layout-gap);
+}
+
+.step-view__title {
+  margin: 0;
+  font-size: 1.125rem;
+  /* Match the themed body text below it; without this the title inherits body's static black
+     and goes unreadable on a dark themed background. */
+  color: var(--content-primary, #1a1a1a);
+}
+
+.step-view__blocks {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.step-view__nav {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Counter sits on the left; the button group is pushed to the right (mirrors the SDK's classic
+   footer layout) and stays right-aligned even when no counter shows. */
+.step-view__step-counter {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #888;
+}
+
+/* Mirrors the SDK's classic action bar: the button group fills the width left of the counter
+   (flex: 1) and right-aligns its buttons. */
+.step-view__nav-buttons {
+  display: flex;
+  gap: 0.75rem;
+  flex: 1;
+  justify-content: flex-end;
+}
+</style></head>
+
+<body>
+  <app-root ng-version="18.2.13"><router-outlet></router-outlet><app-main><div class="login-page bg-dark main-layout"><div id="container" class="container-fluid"><section id="content"><div class="login-page-wrapper bg-white"><div class="row"><div class="logo-login brand-and-icon-logged-out"></div></div><router-outlet></router-outlet><app-login><div class="row row-login-form prelogin-page-form"><div class="container container-hack"><h1>Sign in</h1><div><form novalidate="" class="form-horizontal ng-untouched ng-pristine ng-invalid"><div class="form-group"><label for="email" class="control-label bg-white text-muted">Email address</label><div><input type="email" name="email" formcontrolname="email" id="email" placeholder="Email address" required="" autocomplete="email" class="form-control ng-untouched ng-pristine ng-invalid" style=""></div></div><div class="form-group"><button id="login" data-style="fill" type="submit" data-horizontal="" class="btn btn-default btn-block btn-disabled" disabled=""><span class="content">Continue</span></button><div id="login-element" class="text-center"><div class="margin-top-md margin-bottom-sm"><a href="https://awin.link/need-help-accessing-your-account">Problem signing in?<!----></a></div><!----><div class="margin-top-md margin-bottom-sm">New to Awin? <a href="https://awin.link/getting-started" target="_blank">Get started here</a></div></div></div></form></div></div></div></app-login><!----></div></section></div><div class="footer-wrapper"><app-language-switcher-footer><lib-nav-language-switcher-footer><div class="row"><div class="col-lg-8 col-lg-offset-2"><ul id="availableLanguages" class="list-inline text-center"><li><a> Dansk </a><!----><!----></li><li><a> Deutsch </a><!----><!----></li><li class="active"> English (UK) <!----><!----></li><li><a> English (US) </a><!----><!----></li><li><a> Español </a><!----><!----></li><li><a> Français </a><!----><!----></li><li><a> Italiano </a><!----><!----></li><li><a> Nederlands </a><!----><!----></li><li><a> Norsk </a><!----><!----></li><li><a> Polski </a><!----><!----></li><li><a> Português (Brasil) </a><!----><!----></li><li><a> Svenska </a><!----><!----></li><!----></ul><!----></div></div></lib-nav-language-switcher-footer></app-language-switcher-footer><app-footer><lib-shared-footer><div id="footer"><a target="_blank" href="https://www.awin.com/gb/privacy"> Privacy Policy</a> | <a target="_blank" href="https://ui.awin.com/legal-docs/user-agreement"> User Agreement</a> | <a target="_blank" href="https://www.awin.com">© AWIN LTD 2026</a></div><!----></lib-shared-footer></app-footer></div></div><!----><!----></app-main><!----></app-root>
+<script src="runtime.b3f6a2f20b520304.js" type="module" integrity="sha384-1jd+qO4Kew7Nu+XzMYMLrKqZp1V9NxmVGGKKZB43MXQcLmjZZ91i6rxfrtH/NuoN" crossorigin="anonymous"></script><script src="polyfills.464054ef52ff2ed4.js" type="module" integrity="sha384-Xj1WRyuo5Nl1vHyQfg/cYdT4388pyKfZOgd79DQh0joyX/e0LACzIrjxhd8/0nVk" crossorigin="anonymous"></script><script src="vendor.d8d3255dd2b8b4f9.js" type="module" integrity="sha384-rWSlKxCsQSiRgDF0ij00RBggdglKtr5CnjPQiQKYE7Ht0bBnBTP5T5IxtdcssZrB" crossorigin="anonymous"></script><script src="main.afb8d3b356146d50.js" type="module" integrity="sha384-+KBW9BmNHgLp4eQM88Wk7k/dwPIPzGfgXkD+PIfLQsdXoOiQfEFba8U430I1CwLL" crossorigin="anonymous"></script>
+
+
+<aside id="usercentrics-cmp-ui" data-nosnippet="1" keyboard-events="true"></aside><div id="engagement-wrapper" data-engagement="1"><div data-engagement-toplevel-styles="" hidden=""></div><div id="engagement-container" data-engagement="1" data-engagement-instance="$default"><div class="engagement-widget-ce80a7eb65-0" style="display: contents;"><div class="engagement-widget-ce80a7eb65-1" style="display: contents;"><div class="engagement-widget-ce80a7eb65-1" id="engagement-theme-root" dir="ltr"><div><div id="engagement-nudges-rc-tooltip-container"></div></div><div id="engagement-nudge-container" style="position: relative;"><div id="engagement-toast-container" style="position: fixed; pointer-events: none;"></div></div><div id="engagement-tooltip-container-portal"></div><div id="engagement-nudges-banner-sticky-container" style="width: 100%; top: 0px; left: 0px; position: fixed; pointer-events: none; height: 100%;"></div><div id="engagement-nudges-banner-inline-container-top" style="width: 100%; position: absolute; top: 0px; left: 0px; pointer-events: none;"></div><div id="engagement-nudges-banner-inline-container-bottom" style="width: 100%; position: relative; pointer-events: none;"></div></div></div></div></div></div></body></html>

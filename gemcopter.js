@@ -237,6 +237,7 @@ function gcUpdateSoundTip(){
 }
 
 function gcUnlockAudio(){
+ gcWakeAudio();
  gcSfx.unlock();
  gcUpdateSoundTip();
 }
