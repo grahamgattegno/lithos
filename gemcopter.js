@@ -1,22 +1,22 @@
 /* Gem Copter — helicopter + gemstone turret vs gem zombies, bosses, upgrades, 10 maps */
 (function(){
 'use strict';
-const GEM_COPTER_BUILD=62;
+const GEM_COPTER_BUILD=63;
 
 const gcSfx=(()=>{
- let ctx=null,gain=null,lastBoom=0,lastHit=0,lastGroan=0;
+ let ctx=null,gain=null,lastBoom=0,lastHit=0,lastGroan=0,audioReady=false;
  function ac(){
   if(!ctx){
    try{
     ctx=new(window.AudioContext||window.webkitAudioContext)();
     gain=ctx.createGain();
-    gain.gain.value=0.55;
+    gain.gain.value=0.72;
     gain.connect(ctx.destination);
    }catch(_){}
   }
-  if(ctx&&ctx.state==='suspended'){try{ctx.resume();}catch(_){}}
   return ctx;
  }
+ function running(){return !!(ctx&&ctx.state==='running');}
  function env(g,t,att,dur,peak){
   g.gain.cancelScheduledValues(t);
   g.gain.setValueAtTime(0.0001,t);
@@ -47,33 +47,57 @@ const gcSfx=(()=>{
   src.start(t);src.stop(t+dur+0.03);
  }
  return{
+  unlock(){
+   const c=ac();
+   if(!c)return;
+   const finish=()=>{
+    audioReady=running();
+    if(audioReady){
+     try{if(typeof SFX!=='undefined'&&SFX.click)SFX.click();}catch(_){}
+    }
+   };
+   if(c.state==='suspended'){
+    try{
+     const p=c.resume();
+     if(p&&typeof p.then==='function')p.then(finish).catch(finish);
+     else finish();
+    }catch(_){finish();}
+   }else finish();
+  },
+  ready(){return audioReady&&running();},
   boom(big){
+   if(!running())return;
    const now=performance.now();
    if(now-lastBoom<(big?90:55))return;
    lastBoom=now;
-   try{
-    if(typeof SFX!=='undefined'&&SFX.boom){SFX.boom();return;}
-   }catch(_){}
-   tone('sawtooth',big?72:95,big?0.35:0.22,big?0.14:0.1,big?28:42);
-   noise(big?0.28:0.16,big?0.12:0.08,80,big?5200:3800);
-   setTimeout(()=>tone('square',big?140:180,0.08,big?0.07:0.05),big?40:25);
+   tone('sawtooth',big?72:95,big?0.35:0.22,big?0.16:0.11,big?28:42);
+   noise(big?0.28:0.16,big?0.14:0.09,80,big?5200:3800);
+   setTimeout(()=>tone('square',big?140:180,0.08,big?0.08:0.06),big?40:25);
   },
   hit(){
+   if(!running())return;
    const now=performance.now();
    if(now-lastHit<45)return;
    lastHit=now;
-   tone('square',420,0.05,0.04);
-   noise(0.04,0.035,600,5000);
+   tone('square',420,0.05,0.06);
+   noise(0.04,0.045,600,5000);
   },
   groan(){
+   if(!running())return;
    const now=performance.now();
    if(now-lastGroan<380)return;
    lastGroan=now;
-   tone('sawtooth',58,0.18,0.05,38);
-   noise(0.12,0.04,90,900);
+   tone('sawtooth',58,0.18,0.06,38);
+   noise(0.12,0.05,90,900);
   }
  };
 })();
+
+function gcUnlockAudio(){
+ gcSfx.unlock();
+ const tip=document.getElementById('gc-sound-tip');
+ if(tip&&gcSfx.ready())tip.hidden=true;
+}
 
 const GC_HELIS=[
  {id:'scout',name:'Gem Scout',emoji:'🚁',desc:'Balanced starter',speedMult:1,hpMult:1,dmgMult:1,hull:'#c9a94f'},
@@ -205,6 +229,7 @@ function gcKeyDown(e){
  if(['arrowup','arrowdown','arrowleft','arrowright',' ','w','a','s','d','e','escape'].includes(k)||e.code==='Space'){
   e.preventDefault();
  }
+ gcUnlockAudio();
  if(k==='escape'){gcClose();return;}
  gcKeys[k]=true;
  if(e.code==='Space')gcKeys.space=true;
@@ -248,6 +273,7 @@ function playGemCopter(){
    <div id="gc-play" hidden>
     <div class="gc-play-frame">
     <canvas id="gc-canvas" width="${GC_W}" height="${GC_H}"></canvas>
+    <p class="gc-sound-tip" id="gc-sound-tip">🔊 Tap <b>Fire</b> or press <b>Space</b> once to turn on battle sounds</p>
     <div class="gc-hud gc-hud-float">
      <span id="gc-hp">HP 100</span>
      <span id="gc-gems">💎 0</span>
@@ -291,6 +317,7 @@ function playGemCopter(){
   </button>`;
  }).join('');
  heliGrid.onclick=e=>{
+  gcUnlockAudio();
   const b=e.target.closest('[data-heli]');
   if(!b||b.disabled)return;
   gcPickHeli=b.dataset.heli;
@@ -306,6 +333,7 @@ function playGemCopter(){
   </button>`;
  }).join('');
  grid.onclick=e=>{
+  gcUnlockAudio();
   const b=e.target.closest('[data-map]');
   if(!b||b.disabled)return;
   gcStartMap(+b.dataset.map,null,gcPickHeli);
@@ -335,6 +363,8 @@ function gcStartMap(mapId, carry, heliId){
  document.getElementById('gc-overlay').hidden=true;
  document.getElementById('gc-play').hidden=false;
  gcEnterPlayMode();
+ const sndTip=document.getElementById('gc-sound-tip');
+ if(sndTip)sndTip.hidden=gcSfx.ready();
  document.getElementById('gc-mapname').textContent=`${heli.emoji} ${heli.name} · Map ${map.id}: ${map.name}`;
  gcState={
   map, upgrades, gems, heli,
@@ -373,12 +403,12 @@ function gcBindCanvas(){
   gcPointer.y=(e.clientY-r.top)*(GC_H/r.height);
  };
  cv.onpointermove=toLocal;
- cv.onpointerdown=e=>{toLocal(e);gcPointer.down=true;try{cv.setPointerCapture(e.pointerId);}catch(_){}};
+ cv.onpointerdown=e=>{gcUnlockAudio();toLocal(e);gcPointer.down=true;try{cv.setPointerCapture(e.pointerId);}catch(_){}};
  cv.onpointerup=()=>{gcPointer.down=false;};
  cv.onpointerleave=()=>{gcPointer.down=false;};
  const fire=document.getElementById('gc-fire');
  if(fire){
-  fire.onpointerdown=e=>{e.preventDefault();gcPointer.down=true;};
+  fire.onpointerdown=e=>{e.preventDefault();gcUnlockAudio();gcPointer.down=true;};
   fire.onpointerup=()=>{gcPointer.down=false;};
  }
 }

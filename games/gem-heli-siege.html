@@ -35,6 +35,8 @@
   .btn{display:inline-block;margin:4px;padding:10px 18px;font-size:13px;background:linear-gradient(135deg,#3a5080,#2a3860);border-color:#4a6090}
   .btn.primary{background:linear-gradient(135deg,var(--gold),#a08030);color:#1a1008;border-color:#e0c878}
   .foot{margin-top:10px;font-size:11px}
+  .sound-tip{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);z-index:4;margin:0;font-size:11px;color:#e8ecf4;background:rgba(8,12,20,.88);padding:7px 12px;border-radius:999px;border:1px solid rgba(201,169,79,.5);pointer-events:none;text-align:center;max-width:92%}
+  .sound-tip[hidden]{display:none!important}
   .foot a{color:var(--gold)}
   .bar{height:6px;background:#1a2238;border-radius:4px;overflow:hidden;margin:6px 0 10px}
   .bar span{display:block;height:100%;background:linear-gradient(90deg,#e04060,#c9a94f);transition:width .2s}
@@ -52,6 +54,7 @@
 </div>
 <div class="wrap">
   <canvas id="cv" width="720" height="540"></canvas>
+  <p class="sound-tip" id="sound-tip" hidden>🔊 Click the canvas or press Space once for battle sounds</p>
   <div class="overlay" id="menu">
     <div class="panel">
       <h2>Gem Heli Siege</h2>
@@ -114,10 +117,10 @@ let bullets=[],enemies=[],parts=[],aim={x:W/2,y:0},keys={},fireHeld=false,fireT=
 const sfx=(()=>{
  let ctx=null,gain=null,lastBoom=0,lastHit=0,lastGroan=0;
  function ac(){
-  if(!ctx){try{ctx=new(window.AudioContext||window.webkitAudioContext)();gain=ctx.createGain();gain.gain.value=0.55;gain.connect(ctx.destination);}catch(_){}}
-  if(ctx&&ctx.state==='suspended'){try{ctx.resume();}catch(_){}}
+  if(!ctx){try{ctx=new(window.AudioContext||window.webkitAudioContext)();gain=ctx.createGain();gain.gain.value=0.72;gain.connect(ctx.destination);}catch(_){}}
   return ctx;
  }
+ function running(){return !!(ctx&&ctx.state==='running');}
  function env(g,t,att,dur,peak){g.gain.cancelScheduledValues(t);g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(Math.max(0.0002,peak),t+att);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);}
  function tone(type,freq,dur,vol,slideTo){
   const c=ac();if(!c||!gain)return;
@@ -138,11 +141,19 @@ const sfx=(()=>{
   src.start(t);src.stop(t+dur+0.03);
  }
  return{
-  boom(big){const now=performance.now();if(now-lastBoom<(big?90:55))return;lastBoom=now;tone('sawtooth',big?72:95,big?0.35:0.22,big?0.12:0.09,big?28:42);noise(big?0.28:0.16,big?0.12:0.08,80,big?5200:3800);},
-  hit(){const now=performance.now();if(now-lastHit<45)return;lastHit=now;tone('square',420,0.05,0.04);noise(0.04,0.035,600,5000);},
-  groan(){const now=performance.now();if(now-lastGroan<380)return;lastGroan=now;tone('sawtooth',58,0.18,0.05,38);noise(0.12,0.04,90,900);}
+  unlock(){
+   const c=ac();if(!c)return;
+   const done=()=>{if(running()){const t=document.getElementById('sound-tip');if(t)t.hidden=true;}};
+   if(c.state==='suspended'){try{const p=c.resume();if(p&&p.then)p.then(done).catch(done);else done();}catch(_){done();}}
+   else done();
+  },
+  boom(big){if(!running())return;const now=performance.now();if(now-lastBoom<(big?90:55))return;lastBoom=now;tone('sawtooth',big?72:95,big?0.35:0.22,big?0.16:0.11,big?28:42);noise(big?0.28:0.16,big?0.14:0.09,80,big?5200:3800);},
+  hit(){if(!running())return;const now=performance.now();if(now-lastHit<45)return;lastHit=now;tone('square',420,0.05,0.06);noise(0.04,0.045,600,5000);},
+  groan(){if(!running())return;const now=performance.now();if(now-lastGroan<380)return;lastGroan=now;tone('sawtooth',58,0.18,0.06,38);noise(0.12,0.05,90,900);}
  };
 })();
+
+function unlockAudio(){sfx.unlock();const t=document.getElementById('sound-tip');if(t&&document.body.classList.contains('fs-play'))t.hidden=false;}
 
 function boom(x,y,color,scale){
  const sc=scale||1,col=color||'#ff9040',life=0.45+sc*0.12;
@@ -203,6 +214,8 @@ function startMap(){
   resetRun();
   document.body.classList.add('fs-play');
   resizePlay();
+  const st=document.getElementById('sound-tip');
+  if(st)st.hidden=false;
   document.getElementById('menu').hidden=true;
   document.getElementById('gameover').hidden=true;
   document.getElementById('upgrade').hidden=true;
@@ -477,7 +490,7 @@ function setAim(clientX,clientY){
 }
 
 cv.addEventListener('pointermove',e=>setAim(e.clientX,e.clientY));
-cv.addEventListener('pointerdown',e=>{fireHeld=true;setAim(e.clientX,e.clientY);});
+cv.addEventListener('pointerdown',e=>{unlockAudio();fireHeld=true;setAim(e.clientX,e.clientY);});
 cv.addEventListener('pointerup',()=>fireHeld=false);
 cv.addEventListener('pointerleave',()=>fireHeld=false);
 
@@ -489,6 +502,7 @@ window.addEventListener('keydown',e=>{
   if(k==='arrowup'||k==='w')keys.up=true;
   if(k==='arrowdown'||k==='s')keys.down=true;
   if(k===' ')keys.space=true;
+  if(state==='play')unlockAudio();
 });
 window.addEventListener('keyup',e=>{
   const k=e.key.toLowerCase();
@@ -500,7 +514,7 @@ window.addEventListener('keyup',e=>{
 });
 window.addEventListener('resize',()=>{if(document.body.classList.contains('fs-play'))resizePlay();});
 
-document.getElementById('btn-start').onclick=startMap;
+document.getElementById('btn-start').onclick=()=>{unlockAudio();startMap();};
 document.getElementById('btn-next').onclick=nextWave;
 document.getElementById('btn-retry').onclick=()=>{document.getElementById('gameover').hidden=true;startMap();};
 document.getElementById('btn-menu').onclick=()=>{

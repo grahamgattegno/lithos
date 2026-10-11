@@ -1648,6 +1648,8 @@
   #gemcopter.gc-play-mode #gc-canvas{width:100%;height:100%;border:none;box-shadow:none;display:block}
   #gemcopter.gc-play-mode .gc-hud-float{position:absolute;top:10px;left:10px;right:10px;margin:0;justify-content:flex-start;z-index:2;pointer-events:none}
   #gemcopter.gc-play-mode .gc-touch-float{position:absolute;bottom:max(12px,env(safe-area-inset-bottom));right:max(12px,env(safe-area-inset-right));margin:0;z-index:2}
+  .gc-sound-tip{position:absolute;bottom:max(64px,calc(12px + env(safe-area-inset-bottom)));left:50%;transform:translateX(-50%);z-index:3;margin:0;font-size:11px;line-height:1.35;color:#e8ecf4;background:rgba(8,12,20,.88);padding:7px 14px;border-radius:999px;border:1px solid rgba(201,169,79,.5);pointer-events:none;text-align:center;max-width:min(420px,92vw);box-shadow:0 4px 20px rgba(0,0,0,.45)}
+  .gc-sound-tip[hidden]{display:none!important}
   .gc-box{background:#102028;border:4px solid #3a6878;border-radius:0;padding:14px;width:min(96vw,560px);text-align:center;position:relative;box-shadow:4px 4px 0 #040c10,0 0 0 2px #040c10 inset}
   .gc-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px;text-align:left}
   .gc-title{font-size:16px;letter-spacing:.1em;text-transform:uppercase;color:#7dffd4;text-shadow:2px 2px 0 #104030;font-weight:800}
@@ -5252,7 +5254,7 @@
 <script src="stratum-catalog.js?v=deploy-50"></script>
 <script src="nightshift2.js?v=deploy-47"></script>
 <script src="archaeology.js?v=deploy-50"></script>
-<script src="gemcopter.js?v=deploy-62"></script>
+<script src="gemcopter.js?v=deploy-63"></script>
 <script>
 /* ---------- Affiliate partners (tracked links where available) ---------- */
 const DEFAULT_PARTNER='gemsny';
