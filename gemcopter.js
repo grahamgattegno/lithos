@@ -1,7 +1,7 @@
 /* Gem Copter — helicopter + gemstone turret vs gem zombies, bosses, upgrades, 10 maps */
 (function(){
 'use strict';
-const GEM_COPTER_BUILD=78;
+const GEM_COPTER_BUILD=79;
 const GC_BULLET_LINES=5;
 
 const gcSfx=(()=>{
@@ -215,17 +215,127 @@ function gcLeavePlayMode(){
  if(wrap)wrap.classList.remove('gc-play-mode');
 }
 const GC_MAPS=[
- {id:1,name:'Ruby Ridge',sky:['#1a0610','#3a1020'],ground:'#4a1828',accent:'#ff4060',boss:'Crimson Colossus',waves:4},
- {id:2,name:'Sapphire Coast',sky:['#061018','#102838'],ground:'#183848',accent:'#4ea8ff',boss:'Tide Titan',waves:4},
- {id:3,name:'Emerald Jungle',sky:['#06140a','#14301a'],ground:'#1a4020',accent:'#3ecf8a',boss:'Vine Behemoth',waves:4},
- {id:4,name:'Amethyst Caves',sky:['#100818','#281040'],ground:'#2a1848',accent:'#b06af0',boss:'Crystal Queen',waves:5},
- {id:5,name:'Diamond Peak',sky:['#0c1018','#1a2838'],ground:'#2a3848',accent:'#dbe4ec',boss:'Frost Giant',waves:5},
- {id:6,name:'Opal Oasis',sky:['#101018','#302838'],ground:'#3a3040',accent:'#ff9ad4',boss:'Mirage Sovereign',waves:5},
- {id:7,name:'Topaz Desert',sky:['#181008','#382818'],ground:'#4a3820',accent:'#f0b429',boss:'Sand Tyrant',waves:5},
- {id:8,name:'Garnet Volcano',sky:['#180808','#401018'],ground:'#4a1818',accent:'#e04040',boss:'Magma Overlord',waves:6},
- {id:9,name:'Quartz Quarry',sky:['#101418','#283038'],ground:'#384048',accent:'#a8c0d0',boss:'Shard Emperor',waves:6},
- {id:10,name:'Rainbow Crater',sky:['#100818','#201030'],ground:'#281838',accent:'#c9a94f',boss:'Auric Apocalypse',waves:7}
+ {id:1,name:'Ruby Ridge',theme:'ridge',tag:'⛰️ ruby ridges',sky:['#1a0610','#3a1020'],ground:'#4a1828',accent:'#ff4060',boss:'Crimson Colossus',waves:4},
+ {id:2,name:'Sapphire Coast',theme:'coast',tag:'🌊 ocean coast',sky:['#061018','#102838'],ground:'#183848',accent:'#4ea8ff',boss:'Tide Titan',waves:4},
+ {id:3,name:'Emerald Jungle',theme:'jungle',tag:'🌿 deep jungle',sky:['#06140a','#14301a'],ground:'#1a4020',accent:'#3ecf8a',boss:'Vine Behemoth',waves:4},
+ {id:4,name:'Amethyst Caves',theme:'caves',tag:'🕳️ crystal caves',sky:['#100818','#281040'],ground:'#2a1848',accent:'#b06af0',boss:'Crystal Queen',waves:5},
+ {id:5,name:'Diamond Peak',theme:'peak',tag:'🏔️ icy peak',sky:['#0c1018','#1a2838'],ground:'#2a3848',accent:'#dbe4ec',boss:'Frost Giant',waves:5},
+ {id:6,name:'Opal Oasis',theme:'oasis',tag:'🏝️ desert oasis',sky:['#101018','#302838'],ground:'#3a3040',accent:'#ff9ad4',boss:'Mirage Sovereign',waves:5},
+ {id:7,name:'Topaz Desert',theme:'desert',tag:'🏜️ sand dunes',sky:['#181008','#382818'],ground:'#4a3820',accent:'#f0b429',boss:'Sand Tyrant',waves:5},
+ {id:8,name:'Garnet Volcano',theme:'volcano',tag:'🌋 lava volcano',sky:['#180808','#401018'],ground:'#4a1818',accent:'#e04040',boss:'Magma Overlord',waves:6},
+ {id:9,name:'Quartz Quarry',theme:'quarry',tag:'⛏️ quartz quarry',sky:['#101418','#283038'],ground:'#384048',accent:'#a8c0d0',boss:'Shard Emperor',waves:6},
+ {id:10,name:'Rainbow Crater',theme:'rainbow',tag:'🌈 rainbow crater',sky:['#100818','#201030'],ground:'#281838',accent:'#c9a94f',boss:'Auric Apocalypse',waves:7}
 ];
+
+function gcMapUnlockProgress(){
+ if(gcIsOwner())return 10;
+ return +(localStorage.getItem('lithos_gc_map')||'1');
+}
+
+function gcDrawMapTheme(ctx,s,m,gy){
+ const W=GC_W,H=GC_H,t=s.rotor||0;
+ const th=m.theme||'ridge';
+ ctx.save();
+ if(th==='ridge'){
+  ctx.fillStyle=gcDarken(m.accent,0.35); ctx.globalAlpha=0.78;
+  for(let i=0;i<8;i++){
+   const bx=(i*200+(t*2))%(W+160)-80;
+   ctx.beginPath(); ctx.moveTo(bx,gy); ctx.lineTo(bx+35,gy-90); ctx.lineTo(bx+75,gy-55);
+   ctx.lineTo(bx+110,gy-110); ctx.lineTo(bx+150,gy); ctx.fill();
+  }
+ }else if(th==='coast'){
+  const sea=gy+18;
+  ctx.fillStyle='#0a2838'; ctx.globalAlpha=0.92;
+  ctx.fillRect(0,sea,W,H-sea);
+  ctx.strokeStyle=m.accent; ctx.globalAlpha=0.5; ctx.lineWidth=2;
+  for(let x=0;x<W;x+=28){
+   const y=sea+Math.sin(x*0.04+t*0.15)*6;
+   ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x+14,y+4); ctx.stroke();
+  }
+  ctx.fillStyle='rgba(120,200,255,0.15)'; ctx.fillRect(0,gy+8,W,22);
+ }else if(th==='jungle'){
+  ctx.fillStyle=gcDarken(m.accent,0.4); ctx.globalAlpha=0.65;
+  for(let i=0;i<14;i++){
+   const tx=(i*95+(t*1.5))%(W+60)-30;
+   ctx.beginPath(); ctx.moveTo(tx,gy); ctx.lineTo(tx+8,gy-55); ctx.lineTo(tx+16,gy); ctx.fill();
+  }
+  ctx.strokeStyle='#2a6038'; ctx.lineWidth=2; ctx.globalAlpha=0.45;
+  for(let i=0;i<6;i++){
+   const vx=80+i*140;
+   ctx.beginPath(); ctx.moveTo(vx,gy-20); ctx.quadraticCurveTo(vx+20,gy-50,vx+40,gy-15); ctx.stroke();
+  }
+ }else if(th==='caves'){
+  ctx.fillStyle='#1a1028'; ctx.globalAlpha=0.9;
+  ctx.fillRect(0,0,W,gy*0.45);
+  ctx.fillStyle=m.accent; ctx.globalAlpha=0.35;
+  for(let i=0;i<16;i++){
+   const cx=(i*67)%W,st=12+(i%4)*6;
+   ctx.beginPath(); ctx.moveTo(cx,0); ctx.lineTo(cx-st,gy*0.35); ctx.lineTo(cx+st,gy*0.35); ctx.fill();
+  }
+  ctx.globalAlpha=0.5;
+  for(let i=0;i<10;i++){
+   const px=(i*110+(t*3))%(W+40);
+   ctx.fillRect(px,gy-8,6,14);
+  }
+ }else if(th==='peak'){
+  ctx.fillStyle='rgba(230,240,255,0.25)'; ctx.globalAlpha=1;
+  for(let i=0;i<7;i++){
+   const bx=(i*170+(t*1.2))%(W+120)-60;
+   ctx.beginPath(); ctx.moveTo(bx,gy); ctx.lineTo(bx+50,gy-120); ctx.lineTo(bx+100,gy); ctx.fill();
+   ctx.fillStyle='rgba(255,255,255,0.35)';
+   ctx.beginPath(); ctx.moveTo(bx+35,gy-75); ctx.lineTo(bx+50,gy-120); ctx.lineTo(bx+65,gy-75); ctx.fill();
+   ctx.fillStyle='rgba(230,240,255,0.25)';
+  }
+ }else if(th==='oasis'){
+  ctx.fillStyle='#1a3848'; ctx.globalAlpha=0.7;
+  ctx.beginPath(); ctx.ellipse(W*0.72,gy+18,70,14,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#2a5030'; ctx.globalAlpha=0.8;
+  [[0.25,0.7],[0.82,0.65]].forEach(([fx,fy])=>{
+   const px=W*fx,py=gy-10;
+   ctx.fillRect(px-3,py,6,28);
+   ctx.beginPath(); ctx.arc(px-12,py+8,12,0,Math.PI*2); ctx.arc(px+12,py+6,10,0,Math.PI*2); ctx.fill();
+  });
+ }else if(th==='desert'){
+  ctx.fillStyle=gcDarken(m.ground,0.85); ctx.globalAlpha=0.45;
+  for(let i=0;i<9;i++){
+   const dx=(i*130+(t*2.5))%(W+100)-50;
+   ctx.beginPath(); ctx.moveTo(dx,gy); ctx.quadraticCurveTo(dx+60,gy-35,dx+120,gy); ctx.fill();
+  }
+  ctx.fillStyle='#3a5020'; ctx.globalAlpha=0.7;
+  [0.2,0.55,0.88].forEach(f=>{
+   const cx=W*f; ctx.fillRect(cx,gy-22,4,22); ctx.beginPath(); ctx.arc(cx+2,gy-26,5,0,Math.PI*2); ctx.fill();
+  });
+ }else if(th==='volcano'){
+  ctx.fillStyle=gcDarken(m.accent,0.3); ctx.globalAlpha=0.6;
+  ctx.beginPath(); ctx.moveTo(W*0.38,gy); ctx.lineTo(W*0.5,gy-130); ctx.lineTo(W*0.62,gy); ctx.fill();
+  ctx.fillStyle='#ff6040'; ctx.globalAlpha=0.55+Math.sin(t*0.2)*0.2;
+  ctx.beginPath(); ctx.arc(W*0.5,gy-125,10,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='rgba(80,40,30,0.35)'; ctx.globalAlpha=0.5;
+  for(let i=0;i<5;i++){
+   const sx=W*0.5+(i-2)*18, sy=gy-130-Math.sin(t*0.3+i)*20;
+   ctx.beginPath(); ctx.arc(sx,sy,8+i*2,0,Math.PI*2); ctx.fill();
+  }
+ }else if(th==='quarry'){
+  ctx.strokeStyle=m.accent; ctx.globalAlpha=0.45; ctx.lineWidth=2;
+  for(let i=0;i<12;i++){
+   const px=(i*88+(t*2))%(W+50), h=20+(i%5)*12;
+   ctx.strokeRect(px,gy-h,14,h);
+   ctx.beginPath(); ctx.moveTo(px+7,gy-h-10); ctx.lineTo(px+7,gy-h); ctx.stroke();
+  }
+  ctx.fillStyle='rgba(200,220,235,0.25)';
+  for(let i=0;i<8;i++)ctx.fillRect((i*120+30)%W,gy-6,10,6);
+ }else if(th==='rainbow'){
+  const cx=W*0.5,cy=gy-100;
+  const colors=['#ff4060','#f0b429','#3ecf8a','#4ea8ff','#b06af0'];
+  colors.forEach((col,i)=>{
+   ctx.strokeStyle=col; ctx.globalAlpha=0.35; ctx.lineWidth=5;
+   ctx.beginPath(); ctx.arc(cx,cy+40,120+i*14,Math.PI*1.05,Math.PI*1.95); ctx.stroke();
+  });
+  ctx.strokeStyle=m.accent; ctx.globalAlpha=0.4; ctx.lineWidth=3;
+  ctx.beginPath(); ctx.arc(W*0.5,gy+30,W*0.35,Math.PI,0); ctx.stroke();
+ }
+ ctx.restore();
+}
 
 const GC_UPGRADES=[
  {id:'firerate',name:'Rapid Crystal',desc:'Shoot faster',max:5,cost:40,fn:u=>{u.cooldown=Math.max(0.05,0.12-u.levels.firerate*0.014);}},
@@ -395,12 +505,18 @@ function playGemCopter(){
   heliGrid.querySelectorAll('.gc-heli').forEach(el=>el.classList.toggle('on',el.dataset.heli===gcPickHeli));
  };
  const grid=document.getElementById('gc-map-grid');
- const progress=+(localStorage.getItem('lithos_gc_map')||'1');
+ const progress=gcMapUnlockProgress();
+ if(ownerOn){
+  const mapNote=document.createElement('p');
+  mapNote.className='gc-owner-shop-tag';
+  mapNote.textContent='👑 Owner — all 10 maps unlocked · pick any biome';
+  grid.parentElement.insertBefore(mapNote,grid);
+ }
  grid.innerHTML=GC_MAPS.map(m=>{
-  const locked=m.id>progress;
+  const locked=!ownerOn&&m.id>progress;
   return `<button type="button" class="gc-map${locked?' locked':''}" data-map="${m.id}" ${locked?'disabled':''}>
    <b>${m.id}. ${m.name}</b>
-   <span>${locked?'🔒 Clear previous map':'Boss: '+m.boss}</span>
+   <span>${locked?'🔒 Clear previous map':((m.tag||'')+' · Boss: '+m.boss)}</span>
   </button>`;
  }).join('');
  grid.onclick=e=>{
@@ -417,6 +533,10 @@ function playGemCopter(){
 }
 
 function gcStartMap(mapId, carry, heliId){
+ const progress=gcMapUnlockProgress();
+ if(!gcIsOwner()&&mapId>progress){
+  mapId=Math.min(10,Math.max(1,progress));
+ }
  const map=GC_MAPS.find(m=>m.id===mapId)||GC_MAPS[0];
  let heli=GC_HELIS.find(h=>h.id===(carry?.heliId||heliId||gcPickHeli))||GC_HELIS[0];
  if(heli.ownerOnly&&!gcIsOwner())heli=GC_HELIS[0];
@@ -1232,6 +1352,7 @@ function gcDraw(){
   ctx.beginPath(); ctx.moveTo(hx,gy); ctx.lineTo(hx+60,gy-48); ctx.lineTo(hx+120,gy); ctx.fill();
  }
  ctx.globalAlpha=1;
+ gcDrawMapTheme(ctx,s,m,gy);
 
  if(s.military){
   s.military.forEach(u=>{
