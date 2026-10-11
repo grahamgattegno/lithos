@@ -1,7 +1,7 @@
 /* Gem Copter — helicopter + gemstone turret vs gem zombies, bosses, upgrades, 10 maps */
 (function(){
 'use strict';
-const GEM_COPTER_BUILD=56;
+const GEM_COPTER_BUILD=57;
 
 const GC_HELIS=[
  {id:'scout',name:'Gem Scout',emoji:'🚁',desc:'Balanced starter',speedMult:1,hpMult:1,dmgMult:1,hull:'#c9a94f'},
@@ -141,6 +141,7 @@ function playGemCopter(){
     <p class="gc-lede">Pick a <b>helicopter</b>, then a map. Destroy <b>4 zombie hearts</b> — your <b>military</b> helps on the ground!</p>
     <div class="gc-heli-grid" id="gc-heli-grid"></div>
     <div class="gc-map-grid" id="gc-map-grid"></div>
+    <p class="gc-version-banner" id="gc-version-banner">Build ${GEM_COPTER_BUILD} — pick a helicopter, then a map ↓</p>
     <p class="gc-hint">WASD fly · mouse aim · Space rapid fire · Owner: <b>E</b> missiles · Esc quit</p>
    </div>
    <div id="gc-play" hidden>
@@ -820,7 +821,7 @@ function gcShowVictory(){
   </div>`;
  gcRenderShop();
  const nextBtn=document.getElementById('gc-next');
- if(nextBtn) nextBtn.onclick=()=>gcStartMap(next,{upgrades:s.upgrades,gems:s.gems});
+ if(nextBtn) nextBtn.onclick=()=>gcStartMap(next,{upgrades:s.upgrades,gems:s.gems,heliId:s.heli?.id});
  const winall=document.getElementById('gc-winall');
  if(winall) winall.onclick=()=>{gcClose();playGemCopter();};
  document.getElementById('gc-shop-leave').onclick=()=>gcClose();
