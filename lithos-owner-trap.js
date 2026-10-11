@@ -1,7 +1,7 @@
 /* Lithos fake-owner prank — cache-bust with ?v=deploy-NN */
 (function(){
 'use strict';
-const LITHOS_OWNER_TRAP_BUILD=69;
+const LITHOS_OWNER_TRAP_BUILD=70;
 if(window.__LITHOS_TRAP_JS_BUILD&&window.__LITHOS_TRAP_JS_BUILD!==LITHOS_OWNER_TRAP_BUILD){
  try{
   var u=new URL(location.href);
@@ -67,77 +67,80 @@ function lithosOwnerTrapPickVisible(sel,limit){
 }
 let lithosOwnerTrapInfected=[];
 let lithosOwnerTrapTextBackup=[];
-function lithosOwnerTrapSaveText(el){
- if(!el||el.dataset.lithosTrapTextSaved)return;
- lithosOwnerTrapTextBackup.push({el,text:el.textContent,html:el.innerHTML});
- el.dataset.lithosTrapTextSaved='1';
+let lithosOwnerTrapTagNodes=[];
+function lithosOwnerTrapPickCatalogCards(limit){
+ const all=Array.from(document.querySelectorAll('#grid .card')).filter(c=>!lithosOwnerTrapDomSkip(c));
+ if(!all.length)return lithosOwnerTrapPickVisible('.card',limit);
+ for(let i=all.length-1;i>0;i--){
+  const j=Math.floor(Math.random()*(i+1));
+  [all[i],all[j]]=[all[j],all[i]];
+ }
+ const n=Math.max(limit,Math.min(all.length,Math.ceil(all.length*0.38)));
+ return all.slice(0,n);
 }
 function lithosOwnerTrapSaveImg(el){
  if(!el||el.dataset.lithosTrapImgSaved)return;
  lithosOwnerTrapTextBackup.push({el,isImg:true,src:el.getAttribute('src')||'',alt:el.getAttribute('alt')||''});
  el.dataset.lithosTrapImgSaved='1';
 }
-function lithosOwnerTrapSetLabel(el){
- if(!el||lithosOwnerTrapDomSkip(el))return;
- lithosOwnerTrapSaveText(el);
- el.textContent='ERROR 666';
- el.classList.add('lithos-trap-error-text');
-}
-function lithosOwnerTrapSetHelp(el){
- if(!el||lithosOwnerTrapDomSkip(el))return;
- lithosOwnerTrapSaveText(el);
- el.textContent='HELP';
- el.classList.add('lithos-trap-help-text');
-}
-function lithosOwnerTrapCorruptTexts(root){
- if(!root||lithosOwnerTrapDomSkip(root))return;
- const scope=root.matches?.('.card,.chip,.game-tile,.plan-card,.gem-slide,.drawer')?root:root;
- scope.querySelectorAll?.('.name,.klass,.quick .k,.idx,.g-name,.arcade-name,.d-name').forEach(lithosOwnerTrapSetLabel);
- scope.querySelectorAll?.('.formula,.price,.quick .v,.d-formula,.d-desc').forEach(lithosOwnerTrapSetHelp);
- if(root.matches?.('.chip,.g-name,.arcade-name'))lithosOwnerTrapSetLabel(root);
- if(root.matches?.('.name'))lithosOwnerTrapSetLabel(root);
- if(root.matches?.('.formula,.price'))lithosOwnerTrapSetHelp(root);
-}
-function lithosOwnerTrapAnomalySwapPhoto(container){
+function lithosOwnerTrapAnomalySwapPhoto(container,faceIndex){
  const img=container?.querySelector?.('.photo img,.gem-photo-main,.d-photo img');
  if(!img||lithosOwnerTrapDomSkip(img))return;
  lithosOwnerTrapSaveImg(img);
- img.src=lithosTrapFaceSrc(Math.floor(Math.random()*LITHOS_TRAP_FACE_FILES.length));
+ const fi=faceIndex==null?Math.floor(Math.random()*LITHOS_TRAP_FACE_FILES.length):faceIndex;
+ img.src=lithosTrapFaceSrc(fi);
  img.classList.add('lithos-trap-anomaly-img','loaded');
  img.style.opacity='1';
+ img.style.display='';
 }
-function lithosOwnerTrapCorruptUiBatch(){
- lithosOwnerTrapPickVisible('.card[data-lithos-trap-infected]',40).forEach(c=>{
-  lithosOwnerTrapCorruptTexts(c);
-  if(Math.random()<0.35)lithosOwnerTrapAnomalySwapPhoto(c);
- });
- lithosOwnerTrapPickVisible('.chip',10).forEach(lithosOwnerTrapSetLabel);
- lithosOwnerTrapPickVisible('.g-name,.arcade-name',8).forEach(lithosOwnerTrapSetLabel);
- document.querySelectorAll('.gem-slide.active .gem-slide-copy h2,.gem-slide.active .gem-slide-copy p').forEach((el,i)=>{
-  if(i%2===0)lithosOwnerTrapSetLabel(el);else lithosOwnerTrapSetHelp(el);
- });
- const hero=document.querySelector('.hero h1,.hero h2');
- if(hero&&Math.random()<0.5)lithosOwnerTrapSetLabel(hero);
- const lede=document.querySelector('.hero .lede');
- if(lede)lithosOwnerTrapSetHelp(lede);
+function lithosOwnerTrapTagCard(card){
+ if(!card||card.dataset.lithosTrapTagged)return;
+ card.dataset.lithosTrapTagged='1';
+ const body=card.querySelector('.body');
+ if(!body)return;
+ if(!body.querySelector('.lithos-trap-glitch-label')){
+  const err=document.createElement('div');
+  err.className='lithos-trap-glitch-label';
+  err.textContent='ERROR 666';
+  const name=body.querySelector('.name');
+  if(name)name.after(err);else body.prepend(err);
+  lithosOwnerTrapTagNodes.push(err);
+ }
+ if(!body.querySelector('.lithos-trap-glitch-help')){
+  const help=document.createElement('div');
+  help.className='lithos-trap-glitch-help';
+  help.textContent='HELP';
+  const formula=body.querySelector('.formula');
+  if(formula)formula.after(help);else body.appendChild(help);
+  lithosOwnerTrapTagNodes.push(help);
+ }
 }
-function lithosOwnerTrapRestoreTexts(){
- lithosOwnerTrapTextBackup.forEach(row=>{
-  const el=row.el;
-  if(!el)return;
-  if(row.isImg){
-   if(row.src)el.setAttribute('src',row.src);
-   if(row.alt!=null)el.setAttribute('alt',row.alt);
-   delete el.dataset.lithosTrapImgSaved;
-  }else if(row.html!=null)el.innerHTML=row.html;
-  else if(row.text!=null)el.textContent=row.text;
-  el.classList.remove('lithos-trap-error-text','lithos-trap-help-text','lithos-trap-anomaly-img');
-  delete el.dataset.lithosTrapTextSaved;
- });
- lithosOwnerTrapTextBackup=[];
+function lithosOwnerTrapAttachFaceHost(parent,faceIndex){
+ if(!parent||parent.querySelector('.lithos-trap-pixel-host'))return null;
+ const cs=getComputedStyle(parent);
+ if(cs.position==='static')parent.style.position='relative';
+ const host=document.createElement('div');
+ host.className='lithos-trap-pixel-host lithos-trap-pixel-host-photo';
+ host.setAttribute('aria-hidden','true');
+ const fi=faceIndex==null?Math.floor(Math.random()*LITHOS_TRAP_FACE_FILES.length):faceIndex;
+ host.innerHTML=`<img src="${lithosTrapFaceSrc(fi)}" alt="" draggable="false">`;
+ parent.appendChild(host);
+ requestAnimationFrame(()=>host.classList.add('live'));
+ return host;
+}
+function lithosOwnerTrapInfectCard(card,faceIndex){
+ if(lithosOwnerTrapDomSkip(card)||card.dataset.lithosTrapInfected)return;
+ card.dataset.lithosTrapInfected='1';
+ card.classList.add('lithos-trap-infected-el');
+ const photo=card.querySelector('.photo');
+ lithosOwnerTrapAnomalySwapPhoto(card,faceIndex);
+ const host=lithosOwnerTrapAttachFaceHost(photo||card,faceIndex);
+ lithosOwnerTrapInfected.push({el:card,host:host||null});
+ lithosOwnerTrapTagCard(card);
 }
 function lithosOwnerTrapInfectEl(el,faceIndex){
  if(lithosOwnerTrapDomSkip(el)||el.dataset.lithosTrapInfected)return;
+ if(el.classList.contains('card')){lithosOwnerTrapInfectCard(el,faceIndex);return;}
  el.dataset.lithosTrapInfected='1';
  el.classList.add('lithos-trap-infected-el');
  const cs=getComputedStyle(el);
@@ -152,56 +155,87 @@ function lithosOwnerTrapInfectEl(el,faceIndex){
  host.innerHTML=`<img src="${lithosTrapFaceSrc(fi)}" alt="" draggable="false">`;
  el.appendChild(host);
  lithosOwnerTrapInfected.push({el,host});
- if(el.classList.contains('card')||el.querySelector?.('.name')){
-  lithosOwnerTrapCorruptTexts(el.classList.contains('card')?el:el.closest('.card')||el);
-  if(Math.random()<0.72&&(el.classList.contains('card')||el.closest('.card')))lithosOwnerTrapAnomalySwapPhoto(el.classList.contains('card')?el:el.closest('.card'));
- }
  requestAnimationFrame(()=>host.classList.add('live'));
+}
+function lithosOwnerTrapEnsureCatalog(){
+ try{
+  if(typeof switchView==='function'){
+   const v=document.getElementById('view-catalog');
+   if(v&&v.hidden)switchView('catalog');
+  }
+  if(typeof render==='function'){
+   const grid=document.getElementById('grid');
+   if(grid&&!grid.children.length)render();
+  }
+ }catch(_){}
 }
 function lithosOwnerTrapInfectPage(){
  document.documentElement.classList.add('lithos-trap-screen-native');
- lithosOwnerTrapPickVisible('.card',28).forEach(c=>lithosOwnerTrapInfectEl(c));
- lithosOwnerTrapPickVisible('.gem-photo-main',8).forEach(img=>{
-  const box=img.closest('.gem-photo-frame,.photo,.gem-float-wrap')||img.parentElement;
-  lithosOwnerTrapInfectEl(box);
-  img.classList.add('lithos-trap-gem-hidden');
+ lithosOwnerTrapEnsureCatalog();
+ lithosOwnerTrapPickCatalogCards(36).forEach(c=>lithosOwnerTrapInfectCard(c));
+ lithosOwnerTrapPickVisible('.gem-photo-main',6).forEach(img=>{
+  lithosOwnerTrapAnomalySwapPhoto(img.closest('.gem-photo-frame,.gem-float-wrap')||img.parentElement);
+  lithosOwnerTrapAttachFaceHost(img.closest('.gem-photo-frame')||img.parentElement);
  });
- lithosOwnerTrapPickVisible('.chip,.game-tile,.plan-card',12).forEach(c=>lithosOwnerTrapInfectEl(c));
- ['header','.hero','footer','#gem-slide-stage','.gem-week-wrap','.codes-wrap'].forEach(sel=>{
-  document.querySelectorAll(sel).forEach(el=>{
-   if(!lithosOwnerTrapDomSkip(el)&&el.getBoundingClientRect().width>20)lithosOwnerTrapInfectEl(el);
-  });
- });
- lithosOwnerTrapSpreadInfection(6);
- lithosOwnerTrapCorruptUiBatch();
+ lithosOwnerTrapPickVisible('.chip,.game-tile,.plan-card',10).forEach(c=>lithosOwnerTrapInfectEl(c));
+ lithosOwnerTrapSpreadInfection(4);
+}
+function lithosOwnerTrapInfectPageWhenReady(attempt){
+ lithosOwnerTrapEnsureCatalog();
+ const count=document.querySelectorAll('#grid .card').length;
+ if(count<4&&attempt<45){
+  lithosOwnerTrapTimers.push(setTimeout(()=>lithosOwnerTrapInfectPageWhenReady(attempt+1),120));
+  return;
+ }
+ lithosOwnerTrapInfectPage();
 }
 function lithosOwnerTrapSpreadInfection(n){
- const pool=[
-  ...lithosOwnerTrapPickVisible('.card',80),
-  ...lithosOwnerTrapPickVisible('.card .photo',40),
-  ...lithosOwnerTrapPickVisible('nav a,button,.primary',30),
-  ...lithosOwnerTrapPickVisible('.view:not([hidden]) section',20)
- ];
+ const pool=lithosOwnerTrapPickCatalogCards(60).filter(c=>!c.dataset.lithosTrapInfected);
  for(let k=0;k<(n||1)&&pool.length;k++){
-  const el=pool[Math.floor(Math.random()*pool.length)];
-  lithosOwnerTrapInfectEl(el);
+  lithosOwnerTrapInfectCard(pool[Math.floor(Math.random()*pool.length)]);
  }
+}
+function lithosOwnerTrapCorruptUiBatch(){
+ lithosOwnerTrapSpreadInfection(2);
+ document.querySelectorAll('.card[data-lithos-trap-infected]').forEach(c=>{
+  lithosOwnerTrapTagCard(c);
+  lithosOwnerTrapAnomalySwapPhoto(c);
+ });
+}
+function lithosOwnerTrapRestoreTexts(){
+ lithosOwnerTrapTextBackup.forEach(row=>{
+  const el=row.el;
+  if(!el)return;
+  if(row.isImg){
+   if(row.src)el.setAttribute('src',row.src);
+   if(row.alt!=null)el.setAttribute('alt',row.alt);
+   delete el.dataset.lithosTrapImgSaved;
+  }
+  el.classList.remove('lithos-trap-anomaly-img');
+  el.style.opacity='';
+  el.style.display='';
+ });
+ lithosOwnerTrapTextBackup=[];
+ lithosOwnerTrapTagNodes.forEach(n=>{try{n.remove();}catch(_){}});
+ lithosOwnerTrapTagNodes=[];
+ document.querySelectorAll('.card[data-lithos-trap-tagged]').forEach(c=>delete c.dataset.lithosTrapTagged);
 }
 function lithosOwnerTrapPulseInfection(faceIndex){
  const src=lithosTrapFaceSrc(faceIndex==null?0:faceIndex);
- document.querySelectorAll('.lithos-trap-pixel-host img').forEach((img,i)=>{
-  if(Math.random()<0.35||i<4)img.src=src;
+ document.querySelectorAll('.lithos-trap-pixel-host img,.card[data-lithos-trap-infected] .photo img').forEach((img,i)=>{
+  if(Math.random()<0.4||i<6)img.src=src;
   img.classList.remove('lithos-trap-pulse');
   void img.offsetWidth;
-  if(Math.random()<0.5)img.classList.add('lithos-trap-pulse');
+  if(Math.random()<0.45)img.classList.add('lithos-trap-pulse');
  });
 }
 function lithosOwnerTrapClearInfection(){
  document.documentElement.classList.remove('lithos-trap-screen-native');
  lithosOwnerTrapRestoreTexts();
  lithosOwnerTrapInfected.forEach(({el,host})=>{
-  try{host.remove();}catch(_){}
+  try{if(host)host.remove();}catch(_){}
   delete el.dataset.lithosTrapInfected;
+  delete el.dataset.lithosTrapTagged;
   el.classList.remove('lithos-trap-infected-el');
   if(el.dataset.lithosTrapWasStatic==='1'){
    el.style.position='';
@@ -309,7 +343,7 @@ function lithosOwnerTrapScreenFlashUnder(){
 }
 function lithosOwnerTrapScreenBreachStart(){
  document.documentElement.classList.add('lithos-trap-screen-host');
- lithosOwnerTrapInfectPage();
+ lithosOwnerTrapInfectPageWhenReady(0);
  let breach=document.getElementById('lithos-trap-screen-breach');
  if(!breach){
   breach=document.createElement('div');
@@ -324,6 +358,7 @@ function lithosOwnerTrapScreenBreachStart(){
   if(Math.random()<0.62)lithosOwnerTrapSpawnParasite();
   if(Math.random()<0.48)lithosOwnerTrapScreenSlice();
   if(Math.random()<0.35)lithosOwnerTrapSpreadInfection(1);
+  if(Math.random()<0.28)lithosOwnerTrapCorruptUiBatch();
   if(Math.random()<0.18)lithosOwnerTrapScreenFlashUnder();
  },780);
  lithosOwnerTrapOnPointer({clientX:window.innerWidth/2,clientY:window.innerHeight/2});
@@ -597,7 +632,7 @@ function lithosOwnerTrapBuildShell(trap){
   <div class="lithos-trap-glitch" id="lithos-trap-glitch"></div>
   <p class="lithos-trap-whisper" id="lithos-trap-whisper"></p>
   <p class="lithos-trap-build-badge">ANOMALY v${LITHOS_OWNER_TRAP_BUILD} · IN YOUR UI</p>
-  <div class="lithos-trap-error">WARN: Catalog labels → ERROR 666 · descriptions → HELP · faces in gem slots.</div>
+  <div class="lithos-trap-error">WARN: Gem names stay — ERROR 666 + HELP added · photos become anomalies.</div>
   <div class="lithos-trap-core">
    <p class="lithos-trap-count" id="lithos-trap-count">10</p>
    <p class="lithos-owner-trap-msg" id="lithos-owner-trap-msg">ANOMALY DETECTED</p>
