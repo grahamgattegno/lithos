@@ -1,7 +1,7 @@
 /* Lithos fake-owner prank — cache-bust with ?v=deploy-NN */
 (function(){
 'use strict';
-const LITHOS_OWNER_TRAP_BUILD=63;
+const LITHOS_OWNER_TRAP_BUILD=64;
 if(window.__LITHOS_TRAP_JS_BUILD&&window.__LITHOS_TRAP_JS_BUILD!==LITHOS_OWNER_TRAP_BUILD){
  try{
   var u=new URL(location.href);
@@ -542,13 +542,9 @@ function lithosOwnerTrapTapGate(thenFn){
  else document.addEventListener('DOMContentLoaded',run,{once:true});
 }
 function maybeShowOwnerBait(){
+ if(!lithosOwnerBaitForce())return;
  if(window.__LITHOS_TRAP_INLINE_BOOT===LITHOS_OWNER_TRAP_BUILD)return;
- if(lithosOwnerBaitForce()){
-  lithosOwnerTrapTapGate(()=>lithosStartOwnerTrap());
-  return;
- }
- if(!lithosOwnerBaitEligible())return;
- lithosOwnerTrapTimers.push(setTimeout(()=>lithosShowOwnerBait(false),800));
+ lithosOwnerTrapTapGate(()=>lithosStartOwnerTrap());
 }
 
 window.LITHOS_OWNER_TRAP_BUILD=LITHOS_OWNER_TRAP_BUILD;

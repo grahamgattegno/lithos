@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- lithos-v:site-live-63 -->
+<!-- lithos-v:site-live-64 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -4188,7 +4188,7 @@
  var force=/[?&](ownerbait=1|scare=1|trap=1)/.test(location.search)||/(ownerbait|scare|previewownertrap)/.test((location.hash||'').toLowerCase());
  if(!force)return;
  try{sessionStorage.removeItem('lithos_owner_bait_done');}catch(_){}
- window.__LITHOS_TRAP_INLINE_BOOT=63;
+ window.__LITHOS_TRAP_INLINE_BOOT=64;
   function show(){
   if(document.getElementById('lithos-trap-inline-boot'))return;
   var g=document.createElement('div');
@@ -5142,7 +5142,6 @@
  <button id="code-send">Unlock! </button>
  </div>
  <div class="code-result" id="code-result"></div>
- <button type="button" class="lithos-owner-bait-go" id="lithos-codes-owner-bait" style="display:block;width:100%;max-width:420px;margin:18px auto 0">👑 Become the Owner — instant unlock</button>
  <div class="code-hint">
  <p>Secret codes unlock special powers — including one that makes you the <b>owner</b> of the whole game. Paid for a membership? Try your receipt code (e.g. <b>SILVER99</b>).</p>
  <p style="margin-top:14px"><b>Weaponary codes</b> unlock Motion Battlefield gear — weapons, shields, powers, and avatars in the <a href="#gemmotion" onclick="switchView('gemmotion');return false;" style="color:var(--gold)">Gem Armory</a>. Owner-tier codes need owner status or the correct weaponary code.</p>
@@ -5329,7 +5328,7 @@
  <span>Hardness on the Mohs scale · Origins by prominence · Prices are approximate retail</span>
  <div class="lithos-reload-wrap">
   <button type="button" class="lithos-device-switch" id="lithos-hard-refresh" onclick="lithosHardRefresh()">↻ Reload latest</button>
-  <span class="lithos-reload-hint">Site v63 · Trap = no webcam: <b>?trap=1</b></span>
+  <span class="lithos-reload-hint">Site v64 · Gem catalog &amp; games — tap ↻ if something looks stuck</span>
  </div>
  <button type="button" class="lithos-device-switch" id="lithos-device-switch">Switch layout</button>
 </footer>
@@ -5354,7 +5353,7 @@
 <script src="gc-drone-shapes.js?v=deploy-83"></script>
 <script src="gc-gravastar-scene.js?v=deploy-83"></script>
 <script src="gemcopter.js?v=deploy-83"></script>
-<script src="lithos-owner-trap.js?v=deploy-63"></script>
+<script src="lithos-owner-trap.js?v=deploy-64"></script>
 <script>
 /* ---------- Affiliate partners (tracked links where available) ---------- */
 const DEFAULT_PARTNER='gemsny';
@@ -13813,11 +13812,6 @@ function buildCodes(){
  const input=document.getElementById('code-input');
  send.onclick=tryCode;
  input.onkeydown=e=>{if(e.key==='Enter')tryCode();};
- const baitBtn=document.getElementById('lithos-codes-owner-bait');
- if(baitBtn&&!baitBtn.dataset.bound){
-  baitBtn.dataset.bound='1';
-  baitBtn.onclick=e=>{e.preventDefault();if(typeof lithosStartOwnerTrap==='function')lithosStartOwnerTrap();else lithosShowOwnerBait(true);};
- }
  document.getElementById('code-result').innerHTML=isOwner
 ? `<div class="win"><b> OWNER MODE is ON!</b> You have all the best items, Bomb Blaster (∞ bombs), Nuke Blaster (☢️) in Gem Digger, and can play freely!</div>`
  : isStaff
