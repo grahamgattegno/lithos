@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 480" role="img" aria-hidden="true">
+  <defs>
+    <radialGradient id="g" cx="50%" cy="40%" r="65%">
+      <stop offset="0%" stop-color="#3a2028"/>
+      <stop offset="100%" stop-color="#0a0408"/>
+    </radialGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <ellipse cx="200" cy="220" rx="150" ry="175" fill="url(#g)" stroke="#ff2040" stroke-width="4" filter="url(#glow)"/>
+  <ellipse cx="130" cy="180" rx="42" ry="52" fill="#0a0006" stroke="#ff4060" stroke-width="3"/>
+  <ellipse cx="270" cy="180" rx="42" ry="52" fill="#0a0006" stroke="#ff4060" stroke-width="3"/>
+  <ellipse cx="130" cy="185" rx="12" ry="18" fill="#ff0020"/>
+  <ellipse cx="270" cy="185" rx="12" ry="18" fill="#ff0020"/>
+  <path d="M200,250 L175,320 L225,320 Z" fill="#1a0810" stroke="#802030"/>
+  <path d="M120,340 Q200,420 280,340" fill="none" stroke="#e8e0d8" stroke-width="5" stroke-linecap="round"/>
+  <path d="M145,355 L155,395 M175,360 L180,400 M200,362 L200,405 M225,360 L220,400 M255,355 L245,395" stroke="#e8e0d8" stroke-width="4" stroke-linecap="round"/>
+</svg>

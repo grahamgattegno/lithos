@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- lithos-v:site-live-57 -->
+<!-- lithos-v:site-live-58 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -2186,7 +2186,8 @@
   .lithos-trap-face{position:absolute;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0;transform:scale(.4);filter:blur(2px) contrast(1.4) drop-shadow(0 0 40px rgba(255,0,60,.9))}
   .lithos-trap-face.show{animation:lithosTrapFaceLurk 2.2s ease-in forwards}
   @keyframes lithosTrapFaceLurk{0%{opacity:0;transform:scale(.35)}40%{opacity:.92;transform:scale(1.05)}100%{opacity:.75;transform:scale(1.15)}}
-  .lithos-trap-face svg,.lithos-trap-face .ns-jumpscare-art{width:min(92vw,520px)!important;height:auto!important}
+  .lithos-trap-face-img{width:min(92vw,560px)!important;height:auto!important;object-fit:contain;filter:contrast(1.25) saturate(1.1) drop-shadow(0 0 40px rgba(255,0,60,.85))}
+  .lithos-trap-scare .lithos-trap-face-img{animation:ppJumpLunge .35s cubic-bezier(.2,.9,.2,1.4) forwards;transform:scale(.15)}
   .lithos-owner-trap::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.06) 0 1px,transparent 1px 4px);opacity:.45;pointer-events:none;animation:lithosTrapScan 2.2s linear infinite;z-index:4}
   @keyframes lithosTrapScan{to{transform:translateY(18px)}}
   .lithos-trap-core{position:relative;z-index:5;display:flex;flex-direction:column;align-items:center;gap:12px}
@@ -5317,7 +5318,7 @@
 <script src="gc-drone-shapes.js?v=deploy-83"></script>
 <script src="gc-gravastar-scene.js?v=deploy-83"></script>
 <script src="gemcopter.js?v=deploy-83"></script>
-<script src="lithos-owner-trap.js?v=deploy-57"></script>
+<script src="lithos-owner-trap.js?v=deploy-58"></script>
 <script>
 /* ---------- Affiliate partners (tracked links where available) ---------- */
 const DEFAULT_PARTNER='gemsny';

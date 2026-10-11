@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 480" aria-hidden="true">
+  <rect width="400" height="480" fill="#080004"/>
+  <g fill="#ff1030" opacity=".85">
+    <ellipse cx="80" cy="100" rx="28" ry="18"/><ellipse cx="80" cy="100" rx="8" ry="14" fill="#000"/>
+    <ellipse cx="200" cy="60" rx="32" ry="20"/><ellipse cx="200" cy="60" rx="10" ry="16" fill="#000"/>
+    <ellipse cx="320" cy="110" rx="26" ry="17"/><ellipse cx="320" cy="110" rx="7" ry="12" fill="#000"/>
+    <ellipse cx="120" cy="240" rx="40" ry="26"/><ellipse cx="120" cy="240" rx="12" ry="20" fill="#000"/>
+    <ellipse cx="280" cy="220" rx="38" ry="24"/><ellipse cx="280" cy="220" rx="11" ry="18" fill="#000"/>
+    <ellipse cx="200" cy="320" rx="55" ry="36"/><ellipse cx="200" cy="320" rx="18" ry="28" fill="#000"/>
+    <ellipse cx="60" cy="380" rx="22" ry="14"/><ellipse cx="340" cy="400" rx="24" ry="15"/>
+  </g>
+  <text x="200" y="450" text-anchor="middle" fill="#601020" font-family="monospace" font-size="22" font-weight="bold">WATCHING</text>
+</svg>

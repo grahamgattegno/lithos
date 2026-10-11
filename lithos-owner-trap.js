@@ -1,7 +1,28 @@
 /* Lithos fake-owner prank — cache-bust with ?v=deploy-NN */
 (function(){
 'use strict';
-const LITHOS_OWNER_TRAP_BUILD=57;
+const LITHOS_OWNER_TRAP_BUILD=58;
+const LITHOS_TRAP_FACE_FILES=[
+ 'images/trap/skull-grin.svg',
+ 'images/trap/hollow-face.svg',
+ 'images/trap/scream-mask.svg',
+ 'images/trap/shadow-figure.svg',
+ 'images/trap/many-eyes.svg'
+];
+function lithosTrapFaceSrc(i){
+ const n=LITHOS_TRAP_FACE_FILES.length;
+ const file=LITHOS_TRAP_FACE_FILES[((i%n)+n)%n];
+ try{
+  if(typeof lithosBasePath==='function')return lithosBasePath()+file;
+ }catch(_){}
+ const path=location.pathname||'/';
+ const base=path.replace(/\/[^/]*$/,'/');
+ return (base.endsWith('/')?base:base+'/')+file;
+}
+function lithosTrapFaceMarkup(i){
+ const src=lithosTrapFaceSrc(i);
+ return `<img class="lithos-trap-face-img" src="${src}" alt="" width="560" height="560" decoding="sync" draggable="false">`;
+}
 const LITHOS_OWNER_BAIT_KEY='lithos_owner_bait_done';
 let lithosOwnerTrapActive=false;
 let lithosOwnerTrapTimers=[];
@@ -121,7 +142,6 @@ const lithosOwnerTrapHorrorSfx=(()=>{
    noise(0.65,0.16,250,2600);
    tone('sawtooth',140,0.3,0.12,55);
    tone('sawtooth',90,0.35,0.1,40);
-   try{if(typeof SFX!=='undefined'&&SFX.talk)SFX.talk('foxy');}catch(_){}
   },
   burst(){
    resumeSync();
@@ -140,9 +160,7 @@ const lithosOwnerTrapHorrorSfx=(()=>{
    noise(0.35,0.28,80,11000);
    tone('sawtooth',200-n*20,0.15,0.35,45);
    tone('square',800+n*100,0.06,0.3);
-   try{
-    if(typeof SFX!=='undefined'&&SFX.jumpscare)SFX.jumpscare(['golden','freddy','foxy','chica','bonnie'][n]||'golden');
-   }catch(_){}
+   tone('sawtooth',60+n*15,0.4,0.28,22);
   },
   scream(){
    resumeSync();stop();
@@ -153,15 +171,8 @@ const lithosOwnerTrapHorrorSfx=(()=>{
    setTimeout(()=>noise(0.75,0.36,50,6000),40);
    setTimeout(()=>tone('square',1600,0.1,0.28),70);
    setTimeout(()=>tone('sawtooth',70,0.5,0.3,25),120);
-   try{
-    if(typeof SFX!=='undefined'&&SFX.jumpscare)SFX.jumpscare('golden');
-    if(typeof SFX!=='undefined'&&SFX.jumpscare)setTimeout(()=>SFX.jumpscare('freddy'),80);
-    if(typeof SFX!=='undefined'&&SFX.jumpscare)setTimeout(()=>SFX.jumpscare('foxy'),160);
-    if(typeof SFX!=='undefined'&&SFX.jumpscare)setTimeout(()=>SFX.jumpscare('chica'),240);
-    if(typeof SFX!=='undefined'&&SFX.lose)setTimeout(()=>SFX.lose(),200);
-    if(typeof SFX!=='undefined'&&SFX.boss)setTimeout(()=>SFX.boss(),320);
-    if(typeof SFX!=='undefined'&&SFX.jumpscare)setTimeout(()=>SFX.jumpscare('golden'),400);
-   }catch(_){}
+   setTimeout(()=>noise(0.4,0.3,50,8000),150);
+   setTimeout(()=>tone('square',200,0.15,0.26),200);
   }
  };
 })();
@@ -247,18 +258,15 @@ function lithosOwnerTrapWhisper(text){
  void el.offsetWidth;
  el.classList.add('on');
 }
-function lithosOwnerTrapShowFace(bot){
+function lithosOwnerTrapShowFace(faceIndex){
  const face=document.getElementById('lithos-trap-face');
  if(!face)return;
- let art='';
- try{if(typeof nsBotSVG==='function')art=nsBotSVG(bot||'golden',580);}catch(_){}
- face.innerHTML=art?`<div class="ns-jumpscare-art pose-jumpscare">${art}</div>`:'';
+ face.innerHTML=lithosTrapFaceMarkup(faceIndex);
  face.classList.remove('show');
  void face.offsetWidth;
  face.classList.add('show');
 }
 function lithosOwnerTrapBuildShell(trap){
- const bots=['golden','freddy','foxy','chica','bonnie'];
  trap.innerHTML=`
   <div class="lithos-trap-vignette"></div>
   <div class="lithos-trap-blood"></div>
@@ -275,7 +283,7 @@ function lithosOwnerTrapBuildShell(trap){
    <p class="lithos-owner-trap-msg" id="lithos-owner-trap-msg">OWNER LOCK ENGAGED</p>
    <p class="lithos-owner-trap-sub" id="lithos-owner-trap-sub">You cannot leave. It is already behind you.</p>
   </div>`;
- lithosOwnerTrapHorror={phase:0.35,bots,faceI:0,whisperI:0};
+ lithosOwnerTrapHorror={phase:0.35,faceI:0,whisperI:0};
  requestAnimationFrame(lithosOwnerTrapStaticLoop);
 }
 function lithosOwnerTrapEnterFs(el){
@@ -305,7 +313,7 @@ function lithosOwnerTrapTitleTerror(){
 }
 const LITHOS_TRAP_WHISPERS=['TURN AROUND','DON\'T BLINK','WE\'RE IN THE WALLS','YOU OPENED THE DOOR','IT\'S ON YOUR CHAIR','NOT THE OWNER','LISTEN'];
 function lithosOwnerTrapScareAudio(){
- if(!lithosOwnerTrapHorror)lithosOwnerTrapHorror={phase:0.35,bots:['golden'],faceI:0,whisperI:0};
+ if(!lithosOwnerTrapHorror)lithosOwnerTrapHorror={phase:0.35,faceI:0,whisperI:0};
  lithosOwnerTrapHorror.phase=Math.min(1,lithosOwnerTrapHorror.phase+0.1);
  lithosOwnerTrapHorrorSfx.stinger(lithosOwnerTrapHorror.phase);
  if(lithosOwnerTrapHorror.phase>0.25&&Math.random()<0.65)lithosOwnerTrapHorrorSfx.whisper();
@@ -335,15 +343,13 @@ function lithosOwnerTrapEnd(){
  document.body.appendChild(toast);
  lithosOwnerTrapTimers.push(setTimeout(()=>toast.remove(),5000));
 }
-function lithosOwnerTrapShowHit(bot,bg,title){
+function lithosOwnerTrapShowHit(faceIndex,bg,title){
  const trap=document.getElementById('lithos-owner-trap');
  if(!trap)return;
  trap.classList.add('lithos-trap-intense');
  trap.classList.remove('lithos-trap-invert');
- let art='';
- try{if(typeof nsBotSVG==='function')art=nsBotSVG(bot,620);}catch(_){}
  trap.innerHTML=`<div class="pp-jumpscare lithos-trap-scare" style="position:fixed;inset:0;z-index:10055;display:flex;flex-direction:column;align-items:center;justify-content:center;background:${bg||'#000'}">
-  ${art?`<div class="ns-jumpscare-art pose-jumpscare">${art}</div>`:''}
+  ${lithosTrapFaceMarkup(faceIndex)}
   ${title?`<p class="lithos-trap-scare-title">${title}</p>`:''}
  </div>`;
  lithosOwnerTrapFlash();
@@ -360,24 +366,24 @@ function lithosOwnerTrapFinale(){
  lithosOwnerTrapTimers.push(setTimeout(()=>{
   lithosOwnerTrapHorrorSfx.unmute();
   lithosOwnerTrapHorrorSfx.scream();
-  lithosOwnerTrapShowHit('golden','#fff','NOT THE OWNER');
+  lithosOwnerTrapShowHit(0,'#fff','NOT THE OWNER');
   try{if(navigator.vibrate)navigator.vibrate([400,100,400]);}catch(_){}
  },900));
  lithosOwnerTrapTimers.push(setTimeout(()=>{
   lithosOwnerTrapHorrorSfx.hit(1);
-  lithosOwnerTrapShowHit('freddy','#1a0008','WRONG CROWN');
+  lithosOwnerTrapShowHit(1,'#1a0008','WRONG CROWN');
  },1350));
  lithosOwnerTrapTimers.push(setTimeout(()=>{
   lithosOwnerTrapHorrorSfx.hit(2);
-  lithosOwnerTrapShowHit('foxy','#fff','GET OUT');
+  lithosOwnerTrapShowHit(2,'#fff','GET OUT');
  },1750));
  lithosOwnerTrapTimers.push(setTimeout(()=>{
   lithosOwnerTrapHorrorSfx.hit(3);
-  lithosOwnerTrapShowHit('chica','#200010','YOU ARE NOT THE OWNER');
+  lithosOwnerTrapShowHit(3,'#200010','YOU ARE NOT THE OWNER');
  },2150));
  lithosOwnerTrapTimers.push(setTimeout(()=>{
   lithosOwnerTrapHorrorSfx.scream();
-  lithosOwnerTrapShowHit('golden','#fff','⛔');
+  lithosOwnerTrapShowHit(4,'#fff','⛔');
   try{if(navigator.vibrate)navigator.vibrate([500,200,500,200,600]);}catch(_){}
  },2550));
  lithosOwnerTrapTimers.push(setTimeout(lithosOwnerTrapEnd,3800));
@@ -407,7 +413,7 @@ function lithosStartOwnerTrap(){
  lithosOwnerTrapTitleTerror();
  try{if(typeof syncBodyScrollLock==='function')syncBodyScrollLock();}catch(_){}
  lithosOwnerTrapEnterFs(trap);
- lithosOwnerTrapShowFace('freddy');
+ lithosOwnerTrapShowFace(1);
  lithosOwnerTrapScareAudio();
  lithosOwnerTrapScareIv=setInterval(lithosOwnerTrapScareAudio,420);
  let fsRetries=0;
@@ -425,9 +431,8 @@ function lithosStartOwnerTrap(){
   mi=(mi+1)%msgs.length;
   const el=document.getElementById('lithos-owner-trap-msg');
   if(el)el.textContent=msgs[mi];
-  if(lithosOwnerTrapHorror&&lithosOwnerTrapHorror.bots){
-   lithosOwnerTrapShowFace(lithosOwnerTrapHorror.bots[lithosOwnerTrapHorror.faceI%lithosOwnerTrapHorror.bots.length]);
-   lithosOwnerTrapHorror.faceI++;
+  if(lithosOwnerTrapHorror){
+   lithosOwnerTrapShowFace(lithosOwnerTrapHorror.faceI++);
   }
   trap.classList.toggle('lithos-trap-intense');
  },720));
