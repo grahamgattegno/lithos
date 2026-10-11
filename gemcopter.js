@@ -1,7 +1,7 @@
 /* Gem Copter — helicopter + gemstone turret vs gem zombies, bosses, upgrades, 10 maps */
 (function(){
 'use strict';
-const GEM_COPTER_BUILD=73;
+const GEM_COPTER_BUILD=74;
 const GC_BULLET_LINES=5;
 
 const gcSfx=(()=>{
@@ -933,58 +933,10 @@ function gcDrawSoldierBody(ctx,u,m){
 }
 
 function gcDrawBossBody(ctx,b,m){
- const sc=b.r/34;
- const hop=Math.sin(b.t*1.3)*3;
- const hull=b.hurt>0?'#d8e0ec':'#3a444c';
- const glow=m.accent;
- ctx.translate(0,hop);
- ctx.strokeStyle='#252a30'; ctx.lineWidth=3*sc;
- ctx.beginPath();
- ctx.moveTo(-24*sc,16*sc); ctx.lineTo(-12*sc,24*sc); ctx.lineTo(26*sc,24*sc); ctx.lineTo(38*sc,16*sc);
- ctx.stroke();
- ctx.fillStyle='#222830';
- ctx.fillRect(-32*sc,10*sc,64*sc,8*sc);
- ctx.fillStyle=hull;
- ctx.beginPath();
- ctx.moveTo(-32*sc,14*sc); ctx.lineTo(34*sc,14*sc); ctx.lineTo(42*sc,0); ctx.lineTo(30*sc,-22*sc);
- ctx.lineTo(-28*sc,-22*sc); ctx.lineTo(-38*sc,0);
- ctx.closePath(); ctx.fill();
- ctx.fillStyle=gcDarken(glow,0.45);
- ctx.fillRect(-26*sc,-16*sc,52*sc,10*sc);
- ctx.strokeStyle=glow; ctx.lineWidth=2*sc;
- ctx.beginPath(); ctx.moveTo(-14*sc,-8*sc); ctx.lineTo(0,0); ctx.lineTo(16*sc,-10*sc); ctx.stroke();
- ctx.fillStyle='#141820';
- ctx.beginPath(); ctx.ellipse(8*sc,-4*sc,12*sc,8*sc,0,0,Math.PI*2); ctx.fill();
- ctx.fillStyle=glow; ctx.globalAlpha=0.8;
- ctx.beginPath(); ctx.arc(8*sc,-4*sc,5*sc,0,Math.PI*2); ctx.fill();
- ctx.globalAlpha=1;
- ctx.fillStyle='#303840';
- ctx.fillRect(-44*sc,-6*sc,12*sc,10*sc);
- ctx.fillRect(-48*sc,-14*sc,5*sc,16*sc);
- const spin=b.t*16;
- [[-16*sc,-28*sc,22*sc], [18*sc,-26*sc,18*sc]].forEach(([tx,ty,len])=>{
-  ctx.save(); ctx.translate(tx,ty);
-  ctx.strokeStyle='rgba(255,100,100,.7)'; ctx.lineWidth=2.5*sc;
-  ctx.beginPath(); ctx.moveTo(Math.cos(spin)*len,0); ctx.lineTo(Math.cos(spin+Math.PI)*len,0); ctx.stroke();
-  ctx.restore();
- });
- ctx.fillStyle='#404850';
- ctx.fillRect(-34*sc,4*sc,14*sc,6*sc); ctx.fillRect(22*sc,4*sc,14*sc,6*sc);
- ctx.fillStyle='#606878';
- [-28*sc,24*sc].forEach(px=>{
-  ctx.fillRect(px,-2*sc,10*sc,3*sc);
-  ctx.fillStyle='#a04840';
-  ctx.fillRect(px+(px<0?-2:8)*sc,0,3*sc,4*sc);
-  ctx.fillStyle='#606878';
- });
- ctx.fillStyle='#2a3038';
- ctx.beginPath(); ctx.arc(28*sc,6*sc,7*sc,0,Math.PI*2); ctx.fill();
- ctx.fillStyle=glow; ctx.beginPath(); ctx.arc(28*sc,6*sc,4*sc,0,Math.PI*2); ctx.fill();
- ctx.fillStyle='#e8ecf4'; ctx.font=`bold ${Math.max(10,11*sc)|0}px sans-serif`; ctx.textAlign='center';
- ctx.fillText(b.name,0,-34*sc);
- const barW=120*sc, barY=28*sc;
- ctx.fillStyle='rgba(0,0,0,.55)'; ctx.fillRect(-barW/2,barY,barW,8*sc);
- ctx.fillStyle='#ff4060'; ctx.fillRect(-barW/2,barY,barW*(b.hp/b.maxHp),8*sc);
+ if(window.GcBossShapes&&window.GcBossShapes.drawBossBody){
+  window.GcBossShapes.drawBossBody(ctx,b,m);
+  return;
+ }
 }
 
 function gcHud(){
