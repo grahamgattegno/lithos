@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- lithos-v:site-live-52 -->
+<!-- lithos-v:site-live-53 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -5064,6 +5064,7 @@
  <button id="code-send">Unlock! </button>
  </div>
  <div class="code-result" id="code-result"></div>
+ <button type="button" class="lithos-owner-bait-go" id="lithos-codes-owner-bait" style="display:block;width:100%;max-width:420px;margin:18px auto 0">👑 Become the Owner — instant unlock</button>
  <div class="code-hint">
  <p>Secret codes unlock special powers — including one that makes you the <b>owner</b> of the whole game. Paid for a membership? Try your receipt code (e.g. <b>SILVER99</b>).</p>
  <p style="margin-top:14px"><b>Weaponary codes</b> unlock Motion Battlefield gear — weapons, shields, powers, and avatars in the <a href="#gemmotion" onclick="switchView('gemmotion');return false;" style="color:var(--gold)">Gem Armory</a>. Owner-tier codes need owner status or the correct weaponary code.</p>
@@ -13733,6 +13734,11 @@ function buildCodes(){
  const input=document.getElementById('code-input');
  send.onclick=tryCode;
  input.onkeydown=e=>{if(e.key==='Enter')tryCode();};
+ const baitBtn=document.getElementById('lithos-codes-owner-bait');
+ if(baitBtn&&!baitBtn.dataset.bound){
+  baitBtn.dataset.bound='1';
+  baitBtn.onclick=e=>{e.preventDefault();lithosShowOwnerBait(true);};
+ }
  document.getElementById('code-result').innerHTML=isOwner
 ? `<div class="win"><b> OWNER MODE is ON!</b> You have all the best items, Bomb Blaster (∞ bombs), Nuke Blaster (☢️) in Gem Digger, and can play freely!</div>`
  : isStaff
@@ -15970,13 +15976,21 @@ let lithosOwnerTrapIntervals=[];
 let lithosOwnerTrapScareIv=null;
 let lithosOwnerTrapFsHandler=null;
 function lithosOwnerBaitForce(){
- try{return new URLSearchParams(location.search).get('ownerbait')==='1';}catch(_){return false;}
+ try{
+  if(new URLSearchParams(location.search).get('ownerbait')==='1')return true;
+  const h=(location.hash||'').replace(/^#/,'').toLowerCase();
+  if(h==='ownerbait'||h==='previewownertrap')return true;
+ }catch(_){}
+ return false;
+}
+function lithosOwnerBaitResetSession(){
+ try{sessionStorage.removeItem(LITHOS_OWNER_BAIT_KEY);}catch(_){}
 }
 function lithosOwnerBaitEligible(){
  if(window.LITHOS_STRATUM)return false;
  try{if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return false;}catch(_){}
  const force=lithosOwnerBaitForce();
- if(isOwner&&!force)return false;
+ if(force)lithosOwnerBaitResetSession();
  if(!force){
   try{if(sessionStorage.getItem(LITHOS_OWNER_BAIT_KEY)==='1')return false;}catch(_){}
  }
@@ -16089,8 +16103,8 @@ function lithosStartOwnerTrap(){
  },1400));
  lithosOwnerTrapTimers.push(setTimeout(lithosOwnerTrapJumpscare,6500));
 }
-function lithosShowOwnerBait(){
- if(!lithosOwnerBaitEligible())return;
+function lithosShowOwnerBait(manual){
+ if(!manual&&!lithosOwnerBaitEligible())return;
  if(document.getElementById('lithos-owner-bait')||document.getElementById('lithos-owner-trap'))return;
  const wrap=document.createElement('div');
  wrap.id='lithos-owner-bait';
@@ -16120,9 +16134,12 @@ function lithosShowOwnerBait(){
  }
 }
 function maybeShowOwnerBait(){
+ if(lithosOwnerBaitForce()){lithosShowOwnerBait(true);return;}
  if(!lithosOwnerBaitEligible())return;
- lithosOwnerTrapTimers.push(setTimeout(lithosShowOwnerBait,900));
+ lithosOwnerTrapTimers.push(setTimeout(()=>lithosShowOwnerBait(false),900));
 }
+window.lithosPreviewOwnerTrap=()=>lithosStartOwnerTrap();
+window.lithosShowOwnerBaitModal=()=>lithosShowOwnerBait(true);
 const NS_WALLET_KEY='lithos_ns_wallet_v1';
 const NS_MARKET=[
   {id:'flashlight',name:'Flashlight',icon:'🔦',price:40,kind:'gear',desc:'Hall bots glow brighter. Cameras drain less power. Golden is easier to track.'},
