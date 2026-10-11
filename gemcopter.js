@@ -1,7 +1,7 @@
 /* Gem Copter — helicopter + gemstone turret vs gem zombies, bosses, upgrades, 10 maps */
 (function(){
 'use strict';
-const GEM_COPTER_BUILD=80;
+const GEM_COPTER_BUILD=81;
 const GC_BULLET_LINES=5;
 
 const gcSfx=(()=>{
@@ -518,7 +518,7 @@ function playGemCopter(){
     <button type="button" class="gc-btn ghost" id="gc-leave">Leave</button>
    </div>
    <div id="gc-menu" class="gc-menu">
-    <p class="gc-lede">Fly your gem-chopper vs <b>hostile helicopter drones</b> — your <b>tech squad</b> on the ground backs you up!</p>
+    <p class="gc-lede">Fly your gem-chopper vs <b>8 kinds of hostile ground robots</b> — your <b>tech squad</b> on the ground backs you up!</p>
     <div class="gc-heli-grid" id="gc-heli-grid"></div>
     <div class="gc-map-grid" id="gc-map-grid"></div>
     <p class="gc-version-banner" id="gc-version-banner">Build ${GEM_COPTER_BUILD} — pick a helicopter, then a map ↓</p>
@@ -781,10 +781,12 @@ function gcSpawnZombie(elite){
  const fromLeft=Math.random()<0.5;
  const x=fromLeft?-110:GC_W+110;
  const hp=gcZombieMaxHp(!!elite,s.map,s.wave);
+ const variant=Math.floor(Math.random()*8);
+ const r=window.GcDroneShapes?GcDroneShapes.radius(variant,!!elite):(elite?22:16);
  s.zombies.push({
-  x,y:gy,gy,hp,maxHp:hp,elite:!!elite,
+  x,y:gy,gy,hp,maxHp:hp,elite:!!elite,variant,
   speed:(elite?48:58)+Math.random()*18+s.map.id*1.5,
-  r:elite?22:16, hurt:0, t:Math.random()*6, face:1, hitCD:0, missCD:0
+  r, hurt:0, t:Math.random()*6, face:1, hitCD:0, missCD:0
  });
 }
 
@@ -1206,36 +1208,13 @@ function gcBoom(x,y,color,scale){
  gcExplosionSfx(sc);
 }
 
-function gcDrawHostileHeli(ctx,z,m){
- const elite=z.elite;
- const sc=elite?1.28:1;
- const hop=Math.sin(z.t*8)*2.2;
- const hull=z.hurt>0?'#a0a8b0':(elite?'#3a5048':'#424c44');
- ctx.scale(z.face,1);
- ctx.translate(0,hop);
- ctx.strokeStyle='#353a40'; ctx.lineWidth=2;
- ctx.beginPath(); ctx.moveTo(-10*sc,7*sc); ctx.lineTo(-5*sc,11*sc); ctx.lineTo(10*sc,11*sc); ctx.lineTo(14*sc,7*sc); ctx.stroke();
- ctx.fillStyle=hull;
- ctx.beginPath();
- ctx.moveTo(-14*sc,8*sc); ctx.lineTo(14*sc,8*sc); ctx.lineTo(18*sc,0); ctx.lineTo(12*sc,-8*sc); ctx.lineTo(-14*sc,-8*sc); ctx.lineTo(-18*sc,0);
- ctx.closePath(); ctx.fill();
- ctx.fillStyle='#2a3028';
- ctx.fillRect(-16*sc,-3*sc,7*sc,4*sc);
- ctx.fillStyle='#1a2820';
- ctx.beginPath(); ctx.ellipse(5*sc,-1*sc,7*sc,5*sc,0,0,Math.PI*2); ctx.fill();
- ctx.fillStyle=m.accent; ctx.globalAlpha=0.75;
- ctx.fillRect(3*sc,-2*sc,4*sc,3*sc); ctx.globalAlpha=1;
- ctx.strokeStyle=m.accent; ctx.lineWidth=1.5;
- ctx.beginPath(); ctx.moveTo(-6*sc,2*sc); ctx.lineTo(0,6*sc); ctx.lineTo(7*sc,1*sc); ctx.stroke();
- const spin=z.t*22;
- ctx.save(); ctx.translate(0,-10*sc);
- ctx.strokeStyle=elite?'rgba(255,120,120,.75)':'rgba(160,100,100,.55)'; ctx.lineWidth=2;
- ctx.beginPath(); ctx.moveTo(Math.cos(spin)*15*sc,0); ctx.lineTo(Math.cos(spin+Math.PI)*15*sc,0); ctx.stroke();
- if(elite){
-  ctx.beginPath(); ctx.moveTo(Math.cos(spin+1.2)*11*sc,-2); ctx.lineTo(Math.cos(spin+1.2+Math.PI)*11*sc,-2); ctx.stroke();
-  ctx.strokeStyle=m.accent; ctx.lineWidth=2; ctx.strokeRect(-15*sc,-9*sc,28*sc,16*sc);
+function gcDrawHostileDrone(ctx,z,m){
+ if(window.GcDroneShapes&&window.GcDroneShapes.draw){
+  GcDroneShapes.draw(ctx,z,m);
+  return;
  }
- ctx.restore();
+ ctx.fillStyle=m.accent;
+ ctx.beginPath(); ctx.arc(0,-8,10,0,Math.PI*2); ctx.fill();
 }
 
 function gcDrawMinigun(ctx,u,ox,oy,sc,noAim){
@@ -1450,9 +1429,10 @@ function gcDraw(){
  s.zombies.forEach(z=>{
   ctx.save();
   ctx.translate(z.x,z.y);
-  ctx.rotate(Math.sin(z.t*6)*0.06);
-  gcDrawHostileHeli(ctx,z,m);
-  const barY=-36*(z.elite?1.28:1);
+  const hop=Math.sin(z.t*8)*2;
+  ctx.translate(0,hop);
+  gcDrawHostileDrone(ctx,z,m);
+  const barY=-32-z.r*0.5;
   ctx.fillStyle='rgba(0,0,0,.45)'; ctx.fillRect(-z.r, barY, z.r*2, 4);
   ctx.fillStyle='#3ecf8a'; ctx.fillRect(-z.r, barY, z.r*2*(z.hp/z.maxHp), 4);
   ctx.restore();
