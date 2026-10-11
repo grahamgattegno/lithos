@@ -1,7 +1,7 @@
 /* Gem Copter — helicopter + gemstone turret vs gem zombies, bosses, upgrades, 10 maps */
 (function(){
 'use strict';
-const GEM_COPTER_BUILD=54;
+const GEM_COPTER_BUILD=55;
 
 let GC_W=960, GC_H=540;
 function gcGroundY(){ return GC_H*0.82; }
@@ -44,7 +44,7 @@ const GC_MAPS=[
 ];
 
 const GC_UPGRADES=[
- {id:'firerate',name:'Rapid Crystal',desc:'Shoot faster',max:5,cost:40,fn:u=>{u.cooldown=Math.max(0.08,0.28-u.levels.firerate*0.035);}},
+ {id:'firerate',name:'Rapid Crystal',desc:'Shoot faster',max:5,cost:40,fn:u=>{u.cooldown=Math.max(0.05,0.12-u.levels.firerate*0.014);}},
  {id:'damage',name:'Harder Gems',desc:'More bullet damage',max:5,cost:45,fn:u=>{u.damage=10+u.levels.damage*6;}},
  {id:'spread',name:'Prism Spread',desc:'Extra side shots',max:3,cost:70,fn:u=>{u.spread=u.levels.spread;}},
  {id:'armor',name:'Jade Hull',desc:'More helicopter HP',max:5,cost:50,fn:u=>{u.maxHp=100+u.levels.armor*25;}},
@@ -55,7 +55,7 @@ const GC_UPGRADES=[
 let gcRaf=null, gcKeys={}, gcPointer={x:GC_W/2,y:GC_H/2,down:false}, gcState=null;
 
 function gcDefaultUpgrades(){
- return {levels:{firerate:0,damage:0,spread:0,armor:0,speed:0,magnet:0},cooldown:0.28,damage:10,spread:0,maxHp:100,speed:220,magnet:40};
+ return {levels:{firerate:0,damage:0,spread:0,armor:0,speed:0,magnet:0},cooldown:0.12,damage:10,spread:0,maxHp:100,speed:220,magnet:40};
 }
 function gcApplyUpgrades(u){
  GC_UPGRADES.forEach(up=>up.fn(u));
@@ -126,6 +126,8 @@ function playGemCopter(){
      <span id="gc-gems">💎 0</span>
      <span id="gc-wave">Wave 1</span>
      <span id="gc-kills">Kills 0</span>
+     <span id="gc-hearts">♥ 4/4</span>
+     <span id="gc-army">🪖 4</span>
     </div>
     <div class="gc-touch gc-touch-float">
      <button type="button" id="gc-fire">🔥 Fire</button>
@@ -176,8 +178,10 @@ function gcStartMap(mapId, carry){
   fireT:0, wave:1, waveT:0, spawnLeft:0, spawnGap:0,
   kills:0, boss:null, bossSpawned:false, cleared:false, over:false,
   zombies:[], bullets:[], particles:[], pickups:[],
+  hearts:[], military:[],
   rotor:0, shake:0
  };
+ gcInitField(gcState);
  gcBindCanvas();
  let last=performance.now();
  function loop(t){
@@ -210,14 +214,39 @@ function gcBindCanvas(){
  }
 }
 
-function gcSpawnZombie(elite){
+function gcInitField(s){
+ const gy=gcGroundY();
+ const xs=[0.12,0.35,0.65,0.88];
+ s.hearts=xs.map((f,i)=>({
+  id:i,x:GC_W*f,y:gy-18,gy,
+  hp:200+s.map.id*45,maxHp:200+s.map.id*45,
+  r:24,spawnT:0.8+i*0.35,pulse:0,hurt:0,alive:true
+ }));
+ s.military=xs.map((f,i)=>({
+  x:GC_W*(0.18+i*0.22),y:gy-6,gy,
+  fireT:0.15+i*0.08,hp:80,r:11,dmg:9+s.map.id,range:340
+ }));
+}
+
+function gcAliveHearts(s){return s.hearts?s.hearts.filter(h=>h.alive):[];}
+
+function gcSpawnZombie(elite,heartId){
  const s=gcState;
  const gy=gcGroundY();
- const fromLeft=Math.random()<0.5;
- const x=fromLeft?-28:GC_W+28;
+ let x,fromHeart=null;
+ if(heartId!=null&&s.hearts){
+  fromHeart=s.hearts.find(h=>h.id===heartId&&h.alive);
+ }
+ if(fromHeart){
+  x=fromHeart.x+(Math.random()-0.5)*100;
+ }else{
+  const fromLeft=Math.random()<0.5;
+  x=fromLeft?-28:GC_W+28;
+ }
  const hp=(elite?70:28)+s.map.id*8+s.wave*4;
  s.zombies.push({
   x,y:gy,gy,hp,maxHp:hp,elite:!!elite,
+  heartId:fromHeart?fromHeart.id:null,
   speed:(elite?70:92)+Math.random()*28+s.map.id*3,
   r:elite?20:14, hurt:0, t:Math.random()*6
  });
@@ -291,10 +320,44 @@ function gcUpdate(dt){
  if(s.spawnLeft>0&&s.zombies.length<maxZ){
   s.spawnGap-=dt;
   if(s.spawnGap<=0){
-   gcSpawnZombie(s.spawnLeft%7===0);
+   const alive=gcAliveHearts(s);
+   const hid=alive.length?alive[(Math.random()*alive.length)|0].id:null;
+   gcSpawnZombie(s.spawnLeft%7===0,hid);
    s.spawnLeft--;
    s.spawnGap=Math.max(0.08,0.42-s.wave*0.025);
   }
+ }
+ // zombie hearts — each commands walkers from its lane
+ if(s.hearts){
+  s.hearts.forEach(h=>{
+   if(!h.alive)return;
+   h.pulse+=dt*3; h.hurt=Math.max(0,h.hurt-dt);
+   h.spawnT-=dt;
+   if(h.spawnT<=0&&s.zombies.length<maxZ){
+    gcSpawnZombie(false,h.id);
+    h.spawnT=Math.max(0.45,1.1-s.wave*0.06);
+   }
+  });
+ }
+ // your military — ground squad auto-fires at zombies
+ if(s.military){
+  s.military.forEach(unit=>{
+   unit.fireT-=dt;
+   let best=null,bd=1e12;
+   s.zombies.forEach(z=>{
+    const d=(z.x-unit.x)**2+(z.y-unit.y)**2;
+    if(d<bd&&d<unit.range*unit.range){bd=d;best=z;}
+   });
+   if(best&&unit.fireT<=0){
+    unit.fireT=0.28;
+    const ang=Math.atan2(best.y-unit.y,best.x-unit.x);
+    s.bullets.push({
+     x:unit.x,y:unit.y-10,
+     vx:Math.cos(ang)*420,vy:Math.sin(ang)*420,
+     life:1,dmg:unit.dmg,r:3,ally:true
+    });
+   }
+  });
  }
  if(s.wave===1&&s.spawnLeft===0&&s.zombies.length===0&&!s.bossSpawned&&s.waveT===0){
   gcStartWave();
@@ -346,6 +409,16 @@ function gcUpdate(dt){
    }
    return;
   }
+  if(bu.ally){
+   s.zombies.forEach(z=>{
+    if(bu.life<=0)return;
+    if(Math.hypot(bu.x-z.x,bu.y-z.y)<z.r+bu.r){
+     z.hp-=bu.dmg; z.hurt=0.15; bu.life=0;
+     gcSpark(bu.x,bu.y,'#7dff9a');
+    }
+   });
+   return;
+  }
   s.zombies.forEach(z=>{
    if(bu.life<=0)return;
    if(Math.hypot(bu.x-z.x,bu.y-z.y)<z.r+bu.r){
@@ -353,6 +426,15 @@ function gcUpdate(dt){
     gcSpark(bu.x,bu.y,s.map.accent);
    }
   });
+  if(s.hearts){
+   s.hearts.forEach(h=>{
+    if(!h.alive||bu.life<=0)return;
+    if(Math.hypot(bu.x-h.x,bu.y-h.y)<h.r+bu.r){
+     h.hp-=bu.dmg; h.hurt=0.2; bu.life=0;
+     gcSpark(bu.x,bu.y,'#ff4060');
+    }
+   });
+  }
   if(s.boss&&bu.life>0&&Math.hypot(bu.x-s.boss.x,bu.y-s.boss.y)<s.boss.r+bu.r){
    s.boss.hp-=bu.dmg; s.boss.hurt=0.12; bu.life=0;
    gcSpark(bu.x,bu.y,s.map.accent);
@@ -361,6 +443,14 @@ function gcUpdate(dt){
  s.bullets=s.bullets.filter(bu=>bu.life>0&&bu.x>-40&&bu.x<GC_W+40&&bu.y>-40&&bu.y<GC_H+40);
 
  // deaths / pickups
+ if(s.hearts){
+  s.hearts.forEach(h=>{
+   if(!h.alive||h.hp>0)return;
+   h.alive=false;
+   s.zombies.forEach(z=>{if(z.heartId===h.id)z.hp=0;});
+   for(let i=0;i<14;i++)gcSpark(h.x,h.y,'#ff2060');
+  });
+ }
  s.zombies=s.zombies.filter(z=>{
   if(z.hp>0)return true;
   s.kills++;
@@ -418,6 +508,13 @@ function gcHud(){
  if(gems)gems.textContent=`💎 ${s.gems}`;
  if(wave)wave.textContent=s.boss?`BOSS`:`Wave ${s.wave}/${s.map.waves}`;
  if(kills)kills.textContent=`Kills ${s.kills}`;
+ const heartsEl=document.getElementById('gc-hearts');
+ const armyEl=document.getElementById('gc-army');
+ if(heartsEl&&s.hearts){
+  const alive=s.hearts.filter(h=>h.alive).length;
+  heartsEl.textContent=`♥ ${alive}/4`;
+ }
+ if(armyEl&&s.military)armyEl.textContent=`🪖 ${s.military.length}`;
 }
 
 function gcDraw(){
@@ -448,6 +545,37 @@ function gcDraw(){
  }
  ctx.globalAlpha=1;
 
+ // zombie hearts (command nodes)
+ if(s.hearts){
+  s.hearts.forEach(h=>{
+   if(!h.alive)return;
+   ctx.save(); ctx.translate(h.x,h.y);
+   const pulse=1+Math.sin(h.pulse)*0.08;
+   ctx.scale(pulse,pulse);
+   ctx.fillStyle=h.hurt>0?'#fff':'#4a0820';
+   ctx.beginPath();
+   ctx.moveTo(0,8); ctx.bezierCurveTo(-22,-10,-22,14,0,26); ctx.bezierCurveTo(22,14,22,-10,0,8);
+   ctx.fill();
+   ctx.strokeStyle='#ff6080'; ctx.lineWidth=2; ctx.stroke();
+   ctx.font='14px serif'; ctx.textAlign='center'; ctx.fillText('💜',0,14);
+   ctx.fillStyle='rgba(0,0,0,.5)'; ctx.fillRect(-26,-32,52,6);
+   ctx.fillStyle='#ff4060'; ctx.fillRect(-26,-32,52*(h.hp/h.maxHp),6);
+   ctx.font='9px monospace'; ctx.fillStyle='#ffb0c0'; ctx.fillText('Z-HIVE',0,-36);
+   ctx.restore();
+  });
+ }
+
+ // military
+ if(s.military){
+  s.military.forEach(u=>{
+   ctx.save(); ctx.translate(u.x,u.y);
+   ctx.font='18px serif'; ctx.textAlign='center'; ctx.fillText('🪖',0,4);
+   ctx.fillStyle='rgba(0,0,0,.4)'; ctx.fillRect(-10,-16,20,3);
+   ctx.fillStyle='#3ecf8a'; ctx.fillRect(-10,-16,20,3);
+   ctx.restore();
+  });
+ }
+
  // pickups
  s.pickups.forEach(p=>{
   ctx.fillStyle='#c9a94f';
@@ -458,6 +586,11 @@ function gcDraw(){
  s.zombies.forEach(z=>{
   ctx.save();
   ctx.translate(z.x,z.y);
+  if(z.heartId!=null&&s.hearts&&s.hearts[z.heartId]?.alive){
+   ctx.strokeStyle='rgba(255,64,96,.25)'; ctx.lineWidth=1;
+   ctx.beginPath(); ctx.moveTo(0,0);
+   ctx.lineTo(s.hearts[z.heartId].x-z.x,s.hearts[z.heartId].y-z.y); ctx.stroke();
+  }
   ctx.rotate(Math.sin(z.t*6)*0.08);
   ctx.fillStyle=z.hurt>0?'#fff':(z.elite?m.accent:'#6a8a6a');
   ctx.beginPath(); ctx.arc(0,0,z.r,0,Math.PI*2); ctx.fill();
@@ -493,7 +626,7 @@ function gcDraw(){
 
  // bullets
  s.bullets.forEach(bu=>{
-  ctx.fillStyle=bu.enemy?'#ff6080':m.accent;
+  ctx.fillStyle=bu.enemy?'#ff6080':(bu.ally?'#7dff9a':m.accent);
   ctx.beginPath(); ctx.arc(bu.x,bu.y,bu.r,0,Math.PI*2); ctx.fill();
  });
 
@@ -531,7 +664,7 @@ function gcDraw(){
  ctx.beginPath(); ctx.moveTo(s.x,s.y-8); ctx.lineTo(gcPointer.x,gcPointer.y); ctx.stroke();
  ctx.setLineDash([]); ctx.globalAlpha=1;
  ctx.fillStyle='rgba(125,255,212,.85)'; ctx.font='10px monospace'; ctx.textAlign='left';
- ctx.fillText(`GEM COPTER · build ${GEM_COPTER_BUILD} · WASD fly · ground zombies`,12,18);
+ ctx.fillText(`GEM COPTER · build ${GEM_COPTER_BUILD} · rapid fire · destroy 4 zombie hearts`,12,18);
  ctx.restore();
 }
 
