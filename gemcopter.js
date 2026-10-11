@@ -1,7 +1,7 @@
 /* Gem Copter — helicopter + gemstone turret vs gem zombies, bosses, upgrades, 10 maps */
 (function(){
 'use strict';
-const GEM_COPTER_BUILD=82;
+const GEM_COPTER_BUILD=83;
 const GC_BULLET_LINES=5;
 
 const gcSfx=(()=>{
@@ -29,6 +29,35 @@ const gcSfx=(()=>{
    if(p&&p.catch)p.catch(()=>{});
   }catch(_){}
  }
+ function syncResume(c){
+  if(!c)return false;
+  try{
+   if(c.state==='suspended')c.resume();
+  }catch(_){}
+  audioReady=c.state==='running';
+  return audioReady;
+ }
+ function pokeSync(){
+  htmlUnlock();
+  const c=ac();
+  if(!c)return false;
+  syncResume(c);
+  try{
+   const t=c.currentTime,o=c.createOscillator(),g=c.createGain();
+   o.type='square';
+   o.frequency.setValueAtTime(880,t);
+   env(g,t,0.006,0.045,0.14);
+   o.connect(g);g.connect(gain);
+   o.start(t);o.stop(t+0.06);
+  }catch(_){}
+  if(c.state!=='running'){
+   try{
+    const p=c.resume();
+    if(p&&typeof p.then==='function')p.then(()=>{audioReady=c.state==='running';}).catch(()=>{});
+   }catch(_){}
+  }
+  return c.state==='running';
+ }
  function ensureRunning(fn,fallback){
   htmlUnlock();
   const c=ac();
@@ -36,19 +65,19 @@ const gcSfx=(()=>{
    if(fallback)fallback();
    return;
   }
+  if(c.state==='running'){audioReady=true;fn();return;}
+  syncResume(c);
+  if(c.state==='running'){fn();return;}
   const go=()=>{
    audioReady=c.state==='running';
    if(audioReady){fn();return;}
    if(fallback)fallback();
   };
-  if(c.state==='running')go();
-  else{
-   try{
-    const p=c.resume();
-    if(p&&typeof p.then==='function')p.then(go).catch(go);
-    else setTimeout(go,0);
-   }catch(_){if(fallback)fallback();}
-  }
+  try{
+   const p=c.resume();
+   if(p&&typeof p.then==='function')p.then(go).catch(go);
+   else setTimeout(go,0);
+  }catch(_){if(fallback)fallback();}
  }
  function lithos(name){
   try{
@@ -85,13 +114,18 @@ const gcSfx=(()=>{
   src.connect(hpF);hpF.connect(lpF);lpF.connect(g);g.connect(gain);
   src.start(t);src.stop(t+dur+0.03);
  }
+ function lithosPoke(){
+  try{
+   if(typeof SFX!=='undefined'&&SFX.poke)SFX.poke();
+   else lithos('click');
+  }catch(_){lithos('click');}
+ }
  const api={
+  pokeSync,
   unlock(){
-   lithos('click');
-   ensureRunning(()=>{
-    tone('square',660,0.05,0.07);
-    api.startHum();
-   },()=>lithos('click'));
+   lithosPoke();
+   pokeSync();
+   ensureRunning(()=>{api.startHum();},()=>{});
   },
   ready(){return running();},
   startHum(){
@@ -115,47 +149,52 @@ const gcSfx=(()=>{
    const now=performance.now();
    if(now-lastBoom<(big?90:55))return;
    lastBoom=now;
+   lithos(big?'boom':'debris');
    ensureRunning(()=>{
-    tone('sawtooth',big?72:95,big?0.35:0.22,big?0.18:0.12,big?28:42);
-    noise(big?0.28:0.16,big?0.16:0.1,80,big?5200:3800);
-    setTimeout(()=>tone('square',big?140:180,0.08,big?0.09:0.07),big?40:25);
-   },()=>lithos('boom'));
+    tone('sawtooth',big?72:95,big?0.35:0.22,big?0.2:0.14,big?28:42);
+    noise(big?0.28:0.16,big?0.18:0.12,80,big?5200:3800);
+    setTimeout(()=>tone('square',big?140:180,0.08,big?0.1:0.08),big?40:25);
+   });
   },
   hit(){
    const now=performance.now();
    if(now-lastHit<45)return;
    lastHit=now;
+   lithos('debris');
    ensureRunning(()=>{
-    tone('square',420,0.05,0.08);
-    noise(0.04,0.055,600,5000);
-   },()=>lithos('debris'));
+    tone('square',420,0.05,0.1);
+    noise(0.04,0.07,600,5000);
+   });
   },
   groan(){
    const now=performance.now();
    if(now-lastGroan<380)return;
    lastGroan=now;
+   lithos('hammer');
    ensureRunning(()=>{
-    tone('sawtooth',58,0.18,0.08,38);
-    noise(0.12,0.06,90,900);
-   },()=>lithos('hammer'));
+    tone('sawtooth',58,0.18,0.09,38);
+    noise(0.12,0.07,90,900);
+   });
   },
   pew(){
    const now=performance.now();
    if(now-lastPew<55)return;
    lastPew=now;
+   lithos('debris');
    ensureRunning(()=>{
-    tone('square',720,0.04,0.055);
-    tone('triangle',980,0.028,0.035);
-   },()=>lithos('debris'));
+    tone('square',720,0.04,0.07);
+    tone('triangle',980,0.028,0.045);
+   });
   },
   whoosh(){
    const now=performance.now();
    if(now-lastWhoosh<120)return;
    lastWhoosh=now;
+   lithos('debris');
    ensureRunning(()=>{
-    tone('sine',220,0.08,0.06,440);
-    noise(0.06,0.05,400,2800);
-   },()=>lithos('debris'));
+    tone('sine',220,0.08,0.07,440);
+    noise(0.06,0.06,400,2800);
+   });
   }
  };
  return api;
@@ -203,11 +242,8 @@ function gcUnlockAudio(){
 }
 
 function gcBootBattleAudio(){
- gcUnlockAudio();
- setTimeout(()=>{
-  gcSfx.pew();
-  gcUpdateSoundTip();
- },120);
+ /* pew only after a real tap — setTimeout is outside the browser gesture window */
+ gcUpdateSoundTip();
 }
 
 let gcAudioUnlockInstalled=false;
@@ -662,10 +698,6 @@ function gcStartLoop(){
   const dt=Math.min(0.05,(t-last)/1000); last=t;
   gcUpdate(dt);
   gcDraw();
-  if(gcState&&!gcState.over&&Math.floor(t/2000)!==gcState._audioTick){
-   gcState._audioTick=Math.floor(t/2000);
-   if(!gcSfx.ready())gcUnlockAudio();
-  }
   gcRaf=requestAnimationFrame(loop);
  }
  gcRaf=requestAnimationFrame(loop);
@@ -931,8 +963,16 @@ function gcFireMissilesFromState(manual){
  try{if(typeof SFX!=='undefined'&&SFX.debris)SFX.debris();}catch(_){}
 }
 
+function gcWakeAudio(){
+ gcSfx.pokeSync();
+ try{
+  if(typeof SFX!=='undefined'&&SFX.poke)SFX.poke();
+  else if(typeof SFX!=='undefined'&&SFX.click)SFX.click();
+ }catch(_){}
+}
+
 function gcFire(){
- gcUnlockAudio();
+ gcWakeAudio();
  const s=gcState, u=s.upgrades;
  if(s.fireT>0)return;
  s.fireT=u.cooldown;

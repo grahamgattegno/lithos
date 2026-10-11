@@ -5254,10 +5254,10 @@
 <script src="stratum-catalog.js?v=deploy-50"></script>
 <script src="nightshift2.js?v=deploy-47"></script>
 <script src="archaeology.js?v=deploy-50"></script>
-<script src="gc-boss-shapes.js?v=deploy-82"></script>
-<script src="gc-drone-shapes.js?v=deploy-82"></script>
-<script src="gc-gravastar-scene.js?v=deploy-82"></script>
-<script src="gemcopter.js?v=deploy-82"></script>
+<script src="gc-boss-shapes.js?v=deploy-83"></script>
+<script src="gc-drone-shapes.js?v=deploy-83"></script>
+<script src="gc-gravastar-scene.js?v=deploy-83"></script>
+<script src="gemcopter.js?v=deploy-83"></script>
 <script>
 /* ---------- Affiliate partners (tracked links where available) ---------- */
 const DEFAULT_PARTNER='gemsny';
@@ -15936,6 +15936,12 @@ const SFX=(()=>{
    tone('sine',220,.2,.06);
    tone('triangle',330,.15,.04);
    noise(.08,.03,300,2000);
+  },
+  poke(){
+   const c=ac();if(!c||!master)return;
+   try{if(c.state==='suspended')c.resume();}catch(_){}
+   if(!ready('ui',30))return;
+   tone('square',920,.035,.08);
   }
  };
 })();
