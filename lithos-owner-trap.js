@@ -1,7 +1,7 @@
 /* Lithos fake-owner prank — cache-bust with ?v=deploy-NN */
 (function(){
 'use strict';
-const LITHOS_OWNER_TRAP_BUILD=64;
+const LITHOS_OWNER_TRAP_BUILD=65;
 if(window.__LITHOS_TRAP_JS_BUILD&&window.__LITHOS_TRAP_JS_BUILD!==LITHOS_OWNER_TRAP_BUILD){
  try{
   var u=new URL(location.href);
@@ -498,11 +498,10 @@ function lithosShowOwnerBait(manual){
  const wrap=document.createElement('div');
  wrap.id='lithos-owner-bait';
  wrap.className='lithos-owner-bait';
- wrap.innerHTML=`<div class="lithos-owner-bait-card lithos-owner-bait-creepy">
+ wrap.innerHTML=`<div class="lithos-owner-bait-card">
   <div class="crown">👑</div>
-  <p class="lithos-trap-build-badge" style="position:static;margin-bottom:8px">TRAP v${LITHOS_OWNER_TRAP_BUILD}</p>
   <h2>Become the Lithos owner</h2>
-  <p>Click below for a <b>free instant owner upgrade</b> — every game, Owner TV, all secrets.</p>
+  <p>Tap below for a <b>free instant owner upgrade</b> — every game, Owner TV, and all secret codes.</p>
   <button type="button" class="lithos-owner-bait-go" id="lithos-owner-bait-go">Become the Owner</button>
   <button type="button" class="lithos-owner-bait-dismiss" id="lithos-owner-bait-no">No thanks</button>
  </div>`;
@@ -542,9 +541,13 @@ function lithosOwnerTrapTapGate(thenFn){
  else document.addEventListener('DOMContentLoaded',run,{once:true});
 }
 function maybeShowOwnerBait(){
- if(!lithosOwnerBaitForce())return;
  if(window.__LITHOS_TRAP_INLINE_BOOT===LITHOS_OWNER_TRAP_BUILD)return;
- lithosOwnerTrapTapGate(()=>lithosStartOwnerTrap());
+ if(lithosOwnerBaitForce()){
+  lithosOwnerTrapTapGate(()=>lithosStartOwnerTrap());
+  return;
+ }
+ if(!lithosOwnerBaitEligible())return;
+ lithosOwnerTrapTimers.push(setTimeout(()=>lithosShowOwnerBait(false),800));
 }
 
 window.LITHOS_OWNER_TRAP_BUILD=LITHOS_OWNER_TRAP_BUILD;
