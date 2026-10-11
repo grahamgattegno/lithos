@@ -1,7 +1,7 @@
 /* Gem Copter — helicopter + gemstone turret vs gem zombies, bosses, upgrades, 10 maps */
 (function(){
 'use strict';
-const GEM_COPTER_BUILD=74;
+const GEM_COPTER_BUILD=75;
 const GC_BULLET_LINES=5;
 
 const gcSfx=(()=>{
@@ -483,12 +483,89 @@ function gcZombieMaxHp(elite,map,wave){
 
 function gcInitMilitary(s){
  const gy=gcGroundY();
- const xs=[0.18,0.38,0.58,0.78];
- s.military=xs.map((f,i)=>({
-  x:GC_W*f,y:gy-6,gy,
-  fireT:0.12+i*0.09,t:Math.random()*6,face:1,aim:0,
-  hp:80,r:14,dmg:2+Math.round(s.map.id*0.5),range:320
- }));
+ const pad=GC_W*0.07;
+ const patrol=[pad,GC_W-pad];
+ const mk=(kind,f,extra)=>({
+  kind,x:GC_W*f,y:gy,gy,
+  fireT:0.1+Math.random()*0.15,t:Math.random()*6,face:1,aim:0,spin:0,
+  patrol,moveTarget:null,strafeDir:Math.random()<0.5?-1:1,sfxT:0,
+  ...extra
+ });
+ const mapBonus=Math.round(s.map.id*0.35);
+ s.military=[
+  mk('soldier',0.2,{hp:85,r:13,dmg:1.1+mapBonus*0.15,range:310,vx:54,fireRate:0.065}),
+  mk('soldier',0.35,{hp:85,r:13,dmg:1.1+mapBonus*0.15,range:310,vx:54,fireRate:0.065}),
+  mk('tank',0.55,{hp:220,r:26,dmg:2.8+mapBonus*0.2,range:380,vx:34,fireRate:0.09}),
+  mk('jeep',0.72,{hp:105,r:19,dmg:1.6+mapBonus*0.15,range:330,vx:82,fireRate:0.075}),
+  mk('jeep',0.88,{hp:105,r:19,dmg:1.6+mapBonus*0.15,range:330,vx:82,fireRate:0.075}),
+ ];
+}
+
+function gcMilitaryPickTarget(s,unit){
+ let best=null,bd=1e12;
+ const r2=unit.range*unit.range;
+ s.zombies.forEach(z=>{
+  const d=(z.x-unit.x)**2+(z.y-unit.y)**2;
+  if(d<bd&&d<r2){bd=d;best=z;}
+ });
+ if(!best&&s.boss){
+  const d=(s.boss.x-unit.x)**2+(s.boss.y-unit.y)**2;
+  if(d<r2)best=s.boss;
+ }
+ return best;
+}
+
+function gcMilitaryMove(unit,dt,s){
+ const gy=unit.gy!=null?unit.gy:gcGroundY();
+ const [pLo,pHi]=unit.patrol||[40,GC_W-40];
+ const spd=unit.vx||48;
+ let best=gcMilitaryPickTarget(s,unit);
+ if(best){
+  const dx=best.x-unit.x;
+  const hold=unit.range*(unit.kind==='tank'?0.55:unit.kind==='jeep'?0.62:0.5);
+  if(Math.abs(dx)>hold){
+   unit.x+=Math.sign(dx)*spd*dt*(unit.kind==='soldier'?1:0.9);
+  }else{
+   unit.strafeT=(unit.strafeT||0)-dt;
+   if(unit.strafeT<=0){
+    unit.strafeDir=Math.random()<0.5?-1:1;
+    unit.strafeT=0.4+Math.random()*0.8;
+   }
+   const str=unit.kind==='soldier'?36:unit.kind==='jeep'?48:22;
+   unit.x+=unit.strafeDir*str*dt;
+  }
+ }else{
+  if(unit.moveTarget==null||Math.abs(unit.x-unit.moveTarget)<10){
+   unit.moveTarget=pLo+Math.random()*(pHi-pLo);
+  }
+  const dx=unit.moveTarget-unit.x;
+  if(Math.abs(dx)>6)unit.x+=Math.sign(dx)*spd*dt;
+  else unit.moveTarget=null;
+ }
+ unit.x=Math.max(pLo,Math.min(pHi,unit.x));
+ unit.y=gy-(unit.kind==='tank'?5:unit.kind==='jeep'?7:0);
+ unit.face=best?(best.x>=unit.x?1:-1):(unit.moveTarget!=null&&unit.moveTarget<unit.x?-1:1);
+}
+
+function gcMilitaryMinigunFire(s,unit,best){
+ const mult=s.upgrades.militaryMult||1;
+ const aimY=best.y-(unit.kind==='tank'?10:unit.kind==='jeep'?14:12);
+ const base=Math.atan2(aimY-unit.y,best.x-unit.x);
+ const shots=unit.kind==='soldier'?3:2;
+ for(let i=0;i<shots;i++){
+  const spread=(Math.random()-0.5)*(unit.kind==='tank'?0.05:0.11);
+  const ang=base+spread;
+  const muzzle=unit.kind==='tank'?26:unit.kind==='jeep'?22:18;
+  s.bullets.push({
+   x:unit.x+Math.cos(ang)*muzzle*0.35,
+   y:unit.y-10+Math.sin(ang)*muzzle*0.35,
+   vx:Math.cos(ang)*480,vy:Math.sin(ang)*480,
+   life:0.85,dmg:unit.dmg*mult,r:2,ally:true,minigun:true
+  });
+ }
+ unit.spin+=0.35;
+ unit.sfxT=(unit.sfxT||0)-1;
+ if(unit.sfxT<=0){unit.sfxT=2;gcSfx.pew();}
 }
 
 function gcSpawnZombie(elite){
@@ -625,27 +702,13 @@ function gcUpdate(dt){
   s.military.forEach(unit=>{
    unit.t+=dt;
    unit.fireT-=dt;
-   let best=null,bd=1e12;
-   s.zombies.forEach(z=>{
-    const d=(z.x-unit.x)**2+(z.y-unit.y)**2;
-    if(d<bd&&d<unit.range*unit.range){bd=d;best=z;}
-   });
-   if(!best&&s.boss){
-    const d=(s.boss.x-unit.x)**2+(s.boss.y-unit.y)**2;
-    if(d<unit.range*unit.range)best=s.boss;
-   }
+   gcMilitaryMove(unit,dt,s);
+   const best=gcMilitaryPickTarget(s,unit);
    if(best){
-    unit.face=best.x>=unit.x?1:-1;
     unit.aim=Math.atan2((best.y-10)-unit.y,best.x-unit.x);
     if(unit.fireT<=0){
-     unit.fireT=0.58;
-     const ang=Math.atan2(best.y-unit.y,best.x-unit.x);
-     s.bullets.push({
-      x:unit.x,y:unit.y-12,
-      vx:Math.cos(ang)*420,vy:Math.sin(ang)*420,
-      life:1,dmg:unit.dmg*(s.upgrades.militaryMult||1),r:3,ally:true
-     });
-     gcSfx.pew();
+     unit.fireT=unit.fireRate||0.07;
+     gcMilitaryMinigunFire(s,unit,best);
     }
    }
   });
@@ -897,15 +960,41 @@ function gcDrawHostileHeli(ctx,z,m){
  ctx.restore();
 }
 
+function gcDrawMinigun(ctx,u,ox,oy,sc,noAim){
+ const spin=(u.spin||0)*0.9+u.t*18;
+ ctx.save();
+ ctx.translate(ox,oy);
+ if(!noAim)ctx.rotate(u.aim||0);
+ ctx.fillStyle='#2a3238';
+ ctx.fillRect(-4*sc,-5*sc,20*sc,10*sc);
+ ctx.fillStyle='#4a5560';
+ ctx.fillRect(2*sc,-3*sc,10*sc,6*sc);
+ ctx.fillStyle='#1a2028';
+ for(let i=0;i<6;i++){
+  const a=spin+i*(Math.PI*2/6);
+  ctx.save();
+  ctx.translate(10*sc,0);
+  ctx.rotate(a);
+  ctx.fillRect(0,-1.2*sc,14*sc,2.4*sc);
+  ctx.restore();
+ }
+ ctx.fillStyle='#7dffd4'; ctx.globalAlpha=0.5;
+ ctx.beginPath(); ctx.arc(4*sc,0,4*sc,0,Math.PI*2); ctx.fill();
+ ctx.globalAlpha=1;
+ ctx.restore();
+}
+
 function gcDrawSoldierBody(ctx,u,m){
  const sc=1.12;
- const walk=Math.sin(u.t*7)*0.32;
+ const walk=Math.sin(u.t*9)*0.38;
+ const leg=Math.sin(u.t*9+Math.PI)*0.38;
  ctx.scale(u.face,1);
  ctx.fillStyle='#243040';
- ctx.fillRect(-5*sc,-1+walk*2,4*sc,10*sc);
- ctx.fillRect(1*sc,-1-walk*2,4*sc,10*sc);
+ ctx.fillRect(-5*sc,0+walk*3,4*sc,11*sc);
+ ctx.fillRect(1*sc,0+leg*3,4*sc,11*sc);
  ctx.fillStyle='#4ec8ff'; ctx.globalAlpha=0.55;
- ctx.fillRect(-4*sc,7+walk*2,2*sc,2*sc); ctx.fillRect(2*sc,7-walk*2,2*sc,2*sc);
+ ctx.fillRect(-4*sc,8+walk*2,2*sc,2*sc);
+ ctx.fillRect(2*sc,8+leg*2,2*sc,2*sc);
  ctx.globalAlpha=1;
  ctx.fillStyle='#3a4a5c';
  ctx.fillRect(-8*sc,-18*sc,16*sc,16*sc);
@@ -921,15 +1010,56 @@ function gcDrawSoldierBody(ctx,u,m){
  ctx.beginPath(); ctx.arc(0,-21*sc,6*sc,0,Math.PI*2); ctx.fill();
  ctx.fillStyle='#7dffd4'; ctx.globalAlpha=0.9;
  ctx.fillRect(-5*sc,-22*sc,10*sc,3*sc); ctx.globalAlpha=1;
- ctx.strokeStyle='#7dffd4'; ctx.lineWidth=1.5;
- ctx.beginPath(); ctx.moveTo(6*sc,-23*sc); ctx.lineTo(9*sc,-30*sc); ctx.stroke();
- ctx.fillStyle='#7dffd4'; ctx.fillRect(8*sc,-31*sc,2*sc,2*sc);
- ctx.save(); ctx.translate(5*sc,-13*sc); ctx.rotate(u.aim||0);
- ctx.fillStyle='#4a5568';
- ctx.fillRect(-2,0,18,4);
- ctx.fillStyle='#7dffd4'; ctx.globalAlpha=0.85;
- ctx.fillRect(14,1,8,2); ctx.globalAlpha=1;
- ctx.fillStyle='#a0e8ff'; ctx.fillRect(20,1.5,3,1); ctx.restore();
+ gcDrawMinigun(ctx,u,4*sc,-14*sc,0.95);
+}
+
+function gcDrawTankBody(ctx,u,m){
+ const sc=1.15;
+ ctx.scale(u.face,1);
+ ctx.fillStyle='#1a2228';
+ ctx.fillRect(-28*sc,2*sc,56*sc,8*sc);
+ ctx.fillStyle='#3a4850';
+ ctx.fillRect(-24*sc,-4*sc,48*sc,10*sc);
+ ctx.fillStyle='#2a3438';
+ [-18,-6,6,18].forEach(px=>{
+  ctx.beginPath(); ctx.arc(px*sc,10*sc,5*sc,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#252c30'; ctx.fillRect(px*sc-6*sc,6*sc,12*sc,3*sc); ctx.fillStyle='#2a3438';
+ });
+ ctx.fillStyle='#455560';
+ ctx.beginPath(); ctx.arc(-8*sc,-2*sc,10*sc,0,Math.PI*2); ctx.fill();
+ ctx.save(); ctx.translate(-8*sc,-2*sc); ctx.rotate(u.aim||0);
+ ctx.fillStyle='#384650';
+ ctx.fillRect(-6*sc,-5*sc,18*sc,10*sc);
+ gcDrawMinigun(ctx,u,8*sc,0,0.75,true);
+ ctx.restore();
+ ctx.fillStyle=m.accent; ctx.globalAlpha=0.35;
+ ctx.fillRect(-26*sc,-6*sc,8*sc,4*sc); ctx.globalAlpha=1;
+}
+
+function gcDrawJeepBody(ctx,u,m){
+ const sc=1.05;
+ ctx.scale(u.face,1);
+ ctx.fillStyle='#3d4a38';
+ ctx.fillRect(-22*sc,0,44*sc,12*sc);
+ ctx.fillStyle='#556048';
+ ctx.fillRect(-18*sc,-8*sc,30*sc,10*sc);
+ ctx.fillStyle='#2a3028';
+ ctx.fillRect(-20*sc,8*sc,8*sc,6*sc); ctx.fillRect(12*sc,8*sc,8*sc,6*sc);
+ ctx.fillStyle='#788878';
+ ctx.fillRect(-16*sc,-6*sc,14*sc,6*sc);
+ ctx.fillStyle='#7dffd4'; ctx.globalAlpha=0.4;
+ ctx.fillRect(-14*sc,-5*sc,10*sc,4*sc); ctx.globalAlpha=1;
+ ctx.save(); ctx.translate(6*sc,-10*sc); ctx.rotate((u.aim||0)*0.85);
+ gcDrawMinigun(ctx,u,0,0,0.85,true);
+ ctx.restore();
+ ctx.fillStyle=m.accent;
+ ctx.fillRect(16*sc,2*sc,4*sc,3*sc);
+}
+
+function gcDrawMilitaryUnit(ctx,u,m){
+ if(u.kind==='tank')gcDrawTankBody(ctx,u,m);
+ else if(u.kind==='jeep')gcDrawJeepBody(ctx,u,m);
+ else gcDrawSoldierBody(ctx,u,m);
 }
 
 function gcDrawBossBody(ctx,b,m){
@@ -950,7 +1080,11 @@ function gcHud(){
  if(wave)wave.textContent=s.boss?`BOSS`:`Wave ${s.wave}/${s.map.waves}`;
  if(kills)kills.textContent=`Kills ${s.kills}`;
  const armyEl=document.getElementById('gc-army');
- if(armyEl&&s.military)armyEl.textContent=`Squad ${s.military.length}`;
+ if(armyEl&&s.military){
+  const foot=s.military.filter(u=>u.kind==='soldier'||!u.kind).length;
+  const veh=s.military.length-foot;
+  armyEl.textContent=veh?`${foot} on foot · ${veh} vehicles`:`Squad ${s.military.length}`;
+ }
 }
 
 function gcDraw(){
@@ -985,7 +1119,7 @@ function gcDraw(){
   s.military.forEach(u=>{
    ctx.save();
    ctx.translate(u.x,u.y);
-   gcDrawSoldierBody(ctx,u,m);
+   gcDrawMilitaryUnit(ctx,u,m);
    ctx.restore();
   });
  }
@@ -1036,6 +1170,16 @@ function gcDraw(){
    ctx.lineTo(bu.x-Math.cos(a)*len,bu.y-Math.sin(a)*len);
    ctx.stroke();
    ctx.globalAlpha=1;
+   return;
+  }
+  if(bu.minigun){
+   const a=Math.atan2(bu.vy,bu.vx);
+   ctx.strokeStyle='#ffe066';
+   ctx.lineWidth=2; ctx.lineCap='round';
+   ctx.beginPath();
+   ctx.moveTo(bu.x,bu.y);
+   ctx.lineTo(bu.x-Math.cos(a)*10,bu.y-Math.sin(a)*10);
+   ctx.stroke();
    return;
   }
   ctx.fillStyle=bu.enemy?'#ff6080':(bu.ally?'#7dff9a':m.accent);
