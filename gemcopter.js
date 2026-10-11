@@ -1,10 +1,10 @@
 /* Gem Copter — helicopter + gemstone turret vs gem zombies, bosses, upgrades, 10 maps */
 (function(){
 'use strict';
-const GEM_COPTER_BUILD=64;
+const GEM_COPTER_BUILD=65;
 
 const gcSfx=(()=>{
- let ctx=null,gain=null,lastBoom=0,lastHit=0,lastGroan=0,audioReady=false;
+ let ctx=null,gain=null,lastBoom=0,lastHit=0,lastGroan=0,lastPew=0,lastWhoosh=0,audioReady=false;
  function ac(){
   if(!ctx){
    try{
@@ -89,9 +89,40 @@ const gcSfx=(()=>{
    lastGroan=now;
    tone('sawtooth',58,0.18,0.06,38);
    noise(0.12,0.05,90,900);
+  },
+  pew(){
+   if(!running())return;
+   const now=performance.now();
+   if(now-lastPew<55)return;
+   lastPew=now;
+   tone('square',720,0.035,0.04);
+   tone('triangle',980,0.025,0.025);
+  },
+  whoosh(){
+   if(!running())return;
+   const now=performance.now();
+   if(now-lastWhoosh<120)return;
+   lastWhoosh=now;
+   tone('sine',220,0.08,0.05,440);
+   noise(0.06,0.04,400,2800);
   }
  };
 })();
+
+function gcLithosCombatSfx(sc){
+ try{
+  if(typeof SFX==='undefined')return;
+  if(sc>=0.7&&SFX.boom)SFX.boom();
+  else if(SFX.debris)SFX.debris();
+ }catch(_){}
+}
+
+function gcExplosionSfx(sc){
+ if(!gcSfx.ready())return;
+ if(sc>=1.15)gcSfx.boom(true);
+ else gcSfx.boom(false);
+ gcLithosCombatSfx(sc);
+}
 
 function gcUnlockAudio(){
  gcSfx.unlock();
@@ -522,7 +553,8 @@ function gcFireMissilesFromState(manual){
  }else{
   gcLaunchMissile(s,s.x,s.y-6,t);
  }
- gcSfx.hit();
+ gcSfx.whoosh();
+ try{if(typeof SFX!=='undefined'&&SFX.debris)SFX.debris();}catch(_){}
 }
 
 function gcFire(){
@@ -542,6 +574,7 @@ function gcFire(){
    life:1.2, dmg:u.damage, r:4
   });
  });
+ gcSfx.pew();
 }
 
 function gcUpdate(dt){
@@ -769,9 +802,10 @@ function gcUpdate(dt){
  s.pickups=s.pickups.filter(p=>p.life>0);
  s.particles=s.particles.filter(p=>{
   p.life-=dt;
-  if(p.kind==='spark'||p.kind==='debris'||!p.kind){
+  if(p.kind==='spark'||p.kind==='debris'||p.kind==='smoke'||!p.kind){
    p.x+=p.vx*dt; p.y+=p.vy*dt;
    if(p.kind==='debris')p.vy+=180*dt;
+   if(p.kind==='smoke'){p.vy-=28*dt;p.vx*=0.98;}
   }
   return p.life>0;
  });
@@ -801,21 +835,31 @@ function gcBoom(x,y,color,scale){
  const s=gcState;
  const sc=scale||1;
  const col=color||'#ff9040';
- const life=0.45+sc*0.12;
- s.particles.push({kind:'flash',x,y,life,maxLife:life,color:col,size:18*sc});
- s.particles.push({kind:'ring',x,y,life,maxLife:life,maxR:28*sc,color:col});
- s.particles.push({kind:'ring',x,y,life:life*0.85,maxLife:life*0.85,maxR:20*sc,color:'#ffe8c0'});
- for(let i=0;i<6+sc*8|0;i++){
-  const a=Math.random()*Math.PI*2,sp=60+Math.random()*140*sc;
+ const life=0.52+sc*0.14;
+ s.shake=Math.max(s.shake||0,2+sc*3.5);
+ s.particles.push({kind:'flash',x,y,life,maxLife:life,color:col,size:22*sc});
+ s.particles.push({kind:'starburst',x,y,life,maxLife:life,maxR:34*sc,color:col,rot:Math.random()*Math.PI});
+ s.particles.push({kind:'ring',x,y,life,maxLife:life,maxR:32*sc,color:col});
+ s.particles.push({kind:'ring',x,y,life:life*0.88,maxLife:life*0.88,maxR:22*sc,color:'#ffe8c0'});
+ s.particles.push({kind:'ring',x,y,life:life*0.65,maxLife:life*0.65,maxR:14*sc,color:'#fff'});
+ for(let i=0;i<8+sc*10|0;i++){
+  const a=Math.random()*Math.PI*2,sp=70+Math.random()*160*sc;
   s.particles.push({
    kind:'debris',x,y,
-   vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-Math.random()*40,
-   life:0.35+Math.random()*0.35,maxLife:0.7,
-   color:Math.random()<0.5?col:'#3a3028',size:2+Math.random()*3*sc
+   vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-Math.random()*50,
+   life:0.4+Math.random()*0.4,maxLife:0.75,
+   color:Math.random()<0.45?col:(Math.random()<0.5?'#ffe06a':'#3a3028'),size:2+Math.random()*4*sc
   });
  }
- gcSpark(x,y,col,4+sc*3|0);
- gcSfx.boom(sc>=1.4);
+ for(let i=0;i<3+sc*4|0;i++){
+  s.particles.push({
+   kind:'smoke',x:x+(Math.random()-0.5)*16,y:y+(Math.random()-0.5)*10,
+   vx:(Math.random()-0.5)*30,vy:-20-Math.random()*40,
+   life:0.5+Math.random()*0.35,maxLife:0.85,size:8+Math.random()*10*sc,color:'rgba(40,36,32,.55)'
+  });
+ }
+ gcSpark(x,y,col,6+sc*4|0);
+ gcExplosionSfx(sc);
 }
 
 function gcDrawZombieBody(ctx,z,m){
@@ -1012,6 +1056,28 @@ function gcDraw(){
    ctx.globalAlpha=a;
    ctx.fillStyle=p.color||'#554';
    ctx.fillRect(p.x,p.y,p.size||3,p.size||3);
+  }else if(p.kind==='starburst'){
+   const prog=1-a,r=(p.maxR||30)*prog;
+   ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot||0);
+   ctx.globalAlpha=a*0.95;
+   const g=ctx.createRadialGradient(0,0,0,0,0,r);
+   g.addColorStop(0,'#fff');g.addColorStop(0.35,p.color||'#ff9040');g.addColorStop(0.72,'#ff8a2a');g.addColorStop(1,'rgba(208,48,26,0)');
+   ctx.fillStyle=g;
+   ctx.beginPath();
+   for(let i=0;i<8;i++){
+    const ang=(Math.PI*2*i)/8-Math.PI/2;
+    const inner=r*0.38,outer=r*(i%2?1:0.72);
+    ctx.lineTo(Math.cos(ang)*outer,Math.sin(ang)*outer);
+    ctx.lineTo(Math.cos(ang+0.35)*inner,Math.sin(ang+0.35)*inner);
+   }
+   ctx.closePath();ctx.fill();
+   ctx.fillStyle='#fff';ctx.globalAlpha=a*0.85;
+   ctx.beginPath();ctx.arc(0,0,r*0.22,0,Math.PI*2);ctx.fill();
+   ctx.restore();
+  }else if(p.kind==='smoke'){
+   ctx.globalAlpha=a*0.65;
+   ctx.fillStyle=p.color||'rgba(60,56,52,.5)';
+   ctx.beginPath();ctx.arc(p.x,p.y,(p.size||8)*(0.6+a*0.5),0,Math.PI*2);ctx.fill();
   }else{
    ctx.globalAlpha=Math.max(0,p.life*2);
    ctx.fillStyle=p.color; ctx.fillRect(p.x,p.y,3,3);
