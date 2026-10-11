@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gravastar Counterstrike — Preview 🌌</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#020208;color:#e8ecf4;font-family:system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:12px 12px 24px}
+  h1{margin:8px 0 4px;font-size:clamp(18px,4vw,26px);color:#c9a94f;text-align:center}
+  .sub{text-align:center;color:#8898b8;font-size:13px;margin:0 0 12px;max-width:520px;line-height:1.45}
+  .sub a{color:#7dffd4}
+  .frame{width:min(960px,100%);border:2px solid #3a4558;border-radius:12px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.55);background:#000}
+  canvas{display:block;width:100%;height:auto;aspect-ratio:16/9}
+  .bar{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:14px}
+  button{font:inherit;padding:10px 18px;border-radius:10px;border:1px solid #4a6878;background:#1a2838;color:#7dffd4;cursor:pointer}
+  button:hover{background:#243848}
+  .foot{margin-top:14px;font-size:12px;color:#6878a0;text-align:center}
+</style>
+</head>
+<body>
+<h1>🌌 Gravastar Counterstrike</h1>
+<p class="sub">Full finale preview — same cutscene as Map 10 in-game (<b>Ctrl+⌘+Shift</b> during the boss).<br>
+<a href="../index.html?_gc=78#gemcopter">Play Gem Copter</a> ·
+<a href="https://grahamgattegno.github.io/lithos/games/gc-gravastar-preview.html">Live preview</a></p>
+<div class="frame">
+  <canvas id="cv" width="960" height="540"></canvas>
+</div>
+<div class="bar">
+  <button type="button" id="replay">↺ Replay from start</button>
+  <button type="button" id="skip">⏭ Skip to laser</button>
+</div>
+<p class="foot" id="phase">Build 78 · ~30 sec cinematic</p>
+<script src="../gc-boss-shapes.js?v=deploy-78"></script>
+<script src="../gc-gravastar-scene.js?v=deploy-78"></script>
+<script>
+const cv=document.getElementById('cv');
+const ctx=cv.getContext('2d');
+const W=cv.width,H=cv.height;
+let state=GcGravastarScene.create();
+let last=performance.now();
+let ended=false;
+
+function restart(tSkip){
+ state=GcGravastarScene.create();
+ if(tSkip)state.t=tSkip;
+ ended=false;
+ last=performance.now();
+}
+
+document.getElementById('replay').onclick=()=>restart(0);
+document.getElementById('skip').onclick=()=>{
+ const t=GcGravastarScene.PHASES.slice(0,4).reduce((a,p)=>a+p.dur,0);
+ restart(t);
+};
+
+function frame(t){
+ const dt=Math.min(0.05,(t-last)/1000);
+ last=t;
+ GcGravastarScene.update(state,dt,W,H);
+ const shake=state.shake||0;
+ ctx.save();
+ if(shake)ctx.translate((Math.random()-0.5)*shake*2,(Math.random()-0.5)*shake*2);
+ const ph=GcGravastarScene.draw(ctx,state,W,H);
+ ctx.restore();
+ const el=document.getElementById('phase');
+ if(el)el.textContent=`Phase: ${ph.id} · ${Math.ceil(state.t)}s / ~${Math.ceil(GcGravastarScene.totalDuration())}s`;
+ if(GcGravastarScene.isDone(state)&&!ended){
+  ended=true;
+  setTimeout(()=>restart(0),3500);
+ }
+ requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

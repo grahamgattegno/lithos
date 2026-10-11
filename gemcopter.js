@@ -1,7 +1,7 @@
 /* Gem Copter — helicopter + gemstone turret vs gem zombies, bosses, upgrades, 10 maps */
 (function(){
 'use strict';
-const GEM_COPTER_BUILD=77;
+const GEM_COPTER_BUILD=78;
 const GC_BULLET_LINES=5;
 
 const gcSfx=(()=>{
@@ -633,46 +633,12 @@ function gcOnBossDefeated(){
  setTimeout(()=>gcShowVictory(),200);
 }
 
-const GC_GRAVASTAR_PHASES=[
- {id:'title',dur:2.4},
- {id:'climb',dur:3.8},
- {id:'solar',dur:3.6},
- {id:'lock',dur:2.6},
- {id:'laser',dur:4.2},
- {id:'planets',dur:5.8},
- {id:'blackhole',dur:5.4},
- {id:'boom',dur:2.8},
-];
-
-const GC_GRAVASTAR_PLANETS=[
- {name:'Mercury',color:'#b0b0b0',size:7},
- {name:'Venus',color:'#e8c070',size:9},
- {name:'Earth',color:'#4a9ae8',size:10},
- {name:'Mars',color:'#d06040',size:8},
- {name:'Jupiter',color:'#d4a870',size:16},
- {name:'Saturn',color:'#e8d898',size:14,ring:true},
- {name:'Uranus',color:'#80d8e8',size:11},
- {name:'Neptune',color:'#4060d0',size:11},
-];
-
-function gcGravastarPhase(c){
- let acc=0;
- for(const p of GC_GRAVASTAR_PHASES){
-  if(c.t<acc+p.dur)return {id:p.id,local:c.t-acc,dur:p.dur,prog:(c.t-acc)/p.dur};
-  acc+=p.dur;
- }
- return {id:'done',local:0,dur:1,prog:1};
-}
-
 function gcStartGravastarCutscene(){
  const s=gcState; if(!s||!s.boss)return;
- s.cutscene={
-  type:'gravastar',t:0,
-  bossName:s.boss.name,
-  bossAccent:s.map.accent,
-  planetIdx:0,planetT:0,
-  finishQueued:false
- };
+ const base=window.GcGravastarScene?GcGravastarScene.create({
+  bossName:s.boss.name,bossAccent:s.map.accent,map:s.map
+ }):{t:0,bossName:s.boss.name,bossAccent:s.map.accent,planetIdx:0,planetT:0,map:s.map};
+ s.cutscene=Object.assign(base,{type:'gravastar',finishQueued:false});
  s.bullets=[]; s.missiles=[]; s.zombies=[];
  s.shake=0;
  gcBoom(s.x,s.y,'#7dffd4',1.4);
@@ -681,14 +647,18 @@ function gcStartGravastarCutscene(){
 
 function gcUpdateGravastar(dt){
  const s=gcState,c=s.cutscene; if(!c||c.type!=='gravastar')return;
- c.t+=dt;
- s.shake=Math.min(6,c.t*0.15);
- const ph=gcGravastarPhase(c);
- if(ph.id==='planets'){
-  c.planetT+=dt;
-  if(c.planetT>0.65){c.planetT=0;c.planetIdx++;}
- }
- if(ph.id==='done'&&!c.finishQueued){
+ if(window.GcGravastarScene){
+  const prevPlanet=c.planetIdx||0;
+  GcGravastarScene.update(c,dt,GC_W,GC_H);
+  if((c.planetIdx||0)>prevPlanet&&prevPlanet<GcGravastarScene.PLANETS.length){
+   const p=GcGravastarScene.PLANETS[prevPlanet];
+   gcBoom(GC_W/2,GC_H*0.52,p.color,1.75);
+   gcBoom(GC_W/2,GC_H*0.52,'#fff',1.15);
+   try{if(typeof SFX!=='undefined'&&SFX.boom)SFX.boom();}catch(_){}
+  }
+ }else c.t+=dt;
+ s.shake=c.shake!=null?c.shake:Math.min(6,c.t*0.15);
+ if(window.GcGravastarScene&&GcGravastarScene.isDone(c)&&!c.finishQueued){
   c.finishQueued=true;
   gcBoom(GC_W/2,GC_H*0.55,'#fff',3);
   gcBoom(GC_W/2,GC_H*0.55,s.map.accent,2.5);
@@ -700,185 +670,12 @@ function gcUpdateGravastar(dt){
  }
 }
 
-function gcDrawGravastarStars(ctx,seed,alpha){
- ctx.fillStyle=`rgba(255,255,255,${alpha})`;
- for(let i=0;i<140;i++){
-  const x=(Math.sin(seed*0.17+i*12.9898)*0.5+0.5)*GC_W;
-  const y=(Math.cos(seed*0.11+i*78.233)*0.5+0.5)*GC_H;
-  const sz=1+(i%3);
-  ctx.globalAlpha=alpha*(0.35+(i%5)*0.12);
-  ctx.fillRect(x,y,sz,sz);
- }
- ctx.globalAlpha=1;
-}
-
-function gcDrawGravastarBossSil(ctx,cx,cy,sc,accent,name,alpha,hurt){
- ctx.save();
- ctx.translate(cx,cy);
- ctx.globalAlpha=alpha;
- if(window.GcBossShapes&&gcState&&gcState.map){
-  const fake={name,r:34*sc,t:performance.now()/1000,hp:1,maxHp:1,hurt:hurt?1:0};
-  window.GcBossShapes.drawBossBody(ctx,fake,gcState.map);
- }else{
-  ctx.fillStyle=accent;
-  ctx.beginPath(); ctx.arc(0,0,30*sc,0,Math.PI*2); ctx.fill();
-  ctx.fillStyle='#fff'; ctx.font=`bold ${14*sc}px sans-serif`; ctx.textAlign='center';
-  ctx.fillText(name,0,-40*sc);
- }
- ctx.restore();
-}
-
 function gcDrawGravastar(ctx,c,s){
- const ph=gcGravastarPhase(c);
- const W=GC_W,H=GC_H;
- const g=ctx.createLinearGradient(0,0,0,H);
- g.addColorStop(0,'#020208'); g.addColorStop(1,'#0a0820');
- ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
- gcDrawGravastarStars(ctx,c.t,0.55+Math.min(0.45,c.t*0.08));
-
- ctx.textAlign='center';
- ctx.fillStyle='#c9a94f';
- ctx.font='bold 22px system-ui,sans-serif';
-
- if(ph.id==='title'){
-  ctx.fillStyle='#7dffd4';
-  ctx.font='bold 26px system-ui,sans-serif';
-  ctx.fillText('GRAVASTAR COUNTERSTRIKE',W/2,H*0.42);
-  ctx.fillStyle='#e8ecf4';
-  ctx.font='15px system-ui,sans-serif';
-  ctx.fillText('Leaving Rainbow Crater…',W/2,H*0.5);
-  ctx.globalAlpha=0.5+ph.prog*0.5;
-  ctx.strokeStyle='#fff'; ctx.lineWidth=2;
-  ctx.beginPath(); ctx.arc(W/2,H*0.72,18+ph.prog*8,0,Math.PI*2); ctx.stroke();
-  ctx.globalAlpha=1;
+ if(window.GcGravastarScene){
+  GcGravastarScene.draw(ctx,c,GC_W,GC_H);
   return;
  }
-
- const cam=Math.min(1,(ph.id==='climb'?ph.prog:1));
- if(ph.id==='climb'||ph.id==='solar'||ph.id==='lock'){
-  ctx.save();
-  ctx.translate(W/2,H*0.62);
-  ctx.scale(0.35+cam*0.25,0.35+cam*0.25);
-  ctx.fillStyle='#2a5038';
-  ctx.beginPath(); ctx.arc(0,0,40,0,Math.PI*2); ctx.fill();
-  ctx.fillStyle='#1a3868';
-  ctx.beginPath(); ctx.arc(0,-8,44,0,Math.PI*2); ctx.fill();
-  ctx.restore();
-  ctx.fillStyle='rgba(255,220,120,0.9)';
-  ctx.beginPath(); ctx.arc(W*0.78,H*0.22,28+cam*12,0,Math.PI*2); ctx.fill();
-  ctx.fillStyle='rgba(255,255,200,0.35)';
-  ctx.beginPath(); ctx.arc(W*0.78,H*0.22,40+cam*18,0,Math.PI*2); ctx.fill();
-  if(ph.id!=='climb'){
-   GC_GRAVASTAR_PLANETS.forEach((p,i)=>{
-    const a=c.t*0.4+i*0.78;
-    const dist=70+i*22;
-    const px=W/2+Math.cos(a)*dist,py=H*0.55+Math.sin(a)*dist*0.35;
-    ctx.fillStyle=p.color;
-    ctx.beginPath(); ctx.arc(px,py,p.size,0,Math.PI*2); ctx.fill();
-    if(p.ring){
-     ctx.strokeStyle='rgba(232,216,152,0.55)'; ctx.lineWidth=2;
-     ctx.beginPath(); ctx.ellipse(px,py,p.size*1.8,p.size*0.55,a*0.2,0,Math.PI*2); ctx.stroke();
-    }
-   });
-  }
-  if(ph.id==='climb'){
-   ctx.fillStyle='#e8ecf4'; ctx.font='16px system-ui,sans-serif';
-   ctx.fillText('Past the solar system… beyond known space',W/2,H*0.12);
-  }
-  if(ph.id==='solar'){
-   ctx.fillStyle='#7dffd4'; ctx.font='17px system-ui,sans-serif';
-   ctx.fillText('Space Counter-Strike online',W/2,H*0.1);
-  }
-  if(ph.id==='lock'){
-   const bx=W/2,by=H*0.48;
-   ctx.strokeStyle='#ff4060'; ctx.lineWidth=2;
-   ctx.strokeRect(bx-48,by-48,96,96);
-   ctx.fillStyle='rgba(255,64,96,0.25)'; ctx.fillRect(bx-48,by-48,96,96);
-   gcDrawGravastarBossSil(ctx,bx,by+20,1.1,c.bossAccent,c.bossName,0.95,false);
-   ctx.fillStyle='#fff'; ctx.font='14px system-ui,sans-serif';
-   ctx.fillText('TARGET LOCK: '+c.bossName,bx,by-62);
-  }
-  return;
- }
-
- if(ph.id==='laser'){
-  const bx=W/2,by=H*0.52;
-  gcDrawGravastarBossSil(ctx,bx,by,1.15,c.bossAccent,c.bossName,1,false);
-  const beam=ph.prog;
-  const g2=ctx.createLinearGradient(bx,0,bx,H);
-  g2.addColorStop(0,'rgba(255,255,255,0.98)');
-  g2.addColorStop(0.5,'rgba(255,255,255,0.85)');
-  g2.addColorStop(1,'rgba(200,220,255,0)');
-  ctx.fillStyle=g2;
-  ctx.beginPath();
-  ctx.moveTo(bx-8-beam*40,0);
-  ctx.lineTo(bx+8+beam*40,0);
-  ctx.lineTo(bx+60+beam*80,H);
-  ctx.lineTo(bx-60-beam*80,H);
-  ctx.closePath(); ctx.fill();
-  ctx.globalAlpha=0.35+beam*0.5;
-  ctx.fillStyle='#fff';
-  ctx.beginPath(); ctx.arc(bx,by,30+beam*90,0,Math.PI*2); ctx.fill();
-  ctx.globalAlpha=1;
-  if(ph.prog>0.55){
-   ctx.fillStyle='#ff8090'; ctx.font='bold 18px system-ui,sans-serif';
-   ctx.fillText('STILL ALIVE?!',W/2,H*0.88);
-  }
-  return;
- }
-
- if(ph.id==='planets'){
-  const bx=W/2,by=H*0.52;
-  gcDrawGravastarBossSil(ctx,bx,by,1, c.bossAccent,c.bossName,0.85+Math.sin(c.t*8)*0.1,true);
-  const idx=Math.min(c.planetIdx,GC_GRAVASTAR_PLANETS.length);
-  for(let i=0;i<idx;i++){
-   const p=GC_GRAVASTAR_PLANETS[i];
-   const t=Math.min(1,(c.t-(GC_GRAVASTAR_PHASES.slice(0,5).reduce((a,x)=>a+x.dur,0)+i*0.65))/0.55);
-   const px=(1-t)*W*0.1+t*bx,py=(1-t)*H*0.15+t*by;
-   ctx.fillStyle=p.color;
-   ctx.beginPath(); ctx.arc(px,py,p.size*(1-t*0.3),0,Math.PI*2); ctx.fill();
-  }
-  if(idx<GC_GRAVASTAR_PLANETS.length){
-   const p=GC_GRAVASTAR_PLANETS[idx];
-   const t=Math.min(1,c.planetT/0.55);
-   const px=(1-t)*W*0.92+t*bx,py=(1-t)*H*0.08+t*by;
-   ctx.fillStyle=p.color;
-   ctx.beginPath(); ctx.arc(px,py,p.size,0,Math.PI*2); ctx.fill();
-   ctx.strokeStyle='#fff'; ctx.lineWidth=1;
-   ctx.strokeText(p.name,W/2,H*0.1);
-  }else{
-   ctx.fillStyle='#ff6080'; ctx.font='bold 17px system-ui,sans-serif';
-   ctx.fillText('IT STILL SURVIVES!',W/2,H*0.1);
-  }
-  return;
- }
-
- if(ph.id==='blackhole'){
-  const bx=W/2,by=H*0.52;
-  const r=20+ph.prog*Math.min(W,H)*0.48;
-  const swirl=Math.sin(c.t*14)*ph.prog*10;
-  gcDrawGravastarBossSil(ctx,bx+swirl,by+swirl*0.6,1-ph.prog*0.7,c.bossAccent,c.bossName,1-ph.prog*0.85,true);
-  const hole=ctx.createRadialGradient(bx,by,0,bx,by,r);
-  hole.addColorStop(0,'#000'); hole.addColorStop(0.35,'#120818');
-  hole.addColorStop(0.7,'rgba(80,40,120,0.5)'); hole.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle=hole;
-  ctx.beginPath(); ctx.arc(bx,by,r,0,Math.PI*2); ctx.fill();
-  ctx.strokeStyle='rgba(200,160,255,0.45)'; ctx.lineWidth=3;
-  ctx.beginPath(); ctx.arc(bx,by,r*0.72,0,Math.PI*2); ctx.stroke();
-  ctx.fillStyle='#e8d4ff'; ctx.font='bold 18px system-ui,sans-serif';
-  ctx.fillText('GRAVASTAR — MAXIMUM SINGULARITY',W/2,H*0.12);
-  return;
- }
-
- if(ph.id==='boom'||ph.id==='done'){
-  const flash=ph.id==='boom'?1-ph.prog:0;
-  ctx.fillStyle=`rgba(255,255,255,${flash*0.92})`;
-  ctx.fillRect(0,0,W,H);
-  ctx.fillStyle='#c9a94f'; ctx.font='bold 24px system-ui,sans-serif';
-  ctx.fillText('AURIC APOCALYPSE — DESTROYED',W/2,H*0.48);
-  ctx.fillStyle='#7dffd4'; ctx.font='16px system-ui,sans-serif';
-  ctx.fillText('Rainbow Crater cleared',W/2,H*0.56);
- }
+ ctx.fillStyle='#020208'; ctx.fillRect(0,0,GC_W,GC_H);
 }
 
 function gcStartWave(){
