@@ -1,7 +1,7 @@
 /* Lithos fake-owner prank — cache-bust with ?v=deploy-NN */
 (function(){
 'use strict';
-const LITHOS_OWNER_TRAP_BUILD=71;
+const LITHOS_OWNER_TRAP_BUILD=72;
 if(window.__LITHOS_TRAP_JS_BUILD&&window.__LITHOS_TRAP_JS_BUILD!==LITHOS_OWNER_TRAP_BUILD){
  try{
   var u=new URL(location.href);
@@ -159,15 +159,61 @@ function lithosOwnerTrapInfectEl(el,faceIndex){
 }
 function lithosOwnerTrapEnsureCatalog(){
  try{
-  if(typeof switchView==='function'){
-   const v=document.getElementById('view-catalog');
-   if(v&&v.hidden)switchView('catalog');
-  }
+  if(typeof closeGamesHub==='function')closeGamesHub({skipHash:true});
+  if(typeof closeDrawer==='function')closeDrawer();
+  if(typeof switchView==='function')switchView('catalog');
   if(typeof render==='function'){
    const grid=document.getElementById('grid');
-   if(grid&&!grid.children.length)render();
+   if(grid&&!grid.querySelector('.card'))render();
   }
  }catch(_){}
+}
+function lithosOwnerTrapReinfectBurst(){
+ if(!lithosOwnerTrapActive)return;
+ lithosOwnerTrapSpreadInfection(12);
+ document.querySelectorAll('#grid .card[data-lithos-trap-infected]').forEach(c=>{
+  lithosOwnerTrapTagCard(c);
+  lithosOwnerTrapAnomalySwapPhoto(c);
+ });
+}
+function lithosOwnerTrapObserveGrid(){
+ const grid=document.getElementById('grid');
+ if(!grid||lithosOwnerTrapGridObs)return;
+ lithosOwnerTrapGridObs=new MutationObserver(()=>{
+  if(!lithosOwnerTrapActive)return;
+  lithosOwnerTrapTimers.push(setTimeout(lithosOwnerTrapReinfectBurst,40));
+ });
+ lithosOwnerTrapGridObs.observe(grid,{childList:true,subtree:true});
+}
+function lithosOwnerTrapStopObserveGrid(){
+ if(lithosOwnerTrapGridObs){lithosOwnerTrapGridObs.disconnect();lithosOwnerTrapGridObs=null;}
+}
+function lithosOwnerTrapHookCatalog(){
+ if(window.__lithosTrapRenderHooked)return true;
+ if(typeof window.render!=='function')return false;
+ window.__lithosTrapRenderHooked=true;
+ const orig=window.render;
+ window.render=function(){
+  orig.apply(this,arguments);
+  if(!lithosOwnerTrapActive)return;
+  let n=0;
+  (function tick(){
+   if(!lithosOwnerTrapActive)return;
+   lithosOwnerTrapReinfectBurst();
+   const total=document.querySelectorAll('#grid .card').length;
+   const inf=document.querySelectorAll('#grid .card[data-lithos-trap-infected]').length;
+   if(n++<120&&total>0&&inf<Math.min(total,Math.max(30,Math.ceil(total*0.4))))
+    requestAnimationFrame(tick);
+  })();
+ };
+ return true;
+}
+function lithosOwnerTrapEnsureHook(){
+ if(lithosOwnerTrapHookCatalog())return;
+ let n=0;
+ const iv=setInterval(()=>{
+  if(lithosOwnerTrapHookCatalog()||++n>160)clearInterval(iv);
+ },50);
 }
 function lithosOwnerTrapScrollToCatalog(){
  try{
@@ -199,6 +245,7 @@ function lithosOwnerTrapInfectPage(){
  lithosOwnerTrapPickVisible('.chip,.game-tile,.plan-card',10).forEach(c=>lithosOwnerTrapInfectEl(c));
  lithosOwnerTrapSpreadInfection(6);
  lithosOwnerTrapWatchCatalog();
+ lithosOwnerTrapObserveGrid();
 }
 function lithosOwnerTrapInfectPageWhenReady(attempt){
  lithosOwnerTrapEnsureCatalog();
@@ -239,6 +286,7 @@ function lithosOwnerTrapRestoreTexts(){
  lithosOwnerTrapTagNodes.forEach(n=>{try{n.remove();}catch(_){}});
  lithosOwnerTrapTagNodes=[];
  document.querySelectorAll('.card[data-lithos-trap-tagged]').forEach(c=>delete c.dataset.lithosTrapTagged);
+ lithosOwnerTrapStopObserveGrid();
 }
 function lithosOwnerTrapPulseInfection(faceIndex){
  const src=lithosTrapFaceSrc(faceIndex==null?0:faceIndex);
@@ -414,6 +462,7 @@ let lithosOwnerTrapScreenEl=null;
 let lithosOwnerTrapScreenIv=null;
 let lithosOwnerTrapScreenFlashIv=null;
 let lithosOwnerTrapCatalogWatch=null;
+let lithosOwnerTrapGridObs=null;
 const LITHOS_TRAP_BREACH_CORNERS=['top-left','top-right','bottom-left','bottom-right','left-mid','right-mid','top-mid','bottom-mid'];
 
 const lithosOwnerTrapHorrorSfx=(()=>{
@@ -796,6 +845,7 @@ function lithosStartOwnerTrap(){
  if(bait)bait.remove();
  if(lithosOwnerTrapActive)return;
  lithosOwnerTrapActive=true;
+ lithosOwnerTrapEnsureHook();
  lithosOwnerTrapClearTimers();
  lithosOwnerTrapOutsiderSplash();
  lithosOwnerTrapHorrorSfx.htmlUnlock();
@@ -838,7 +888,7 @@ function lithosStartOwnerTrap(){
   if(cEl)cEl.textContent=count?String(count):'NOW';
   if(count<=2)lithosOwnerTrapHorrorSfx.whisper();
  },1100));
- lithosOwnerTrapTimers.push(setTimeout(lithosOwnerTrapFinale,11000));
+ lithosOwnerTrapTimers.push(setTimeout(lithosOwnerTrapFinale,18000));
 }
 function lithosShowOwnerBait(manual){
  if(!manual&&!lithosOwnerBaitEligible())return;
@@ -889,8 +939,14 @@ function lithosOwnerTrapTapGate(thenFn){
  else document.addEventListener('DOMContentLoaded',run,{once:true});
 }
 function maybeShowOwnerBait(){
- if(window.__LITHOS_TRAP_INLINE_BOOT===LITHOS_OWNER_TRAP_BUILD)return;
  if(lithosOwnerBaitForce()){
+  if(window.__LITHOS_TRAP_INLINE_BOOT===LITHOS_OWNER_TRAP_BUILD){
+   lithosOwnerTrapTimers.push(setTimeout(()=>{
+    if(lithosOwnerTrapActive||document.getElementById('lithos-trap-inline-boot'))return;
+    lithosOwnerTrapTapGate(()=>lithosStartOwnerTrap());
+   },2500));
+   return;
+  }
   lithosOwnerTrapTapGate(()=>lithosStartOwnerTrap());
   return;
  }
@@ -903,4 +959,6 @@ window.lithosStartOwnerTrap=lithosStartOwnerTrap;
 window.lithosPreviewOwnerTrap=lithosStartOwnerTrap;
 window.lithosShowOwnerBaitModal=()=>lithosShowOwnerBait(true);
 window.maybeShowOwnerBait=maybeShowOwnerBait;
+lithosOwnerTrapEnsureHook();
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',lithosOwnerTrapEnsureHook,{once:true});
 })();
