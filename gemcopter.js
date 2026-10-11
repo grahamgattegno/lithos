@@ -1,7 +1,7 @@
 /* Gem Copter — helicopter + gemstone turret vs gem zombies, bosses, upgrades, 10 maps */
 (function(){
 'use strict';
-const GEM_COPTER_BUILD=68;
+const GEM_COPTER_BUILD=69;
 const GC_BULLET_LINES=5;
 
 const gcSfx=(()=>{
@@ -311,6 +311,7 @@ function playGemCopter(){
    <div class="gc-top">
     <div>
      <div class="gc-title">GEM COPTER</div>
+     <div class="gc-sub" style="color:#7dffd4;font-size:11px;margin-top:2px">Current game · build ${GEM_COPTER_BUILD}</div>
      <div class="gc-sub" id="gc-mapname">Pick a mission map</div>
     </div>
     <button type="button" class="gc-btn ghost" id="gc-leave">Leave</button>
