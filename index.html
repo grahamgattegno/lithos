@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- lithos-v:site-live-51 -->
+<!-- lithos-v:site-live-52 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -2144,6 +2144,23 @@
   @keyframes ppHeartPulse{0%,100%{transform:scale(1);opacity:.3}50%{transform:scale(1.04);opacity:.7}}
   .pp-fear-bar{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:min(200px,60%);height:6px;background:rgba(0,0,0,.6);border-radius:999px;overflow:hidden;z-index:6;border:1px solid rgba(255,50,80,.3);pointer-events:none}
   .pp-fear-fill{height:100%;background:linear-gradient(90deg,#660022,#ff0040);transition:width .2s}
+  .lithos-owner-bait{position:fixed;inset:0;z-index:10040;background:rgba(4,6,12,.88);display:flex;align-items:center;justify-content:center;padding:20px;font-family:var(--font,system-ui,sans-serif)}
+  .lithos-owner-bait-card{max-width:420px;width:100%;background:linear-gradient(145deg,#121820,#0a1018);border:2px solid rgba(201,169,79,.55);border-radius:16px;padding:28px 24px;text-align:center;box-shadow:0 0 60px rgba(201,169,79,.25),0 24px 80px rgba(0,0,0,.65)}
+  .lithos-owner-bait-card .crown{font-size:48px;line-height:1;margin-bottom:8px}
+  .lithos-owner-bait-card h2{margin:0 0 10px;font-size:1.35rem;color:#f8e8c8}
+  .lithos-owner-bait-card p{margin:0 0 18px;color:#a8b8c8;font-size:.95rem;line-height:1.45}
+  .lithos-owner-bait-go{display:block;width:100%;padding:14px 18px;border:none;border-radius:10px;font-weight:800;font-size:1rem;letter-spacing:.04em;cursor:pointer;background:linear-gradient(135deg,#c9a94f,#e8c878,#c9a94f);color:#1a1008;box-shadow:0 4px 24px rgba(201,169,79,.45)}
+  .lithos-owner-bait-go:hover{filter:brightness(1.06)}
+  .lithos-owner-bait-dismiss{margin-top:14px;background:none;border:none;color:#6a7a8a;font-size:.8rem;cursor:pointer;text-decoration:underline}
+  .lithos-owner-trap{position:fixed;inset:0;z-index:10050;background:#000;color:#ff2040;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;user-select:none;touch-action:none}
+  .lithos-owner-trap::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.03) 0 1px,transparent 1px 3px);opacity:.35;pointer-events:none;animation:lithosTrapScan 4s linear infinite}
+  @keyframes lithosTrapScan{to{transform:translateY(12px)}}
+  .lithos-owner-trap-msg{position:relative;z-index:1;font-family:"Courier New",Courier,monospace;font-size:clamp(1rem,4vw,1.35rem);letter-spacing:.12em;text-transform:uppercase;text-shadow:0 0 20px rgba(255,32,64,.8);animation:lithosTrapPulse 1.2s ease-in-out infinite}
+  @keyframes lithosTrapPulse{0%,100%{opacity:.75}50%{opacity:1}}
+  .lithos-owner-trap-sub{position:relative;z-index:1;margin-top:16px;font-size:.85rem;color:#886060;max-width:320px;line-height:1.4}
+  .lithos-trap-scare{pointer-events:none;flex-direction:column;gap:12px}
+  .lithos-trap-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:10060;background:#121820;border:1px solid #3a4858;color:#c8d4e0;padding:12px 20px;border-radius:10px;font-size:.9rem;box-shadow:0 8px 32px rgba(0,0,0,.5);animation:lithosTrapToast 4s ease forwards}
+  @keyframes lithosTrapToast{0%,80%{opacity:1}100%{opacity:0}}
   .pp-jumpscare{position:fixed;inset:0;z-index:10001;background:#000;display:flex;align-items:center;justify-content:center;animation:ppJumpFlash .55s ease-out forwards;pointer-events:none}
   @keyframes ppJumpFlash{0%{background:#fff;opacity:1}15%{background:#200010;opacity:1}100%{opacity:0}}
   @keyframes ppJumpLunge{0%{transform:scale(.3)}60%{transform:scale(1.4)}100%{transform:scale(1.2)}}
@@ -15945,6 +15962,167 @@ const SFX=(()=>{
   }
  };
 })();
+/* Fake "become the owner" bait — fullscreen scare + jumpscare, then release */
+const LITHOS_OWNER_BAIT_KEY='lithos_owner_bait_done';
+let lithosOwnerTrapActive=false;
+let lithosOwnerTrapTimers=[];
+let lithosOwnerTrapIntervals=[];
+let lithosOwnerTrapScareIv=null;
+let lithosOwnerTrapFsHandler=null;
+function lithosOwnerBaitForce(){
+ try{return new URLSearchParams(location.search).get('ownerbait')==='1';}catch(_){return false;}
+}
+function lithosOwnerBaitEligible(){
+ if(window.LITHOS_STRATUM)return false;
+ try{if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return false;}catch(_){}
+ const force=lithosOwnerBaitForce();
+ if(isOwner&&!force)return false;
+ if(!force){
+  try{if(sessionStorage.getItem(LITHOS_OWNER_BAIT_KEY)==='1')return false;}catch(_){}
+ }
+ return true;
+}
+function lithosOwnerTrapClearTimers(){
+ lithosOwnerTrapTimers.forEach(t=>clearTimeout(t));
+ lithosOwnerTrapTimers=[];
+ lithosOwnerTrapIntervals.forEach(t=>clearInterval(t));
+ lithosOwnerTrapIntervals=[];
+ if(lithosOwnerTrapScareIv){clearInterval(lithosOwnerTrapScareIv);lithosOwnerTrapScareIv=null;}
+ if(lithosOwnerTrapFsHandler){
+  document.removeEventListener('fullscreenchange',lithosOwnerTrapFsHandler);
+  document.removeEventListener('webkitfullscreenchange',lithosOwnerTrapFsHandler);
+  lithosOwnerTrapFsHandler=null;
+ }
+}
+function lithosOwnerTrapEnterFs(el){
+ if(!el)return;
+ const req=el.requestFullscreen||el.webkitRequestFullscreen||el.msRequestFullscreen;
+ if(!req)return;
+ try{const p=req.call(el);if(p&&p.catch)p.catch(()=>{});}catch(_){}
+}
+function lithosOwnerTrapExitFs(){
+ try{
+  if(document.fullscreenElement||document.webkitFullscreenElement){
+   const exit=document.exitFullscreen||document.webkitExitFullscreen||document.msExitFullscreen;
+   if(exit){const p=exit.call(document);if(p&&p.catch)p.catch(()=>{});}
+  }
+ }catch(_){}
+ document.body.classList.remove('lithos-owner-trap-active');
+}
+function lithosOwnerTrapScareAudio(){
+ try{
+  if(typeof SFX!=='undefined'&&SFX.poke)SFX.poke();
+  if(typeof SFX!=='undefined'&&SFX.heartbeat)SFX.heartbeat();
+ }catch(_){}
+}
+function lithosOwnerTrapEnd(){
+ if(!lithosOwnerTrapActive)return;
+ lithosOwnerTrapActive=false;
+ lithosOwnerTrapClearTimers();
+ lithosOwnerTrapExitFs();
+ const trap=document.getElementById('lithos-owner-trap');
+ if(trap)trap.remove();
+ const bait=document.getElementById('lithos-owner-bait');
+ if(bait)bait.remove();
+ try{sessionStorage.setItem(LITHOS_OWNER_BAIT_KEY,'1');}catch(_){}
+ try{if(typeof syncBodyScrollLock==='function')syncBodyScrollLock();}catch(_){}
+ const toast=document.createElement('div');
+ toast.className='lithos-trap-toast';
+ toast.textContent='You escaped. (Real owner powers need the real Secret Codes page.)';
+ document.body.appendChild(toast);
+ lithosOwnerTrapTimers.push(setTimeout(()=>toast.remove(),4200));
+}
+function lithosOwnerTrapJumpscare(){
+ const trap=document.getElementById('lithos-owner-trap');
+ if(trap){
+  trap.innerHTML='';
+  const scare=document.createElement('div');
+  scare.className='pp-jumpscare lithos-trap-scare';
+  scare.style.zIndex='10055';
+  let art='';
+  try{if(typeof nsBotSVG==='function')art=nsBotSVG('golden',220);}catch(_){}
+  scare.innerHTML=`${art?`<div class="ns-jumpscare-art pose-jumpscare">${art}</div>`:''}<p style="color:#f8d030;font-size:clamp(1.4rem,6vw,2rem);font-weight:900;margin:0;text-shadow:0 0 24px rgba(255,0,80,.8)">NOT THE OWNER.</p>`;
+  trap.appendChild(scare);
+ }
+ try{
+  if(typeof SFX!=='undefined'&&SFX.jumpscare)SFX.jumpscare('golden');
+  else if(typeof SFX!=='undefined'&&SFX.lose)SFX.lose();
+ }catch(_){}
+ lithosOwnerTrapTimers.push(setTimeout(lithosOwnerTrapEnd,900));
+}
+function lithosStartOwnerTrap(){
+ const bait=document.getElementById('lithos-owner-bait');
+ if(bait)bait.remove();
+ if(lithosOwnerTrapActive)return;
+ lithosOwnerTrapActive=true;
+ lithosOwnerTrapClearTimers();
+ let trap=document.getElementById('lithos-owner-trap');
+ if(!trap){
+  trap=document.createElement('div');
+  trap.id='lithos-owner-trap';
+  trap.className='lithos-owner-trap';
+  trap.setAttribute('role','alertdialog');
+  trap.setAttribute('aria-modal','true');
+  trap.innerHTML=`<p class="lithos-owner-trap-msg" id="lithos-owner-trap-msg">Verifying owner credentials…</p><p class="lithos-owner-trap-sub">Do not close this window. Lithos is checking your device.</p>`;
+  document.body.appendChild(trap);
+ }
+ document.body.classList.add('lithos-owner-trap-active');
+ try{if(typeof syncBodyScrollLock==='function')syncBodyScrollLock();}catch(_){}
+ lithosOwnerTrapEnterFs(trap);
+ lithosOwnerTrapScareAudio();
+ lithosOwnerTrapScareIv=setInterval(lithosOwnerTrapScareAudio,1100);
+ let fsRetries=0;
+ lithosOwnerTrapFsHandler=()=>{
+  if(!lithosOwnerTrapActive)return;
+  if(document.fullscreenElement||document.webkitFullscreenElement)return;
+  fsRetries++;
+  if(fsRetries<12)lithosOwnerTrapTimers.push(setTimeout(()=>lithosOwnerTrapEnterFs(trap),80));
+ };
+ document.addEventListener('fullscreenchange',lithosOwnerTrapFsHandler);
+ document.addEventListener('webkitfullscreenchange',lithosOwnerTrapFsHandler);
+ const msgs=['Verifying owner credentials…','Scanning crown signature…','Access denied — escalating…','Something is wrong…','STAY IN YOUR SEAT.'];
+ let mi=0;
+ lithosOwnerTrapIntervals.push(setInterval(()=>{
+  mi=(mi+1)%msgs.length;
+  const el=document.getElementById('lithos-owner-trap-msg');
+  if(el)el.textContent=msgs[mi];
+ },1400));
+ lithosOwnerTrapTimers.push(setTimeout(lithosOwnerTrapJumpscare,6500));
+}
+function lithosShowOwnerBait(){
+ if(!lithosOwnerBaitEligible())return;
+ if(document.getElementById('lithos-owner-bait')||document.getElementById('lithos-owner-trap'))return;
+ const wrap=document.createElement('div');
+ wrap.id='lithos-owner-bait';
+ wrap.className='lithos-owner-bait';
+ wrap.innerHTML=`<div class="lithos-owner-bait-card">
+  <div class="crown">👑</div>
+  <h2>Become the Lithos owner</h2>
+  <p>You were picked for a <b>free owner upgrade</b>. Click the button below to unlock every game, Owner TV, and all secret powers — instantly.</p>
+  <button type="button" class="lithos-owner-bait-go" id="lithos-owner-bait-go">Become the Owner</button>
+  <button type="button" class="lithos-owner-bait-dismiss" id="lithos-owner-bait-no">No thanks, I&apos;m just browsing</button>
+ </div>`;
+ document.body.appendChild(wrap);
+ const go=wrap.querySelector('#lithos-owner-bait-go');
+ const no=wrap.querySelector('#lithos-owner-bait-no');
+ if(go){
+  go.addEventListener('click',e=>{
+   e.preventDefault();
+   lithosStartOwnerTrap();
+  });
+ }
+ if(no){
+  no.addEventListener('click',e=>{
+   e.preventDefault();
+   wrap.remove();
+   try{sessionStorage.setItem(LITHOS_OWNER_BAIT_KEY,'1');}catch(_){}
+  });
+ }
+}
+function maybeShowOwnerBait(){
+ if(!lithosOwnerBaitEligible())return;
+ lithosOwnerTrapTimers.push(setTimeout(lithosShowOwnerBait,900));
+}
 const NS_WALLET_KEY='lithos_ns_wallet_v1';
 const NS_MARKET=[
   {id:'flashlight',name:'Flashlight',icon:'🔦',price:40,kind:'gear',desc:'Hall bots glow brighter. Cameras drain less power. Golden is easier to track.'},
@@ -20014,6 +20192,7 @@ async function startGemMotion(){
  initAdventurePreview();
  routeHashView();
  maybeShowAdventurePreview();
+ maybeShowOwnerBait();
  if(typeof stratumInitCatalog==='function')stratumInitCatalog();
  // Keep Stratum URL in sync only when already in Stratum mode from the URL.
  if(window.LITHOS_STRATUM&&location.search.indexOf('site=stratum')<0){
