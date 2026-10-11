@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- lithos-v:site-live-66 -->
+<!-- lithos-v:site-live-67 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -2188,7 +2188,7 @@
   .lithos-trap-flash{position:absolute;inset:0;z-index:3;pointer-events:none;background:#fff;opacity:0}
   .lithos-trap-flash.on{animation:lithosTrapFlash .12s ease-out forwards}
   @keyframes lithosTrapFlash{0%{opacity:.85;background:#fff}100%{opacity:0;background:#400010}}
-  .lithos-trap-face{position:absolute;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0;transform:scale(.4);filter:blur(2px) contrast(1.4) drop-shadow(0 0 40px rgba(255,0,60,.9))}
+  .lithos-trap-face{position:absolute;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0;transform:scale(.4) translate(var(--lithos-trap-look-x,0),var(--lithos-trap-look-y,0));filter:blur(2px) contrast(1.4) drop-shadow(0 0 40px rgba(255,0,60,.9));transition:transform .12s linear}
   .lithos-trap-face.show{animation:lithosTrapFaceLurk 2.2s ease-in forwards}
   @keyframes lithosTrapFaceLurk{0%{opacity:0;transform:scale(.35)}40%{opacity:.92;transform:scale(1.05)}100%{opacity:.75;transform:scale(1.15)}}
   .lithos-trap-face-img{width:min(92vw,560px)!important;height:auto!important;object-fit:contain;filter:contrast(1.25) saturate(1.1) drop-shadow(0 0 40px rgba(255,0,60,.85))}
@@ -2211,6 +2211,19 @@
   @keyframes lithosTrapTitle{50%{transform:scale(1.04)}}
   .lithos-trap-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:10060;background:#121820;border:1px solid #3a4858;color:#c8d4e0;padding:12px 20px;border-radius:10px;font-size:.9rem;box-shadow:0 8px 32px rgba(0,0,0,.5);animation:lithosTrapToast 4s ease forwards}
   @keyframes lithosTrapToast{0%,80%{opacity:1}100%{opacity:0}}
+  html.lithos-trap-screen-host .lithos-owner-trap{background:rgba(0,0,0,.42);backdrop-filter:blur(0.5px) contrast(1.15) saturate(1.2)}
+  html.lithos-trap-screen-host.lithos-trap-screen-flash .lithos-owner-trap{opacity:.08;background:transparent}
+  html.lithos-trap-screen-host.lithos-trap-screen-flash #lithos-trap-screen-breach{opacity:1;filter:invert(1) hue-rotate(180deg) contrast(1.4)}
+  #lithos-trap-screen-breach{position:fixed;inset:0;z-index:10051;pointer-events:none;overflow:hidden;mix-blend-mode:normal}
+  .lithos-trap-screen-frame{position:absolute;inset:8px;border:2px solid rgba(255,0,48,.55);box-shadow:inset 0 0 80px rgba(255,0,40,.35),0 0 40px rgba(255,0,60,.25);animation:lithosTrapFramePulse 1.1s ease-in-out infinite alternate}
+  @keyframes lithosTrapFramePulse{from{opacity:.45;transform:scale(1)}to{opacity:.95;transform:scale(1.008)}}
+  .lithos-trap-screen-scan{position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.04) 0 1px,transparent 1px 3px);opacity:.35;animation:lithosTrapScan 1.6s linear infinite;mix-blend-mode:overlay}
+  #lithos-trap-parasites{position:absolute;inset:0}
+  .lithos-trap-parasite{position:absolute;width:min(32vw,200px);opacity:0;transform:scale(.6);transition:opacity .25s ease,transform .15s linear;filter:drop-shadow(0 0 22px rgba(255,0,60,.85)) contrast(1.35);z-index:2}
+  .lithos-trap-parasite.in{opacity:.92;transform:scale(1)}
+  .lithos-trap-parasite img{width:100%;height:auto;display:block;animation:lithosAnomalyGlitch 1.4s steps(2) infinite}
+  .lithos-trap-slice{position:absolute;left:-6%;width:112%;background-size:cover;background-position:center;opacity:.88;mix-blend-mode:hard-light;filter:contrast(1.5) saturate(0.7);animation:lithosTrapSliceGlitch .58s steps(4) forwards;z-index:3}
+  @keyframes lithosTrapSliceGlitch{0%{transform:translateX(0)}25%{transform:translateX(var(--lithos-trap-slice-shift,0))}50%{transform:translateX(calc(var(--lithos-trap-slice-shift,0px) * -0.6))}100%{opacity:0;transform:translateX(calc(var(--lithos-trap-slice-shift,0px) * 1.2))}}
   .pp-jumpscare{position:fixed;inset:0;z-index:10001;background:#000;display:flex;align-items:center;justify-content:center;animation:ppJumpFlash .55s ease-out forwards;pointer-events:none}
   @keyframes ppJumpFlash{0%{background:#fff;opacity:1}15%{background:#200010;opacity:1}100%{opacity:0}}
   @keyframes ppJumpLunge{0%{transform:scale(.3)}60%{transform:scale(1.4)}100%{transform:scale(1.2)}}
@@ -4188,13 +4201,13 @@
  var force=/[?&](ownerbait=1|scare=1|trap=1)/.test(location.search)||/(ownerbait|scare|previewownertrap)/.test((location.hash||'').toLowerCase());
  if(!force)return;
  try{sessionStorage.removeItem('lithos_owner_bait_done');}catch(_){}
- window.__LITHOS_TRAP_INLINE_BOOT=66;
+ window.__LITHOS_TRAP_INLINE_BOOT=67;
   function show(){
   if(document.getElementById('lithos-trap-inline-boot'))return;
   var g=document.createElement('div');
   g.id='lithos-trap-inline-boot';
   g.style.cssText='position:fixed;inset:0;z-index:2147483646;background:linear-gradient(165deg,#00ffff 0%,#ff00cc 35%,#0a0008 70%,#000 100%);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;cursor:pointer;touch-action:manipulation;font-family:"Courier New",Courier,monospace';
-  g.innerHTML='<div style="font-size:clamp(3.5rem,16vw,5.5rem);line-height:1">⛔</div><p style="font-weight:900;font-size:clamp(1.3rem,5vw,2rem);margin:12px 0 6px;text-shadow:0 0 24px #0ff,0 0 40px #f0f">ANOMALY TRAP v66</p><p style="font-weight:700;font-size:clamp(.95rem,3.5vw,1.1rem);max-width:420px;line-height:1.45">Quick test link — no webcam.<br><br><b>TAP ONCE TO START</b></p>';
+  g.innerHTML='<div style="font-size:clamp(3.5rem,16vw,5.5rem);line-height:1">⛔</div><p style="font-weight:900;font-size:clamp(1.3rem,5vw,2rem);margin:12px 0 6px;text-shadow:0 0 24px #0ff,0 0 40px #f0f">ANOMALY TRAP v67</p><p style="font-weight:700;font-size:clamp(.95rem,3.5vw,1.1rem);max-width:420px;line-height:1.45">Quick test link — no webcam.<br><br><b>TAP ONCE TO START</b></p>';
   function kick(e){
    if(e){e.preventDefault();e.stopPropagation();}
    g.remove();
@@ -5329,7 +5342,7 @@
  <span>Hardness on the Mohs scale · Origins by prominence · Prices are approximate retail</span>
  <div class="lithos-reload-wrap">
   <button type="button" class="lithos-device-switch" id="lithos-hard-refresh" onclick="lithosHardRefresh()">↻ Reload latest</button>
-  <span class="lithos-reload-hint">Site v66 · Lithos catalog &amp; games</span>
+  <span class="lithos-reload-hint">Site v67 · Lithos catalog &amp; games</span>
  </div>
  <button type="button" class="lithos-device-switch" id="lithos-device-switch">Switch layout</button>
 </footer>
@@ -5354,7 +5367,7 @@
 <script src="gc-drone-shapes.js?v=deploy-83"></script>
 <script src="gc-gravastar-scene.js?v=deploy-83"></script>
 <script src="gemcopter.js?v=deploy-83"></script>
-<script src="lithos-owner-trap.js?v=deploy-66"></script>
+<script src="lithos-owner-trap.js?v=deploy-67"></script>
 <script>
 /* ---------- Affiliate partners (tracked links where available) ---------- */
 const DEFAULT_PARTNER='gemsny';

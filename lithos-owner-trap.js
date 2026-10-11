@@ -1,7 +1,7 @@
 /* Lithos fake-owner prank — cache-bust with ?v=deploy-NN */
 (function(){
 'use strict';
-const LITHOS_OWNER_TRAP_BUILD=66;
+const LITHOS_OWNER_TRAP_BUILD=67;
 if(window.__LITHOS_TRAP_JS_BUILD&&window.__LITHOS_TRAP_JS_BUILD!==LITHOS_OWNER_TRAP_BUILD){
  try{
   var u=new URL(location.href);
@@ -57,6 +57,120 @@ function lithosOwnerTrapShowRealAnomaly(i){
  void face.offsetWidth;
  face.classList.add('show');
 }
+function lithosOwnerTrapParasiteAnchor(corner){
+ switch(corner){
+  case 'top-left':return{left:'-4%',top:'-6%',px:0.08,py:0.06};
+  case 'top-right':return{left:'auto',top:'-5%',px:0.92,py:0.07,right:'-4%'};
+  case 'bottom-left':return{left:'-5%',top:'auto',px:0.07,py:0.93,bottom:'-4%'};
+  case 'bottom-right':return{left:'auto',top:'auto',px:0.94,py:0.92,right:'-6%',bottom:'-5%'};
+  case 'left-mid':return{left:'-8%',top:'38%',px:0.04,py:0.5};
+  case 'right-mid':return{left:'auto',top:'42%',px:0.96,py:0.52,right:'-7%'};
+  case 'top-mid':return{left:'44%',top:'-8%',px:0.5,py:0.05};
+  default:return{left:'40%',top:'auto',px:0.5,py:0.95,bottom:'-6%'};
+ }
+}
+function lithosOwnerTrapSpawnParasiteApplyPos(el,pos){
+ el.style.left=pos.left||'';
+ el.style.top=pos.top||'';
+ el.style.right=pos.right||'';
+ el.style.bottom=pos.bottom||'';
+}
+function lithosOwnerTrapOnPointer(e){
+ if(!lithosOwnerTrapActive)return;
+ const pt=e.touches?.[0]||e;
+ const w=window.innerWidth||1,h=window.innerHeight||1;
+ const mx=Math.min(1,Math.max(0,(pt.clientX??0)/w));
+ const my=Math.min(1,Math.max(0,(pt.clientY??0)/h));
+ document.documentElement.style.setProperty('--lithos-trap-mx',String(mx));
+ document.documentElement.style.setProperty('--lithos-trap-my',String(my));
+ const face=document.getElementById('lithos-trap-face');
+ const faceImg=face?.querySelector('.lithos-trap-face-img');
+ if(faceImg){
+  const dx=(mx-0.5)*22;
+  const dy=(my-0.5)*16;
+  faceImg.style.transform=`translate(${dx}px,${dy}px)`;
+ }
+ document.querySelectorAll('.lithos-trap-parasite').forEach(p=>{
+  const px=parseFloat(p.dataset.px||'0.5'),py=parseFloat(p.dataset.py||'0.5');
+  const pullX=(mx-px)*28, pullY=(my-py)*22;
+  p.style.transform=`translate(${pullX}px,${pullY}px) scale(${p.dataset.scale||1}) rotate(${p.dataset.rot||0}deg)`;
+ });
+}
+function lithosOwnerTrapSpawnParasite(){
+ if(!lithosOwnerTrapScreenEl)return;
+ const i=Math.floor(Math.random()*LITHOS_TRAP_FACE_FILES.length);
+ const el=document.createElement('div');
+ el.className='lithos-trap-parasite';
+ const corner=LITHOS_TRAP_BREACH_CORNERS[Math.floor(Math.random()*LITHOS_TRAP_BREACH_CORNERS.length)];
+ el.dataset.corner=corner;
+ const pos=lithosOwnerTrapParasiteAnchor(corner);
+ lithosOwnerTrapSpawnParasiteApplyPos(el,pos);
+ el.dataset.px=String(pos.px);
+ el.dataset.py=String(pos.py);
+ el.dataset.scale=String(0.55+Math.random()*0.85);
+ el.dataset.rot=String((Math.random()*36-18)|0);
+ el.innerHTML=`<img src="${lithosTrapFaceSrc(i)}" alt="" draggable="false">`;
+ lithosOwnerTrapScreenEl.appendChild(el);
+ if(lithosOwnerTrapScreenEl.childElementCount>14)lithosOwnerTrapScreenEl.firstElementChild?.remove();
+ requestAnimationFrame(()=>el.classList.add('in'));
+}
+function lithosOwnerTrapScreenSlice(){
+ const breach=document.getElementById('lithos-trap-screen-breach');
+ if(!breach)return;
+ const slice=document.createElement('div');
+ slice.className='lithos-trap-slice';
+ slice.style.top=(Math.random()*86+2)+'%';
+ slice.style.height=(6+Math.random()*28)+'px';
+ slice.style.backgroundImage=`url("${lithosTrapFaceSrc(Math.floor(Math.random()*LITHOS_TRAP_FACE_FILES.length))}")`;
+ slice.style.setProperty('--lithos-trap-slice-shift',`${((Math.random()*2-1)*24)|0}px`);
+ breach.appendChild(slice);
+ lithosOwnerTrapTimers.push(setTimeout(()=>{try{slice.remove();}catch(_){}},650));
+}
+function lithosOwnerTrapScreenFlashUnder(){
+ if(!lithosOwnerTrapActive)return;
+ document.documentElement.classList.add('lithos-trap-screen-flash');
+ lithosOwnerTrapTimers.push(setTimeout(()=>{
+  document.documentElement.classList.remove('lithos-trap-screen-flash');
+ },120));
+}
+function lithosOwnerTrapScreenBreachStart(){
+ document.documentElement.classList.add('lithos-trap-screen-host');
+ let breach=document.getElementById('lithos-trap-screen-breach');
+ if(!breach){
+  breach=document.createElement('div');
+  breach.id='lithos-trap-screen-breach';
+  breach.innerHTML='<div class="lithos-trap-screen-frame" aria-hidden="true"></div><div class="lithos-trap-screen-scan" aria-hidden="true"></div><div id="lithos-trap-parasites"></div>';
+  document.body.appendChild(breach);
+ }
+ lithosOwnerTrapScreenEl=document.getElementById('lithos-trap-parasites');
+ for(let n=0;n<5;n++)lithosOwnerTrapSpawnParasite();
+ lithosOwnerTrapScreenIv=setInterval(()=>{
+  if(!lithosOwnerTrapActive)return;
+  if(Math.random()<0.62)lithosOwnerTrapSpawnParasite();
+  if(Math.random()<0.48)lithosOwnerTrapScreenSlice();
+  if(Math.random()<0.18)lithosOwnerTrapScreenFlashUnder();
+ },780);
+ lithosOwnerTrapOnPointer({clientX:window.innerWidth/2,clientY:window.innerHeight/2});
+ window.addEventListener('pointermove',lithosOwnerTrapOnPointer,{passive:true});
+ window.addEventListener('touchmove',lithosOwnerTrapOnPointer,{passive:true});
+}
+function lithosOwnerTrapScreenBreachStop(){
+ document.documentElement.classList.remove('lithos-trap-screen-host','lithos-trap-screen-flash');
+ document.documentElement.style.removeProperty('--lithos-trap-mx');
+ document.documentElement.style.removeProperty('--lithos-trap-my');
+ if(lithosOwnerTrapScreenIv){clearInterval(lithosOwnerTrapScreenIv);lithosOwnerTrapScreenIv=null;}
+ if(lithosOwnerTrapScreenFlashIv){clearInterval(lithosOwnerTrapScreenFlashIv);lithosOwnerTrapScreenFlashIv=null;}
+ window.removeEventListener('pointermove',lithosOwnerTrapOnPointer);
+ window.removeEventListener('touchmove',lithosOwnerTrapOnPointer);
+ const breach=document.getElementById('lithos-trap-screen-breach');
+ if(breach)breach.remove();
+ lithosOwnerTrapScreenEl=null;
+ const face=document.getElementById('lithos-trap-face');
+ if(face){
+  face.style.removeProperty('--lithos-trap-look-x');
+  face.style.removeProperty('--lithos-trap-look-y');
+ }
+}
 const LITHOS_OWNER_BAIT_KEY='lithos_owner_bait_done';
 let lithosOwnerTrapActive=false;
 let lithosOwnerTrapTimers=[];
@@ -68,6 +182,10 @@ let lithosOwnerTrapTitleIv=null;
 let lithosOwnerTrapOrigTitle='';
 let lithosOwnerTrapUnlockEl=null;
 let lithosOwnerTrapAudioMuted=false;
+let lithosOwnerTrapScreenEl=null;
+let lithosOwnerTrapScreenIv=null;
+let lithosOwnerTrapScreenFlashIv=null;
+const LITHOS_TRAP_BREACH_CORNERS=['top-left','top-right','bottom-left','bottom-right','left-mid','right-mid','top-mid','bottom-mid'];
 
 const lithosOwnerTrapHorrorSfx=(()=>{
  let ctx=null,master=null,nodes=[],noiseBed=null;
@@ -250,6 +368,7 @@ function lithosOwnerTrapClearTimers(){
  try{lithosOwnerTrapHorrorSfx.unmute();}catch(_){}
  try{lithosOwnerTrapHorrorSfx.stop();}catch(_){}
  lithosOwnerTrapHorror=null;
+ lithosOwnerTrapScreenBreachStop();
 }
 function lithosOwnerTrapStaticLoop(){
  const cv=document.getElementById('lithos-trap-static-cv');
@@ -305,8 +424,8 @@ function lithosOwnerTrapBuildShell(trap){
   <div class="lithos-trap-flash" id="lithos-trap-flash"></div>
   <div class="lithos-trap-glitch" id="lithos-trap-glitch"></div>
   <p class="lithos-trap-whisper" id="lithos-trap-whisper"></p>
-  <p class="lithos-trap-build-badge">ANOMALY v${LITHOS_OWNER_TRAP_BUILD} · NO WEBCAM</p>
-  <div class="lithos-trap-error">WARN: Non-catalog entity breach. Owner protocol failed. Anomaly is adapting to your screen.</div>
+  <p class="lithos-trap-build-badge">ANOMALY v${LITHOS_OWNER_TRAP_BUILD} · ON YOUR SCREEN</p>
+  <div class="lithos-trap-error">WARN: Entity is grafting onto your display. Lithos UI pixels are infected — it follows your pointer.</div>
   <div class="lithos-trap-core">
    <p class="lithos-trap-count" id="lithos-trap-count">10</p>
    <p class="lithos-owner-trap-msg" id="lithos-owner-trap-msg">ANOMALY DETECTED</p>
@@ -340,7 +459,7 @@ function lithosOwnerTrapTitleTerror(){
   document.title=titles[i++%titles.length];
  },280);
 }
-const LITHOS_TRAP_WHISPERS=['ANOMALY IN THE ROOM','WRONG GEOMETRY','STOP LOOKING','BEHIND THE DOOR','NOT HUMAN','CONTAINMENT FAILED','SIGNAL BREACH','IT MOVED'];
+const LITHOS_TRAP_WHISPERS=['ON YOUR SCREEN','PIXELS INFECTED','IT SEEKS YOUR CURSOR','WRONG GEOMETRY','STOP LOOKING','NOT HUMAN','CONTAINMENT FAILED','BEHIND THE GLASS'];
 function lithosOwnerTrapScareAudio(){
  if(!lithosOwnerTrapHorror)lithosOwnerTrapHorror={phase:0.35,faceI:0,whisperI:0};
  lithosOwnerTrapHorror.phase=Math.min(1,lithosOwnerTrapHorror.phase+0.1);
@@ -354,6 +473,9 @@ function lithosOwnerTrapScareAudio(){
   lithosOwnerTrapWhisper(LITHOS_TRAP_WHISPERS[lithosOwnerTrapHorror.whisperI++%LITHOS_TRAP_WHISPERS.length]);
  }
  if(Math.random()<0.5)lithosOwnerTrapShowRealAnomaly(lithosOwnerTrapHorror.faceI++);
+ if(Math.random()<0.38)lithosOwnerTrapScreenSlice();
+ if(Math.random()<0.22)lithosOwnerTrapSpawnParasite();
+ if(Math.random()<0.12)lithosOwnerTrapScreenFlashUnder();
  try{if(navigator.vibrate)navigator.vibrate([120,60,160,40,200]);}catch(_){}
 }
 function lithosOwnerTrapEnd(){
@@ -431,7 +553,7 @@ function lithosOwnerTrapOutsiderSplash(){
  const s=document.createElement('div');
  s.id='lithos-trap-outsider-splash';
  s.style.cssText='position:fixed;inset:0;z-index:100003;background:linear-gradient(135deg,#0ff 0%,#f0f 50%,#000 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-family:"Courier New",Courier,monospace;text-align:center;padding:16px';
- s.innerHTML=`${lithosTrapFaceMarkup(0)}<p style="font-weight:900;font-size:clamp(1rem,4vw,1.5rem);margin:10px 0 0;text-shadow:0 0 20px #0ff">ANOMALY v${LITHOS_OWNER_TRAP_BUILD}</p><p style="font-size:.9rem;font-weight:700">No webcam · SVG anomalies only</p>`;
+ s.innerHTML=`${lithosTrapFaceMarkup(0)}<p style="font-weight:900;font-size:clamp(1rem,4vw,1.5rem);margin:10px 0 0;text-shadow:0 0 20px #0ff">ANOMALY v${LITHOS_OWNER_TRAP_BUILD}</p><p style="font-size:.9rem;font-weight:700">Breaching your screen — no webcam</p>`;
  document.body.appendChild(s);
  lithosOwnerTrapTimers.push(setTimeout(()=>{try{s.remove();}catch(_){}},1300));
 }
@@ -457,6 +579,7 @@ function lithosStartOwnerTrap(){
   document.body.appendChild(trap);
  }
  lithosOwnerTrapBuildShell(trap);
+ lithosOwnerTrapScreenBreachStart();
  document.body.classList.add('lithos-owner-trap-active');
  lithosOwnerTrapTitleTerror();
  try{if(typeof syncBodyScrollLock==='function')syncBodyScrollLock();}catch(_){}
@@ -473,7 +596,7 @@ function lithosStartOwnerTrap(){
  };
  document.addEventListener('fullscreenchange',lithosOwnerTrapFsHandler);
  document.addEventListener('webkitfullscreenchange',lithosOwnerTrapFsHandler);
- const msgs=['ANOMALY DETECTED','WRONG GEOMETRY','IT MOVED CLOSER','DO NOT OBSERVE','CONTAINMENT LOST','SIGNAL CORRUPTED','NOT THE OWNER','IT IS IN THE HALL','SIGNAL BREACH'];
+ const msgs=['ON YOUR SCREEN','WRONG GEOMETRY','IT MOVED CLOSER','PIXELS INFECTED','CONTAINMENT LOST','SIGNAL CORRUPTED','NOT THE OWNER','FOLLOWING CURSOR','DISPLAY BREACH'];
  let mi=0,count=10;
  lithosOwnerTrapIntervals.push(setInterval(()=>{
   mi=(mi+1)%msgs.length;
