@@ -1,7 +1,7 @@
 /* Gem Copter — helicopter + gemstone turret vs gem zombies, bosses, upgrades, 10 maps */
 (function(){
 'use strict';
-const GEM_COPTER_BUILD=83;
+const GEM_COPTER_BUILD=84;
 const GC_BULLET_LINES=5;
 
 const gcSfx=(()=>{
@@ -471,7 +471,53 @@ const GC_OWNER_UPGRADES=[
  {id:'prism',name:'Prism Crown',ownerOnly:true,desc:'Extra-wide 5-line volley',max:2,cost:70,fn:u=>{u.laneSpread=14+(u.levels.spread||0)*7+(u.levels.prism||0)*10;}}
 ];
 
-let gcRaf=null, gcKeys={}, gcPointer={x:GC_W/2,y:GC_H/2,down:false}, gcState=null;
+let gcRaf=null, gcKeys={}, gcPointer={x:GC_W/2,y:GC_H/2,screenX:GC_W/2,screenY:GC_H/2,down:false}, gcState=null;
+let gcViewMode=(function(){
+ try{return localStorage.getItem('lithos_gc_view')==='side'?'side':'fp';}catch(_){return 'fp';}
+})();
+
+function gcSetViewMode(mode){
+ gcViewMode=mode==='side'?'side':'fp';
+ try{localStorage.setItem('lithos_gc_view',gcViewMode);}catch(_){}
+ const wrap=document.getElementById('gemcopter');
+ if(wrap)wrap.dataset.view=gcViewMode;
+ document.querySelectorAll('[data-gc-view]').forEach(b=>{
+  b.classList.toggle('on',b.dataset.gcView===gcViewMode);
+ });
+ const tip=document.getElementById('gc-view-hint');
+ if(tip)tip.textContent=gcViewMode==='fp'
+  ?'👁️ First person · WASD fly · mouse look · Space fire · V side view'
+  :'📺 Side view · WASD fly · mouse aim · Space fire · V first person';
+}
+
+function gcFpAimFromScreen(s,px,py){
+ if(!s)return;
+ gcPointer.screenX=px; gcPointer.screenY=py;
+ const yawOff=(px/GC_W-0.5)*1.55;
+ const pitchOff=(py/GC_H-0.5)*1.05;
+ s.lookAng=(s.faceYaw||0)+yawOff;
+ s.lookPitch=pitchOff;
+ const aimDist=340;
+ const cp=Math.cos(s.lookPitch), sp=Math.sin(s.lookPitch);
+ gcPointer.x=s.x+Math.cos(s.lookAng)*aimDist*cp;
+ gcPointer.y=s.y+Math.sin(s.lookAng)*aimDist*cp+sp*aimDist*0.85;
+}
+
+function gcProjectFP(wx,wy,s){
+ const look=s.lookAng||0;
+ const lx=Math.cos(look), ly=Math.sin(look);
+ const dx=wx-s.x, dy=wy-s.y;
+ const fwd=dx*lx+dy*ly;
+ if(fwd<12)return null;
+ const side=-dx*ly+dy*lx;
+ const elev=dy*lx-dx*ly;
+ const pitch=s.lookPitch||0;
+ const focal=300;
+ const sx=GC_W/2+(side/fwd)*focal;
+ const sy=GC_H*0.48+((elev/fwd)*focal*0.42)-(pitch*140)+(1-Math.min(1,fwd/420))*28;
+ const scale=Math.min(5.2,Math.max(0.18,focal/fwd));
+ return {x:sx,y:sy,scale,fwd,alpha:Math.min(1,0.25+fwd/80)};
+}
 
 function gcDefaultUpgrades(){
  return {
@@ -519,11 +565,16 @@ function gcGravastarChord(e){
 function gcKeyDown(e){
  if(!gcState)return;
  const k=e.key.toLowerCase();
- if(['arrowup','arrowdown','arrowleft','arrowright',' ','w','a','s','d','e','escape'].includes(k)||e.code==='Space'){
+ if(['arrowup','arrowdown','arrowleft','arrowright',' ','w','a','s','d','e','v','escape'].includes(k)||e.code==='Space'){
   e.preventDefault();
  }
  gcUnlockAudio();
  if(k==='escape'){gcClose();return;}
+ if(k==='v'){
+  gcSetViewMode(gcViewMode==='fp'?'side':'fp');
+  if(gcViewMode==='fp'&&gcState)gcFpAimFromScreen(gcState,gcPointer.screenX,gcPointer.screenY);
+  return;
+ }
  if(gcGravastarChord(e)&&gcState.map.id===10&&gcState.boss&&!gcState.cutscene&&!gcState.over){
   e.preventDefault();
   gcStartGravastarCutscene();
@@ -564,10 +615,14 @@ function playGemCopter(){
    </div>
    <div id="gc-menu" class="gc-menu">
     <p class="gc-lede">Fly your gem-chopper vs <b>8 kinds of hostile ground robots</b> — your <b>tech squad</b> on the ground backs you up!</p>
+    <div class="gc-view-toggle" id="gc-view-toggle" role="group" aria-label="Camera mode">
+     <button type="button" class="gc-view-btn" data-gc-view="fp">👁️ First Person</button>
+     <button type="button" class="gc-view-btn" data-gc-view="side">📺 Side View</button>
+    </div>
     <div class="gc-heli-grid" id="gc-heli-grid"></div>
     <div class="gc-map-grid" id="gc-map-grid"></div>
     <p class="gc-version-banner" id="gc-version-banner">Build ${GEM_COPTER_BUILD} — pick a helicopter, then a map ↓</p>
-    <p class="gc-hint">WASD fly · aim · Space fires <b>5 straight bullet lines</b> · missiles auto · <b>E</b> salvo · Esc quit</p>
+    <p class="gc-hint" id="gc-view-hint">WASD fly · aim · Space fires <b>5 straight bullet lines</b> · missiles auto · <b>E</b> salvo · <b>V</b> camera · Esc quit</p>
    </div>
    <div id="gc-play" hidden>
     <div class="gc-play-frame">
@@ -599,6 +654,17 @@ function playGemCopter(){
   return;
  }
  document.getElementById('gc-leave').onclick=()=>gcClose();
+ wrap.dataset.view=gcViewMode;
+ const viewToggle=document.getElementById('gc-view-toggle');
+ if(viewToggle){
+  viewToggle.onclick=e=>{
+   const b=e.target.closest('[data-gc-view]');
+   if(!b)return;
+   gcUnlockAudio();
+   gcSetViewMode(b.dataset.gcView);
+  };
+ }
+ gcSetViewMode(gcViewMode);
  const heliGrid=document.getElementById('gc-heli-grid');
  const ownerOn=gcIsOwner();
  const ownerNote=document.createElement('p');
@@ -678,6 +744,7 @@ function gcStartMap(mapId, carry, heliId){
  gcState={
   map, upgrades, gems, heli,
   x:GC_W*0.5, y:GC_H*0.38, vx:0, vy:0,
+  faceYaw:0.35, lookAng:0.35, lookPitch:0.25,
   hp:upgrades.maxHp, maxHp:upgrades.maxHp,
   fireT:0, missileT:0, wave:1, waveT:0, spawnLeft:0, spawnGap:0,
   kills:0, boss:null, bossSpawned:false, cleared:false, over:false,
@@ -685,6 +752,9 @@ function gcStartMap(mapId, carry, heliId){
   military:[],
   rotor:0, shake:0, shopPause:false, waveShopPending:false
  };
+ gcPointer.screenX=GC_W*0.5; gcPointer.screenY=GC_H*0.55;
+ if(gcViewMode==='fp')gcFpAimFromScreen(gcState,gcPointer.screenX,gcPointer.screenY);
+ else{gcPointer.x=GC_W*0.72;gcPointer.y=GC_H*0.62;}
  gcInitMilitary(gcState);
  gcBindCanvas();
  gcStartLoop();
@@ -709,8 +779,11 @@ function gcBindCanvas(){
  if(!cv)return;
  const toLocal=e=>{
   const r=cv.getBoundingClientRect();
-  gcPointer.x=(e.clientX-r.left)*(GC_W/r.width);
-  gcPointer.y=(e.clientY-r.top)*(GC_H/r.height);
+  const cx=(e.clientX-r.left)*(GC_W/r.width);
+  const cy=(e.clientY-r.top)*(GC_H/r.height);
+  gcPointer.screenX=cx; gcPointer.screenY=cy;
+  if(gcViewMode==='fp'&&gcState)gcFpAimFromScreen(gcState,cx,cy);
+  else{gcPointer.x=cx;gcPointer.y=cy;}
  };
  cv.onpointermove=toLocal;
  cv.onpointerdown=e=>{gcUnlockAudio();toLocal(e);gcPointer.down=true;try{cv.setPointerCapture(e.pointerId);}catch(_){}};
@@ -1019,6 +1092,14 @@ function gcUpdate(dt){
  s.vx=mx/len*sp; s.vy=my/len*sp;
  s.x=Math.max(30,Math.min(GC_W-30,s.x+s.vx*dt));
  s.y=Math.max(40,Math.min(GC_H-30,s.y+s.vy*dt));
+ if(mx!==0||my!==0){
+  const want=Math.atan2(s.vy,s.vx);
+  let d=want-(s.faceYaw||0);
+  while(d>Math.PI)d-=Math.PI*2;
+  while(d<-Math.PI)d+=Math.PI*2;
+  s.faceYaw=(s.faceYaw||0)+d*Math.min(1,dt*4.5);
+ }
+ if(gcViewMode==='fp')gcFpAimFromScreen(s,gcPointer.screenX,gcPointer.screenY);
  if(gcPointer.down||gcKeys.space||gcKeys[' ']) gcFire();
 
  // waves — open upgrade shop between waves
@@ -1424,6 +1505,189 @@ function gcHud(){
  }
 }
 
+function gcDrawCockpit(ctx,s,m){
+ const hull=s.heli?.hull||'#6a7a62';
+ const trim=s.heli?.trim||m.accent;
+ // canopy frame
+ ctx.fillStyle='rgba(4,10,14,0.92)';
+ ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(GC_W*0.14,0); ctx.lineTo(GC_W*0.08,GC_H*0.42); ctx.lineTo(0,GC_H*0.55); ctx.closePath(); ctx.fill();
+ ctx.beginPath(); ctx.moveTo(GC_W,0); ctx.lineTo(GC_W*0.86,0); ctx.lineTo(GC_W*0.92,GC_H*0.42); ctx.lineTo(GC_W,GC_H*0.55); ctx.closePath(); ctx.fill();
+ ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(GC_W,0); ctx.lineTo(GC_W*0.72,GC_H*0.1); ctx.lineTo(GC_W*0.28,GC_H*0.1); ctx.closePath(); ctx.fill();
+ // dashboard
+ const dash=ctx.createLinearGradient(0,GC_H*0.62,0,GC_H);
+ dash.addColorStop(0,'rgba(8,14,18,0)'); dash.addColorStop(0.28,gcDarken(hull,0.45)); dash.addColorStop(1,'#0a1014');
+ ctx.fillStyle=dash; ctx.fillRect(0,GC_H*0.58,GC_W,GC_H*0.42);
+ ctx.fillStyle=gcDarken(hull,0.55);
+ ctx.beginPath();
+ ctx.moveTo(0,GC_H); ctx.lineTo(0,GC_H*0.72); ctx.quadraticCurveTo(GC_W*0.5,GC_H*0.58,GC_W,GC_H*0.72); ctx.lineTo(GC_W,GC_H); ctx.closePath(); ctx.fill();
+ ctx.strokeStyle=trim; ctx.lineWidth=2; ctx.globalAlpha=0.7;
+ ctx.beginPath(); ctx.moveTo(GC_W*0.08,GC_H*0.74); ctx.quadraticCurveTo(GC_W*0.5,GC_H*0.62,GC_W*0.92,GC_H*0.74); ctx.stroke();
+ ctx.globalAlpha=1;
+ // rotor blur above canopy
+ ctx.strokeStyle='rgba(230,240,255,0.35)'; ctx.lineWidth=3;
+ ctx.beginPath();
+ ctx.moveTo(GC_W*0.5+Math.cos(s.rotor)*90,GC_H*0.06); ctx.lineTo(GC_W*0.5+Math.cos(s.rotor+Math.PI)*90,GC_H*0.06); ctx.stroke();
+ ctx.lineWidth=2;
+ ctx.beginPath();
+ ctx.moveTo(GC_W*0.5+Math.cos(s.rotor+1.1)*70,GC_H*0.05); ctx.lineTo(GC_W*0.5+Math.cos(s.rotor+1.1+Math.PI)*70,GC_H*0.05); ctx.stroke();
+ // gem turret in cockpit (bottom center, aims at look)
+ const tx=GC_W*0.5, ty=GC_H*0.86;
+ const aimX=gcPointer.screenX??GC_W/2, aimY=gcPointer.screenY??GC_H/2;
+ const ang=Math.atan2(aimY-ty,aimX-tx);
+ ctx.save(); ctx.translate(tx,ty); ctx.rotate(ang);
+ ctx.fillStyle='#2a3038'; ctx.fillRect(-10,-8,28,16);
+ ctx.fillStyle=m.accent; ctx.fillRect(10,-4,42,8);
+ ctx.beginPath(); ctx.arc(10,0,9,0,Math.PI*2); ctx.fill();
+ ctx.fillStyle=trim; ctx.fillRect(48,-3,8,6);
+ ctx.restore();
+ // HUD glass ring
+ ctx.strokeStyle='rgba(125,255,212,0.35)'; ctx.lineWidth=1.5;
+ ctx.beginPath(); ctx.arc(GC_W*0.5,GC_H*0.46,54,0,Math.PI*2); ctx.stroke();
+ ctx.strokeStyle=m.accent; ctx.globalAlpha=0.75; ctx.lineWidth=2;
+ const cx=aimX, cy=aimY;
+ ctx.beginPath(); ctx.moveTo(cx-14,cy); ctx.lineTo(cx-5,cy); ctx.moveTo(cx+5,cy); ctx.lineTo(cx+14,cy);
+ ctx.moveTo(cx,cy-14); ctx.lineTo(cx,cy-5); ctx.moveTo(cx,cy+5); ctx.lineTo(cx,cy+14); ctx.stroke();
+ ctx.globalAlpha=1;
+ // visor vignette
+ const vig=ctx.createRadialGradient(GC_W/2,GC_H*0.45,GC_H*0.2,GC_W/2,GC_H*0.45,GC_H*0.78);
+ vig.addColorStop(0,'rgba(0,0,0,0)'); vig.addColorStop(1,'rgba(0,0,0,0.45)');
+ ctx.fillStyle=vig; ctx.fillRect(0,0,GC_W,GC_H);
+}
+
+function gcDrawFP(){
+ const s=gcState; if(!s)return;
+ const cv=document.getElementById('gc-canvas'); if(!cv)return;
+ const ctx=cv.getContext('2d');
+ const m=s.map;
+ const sh=s.shake?(Math.random()-0.5)*s.shake*2:0;
+ const sv=s.shake?(Math.random()-0.5)*s.shake*2:0;
+ ctx.save();
+ ctx.translate(sh,sv);
+ const grd=ctx.createLinearGradient(0,0,0,GC_H);
+ grd.addColorStop(0,m.sky[0]); grd.addColorStop(0.55,m.sky[1]); grd.addColorStop(1,gcDarken(m.ground,0.65));
+ ctx.fillStyle=grd; ctx.fillRect(0,0,GC_W,GC_H);
+ // perspective ground
+ const horizon=GC_H*0.42-(s.lookPitch||0)*90;
+ ctx.fillStyle=m.ground; ctx.globalAlpha=0.85;
+ ctx.beginPath();
+ ctx.moveTo(0,GC_H); ctx.lineTo(0,horizon+40); ctx.lineTo(GC_W*0.5,horizon); ctx.lineTo(GC_W,horizon+40); ctx.lineTo(GC_W,GC_H); ctx.closePath(); ctx.fill();
+ ctx.globalAlpha=1;
+ ctx.strokeStyle=m.accent; ctx.globalAlpha=0.25; ctx.lineWidth=1;
+ for(let i=1;i<=10;i++){
+  const t=i/10;
+  const y=horizon+(GC_H-horizon)*t*t;
+  const half=GC_W*(0.08+0.42*t);
+  ctx.beginPath(); ctx.moveTo(GC_W/2-half,y); ctx.lineTo(GC_W/2+half,y); ctx.stroke();
+ }
+ for(let i=-4;i<=4;i++){
+  ctx.beginPath(); ctx.moveTo(GC_W/2,horizon); ctx.lineTo(GC_W/2+i*GC_W*0.12,GC_H); ctx.stroke();
+ }
+ ctx.globalAlpha=1;
+ // distant hills
+ ctx.fillStyle=m.accent; ctx.globalAlpha=0.14;
+ for(let i=0;i<8;i++){
+  const hx=((i*130+s.rotor*8+(s.faceYaw||0)*40)%(GC_W+100))-50;
+  ctx.beginPath(); ctx.moveTo(hx,horizon+8); ctx.lineTo(hx+50,horizon-28); ctx.lineTo(hx+100,horizon+8); ctx.fill();
+ }
+ ctx.globalAlpha=1;
+
+ const drawables=[];
+ const pushEnt=(wx,wy,draw,zBias)=>{
+  const p=gcProjectFP(wx,wy,s);
+  if(!p)return;
+  drawables.push({...p,z:p.fwd+(zBias||0),draw});
+ };
+ if(s.military){
+  s.military.forEach(u=>{
+   pushEnt(u.x,u.y,(p)=>{
+    ctx.save(); ctx.translate(p.x,p.y); ctx.scale(p.scale,p.scale); ctx.globalAlpha=p.alpha;
+    gcDrawMilitaryUnit(ctx,u,m);
+    ctx.restore();
+   },2);
+  });
+ }
+ s.pickups.forEach(pk=>{
+  pushEnt(pk.x,pk.y,(p)=>{
+   ctx.globalAlpha=p.alpha; ctx.fillStyle='#c9a94f';
+   ctx.beginPath(); ctx.arc(p.x,p.y,6*p.scale,0,Math.PI*2); ctx.fill();
+   ctx.globalAlpha=1;
+  },1);
+ });
+ s.zombies.forEach(z=>{
+  pushEnt(z.x,z.y,(p)=>{
+   ctx.save(); ctx.translate(p.x,p.y); ctx.scale(p.scale,p.scale);
+   ctx.globalAlpha=p.alpha;
+   const hop=Math.sin(z.t*8)*2; ctx.translate(0,hop);
+   gcDrawHostileDrone(ctx,z,m);
+   const barY=-32-z.r*0.5;
+   ctx.fillStyle='rgba(0,0,0,.45)'; ctx.fillRect(-z.r,barY,z.r*2,4);
+   ctx.fillStyle='#3ecf8a'; ctx.fillRect(-z.r,barY,z.r*2*(z.hp/z.maxHp),4);
+   ctx.restore();
+  });
+ });
+ if(s.boss){
+  const b=s.boss;
+  pushEnt(b.x,b.y,(p)=>{
+   ctx.save(); ctx.translate(p.x,p.y); ctx.scale(p.scale,p.scale); ctx.globalAlpha=p.alpha;
+   gcDrawBossBody(ctx,b,m);
+   ctx.restore();
+  },-5);
+ }
+ s.missiles.forEach(ms=>{
+  pushEnt(ms.x,ms.y,(p)=>{
+   ctx.save(); ctx.translate(p.x,p.y); ctx.scale(p.scale,p.scale);
+   ctx.rotate(Math.atan2(ms.vy,ms.vx)-(s.lookAng||0));
+   ctx.fillStyle='#f8d030'; ctx.fillRect(-10,-3,14,6);
+   ctx.fillStyle='#ff6040'; ctx.beginPath(); ctx.moveTo(8,0); ctx.lineTo(14,-4); ctx.lineTo(14,4); ctx.fill();
+   ctx.restore();
+  },-2);
+ });
+ s.bullets.forEach(bu=>{
+  pushEnt(bu.x,bu.y,(p)=>{
+   if(bu.line){
+    const a=(bu.ang!=null?bu.ang:Math.atan2(bu.vy,bu.vx))-(s.lookAng||0);
+    const len=18*p.scale;
+    ctx.strokeStyle=bu.ally?'#7dff9a':m.accent; ctx.lineWidth=Math.max(1.5,3*p.scale); ctx.lineCap='round';
+    ctx.globalAlpha=0.9*p.alpha;
+    ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(p.x-Math.cos(a)*len,p.y-Math.sin(a)*len); ctx.stroke();
+    ctx.globalAlpha=1; return;
+   }
+   ctx.fillStyle=bu.enemy?'#ff6080':(bu.ally?'#7dff9a':m.accent);
+   ctx.globalAlpha=p.alpha;
+   ctx.beginPath(); ctx.arc(p.x,p.y,Math.max(1.5,(bu.r||3)*p.scale),0,Math.PI*2); ctx.fill();
+   ctx.globalAlpha=1;
+  },-1);
+ });
+ s.particles.forEach(pt=>{
+  pushEnt(pt.x,pt.y,(p)=>{
+   const maxL=pt.maxLife||0.5;
+   const a=Math.max(0,pt.life/maxL)*p.alpha;
+   ctx.globalAlpha=a;
+   if(pt.kind==='flash'||pt.kind==='starburst'){
+    const r=(pt.size||pt.maxR||16)*p.scale*(0.6+a*0.4);
+    ctx.fillStyle=pt.color||'#ff9040';
+    ctx.beginPath(); ctx.arc(p.x,p.y,r,0,Math.PI*2); ctx.fill();
+   }else{
+    ctx.fillStyle=pt.color||'#fff';
+    ctx.fillRect(p.x,p.y,Math.max(2,3*p.scale),Math.max(2,3*p.scale));
+   }
+   ctx.globalAlpha=1;
+  },3);
+ });
+ drawables.sort((a,b)=>b.z-a.z);
+ drawables.forEach(d=>d.draw(d));
+
+ gcDrawCockpit(ctx,s,m);
+ ctx.fillStyle='rgba(125,255,212,.85)'; ctx.font='10px monospace'; ctx.textAlign='left';
+ const mm=gcHeliMissileMode(s.heli);
+ ctx.fillText(`GEM COPTER FP · build ${GEM_COPTER_BUILD} · ${s.heli?s.heli.name:'Scout'}${mm!=='none'?(mm==='dual'?' · dual missiles':' · missile'):''} · V side`,12,18);
+ if(s.map.id===10&&s.boss&&s.boss.gravastarCore){
+  ctx.fillStyle='rgba(255,200,120,0.75)'; ctx.font='10px system-ui,sans-serif';
+  ctx.fillText('Final shields — try Gravastar Counterstrike: Ctrl+⌘+Shift',12,32);
+ }
+ ctx.restore();
+}
+
 function gcDraw(){
  const s=gcState; if(!s)return;
  const cv=document.getElementById('gc-canvas'); if(!cv)return;
@@ -1436,6 +1700,7 @@ function gcDraw(){
   ctx.restore();
   return;
  }
+ if(gcViewMode==='fp'){gcDrawFP();return;}
  const sh=s.shake? (Math.random()-0.5)*s.shake*2:0;
  const sv=s.shake? (Math.random()-0.5)*s.shake*2:0;
  ctx.save();
