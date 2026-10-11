@@ -1,7 +1,7 @@
 /* Gem Copter — helicopter + gemstone turret vs gem zombies, bosses, upgrades, 10 maps */
 (function(){
 'use strict';
-const GEM_COPTER_BUILD=57;
+const GEM_COPTER_BUILD=58;
 
 const GC_HELIS=[
  {id:'scout',name:'Gem Scout',emoji:'🚁',desc:'Balanced starter',speedMult:1,hpMult:1,dmgMult:1,hull:'#c9a94f'},
@@ -76,13 +76,30 @@ const GC_UPGRADES=[
  {id:'magnet',name:'Lode Magnet',desc:'Pick up gems from farther',max:3,cost:35,fn:u=>{u.magnet=40+u.levels.magnet*30;}}
 ];
 
+const GC_OWNER_UPGRADES=[
+ {id:'auric',name:'Auric Overdrive',ownerOnly:true,desc:'Fastest rapid fire in Lithos',max:4,cost:45,fn:u=>{u.cooldown=Math.max(0.025,0.12-(u.levels.firerate||0)*0.014-(u.levels.auric||0)*0.026);}},
+ {id:'devastator',name:'Devastator Core',ownerOnly:true,desc:'Huge gem bullet damage',max:4,cost:50,fn:u=>{u.damage=10+(u.levels.damage||0)*6+(u.levels.devastator||0)*18;}},
+ {id:'titan',name:'Titan Plating',ownerOnly:true,desc:'+100 hull per level',max:5,cost:55,fn:u=>{u.maxHp=100+(u.levels.armor||0)*25+(u.levels.titan||0)*100;}},
+ {id:'warpath',name:'Warpath Command',ownerOnly:true,desc:'Military squad damage boost',max:3,cost:40,fn:u=>{u.militaryMult=1+(u.levels.warpath||0)*0.5;}},
+ {id:'stragem',name:'Stragem Missiles',ownerOnly:true,desc:'Missile power & faster salvo',max:4,cost:55,fn:u=>{u.missileMult=1+(u.levels.stragem||0)*0.6;u.missileInterval=Math.max(0.32,0.85-(u.levels.stragem||0)*0.13);}},
+ {id:'prism',name:'Prism Crown',ownerOnly:true,desc:'+2 extra spread beams per level',max:2,cost:70,fn:u=>{u.spread=Math.min(8,(u.levels.spread||0)+(u.levels.prism||0)*2);}}
+];
+
 let gcRaf=null, gcKeys={}, gcPointer={x:GC_W/2,y:GC_H/2,down:false}, gcState=null;
 
 function gcDefaultUpgrades(){
- return {levels:{firerate:0,damage:0,spread:0,armor:0,speed:0,magnet:0},cooldown:0.12,damage:10,spread:0,maxHp:100,speed:220,magnet:40};
+ return {
+  levels:{firerate:0,damage:0,spread:0,armor:0,speed:0,magnet:0,auric:0,devastator:0,titan:0,warpath:0,stragem:0,prism:0},
+  cooldown:0.12,damage:10,spread:0,maxHp:100,speed:220,magnet:40,
+  militaryMult:1,missileMult:1,missileInterval:0.85
+ };
 }
 function gcApplyUpgrades(u){
  GC_UPGRADES.forEach(up=>up.fn(u));
+ if(gcIsOwner()) GC_OWNER_UPGRADES.forEach(up=>up.fn(u));
+}
+function gcShopUpgrades(){
+ return gcIsOwner()?GC_UPGRADES.concat(GC_OWNER_UPGRADES):GC_UPGRADES;
 }
 
 function gcClose(){
@@ -164,6 +181,15 @@ function playGemCopter(){
    <div id="gc-overlay" class="gc-overlay" hidden></div>
   </div>`;
  document.body.appendChild(wrap);
+ if(!document.getElementById('gc-heli-grid')){
+  try{
+   const u=new URL(location.href);
+   u.searchParams.set('_gc',String(GEM_COPTER_BUILD));
+   u.searchParams.set('_',String(Date.now()));
+   location.replace(u.pathname+u.search+(location.hash||'#gemcopter'));
+  }catch(_){ location.reload(); }
+  return;
+ }
  document.getElementById('gc-leave').onclick=()=>gcClose();
  const heliGrid=document.getElementById('gc-heli-grid');
  heliGrid.innerHTML=GC_HELIS.map(h=>{
@@ -209,7 +235,8 @@ function gcStartMap(mapId, carry, heliId){
  const upgrades=carry&&carry.upgrades?carry.upgrades:gcDefaultUpgrades();
  gcApplyUpgrades(upgrades);
  gcApplyHeliToUpgrades(upgrades,heli);
- const gems=carry&&typeof carry.gems==='number'?carry.gems:0;
+ let gems=carry&&typeof carry.gems==='number'?carry.gems:0;
+ if(gcIsOwner()&&!carry)gems+=120;
  document.getElementById('gc-menu').hidden=true;
  document.getElementById('gc-shop').hidden=true;
  document.getElementById('gc-overlay').hidden=true;
@@ -331,9 +358,10 @@ function gcPickTarget(s){
 function gcLaunchMissile(s,x0,y0,target){
  if(!target)return;
  const ang=Math.atan2(target.y-y0,target.x-x0);
+ const mult=s.upgrades?.missileMult||1;
  s.missiles.push({
   x:x0,y:y0,vx:Math.cos(ang)*200,vy:Math.sin(ang)*200,
-  life:2.8,dmg:95+ s.map.id*8,r:7,homing:true
+  life:2.8,dmg:(95+s.map.id*8)*mult,r:7,homing:true
  });
 }
 
@@ -343,7 +371,7 @@ function gcFireMissilesFromState(manual){
  if(!manual&&s.missileT>0)return;
  const t=gcPickTarget(s);
  if(!t)return;
- s.missileT=manual?0.35:0.85;
+ s.missileT=manual?0.28:(s.upgrades.missileInterval||0.85);
  gcLaunchMissile(s,s.x-16,s.y-4,t);
  gcLaunchMissile(s,s.x+16,s.y-4,t);
  try{if(SFX&&SFX.click)SFX.click();}catch(_){}
@@ -435,7 +463,7 @@ function gcUpdate(dt){
     s.bullets.push({
      x:unit.x,y:unit.y-10,
      vx:Math.cos(ang)*420,vy:Math.sin(ang)*420,
-     life:1,dmg:unit.dmg,r:3,ally:true
+     life:1,dmg:unit.dmg*(s.upgrades.militaryMult||1),r:3,ally:true
     });
    }
   });
@@ -813,6 +841,7 @@ function gcShowVictory(){
   <div class="gc-shop-inner">
    <h2>🏆 Map Cleared!</h2>
    <p>Boss defeated · 💎 <b id="gc-shop-gems">${s.gems}</b> gems</p>
+   ${gcIsOwner()?'<p class="gc-owner-shop-tag">👑 Owner arsenal — strongest upgrades in the game</p>':''}
    <div class="gc-up-grid" id="gc-up-grid"></div>
    <div class="gc-shop-actions">
     ${next?`<button type="button" class="gc-btn" id="gc-next">Next Map → ${GC_MAPS[next-1].name}</button>`:`<button type="button" class="gc-btn" id="gc-winall">You beat all 10 maps! 🎉</button>`}
@@ -832,28 +861,31 @@ function gcRenderShop(){
  const grid=document.getElementById('gc-up-grid');
  const gemEl=document.getElementById('gc-shop-gems');
  if(gemEl)gemEl.textContent=s.gems;
- grid.innerHTML=GC_UPGRADES.map(up=>{
+ grid.innerHTML=gcShopUpgrades().map(up=>{
   const lvl=s.upgrades.levels[up.id]||0;
   const maxed=lvl>=up.max;
-  const cost=up.cost+lvl*15;
-  const can=s.gems>=cost&&!maxed;
-  return `<button type="button" class="gc-up${maxed?' maxed':''}" data-up="${up.id}" ${can?'':'disabled'}>
-   <b>${up.name}</b>
+  const cost=up.cost+lvl*(up.ownerOnly?12:15);
+  const can=s.gems>=cost&&!maxed&&(!up.ownerOnly||gcIsOwner());
+  return `<button type="button" class="gc-up${maxed?' maxed':''}${up.ownerOnly?' owner':''}" data-up="${up.id}" ${can?'':'disabled'}>
+   <b>${up.ownerOnly?'👑 ':''}${up.name}</b>
    <span>${up.desc}</span>
    <span class="gc-up-meta">${maxed?'MAX':`Lv ${lvl}/${up.max} · 💎 ${cost}`}</span>
   </button>`;
  }).join('');
  grid.onclick=e=>{
   const b=e.target.closest('[data-up]'); if(!b||b.disabled)return;
-  const up=GC_UPGRADES.find(u=>u.id===b.dataset.up); if(!up)return;
+  const up=gcShopUpgrades().find(u=>u.id===b.dataset.up); if(!up)return;
+  if(up.ownerOnly&&!gcIsOwner())return;
   const lvl=s.upgrades.levels[up.id]||0;
   if(lvl>=up.max)return;
-  const cost=up.cost+lvl*15;
+  const cost=up.cost+lvl*(up.ownerOnly?12:15);
   if(s.gems<cost)return;
   s.gems-=cost;
   s.upgrades.levels[up.id]=lvl+1;
   gcApplyUpgrades(s.upgrades);
+  const prevMax=s.maxHp;
   s.maxHp=s.upgrades.maxHp;
+  s.hp=Math.min(s.upgrades.maxHp,s.hp+(s.maxHp-prevMax));
   gcRenderShop();
  };
 }
