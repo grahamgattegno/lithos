@@ -1,7 +1,31 @@
 /* Gem Copter — helicopter + gemstone turret vs gem zombies, bosses, upgrades, 10 maps */
 (function(){
 'use strict';
-const GEM_COPTER_BUILD=55;
+const GEM_COPTER_BUILD=56;
+
+const GC_HELIS=[
+ {id:'scout',name:'Gem Scout',emoji:'🚁',desc:'Balanced starter',speedMult:1,hpMult:1,dmgMult:1,hull:'#c9a94f'},
+ {id:'swift',name:'Swift Sparrow',emoji:'🕊️',desc:'Fast · lighter hull',speedMult:1.38,hpMult:0.82,dmgMult:0.92,hull:'#7ec8ff'},
+ {id:'anvil',name:'Anvil Forge',emoji:'🛡️',desc:'Slow · heavy armor',speedMult:0.78,hpMult:1.5,dmgMult:1.05,hull:'#9aa890'},
+ {id:'ruby',name:'Ruby Phantom',emoji:'💎',desc:'Strong gem turret',speedMult:1.05,hpMult:0.95,dmgMult:1.3,hull:'#ff4060'},
+ {id:'omega',name:'Omega Strike',emoji:'☢️',desc:'Owner · dual wing missiles',ownerOnly:true,missiles:true,speedMult:1.12,hpMult:1.25,dmgMult:1.15,hull:'#f8d030'}
+];
+
+let gcPickHeli='scout';
+
+function gcIsOwner(){
+ try{
+  if(typeof isOwner!=='undefined'&&isOwner)return true;
+  return localStorage.getItem('lithos_owner')==='1';
+ }catch(_){return false;}
+}
+
+function gcApplyHeliToUpgrades(u,heli){
+ if(!heli)return;
+ u.maxHp=Math.max(50,Math.round(u.maxHp*heli.hpMult));
+ u.speed=Math.max(120,Math.round(u.speed*heli.speedMult));
+ u.damage=Math.max(6,Math.round(u.damage*heli.dmgMult));
+}
 
 let GC_W=960, GC_H=540;
 function gcGroundY(){ return GC_H*0.82; }
@@ -77,7 +101,7 @@ function gcClose(){
 function gcKeyDown(e){
  if(!gcState)return;
  const k=e.key.toLowerCase();
- if(['arrowup','arrowdown','arrowleft','arrowright',' ','w','a','s','d','escape'].includes(k)||e.code==='Space'){
+ if(['arrowup','arrowdown','arrowleft','arrowright',' ','w','a','s','d','e','escape'].includes(k)||e.code==='Space'){
   e.preventDefault();
  }
  if(k==='escape'){gcClose();return;}
@@ -114,9 +138,10 @@ function playGemCopter(){
     <button type="button" class="gc-btn ghost" id="gc-leave">Leave</button>
    </div>
    <div id="gc-menu" class="gc-menu">
-    <p class="gc-lede">Pilot a helicopter with a <b>gemstone turret</b>. Blast gemstone zombies, beat bosses, buy upgrades, clear all <b>10 maps</b>!</p>
+    <p class="gc-lede">Pick a <b>helicopter</b>, then a map. Destroy <b>4 zombie hearts</b> — your <b>military</b> helps on the ground!</p>
+    <div class="gc-heli-grid" id="gc-heli-grid"></div>
     <div class="gc-map-grid" id="gc-map-grid"></div>
-    <p class="gc-hint">WASD / arrows fly in 4 directions · mouse aim · click or Space fire · Esc quit</p>
+    <p class="gc-hint">WASD fly · mouse aim · Space rapid fire · Owner: <b>E</b> missiles · Esc quit</p>
    </div>
    <div id="gc-play" hidden>
     <div class="gc-play-frame">
@@ -139,6 +164,22 @@ function playGemCopter(){
   </div>`;
  document.body.appendChild(wrap);
  document.getElementById('gc-leave').onclick=()=>gcClose();
+ const heliGrid=document.getElementById('gc-heli-grid');
+ heliGrid.innerHTML=GC_HELIS.map(h=>{
+  const locked=!!(h.ownerOnly&&!gcIsOwner());
+  const on=h.id===gcPickHeli;
+  return `<button type="button" class="gc-heli${on?' on':''}${h.ownerOnly?' owner':''}${locked?' locked':''}" data-heli="${h.id}" ${locked?'disabled':''}>
+   <div class="gc-heli-emoji">${h.emoji}</div>
+   <b>${h.name}${h.ownerOnly?' · OWNER':''}</b>
+   <span>${locked?'Unlock owner code':h.desc}</span>
+  </button>`;
+ }).join('');
+ heliGrid.onclick=e=>{
+  const b=e.target.closest('[data-heli]');
+  if(!b||b.disabled)return;
+  gcPickHeli=b.dataset.heli;
+  heliGrid.querySelectorAll('.gc-heli').forEach(el=>el.classList.toggle('on',el.dataset.heli===gcPickHeli));
+ };
  const grid=document.getElementById('gc-map-grid');
  const progress=+(localStorage.getItem('lithos_gc_map')||'1');
  grid.innerHTML=GC_MAPS.map(m=>{
@@ -151,7 +192,7 @@ function playGemCopter(){
  grid.onclick=e=>{
   const b=e.target.closest('[data-map]');
   if(!b||b.disabled)return;
-  gcStartMap(+b.dataset.map);
+  gcStartMap(+b.dataset.map,null,gcPickHeli);
  };
  window.addEventListener('keydown',gcKeyDown);
  window.addEventListener('keyup',gcKeyUp);
@@ -160,24 +201,27 @@ function playGemCopter(){
  try{if(typeof lithos8bitSync==='function')lithos8bitSync();}catch(_){}
 }
 
-function gcStartMap(mapId, carry){
+function gcStartMap(mapId, carry, heliId){
  const map=GC_MAPS.find(m=>m.id===mapId)||GC_MAPS[0];
+ let heli=GC_HELIS.find(h=>h.id===(carry?.heliId||heliId||gcPickHeli))||GC_HELIS[0];
+ if(heli.ownerOnly&&!gcIsOwner())heli=GC_HELIS[0];
  const upgrades=carry&&carry.upgrades?carry.upgrades:gcDefaultUpgrades();
  gcApplyUpgrades(upgrades);
+ gcApplyHeliToUpgrades(upgrades,heli);
  const gems=carry&&typeof carry.gems==='number'?carry.gems:0;
  document.getElementById('gc-menu').hidden=true;
  document.getElementById('gc-shop').hidden=true;
  document.getElementById('gc-overlay').hidden=true;
  document.getElementById('gc-play').hidden=false;
  gcEnterPlayMode();
- document.getElementById('gc-mapname').textContent=`Map ${map.id}: ${map.name}`;
+ document.getElementById('gc-mapname').textContent=`${heli.emoji} ${heli.name} · Map ${map.id}: ${map.name}`;
  gcState={
-  map, upgrades, gems,
+  map, upgrades, gems, heli,
   x:GC_W*0.5, y:GC_H*0.38, vx:0, vy:0,
   hp:upgrades.maxHp, maxHp:upgrades.maxHp,
-  fireT:0, wave:1, waveT:0, spawnLeft:0, spawnGap:0,
+  fireT:0, missileT:0, wave:1, waveT:0, spawnLeft:0, spawnGap:0,
   kills:0, boss:null, bossSpawned:false, cleared:false, over:false,
-  zombies:[], bullets:[], particles:[], pickups:[],
+  zombies:[], bullets:[], missiles:[], particles:[], pickups:[],
   hearts:[], military:[],
   rotor:0, shake:0
  };
@@ -271,6 +315,39 @@ function gcStartWave(){
  if(s.wave===s.map.waves) gcSpawnBoss();
 }
 
+function gcPickTarget(s){
+ let best=null,bd=1e12;
+ const tryT=(t,x,y,r)=>{
+  const d=(x-s.x)**2+(y-s.y)**2;
+  if(d<bd){bd=d;best={x,y,r:(r||14)};}
+ };
+ s.zombies.forEach(z=>tryT(z,z.x,z.y,z.r));
+ if(s.hearts)s.hearts.forEach(h=>{if(h.alive)tryT(h,h.x,h.y,h.r);});
+ if(s.boss)tryT(s.boss,s.boss.x,s.boss.y,s.boss.r);
+ return best;
+}
+
+function gcLaunchMissile(s,x0,y0,target){
+ if(!target)return;
+ const ang=Math.atan2(target.y-y0,target.x-x0);
+ s.missiles.push({
+  x:x0,y:y0,vx:Math.cos(ang)*200,vy:Math.sin(ang)*200,
+  life:2.8,dmg:95+ s.map.id*8,r:7,homing:true
+ });
+}
+
+function gcFireMissilesFromState(manual){
+ const s=gcState;
+ if(!s.heli?.missiles)return;
+ if(!manual&&s.missileT>0)return;
+ const t=gcPickTarget(s);
+ if(!t)return;
+ s.missileT=manual?0.35:0.85;
+ gcLaunchMissile(s,s.x-16,s.y-4,t);
+ gcLaunchMissile(s,s.x+16,s.y-4,t);
+ try{if(SFX&&SFX.click)SFX.click();}catch(_){}
+}
+
 function gcFire(){
  const s=gcState, u=s.upgrades;
  if(s.fireT>0)return;
@@ -295,6 +372,9 @@ function gcUpdate(dt){
  s.rotor+=dt*28;
  if(s.shake>0)s.shake=Math.max(0,s.shake-dt*8);
  s.fireT=Math.max(0,s.fireT-dt);
+ s.missileT=Math.max(0,s.missileT-dt);
+ if(s.heli?.missiles&&s.missileT<=0)gcFireMissilesFromState(false);
+ if(gcKeys.e){gcFireMissilesFromState(true);gcKeys.e=false;}
 
  // movement
  let mx=0,my=0;
@@ -441,6 +521,30 @@ function gcUpdate(dt){
   }
  });
  s.bullets=s.bullets.filter(bu=>bu.life>0&&bu.x>-40&&bu.x<GC_W+40&&bu.y>-40&&bu.y<GC_H+40);
+
+ // wing missiles (owner Omega Strike)
+ s.missiles.forEach(ms=>{
+  if(ms.homing){
+   const t=gcPickTarget(s);
+   if(t){
+    const ang=Math.atan2(t.y-ms.y,t.x-ms.x);
+    ms.vx=Math.cos(ang)*340; ms.vy=Math.sin(ang)*340;
+   }
+  }
+  ms.x+=ms.vx*dt; ms.y+=ms.vy*dt; ms.life-=dt;
+  const hit=(x,y,r)=>{
+   if(ms.life<=0)return true;
+   if(Math.hypot(ms.x-x,ms.y-y)<r+ms.r){
+    ms.life=0;
+    return true;
+   }
+   return false;
+  };
+  s.zombies.forEach(z=>{if(hit(z.x,z.y,z.r)){z.hp-=ms.dmg;z.hurt=0.2;gcSpark(ms.x,ms.y,'#f8d030');}});
+  if(s.hearts)s.hearts.forEach(h=>{if(h.alive&&hit(h.x,h.y,h.r)){h.hp-=ms.dmg;h.hurt=0.25;gcSpark(ms.x,ms.y,'#ff4060');}});
+  if(s.boss&&hit(s.boss.x,s.boss.y,s.boss.r)){s.boss.hp-=ms.dmg;s.boss.hurt=0.2;gcSpark(ms.x,ms.y,'#f8d030');}
+ });
+ s.missiles=s.missiles.filter(ms=>ms.life>0&&ms.x>-60&&ms.x<GC_W+60&&ms.y>-60&&ms.y<GC_H+60);
 
  // deaths / pickups
  if(s.hearts){
@@ -625,6 +729,13 @@ function gcDraw(){
  }
 
  // bullets
+ s.missiles.forEach(ms=>{
+  ctx.save(); ctx.translate(ms.x,ms.y);
+  ctx.rotate(Math.atan2(ms.vy,ms.vx));
+  ctx.fillStyle='#f8d030'; ctx.fillRect(-10,-3,14,6);
+  ctx.fillStyle='#ff6040'; ctx.beginPath(); ctx.moveTo(8,0); ctx.lineTo(14,-4); ctx.lineTo(14,4); ctx.fill();
+  ctx.restore();
+ });
  s.bullets.forEach(bu=>{
   ctx.fillStyle=bu.enemy?'#ff6080':(bu.ally?'#7dff9a':m.accent);
   ctx.beginPath(); ctx.arc(bu.x,bu.y,bu.r,0,Math.PI*2); ctx.fill();
@@ -646,8 +757,14 @@ function gcDraw(){
  ctx.strokeStyle='rgba(255,255,255,.55)'; ctx.lineWidth=3;
  ctx.beginPath(); ctx.moveTo(Math.cos(s.rotor)*28, -22+Math.sin(s.rotor)*3); ctx.lineTo(Math.cos(s.rotor+Math.PI)*28,-22+Math.sin(s.rotor+Math.PI)*3); ctx.stroke();
  ctx.beginPath(); ctx.moveTo(Math.cos(s.rotor+1.2)*22,-22); ctx.lineTo(Math.cos(s.rotor+1.2+Math.PI)*22,-22); ctx.stroke();
+ if(s.heli?.missiles){
+  ctx.fillStyle='#606878';
+  ctx.fillRect(-20,-6,8,5); ctx.fillRect(12,-6,8,5);
+  ctx.fillStyle='#f8d030';
+  ctx.fillRect(-22,-4,4,8); ctx.fillRect(18,-4,4,8);
+ }
  // body
- ctx.fillStyle='#c9a94f';
+ ctx.fillStyle=s.heli?.hull||'#c9a94f';
  ctx.beginPath(); ctx.ellipse(0,0,18,10,0,0,Math.PI*2); ctx.fill();
  ctx.fillStyle='#1a1520'; ctx.beginPath(); ctx.ellipse(4,-2,7,5,0,0,Math.PI*2); ctx.fill();
  // tail
@@ -664,7 +781,7 @@ function gcDraw(){
  ctx.beginPath(); ctx.moveTo(s.x,s.y-8); ctx.lineTo(gcPointer.x,gcPointer.y); ctx.stroke();
  ctx.setLineDash([]); ctx.globalAlpha=1;
  ctx.fillStyle='rgba(125,255,212,.85)'; ctx.font='10px monospace'; ctx.textAlign='left';
- ctx.fillText(`GEM COPTER · build ${GEM_COPTER_BUILD} · rapid fire · destroy 4 zombie hearts`,12,18);
+ ctx.fillText(`GEM COPTER · build ${GEM_COPTER_BUILD} · ${s.heli?s.heli.name:'Scout'}${s.heli?.missiles?' · missiles':''}`,12,18);
  ctx.restore();
 }
 
@@ -678,7 +795,7 @@ function gcShowDefeat(){
   <button type="button" class="gc-btn" id="gc-retry">Retry Map</button>
   <button type="button" class="gc-btn ghost" id="gc-menu-btn">Maps</button>
  </div>`;
- document.getElementById('gc-retry').onclick=()=>gcStartMap(gcState.map.id,{upgrades:gcState.upgrades,gems:gcState.gems});
+ document.getElementById('gc-retry').onclick=()=>gcStartMap(gcState.map.id,{upgrades:gcState.upgrades,gems:gcState.gems,heliId:gcState.heli?.id});
  document.getElementById('gc-menu-btn').onclick=()=>{gcClose();playGemCopter();};
 }
 
