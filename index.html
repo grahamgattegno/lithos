@@ -1600,7 +1600,8 @@
   .mh-walk-zone{font-weight:900;color:#ffe8a0;font-size:12px;text-shadow:none}
   .mh-walk-prompt{flex:1;text-align:center;font-size:12px;font-weight:800;color:#80e8ff}
   .mh-walk-run{font-size:11px;font-weight:800;color:#80ffb0;text-shadow:0 1px 2px #000}
-  .mh-minigame-modal{z-index:10004}
+  .mh-minigame-modal{z-index:100010!important}
+  #mh-minigame-modal,#mh-found-modal{z-index:100010!important}
   .mh-minigame-card{background:linear-gradient(180deg,#1a1838,#0c1018);border:3px solid var(--mh-rarity,#b060e8);border-radius:18px;padding:20px;max-width:360px;width:100%;text-align:center}
   .mh-mini-desc{color:#b8c0d8;font-size:13px;margin:8px 0 12px}
   .mh-mini-stage{min-height:140px;margin-bottom:12px}
@@ -5457,8 +5458,8 @@
 <script src="gemcopter.js?v=deploy-85"></script>
 <script>
 (function lithosLoadMorphHunt(){
- var MH_NEED='void-2d-v31';
- var NEED_MARK="MH_BUILD='void-2d-v31'";
+ var MH_NEED='void-2d-v32';
+ var NEED_MARK="MH_BUILD='void-2d-v32'";
  var KING_MARK='RED_BLACK_KING_v31';
  window.__LITHOS_MH_NEED=MH_NEED;
  function injectMorphHunt(code){
@@ -5497,7 +5498,7 @@
 </script>
 <script>
 window.lithosPlayMorphHunt=function lithosPlayMorphHunt(){
- var NEED=window.__LITHOS_MH_NEED||'void-2d-v31';
+ var NEED=window.__LITHOS_MH_NEED||'void-2d-v32';
  var tries=0;
  function run(){
   if(typeof playMorphHunt==='function'){

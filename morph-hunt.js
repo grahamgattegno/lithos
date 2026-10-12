@@ -3,7 +3,7 @@
 'use strict';
 
 const MH_STORE_KEY='lithos_morph_hunt_v9';
-const MH_BUILD='void-2d-v31';
+const MH_BUILD='void-2d-v32';
 const MH_KING_STAMP='RED_BLACK_KING_v31';
 const MH_TOTAL_COUNT=1101;
 const MH_VOID_KING_DEPTH=100;
@@ -60,6 +60,18 @@ const MH_WORLDS=[
  {id:'w7',name:'Legend Nexus',emoji:'👑',tagline:'Flat nexus floor.',bg:'#6080c0',ground:'#506898',wall:'#384868',prop:'#ffd060'},
  {id:'w8',name:'Exotic Realm',emoji:'💎',tagline:'Flat exotic plane.',bg:'#281040',ground:'#502868',wall:'#381838',prop:'#ff48e8'},
  {id:'w9',name:'Void Fallen Abyss',emoji:'🕳',tagline:'Flattest screen — Male Void Fallen abyss!',bg:'#050008',ground:'#120818',wall:'#282038',prop:'#402060'}
+];
+const MH_WORLD_DECORS=[
+ ['house','shop','tree','fountain','bench','plaza_ruins'],
+ ['ferris','tent','booth','banner','stall','broken_ride'],
+ ['beach_hut','pier','palm','surf','lifeguard','wrecked_boat'],
+ ['crystal','expedition_tent','mine_cart','stalagmite','drill','crate'],
+ ['fluoro_hall','office_desk','carpet','broken_tile','chair','liminal_door'],
+ ['cloud_house','sky_bridge','balloon','nest','wreckage','expedition_flag'],
+ ['burned_house','lava_rock','expedition_camp','obsidian','broken_statue','ash_pile'],
+ ['nexus_ruins','portal','statue','camp','banner','crystal_shrine'],
+ ['vault','neon_sign','exotic_wreck','pillar','expedition_tent','gate'],
+ ['void_pillar','red_altar','broken_armor','expedition_bones','ruined_house','forbidden_stone']
 ];
 
 const MH_CODES={
@@ -367,6 +379,24 @@ function mhGenWorldMap(wi){
  return {w,h,tiles,spawnTx:3,spawnTy:3,doorTx:door,doorTy:mid,wi};
 }
 const MH_WORLD_MAPS=MH_WORLDS.map((_,i)=>mhGenWorldMap(i));
+(function mhScatterWorldDecor(){
+ MH_WORLDS.forEach((_,wi)=>{
+  const map=MH_WORLD_MAPS[wi];
+  const themes=MH_WORLD_DECORS[wi]||MH_WORLD_DECORS[0];
+  const decors=[];
+  const used=new Set();
+  for(let i=0;i<14+wi*2;i++){
+   const tx=2+mhHashStr('decx'+wi+i)%(map.w-4);
+   const ty=2+mhHashStr('decy'+wi+i)%(map.h-4);
+   const k=tx+','+ty;
+   if(map.tiles[ty*map.w+tx]!==0||used.has(k)) continue;
+   if(map.throneTx!=null&&Math.abs(tx-map.throneTx)<=4&&Math.abs(ty-map.throneTy)<=4) continue;
+   used.add(k);
+   decors.push({tx,ty,kind:themes[mhHashStr('deck'+wi+i)%themes.length]});
+  }
+  map.decors=decors;
+ });
+})();
 (function mhScatterMorphTiles(){
  const occ=new Map();
  MH_WORLDS.forEach((_,wi)=>{
@@ -454,6 +484,235 @@ function mhMapFlat2D(wi){
 function mhFlatGroundPair(ground){
  return {a:ground,b:mhShade(ground,-14)};
 }
+function mhDrawDecorKind(ctx,x,y,kind,wi){
+ const T=MH_TILE;
+ ctx.save();
+ ctx.translate(x,y);
+ const wood='#6a5040', roof='#8a4030', stone='#5a5a62', dark='#2a2830';
+ switch(kind){
+  case 'house':
+   ctx.fillStyle=wood; ctx.fillRect(4,12,T-8,T-16);
+   ctx.fillStyle=roof; ctx.beginPath(); ctx.moveTo(2,12); ctx.lineTo(T/2,0); ctx.lineTo(T-2,12); ctx.fill();
+   ctx.fillStyle='#3a2818'; ctx.fillRect(T/2-5,20,10,14);
+   break;
+  case 'shop':
+   ctx.fillStyle='#5080a0'; ctx.fillRect(6,14,T-12,T-18);
+   ctx.fillStyle='#ffe060'; ctx.fillRect(8,18,T-16,8);
+   ctx.fillStyle='#303840'; ctx.fillRect(T/2-4,22,8,12);
+   break;
+  case 'tree':
+   ctx.fillStyle='#4a3018'; ctx.fillRect(T/2-3,22,6,12);
+   ctx.fillStyle='#3a8838'; ctx.beginPath(); ctx.arc(T/2,16,12,0,Math.PI*2); ctx.fill();
+   break;
+  case 'fountain':
+   ctx.fillStyle=stone; ctx.fillRect(10,24,T-20,8);
+   ctx.fillStyle='#60a8e0'; ctx.beginPath(); ctx.arc(T/2,22,8,0,Math.PI*2); ctx.fill();
+   break;
+  case 'bench':
+   ctx.fillStyle=wood; ctx.fillRect(8,26,T-16,4); ctx.fillRect(10,22,4,8); ctx.fillRect(T-14,22,4,8);
+   break;
+  case 'plaza_ruins':
+   ctx.fillStyle=stone; ctx.fillRect(6,20,8,14); ctx.fillRect(T-14,18,6,16); ctx.fillStyle='rgba(0,0,0,.2)'; ctx.fillRect(8,28,T-16,4);
+   break;
+  case 'ferris':
+   ctx.strokeStyle='#8090a0'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(T/2,14,14,0,Math.PI*2); ctx.stroke();
+   ctx.fillStyle='#ff6080'; ctx.fillRect(T/2-2,0,4,28);
+   break;
+  case 'tent':
+   ctx.fillStyle='#e04080'; ctx.beginPath(); ctx.moveTo(T/2,6); ctx.lineTo(T-4,T-2); ctx.lineTo(4,T-2); ctx.fill();
+   ctx.fillStyle='#c03070'; ctx.fillRect(T/2-1,6,2,24);
+   break;
+  case 'booth':
+   ctx.fillStyle='#ffd060'; ctx.fillRect(8,16,T-16,16); ctx.fillStyle='#fff'; ctx.fillRect(10,18,T-20,6);
+   break;
+  case 'banner':
+   ctx.fillStyle='#c04090'; ctx.fillRect(T/2-1,4,2,26); ctx.fillStyle='#ff80c0'; ctx.fillRect(T/2,8,14,10);
+   break;
+  case 'stall':
+   ctx.fillStyle='#8040c0'; ctx.fillRect(6,18,T-12,14); ctx.fillStyle='#ffe080'; ctx.fillRect(8,20,T-16,4);
+   break;
+  case 'broken_ride':
+   ctx.fillStyle='#505860'; ctx.fillRect(8,22,T-16,6); ctx.fillStyle='#303840'; ctx.fillRect(12,14,6,10);
+   ctx.strokeStyle='#ff4040'; ctx.beginPath(); ctx.moveTo(6,18); ctx.lineTo(T-6,26); ctx.stroke();
+   break;
+  case 'beach_hut':
+   ctx.fillStyle='#e8c878'; ctx.fillRect(8,18,T-16,14); ctx.fillStyle='#40a0c0'; ctx.fillRect(6,12,T-12,8);
+   break;
+  case 'pier':
+   ctx.fillStyle=wood; ctx.fillRect(0,T-8,T,6); ctx.fillStyle='#5080a0'; ctx.fillRect(0,T-4,T,4);
+   break;
+  case 'palm':
+   ctx.fillStyle='#8a6030'; ctx.fillRect(T/2-2,18,4,14);
+   ctx.fillStyle='#2a8848'; ctx.beginPath(); ctx.ellipse(T/2,12,14,6,0,0,Math.PI*2); ctx.fill();
+   break;
+  case 'surf':
+   ctx.fillStyle='#ff8040'; ctx.fillRect(T/2-2,16,4,18); ctx.fillStyle='#fff'; ctx.fillRect(T/2-8,20,16,4);
+   break;
+  case 'lifeguard':
+   ctx.fillStyle='#e04040'; ctx.fillRect(T/2-6,14,12,18); ctx.fillStyle='#fff'; ctx.fillRect(T/2-4,16,8,6);
+   break;
+  case 'wrecked_boat':
+   ctx.fillStyle=wood; ctx.fillRect(6,24,T-12,6); ctx.fillStyle='#303840'; ctx.fillRect(10,20,8,6);
+   ctx.strokeStyle='#000'; ctx.beginPath(); ctx.moveTo(8,22); ctx.lineTo(T-8,28); ctx.stroke();
+   break;
+  case 'crystal':
+   ctx.fillStyle='#80e0ff'; ctx.beginPath(); ctx.moveTo(T/2,4); ctx.lineTo(T-6,28); ctx.lineTo(6,28); ctx.fill();
+   ctx.strokeStyle='#fff'; ctx.stroke();
+   break;
+  case 'expedition_tent':
+   ctx.fillStyle='#c8a860'; ctx.beginPath(); ctx.moveTo(T/2,8); ctx.lineTo(T-4,26); ctx.lineTo(4,26); ctx.fill();
+   ctx.fillStyle='#403820'; ctx.fillRect(T/2-1,8,2,18);
+   break;
+  case 'mine_cart':
+   ctx.fillStyle='#505860'; ctx.fillRect(8,22,T-16,8); ctx.fillStyle='#303840'; ctx.beginPath(); ctx.arc(12,T-2,3,0,Math.PI*2); ctx.arc(T-12,T-2,3,0,Math.PI*2); ctx.fill();
+   break;
+  case 'stalagmite':
+   ctx.fillStyle='#685898'; ctx.beginPath(); ctx.moveTo(T/2,6); ctx.lineTo(T-8,28); ctx.lineTo(T-8,28); ctx.lineTo(8,28); ctx.fill();
+   break;
+  case 'drill':
+   ctx.fillStyle='#404850'; ctx.fillRect(T/2-3,10,6,20); ctx.fillStyle='#808890'; ctx.fillRect(T/2-6,6,12,6);
+   break;
+  case 'crate':
+   ctx.fillStyle='#6a5038'; ctx.fillRect(10,18,T-20,T-22); ctx.strokeStyle='#3a2818'; ctx.strokeRect(10.5,18.5,T-21,T-23);
+   break;
+  case 'fluoro_hall':
+   ctx.fillStyle='#d8d4b0'; ctx.fillRect(4,4,T-8,T-8);
+   ctx.fillStyle='#ffffa0'; ctx.fillRect(6,6,T-12,4);
+   break;
+  case 'office_desk':
+   ctx.fillStyle='#909088'; ctx.fillRect(8,22,T-16,8); ctx.fillStyle='#707068'; ctx.fillRect(12,16,12,8);
+   break;
+  case 'carpet':
+   ctx.fillStyle='#806040'; ctx.fillRect(6,24,T-12,6); ctx.fillStyle='#604830'; ctx.fillRect(8,25,T-16,4);
+   break;
+  case 'broken_tile':
+   ctx.fillStyle='#a8a890'; ctx.fillRect(6,20,10,12); ctx.fillStyle='#888878'; ctx.fillRect(T-16,22,10,10);
+   ctx.strokeStyle='#606058'; ctx.beginPath(); ctx.moveTo(10,20); ctx.lineTo(18,32); ctx.stroke();
+   break;
+  case 'chair':
+   ctx.fillStyle='#707068'; ctx.fillRect(12,22,10,10); ctx.fillRect(14,14,6,10);
+   break;
+  case 'liminal_door':
+   ctx.fillStyle='#909088'; ctx.fillRect(T/2-8,8,16,26); ctx.fillStyle='#101018'; ctx.fillRect(T/2-5,12,10,20);
+   break;
+  case 'cloud_house':
+   ctx.fillStyle='#e8f4ff'; ctx.fillRect(10,18,T-20,12); ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(12,26,8,0,Math.PI*2); ctx.arc(T-12,26,8,0,Math.PI*2); ctx.fill();
+   break;
+  case 'sky_bridge':
+   ctx.fillStyle='#88b8e0'; ctx.fillRect(0,T/2,T,4); ctx.fillStyle=stone; ctx.fillRect(4,T/2-2,6,8); ctx.fillRect(T-10,T/2-2,6,8);
+   break;
+  case 'balloon':
+   ctx.fillStyle='#ff6080'; ctx.beginPath(); ctx.arc(T/2,12,10,0,Math.PI*2); ctx.fill();
+   ctx.strokeStyle='#333'; ctx.beginPath(); ctx.moveTo(T/2,22); ctx.lineTo(T/2,30); ctx.stroke();
+   break;
+  case 'nest':
+   ctx.fillStyle='#8a7040'; ctx.beginPath(); ctx.ellipse(T/2,26,14,6,0,0,Math.PI*2); ctx.fill();
+   break;
+  case 'wreckage':
+   ctx.fillStyle='#606878'; ctx.fillRect(8,20,12,10); ctx.fillRect(T-18,24,10,8);
+   ctx.strokeStyle='#404850'; ctx.beginPath(); ctx.moveTo(6,22); ctx.lineTo(T-6,30); ctx.stroke();
+   break;
+  case 'expedition_flag':
+   ctx.fillStyle='#403820'; ctx.fillRect(T/2-1,8,2,22);
+   ctx.fillStyle='#e04040'; ctx.fillRect(T/2,10,12,8);
+   break;
+  case 'burned_house':
+   ctx.fillStyle='#2a1810'; ctx.fillRect(8,16,T-16,T-18);
+   ctx.fillStyle='#1a1008'; ctx.beginPath(); ctx.moveTo(6,16); ctx.lineTo(T/2,6); ctx.lineTo(T-6,16); ctx.fill();
+   ctx.fillStyle='#ff6020'; ctx.fillRect(14,20,4,4); ctx.fillRect(T-18,22,3,3);
+   break;
+  case 'lava_rock':
+   ctx.fillStyle='#3a1810'; ctx.beginPath(); ctx.moveTo(T/2,8); ctx.lineTo(T-6,28); ctx.lineTo(6,28); ctx.fill();
+   ctx.fillStyle='#ff6020'; ctx.fillRect(T/2-2,20,4,4);
+   break;
+  case 'expedition_camp':
+   ctx.fillStyle='#c8a860'; ctx.fillRect(6,20,14,10); ctx.fillStyle='#403820'; ctx.fillRect(T-16,22,10,8);
+   ctx.fillStyle='#e04040'; ctx.fillRect(T/2,12,2,10);
+   break;
+  case 'obsidian':
+   ctx.fillStyle='#101018'; ctx.beginPath(); ctx.moveTo(T/2,6); ctx.lineTo(T-4,28); ctx.lineTo(4,28); ctx.fill();
+   ctx.strokeStyle='#8040ff'; ctx.stroke();
+   break;
+  case 'broken_statue':
+   ctx.fillStyle=stone; ctx.fillRect(T/2-6,14,12,16); ctx.fillStyle='#707078'; ctx.fillRect(T/2-4,6,8,10);
+   ctx.fillRect(T-10,24,6,6);
+   break;
+  case 'ash_pile':
+   ctx.fillStyle='#3a3028'; ctx.beginPath(); ctx.ellipse(T/2,28,16,6,0,0,Math.PI*2); ctx.fill();
+   break;
+  case 'nexus_ruins':
+   ctx.fillStyle='#384868'; ctx.fillRect(6,18,10,14); ctx.fillRect(T-16,20,10,12);
+   ctx.fillStyle='#ffd060'; ctx.fillRect(T/2-2,10,4,12);
+   break;
+  case 'portal':
+   ctx.strokeStyle='#80e0ff'; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(T/2,18,12,0,Math.PI*2); ctx.stroke();
+   ctx.fillStyle='rgba(80,224,255,.25)'; ctx.fill();
+   break;
+  case 'statue':
+   ctx.fillStyle='#9098a8'; ctx.fillRect(T/2-5,12,10,18); ctx.fillRect(T/2-8,8,16,6);
+   break;
+  case 'camp':
+   ctx.fillStyle='#806040'; ctx.fillRect(8,22,T-16,8); ctx.fillStyle='#ff8040'; ctx.beginPath(); ctx.arc(T/2,24,4,0,Math.PI*2); ctx.fill();
+   break;
+  case 'crystal_shrine':
+   ctx.fillStyle=stone; ctx.fillRect(8,20,T-16,10);
+   ctx.fillStyle='#80e0ff'; ctx.beginPath(); ctx.moveTo(T/2,6); ctx.lineTo(T-6,22); ctx.lineTo(6,22); ctx.fill();
+   break;
+  case 'vault':
+   ctx.fillStyle='#281838'; ctx.fillRect(8,14,T-16,T-16); ctx.fillStyle='#ff48e8'; ctx.fillRect(12,18,T-24,6);
+   break;
+  case 'neon_sign':
+   ctx.fillStyle='#101018'; ctx.fillRect(T/2-1,10,2,18);
+   ctx.fillStyle='#ff48e8'; ctx.shadowColor='#ff48e8'; ctx.shadowBlur=8;
+   ctx.fillRect(T/2,12,14,8); ctx.shadowBlur=0;
+   break;
+  case 'exotic_wreck':
+   ctx.fillStyle='#502868'; ctx.fillRect(6,22,T-12,6); ctx.strokeStyle='#ff48e8'; ctx.strokeRect(6.5,22.5,T-13,5);
+   break;
+  case 'pillar':
+   ctx.fillStyle='#685888'; ctx.fillRect(T/2-5,8,10,T-10);
+   ctx.fillStyle='#9080c0'; ctx.fillRect(T/2-6,6,12,4);
+   break;
+  case 'gate':
+   ctx.fillStyle='#381838'; ctx.fillRect(6,10,6,T-12); ctx.fillRect(T-12,10,6,T-12);
+   ctx.fillStyle='#ff48e8'; ctx.fillRect(6,10,T-12,4);
+   break;
+  case 'void_pillar':
+   ctx.fillStyle='#180818'; ctx.fillRect(T/2-6,6,12,T-8);
+   ctx.strokeStyle='#a01010'; ctx.strokeRect(T/2-6.5,5.5,13,T-7);
+   break;
+  case 'red_altar':
+   ctx.fillStyle='#280808'; ctx.fillRect(8,20,T-16,10);
+   ctx.fillStyle='#ff2020'; ctx.fillRect(T/2-4,14,8,8);
+   break;
+  case 'broken_armor':
+   ctx.fillStyle='#141414'; ctx.fillRect(10,18,8,12); ctx.fillRect(T-18,22,8,10);
+   ctx.fillStyle='#801010'; ctx.fillRect(12,20,4,4);
+   break;
+  case 'expedition_bones':
+   ctx.fillStyle='#c8c0b0'; ctx.fillRect(10,24,12,3); ctx.fillRect(T-16,26,10,2);
+   ctx.fillStyle='#908880'; ctx.beginPath(); ctx.arc(T/2,22,5,0,Math.PI*2); ctx.fill();
+   break;
+  case 'ruined_house':
+   ctx.fillStyle='#1a1018'; ctx.fillRect(8,16,T-16,T-18);
+   ctx.fillStyle='#401010'; ctx.beginPath(); ctx.moveTo(6,16); ctx.lineTo(T/2,8); ctx.lineTo(T-8,18); ctx.fill();
+   break;
+  case 'forbidden_stone':
+   ctx.fillStyle='#080808'; ctx.fillRect(T/2-8,14,16,16);
+   ctx.strokeStyle='#ff2020'; ctx.strokeRect(T/2-8.5,13.5,17,17);
+   mhDrawForbiddenSymbol(ctx,T/2,22,5,mhHashStr(kind+wi)%4);
+   break;
+  default:
+   ctx.fillStyle=stone; ctx.fillRect(10,20,T-20,T-24);
+ }
+ ctx.restore();
+}
+function mhDrawMapDecors(ctx,map,wi){
+ if(!map.decors) return;
+ map.decors.forEach(d=>{
+  mhDrawDecorKind(ctx,d.tx*MH_TILE,d.ty*MH_TILE,d.kind,wi);
+ });
+}
 function mhDrawFlatMapTiles(ctx,map,world,wi){
  const voidRealm=wi===MH_VOID_WORLD;
  const pair=mhFlatGroundPair(world.ground);
@@ -485,11 +744,12 @@ function mhDrawFlatMapTiles(ctx,map,world,wi){
    ctx.fillRect(x,y,MH_TILE,MH_TILE);
    ctx.strokeStyle='rgba(0,0,0,.18)'; ctx.lineWidth=1; ctx.strokeRect(x+.5,y+.5,MH_TILE-1,MH_TILE-1);
   }
-  if(v===2){
-   ctx.fillStyle=prop; ctx.fillRect(x+8,y+10,MH_TILE-16,MH_TILE-12);
-   ctx.strokeStyle='rgba(0,0,0,.25)'; ctx.strokeRect(x+8.5,y+10.5,MH_TILE-17,MH_TILE-13);
+   if(v===2){
+    ctx.fillStyle=prop; ctx.fillRect(x+8,y+10,MH_TILE-16,MH_TILE-12);
+    ctx.strokeStyle='rgba(0,0,0,.25)'; ctx.strokeRect(x+8.5,y+10.5,MH_TILE-17,MH_TILE-13);
   }
  }
+ mhDrawMapDecors(ctx,map,wi);
 }
 function mhPaperFlatOverlay(ctx,W,H){
  ctx.fillStyle='rgba(255,252,240,.06)';
@@ -533,7 +793,7 @@ function mhLoadSave(){
    wearing:wear||'ex-welcome',
    title:'Collector',
    codesUsed:[],
-   minigameWon:MH_MORPHS.map(m=>m.id)
+   minigameWon:[]
   };
  }
  try{
@@ -556,19 +816,40 @@ function mhRarityInfo(m){
  if(!m) return MH_RARITY.common;
  return MH_RARITY[m.rarity]||MH_RARITY.common;
 }
-function mhNeedsMinigame(m){
- if(!m||mhIsOwner()) return false;
- if(m.rarity==='common') return false;
+function mhNeedsMinigame(m,save){
+ if(!m||!save) return false;
+ if(mhHasMorph(save,m.id)) return false;
  return true;
 }
 function mhDeckUnlock(m,save){
- if(!m) return;
- if(mhHasMorph(save,m.id)){ mhWear(m.id); return; }
- if(mhNeedsMinigame(m)&&!mhMinigameCleared(save,m.id)){ mhOpenMinigame(m); return; }
- mhFinishCollect(m);
+ if(!m||!save) return;
+ if(mhHasMorph(save,m.id)){
+  if(mhIsOwner()){ mhOpenMinigame(m); return; }
+  mhWear(m.id);
+  return;
+ }
+ mhOpenMinigame(m);
 }
 function mhMinigameCleared(save,id){
- return mhIsOwner()||(save.minigameWon||[]).includes(id);
+ return (save.minigameWon||[]).includes(id);
+}
+function mhEnsureOverlayModals(){
+ let mg=document.getElementById('mh-minigame-modal');
+ if(!mg){
+  mg=document.createElement('div');
+  mg.id='mh-minigame-modal';
+  mg.className='mh-found-modal mh-minigame-modal';
+  mg.hidden=true;
+  document.body.appendChild(mg);
+ }
+ let fd=document.getElementById('mh-found-modal');
+ if(!fd){
+  fd=document.createElement('div');
+  fd.id='mh-found-modal';
+  fd.className='mh-found-modal';
+  fd.hidden=true;
+  document.body.appendChild(fd);
+ }
 }
 function mhSaveSave(data){
  if(mhIsOwner()){
@@ -732,6 +1013,7 @@ function mhToast(msg){
 }
 
 function mhShowFound(m){
+ mhEnsureOverlayModals();
  const modal=document.getElementById('mh-found-modal');
  if(!modal)return;
  const r=mhRarityInfo(m);
@@ -788,14 +1070,11 @@ function mhCollect(id){
  if(m.exclusive&&!mhIsOwner()&&m.vaultOnly&&mhState.world!==MH_EXOTIC_WORLD){
   mhToast('Find this one in 💎 Exotic Realm or Exclusive Gacha!'); return;
  }
- if(mhNeedsMinigame(m)&&!mhMinigameCleared(save,m.id)){
-  mhOpenMinigame(m);
-  return;
- }
- mhFinishCollect(m);
+ mhDeckUnlock(m,save);
 }
 function mhOpenMinigame(m){
  if(!mhState) return;
+ mhEnsureOverlayModals();
  mhState.minigameMorph=m;
  const kinds=['gemtap','zonehit','memory','voidpulse','noobmatch'];
  const kind=kinds[mhHashStr(m.id)%kinds.length];
@@ -971,8 +1250,7 @@ function mhGacha(exclusive){
  const pick=bag[Math.floor(Math.random()*bag.length)];
  mhSaveSave(save);
  mhRender();
- if(mhNeedsMinigame(pick)&&!mhMinigameCleared(save,pick.id)) mhOpenMinigame(pick);
- else{ save.collected.push(pick.id); mhSaveSave(save); mhShowFound(pick); }
+ mhOpenMinigame(pick);
 }
 
 function mhSetWorld(wi){
@@ -1637,6 +1915,7 @@ function mhWalkDrawFrame(){
    ctx.fillStyle='rgba(0,0,0,.2)'; ctx.fillRect(x+8,y+MH_TILE-10,MH_TILE-16,4);
   }
  }
+ mhDrawMapDecors(ctx,map,wi);
  if(wi===MH_VOID_WORLD) mhDrawVoidThrone(ctx,map);
  morphs.sort((a,b)=>mhGetNpcPos(st,wi,a).py-mhGetNpcPos(st,wi,b).py);
  morphs.forEach(m=>{
@@ -1672,10 +1951,10 @@ function mhWalkDrawFrame(){
    ctx.fillText('🕳 MALE VOID FALLEN',mx,my-89);
   }
   if(dist<MH_INTERACT_R&&!got){
-   if(mhNeedsMinigame(m)&&!mhMinigameCleared(save,m.id)){
+   if(!got){
     ctx.fillStyle='rgba(120,60,200,.85)'; ctx.fillRect(mx-52,my-92,104,12);
     ctx.fillStyle='#e8d0ff'; ctx.font='bold 9px system-ui'; ctx.textAlign='center';
-    ctx.fillText('MINIGAME',mx,my-84);
+    ctx.fillText('🎮 MINIGAME',mx,my-84);
    }
    ctx.fillStyle='rgba(0,0,0,.65)'; ctx.fillRect(mx-42,my-78,84,14);
    ctx.fillStyle='#ffe8a0'; ctx.font='bold 10px system-ui'; ctx.textAlign='center';
@@ -1710,8 +1989,7 @@ function mhWalkDrawFrame(){
   const prompt=hud.querySelector('.mh-walk-prompt');
   if(near){
    const got=mhHasMorph(save,near.id);
-   const mini=mhNeedsMinigame(near)&&!mhMinigameCleared(save,near.id);
-   prompt.textContent=got?'E — morph into '+near.name:(mini?'E — play minigame!':'E / Space — collect!');
+   prompt.textContent=got?'E — morph into '+near.name:'E — play minigame to unlock!';
    prompt.hidden=false;
   }else prompt.hidden=true;
   const runEl=hud.querySelector('.mh-walk-run');
@@ -1854,8 +2132,7 @@ function mhRenderHuntDeck(save,wi,morphs){
  const cards=pg.slice.map(m=>{
   const got=mhHasMorph(save,m.id);
   const r=mhRarityInfo(m);
-  const mini=!got&&mhNeedsMinigame(m)&&!mhMinigameCleared(save,m.id);
-  const btn=got?'✓ Owned':(mini?'🎮 Play minigame':'⭐ Unlock');
+  const btn=got?(mhIsOwner()?'🎮 Practice':'✓ Owned'):'🎮 Play minigame';
   return `<button type="button" class="mh-hunt-card${got?' got':''}" data-mh-challenge="${m.id}" style="--mh-rarity:${r.color}">
    <span class="mh-hunt-card-art">${got?`<svg viewBox="0 0 100 130">${mhClassicNoobSvg(m)}</svg>`:'?'}</span>
    <span class="mh-hunt-card-name">${got?m.name:'???'}</span>
@@ -1864,8 +2141,8 @@ function mhRenderHuntDeck(save,wi,morphs){
   </button>`;
  }).join('');
  return `<section class="mh-hunt-deck">
-  <h3>🎮 Quick unlock deck</h3>
-  <p class="mh-scene-hint">Or explore the <b>world map</b> above — walk with WASD, run with Shift, collect with <b>E</b>.</p>
+  <h3>🎮 Minigame unlock deck</h3>
+  <p class="mh-scene-hint">Every noobie needs a <b>minigame win</b> first! Map above has houses, ruins, expedition camps &amp; more per zone.</p>
   <div class="mh-hunt-cards">${cards}</div>
   <div class="mh-pager">${pg.page>0?'<button type="button" class="mh-btn" data-mh-hunt-page="'+(pg.page-1)+'">← Prev</button>':''}<span>Page ${pg.page+1} / ${pg.pages}</span>${pg.page+1<pg.pages?'<button type="button" class="mh-btn" data-mh-hunt-page="'+(pg.page+1)+'">Next →</button>':''}</div>
  </section>`;
@@ -1919,7 +2196,7 @@ function mhRenderIndex(save){
   const r=mhRarityInfo(m);
   return `<div class="mh-codex-card${got?' got':''}" style="--mh-rarity:${r.color}">
    <div class="mh-codex-art">${got?`<svg viewBox="0 0 100 130">${mhClassicNoobSvg(m)}</svg>`:'<div class="mh-silhouette">?</div>'}</div>
-   <div class="mh-codex-meta"><b class="mh-noob-name">${got?m.name:'???'}</b><span class="mh-codex-rarity">${mhRarityLabel(m)}${got?'':' · hunt deck'}${mhNeedsMinigame(m)?' · 🎮':''}</span></div>
+   <div class="mh-codex-meta"><b class="mh-noob-name">${got?m.name:'???'}</b><span class="mh-codex-rarity">${mhRarityLabel(m)}${got?'':' · 🎮 minigame unlock'}</span></div>
   </div>`;
  }).join('');
  return `<div class="mh-index">
@@ -2054,8 +2331,6 @@ function mhRender(){
   </div>
   <div class="mh-main ftn">${body}</div>
   <div id="mh-toast" class="mh-toast"></div>
-  <div id="mh-found-modal" class="mh-found-modal" hidden></div>
-  <div id="mh-minigame-modal" class="mh-found-modal mh-minigame-modal" hidden></div>
  </div>`;
  mhBind(root);
  if(save.wearing) mhSaveWearId(save.wearing);
@@ -2071,6 +2346,7 @@ function mhRender(){
 
 function playMorphHunt(){
  mhClose();
+ mhEnsureOverlayModals();
  if(typeof lithosCloseGameOverlays==='function'){ try{lithosCloseGameOverlays();}catch(_){} }
  mhState={save:mhLoadSave(),world:0,tab:'hunt',page:0,huntPage:0,filter:'',indexKind:'all',walkPos:{}};
  const wrap=document.createElement('div');
@@ -2101,12 +2377,7 @@ function playMorphHunt(){
   return;
  }
  if(typeof syncBodyScrollLock==='function')syncBodyScrollLock();
- if(mhState&&MH_VOID_WORLD>=0){
-  mhState.world=MH_VOID_WORLD;
-  mhState.huntPage=0;
-  mhRender();
-  mhToast('🕳 Void Abyss — center throne: RED/BLACK KING · '+MH_KING_STAMP+' · '+MH_BUILD);
- }else mhToast('RED/BLACK KING · '+MH_KING_STAMP+' · '+MH_BUILD);
+ mhToast('🎮 Tap a card or press E near a noobie — minigame unlock! · '+MH_BUILD);
 }
 
 function mhGetWearingMorph(){ return mhMorph(mhLoadWearId()||window.LITHOS_NOOBIE_WEAR); }
