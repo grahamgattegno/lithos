@@ -5,9 +5,9 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v60';
-const MH_SCENERY_STAMP='GIBBERLINK_RIFT_v60';
-const MH_SCRIPT_FILE='morph-hunt.void-2d-v60.js';
+const MH_BUILD='void-2d-v61';
+const MH_SCENERY_STAMP='GIBBERLINK_RIFT_v61';
+const MH_SCRIPT_FILE='morph-hunt.void-2d-v61.js';
 const MH_VOID_STORM_NAME='Void Storm';
 const MH_VOID_STORM_POWER={id:'void_storm',name:'Void Storm',color:'#ff2020',kind:'storm',range:200};
 const MH_KING_STAMP='RED_BLACK_KING_v31';
