@@ -3,13 +3,37 @@
 'use strict';
 
 const MH_STORE_KEY='lithos_morph_hunt_v9';
-const MH_BUILD='void-2d-v43';
-const MH_SCENERY_STAMP='VOID_POWERS_v43';
-const MH_SCRIPT_FILE='morph-hunt.void-2d-v43.js';
+const MH_BUILD='void-2d-v44';
+const MH_SCENERY_STAMP='WORLD_THEMES_v44';
+const MH_SCRIPT_FILE='morph-hunt.void-2d-v44.js';
 const MH_KING_STAMP='RED_BLACK_KING_v31';
 const MH_MEGA_W=7;
 const MH_MEGA_H=6;
-const MH_MEGA_BUILDING_KINDS=new Set(['house','shop','stall','booth','cloud_house','beach_hut','burned_house','ruined_house','void_fallen_building','void_cathedral','fluoro_hall','vault']);
+const MH_MEGA_BUILDING_KINDS=new Set(['house','shop','stall','booth','tent','cloud_house','sky_bridge','beach_hut','lifeguard','burned_house','ruined_house','void_fallen_building','void_cathedral','fluoro_hall','liminal_door','vault','expedition_tent','expedition_camp','crystal','nexus_ruins','neon_sign']);
+const MH_WORLD_MEGA_BUILDINGS=[
+ ['house','shop'],
+ ['stall','booth','tent'],
+ ['beach_hut','lifeguard'],
+ ['expedition_tent','crystal'],
+ ['fluoro_hall','liminal_door'],
+ ['cloud_house','sky_bridge'],
+ ['burned_house','expedition_camp'],
+ ['nexus_ruins','vault'],
+ ['vault','neon_sign'],
+ ['void_fallen_building','void_cathedral','ruined_house']
+];
+const MH_WORLD_PARK_NAMES=[
+ ['Buddy North','Buddy East','Buddy South','Buddy West'],
+ ['Midway Green','Tent Row','Fair South','Carousel Park'],
+ ['Dune Park','Pier Lawn','Surf Green','Shore Rest'],
+ ['Crystal Glade','Mine Rest','Gem Grove','Cavern Picnic'],
+ ['Liminal Lawn','Fluoro Picnic','Office Patch','Yellow Zone'],
+ ['Cloud Rest','Sky Garden','Nest Green','Bridge Park'],
+ ['Ash Rest','Lava View','Camp Green','Obsidian Park'],
+ ['Nexus Green','Portal Park','Legend Rest','Shrine Lawn'],
+ ['Neon Park','Vault Green','Exotic Rest','Prism Lawn'],
+ ['Fallen Rest','Void Garden','Abyss Green','King Memorial']
+];
 const MH_TOTAL_COUNT=1105;
 const MH_VOID_KING_DEPTH=100;
 const MH_VOID_KING_DIM='5th Dimensional';
@@ -438,47 +462,99 @@ function mhGroveCount(wi){
  return MH_GROVES_PER_NORMAL;
 }
 
+function mhTileWalkable(map,tx,ty){
+ if(tx<1||ty<1||tx>=map.w-1||ty>=map.h-1) return false;
+ return map.tiles[ty*map.w+tx]!==1;
+}
 function mhGenWorldMap(wi){
  const w=MH_MAP_W,h=MH_MAP_H;
  const tiles=new Uint8Array(w*h);
- if(wi===MH_VOID_WORLD){
-  const cx=Math.floor(w/2),cy=Math.floor(h/2);
-  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
-   if(x<1||y<1||x>=w-1||y>=h-1) tiles[y*w+x]=1;
-   else if(Math.abs(x-cx)<=4&&Math.abs(y-cy)<=3) tiles[y*w+x]=0;
-   else tiles[y*w+x]=mhHashStr('void'+x+y)%8===0?2:0;
-  }
-  return {w,h,tiles,spawnTx:5,spawnTy:5,doorTx:22,doorTy:16,wi,throneTx:cx,throneTy:cy};
- }
- if(wi===MH_EXOTIC_WORLD){
-  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
-   if(x<1||y<1||x>=w-1||y>=h-1) tiles[y*w+x]=1;
-   else tiles[y*w+x]=mhHashStr('ex'+x+y)%10===0?2:0;
-  }
-  return {w,h,tiles,spawnTx:4,spawnTy:4,doorTx:23,doorTy:17,wi};
- }
+ const cx=Math.floor(w/2), cy=Math.floor(h/2);
  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
   if(x<1||y<1||x>=w-1||y>=h-1) tiles[y*w+x]=1;
   else tiles[y*w+x]=0;
  }
- const mid=Math.floor(h/2);
- const door=8+(mhHashStr('door'+wi)% (w-16));
- for(let x=2;x<w-2;x++) if(Math.abs(x-door)>2) tiles[mid*w+x]=1;
- for(let r=0;r<3+wi;r++){
-  const rx=4+mhHashStr('rx'+wi+r)%(w-8);
-  const ry=4+mhHashStr('ry'+wi+r)%(h-8);
-  if(tiles[ry*w+rx]===0) tiles[ry*w+rx]=2;
+ if(wi===MH_VOID_WORLD){
+  return {w,h,tiles,spawnTx:cx,spawnTy:cy+2,wi,throneTx:cx,throneTy:cy};
  }
- for(let x=2;x<w-2;x+=12) for(let y=2;y<h-2;y+=10){
-  if(tiles[y*w+x]===0&&mhHashStr('p'+x+y+wi)%14===0) tiles[y*w+x]=2;
+ if(wi===MH_EXOTIC_WORLD){
+  for(let x=2;x<w-2;x++)for(let y=2;y<h-2;y++){
+   if(mhHashStr('exf'+x+y)%11===0) tiles[y*w+x]=6;
+  }
+  return {w,h,tiles,spawnTx:cx,spawnTy:cy,wi};
  }
- return {w,h,tiles,spawnTx:3,spawnTy:3,doorTx:door,doorTy:mid,wi};
+ if(wi===2){
+  for(let x=1;x<w-1;x++)for(let y=h-7;y<h-1;y++) tiles[y*w+x]=3;
+ }
+ if(wi===4){
+  for(let x=2;x<w-2;x++)for(let y=2;y<h-2;y++){
+   if(((x+y+wi)%4)===0) tiles[y*w+x]=4;
+  }
+ }
+ if(wi===3){
+  for(let i=0;i<28;i++){
+   const tx=2+mhHashStr('cavx'+wi+i)%(w-4), ty=2+mhHashStr('cavy'+wi+i)%(h-4);
+   if(tiles[ty*w+tx]===0) tiles[ty*w+tx]=5;
+  }
+ }
+ if(wi===5){
+  for(let i=0;i<18;i++){
+   const tx=2+mhHashStr('clx'+i)%(w-4), ty=2+mhHashStr('cly'+i)%(h-4);
+   if(tiles[ty*w+tx]===0) tiles[ty*w+tx]=7;
+  }
+ }
+ if(wi===6){
+  for(let x=2;x<w-2;x++)for(let y=2;y<h-2;y++){
+   if(mhHashStr('lav'+x+y)%9===0) tiles[y*w+x]=8;
+  }
+ }
+ const spx=3+mhHashStr('spx'+wi)%6, spy=3+mhHashStr('spy'+wi)%6;
+ return {w,h,tiles,spawnTx:spx,spawnTy:spy,wi};
+}
+function mhPaintWorldGroundTile(ctx,x,y,v,world,wi){
+ if(v===1){
+  ctx.fillStyle=world.wall||'#4a5058';
+  ctx.fillRect(x,y,MH_TILE,MH_TILE);
+  return;
+ }
+ if(v===3&&wi===2){
+  ctx.fillStyle='#4090c8'; ctx.fillRect(x,y,MH_TILE,MH_TILE);
+  ctx.fillStyle='rgba(255,255,255,.15)'; ctx.fillRect(x,y+MH_TILE-6,MH_TILE,6);
+  return;
+ }
+ if(v===4&&wi===4){
+  ctx.fillStyle=((x/MH_TILE+y/MH_TILE)&1)?'#d8d4b0':'#c8c4a0';
+  ctx.fillRect(x,y,MH_TILE,MH_TILE);
+  ctx.fillStyle='#ffffa0'; ctx.fillRect(x+4,y+4,MH_TILE-8,3);
+  return;
+ }
+ if(v===5&&wi===3){
+  ctx.fillStyle='#585088'; ctx.fillRect(x,y,MH_TILE,MH_TILE);
+  ctx.fillStyle='#9080c0'; ctx.beginPath(); ctx.moveTo(x+MH_TILE/2,y+4); ctx.lineTo(x+MH_TILE-4,y+MH_TILE-4); ctx.lineTo(x+4,y+MH_TILE-4); ctx.fill();
+  return;
+ }
+ if(v===6&&wi===MH_EXOTIC_WORLD){
+  ctx.fillStyle='#381848'; ctx.fillRect(x,y,MH_TILE,MH_TILE);
+  ctx.fillStyle='#ff48e8'; ctx.fillRect(x+6,y+MH_TILE/2, MH_TILE-12,3);
+  return;
+ }
+ if(v===7&&wi===5){
+  ctx.fillStyle='#a8d8ff'; ctx.fillRect(x,y,MH_TILE,MH_TILE);
+  ctx.fillStyle='rgba(255,255,255,.55)'; ctx.beginPath(); ctx.arc(x+MH_TILE/2,y+MH_TILE/2,10,0,Math.PI*2); ctx.fill();
+  return;
+ }
+ if(v===8&&wi===6){
+  ctx.fillStyle='#602818'; ctx.fillRect(x,y,MH_TILE,MH_TILE);
+  ctx.fillStyle='#ff6040'; ctx.fillRect(x+8,y+10,6,4);
+  return;
+ }
+ const pair=mhFlatGroundPair(world.ground);
+ ctx.fillStyle=((x/MH_TILE+y/MH_TILE)&1)?mhShade(world.ground,18):world.ground;
+ ctx.fillRect(x,y,MH_TILE,MH_TILE);
 }
 const MH_WORLD_MAPS=MH_WORLDS.map((_,i)=>mhGenWorldMap(i));
 function mhEnterableKinds(wi){
- const themes=MH_WORLD_DECORS[wi]||MH_WORLD_DECORS[0];
- const list=themes.filter(k=>MH_MEGA_BUILDING_KINDS.has(k));
- return list.length?list:['house','shop'];
+ return MH_WORLD_MEGA_BUILDINGS[wi]||MH_WORLD_MEGA_BUILDINGS[0];
 }
 function mhPickDecorKind(themes,wi,i){
  for(let t=0;t<10;t++){
@@ -538,9 +614,14 @@ function mhGenLandmarks(wi,map){
   return true;
  }).slice(0,12);
 }
+function mhGenWorldFeature(wi,map){
+ if(wi!==4||map.playerSpawnTx==null) return null;
+ const sx=map.playerSpawnTx, sy=map.playerSpawnTy;
+ return {type:'backrooms_atrium',tx:sx-6,ty:sy-4,w:12,h:7,label:'LIMINAL ATRIUM · BACKROOMS'};
+}
 function mhGenCourt(map,wi){
  const sx=map.playerSpawnTx, sy=map.playerSpawnTy;
- if(sx==null||wi>MH_EXOTIC_WORLD) return null;
+ if(sx==null||wi!==0) return null;
  const w=12,h=8;
  const tx=Math.max(2,sx-Math.floor(w/2)), ty=Math.max(2,sy-Math.floor(h/2));
  if(tx+w>=map.w-2||ty+h>=map.h-2) return null;
@@ -572,13 +653,13 @@ function mhGenMayorShrine(map){
 function mhParkFits(map,p){
  if(p.tx<2||p.ty<2||p.tx+p.w>=map.w-2||p.ty+p.h>=map.h-2) return false;
  for(let dy=0;dy<p.h;dy++)for(let dx=0;dx<p.w;dx++){
-  if(map.tiles[(p.ty+dy)*map.w+(p.tx+dx)]!==0) return false;
+  if(!mhTileWalkable(map,p.tx+dx,p.ty+dy)) return false;
  }
  return true;
 }
 function mhGenParks(wi,map){
  const sx=map.playerSpawnTx||10, sy=map.playerSpawnTy||10;
- const base=['Buddy','Fair','Beach','Crystal','Backroom','Sky','Lava','Nexus','Exotic','Fallen'][wi]||'Zone';
+ const names=MH_WORLD_PARK_NAMES[wi]||MH_WORLD_PARK_NAMES[0];
  const w=10,h=5;
  const slots=[
   {dx:-15,dy:4,suffix:'North Green'},{dx:15,dy:4,suffix:'East Green'},
@@ -586,14 +667,14 @@ function mhGenParks(wi,map){
  ];
  const out=[];
  slots.forEach((s,i)=>{
-  const p={tx:sx+ s.dx-Math.floor(w/2), ty:sy+s.dy, w,h, name:base+' '+s.suffix, parkIndex:i};
+  const p={tx:sx+ s.dx-Math.floor(w/2), ty:sy+s.dy, w,h, name:names[i]||('Park '+(i+1)), parkIndex:i};
   if(mhParkFits(map,p)&&!mhTileInCourt(map,p.tx,p.ty)) out.push(p);
  });
  for(let r=8;r<20&&out.length<4;r++){
   for(let a=0;a<12&&out.length<4;a++){
    const tx=Math.round(sx+Math.cos(a*Math.PI/6)*r)-Math.floor(w/2);
    const ty=Math.round(sy+Math.sin(a*Math.PI/6)*r);
-   const p={tx,ty,w,h,name:base+' Park '+(out.length+1),parkIndex:out.length};
+   const p={tx,ty,w,h,name:names[out.length]||('Park '+(out.length+1)),parkIndex:out.length};
    if(mhParkFits(map,p)&&!out.some(q=>q.tx===tx&&q.ty===ty)) out.push(p);
   }
  }
@@ -637,7 +718,7 @@ function mhShouldDrawMapMorph(m,save,dist,nearId){
 function mhGroveCenterFree(map,tx,ty,used,minDist){
  if(tx<3||ty<3||tx>=map.w-6||ty>=map.h-6) return false;
  for(let dy=0;dy<4;dy++)for(let dx=0;dx<5;dx++){
-  if(map.tiles[(ty+dy)*map.w+(tx+dx)]!==0) return false;
+  if(!mhTileWalkable(map,tx+dx,ty+dy)) return false;
  }
  if(mhTileInPark(map,tx,ty)||mhTileInCourt(map,tx,ty)) return false;
  for(const u of used){
@@ -669,7 +750,7 @@ function mhPlaceMorphInGrove(map,set,m,grove,slot){
   const ty=grove.ty+Math.floor(slot/3)*2+Math.floor(a/6);
   const k=tx+','+ty;
   if(tx<2||ty<2||tx>=map.w-2||ty>=map.h-2) continue;
-  if(map.tiles[ty*map.w+tx]!==0||set.has(k)||mhTileInPark(map,tx,ty)||mhTileInCourt(map,tx,ty)) continue;
+  if(!mhTileWalkable(map,tx,ty)||set.has(k)||mhTileInPark(map,tx,ty)||mhTileInCourt(map,tx,ty)) continue;
   set.add(k);
   m.tileX=tx; m.tileY=ty; m.hideGrove=grove.g;
   return true;
@@ -702,7 +783,7 @@ function mhScatterHiddenHideouts(){
 function mhMegaFits(map,tx,ty,fw,fh){
  if(tx<1||ty<1||tx+fw>=map.w-1||ty+fh>=map.h-1) return false;
  for(let dy=0;dy<fh;dy++)for(let dx=0;dx<fw;dx++){
-  if(map.tiles[(ty+dy)*map.w+(tx+dx)]!==0) return false;
+  if(!mhTileWalkable(map,tx+dx,ty+dy)) return false;
  }
  return true;
 }
@@ -734,9 +815,10 @@ function mhSpawnCivilians(map,wi){
  MH_WORLDS.forEach((_,wi)=>{
   const map=MH_WORLD_MAPS[wi];
   const themes=MH_WORLD_DECORS[wi]||MH_WORLD_DECORS[0];
-  map.court=mhGenCourt(wi,map);
-  map.mayorShrine=wi===0?mhGenMayorShrine(map):null;
   map.landmarks=mhGenLandmarks(wi,map);
+  map.court=mhGenCourt(map,wi);
+  map.worldFeature=mhGenWorldFeature(wi,map);
+  map.mayorShrine=wi===0?mhGenMayorShrine(map):null;
   map.parks=mhGenParks(wi,map);
   map.statues=mhGenParkStatues(map,wi);
   const decors=[];
@@ -746,11 +828,11 @@ function mhSpawnCivilians(map,wi){
   }
   map.landmarks.forEach(l=>{ for(let dy=0;dy<(l.footH||1);dy++)for(let dx=0;dx<(l.footW||1);dx++) used.add((l.tx+dx)+','+(l.ty+dy)); });
   (map.parks||[]).forEach(p=>{ for(let dy=0;dy<p.h;dy++)for(let dx=0;dx<p.w;dx++) used.add((p.tx+dx)+','+(p.ty+dy)); });
-  for(let i=0;i<5+Math.floor(wi/2);i++){
+  for(let i=0;i<14+wi;i++){
    const tx=2+mhHashStr('decx'+wi+i)%(map.w-4);
    const ty=2+mhHashStr('decy'+wi+i)%(map.h-4);
    const k=tx+','+ty;
-   if(map.tiles[ty*map.w+tx]!==0||used.has(k)) continue;
+   if(!mhTileWalkable(map,tx,ty)||map.tiles[ty*map.w+tx]!==0||used.has(k)) continue;
    if(map.throneTx!=null&&Math.abs(tx-map.throneTx)<=3&&Math.abs(ty-map.throneTy)<=3) continue;
    used.add(k);
    decors.push({tx,ty,kind:mhPickDecorKind(themes,wi,i),scale:2.1+((mhHashStr('ds'+i)%4)*0.2)});
@@ -798,7 +880,7 @@ function mhMapSpawnPos(map){
   for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++){
    const tx=cx+dx, ty=cy+dy;
    if(tx<2||ty<2||tx>=map.w-2||ty>=map.h-2) continue;
-   if(map.tiles[ty*map.w+tx]!==0) continue;
+   if(!mhTileWalkable(map,tx,ty)) continue;
    const px=tx*MH_TILE+MH_TILE/2, py=ty*MH_TILE+MH_TILE/2;
    if(!mhWalkCollide(map,px,py,10)) return {px,py};
   }
@@ -1124,6 +1206,67 @@ function mhDrawMegaBuilding(ctx,d,wi,t){
   mhPaintHuman(ctx,x+W*0.82,y+H+6,9,t*0.9,0.7);
   return;
  }
+ if(kind==='fluoro_hall'||kind==='liminal_door'){
+  ctx.fillStyle='#d8d4b0'; ctx.fillRect(x+2,y+10,W-4,H-12);
+  ctx.fillStyle='#ffffa0'; ctx.fillRect(x+6,y+14,W-12,6);
+  ctx.fillStyle='#909088'; ctx.fillRect(x+W/2-14,y+H*0.35,28,H*0.55);
+  ctx.fillStyle='#101018'; ctx.fillRect(x+W/2-10,y+H*0.42,20,H*0.4);
+  ctx.fillStyle='rgba(0,0,0,.55)'; ctx.fillRect(x+W/2-42,y+H*0.28,84,22);
+  ctx.fillStyle='#303028'; ctx.font='bold 12px system-ui'; ctx.textAlign='center';
+  ctx.fillText('F ENTER · BACKROOMS',x+W/2,y+H*0.42);
+  mhPaintHuman(ctx,x+W*0.3,y+H+8,3,t,0.85);
+  return;
+ }
+ if(kind==='beach_hut'||kind==='lifeguard'){
+  ctx.fillStyle='#e8d878'; ctx.fillRect(x+4,y+H*0.32,W-8,H*0.68);
+  ctx.fillStyle='#40a0c0'; ctx.fillRect(x+6,y+8,W-12,H*0.22);
+  ctx.fillStyle='#604818'; ctx.fillRect(x+W/2-28,y+H*0.48,56,H*0.45);
+  ctx.fillStyle='#ffe8a0'; ctx.font='bold 12px system-ui'; ctx.textAlign='center';
+  ctx.fillText('F ENTER · BEACH',x+W/2,y+H*0.52);
+  return;
+ }
+ if(kind==='cloud_house'||kind==='sky_bridge'){
+  ctx.fillStyle='#e8f4ff'; ctx.fillRect(x+4,y+H*0.3,W-8,H*0.7);
+  ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(x+W*0.3,y+16,16,0,Math.PI*2); ctx.arc(x+W*0.7,y+18,14,0,Math.PI*2); ctx.fill();
+  if(kind==='sky_bridge'){
+   ctx.fillStyle='#c8e8ff'; ctx.fillRect(x+2,y+H*0.55,W-4,10);
+   ctx.strokeStyle='#8098b0'; ctx.strokeRect(x+2,y+H*0.55,W-4,10);
+  }
+  ctx.fillStyle='#ffe8a0'; ctx.font='bold 12px system-ui'; ctx.textAlign='center';
+  ctx.fillText('F ENTER · SKY',x+W/2,y+H*0.5);
+  return;
+ }
+ if(kind==='expedition_tent'||kind==='crystal'){
+  ctx.fillStyle=kind==='crystal'?'#685898':'#c8a860';
+  ctx.fillRect(x+4,y+H*0.25,W-8,H*0.75);
+  ctx.beginPath(); ctx.moveTo(x,y+H*0.25); ctx.lineTo(x+W/2,y+6); ctx.lineTo(x+W,y+H*0.25); ctx.fill();
+  ctx.fillStyle='#ffe8a0'; ctx.font='bold 12px system-ui'; ctx.textAlign='center';
+  ctx.fillText('F ENTER · CAVE',x+W/2,y+H*0.5);
+  return;
+ }
+ if(kind==='tent'){
+  ctx.fillStyle='#ff6080'; ctx.fillRect(x+8,y+H*0.3,W-16,H*0.65);
+  ctx.beginPath(); ctx.moveTo(x+4,y+H*0.3); ctx.lineTo(x+W/2,y+8); ctx.lineTo(x+W-4,y+H*0.3); ctx.fill();
+  ctx.fillStyle='#ffe8a0'; ctx.font='bold 12px system-ui'; ctx.textAlign='center';
+  ctx.fillText('F ENTER · FAIR',x+W/2,y+H*0.5);
+  return;
+ }
+ if(kind==='burned_house'||kind==='expedition_camp'){
+  ctx.fillStyle='#4a3028'; ctx.fillRect(x+4,y+H*0.28,W-8,H*0.72);
+  ctx.fillStyle='#ff6040'; ctx.fillRect(x+10,y+12,12,8);
+  ctx.fillStyle='#ffe8a0'; ctx.font='bold 12px system-ui'; ctx.textAlign='center';
+  ctx.fillText('F ENTER · LAVA',x+W/2,y+H*0.5);
+  return;
+ }
+ if(kind==='vault'||kind==='neon_sign'||kind==='nexus_ruins'){
+  ctx.fillStyle=wi===MH_EXOTIC_WORLD?'#281838':'#384868';
+  ctx.fillRect(x+4,y+12,W-8,H-14);
+  ctx.fillStyle=wi===MH_EXOTIC_WORLD?'#ff48e8':'#ffd060';
+  ctx.fillRect(x+8,y+20,W-16,8);
+  ctx.fillStyle='#ffe8a0'; ctx.font='bold 12px system-ui'; ctx.textAlign='center';
+  ctx.fillText('F ENTER · '+MH_WORLDS[wi].name.split(' ')[0].toUpperCase(),x+W/2,y+H*0.5);
+  return;
+ }
  if(kind==='shop'||kind==='stall'||kind==='booth'){
   ctx.fillStyle='#5080a0'; ctx.fillRect(x+4,y+H*0.35,W-8,H*0.65);
   ctx.fillStyle='#ffd060'; ctx.fillRect(x+6,y+H*0.42,W-12,H*0.12);
@@ -1247,6 +1390,19 @@ function mhDrawInteriorScreen(ctx,W,H,st,t){
  ctx.fillStyle='#80ff90'; ctx.font='bold 13px system-ui'; ctx.textAlign='left';
  ctx.fillText(MH_BUILD+' · '+MH_SCENERY_STAMP+' · INDOOR',16,30);
 }
+function mhDrawWorldFeature(ctx,map,wi){
+ const f=map.worldFeature;
+ if(!f||f.type!=='backrooms_atrium') return;
+ const x=f.tx*MH_TILE,y=f.ty*MH_TILE,w=f.w*MH_TILE,h=f.h*MH_TILE;
+ ctx.fillStyle='#d8d4b0'; ctx.fillRect(x,y,w,h);
+ ctx.strokeStyle='#909080'; ctx.lineWidth=3; ctx.strokeRect(x+2,y+2,w-4,h-4);
+ for(let px=x+10;px<x+w-10;px+=28){
+  ctx.fillStyle='#ffffa0'; ctx.fillRect(px,y+8,MH_TILE-4,4);
+  ctx.fillStyle='#ffffa0'; ctx.fillRect(px,y+h-12,MH_TILE-4,4);
+ }
+ ctx.fillStyle='#303028'; ctx.font='bold 13px system-ui'; ctx.textAlign='center';
+ ctx.fillText('🚪 '+f.label,x+w/2,y+22);
+}
 function mhDrawCourtZone(ctx,map,wi){
  const c=map.court;
  if(!c) return;
@@ -1330,22 +1486,33 @@ function mhMayorFlashBeam(){
   }
  }else mhToast('Light hit '+sh.reflectors.filter(r=>r.lit).length+'/'+sh.reflectors.length+' mirrors');
 }
+function mhParkColors(wi){
+ if(wi===4) return {fill:'#c8c4a0',edge:'#808070',tree:'#909080',label:'#303028'};
+ if(wi===2) return {fill:'#e8d878',edge:'#c0a858',tree:'#40a0c0',label:'#604818'};
+ if(wi===3) return {fill:'#685898',edge:'#483868',tree:'#9080c0',label:'#e8e0ff'};
+ if(wi===6) return {fill:'#5a3028',edge:'#401818',tree:'#ff6040',label:'#ffd0c0'};
+ if(wi===MH_VOID_WORLD) return {fill:'#241028',edge:'#8040a0',tree:'#502868',label:'#e8d0ff'};
+ if(wi===MH_EXOTIC_WORLD) return {fill:'#381848',edge:'#ff48e8',tree:'#684888',label:'#ffe8ff'};
+ return {fill:'#62b852',edge:'#2a6830',tree:'#4a9848',label:'#ffe8a0'};
+}
 function mhDrawParkZones(ctx,map,wi){
+ const pal=mhParkColors(wi);
  (map.parks||[]).forEach(p=>{
   const x=p.tx*MH_TILE,y=p.ty*MH_TILE,w=p.w*MH_TILE,h=p.h*MH_TILE;
-  ctx.fillStyle=wi===MH_VOID_WORLD?'#241028':'#62b852';
+  ctx.fillStyle=pal.fill;
   ctx.fillRect(x,y,w,h);
-  ctx.strokeStyle=wi===MH_VOID_WORLD?'#8040a0':'#2a6830';
+  ctx.strokeStyle=pal.edge;
   ctx.lineWidth=4; ctx.strokeRect(x+2,y+2,w-4,h-4);
-  ctx.fillStyle=wi===MH_VOID_WORLD?'#381848':'#4a9848';
+  ctx.fillStyle=pal.tree;
   for(let px=x+12;px<x+w-12;px+=28){
-   ctx.beginPath(); ctx.arc(px,y+14,10,0,Math.PI*2); ctx.fill();
-   ctx.beginPath(); ctx.arc(px,y+h-12,10,0,Math.PI*2); ctx.fill();
+   if(wi===4){ ctx.fillStyle='#ffffa0'; ctx.fillRect(px,y+10, MH_TILE-8,4); ctx.fillRect(px,y+h-16,MH_TILE-8,4); }
+   else if(wi===2){ ctx.fillStyle='#40a0c0'; ctx.fillRect(px,y+h-14,8,10); }
+   else{ ctx.beginPath(); ctx.arc(px,y+14,10,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(px,y+h-12,10,0,Math.PI*2); ctx.fill(); }
   }
   ctx.fillStyle='rgba(255,255,255,.92)'; ctx.font='bold 16px system-ui'; ctx.textAlign='center';
-  ctx.fillText('🌳 '+p.name,x+w/2,y+22);
-  ctx.font='bold 12px system-ui'; ctx.fillStyle='#ffe8a0';
-  ctx.fillText('NOOBIE STATUES (look only — collect others with E)',x+w/2,y+40);
+  ctx.fillText((wi===4?'🚪':'🌳')+' '+p.name,x+w/2,y+22);
+  ctx.font='bold 11px system-ui'; ctx.fillStyle=pal.label;
+  ctx.fillText(wi===4?'Backrooms picnic zone · statues':'Noobie statues · collect in groves with E',x+w/2,y+38);
  });
 }
 function mhDrawNoobieStatue(ctx,d,t){
@@ -1365,6 +1532,7 @@ function mhDrawNoobieStatue(ctx,d,t){
 }
 function mhDrawMapDecors(ctx,map,wi,t){
  mhDrawCourtZone(ctx,map,wi);
+ mhDrawWorldFeature(ctx,map,wi);
  mhDrawParkZones(ctx,map,wi);
  (map.landmarks||[]).forEach(d=>mhDrawSceneryPiece(ctx,d,wi,t));
  (map.decors||[]).forEach(d=>mhDrawSceneryPiece(ctx,d,wi,t));
@@ -1418,27 +1586,9 @@ function mhDrawFlatMapTiles(ctx,map,world,wi,t){
  for(let ty=0;ty<map.h;ty++)for(let tx=0;tx<map.w;tx++){
   const v=map.tiles[ty*map.w+tx];
   const x=tx*MH_TILE,y=ty*MH_TILE;
-  if(voidRealm){
-   if(v===1){
-    ctx.fillStyle=wall; ctx.fillRect(x,y,MH_TILE,MH_TILE);
-    ctx.strokeStyle='#503070'; ctx.lineWidth=1; ctx.strokeRect(x+.5,y+.5,MH_TILE-1,MH_TILE-1);
-   }else{
-    ctx.fillStyle=((tx+ty)&1)?'#120818':'#0e0612';
-    ctx.fillRect(x,y,MH_TILE,MH_TILE);
-    ctx.strokeStyle='#301848'; ctx.strokeRect(x+.5,y+.5,MH_TILE-1,MH_TILE-1);
-   }
-   if(v===2) mhDrawThemedPropTile(ctx,x,y,wi,tx,ty,t);
-   continue;
-  }
-  if(v===1){
-   ctx.fillStyle=wall; ctx.fillRect(x,y,MH_TILE,MH_TILE);
-   ctx.strokeStyle='#1a1e24'; ctx.lineWidth=1; ctx.strokeRect(x+.5,y+.5,MH_TILE-1,MH_TILE-1);
-  }else{
-   ctx.fillStyle=((tx+ty)&1)?pair.a:pair.b;
-   ctx.fillRect(x,y,MH_TILE,MH_TILE);
-   ctx.strokeStyle='rgba(0,0,0,.18)'; ctx.lineWidth=1; ctx.strokeRect(x+.5,y+.5,MH_TILE-1,MH_TILE-1);
-  }
-   if(v===2) mhDrawThemedPropTile(ctx,x,y,wi,tx,ty,t);
+  mhPaintWorldGroundTile(ctx,x,y,v,world,wi);
+  ctx.strokeStyle=voidRealm?'#301848':'rgba(0,0,0,.12)';
+  ctx.strokeRect(x+.5,y+.5,MH_TILE-1,MH_TILE-1);
  }
  mhDrawMapDecors(ctx,map,wi,t);
 }
@@ -2596,9 +2746,8 @@ function mhPaintNoobWorld(ctx,m,x,y,sc,alpha,silhouette,t,walkPhase,flat,running
 }
 
 function mhWalkTileBlocked(map,tx,ty){
- if(tx<0||ty<0||tx>=map.w||ty>=map.h) return true;
- const v=map.tiles[ty*map.w+tx];
- return v===1||v===2;
+ if(tx<1||ty<1||tx>=map.w-1||ty>=map.h-1) return true;
+ return false;
 }
 function mhDrawVoidThrone(ctx,map){
  if(map.throneTx==null) return;
@@ -2891,16 +3040,8 @@ function mhWalkDrawFrame(){
  else for(let ty=0;ty<map.h;ty++)for(let tx=0;tx<map.w;tx++){
   const v=map.tiles[ty*map.w+tx];
   const x=tx*MH_TILE,y=ty*MH_TILE;
-  if(v===1){
-   mhGradRect(ctx,x,y,MH_TILE,MH_TILE,'#3a4048','#1a1e24');
-   ctx.strokeStyle='rgba(255,255,255,.06)'; ctx.strokeRect(x+.5,y+.5,MH_TILE-1,MH_TILE-1);
-  }else{
-   const g=ctx.createLinearGradient(x,y,x,y+MH_TILE);
-   g.addColorStop(0,mhShade(world.ground,25)); g.addColorStop(1,world.ground);
-   ctx.fillStyle=g; ctx.fillRect(x,y,MH_TILE,MH_TILE);
-   ctx.strokeStyle='rgba(0,0,0,.06)'; ctx.strokeRect(x+.5,y+.5,MH_TILE-1,MH_TILE-1);
-  }
-  if(v===2) mhDrawThemedPropTile(ctx,x,y,wi,tx,ty,t);
+  mhPaintWorldGroundTile(ctx,x,y,v,world,wi);
+  ctx.strokeStyle='rgba(0,0,0,.06)'; ctx.strokeRect(x+.5,y+.5,MH_TILE-1,MH_TILE-1);
  }
  mhDrawMapDecors(ctx,map,wi,t);
  mhDrawHideoutGroves(ctx,map,pos);
