@@ -3,7 +3,7 @@
 'use strict';
 
 const MH_STORE_KEY='lithos_morph_hunt_v9';
-const MH_BUILD='void-2d-v23';
+const MH_BUILD='void-2d-v24';
 const MH_TOTAL_COUNT=1100;
 const MH_1000D=true;
 const MH_2D=true;
@@ -1492,6 +1492,7 @@ function mhRender(){
    <div class="mh-ftn-banner-text">
     <h2 class="mh-title">Find The Noobies Morphs</h2>
     <p class="mh-ftn-tag"><b>${MH_TOTAL_COUNT}</b> noobies · 🕳 <b>${MH_VOID_ABYSS_LABEL}</b> · <b>${MH_VOID_DIM_LABEL}</b> · Male Void Fallen · Build <b>${MH_BUILD}</b> · ${owner?'Owner: ALL unlocked':''}</p>
+    <p class="mh-live-build" style="margin:6px 0 0;font-size:13px;font-weight:900;color:#ffe060;text-shadow:0 1px 0 #000">✅ LIVE ${MH_BUILD} — 2nd Dimensional Male Void Fallen Abyss</p>
    </div>
   </header>
   <div class="mh-head">
