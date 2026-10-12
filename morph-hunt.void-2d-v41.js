@@ -5,9 +5,9 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v61';
-const MH_SCENERY_STAMP='GIBBERLINK_RIFT_v61';
-const MH_SCRIPT_FILE='morph-hunt.void-2d-v61.js';
+const MH_BUILD='void-2d-v62';
+const MH_SCENERY_STAMP='FIGHT_MODE_v62';
+const MH_SCRIPT_FILE='morph-hunt.void-2d-v62.js';
 const MH_VOID_STORM_NAME='Void Storm';
 const MH_VOID_STORM_POWER={id:'void_storm',name:'Void Storm',color:'#ff2020',kind:'storm',range:200};
 const MH_KING_STAMP='RED_BLACK_KING_v31';
@@ -2486,8 +2486,8 @@ function mhRefreshVoidCombatHud(save){
  const bar=document.getElementById('mh-void-combat-readout');
  if(bar){
   bar.innerHTML=vm
-   ?`<b>⚔ 1</b> ${atkN} · <b>✦ 2</b> ${powN} · <b>🌌 3</b> ${MH_VOID_STORM_NAME} — <span style="color:#ff9090">GIBBERLINK</span> · <span style="color:#80ffb0">instant</span>${vm.voidKing?' · 👑 rift king':''}`
-   :'🎭 Morph a <b>Void Fallen</b> in Morph tab — then <b>1</b> / <b>2</b> on any map';
+   ?`<b>⚔ 1</b> ${atkN} · <b>✦ 2</b> ${powN} · <b>🌌 3</b> ${MH_VOID_STORM_NAME} — <span style="color:#ff9090">FIGHT</span> · <span style="color:#80ffb0">instant</span>${vm.voidKing?' · 👑 boss dmg':''}`
+   :'⚔ <b>1</b> punch · <b>2</b> blast · <b>3</b> slam — fight map noobies! (Void morph = stronger)';
  }
  const btnA=document.getElementById('mh-void-atk');
  const btnP=document.getElementById('mh-void-pow');
@@ -2885,26 +2885,189 @@ function mhFacingDir(st){
  const l=Math.hypot(dx,dy)||1;
  return {dx:dx/l,dy:dy/l};
 }
-function mhUseVoidAttack(st,save,pos){
+function mhEnsureFight(st,save){
+ if(!st) return;
+ const wear=mhMorph(save?.wearing);
+ const max=wear?.voidKing?220:(wear&&(wear.rarity==='voidfallen'||wear.voidFallen)?140:100);
+ if(st.fightMaxHp==null||st.fightMaxHp!==max){ st.fightMaxHp=max; st.fightHp=max; }
+ if(st.fightHp==null) st.fightHp=max;
+ if(!st.enemyHp) st.enemyHp={};
+ if(!st.enemyAggro) st.enemyAggro={};
+ if(!st.enemyRespawnAt) st.enemyRespawnAt={};
+ if(!st.enemyLastHit) st.enemyLastHit={};
+ if(!st.enemyHitFlash) st.enemyHitFlash={};
+}
+function mhEnemyFightKey(wi,m){ return wi+'|'+m.id; }
+function mhEnemyMaxHp(m){
+ if(m.voidKing) return 520;
+ if(m.rarity==='voidfallen') return 130;
+ if(m.rarity==='exotic') return 90;
+ if(m.exclusive) return 75;
+ return 55;
+}
+function mhEnemyAlive(st,wi,m){
+ const k=mhEnemyFightKey(wi,m);
+ if(st.enemyRespawnAt[k]&&performance.now()<st.enemyRespawnAt[k]) return false;
+ return mhGetEnemyHp(st,wi,m)>0;
+}
+function mhGetEnemyHp(st,wi,m){
+ const k=mhEnemyFightKey(wi,m);
+ if(st.enemyHp[k]==null) st.enemyHp[k]=mhEnemyMaxHp(m);
+ return st.enemyHp[k];
+}
+function mhDamageEnemy(st,wi,m,dmg,save){
+ const k=mhEnemyFightKey(wi,m);
+ let hp=mhGetEnemyHp(st,wi,m)-Math.max(1,dmg);
+ if(hp<=0){
+  st.enemyHp[k]=0;
+  st.enemyRespawnAt[k]=performance.now()+9000;
+  const coins=m.voidKing?50:(m.rarity==='voidfallen'?15:8);
+  save.coins+=coins;
+  mhSaveSave(save);
+  mhToast('💥 '+m.name+' defeated! +'+coins+' coins');
+  mhSpawnVoidFx(st,{kind:'nova',x:0,y:0,vx:0,vy:0,color:'#ffe060',r:8,dr:70,life:0.45});
+ }else{
+  st.enemyHp[k]=hp;
+  mhToast('💢 '+m.name+' -'+Math.round(dmg)+' HP');
+ }
+ st.enemyHitFlash[k]=performance.now()+220;
+ st.enemyAggro[k]=performance.now()+6000;
+}
+function mhFightHitscan(st,save,wi,pos,dir,dmg,range,minDot){
+ const morphs=mhWorldMorphs(wi);
+ let hits=0;
+ const dotMin=minDot==null?0.3:minDot;
+ morphs.forEach(m=>{
+  if(!mhEnemyAlive(st,wi,m)) return;
+  const np=mhGetNpcPos(st,wi,m);
+  const dx=np.px-pos.px, dy=np.py-pos.py;
+  const dist=Math.hypot(dx,dy);
+  if(dist>range||dist<8) return;
+  const dot=(dx/dist)*dir.dx+(dy/dist)*dir.dy;
+  if(dot<dotMin) return;
+  mhDamageEnemy(st,wi,m,dmg,save);
+  const np2=mhGetNpcPos(st,wi,m);
+  mhSpawnVoidFx(st,{kind:'spark',x:np2.px,y:np2.py-20,vx:(Math.random()-0.5)*6,vy:-4-Math.random()*4,color:'#ff8080',life:0.4});
+  hits++;
+ });
+ return hits;
+}
+function mhFightAoe(st,save,wi,cx,cy,radius,dmg){
+ const morphs=mhWorldMorphs(wi);
+ let hits=0;
+ morphs.forEach(m=>{
+  if(!mhEnemyAlive(st,wi,m)) return;
+  const np=mhGetNpcPos(st,wi,m);
+  if(Math.hypot(np.px-cx,np.py-cy)>radius) return;
+  mhDamageEnemy(st,wi,m,dmg,save);
+  hits++;
+ });
+ return hits;
+}
+function mhPlayerDamage(st,dmg,from){
+ if(st.voidShieldUntil&&performance.now()<st.voidShieldUntil) return;
+ mhEnsureFight(st,st.save);
+ st.fightHp=Math.max(0,(st.fightHp||100)-Math.max(1,dmg));
+ st.fightHitFlash=performance.now()+280;
+ mhVoidShake(st,80,5);
+ mhToast('🩸 '+(from||'Enemy')+' hits you! -'+Math.round(dmg));
+ if(st.fightHp<=0){
+  st.fightHp=st.fightMaxHp||100;
+  mhToast('😵 Knocked out — HP restored! Keep fighting!');
+ }
+}
+function mhUpdateFight(st,save,wi,pos){
+ mhEnsureFight(st,save);
+ const morphs=mhWorldMorphs(wi);
+ const now=performance.now();
+ morphs.forEach(m=>{
+  const k=mhEnemyFightKey(wi,m);
+  if(!st.enemyAggro[k]||st.enemyAggro[k]<now) return;
+  if(!mhEnemyAlive(st,wi,m)) return;
+  const np=mhGetNpcPos(st,wi,m);
+  const d=Math.hypot(np.px-pos.px,np.py-pos.py);
+  if(d<36||d>120) return;
+  if(now-(st.enemyLastHit[k]||0)<850) return;
+  st.enemyLastHit[k]=now;
+  let dmg=6;
+  if(m.voidKing) dmg=22;
+  else if(m.rarity==='voidfallen') dmg=10;
+  else if(m.rarity==='exotic') dmg=8;
+  mhPlayerDamage(st,dmg,m.name);
+ });
+ Object.keys(st.enemyRespawnAt).forEach(k=>{
+  if(st.enemyRespawnAt[k]&&now>=st.enemyRespawnAt[k]&&st.enemyHp[k]<=0){
+   st.enemyHp[k]=null;
+   delete st.enemyRespawnAt[k];
+  }
+ });
+}
+function mhDrawFightHpBar(ctx,x,y,w,hp,maxHp,color){
+ const pct=Math.max(0,Math.min(1,hp/maxHp));
+ ctx.fillStyle='rgba(0,0,0,.75)'; ctx.fillRect(x-w/2,y,w,7);
+ ctx.fillStyle=color||'#ff5050'; ctx.fillRect(x-w/2,y,w*pct,7);
+ ctx.strokeStyle='rgba(255,255,255,.35)'; ctx.lineWidth=1; ctx.strokeRect(x-w/2+0.5,y+0.5,w-1,6);
+}
+function mhUseFightAttack(st,save,pos,wi){
+ mhEnsureFight(st,save);
+ const vm=mhVoidCombatMorph(save);
+ if(vm) return mhUseVoidAttack(st,save,pos,wi);
+ const dir=mhFacingDir(st);
+ const hits=mhFightHitscan(st,save,wi,pos,dir,16,78);
+ mhSpawnVoidFx(st,{kind:'arc',x:pos.px,y:pos.py-12,vx:dir.dx*6,vy:dir.dy*6,color:'#ffe060',a0:Math.atan2(dir.dy,dir.dx)-0.8,a1:Math.atan2(dir.dy,dir.dx)+0.8,r:42,dr:60,life:0.35});
+ mhToast(hits?'👊 Noobie punch!':'👊 Swing!');
+ try{if(typeof SFX!=='undefined'&&SFX.hit)SFX.hit();}catch(_){}
+}
+function mhUseFightPower(st,save,pos,map,wi){
+ mhEnsureFight(st,save);
+ const vm=mhVoidCombatMorph(save);
+ if(vm) return mhUseVoidPower(st,save,pos,map,wi);
+ const dir=mhFacingDir(st);
+ const hits=mhFightHitscan(st,save,wi,pos,dir,28,110,0.15);
+ mhSpawnVoidFx(st,{kind:'shock',x:pos.px+dir.dx*50,y:pos.py+dir.dy*50,vx:0,vy:0,color:'#80c8ff',r:12,dr:90,life:0.45});
+ mhToast(hits?'💥 Power blast!':'💥 Blast!');
+ try{if(typeof SFX!=='undefined'&&SFX.ui)SFX.ui();}catch(_){}
+}
+function mhUseFightStorm(st,save,pos,wi){
+ mhEnsureFight(st,save);
+ const vm=mhVoidCombatMorph(save);
+ if(vm) return mhUseVoidStorm(st,save,pos,wi);
+ const dir=mhFacingDir(st);
+ const cx=pos.px+dir.dx*100, cy=pos.py+dir.dy*100;
+ const hits=mhFightAoe(st,save,wi,cx,cy,95,22);
+ mhSpawnVoidFx(st,{kind:'nova',x:cx,y:cy,vx:0,vy:0,color:'#9040ff',r:14,dr:100,life:0.55});
+ mhToast(hits?'🌪 Mega slam!':'🌪 Slam!');
+}
+function mhUseVoidAttack(st,save,pos,wi){
  const m=mhVoidCombatMorph(save);
  if(!m){ mhToast('Morph into a Void Fallen noobie first (Morph tab)!'); return; }
  const atk=m.voidAttack||MH_VOID_ATTACKS[0];
  const dir=mhFacingDir(st);
  const rage=st.voidRageUntil&&performance.now()<st.voidRageUntil;
  mhSpawnAttackVfx(st,m,atk,dir,pos,rage);
+ const range=(atk.range||95)*(rage?1.25:1);
+ let dmg=22;
+ if(atk.kind==='beam') dmg=26;
+ if(atk.kind==='nova') dmg=32;
+ if(m.voidKing) dmg+=12;
+ if(wi!=null) mhFightHitscan(st,save,wi,pos,dir,dmg,range);
  mhToast('⚔ '+atk.name+'!');
  try{if(typeof SFX!=='undefined'&&SFX.hit)SFX.hit();}catch(_){}
 }
-function mhUseVoidStorm(st,save,pos){
+function mhUseVoidStorm(st,save,pos,wi){
  const m=mhVoidCombatMorph(save);
  if(!m){ mhToast('Morph into a Void Fallen noobie first (Morph tab)!'); return; }
  const dir=mhFacingDir(st);
  const range=m.voidKing?210:175;
  mhSpawnVoidUniverseStorm(st,m,dir,pos,range);
+ if(wi!=null){
+  const hx=pos.px+dir.dx*range, hy=pos.py+dir.dy*range;
+  mhFightAoe(st,save,wi,hx,hy,m.voidKing?130:105,m.voidKing?55:38);
+ }
  mhToast('🌌 '+MH_VOID_STORM_NAME+'! GIBBERLINK rift · red-black hole · forbidden spells!');
  try{if(typeof SFX!=='undefined'&&SFX.ui)SFX.ui();}catch(_){}
 }
-function mhUseVoidPower(st,save,pos,map){
+function mhUseVoidPower(st,save,pos,map,wi){
  const m=mhVoidCombatMorph(save);
  if(!m){ mhToast('Morph into a Void Fallen noobie first!'); return; }
  const pow=m.voidPower||MH_VOID_POWERS[0];
@@ -2914,9 +3077,22 @@ function mhUseVoidPower(st,save,pos,map){
   mhClampWalkPos(map,pos);
  }
  if(pow.kind==='shield') st.voidShieldUntil=performance.now()+(pow.time||2.5)*1000;
- else if(pow.kind==='heal'){ save.coins+=pow.coins||8; mhSaveSave(save); }
+ else if(pow.kind==='heal'){ save.coins+=pow.coins||8; mhSaveSave(save); st.fightHp=Math.min(st.fightMaxHp||140,(st.fightHp||100)+25); }
  else if(pow.kind==='buff') st.voidRageUntil=performance.now()+(pow.time||4)*1000;
- mhSpawnPowerVfx(st,m,pow,dir,pos,map);
+ if(pow.kind==='storm'||pow.id==='forbidden_storm'){
+  mhSpawnVoidUniverseStorm(st,m,dir,pos,pow.range||160);
+  if(wi!=null){
+   const reach=pow.range||160;
+   const hx=pos.px+dir.dx*reach, hy=pos.py+dir.dy*reach;
+   mhFightAoe(st,save,wi,hx,hy,m.voidKing?120:100,m.voidKing?48:34);
+  }
+ }else{
+  mhSpawnPowerVfx(st,m,pow,dir,pos,map);
+  if(wi!=null&&pow.kind==='pull') mhFightAoe(st,save,wi,pos.px,pos.py,pow.range||120,30);
+  else if(wi!=null&&pow.kind!=='dash'&&pow.kind!=='shield'&&pow.kind!=='heal'&&pow.kind!=='buff'&&pow.kind!=='echo'){
+   mhFightHitscan(st,save,wi,pos,dir,30,pow.range||100,0.1);
+  }
+ }
  mhToast('✦ '+pow.name+'!');
  try{if(typeof SFX!=='undefined'&&SFX.ui)SFX.ui();}catch(_){}
 }
@@ -3433,16 +3609,16 @@ function mhWalkApplyKey(e,down){
  }
  if(down&&(c==='Digit1'||c==='Numpad1'||k==='1')){
   const pos=mhWalkEnsurePos(mhState,mhState.world);
-  mhUseVoidAttack(mhState,mhState.save,pos); hit=true;
+  mhUseFightAttack(mhState,mhState.save,pos,mhState.world); hit=true;
  }
  if(down&&(c==='Digit2'||c==='Numpad2'||k==='2')){
   const map=MH_WORLD_MAPS[mhState.world];
   const pos=mhWalkEnsurePos(mhState,mhState.world);
-  mhUseVoidPower(mhState,mhState.save,pos,map); hit=true;
+  mhUseFightPower(mhState,mhState.save,pos,map,mhState.world); hit=true;
  }
  if(down&&(c==='Digit3'||c==='Numpad3'||k==='3')){
   const pos=mhWalkEnsurePos(mhState,mhState.world);
-  mhUseVoidStorm(mhState,mhState.save,pos); hit=true;
+  mhUseFightStorm(mhState,mhState.save,pos,mhState.world); hit=true;
  }
  if(hit){
   e.preventDefault();
@@ -3514,6 +3690,7 @@ function mhWalkDrawFrame(){
  });
  mhUpdateCivilians(st,map,wi,dt);
  mhUpdateVoidFx(st,dt);
+ mhUpdateFight(st,save,wi,pos);
  st.walkNearId=near?near.id:null;
  st.walkNearBuilding=mhWalkNearBuilding(pos,map);
  if(wi===MH_VOID_WORLD){
@@ -3558,6 +3735,7 @@ function mhWalkDrawFrame(){
   const got=mhHasMorph(save,m.id);
   const dist=Math.hypot(mx-pos.px,my-pos.py);
   if(!mhShouldDrawMapMorph(m,save,dist,nearId)) return;
+  if(!mhEnemyAlive(st,wi,m)) return;
   let sc=(m.scale||1)*(flatMap?0.78:0.72);
   if(m.voidKing) sc*=1.35;
   if(MH_1000D&&!flatMap){
@@ -3566,6 +3744,13 @@ function mhWalkDrawFrame(){
   }
   const sil=!got&&dist>MH_INTERACT_R&&m.rarity!=='voidfallen';
   mhPaintNoobWorld(ctx,m,mx,my,sc,got?0.55:1,sil,t,npc.phase,flatMap,!!npc.walking);
+  const ehp=mhGetEnemyHp(st,wi,m), emax=mhEnemyMaxHp(m);
+  if(ehp<emax||st.enemyAggro[mhEnemyFightKey(wi,m)]>performance.now()){
+   mhDrawFightHpBar(ctx,mx,my-92,Math.min(90,14+m.name.length*3),ehp,emax,m.voidKing?'#ff4040':'#c898ff');
+  }
+  if(st.enemyHitFlash[mhEnemyFightKey(wi,m)]>performance.now()){
+   ctx.fillStyle='rgba(255,80,80,.35)'; ctx.beginPath(); ctx.arc(mx,my-24,28,0,Math.PI*2); ctx.fill();
+  }
   if(m.voidKing&&dist<240){
    ctx.fillStyle='rgba(0,0,0,.88)'; ctx.fillRect(mx-78,my-98,156,22);
    ctx.fillStyle='#ff4040'; ctx.font='bold 9px system-ui'; ctx.textAlign='center';
@@ -3603,13 +3788,21 @@ function mhWalkDrawFrame(){
  mhDrawYouInWorld(ctx,wear,pos,map,t,st.walkPhase||0,wi,st.playerRunning);
  mhDrawVoidFx(ctx,st);
  ctx.restore();
- ctx.fillStyle='rgba(0,0,0,.78)'; ctx.fillRect(8,8,380,58);
+ ctx.fillStyle='rgba(0,0,0,.78)'; ctx.fillRect(8,8,420,78);
  ctx.fillStyle='#ffe8a0'; ctx.font='bold 12px system-ui,sans-serif'; ctx.textAlign='left';
  ctx.fillText('This map: '+mhWorldRarityHint(wi),16,24);
  ctx.fillStyle='#80ffb0'; ctx.font='bold 11px system-ui,sans-serif';
  ctx.fillText('Search dashed groves · noobies appear when you walk in · E unlock',16,42);
  ctx.fillStyle='#a0c8ff'; ctx.font='bold 11px system-ui,sans-serif';
  ctx.fillText('Epic+ → teleport 💎 · Void → teleport 🕳 (tabs above)',16,56);
+ mhEnsureFight(st,save);
+ const php=st.fightHp||100, pmax=st.fightMaxHp||100;
+ mhDrawFightHpBar(ctx,W-90,18,120,php,pmax,st.fightHitFlash>performance.now()?'#ff8080':'#80ffb0');
+ ctx.fillStyle='#ffe8a0'; ctx.font='bold 10px system-ui'; ctx.textAlign='center';
+ ctx.fillText('❤ HP '+Math.ceil(php)+'/'+pmax,W-90,32);
+ ctx.textAlign='left';
+ ctx.fillStyle='#ffb0b0'; ctx.font='bold 10px system-ui';
+ ctx.fillText('⚔ FIGHT: 1 attack · 2 power · 3 storm — face foes & press keys',16,72);
  if(st.voidGibberUntil&&performance.now()<st.voidGibberUntil){
   ctx.fillStyle='rgba(40,0,0,.88)'; ctx.fillRect(W/2-150,H-36,300,28);
   ctx.fillStyle='#ff6060'; ctx.font='bold 12px system-ui,sans-serif'; ctx.textAlign='center';
@@ -3799,21 +3992,21 @@ function mhWalkStart(){
   if(!mhState?.save) return;
   root.querySelector('#mh-walk-canvas')?.focus();
   const pos=mhWalkEnsurePos(mhState,mhState.world);
-  mhUseVoidAttack(mhState,mhState.save,pos);
+  mhUseFightAttack(mhState,mhState.save,pos,mhState.world);
  };
  if(voidPow) voidPow.onclick=()=>{
   if(!mhState?.save) return;
   root.querySelector('#mh-walk-canvas')?.focus();
   const map=MH_WORLD_MAPS[mhState.world];
   const pos=mhWalkEnsurePos(mhState,mhState.world);
-  mhUseVoidPower(mhState,mhState.save,pos,map);
+  mhUseFightPower(mhState,mhState.save,pos,map,mhState.world);
  };
  const voidStorm=root?.querySelector('#mh-void-storm');
  if(voidStorm) voidStorm.onclick=()=>{
   if(!mhState?.save) return;
   root.querySelector('#mh-walk-canvas')?.focus();
   const pos=mhWalkEnsurePos(mhState,mhState.world);
-  mhUseVoidStorm(mhState,mhState.save,pos);
+  mhUseFightStorm(mhState,mhState.save,pos,mhState.world);
  };
  const canvas=root?.querySelector('#mh-walk-canvas');
  if(canvas) canvas.onclick=mhWalkCanvasClick;
@@ -3867,7 +4060,7 @@ function mhRenderHunt(save, wi){
   </ol>
  </div>
  <div class="mh-walk-wrap">
-  <div id="mh-void-combat-readout" class="mh-void-combat-readout">${voidCombat?('⚔ '+voidCombat.voidAttack?.name+' · ✦ '+voidCombat.voidPower?.name+' · 🌌 '+MH_VOID_STORM_NAME):'🎭 Morph a Void Fallen → <b>1</b> / <b>2</b> / <b>3</b> on any map'}${wi===MH_VOID_WORLD?' · <b>'+MH_VOID_ABYSS_LABEL+'</b>':''}</div>
+  <div id="mh-void-combat-readout" class="mh-void-combat-readout">${voidCombat?('⚔ FIGHT · '+voidCombat.voidAttack?.name+' · ✦ '+voidCombat.voidPower?.name+' · 🌌 '+MH_VOID_STORM_NAME):'⚔ FIGHT · <b>1</b> punch · <b>2</b> blast · <b>3</b> slam (Void morph = stronger)'}${wi===MH_VOID_WORLD?' · <b>'+MH_VOID_ABYSS_LABEL+'</b>':''}</div>
   <canvas id="mh-walk-canvas" class="mh-walk-canvas" width="960" height="520" tabindex="0"></canvas>
   <div id="mh-walk-hud" class="mh-walk-hud mh-walk-hud-clean">
    <span class="mh-walk-zone">${world.emoji} ${world.name} · ${found}/${morphs.length}</span>
