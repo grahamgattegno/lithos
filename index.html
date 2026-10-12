@@ -1613,6 +1613,12 @@
   .mh-walk-optional summary{cursor:pointer;font-weight:800;color:#a0b0c0;font-size:12px}
   .mh-void-combat-readout{position:relative;z-index:9;padding:10px 12px;background:linear-gradient(90deg,#0a0a0a,#280808 40%,#0a0a0a);border-bottom:2px solid #ff4040;color:#ffe8e0;font-size:12px;font-weight:700;text-align:center;line-height:1.45}
   .mh-void-combat-readout b{color:#ff6060}
+  .mh-recharge-title{margin-bottom:6px;font-size:12px}
+  .mh-recharge-row{display:flex;align-items:center;gap:8px;margin:4px 0;font-size:11px}
+  .mh-recharge-row>span:first-child{min-width:72px;text-align:right;color:#c898ff}
+  .mh-recharge-track{flex:1;height:10px;background:#1a1028;border:1px solid #503070;border-radius:6px;overflow:hidden}
+  .mh-recharge-fill{height:100%;border-radius:5px;transition:width .08s linear}
+  .mh-recharge-time{min-width:44px;text-align:left;color:#ffe8a0;font-weight:800}
   .mh-morph-void-moves{display:block;font-size:9px;font-weight:800;color:#c898ff;margin-top:2px;line-height:1.2}
   .mh-walk-wrap{position:relative;border-radius:4px;overflow:hidden;border:2px solid #1a1e24;box-shadow:none;background:#fff8ef}
   .mh-walk-canvas{display:block;width:100%;height:min(58vh,520px);max-height:min(58vh,520px);aspect-ratio:960/520;min-height:200px;background:#101820;cursor:crosshair;touch-action:none;image-rendering:pixelated;image-rendering:crisp-edges}
@@ -5478,17 +5484,29 @@
 <script src="gemcopter.js?v=deploy-85"></script>
 <script>
 (function lithosLoadMorphHunt(){
- var MH_NEED='void-2d-v53';
- var MH_SCRIPT='morph-hunt.void-2d-v53.js';
- var NEED_MARK="MH_BUILD='void-2d-v53'";
+ var MH_NEED='void-2d-v54';
+ var MH_SCRIPT='morph-hunt.void-2d-v54.js';
+ var NEED_MARK="MH_BUILD='void-2d-v54'";
  var KING_MARK='RED_BLACK_KING_v31';
- var SCENERY_MARK='VOID_POWER_RECHARGE_v53';
+ var SCENERY_MARK='VOID_POWER_RECHARGE_v54';
+ window.__LITHOS_MH_LATEST=MH_NEED;
  window.__LITHOS_MH_NEED=MH_NEED;
  window.__LITHOS_MH_SCRIPT=MH_SCRIPT;
+ try{
+  var qMh=(location.search.match(/[?&]mh=(void-2d-v\d+)/)||[])[1];
+  if(qMh&&qMh!==MH_NEED){
+   var u=new URL(location.href);
+   u.searchParams.set('mh',MH_NEED);
+   u.searchParams.set('t',String(Date.now()));
+   if(!u.hash||u.hash==='#') u.hash='morphhunt';
+   location.replace(u.toString());
+   return;
+  }
+ }catch(_){}
  function mhCodeLooksFresh(code){
   if(!code||code.indexOf('playMorphHunt')<0) return false;
   if(code.indexOf(NEED_MARK)>=0) return true;
-  if(code.indexOf('VOID_POWER_RECHARGE_v53')>=0||code.indexOf('VOID_NO_RECHARGE_v52')>=0||code.indexOf('VOID_COOL_COMBAT_v51')>=0) return true;
+  if(code.indexOf('VOID_POWER_RECHARGE_v54')>=0||code.indexOf('VOID_POWER_RECHARGE_v53')>=0||code.indexOf('VOID_NO_RECHARGE_v52')>=0) return true;
   if(code.indexOf("MH_BUILD='void-2d-v")>=0&&code.indexOf('mhSyncMorphHuntUrl')>=0) return true;
   if(code.indexOf("MH_BUILD='void-2d-v")>=0&&code.indexOf('mhUseVoidPower')>=0) return true;
   return false;
@@ -5515,7 +5533,7 @@
    .then(function(code){
     if(!mhCodeLooksFresh(code)){
      if(!retry) return loadFresh(1);
-     alert('OLD cached game still loading.\\n\\nUse:\\n'+location.origin+location.pathname+'?mh=void-2d-v51&t='+Date.now()+'#morphhunt\\n\\nHard refresh: Cmd+Shift+R');
+     alert('OLD cached game still loading.\\n\\nUse:\\n'+location.origin+location.pathname+'?mh=void-2d-v54&t='+Date.now()+'#morphhunt\\n\\nHard refresh: Cmd+Shift+R');
      loadScriptTag();
      return;
     }
@@ -5528,14 +5546,18 @@
 </script>
 <script>
 window.lithosPlayMorphHunt=function lithosPlayMorphHunt(){
- var NEED=window.__LITHOS_MH_NEED||'void-2d-v53';
+ var NEED=window.__LITHOS_MH_LATEST||window.__LITHOS_MH_NEED||'void-2d-v54';
  var tries=0;
  function run(){
   if(typeof playMorphHunt==='function'){
    if(window.LITHOS_MH_BUILD&&window.LITHOS_MH_BUILD!==NEED){
-    console.warn('[Morph Hunt] build mismatch — using loaded',window.LITHOS_MH_BUILD,'over page',NEED);
-    NEED=window.LITHOS_MH_BUILD;
-    window.__LITHOS_MH_NEED=NEED;
+    console.warn('[Morph Hunt] stale script',window.LITHOS_MH_BUILD,'need',NEED);
+    var u=new URL(location.href);
+    u.searchParams.set('mh',NEED);
+    u.searchParams.set('t',String(Date.now()));
+    u.hash='morphhunt';
+    location.replace(u.toString());
+    return;
    }
    try{ return playMorphHunt(); }
    catch(e){

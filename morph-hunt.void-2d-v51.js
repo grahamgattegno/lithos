@@ -5,9 +5,10 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v54';
-const MH_SCENERY_STAMP='VOID_POWER_RECHARGE_v54';
-const MH_SCRIPT_FILE='morph-hunt.void-2d-v54.js';
+const MH_BUILD='void-2d-v55';
+const MH_SCENERY_STAMP='VOID_RECHARGE_BARS_v55';
+const MH_SCRIPT_FILE='morph-hunt.void-2d-v55.js';
+const MH_VOID_ATK_CD=1.1;
 const MH_KING_STAMP='RED_BLACK_KING_v31';
 const MH_MEGA_W=7;
 const MH_MEGA_H=6;
@@ -2477,28 +2478,46 @@ function mhVoidCombatMorph(save){
  if(wear&&(wear.rarity==='voidfallen'||wear.voidFallen)) return mhEnsureVoidCombat(wear);
  return null;
 }
-function mhVoidPowLeft(st){
- if(!st?.voidCd?.pow) return 0;
- return Math.max(0,(st.voidCd.pow-performance.now())/1000);
+function mhVoidCdLeft(st,slot){
+ if(!st?.voidCd?.[slot]) return 0;
+ return Math.max(0,(st.voidCd[slot]-performance.now())/1000);
+}
+function mhVoidPowLeft(st){ return mhVoidCdLeft(st,'pow'); }
+function mhVoidAtkLeft(st){ return mhVoidCdLeft(st,'atk'); }
+function mhVoidCdPct(st,slot){
+ const dur=st?.voidCdDur?.[slot]||1;
+ const left=mhVoidCdLeft(st,slot);
+ if(left<=0) return 100;
+ return Math.max(0,Math.min(100,((dur-left)/dur)*100));
+}
+function mhRechargeBarHtml(label,left,pct,readyColor){
+ const ready=left<=0;
+ return `<div class="mh-recharge-row"><span>${label}</span><div class="mh-recharge-track"><div class="mh-recharge-fill" style="width:${pct.toFixed(0)}%;background:${ready?readyColor:'#ff6060'}"></div></div><span class="mh-recharge-time">${ready?'READY':left.toFixed(1)+'s'}</span></div>`;
 }
 function mhRefreshVoidCombatHud(save,st){
  const vm=mhVoidCombatMorph(save);
  const atkN=vm?.voidAttack?.name||'—';
  const powN=vm?.voidPower?.name||'—';
+ const atkLeft=st?mhVoidAtkLeft(st):0;
  const powLeft=st?mhVoidPowLeft(st):0;
+ const atkReady=!atkLeft;
  const powReady=!powLeft;
  const bar=document.getElementById('mh-void-combat-readout');
  if(bar){
-  bar.innerHTML=vm
-   ?`<b>⚔ 1</b> ${atkN} <span style="color:#a0c8ff">(spam OK)</span> · <b>✦ 2</b> ${powN}${powReady?' · <span style="color:#80ffb0">POWER READY</span>':(' · recharge <b>'+powLeft.toFixed(1)+'s</b>')}${vm.voidKing?' · 👑 storm':''}`
-   :'🎭 Morph a <b>Void Fallen</b> in Morph tab — then <b>1</b> attack · <b>2</b> power on any map';
+  if(!vm){
+   bar.innerHTML='🎭 Morph a <b>Void Fallen</b> in Morph tab — then <b>1</b> attack · <b>2</b> power on any map';
+  }else{
+   bar.innerHTML=`<div class="mh-recharge-title"><b>⚔</b> ${atkN} · <b>✦</b> ${powN}${vm.voidKing?' · 👑':''}</div>`
+    +mhRechargeBarHtml('⚔ Attack',atkLeft,st?mhVoidCdPct(st,'atk'):100,'#80e8ff')
+    +mhRechargeBarHtml('✦ Power',powLeft,st?mhVoidCdPct(st,'pow'):100,'#80ffb0');
+  }
  }
  const btnA=document.getElementById('mh-void-atk');
  const btnP=document.getElementById('mh-void-pow');
  if(btnA){
-  btnA.textContent=vm?('⚔ 1 '+atkN):'⚔ 1 Attack';
-  btnA.disabled=false;
-  btnA.style.opacity='1';
+  btnA.textContent=vm?(atkReady?('⚔ 1 '+atkN):('⚔ '+atkLeft.toFixed(1)+'s')):'⚔ 1 Attack';
+  btnA.disabled=!!vm&&!atkReady;
+  btnA.style.opacity=vm&&!atkReady?'0.55':'1';
  }
  if(btnP){
   btnP.textContent=vm?(powReady?('✦ 2 '+powN):('✦ '+powLeft.toFixed(1)+'s')):'✦ 2 Power';
@@ -2736,15 +2755,22 @@ function mhFacingDir(st){
 }
 function mhVoidCooldown(st,slot,sec){
  if(!st.voidCd) st.voidCd={};
+ if(!st.voidCdDur) st.voidCdDur={};
  const now=performance.now();
  const until=st.voidCd[slot]||0;
  if(now<until) return false;
- st.voidCd[slot]=now+Math.max(0,sec)*1000;
+ const s=Math.max(0,sec);
+ st.voidCd[slot]=now+s*1000;
+ st.voidCdDur[slot]=s;
  return true;
 }
 function mhUseVoidAttack(st,save,pos){
  const m=mhVoidCombatMorph(save);
  if(!m){ mhToast('Morph into a Void Fallen noobie first (Morph tab)!'); return; }
+ if(!mhVoidCooldown(st,'atk',MH_VOID_ATK_CD)){
+  mhToast('Attack recharging… '+mhVoidAtkLeft(st).toFixed(1)+'s');
+  return;
+ }
  const atk=m.voidAttack||MH_VOID_ATTACKS[0];
  const dir=mhFacingDir(st);
  const rage=st.voidRageUntil&&performance.now()<st.voidRageUntil;
