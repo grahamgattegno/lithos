@@ -3,7 +3,7 @@
 'use strict';
 
 const MH_STORE_KEY='lithos_morph_hunt_v9';
-const MH_BUILD='void-1000d-v15';
+const MH_BUILD='void-1000d-v16';
 const MH_TOTAL_COUNT=1100;
 const MH_1000D=true;
 const MH_DEPTH_LABEL='1000th Depth';
@@ -355,7 +355,17 @@ function mhSaveWearId(id){
 }
 
 function mhDefaultSave(){
- return{collected:[],worldsUnlocked:1,coins:100,wearing:null,title:'',codesUsed:[],minigameWon:[]};
+ return{collected:['ex-welcome'],worldsUnlocked:1,coins:100,wearing:'ex-welcome',title:'',codesUsed:[],minigameWon:[]};
+}
+function mhStarterMorph(){
+ return mhMorph('ex-welcome')||{head:'#F5CD30',torso:'#0085DB',legs:'#A4BD47',body:'classic',name:'Your Noobie',id:'you'};
+}
+function mhSyncYouOverlay(save){
+ const el=document.getElementById('mh-you-avatar');
+ if(!el||!mhWalkActive()) return;
+ const m=mhMorph(save?.wearing)||mhStarterMorph();
+ el.innerHTML=`<svg viewBox="0 0 100 130" aria-hidden="true">${mhClassicNoobSvg(m)}</svg><b>YOU</b>`;
+ el.hidden=false;
 }
 function mhLoadSave(){
  const wear=mhLoadWearId();
@@ -372,12 +382,14 @@ function mhLoadSave(){
  }
  try{
   const raw=JSON.parse(localStorage.getItem(MH_STORE_KEY)||'null');
-  if(!raw||!Array.isArray(raw.collected))return {...mhDefaultSave(),wearing:wear};
+  if(!raw||!Array.isArray(raw.collected))return {...mhDefaultSave(),wearing:wear||'ex-welcome'};
+  let collected=raw.collected.filter(id=>MH_MORPHS.some(m=>m.id===id));
+  if(!collected.length) collected=['ex-welcome'];
   return{
-   collected:raw.collected.filter(id=>MH_MORPHS.some(m=>m.id===id)),
+   collected,
    worldsUnlocked:Math.max(1,Math.min(MH_WORLDS.length,+(raw.worldsUnlocked||1))),
    coins:Math.max(0,+(raw.coins||100)),
-   wearing:(raw.wearing&&MH_MORPHS.some(m=>m.id===raw.wearing))?raw.wearing:wear,
+   wearing:(raw.wearing&&MH_MORPHS.some(m=>m.id===raw.wearing))?raw.wearing:(wear||collected[0]||'ex-welcome'),
    title:typeof raw.title==='string'?raw.title:'',
    codesUsed:Array.isArray(raw.codesUsed)?raw.codesUsed:[],
    minigameWon:Array.isArray(raw.minigameWon)?raw.minigameWon:[]
@@ -836,10 +848,8 @@ function mhPaintNoob3D(ctx,m,x,y,sc,alpha,silhouette,walkPhase){
  ctx.scale(sc,sc);
  ctx.globalAlpha=alpha==null?1:alpha;
  if(silhouette){
-  ctx.fillStyle='#0a0c14';
-  ctx.fillRect(-18,-52,36,64);
-  ctx.restore();
-  return;
+  m={...m,head:'#3a4050',torso:'#283040',legs:'#1e2430',arms:'#3a4050'};
+  ctx.globalAlpha=(alpha==null?0.72:alpha);
  }
  const h=m.head||'#F5CD30', t=m.torso||'#0085DB', l=m.legs||'#A4BD47', a=m.arms||h;
  ctx.fillStyle='rgba(0,0,0,.35)';
@@ -1187,6 +1197,7 @@ function mhWalkDrawFrame(){
   ctx.restore();
  }
  mhDrawYouPlayer(ctx,W,H,wear,t,st.walkPhase||0,map,pos);
+ mhSyncYouOverlay(save);
  const hud=document.getElementById('mh-walk-hud');
  if(hud){
   const found=morphs.filter(m=>mhHasMorph(save,m.id)).length;
@@ -1247,6 +1258,8 @@ function mhRenderHunt(save, wi){
  return `<div class="mh-world-tabs">${worldTabs}</div>
  <div class="mh-walk-wrap">
   <canvas id="mh-walk-canvas" class="mh-walk-canvas" width="960" height="520" tabindex="0"></canvas>
+  <div class="mh-you-ring" aria-hidden="true"></div>
+  <div id="mh-you-avatar" class="mh-you-avatar" aria-label="Your character"></div>
   <div id="mh-walk-hud" class="mh-walk-hud">
    <span class="mh-walk-zone">${world.emoji} ${world.name}</span>
    <span class="mh-walk-prompt" hidden>Walk close — then collect</span>
@@ -1430,7 +1443,8 @@ function playMorphHunt(){
   return;
  }
  if(typeof syncBodyScrollLock==='function')syncBodyScrollLock();
- mhToast('🏃 Run with Shift · Epic+ = minigame · '+MH_BUILD);
+ mhSyncYouOverlay(mhState.save);
+ mhToast('👤 YOU = center of the map (bouncing noobie)! WASD to walk · '+MH_BUILD);
 }
 
 function mhGetWearingMorph(){ return mhMorph(mhLoadWearId()||window.LITHOS_NOOBIE_WEAR); }
