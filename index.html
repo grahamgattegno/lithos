@@ -5436,7 +5436,7 @@
 <script src="gc-drone-shapes.js?v=deploy-83"></script>
 <script src="gc-gravastar-scene.js?v=deploy-83"></script>
 <script src="gemcopter.js?v=deploy-85"></script>
-<script src="morph-hunt.js?v=void-1000d-v21"></script>
+<script src="morph-hunt.js?v=void-5d-v22"></script>
 <script>
 window.lithosPlayMorphHunt=function lithosPlayMorphHunt(){
  var tries=0;
@@ -5979,7 +5979,7 @@ function lithos4DClearParticles(){lithos4DParticles=[];}
 /* ---------- Games hub ---------- */
 const LITHOS_GAMES=[
  {id:'arcade',icon:'🕹️',name:'Arcade',desc:'Gem Rush, Gem Digger, Gemstone Convoy, Night Shift & the secret game — pick a card and play!',preview:'radial-gradient(circle at 50% 35%,rgba(122,208,240,.28),transparent 50%),radial-gradient(circle at 70% 70%,rgba(201,169,79,.22),transparent 45%),linear-gradient(180deg,#141020,#080610)'},
- {id:'morphhunt',icon:'◈',name:'Find The Noobies Morphs',desc:'1100 noobies! Void Fallen · 1000th Depth · 1000D — chase wandering morphs. WELCOMEBUDDY…',preview:'radial-gradient(circle at 35% 35%,rgba(255,110,180,.35),transparent 50%),radial-gradient(circle at 70% 65%,rgba(126,200,255,.3),transparent 45%),linear-gradient(180deg,#141828,#080a12)'},
+ {id:'morphhunt',icon:'◈',name:'Find The Noobies Morphs',desc:'1100 noobies! Male Void Fallen · 5th Dimensional Abyss — chase wandering morphs. WELCOMEBUDDY…',preview:'radial-gradient(circle at 35% 35%,rgba(255,110,180,.35),transparent 50%),radial-gradient(circle at 70% 65%,rgba(126,200,255,.3),transparent 45%),linear-gradient(180deg,#141828,#080a12)'},
  {id:'gemrush',icon:'⛏️💎',name:'Gem Rush',desc:'Match gemstone pairs — Diamond with Diamond, Ruby with Ruby! Clear the board before you run out of moves.',preview:'radial-gradient(circle at 40% 30%,rgba(255,120,160,.35),transparent 50%),radial-gradient(circle at 70% 70%,rgba(100,160,255,.3),transparent 45%),linear-gradient(180deg,#1a1028,#0a0812)'},
  {id:'gemdigger',icon:'⛏️🕳️',name:'Gem Digger',desc:'5 mine levels! Upgrade drill, buy bombs, reach the Legendary Rainbow Gem — owner gets Nuke Blaster ☢️',preview:'radial-gradient(circle at 50% 40%,rgba(180,120,60,.35),transparent 50%),linear-gradient(180deg,#1a1410,#0a0806)'},
  {id:'gemdrive',icon:'🚗💎',name:'Gemstone Convoy',desc:'Full 8-bit pixel driving! Pick a gem car + mount Ruby/Sapphire/Emerald/Diamond/Amethyst/Topaz launchers vs crystal monsters.',preview:'radial-gradient(circle at 50% 60%,rgba(255,64,96,.3),transparent 50%),linear-gradient(180deg,#1a1020 0%,#2a1840 40%,#1a2818 100%)'},
@@ -6002,7 +6002,7 @@ const LITHOS_GAMES=[
 const LITHOS_GAME_IDS=new Set(LITHOS_GAMES.map(g=>g.id));
 const LITHOS_ARCADE_ONLY=new Set(['arcade','morphhunt','gemrush','gemdigger','gemdrive','gemheli','gemcopter']);
 const LITHOS_ARCADE=[
- {emoji:'◈',name:'Find The Noobies Morphs',desc:'1100 noobies · Void Fallen · 1000th Depth & 1000D!',action:'morphhunt'},
+ {emoji:'◈',name:'Find The Noobies Morphs',desc:'1100 noobies · Male Void Fallen · 5th Dimensional Abyss!',action:'morphhunt'},
  {emoji:'⛏️💎',name:'Gem Rush',desc:'Match pairs of the same gemstone — Diamond with Diamond, Ruby with Ruby! Clear all 32 pairs before moves run out.',action:'gemrush'},
  {emoji:'🌙🏭',name:'Night Shift at the Gem Factory',desc:'Survive all 5 nights as the factory\'s night guard! Watch the cameras, slam the doors, don\'t get caught…',action:'nightshift'},
  {emoji:'⛏️🕳️',name:'Gem Digger',desc:'Dig through 5 mine levels! Find gems, upgrade drill, buy bombs — reach the Rainbow Gem at the bottom. Owner: Nuke Blaster clears everything! ☢️',action:'gemdigger'},

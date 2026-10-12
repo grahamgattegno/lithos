@@ -1,13 +1,16 @@
-/* Find The Noobies Morphs — Lithos (820+180+100 Void Fallen = 1100 · 1000th depth · 1000D) */
+/* Find The Noobies Morphs — Lithos (820+180+100 Male Void Fallen = 1100 · 5th Dimensional Abyss) */
 (function(){
 'use strict';
 
 const MH_STORE_KEY='lithos_morph_hunt_v9';
-const MH_BUILD='void-1000d-v21';
+const MH_BUILD='void-5d-v22';
 const MH_TOTAL_COUNT=1100;
 const MH_1000D=true;
-const MH_DEPTH_LABEL='1000th Depth';
-const MH_DIM_LABEL='1000th Dimensional';
+const MH_5D=true;
+const MH_DEPTH_LABEL='Abyss Depth';
+const MH_DIM_LABEL='5th Dimensional';
+const MH_VOID_DIM_LABEL='5th Dimensional';
+const MH_VOID_ABYSS_LABEL='Void Fallen Abyss';
 const MH_NPC_SPEED=1.25;
 const MH_TILE=34;
 const MH_MAP_W=46;
@@ -40,7 +43,7 @@ const MH_RARITY={
  exclusive:{label:'Exclusive',color:'#ff6eb4',glow:'rgba(255,110,180,.6)'},
  secret:{label:'Secret',color:'#39ff14',glow:'rgba(57,255,20,.5)'},
  exotic:{label:'Exotic',color:'#ff48e8',glow:'rgba(255,72,232,.75)'},
- voidfallen:{label:'Void Fallen',color:'#9040ff',glow:'rgba(120,40,255,.85)'}
+ voidfallen:{label:'Male Void Fallen',color:'#9040ff',glow:'rgba(120,40,255,.85)'}
 };
 
 const MH_WORLDS=[
@@ -53,7 +56,7 @@ const MH_WORLDS=[
  {id:'w6',name:'Lava Park',emoji:'🌋',tagline:'Hot zones — rare spawns!',bg:'#ff8860',ground:'#8a4030'},
  {id:'w7',name:'Legend Nexus',emoji:'👑',tagline:'Last normal zone before Exotic Realm.',bg:'#6080c0',ground:'#506898'},
  {id:'w8',name:'Exotic Realm',emoji:'💎',tagline:'All Exotic rank noobies wander here!',bg:'#281040',ground:'#502868'},
- {id:'w9',name:'Void Fallen Abyss',emoji:'🕳',tagline:'1000th Depth · 1000th Dimensional — Void Fallen noobies!',bg:'#080010',ground:'#180828'}
+ {id:'w9',name:'Void Fallen Abyss',emoji:'🕳',tagline:'5th Dimensional · Male Void Fallen — hunt the abyss!',bg:'#080010',ground:'#180828'}
 ];
 
 const MH_CODES={
@@ -153,25 +156,27 @@ function mhUniqueNames(count,fn){
 }
 const MH_NORMAL_NAMES=mhUniqueNames(MH_NORMAL_COUNT,(i)=>mhNormalName(i,Math.min(MH_NORMAL_WORLDS-1,Math.floor(i/Math.ceil(MH_NORMAL_COUNT/MH_NORMAL_WORLDS)))));
 const MH_EXCLUSIVE_NAMES=mhUniqueNames(MH_EXCLUSIVE_COUNT,mhExclusiveName);
-const MH_VOID_PRE=['Null','Abyss','Fallen','Void','Rift','Zero','Hollow','Dim','Lost','Eclipse','Nebula','Obsidian','Fractal','Quantum','Silent'];
-const MH_VOID_SUF=['Walker','Noobie','Shade','Wanderer','Fragment','Soul','Drifter','Echo','Phantom','Exile','Stray','Monarch','Oracle','Wraith','Nomad'];
+const MH_VOID_MALE_PRE=['Abyss','Fallen','Void','Null','Rift','Dark','Hollow','Fractal','Obsidian','Eclipse','Quantum','Silent','Nebula','Zero','Lost'];
+const MH_VOID_MALE_SUF=['King','Knight','Walker','Guardian','Reaper','Strider','Lord','Phantom','Exile','Drifter','Monarch','Oracle','Wraith','Nomad','Brother'];
 function mhVoidName(i){
- return mhPick(MH_VOID_PRE,i*5+1)+' '+mhPick(MH_VOID_SUF,i*11+3);
+ return mhPick(MH_VOID_MALE_PRE,i*5+1)+' '+mhPick(MH_VOID_MALE_SUF,i*11+3);
 }
+const MH_VOID_MALE_BODIES=['classic','tall','builder','wide','robot','ghost'];
 const MH_VOID_HATS=['voidhorn','voidhalo','riftshard','gem','crown','headphones','bow','party','star',null,null];
 function mhVoidTraits(i){
  const h=mhHashStr('vftrait'+i);
  return{
-  body:MH_BODIES[h%MH_BODIES.length],
+  body:MH_VOID_MALE_BODIES[(h>>>1)%MH_VOID_MALE_BODIES.length],
   anim:MH_ANIMS[(h>>>3)%MH_ANIMS.length],
-  face:['flat','o','grin','w','smile'][(h>>>6)%5],
+  face:['flat','grin','w','smile','o'][(h>>>6)%5],
   stripe:((h>>>4)&3)===0,
-  glasses:((h>>>5)&7)===0,
+  glasses:((h>>>5)&9)===0,
   hat:MH_VOID_HATS[(h>>>7)%MH_VOID_HATS.length],
   prop:MH_PROPS[(h>>>10)%MH_PROPS.length],
   voidMark:(h>>>2)%19,
   voidEyes:['#70e8ff','#ff58c8','#ffe048','#98ff88','#c898ff','#ff8860'][(h>>>12)%6],
   voidPalette:(h>>>9)%6,
+  voidMale:true,
   fallen:true
  };
 }
@@ -274,6 +279,7 @@ function mhBuildMorphs(){
    name:MH_VOID_NAMES[i],
    exclusive:false,
    voidFallen:true,
+   voidMale:true,
    world:MH_VOID_WORLD,
    x:50,y:40,
    scale:0.96+(i%9)*0.045,
@@ -846,7 +852,7 @@ function mhGradRect(ctx,x,y,w,h,c1,c2){
 }
 function mhRarityLabel(m){
  if(!m) return 'Common';
- if(m.rarity==='voidfallen') return 'Void Fallen';
+ if(m.rarity==='voidfallen') return m.voidMale?'Male Void Fallen':'Void Fallen';
  if(m.exclusive&&m.rarity!=='exotic') return 'Exclusive';
  return (MH_RARITY[m.rarity]||MH_RARITY.common).label;
 }
@@ -988,6 +994,10 @@ function mhPaintNoob3D(ctx,m,x,y,sc,alpha,silhouette,walkPhase){
   ctx.strokeStyle='rgba(255,255,255,.5)'; ctx.lineWidth=1; ctx.stroke();
  }
  if(m.rarity==='voidfallen'&&!silhouette){
+  if(m.voidMale){
+   ctx.fillStyle=mhHex(m.torso||'#402060',0.35);
+   ctx.fillRect(-18,2,36,8);
+  }
   const ve=m.voidEyes||'#70e8ff';
   ctx.fillStyle='#101018'; ctx.fillRect(-9,-37,6,6); ctx.fillRect(3,-37,6,6);
   ctx.fillStyle=ve; ctx.shadowColor=ve; ctx.shadowBlur=6;
@@ -1239,7 +1249,7 @@ function mhWalkDrawFrame(){
   if(m.rarity==='voidfallen'){
    ctx.fillStyle='rgba(40,0,80,.9)'; ctx.fillRect(mx-62,my-100,124,16);
    ctx.fillStyle='#c898ff'; ctx.font='bold 10px system-ui'; ctx.textAlign='center';
-   ctx.fillText('🕳 VOID FALLEN',mx,my-89);
+   ctx.fillText('🕳 MALE VOID FALLEN',mx,my-89);
   }
   if(dist<MH_INTERACT_R&&!got){
    if(mhNeedsMinigame(m)&&!mhMinigameCleared(save,m.id)){
@@ -1261,8 +1271,17 @@ function mhWalkDrawFrame(){
  ctx.restore();
  if(wi===MH_VOID_WORLD){
   ctx.fillStyle='rgba(0,0,0,.28)'; ctx.fillRect(0,0,W,H);
-  ctx.fillStyle='rgba(200,160,255,.85)'; ctx.font='bold 11px system-ui,sans-serif'; ctx.textAlign='center';
-  ctx.fillText(MH_DIM_LABEL+' · '+MH_DEPTH_LABEL, W/2, 20);
+  if(MH_5D){
+   ctx.strokeStyle='rgba(140,80,255,.22)'; ctx.lineWidth=1.5;
+   for(let d=0;d<5;d++){
+    const a=t*0.35+d*(Math.PI*2/5);
+    ctx.beginPath(); ctx.ellipse(W/2,H/2,90+d*18,34+d*8,a); ctx.stroke();
+   }
+  }
+  ctx.fillStyle='rgba(200,160,255,.9)'; ctx.font='bold 11px system-ui,sans-serif'; ctx.textAlign='center';
+  ctx.fillText(MH_VOID_ABYSS_LABEL+' · '+MH_VOID_DIM_LABEL+' · Male Void Fallen', W/2, 20);
+  ctx.fillStyle='rgba(160,120,220,.75)'; ctx.font='bold 10px system-ui,sans-serif';
+  ctx.fillText(MH_DEPTH_LABEL, W/2, 34);
  }
  if(wi===3||wi===4){
   const grd=ctx.createRadialGradient(W/2,H/2,40,W/2,H/2,Math.max(W,H)*0.65);
@@ -1382,7 +1401,7 @@ function mhRenderIndex(save){
    <button type="button" class="mh-filter${kind==='normal'?' on':''}" data-mh-kind="normal">Normal ${MH_NORMAL_COUNT}</button>
    <button type="button" class="mh-filter${kind==='exclusive'?' on':''}" data-mh-kind="exclusive">Exclusive ${MH_EXCLUSIVE_COUNT}</button>
    <button type="button" class="mh-filter${kind==='exotic'?' on':''}" data-mh-kind="exotic">💎 Exotic ${MH_EXOTIC_COUNT}</button>
-   <button type="button" class="mh-filter${kind==='void'?' on':''}" data-mh-kind="void">🕳 Void ${MH_VOID_COUNT}</button>
+   <button type="button" class="mh-filter${kind==='void'?' on':''}" data-mh-kind="void">🕳 Male Void ${MH_VOID_COUNT}</button>
    <input type="search" id="mh-search" placeholder="Search noobies…" value="${q.replace(/"/g,'&quot;')}"/>
   </div>
   <div class="mh-codex-grid index">${cards}</div>
@@ -1470,7 +1489,7 @@ function mhRender(){
   <header class="mh-ftn-banner">
    <div class="mh-ftn-banner-text">
     <h2 class="mh-title">Find The Noobies Morphs</h2>
-    <p class="mh-ftn-tag"><b>${MH_TOTAL_COUNT}</b> noobies · <b>${MH_DEPTH_LABEL}</b> · <b>${MH_DIM_LABEL}</b> · 🕳 Void Fallen · Build <b>${MH_BUILD}</b> · ${owner?'Owner: ALL unlocked':''}</p>
+    <p class="mh-ftn-tag"><b>${MH_TOTAL_COUNT}</b> noobies · 🕳 <b>${MH_VOID_ABYSS_LABEL}</b> · <b>${MH_VOID_DIM_LABEL}</b> · Male Void Fallen · Build <b>${MH_BUILD}</b> · ${owner?'Owner: ALL unlocked':''}</p>
    </div>
   </header>
   <div class="mh-head">
