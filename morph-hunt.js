@@ -3,7 +3,8 @@
 'use strict';
 
 const MH_STORE_KEY='lithos_morph_hunt_v9';
-const MH_BUILD='void-2d-v30';
+const MH_BUILD='void-2d-v31';
+const MH_KING_STAMP='RED_BLACK_KING_v31';
 const MH_TOTAL_COUNT=1101;
 const MH_VOID_KING_DEPTH=100;
 const MH_VOID_KING_DIM='5th Dimensional';
@@ -1648,7 +1649,7 @@ function mhWalkDrawFrame(){
   const seen=got||dist<150||onScreen;
   if(!seen) return;
   let sc=(m.scale||1)*(flatMap?0.78:0.72);
-  if(m.voidKing) sc*=1.12;
+  if(m.voidKing) sc*=1.35;
   if(MH_1000D&&!flatMap){
    const depth=0.82+(my/(map.h*MH_TILE))*0.32;
    sc*=depth;
@@ -1691,8 +1692,16 @@ function mhWalkDrawFrame(){
  if(flatMap) mhPaperFlatOverlay(ctx,W,H);
  if(wi===MH_VOID_WORLD){
   mhVoidFlatScreenOverlay(ctx,W,H);
-  ctx.fillStyle='rgba(200,160,255,.92)'; ctx.font='bold 11px system-ui,sans-serif'; ctx.textAlign='center';
-  ctx.fillText(MH_VOID_ABYSS_LABEL+' · King '+MH_VOID_KING_DEPTH+' Depth · '+MH_VOID_KING_DIM, W/2, H-16);
+  ctx.fillStyle='rgba(255,80,80,.95)'; ctx.font='bold 11px system-ui,sans-serif'; ctx.textAlign='center';
+  ctx.fillText(MH_VOID_ABYSS_LABEL+' · RED/BLACK KING at center · '+MH_KING_STAMP+' · '+MH_BUILD, W/2, H-16);
+  if(map.throneTx!=null){
+   const tx=map.throneTx*MH_TILE+MH_TILE/2, ty=map.throneTy*MH_TILE+MH_TILE/2;
+   const ang=Math.atan2(ty-pos.py,tx-pos.px);
+   const ax=pos.px-Math.cos(ang)*42+Math.cos(ang)*28, ay=pos.py-Math.sin(ang)*42+Math.sin(ang)*28;
+   ctx.save(); ctx.translate(ax,ay); ctx.rotate(ang);
+   ctx.fillStyle='#ff3030'; ctx.beginPath(); ctx.moveTo(18,0); ctx.lineTo(-8,-10); ctx.lineTo(-8,10); ctx.closePath(); ctx.fill();
+   ctx.restore();
+  }
  }
  const hud=document.getElementById('mh-walk-hud');
  if(hud){
@@ -2023,8 +2032,9 @@ function mhRender(){
   <header class="mh-ftn-banner">
    <div class="mh-ftn-banner-text">
     <h2 class="mh-title">Find The Noobies Morphs</h2>
-    <p class="mh-ftn-tag"><b>${MH_TOTAL_COUNT}</b> noobies · 👑 <b>Void Fallen King</b> · ${MH_VOID_KING_DEPTH} Depth · ${MH_VOID_KING_DIM} · Build <b>${MH_BUILD}</b> · ${owner?'Owner: ALL unlocked':''}</p>
-    <p class="mh-live-build" style="margin:6px 0 0;font-size:13px;font-weight:900;color:#ffe060">✅ LIVE ${MH_BUILD} — all worlds paper-flat 2D</p>
+    <p class="mh-ftn-tag"><b>${MH_TOTAL_COUNT}</b> noobies · <b>Void Fallen King</b> · ${MH_VOID_KING_DEPTH} Depth · ${MH_VOID_KING_DIM} · Build <b>${MH_BUILD}</b> · ${owner?'Owner: ALL unlocked':''}</p>
+    <p class="mh-live-build" style="margin:6px 0 0;font-size:13px;font-weight:900;color:#ffe060">✅ LIVE ${MH_BUILD} · ${MH_KING_STAMP}</p>
+    <p class="mh-king-stamp" style="margin:4px 0 0;font-size:12px;font-weight:900;color:#ff4040">Void King = red/black armor · helmet · forbidden stone aura · greataxe + shield (NO crown)</p>
    </div>
   </header>
   <div class="mh-head">
@@ -2084,20 +2094,26 @@ function playMorphHunt(){
    <h2 style="color:#ff8080">Old Lithos saved in your browser</h2>
    <p style="color:#e0e8f0;line-height:1.5">The new <b>walk-around</b> Morph Hunt did not load. Hard refresh:</p>
    <p style="color:#ffe8a0;font-weight:900">Mac: Cmd+Shift+R · Windows: Ctrl+Shift+R</p>
-   <p style="color:#a0a8b8;font-size:13px">Need build <b>${MH_BUILD}</b></p>
+   <p style="color:#a0a8b8;font-size:13px">Need build <b>${MH_BUILD}</b> and stamp <b>${MH_KING_STAMP}</b></p>
    <button type="button" class="mh-btn primary" onclick="location.href=location.pathname+'?morph=${MH_BUILD}&t='+Date.now()+'#morphhunt'">Reload fresh copy</button>
   </div>`;
   if(typeof syncBodyScrollLock==='function')syncBodyScrollLock();
   return;
  }
  if(typeof syncBodyScrollLock==='function')syncBodyScrollLock();
- mhToast('👤 YOU spawn in the middle — gold ring + WASD to walk · '+MH_BUILD);
+ if(mhState&&MH_VOID_WORLD>=0){
+  mhState.world=MH_VOID_WORLD;
+  mhState.huntPage=0;
+  mhRender();
+  mhToast('🕳 Void Abyss — center throne: RED/BLACK KING · '+MH_KING_STAMP+' · '+MH_BUILD);
+ }else mhToast('RED/BLACK KING · '+MH_KING_STAMP+' · '+MH_BUILD);
 }
 
 function mhGetWearingMorph(){ return mhMorph(mhLoadWearId()||window.LITHOS_NOOBIE_WEAR); }
 
 window.playMorphHunt=playMorphHunt;
 window.LITHOS_MH_BUILD=MH_BUILD;
+window.LITHOS_MH_KING_STAMP=MH_KING_STAMP;
 window.mhClose=mhClose;
 window.mhRedeemMorphCode=mhRedeemCode;
 window.mhGetWearingMorph=mhGetWearingMorph;

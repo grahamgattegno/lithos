@@ -5457,21 +5457,52 @@
 <script src="gemcopter.js?v=deploy-85"></script>
 <script>
 (function lithosLoadMorphHunt(){
- var MH_NEED='void-2d-v30';
+ var MH_NEED='void-2d-v31';
+ var NEED_MARK="MH_BUILD='void-2d-v31'";
+ var KING_MARK='RED_BLACK_KING_v31';
  window.__LITHOS_MH_NEED=MH_NEED;
- var s=document.createElement('script');
- s.src='morph-hunt.js?v='+encodeURIComponent(MH_NEED)+'&_='+Date.now();
- s.onerror=function(){ alert('Morph Hunt file failed to load. Check internet and try again.'); };
- document.head.appendChild(s);
+ function injectMorphHunt(code){
+  document.querySelectorAll('script[data-lithos-mh],script[src*="morph-hunt"]').forEach(function(n){ n.remove(); });
+  try{ delete window.playMorphHunt; delete window.LITHOS_MH_BUILD; delete window.LITHOS_MH_KING_STAMP; }catch(_){}
+  var s=document.createElement('script');
+  s.setAttribute('data-lithos-mh','1');
+  s.textContent=code;
+  document.head.appendChild(s);
+ }
+ function loadFresh(retry){
+  var url='morph-hunt.js?nocache='+Date.now()+(retry?'&retry='+retry:'');
+  fetch(url,{cache:'no-store',credentials:'same-origin'})
+   .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.text(); })
+   .then(function(code){
+    if(code.indexOf(NEED_MARK)<0||code.indexOf(KING_MARK)<0){
+     if(!retry) return loadFresh(1);
+     alert('Still loading OLD Morph Hunt from cache.\\n\\nOpen this exact link:\\n'+location.origin+location.pathname+'?mh='+MH_NEED+'&t='+Date.now()+'#morphhunt\\n\\nThen Cmd+Shift+R (Mac) or Ctrl+Shift+R (Windows).');
+     var fb=document.createElement('script');
+     fb.src='morph-hunt.js?fallback='+Date.now();
+     fb.onerror=function(){ alert('Morph Hunt file failed to load.'); };
+     document.head.appendChild(fb);
+     return;
+    }
+    injectMorphHunt(code);
+   })
+   .catch(function(){
+    var fb=document.createElement('script');
+    fb.src='morph-hunt.js?fallback='+Date.now();
+    fb.onerror=function(){ alert('Morph Hunt file failed to load. Check internet.'); };
+    document.head.appendChild(fb);
+   });
+ }
+ loadFresh(0);
 })();
 </script>
 <script>
 window.lithosPlayMorphHunt=function lithosPlayMorphHunt(){
- var NEED=window.__LITHOS_MH_NEED||'void-2d-v30';
+ var NEED=window.__LITHOS_MH_NEED||'void-2d-v31';
  var tries=0;
  function run(){
   if(typeof playMorphHunt==='function'){
    if(window.LITHOS_MH_BUILD&&window.LITHOS_MH_BUILD!==NEED){
+    console.warn('[Morph Hunt] build mismatch',window.LITHOS_MH_BUILD,'need',NEED);
     var u=new URL(location.href);
     u.searchParams.set('mh',NEED);
     u.searchParams.set('t',String(Date.now()));
