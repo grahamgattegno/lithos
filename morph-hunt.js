@@ -3,7 +3,7 @@
 'use strict';
 
 const MH_STORE_KEY='lithos_morph_hunt_v9';
-const MH_BUILD='void-1000d-v19';
+const MH_BUILD='void-1000d-v20';
 const MH_TOTAL_COUNT=1100;
 const MH_1000D=true;
 const MH_DEPTH_LABEL='1000th Depth';
@@ -113,12 +113,12 @@ function mhMorphTraits(i){
  const h=mhHashStr('trait'+i);
  return{
   body:MH_BODIES[h%MH_BODIES.length],
-  anim:MH_ANIMS[(h>>3)%MH_ANIMS.length],
-  face:['smile','grin','o','flat','w'][(h>>6)%5],
-  stripe:((h>>4)&3)===0,
-  glasses:((h>>5)&7)===0,
-  hat:['star','crown','headphones','bow','gem','party',null,null][(h>>7)%8],
-  prop:MH_PROPS[(h>>10)%MH_PROPS.length]
+  anim:MH_ANIMS[(h>>>3)%MH_ANIMS.length],
+  face:['smile','grin','o','flat','w'][(h>>>6)%5],
+  stripe:((h>>>4)&3)===0,
+  glasses:((h>>>5)&7)===0,
+  hat:['star','crown','headphones','bow','gem','party',null,null][(h>>>7)%8],
+  prop:MH_PROPS[(h>>>10)%MH_PROPS.length]
  };
 }
 function mhPick(arr,seed){ return arr[((seed%arr.length)+arr.length)%arr.length]; }
@@ -163,15 +163,15 @@ function mhVoidTraits(i){
  const h=mhHashStr('vftrait'+i);
  return{
   body:MH_BODIES[h%MH_BODIES.length],
-  anim:MH_ANIMS[(h>>3)%MH_ANIMS.length],
-  face:['flat','o','grin','w','smile'][(h>>6)%5],
-  stripe:((h>>4)&3)===0,
-  glasses:((h>>5)&7)===0,
-  hat:MH_VOID_HATS[(h>>7)%MH_VOID_HATS.length],
-  prop:MH_PROPS[(h>>10)%MH_PROPS.length],
-  voidMark:(h>>2)%19,
-  voidEyes:['#70e8ff','#ff58c8','#ffe048','#98ff88','#c898ff','#ff8860'][(h>>12)%6],
-  voidPalette:(h>>9)%6,
+  anim:MH_ANIMS[(h>>>3)%MH_ANIMS.length],
+  face:['flat','o','grin','w','smile'][(h>>>6)%5],
+  stripe:((h>>>4)&3)===0,
+  glasses:((h>>>5)&7)===0,
+  hat:MH_VOID_HATS[(h>>>7)%MH_VOID_HATS.length],
+  prop:MH_PROPS[(h>>>10)%MH_PROPS.length],
+  voidMark:(h>>>2)%19,
+  voidEyes:['#70e8ff','#ff58c8','#ffe048','#98ff88','#c898ff','#ff8860'][(h>>>12)%6],
+  voidPalette:(h>>>9)%6,
   fallen:true
  };
 }
@@ -185,7 +185,8 @@ function mhVoidPal(i,kind){
   {head:138,torso:158,legs:175,s:46},
   {head:42,torso:268,legs:252,s:50}
  ];
- const s=schemes[(kind==null?i:kind)%schemes.length];
+ const ki=(((kind==null?i:kind)%schemes.length)+schemes.length)%schemes.length;
+ const s=schemes[ki];
  const b=12+(i%28);
  return{
   head:`hsl(${s.head+(h%18)},${s.s}%,${b+20}%)`,
