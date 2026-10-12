@@ -3,7 +3,7 @@
 'use strict';
 
 const MH_STORE_KEY='lithos_morph_hunt_v9';
-const MH_BUILD='void-2d-v28';
+const MH_BUILD='void-2d-v29';
 const MH_TOTAL_COUNT=1101;
 const MH_VOID_KING_DEPTH=100;
 const MH_VOID_KING_DIM='5th Dimensional';
@@ -1588,6 +1588,101 @@ function mhWalkDrawFrame(){
  }
  st.walkRaf=requestAnimationFrame(mhWalkDrawFrame);
 }
+function mhDemoMorph(anim,extra){
+ return Object.assign({
+  id:'demo-'+anim,
+  name:anim,
+  head:'#F5CD30',
+  torso:'#0085DB',
+  legs:'#A4BD47',
+  arms:'#F5CD30',
+  body:'classic',
+  anim,
+  face:'smile',
+  rarity:'rare',
+  scale:1
+ },extra||{});
+}
+function mhRenderPreview(){
+ const run=!!mhState.previewRun;
+ const flat=!!mhState.previewFlat;
+ return `<div class="mh-preview-tab">
+  <h3>🎬 Animation preview — everything live</h3>
+  <p class="mh-scene-hint">All <b>${MH_ANIMS.length}</b> idle styles · <b>walk</b> vs <b>run</b> leg cycles · 👑 <b>Void Fallen King 5D</b> · flat 2D vs depth</p>
+  <div class="mh-preview-tools">
+   <button type="button" class="mh-btn${run?'':' primary'}" data-mh-prev-mode="walk">🚶 Walk cycle</button>
+   <button type="button" class="mh-btn${run?' primary':''}" data-mh-prev-mode="run">🏃 Run cycle</button>
+   <button type="button" class="mh-btn${flat?' primary':''}" data-mh-prev-flat="1">📄 Flat 2D</button>
+   <button type="button" class="mh-btn${!flat?' primary':''}" data-mh-prev-flat="0">🧊 Depth / 3D</button>
+   <button type="button" class="mh-btn" data-mh-prev-minigame="gemtap">Preview minigame</button>
+  </div>
+  <canvas id="mh-preview-canvas" class="mh-preview-canvas" width="960" height="560" aria-label="Animation preview"></canvas>
+  <p class="mh-preview-legend">${MH_ANIMS.map(a=>'<span>'+a+'</span>').join('')} · NPC wander on maps · map props · void pulse &amp; match minigames in Hunt</p>
+ </div>`;
+}
+function mhPreviewStop(){
+ if(mhState&&mhState.previewRaf) cancelAnimationFrame(mhState.previewRaf);
+ if(mhState) mhState.previewRaf=0;
+}
+function mhPreviewDrawFrame(){
+ const st=mhState;
+ if(!st||st.tab!=='preview') return;
+ const canvas=document.getElementById('mh-preview-canvas');
+ if(!canvas){ st.previewRaf=requestAnimationFrame(mhPreviewDrawFrame); return; }
+ const ctx=canvas.getContext('2d');
+ if(!ctx){ st.previewRaf=requestAnimationFrame(mhPreviewDrawFrame); return; }
+ const W=canvas.width,H=canvas.height;
+ const t=performance.now()/1000;
+ const run=!!st.previewRun;
+ const flat=!!st.previewFlat;
+ st.previewPhase=(st.previewPhase||0)+(run?0.042:0.026);
+ const phase=st.previewPhase;
+ ctx.fillStyle='#0a1018';
+ ctx.fillRect(0,0,W,H);
+ ctx.strokeStyle='rgba(255,255,255,.06)'; ctx.lineWidth=1;
+ for(let x=0;x<W;x+=80){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+ for(let y=0;y<H;y+=80){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+ ctx.fillStyle='#ffe8a0'; ctx.font='bold 13px system-ui,sans-serif'; ctx.textAlign='left';
+ ctx.fillText('Idle animation styles (each noobie uses one in the wild)',16,24);
+ MH_ANIMS.forEach((anim,i)=>{
+  const col=i%4,row=Math.floor(i/4);
+  const cx=110+col*230,cy=88+row*168;
+  ctx.fillStyle='rgba(0,0,0,.55)'; ctx.fillRect(cx-52,cy-72,104,150);
+  ctx.strokeStyle='rgba(120,180,255,.35)'; ctx.strokeRect(cx-52.5,cy-72.5,104,150);
+  const m=mhDemoMorph(anim);
+  mhPaintNoobWorld(ctx,m,cx,cy+36,0.82,1,false,t,phase,flat,false);
+  ctx.fillStyle='#a8c0e0'; ctx.font='bold 11px system-ui'; ctx.textAlign='center';
+  ctx.fillText(anim.toUpperCase(),cx,cy+92);
+ });
+ ctx.fillStyle='#80e8ff'; ctx.font='bold 14px system-ui'; ctx.textAlign='left';
+ ctx.fillText('Movement (same noobie · legs + arms)',16,H-168);
+ const move=mhDemoMorph('bounce',{id:'demo-move',name:'Walker'});
+ const king=mhMorph('vf-king')||mhDemoMorph('pulse',{voidKing:true,void5D:true,body:'tall',hat:'crown',rarity:'voidfallen'});
+ ctx.fillStyle='rgba(0,0,0,.5)'; ctx.fillRect(40,H-150,200,130); ctx.fillRect(280,H-150,200,130);
+ ctx.fillStyle='rgba(40,0,80,.55)'; ctx.fillRect(520,H-150,240,130);
+ ctx.fillStyle='rgba(0,0,0,.45)'; ctx.fillRect(780,H-150,160,130);
+ mhPaintNoobWorld(ctx,move,140,H-78,0.95,1,false,t,phase,flat,false);
+ ctx.fillStyle='#b8e8ff'; ctx.font='bold 11px system-ui'; ctx.textAlign='center';
+ ctx.fillText('WALK',140,H-28);
+ mhPaintNoobWorld(ctx,move,380,H-78,0.95,1,false,t,phase,flat,true);
+ ctx.fillStyle='#ffe060'; ctx.fillText('RUN',380,H-28);
+ mhPaintNoobWorld(ctx,king,640,H-82,1.05,1,false,t,phase,true,false);
+ ctx.fillStyle='#e8d0ff'; ctx.font='bold 10px system-ui';
+ ctx.fillText('👑 KING · 5D',640,H-28);
+ ctx.fillText(MH_VOID_KING_DEPTH+' DEPTH',640,H-14);
+ const flatDemo=mhDemoMorph('sway',{torso:'#0085DB'});
+ mhPaintNoobWorld(ctx,flatDemo,860,H-78,0.88,1,false,t,phase,flat,false);
+ ctx.fillStyle='#c0d0e0'; ctx.fillText(flat?'FLAT 2D':'3D',860,H-28);
+ ctx.fillStyle='rgba(255,232,120,.85)'; ctx.font='bold 12px system-ui'; ctx.textAlign='center';
+ ctx.fillText('Build '+MH_BUILD+' · tab updates live',W/2,14);
+ st.previewRaf=requestAnimationFrame(mhPreviewDrawFrame);
+}
+function mhPreviewStart(){
+ mhPreviewStop();
+ if(!mhState) return;
+ mhState.previewPhase=0;
+ mhPreviewDrawFrame();
+}
 function mhWalkStart(){
  mhWalkStop();
  if(!mhState) return;
@@ -1754,6 +1849,18 @@ function mhBind(root){
  root.querySelectorAll('[data-mh-challenge]').forEach(btn=>btn.addEventListener('click',()=>mhDeckUnlock(mhMorph(btn.dataset.mhChallenge),mhState.save)));
  root.querySelectorAll('[data-mh-hunt-page]').forEach(btn=>btn.addEventListener('click',()=>{ mhState.huntPage=+btn.dataset.mhHuntPage; mhRender(); }));
  root.querySelectorAll('[data-mh-tab]').forEach(btn=>btn.addEventListener('click',()=>mhSetTab(btn.dataset.mhTab)));
+ root.querySelectorAll('[data-mh-prev-mode]').forEach(btn=>btn.addEventListener('click',()=>{
+  mhState.previewRun=btn.dataset.mhPrevMode==='run';
+  mhRender();
+ }));
+ root.querySelectorAll('[data-mh-prev-flat]').forEach(btn=>btn.addEventListener('click',()=>{
+  mhState.previewFlat=btn.dataset.mhPrevFlat==='1';
+  mhRender();
+ }));
+ root.querySelector('[data-mh-prev-minigame]')?.addEventListener('click',()=>{
+  const demo=mhMorph('vf-king')||mhDemoMorph('pulse');
+  mhOpenMinigame(demo);
+ });
  root.querySelectorAll('[data-mh-wear]').forEach(btn=>btn.addEventListener('click',()=>mhWear(btn.dataset.mhWear)));
  root.querySelector('#mh-gacha-roll')?.addEventListener('click',()=>mhGacha(false));
  root.querySelector('#mh-gacha-ex')?.addEventListener('click',()=>mhGacha(true));
@@ -1785,6 +1892,7 @@ function mhRender(){
  else if(tab==='index') body=mhRenderIndex(save);
  else if(tab==='morph') body=mhRenderMorph(save);
  else if(tab==='gacha') body=mhRenderGacha(save);
+ else if(tab==='preview') body=mhRenderPreview();
 
  root.innerHTML=`<div class="mh-panel mh-ftn">
   <header class="mh-ftn-banner">
@@ -1800,6 +1908,7 @@ function mhRender(){
     <button type="button" class="mh-tab${tab==='index'?' on':''}" data-mh-tab="index">📖 Index</button>
     <button type="button" class="mh-tab${tab==='morph'?' on':''}" data-mh-tab="morph">🎭 Morph</button>
     <button type="button" class="mh-tab${tab==='gacha'?' on':''}" data-mh-tab="gacha">🎲 Gacha</button>
+    <button type="button" class="mh-tab${tab==='preview'?' on':''}" data-mh-tab="preview">🎬 Animations</button>
    </div>
    <div class="mh-head-stats">
     <span class="mh-coins">💰 <b>${save.coins}</b></span>
@@ -1816,9 +1925,12 @@ function mhRender(){
  mhBind(root);
  if(save.wearing) mhSaveWearId(save.wearing);
  mhWalkStop();
+ mhPreviewStop();
  if(tab==='hunt'){
   mhWalkStart();
   root.querySelector('#mh-walk-canvas')?.focus();
+ }else if(tab==='preview'){
+  mhPreviewStart();
  }
 }
 
