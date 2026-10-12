@@ -1580,6 +1580,20 @@
   .mh-walk-hud{position:absolute;left:0;right:0;bottom:0;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:10px 12px;background:linear-gradient(180deg,transparent,rgba(0,0,0,.85))}
   .mh-walk-zone{font-weight:900;color:#ffe8a0;font-size:12px;text-shadow:0 1px 3px #000}
   .mh-walk-prompt{flex:1;text-align:center;font-size:12px;font-weight:800;color:#80e8ff}
+  .mh-walk-run{font-size:11px;font-weight:800;color:#80ffb0;text-shadow:0 1px 2px #000}
+  .mh-minigame-modal{z-index:10004}
+  .mh-minigame-card{background:linear-gradient(180deg,#1a1838,#0c1018);border:3px solid var(--mh-rarity,#b060e8);border-radius:18px;padding:20px;max-width:360px;width:100%;text-align:center}
+  .mh-mini-desc{color:#b8c0d8;font-size:13px;margin:8px 0 12px}
+  .mh-mini-stage{min-height:140px;margin-bottom:12px}
+  .mh-mini-status{font-weight:800;color:#ffe8a0;margin:0 0 8px;font-size:13px}
+  .mh-mini-gembox{position:relative;height:120px;background:#0a0e14;border-radius:12px;border:1px solid #3a4050;overflow:hidden}
+  .mh-mini-gem{position:absolute;width:36px;height:36px;border:none;border-radius:8px;cursor:pointer;background:linear-gradient(135deg,#ff6090,#ffd060);transform:rotate(45deg);box-shadow:0 2px 8px rgba(0,0,0,.4)}
+  .mh-mini-track{position:relative;height:36px;background:#1a2030;border-radius:10px;border:2px solid #4a5060;cursor:pointer;margin:12px 0}
+  .mh-mini-bar{position:absolute;top:4px;width:14px;height:26px;background:#00e8ff;border-radius:4px;box-shadow:0 0 10px #00e8ff}
+  .mh-mini-zone{position:absolute;top:0;width:16%;height:100%;background:rgba(76,175,125,.35);border-left:2px solid #4caf7d;border-right:2px solid #4caf7d}
+  .mh-mini-mem{display:flex;gap:8px;justify-content:center;margin:10px 0}
+  .mh-mini-membtn{width:48px;height:48px;border:2px solid #3a4050;border-radius:10px;cursor:pointer;opacity:.75}
+  .mh-mini-membtn.lit{opacity:1;box-shadow:0 0 16px #fff;transform:scale(1.08)}
   .mh-walk-dpad{display:grid;grid-template-columns:repeat(3,36px);grid-template-rows:repeat(2,32px);gap:4px}
   .mh-walk-dpad button{grid-column:2;border:none;border-radius:8px;background:rgba(255,255,255,.15);color:#fff;font-weight:900;cursor:pointer}
   .mh-walk-dpad button[data-mh-dpad="ArrowLeft"]{grid-column:1;grid-row:2}
@@ -5422,7 +5436,7 @@
 <script src="gc-drone-shapes.js?v=deploy-83"></script>
 <script src="gc-gravastar-scene.js?v=deploy-83"></script>
 <script src="gemcopter.js?v=deploy-85"></script>
-<script src="morph-hunt.js?v=1da8dde-w7"></script>
+<script src="morph-hunt.js?v=aura-run-v8"></script>
 <script>
 /* ---------- Affiliate partners (tracked links where available) ---------- */
 const DEFAULT_PARTNER='gemsny';
