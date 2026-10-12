@@ -3,9 +3,9 @@
 'use strict';
 
 const MH_STORE_KEY='lithos_morph_hunt_v9';
-const MH_BUILD='void-2d-v42';
-const MH_SCENERY_STAMP='MAYOR_COURT_v42';
-const MH_SCRIPT_FILE='morph-hunt.void-2d-v42.js';
+const MH_BUILD='void-2d-v43';
+const MH_SCENERY_STAMP='VOID_POWERS_v43';
+const MH_SCRIPT_FILE='morph-hunt.void-2d-v43.js';
 const MH_KING_STAMP='RED_BLACK_KING_v31';
 const MH_MEGA_W=7;
 const MH_MEGA_H=6;
@@ -199,6 +199,37 @@ function mhVoidName(i){
 }
 const MH_VOID_MALE_BODIES=['classic','tall','builder','wide','robot','ghost'];
 const MH_VOID_HATS=['voidhorn','voidhalo','riftshard','gem','crown','headphones','bow','party','star',null,null];
+const MH_VOID_ATTACKS=[
+ {id:'rift_slash',name:'Rift Slash',color:'#c080ff',kind:'arc',speed:9,range:95},
+ {id:'abyss_bolt',name:'Abyss Bolt',color:'#9040ff',kind:'beam',speed:11,range:140},
+ {id:'shadow_lance',name:'Shadow Lance',color:'#6080c0',kind:'beam',speed:13,range:120},
+ {id:'void_orbs',name:'Void Orbs',color:'#ff48e8',kind:'orbs',speed:7,range:80},
+ {id:'maelstrom_cut',name:'Maelstrom Cut',color:'#80e0ff',kind:'arc',speed:10,range:100},
+ {id:'fallen_rend',name:'Fallen Rend',color:'#b010ff',kind:'arc',speed:8,range:110},
+ {id:'depth_spike',name:'Depth Spike',color:'#7040c0',kind:'beam',speed:12,range:130},
+ {id:'king_breaker',name:'King Breaker',color:'#ff4040',kind:'nova',speed:6,range:90}
+];
+const MH_VOID_POWERS=[
+ {id:'void_step',name:'Void Step',color:'#c898ff',kind:'dash',dist:90,cooldown:1.2},
+ {id:'shadow_shield',name:'Shadow Shield',color:'#5060a0',kind:'shield',time:2.8,cooldown:2.5},
+ {id:'abyss_surge',name:'Abyss Surge',color:'#9040ff',kind:'nova',range:100,cooldown:2},
+ {id:'rift_heal',name:'Rift Mend',color:'#80ffb0',kind:'heal',coins:8,cooldown:3},
+ {id:'fallen_rage',name:'Fallen Rage',color:'#ff6080',kind:'buff',time:4,cooldown:4},
+ {id:'mirror_clone',name:'Mirror Echo',color:'#80e8ff',kind:'echo',count:3,cooldown:2.2},
+ {id:'gravity_well',name:'Gravity Well',color:'#6040a0',kind:'pull',range:120,cooldown:2.8},
+ {id:'forbidden_storm',name:'Forbidden Storm',color:'#ff2020',kind:'storm',range:150,cooldown:3.5}
+];
+function mhAssignVoidCombat(m){
+ if(m.rarity!=='voidfallen'&&!m.voidFallen) return;
+ if(m.voidKing){
+  m.voidAttack={id:'king_cleave',name:'Greataxe Cleave',color:'#ff3030',kind:'arc',speed:9,range:130};
+  m.voidPower={id:'forbidden_storm',name:'Forbidden Stone Storm',color:'#ff2020',kind:'storm',range:170,cooldown:3};
+  return;
+ }
+ const h=mhHashStr(m.id+'vfc');
+ m.voidAttack=MH_VOID_ATTACKS[h%MH_VOID_ATTACKS.length];
+ m.voidPower=MH_VOID_POWERS[(h>>>4)%MH_VOID_POWERS.length];
+}
 function mhVoidTraits(i){
  const h=mhHashStr('vftrait'+i);
  return{
@@ -377,6 +408,7 @@ function mhBuildMorphs(){
  return list;
 }
 const MH_MORPHS=mhBuildMorphs();
+MH_MORPHS.forEach(mhAssignVoidCombat);
 const MH_NORMALS=MH_MORPHS.filter(m=>!m.exclusive&&!m.voidFallen);
 const MH_EXCLUSIVES=MH_MORPHS.filter(m=>m.exclusive);
 const MH_EXOTICS=MH_MORPHS.filter(m=>m.rarity==='exotic');
@@ -2151,6 +2183,110 @@ function mhPaintKingStoneAura(ctx,x,y,t,alpha,silhouette){
  }
  ctx.restore();
 }
+function mhVoidCombatMorph(save,st){
+ const wear=mhMorph(save?.wearing);
+ if(wear&&(wear.rarity==='voidfallen'||wear.voidFallen)) return wear;
+ if(st?.walkNearVoidId) return mhMorph(st.walkNearVoidId);
+ return null;
+}
+function mhSpawnVoidFx(st,fx){
+ if(!st.voidFx) st.voidFx=[];
+ st.voidFx.push({...fx,life:fx.life||0.55,born:performance.now()});
+}
+function mhUpdateVoidFx(st,dt){
+ if(!st.voidFx) return;
+ st.voidFx=st.voidFx.filter(f=>{
+  f.life-=dt;
+  f.x+=(f.vx||0)*dt*60; f.y+=(f.vy||0)*dt*60;
+  if(f.kind==='nova'||f.kind==='storm') f.r=(f.r||20)+(f.dr||80)*dt;
+  return f.life>0;
+ });
+ if(st.voidShieldUntil&&performance.now()>st.voidShieldUntil) st.voidShieldUntil=0;
+ if(st.voidRageUntil&&performance.now()>st.voidRageUntil) st.voidRageUntil=0;
+}
+function mhDrawVoidFx(ctx,st){
+ (st.voidFx||[]).forEach(f=>{
+  const a=Math.max(0,Math.min(1,f.life*2));
+  ctx.save(); ctx.globalAlpha=a;
+  if(f.kind==='beam'){
+   ctx.strokeStyle=f.color||'#9040ff'; ctx.lineWidth=5; ctx.shadowColor=f.color; ctx.shadowBlur=12;
+   ctx.beginPath(); ctx.moveTo(f.x,f.y); ctx.lineTo(f.x+(f.vx||0)*8,f.y+(f.vy||0)*8); ctx.stroke();
+  }else if(f.kind==='arc'){
+   ctx.strokeStyle=f.color||'#c080ff'; ctx.lineWidth=6;
+   ctx.beginPath(); ctx.arc(f.x,f.y,f.r||40,f.a0||0,f.a1||Math.PI); ctx.stroke();
+  }else if(f.kind==='orbs'){
+   ctx.fillStyle=f.color||'#ff48e8';
+   for(let i=0;i<3;i++) ctx.beginPath().arc(f.x+i*10-10,f.y,6,0,Math.PI*2).fill();
+  }else{
+   ctx.strokeStyle=f.color||'#9040ff'; ctx.lineWidth=3;
+   ctx.beginPath(); ctx.arc(f.x,f.y,f.r||30,0,Math.PI*2); ctx.stroke();
+  }
+  ctx.restore();
+ });
+ if(st.voidShieldUntil&&performance.now()<st.voidShieldUntil){
+  const p=st.walkPos?.[st.world];
+  if(p){
+   ctx.strokeStyle='rgba(120,160,255,.75)'; ctx.lineWidth=3;
+   ctx.beginPath(); ctx.arc(p.px,p.py,42+Math.sin(performance.now()/200)*4,0,Math.PI*2); ctx.stroke();
+  }
+ }
+}
+function mhFacingDir(st){
+ const k=st.walkKeys||{};
+ let dx=0,dy=0;
+ if(k.left) dx-=1; if(k.right) dx+=1; if(k.up) dy-=1; if(k.down) dy+=1;
+ if(!dx&&!dy) return {dx:0,dy:1};
+ const l=Math.hypot(dx,dy)||1;
+ return {dx:dx/l,dy:dy/l};
+}
+function mhVoidCooldown(st,slot,sec){
+ if(!st.voidCd) st.voidCd={};
+ const now=performance.now()/1000;
+ if(st.voidCd[slot]&&now<st.voidCd[slot]) return false;
+ st.voidCd[slot]=now+sec;
+ return true;
+}
+function mhUseVoidAttack(st,save,pos){
+ if(st.world!==MH_VOID_WORLD){ mhToast('Attacks work on 🕳 Void map!'); return; }
+ const m=mhVoidCombatMorph(save,st);
+ if(!m){ mhToast('Morph into a Void Fallen noobie first (Morph tab)!'); return; }
+ const atk=m.voidAttack||MH_VOID_ATTACKS[0];
+ const dir=mhFacingDir(st);
+ const rage=st.voidRageUntil&&performance.now()<st.voidRageUntil;
+ const spd=(atk.speed||10)*(rage?1.35:1);
+ mhSpawnVoidFx(st,{kind:atk.kind,x:pos.px,y:pos.py-12,vx:dir.dx*spd,vy:dir.dy*spd,color:atk.color,a0:Math.atan2(dir.dy,dir.dx)-0.8,a1:Math.atan2(dir.dy,dir.dx)+0.8,r:atk.range||90,dr:120});
+ if(m.voidKing) mhSpawnVoidFx(st,{kind:'arc',x:pos.px,y:pos.py-20,vx:0,vy:0,color:'#ff2020',a0:0,a1:Math.PI*2,r:40,dr:100,life:0.35});
+ mhToast('⚔ '+atk.name+'!');
+ try{if(typeof SFX!=='undefined'&&SFX.hit)SFX.hit();}catch(_){}
+}
+function mhUseVoidPower(st,save,pos,map){
+ if(st.world!==MH_VOID_WORLD){ mhToast('Powers work on 🕳 Void map!'); return; }
+ const m=mhVoidCombatMorph(save,st);
+ if(!m){ mhToast('Morph into a Void Fallen noobie first!'); return; }
+ const pow=m.voidPower||MH_VOID_POWERS[0];
+ const cd=pow.cooldown||2;
+ if(!mhVoidCooldown(st,'pow',cd)){ mhToast('Power recharging…'); return; }
+ const dir=mhFacingDir(st);
+ if(pow.kind==='dash'){
+  pos.px+=dir.dx*(pow.dist||80); pos.py+=dir.dy*(pow.dist||80);
+  mhClampWalkPos(map,pos);
+  mhSpawnVoidFx(st,{kind:'nova',x:pos.px,y:pos.py,vx:0,vy:0,color:pow.color,r:10,dr:60,life:0.4});
+ }else if(pow.kind==='shield'){
+  st.voidShieldUntil=performance.now()+(pow.time||2.5)*1000;
+ }else if(pow.kind==='heal'){
+  save.coins+=pow.coins||8; mhSaveSave(save);
+ }else if(pow.kind==='buff'){
+  st.voidRageUntil=performance.now()+(pow.time||4)*1000;
+ }else if(pow.kind==='echo'){
+  for(let i=0;i<(pow.count||3);i++){
+   mhSpawnVoidFx(st,{kind:'orbs',x:pos.px+(i-1)*24,y:pos.py-20-i*8,vx:dir.dx*4,vy:dir.dy*4,color:m.voidAccent||pow.color,life:0.5});
+  }
+ }else{
+  mhSpawnVoidFx(st,{kind:pow.kind==='storm'?'storm':'nova',x:pos.px,y:pos.py-10,vx:0,vy:0,color:pow.color,r:20,dr:pow.range||110,life:0.65});
+ }
+ mhToast('✦ '+pow.name+'!');
+ try{if(typeof SFX!=='undefined'&&SFX.ui)SFX.ui();}catch(_){}
+}
 function mhPaintVoidKing(ctx,x,y,sc,alpha,silhouette,walkPhase,running,t,flat){
  ctx.save();
  ctx.translate(x,y);
@@ -2654,6 +2790,15 @@ function mhWalkApplyKey(e,down){
   const pos=mhWalkEnsurePos(mhState,mhState.world);
   if(mhNearMayorShrine(pos,map)){ mhMayorFlashBeam(); hit=true; }
  }
+ if(down&&(c==='Digit1'||k==='1')){
+  const pos=mhWalkEnsurePos(mhState,mhState.world);
+  mhUseVoidAttack(mhState,mhState.save,pos); hit=true;
+ }
+ if(down&&(c==='Digit2'||k==='2')){
+  const map=MH_WORLD_MAPS[mhState.world];
+  const pos=mhWalkEnsurePos(mhState,mhState.world);
+  mhUseVoidPower(mhState,mhState.save,pos,map); hit=true;
+ }
  if(hit){
   e.preventDefault();
   e.stopPropagation();
@@ -2723,8 +2868,19 @@ function mhWalkDrawFrame(){
   mhNpcWander(st,map,m,mhNpcState(st,wi,m),dt,save);
  });
  mhUpdateCivilians(st,map,wi,dt);
+ mhUpdateVoidFx(st,dt);
  st.walkNearId=near?near.id:null;
  st.walkNearBuilding=mhWalkNearBuilding(pos,map);
+ if(wi===MH_VOID_WORLD){
+  let bv=null,bd=220;
+  morphs.forEach(m=>{
+   if(m.voidKing||m.rarity!=='voidfallen') return;
+   const p=mhGetNpcPos(st,wi,m);
+   const d=Math.hypot(p.px-pos.px,p.py-pos.py);
+   if(d<bd){ bd=d; bv=m; }
+  });
+  st.walkNearVoidId=bv?bv.id:null;
+ }else st.walkNearVoidId=null;
  const camX=pos.px-W/2,camY=pos.py-H/2;
  const flatMap=mhMapFlat2D(wi);
  ctx.fillStyle=world.bg;
@@ -2777,9 +2933,13 @@ function mhWalkDrawFrame(){
    ctx.fillText('✦ EXOTIC',mx,my-88);
   }
   if(m.rarity==='voidfallen'&&!m.voidKing){
-   ctx.fillStyle='rgba(40,0,80,.9)'; ctx.fillRect(mx-62,my-100,124,16);
-   ctx.fillStyle='#c898ff'; ctx.font='bold 10px system-ui'; ctx.textAlign='center';
-   ctx.fillText('🕳 MALE VOID FALLEN',mx,my-89);
+   const atk=m.voidAttack?.name||'Void Strike';
+   const pow=m.voidPower?.name||'Void Power';
+   ctx.fillStyle='rgba(40,0,80,.92)'; ctx.fillRect(mx-72,my-112,144,28);
+   ctx.fillStyle='#c898ff'; ctx.font='bold 9px system-ui'; ctx.textAlign='center';
+   ctx.fillText('🕳 '+m.name.slice(0,16),mx,my-100);
+   ctx.fillStyle='#ffe8a0'; ctx.font='bold 8px system-ui';
+   ctx.fillText('⚔ '+atk+' · ✦ '+pow,mx,my-90);
   }
   if(dist<MH_INTERACT_R&&!got){
    if(!got){
@@ -2797,6 +2957,7 @@ function mhWalkDrawFrame(){
   }
  });
  mhDrawMapStatues(ctx,map,t,st);
+ mhDrawVoidFx(ctx,st);
  const wear=mhMorph(save.wearing);
  mhDrawYouInWorld(ctx,wear,pos,map,t,st.walkPhase||0,wi,st.playerRunning);
  ctx.restore();
@@ -2823,8 +2984,12 @@ function mhWalkDrawFrame(){
  if(flatMap) mhPaperFlatOverlay(ctx,W,H);
  if(wi===MH_VOID_WORLD){
   mhVoidFlatScreenOverlay(ctx,W,H);
-  ctx.fillStyle='rgba(255,80,80,.95)'; ctx.font='bold 11px system-ui,sans-serif'; ctx.textAlign='center';
-  ctx.fillText(MH_VOID_ABYSS_LABEL+' · 👑 King at center', W/2, H-16);
+  const vm=mhVoidCombatMorph(save,st);
+  ctx.fillStyle='rgba(40,0,80,.85)'; ctx.fillRect(W/2-200,H-52,400,36);
+  ctx.fillStyle='#e8d0ff'; ctx.font='bold 11px system-ui'; ctx.textAlign='center';
+  ctx.fillText(vm?('⚔ 1 Attack: '+(vm.voidAttack?.name||'?')+' · ✦ 2 Power: '+(vm.voidPower?.name||'?')):'Morph a Void Fallen · then 1=Attack 2=Power',W/2,H-32);
+  ctx.fillStyle='rgba(255,80,80,.95)'; ctx.font='bold 11px system-ui,sans-serif';
+  ctx.fillText(MH_VOID_ABYSS_LABEL+' · 👑 King at center', W/2, H-12);
   if(map.throneTx!=null){
    const tx=map.throneTx*MH_TILE+MH_TILE/2, ty=map.throneTy*MH_TILE+MH_TILE/2;
    const ang=Math.atan2(ty-pos.py,tx-pos.px);
@@ -2981,6 +3146,17 @@ function mhWalkStart(){
  root?.querySelector('#mh-walk-run')?.addEventListener('pointerup',()=>{
   if(mhState?.walkKeys) delete mhState.walkKeys.run;
  });
+ root?.querySelector('#mh-void-atk')?.addEventListener('click',()=>{
+  if(!mhState?.save) return;
+  const pos=mhWalkEnsurePos(mhState,mhState.world);
+  mhUseVoidAttack(mhState,mhState.save,pos);
+ });
+ root?.querySelector('#mh-void-pow')?.addEventListener('click',()=>{
+  if(!mhState?.save) return;
+  const map=MH_WORLD_MAPS[mhState.world];
+  const pos=mhWalkEnsurePos(mhState,mhState.world);
+  mhUseVoidPower(mhState,mhState.save,pos,map);
+ });
  const canvas=root?.querySelector('#mh-walk-canvas');
  if(canvas) canvas.onclick=mhWalkCanvasClick;
 }
@@ -3039,6 +3215,7 @@ function mhRenderHunt(save, wi){
    <button type="button" class="mh-btn primary mh-btn-sm" id="mh-walk-interact">🎮 Minigame (E)</button>
    <button type="button" class="mh-btn mh-btn-sm" id="mh-walk-enter">F House</button>
    <button type="button" class="mh-btn mh-btn-sm" id="mh-walk-run">Run</button>
+   ${wi===MH_VOID_WORLD?'<button type="button" class="mh-btn mh-btn-sm" id="mh-void-atk">1 Attack</button><button type="button" class="mh-btn mh-btn-sm" id="mh-void-pow">2 Power</button>':''}
   </div>
  </div>
  ${mhRenderHuntDeck(save,wi,morphs)}
