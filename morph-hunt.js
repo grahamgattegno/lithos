@@ -3,7 +3,7 @@
 'use strict';
 
 const MH_STORE_KEY='lithos_morph_hunt_v9';
-const MH_BUILD='void-1000d-v20';
+const MH_BUILD='void-1000d-v21';
 const MH_TOTAL_COUNT=1100;
 const MH_1000D=true;
 const MH_DEPTH_LABEL='1000th Depth';
@@ -1508,7 +1508,19 @@ function playMorphHunt(){
  const wrap=document.createElement('div');
  wrap.id='morphhunt';
  document.body.appendChild(wrap);
- mhRender();
+ try{ mhRender(); }
+ catch(err){
+  console.error('[Morph Hunt render]',err);
+  wrap.innerHTML=`<div class="mh-panel mh-ftn" style="padding:24px;text-align:center;max-width:440px;margin:auto">
+   <h2 style="color:#ff8080">Morph Hunt could not start</h2>
+   <p style="color:#e0e8f0;line-height:1.5">Try a hard refresh. Build <b>${MH_BUILD}</b></p>
+   <button type="button" class="mh-btn primary" onclick="location.href=location.pathname+'?mh=${MH_BUILD}&t='+Date.now()+'#morphhunt'">Reload</button>
+   <button type="button" class="mh-btn ghost" id="mh-leave">Leave</button>
+  </div>`;
+  wrap.querySelector('#mh-leave')?.addEventListener('click',mhClose);
+  if(typeof syncBodyScrollLock==='function')syncBodyScrollLock();
+  return;
+ }
  if(!document.getElementById('mh-walk-canvas')){
   wrap.innerHTML=`<div class="mh-panel mh-ftn" style="padding:24px;text-align:center;max-width:420px;margin:auto">
    <h2 style="color:#ff8080">Old Lithos saved in your browser</h2>

@@ -5436,26 +5436,24 @@
 <script src="gc-drone-shapes.js?v=deploy-83"></script>
 <script src="gc-gravastar-scene.js?v=deploy-83"></script>
 <script src="gemcopter.js?v=deploy-85"></script>
+<script src="morph-hunt.js?v=void-1000d-v21"></script>
 <script>
-(function(){
- var MH_JS_BUILD='void-1000d-v20';
- var s=document.createElement('script');
- s.src='morph-hunt.js?v='+encodeURIComponent(MH_JS_BUILD)+'&_='+Date.now();
- s.onerror=function(){ console.error('Morph Hunt failed to load',s.src); };
- s.onload=function(){
-  if(!/#morphhunt/i.test(location.hash||'')) return;
-  var n=0;
-  (function go(){
-   if(typeof playMorphHunt==='function'){ try{ playMorphHunt(); }catch(e){ console.error(e); } return; }
-   if(++n<80) setTimeout(go,50);
-  })();
- };
- document.head.appendChild(s);
- window.lithosPlayMorphHunt=function(){
-  if(typeof playMorphHunt==='function') return playMorphHunt();
-  setTimeout(function(){ if(typeof playMorphHunt==='function') playMorphHunt(); },120);
- };
-})();
+window.lithosPlayMorphHunt=function lithosPlayMorphHunt(){
+ var tries=0;
+ function run(){
+  if(typeof playMorphHunt==='function'){
+   try{ return playMorphHunt(); }
+   catch(e){
+    console.error('[Morph Hunt]',e);
+    alert('Morph Hunt hit a glitch — hard refresh (Cmd+Shift+R) and try again.');
+   }
+   return;
+  }
+  if(++tries<100){ setTimeout(run,40); return; }
+  alert('Morph Hunt did not load. Hard refresh the page (Cmd+Shift+R).');
+ }
+ run();
+};
 </script>
 <script>
 /* ---------- Affiliate partners (tracked links where available) ---------- */
@@ -6017,7 +6015,7 @@ let gamesHubBuilt=false;
 function launchArcadeGame(action){
  try{closeGamesHub({skipHash:true});}catch(_){}
  lithosCloseGameOverlays();
- if(action==='morphhunt'){playMorphHunt();return;}
+ if(action==='morphhunt'){lithosPlayMorphHunt();return;}
  if(action==='gemrush'){playGemRush();return;}
  if(action==='nightshift'){playNightShift();return;}
  if(action==='gemdigger'){playGemDigger();return;}
@@ -6101,7 +6099,7 @@ function buildGamesHub(){
    if(!card)return;
    const id=card.dataset.game;
    if(id==='arcade'){closeGamesHub({skipHash:true}); switchView('arcade'); return;}
-   if(id==='morphhunt'){closeGamesHub({skipHash:true}); playMorphHunt(); return;}
+   if(id==='morphhunt'){closeGamesHub({skipHash:true}); lithosPlayMorphHunt(); return;}
    if(id==='gemrush'){closeGamesHub({skipHash:true}); playGemRush(); return;}
    if(id==='gemdigger'){closeGamesHub({skipHash:true}); playGemDigger(); return;}
    if(id==='gemdrive'){closeGamesHub({skipHash:true}); playGemDrive(); return;}
@@ -6557,7 +6555,7 @@ function closeSiteOverlays(){
  lithosCloseGameOverlays();
 }
 function switchView(name){
- if(name==='morphhunt'){playMorphHunt();if(location.hash!=='#morphhunt')history.replaceState(null,'','#morphhunt');return;}
+ if(name==='morphhunt'){lithosPlayMorphHunt();if(location.hash!=='#morphhunt')history.replaceState(null,'','#morphhunt');return;}
  if(name==='gemrush'){playGemRush();return;}
  if(name==='gemdigger'){playGemDigger();return;}
  if(name==='gemdrive'){playGemDrive();return;}
@@ -6665,7 +6663,7 @@ function routeHashView(){
   playNightMarket();return;
  }
  if(name==='backrooms'||name==='noclip'||name==='gembackrooms'){playBackroomsMaze();return;}
- if(name==='morphhunt'){playMorphHunt();return;}
+ if(name==='morphhunt'){lithosPlayMorphHunt();return;}
  if(name==='gemrush'){playGemRush();return;}
  if(name==='gemdigger'){playGemDigger();return;}
  if(name==='gemdrive'){playGemDrive();return;}
@@ -15050,7 +15048,7 @@ function tryCode(){
  // GEM RUSH — pair matching! 💎⛏️
  if(raw==="morph hunt"||raw==="morphhunt"||raw==="find morphs"||raw==="morphs"){
  res.innerHTML=`<div class="win" style="border-color:#ff6eb4">Morph Hunt! Find every morph across worlds — owner gets the full codex.</div>`;
- playMorphHunt();
+ lithosPlayMorphHunt();
  return;
  }
 
