@@ -5,9 +5,9 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v59';
-const MH_SCENERY_STAMP='VOID_STORM_MADE_v59';
-const MH_SCRIPT_FILE='morph-hunt.void-2d-v59.js';
+const MH_BUILD='void-2d-v60';
+const MH_SCENERY_STAMP='GIBBERLINK_RIFT_v60';
+const MH_SCRIPT_FILE='morph-hunt.void-2d-v60.js';
 const MH_VOID_STORM_NAME='Void Storm';
 const MH_VOID_STORM_POWER={id:'void_storm',name:'Void Storm',color:'#ff2020',kind:'storm',range:200};
 const MH_KING_STAMP='RED_BLACK_KING_v31';
@@ -2486,7 +2486,7 @@ function mhRefreshVoidCombatHud(save){
  const bar=document.getElementById('mh-void-combat-readout');
  if(bar){
   bar.innerHTML=vm
-   ?`<b>⚔ 1</b> ${atkN} · <b>✦ 2</b> ${powN} · <b>🌌 3</b> ${MH_VOID_STORM_NAME} — <span style="color:#80ffb0">instant</span>${vm.voidKing?' · 👑 rift king':''}`
+   ?`<b>⚔ 1</b> ${atkN} · <b>✦ 2</b> ${powN} · <b>🌌 3</b> ${MH_VOID_STORM_NAME} — <span style="color:#ff9090">GIBBERLINK</span> · <span style="color:#80ffb0">instant</span>${vm.voidKing?' · 👑 rift king':''}`
    :'🎭 Morph a <b>Void Fallen</b> in Morph tab — then <b>1</b> / <b>2</b> on any map';
  }
  const btnA=document.getElementById('mh-void-atk');
@@ -2618,6 +2618,37 @@ function mhSpawnPowerVfx(st,m,pow,dir,pos,map){
  mhVoidShake(st,100,6);
 }
 const MH_FORBIDDEN_SPELLS=['Null Sigil','Abyss Hex','Rift Curse','Shadow Bind','Depth Wail','King\'s Edict','Stone Eclipse','Void Lament'];
+function mhGibberLinkCtx(){
+ try{
+  if(!window.__mhGibberCtx) window.__mhGibberCtx=new (window.AudioContext||window.webkitAudioContext)();
+  const c=window.__mhGibberCtx;
+  if(c.state==='suspended') c.resume();
+  return c;
+ }catch(_){ return null; }
+}
+function mhGibberLinkBurst(st,payload){
+ const msg=String(payload||'GIBBERLINK').slice(0,32);
+ st.voidGibberUntil=performance.now()+2200;
+ st.voidGibberText=msg;
+ const C=mhGibberLinkCtx();
+ if(!C) return;
+ let t=C.currentTime+0.01;
+ for(let i=0;i<msg.length;i++){
+  const c=msg.charCodeAt(i);
+  const freq=520+(c%48)*22;
+  const o=C.createOscillator();
+  const g=C.createGain();
+  o.type=i%3?'square':'sawtooth';
+  o.frequency.setValueAtTime(freq,t);
+  o.frequency.exponentialRampToValueAtTime(freq*1.08,t+0.04);
+  g.gain.setValueAtTime(0.0001,t);
+  g.gain.exponentialRampToValueAtTime(0.07,t+0.012);
+  g.gain.exponentialRampToValueAtTime(0.0001,t+0.05);
+  o.connect(g); g.connect(C.destination);
+  o.start(t); o.stop(t+0.055);
+  t+=0.058;
+ }
+}
 function mhSpawnVoidUniverseStorm(st,m,dir,pos,range){
  const reach=range||180;
  const hx=pos.px+dir.dx*reach, hy=pos.py+dir.dy*reach;
@@ -2637,6 +2668,11 @@ function mhSpawnVoidUniverseStorm(st,m,dir,pos,range){
   const a=i*Math.PI*2/10+performance.now()/800;
   mhSpawnVoidFx(st,{kind:'spark',x:hx+Math.cos(a)*holeR*0.6,y:hy+Math.sin(a)*holeR*0.35,vx:-Math.cos(a)*6,vy:-Math.sin(a)*6,color:'#ff6060',life:0.75});
  }
+ mhGibberLinkBurst(st,m.voidKing?'GIBBERLINK:KING:RIFT':'GIBBERLINK:VOID:STORM');
+ for(let i=0;i<8;i++){
+  mhSpawnVoidFx(st,{kind:'gibberlink',x:hx+(i-4)*14,y:hy-210,vx:0,vy:0,color:'#ff6060',life:stormLife*0.7,chip:i%5});
+ }
+ st.voidGibberUntil=performance.now()+stormLife*1000;
  mhVoidShake(st,m.voidKing?220:180,m.voidKing?12:9);
 }
 function mhUpdateVoidFx(st,dt){
@@ -2652,8 +2688,11 @@ function mhUpdateVoidFx(st,dt){
     const dist=Math.hypot(dx,dy)||1;
     const pull=8+Math.sin((f.phase||0)+f.age*9)*2;
     f.vx=(dx/dist)*pull; f.vy=(dy/dist)*pull;
-    if(dist<24&&Math.random()<0.35){
-     mhSpawnVoidFx(st,{kind:'spark',x:f.x,y:f.y,vx:(Math.random()-0.5)*8,vy:(Math.random()-0.5)*8,color:'#ff8080',life:0.35});
+    if(dist<24){
+     if(Math.random()<0.35){
+      mhSpawnVoidFx(st,{kind:'spark',x:f.x,y:f.y,vx:(Math.random()-0.5)*8,vy:(Math.random()-0.5)*8,color:'#ff8080',life:0.35});
+     }
+     if(Math.random()<0.12) mhGibberLinkBurst(st,f.spell||'SPELL');
     }
    }
   }
@@ -2773,8 +2812,20 @@ function mhDrawVoidFx(ctx,st){
    ctx.beginPath(); ctx.moveTo(0,-r*1.7); ctx.lineTo(0,r*0.2); ctx.stroke();
    ctx.fillStyle='rgba(255,200,200,.9)'; ctx.font='bold 10px system-ui,sans-serif';
    ctx.textAlign='center';
-   ctx.fillText('RIFT',0,-r*1.45);
+   ctx.fillText('GIBBERLINK',0,-r*1.52);
+   ctx.font='8px system-ui,sans-serif';
+   ctx.fillStyle='rgba(255,160,160,.85)';
+   ctx.fillText('universe rift',0,-r*1.32);
    ctx.restore();
+  }else if(f.kind==='gibberlink'){
+   const w=10+(f.chip||0)*3;
+   ctx.fillStyle='rgba(255,80,80,.9)';
+   for(let b=0;b<5;b++){
+    const h=6+Math.sin((f.age||0)*24+b*1.7)*w*0.35;
+    ctx.fillRect(f.x-18+b*8,f.y-h/2,5,h);
+   }
+   ctx.fillStyle='#0a0a0a';
+   ctx.fillRect(f.x-20,f.y+8,40,3);
   }else if(f.kind==='forbidden_spell'){
    if((f.delay||0)>0){ ctx.restore(); return; }
    const tailX=f.x-(f.vx||0)*4, tailY=f.y-(f.vy||0)*4;
@@ -2850,7 +2901,7 @@ function mhUseVoidStorm(st,save,pos){
  const dir=mhFacingDir(st);
  const range=m.voidKing?210:175;
  mhSpawnVoidUniverseStorm(st,m,dir,pos,range);
- mhToast('🌌 '+MH_VOID_STORM_NAME+'! Red-black hole · forbidden spells from the universe rift!');
+ mhToast('🌌 '+MH_VOID_STORM_NAME+'! GIBBERLINK rift · red-black hole · forbidden spells!');
  try{if(typeof SFX!=='undefined'&&SFX.ui)SFX.ui();}catch(_){}
 }
 function mhUseVoidPower(st,save,pos,map){
@@ -3559,6 +3610,11 @@ function mhWalkDrawFrame(){
  ctx.fillText('Search dashed groves · noobies appear when you walk in · E unlock',16,42);
  ctx.fillStyle='#a0c8ff'; ctx.font='bold 11px system-ui,sans-serif';
  ctx.fillText('Epic+ → teleport 💎 · Void → teleport 🕳 (tabs above)',16,56);
+ if(st.voidGibberUntil&&performance.now()<st.voidGibberUntil){
+  ctx.fillStyle='rgba(40,0,0,.88)'; ctx.fillRect(W/2-150,H-36,300,28);
+  ctx.fillStyle='#ff6060'; ctx.font='bold 12px system-ui,sans-serif'; ctx.textAlign='center';
+  ctx.fillText('📡 GIBBERLINK · '+String(st.voidGibberText||'rift').slice(0,28),W/2,H-18);
+ }
  const pc=mhParkCenter(map);
  if(pc){
   const pd=Math.hypot(pc.px-pos.px,pc.py-pos.py);
