@@ -3,7 +3,7 @@
 'use strict';
 
 const MH_STORE_KEY='lithos_morph_hunt_v9';
-const MH_BUILD='void-2d-v25';
+const MH_BUILD='void-2d-v26';
 const MH_TOTAL_COUNT=1100;
 const MH_1000D=true;
 const MH_2D=true;
@@ -304,14 +304,14 @@ function mhGenWorldMap(wi){
  if(wi===MH_VOID_WORLD){
   for(let y=0;y<h;y++)for(let x=0;x<w;x++){
    if(x<1||y<1||x>=w-1||y>=h-1) tiles[y*w+x]=1;
-   else tiles[y*w+x]=mhHashStr('void'+x+y)%5===0?2:0;
+   else tiles[y*w+x]=0;
   }
   return {w,h,tiles,spawnTx:5,spawnTy:5,doorTx:22,doorTy:16,wi};
  }
  if(wi===MH_EXOTIC_WORLD){
   for(let y=0;y<h;y++)for(let x=0;x<w;x++){
    if(x<1||y<1||x>=w-1||y>=h-1) tiles[y*w+x]=1;
-   else tiles[y*w+x]=mhHashStr('ex'+x+y)%9===0?2:0;
+   else tiles[y*w+x]=0;
   }
   return {w,h,tiles,spawnTx:4,spawnTy:4,doorTx:23,doorTy:17,wi};
  }
@@ -322,14 +322,6 @@ function mhGenWorldMap(wi){
  const mid=Math.floor(h/2);
  const door=8+(mhHashStr('door'+wi)% (w-16));
  for(let x=2;x<w-2;x++) if(Math.abs(x-door)>2) tiles[mid*w+x]=1;
- for(let r=0;r<4+wi;r++){
-  const rx=4+mhHashStr('rx'+wi+r)%(w-8);
-  const ry=4+mhHashStr('ry'+wi+r)%(h-8);
-  if(tiles[ry*w+rx]===0) tiles[ry*w+rx]=2;
- }
- for(let x=2;x<w-2;x+=6) for(let y=2;y<h-2;y+=5){
-  if(tiles[y*w+x]===0&&mhHashStr('p'+x+y+wi)%7===0) tiles[y*w+x]=2;
- }
  return {w,h,tiles,spawnTx:3,spawnTy:3,doorTx:door,doorTy:mid,wi};
 }
 const MH_WORLD_MAPS=MH_WORLDS.map((_,i)=>mhGenWorldMap(i));
@@ -468,8 +460,14 @@ function mhRarityInfo(m){
 }
 function mhNeedsMinigame(m){
  if(!m||mhIsOwner()) return false;
- if(!MH_HIGH_RARITY.has(m.rarity)) return false;
+ if(m.rarity==='common') return false;
  return true;
+}
+function mhDeckUnlock(m,save){
+ if(!m) return;
+ if(mhHasMorph(save,m.id)){ mhWear(m.id); return; }
+ if(mhNeedsMinigame(m)&&!mhMinigameCleared(save,m.id)){ mhOpenMinigame(m); return; }
+ mhFinishCollect(m);
 }
 function mhMinigameCleared(save,id){
  return mhIsOwner()||(save.minigameWon||[]).includes(id);
@@ -685,7 +683,8 @@ function mhCollect(id){
 function mhOpenMinigame(m){
  if(!mhState) return;
  mhState.minigameMorph=m;
- const kind=['gemtap','zonehit','memory'][mhHashStr(m.id)%3];
+ const kinds=['gemtap','zonehit','memory','voidpulse','noobmatch'];
+ const kind=kinds[mhHashStr(m.id)%kinds.length];
  mhState.minigameKind=kind;
  const modal=document.getElementById('mh-minigame-modal');
  if(!modal) return;
@@ -693,7 +692,7 @@ function mhOpenMinigame(m){
  modal.hidden=false;
  modal.innerHTML=`<div class="mh-minigame-card" style="--mh-rarity:${r.color}">
   <div class="mh-found-badge">Unlock ${mhRarityLabel(m)} · ${m.name}</div>
-  <p class="mh-mini-desc">${kind==='gemtap'?'Tap 6 gems fast!':kind==='zonehit'?'Hit the green zone 3 times!':'Repeat the color pattern!'}</p>
+  <p class="mh-mini-desc">${kind==='gemtap'?'Tap 6 gems before time runs out!':kind==='zonehit'?'Click when the bar is in the green zone — 3 hits!':kind==='memory'?'Watch the colors, then repeat the pattern!':kind==='voidpulse'?'Click when the void pulse fills the ring!':'Find the two matching noobie colors!'}</p>
   <div id="mh-mini-stage" class="mh-mini-stage"></div>
   <button type="button" class="mh-btn ghost" id="mh-mini-cancel">Back to hunt</button>
  </div>`;
@@ -748,7 +747,7 @@ function mhRunMinigame(kind,m){
   };
   return;
  }
- /* memory */
+ if(kind==='memory'){
  const colors=['#ff4080','#40c0ff','#ffe060','#4caf7d'];
  const seq=[]; for(let i=0;i<4;i++) seq.push(colors[mhHashStr(m.id+i)%colors.length]);
  let step=0,showing=true;
@@ -768,6 +767,58 @@ function mhRunMinigame(kind,m){
   if(showing) return;
   if(b.style.background===seq[step]){ step++; status.textContent='Your turn! '+step+'/4'; if(step>=seq.length) mhWinMinigame(m); }
   else{ mhToast('Wrong — watch again'); showing=true; step=0; i=0; btns.forEach(x=>x.disabled=true); setTimeout(flash,400); }
+ });
+ return;
+ }
+ if(kind==='voidpulse'){
+  let score=0;
+  const status=document.createElement('p'); status.className='mh-mini-status'; status.textContent='Click on pulse! 0/5';
+  stage.appendChild(status);
+  const ring=document.createElement('button'); ring.type='button'; ring.className='mh-mini-voidring';
+  ring.style.cssText='display:block;margin:12px auto;width:120px;height:120px;border-radius:50%;border:4px solid #9040ff;background:radial-gradient(circle,#280840,#080010);cursor:pointer';
+  stage.appendChild(ring);
+  let phase=0,good=false,tmr;
+  const tick=()=>{
+   phase=(phase+0.08)%1;
+   good=phase>0.72&&phase<0.92;
+   ring.style.boxShadow=good?'0 0 28px #c080ff':'0 0 8px #402060';
+   ring.style.transform='scale('+(0.85+phase*0.3)+')';
+  };
+  tmr=setInterval(tick,40);
+  ring.onclick=()=>{
+   if(good){ score++; status.textContent='Click on pulse! '+score+'/5'; if(score>=5){ clearInterval(tmr); mhWinMinigame(m); } }
+   else mhToast('Wait for the bright pulse!');
+  };
+  return;
+ }
+ /* noobmatch */
+ const cols=[m.head||'#F5CD30',m.torso||'#0085DB',m.legs||'#A4BD47',mhHsl(mhHashStr(m.id)%360,55,55)];
+ while(cols.length<8) cols.push(mhHsl((mhHashStr(m.id+'c'+cols.length)*7)%360,50,50));
+ const pair=cols[0]; cols.push(pair);
+ for(let i=cols.length-1;i>0;i--){ const j=mhHashStr(m.id+'s'+i)%(i+1); const t=cols[i]; cols[i]=cols[j]; cols[j]=t; }
+ let picks=[];
+ const status=document.createElement('p'); status.className='mh-mini-status'; status.textContent='Find the 2 matching squares!';
+ stage.appendChild(status);
+ const grid=document.createElement('div'); grid.className='mh-mini-match'; grid.style.cssText='display:grid;grid-template-columns:repeat(4,1fr);gap:8px;max-width:240px;margin:0 auto';
+ stage.appendChild(grid);
+ cols.forEach((c,i)=>{
+  const b=document.createElement('button'); b.type='button'; b.className='mh-mini-matchcell';
+  b.style.cssText='height:44px;border-radius:8px;border:2px solid rgba(255,255,255,.2);cursor:pointer;background:#222';
+  b.dataset.c=c; b.dataset.i=String(i);
+  b.onclick=()=>{
+   if(b.classList.contains('open')) return;
+   b.classList.add('open'); b.style.background=c;
+   picks.push(b);
+   if(picks.length===2){
+    const ok=picks[0].dataset.c===picks[1].dataset.c;
+    if(ok){ mhWinMinigame(m); }
+    else{
+     mhToast('Not a match — try again!');
+     setTimeout(()=>{ picks.forEach(x=>{ x.classList.remove('open'); x.style.background='#222'; }); picks=[]; },500);
+    }
+   }
+  };
+  grid.appendChild(b);
  });
 }
 
@@ -1093,8 +1144,29 @@ function mhPaintNoobWorld(ctx,m,x,y,sc,alpha,silhouette,t,walkPhase,flat){
 
 function mhWalkTileBlocked(map,tx,ty){
  if(tx<0||ty<0||tx>=map.w||ty>=map.h) return true;
- const v=map.tiles[ty*map.w+tx];
- return v===1||v===2;
+ return map.tiles[ty*map.w+tx]===1;
+}
+function mhCanvasToWorld(canvas,camX,camY,clientX,clientY){
+ const rect=canvas.getBoundingClientRect();
+ const sx=canvas.width/rect.width, sy=canvas.height/rect.height;
+ return {wx:(clientX-rect.left)*sx+camX, wy:(clientY-rect.top)*sy+camY};
+}
+function mhWalkCanvasClick(ev){
+ if(!mhState||mhState.tab!=='hunt') return;
+ const canvas=ev.currentTarget;
+ const wi=mhState.world, save=mhState.save;
+ const pos=mhWalkEnsurePos(mhState,wi);
+ const W=canvas.width,H=canvas.height;
+ const camX=pos.px-W/2,camY=pos.py-H/2;
+ const {wx,wy}=mhCanvasToWorld(canvas,camX,camY,ev.clientX,ev.clientY);
+ let best=null,bd=48;
+ mhWorldMorphs(wi).forEach(m=>{
+  if(m.tileX==null) return;
+  const p=mhGetNpcPos(mhState,wi,m);
+  const d=Math.hypot(p.px-wx,p.py-wy);
+  if(d<bd){ bd=d; best=m; }
+ });
+ if(best) mhDeckUnlock(best,save);
 }
 function mhWalkCollide(map,px,py,r){
  const tx0=Math.floor((px-r)/MH_TILE), tx1=Math.floor((px+r)/MH_TILE);
@@ -1177,15 +1249,7 @@ function mhWalkApplyKey(e,down){
   else delete mhState.walkKeys[name];
   hit=true;
  };
- if(c==='KeyA'||c==='ArrowLeft'||k==='a'||k==='A') touch('left',down);
- if(c==='KeyD'||c==='ArrowRight'||k==='d'||k==='D') touch('right',down);
- if(c==='KeyW'||c==='ArrowUp'||k==='w'||k==='W') touch('up',down);
- if(c==='KeyS'||c==='ArrowDown'||k==='s'||k==='S') touch('down',down);
- if(c==='ShiftLeft'||c==='ShiftRight'||k==='Shift') touch('run',down);
- if(down&&(c==='KeyE'||k==='e'||k==='E'||c==='Space'||isSpaceKey(e))&&mhState.walkNearId){
-  mhCollect(mhState.walkNearId);
-  hit=true;
- }
+ /* Hunt uses deck + map clicks — no WASD / E spam */
  if(hit){
   e.preventDefault();
   e.stopPropagation();
@@ -1352,11 +1416,9 @@ function mhWalkDrawFrame(){
   if(near){
    const got=mhHasMorph(save,near.id);
    const mini=mhNeedsMinigame(near)&&!mhMinigameCleared(save,near.id);
-   prompt.textContent=got?'E — morph into '+near.name:(mini?'E — play unlock minigame!':'E / Space — collect noobie!');
+   prompt.textContent=got?'Click to morph into '+near.name:(mini?'Click to play minigame!':'Click to unlock!');
    prompt.hidden=false;
-  }else prompt.hidden=true;
-  const runEl=hud.querySelector('.mh-walk-run');
-  if(runEl) runEl.textContent=running?'🏃 RUNNING':'Shift / 🏃 = run';
+  }else prompt.hidden=false;
  }
  }catch(err){
   console.error('[Morph Hunt walk]',err);
@@ -1367,32 +1429,35 @@ function mhWalkStart(){
  mhWalkStop();
  if(!mhState) return;
  mhState.walkKeys={};
- document.addEventListener('keydown',mhWalkKeysDown,true);
- document.addEventListener('keyup',mhWalkKeysUp,true);
  mhWalkDrawFrame();
  const root=document.getElementById('morphhunt');
- root?.querySelectorAll('[data-mh-dpad]').forEach(btn=>{
-  const dir=btn.dataset.mhDpad;
-  const map={ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right'};
-  const name=map[dir]||dir;
-  const down=()=>{ if(!mhState.walkKeys) mhState.walkKeys={}; mhState.walkKeys[name]=true; };
-  const up=()=>{ if(mhState?.walkKeys) delete mhState.walkKeys[name]; };
-  btn.addEventListener('pointerdown',e=>{ e.preventDefault(); down(); });
-  btn.addEventListener('pointerup',up);
-  btn.addEventListener('pointerleave',up);
- });
- root?.querySelector('#mh-walk-interact')?.addEventListener('click',()=>{
-  if(mhState?.walkNearId) mhCollect(mhState.walkNearId);
- });
- root?.querySelector('#mh-walk-run')?.addEventListener('pointerdown',()=>{
-  if(!mhState.walkKeys) mhState.walkKeys={};
-   mhState.walkKeys.run=true;
- });
- root?.querySelector('#mh-walk-run')?.addEventListener('pointerup',()=>{
-  if(mhState?.walkKeys) delete mhState.walkKeys.run;
- });
+ const canvas=root?.querySelector('#mh-walk-canvas');
+ if(canvas){
+  canvas.onclick=mhWalkCanvasClick;
+ }
 }
 
+function mhRenderHuntDeck(save,wi,morphs){
+ const pg=mhPaginate(morphs,mhState.huntPage||0,16);
+ const cards=pg.slice.map(m=>{
+  const got=mhHasMorph(save,m.id);
+  const r=mhRarityInfo(m);
+  const mini=!got&&mhNeedsMinigame(m)&&!mhMinigameCleared(save,m.id);
+  const btn=got?'✓ Owned':(mini?'🎮 Play minigame':'⭐ Unlock');
+  return `<button type="button" class="mh-hunt-card${got?' got':''}" data-mh-challenge="${m.id}" style="--mh-rarity:${r.color}">
+   <span class="mh-hunt-card-art">${got?`<svg viewBox="0 0 100 130">${mhClassicNoobSvg(m)}</svg>`:'?'}</span>
+   <span class="mh-hunt-card-name">${got?m.name:'???'}</span>
+   <span class="mh-hunt-card-r">${mhRarityLabel(m)}</span>
+   <em class="mh-hunt-card-btn">${btn}</em>
+  </button>`;
+ }).join('');
+ return `<section class="mh-hunt-deck">
+  <h3>🎮 Tap a noobie — play the minigame to unlock!</h3>
+  <p class="mh-scene-hint">No walking required. <b>Click a card</b> (or tap one on the optional map below).</p>
+  <div class="mh-hunt-cards">${cards}</div>
+  <div class="mh-pager">${pg.page>0?'<button type="button" class="mh-btn" data-mh-hunt-page="'+(pg.page-1)+'">← Prev</button>':''}<span>Page ${pg.page+1} / ${pg.pages}</span>${pg.page+1<pg.pages?'<button type="button" class="mh-btn" data-mh-hunt-page="'+(pg.page+1)+'">Next →</button>':''}</div>
+ </section>`;
+}
 function mhRenderHunt(save, wi){
  const world=MH_WORLDS[wi];
  const morphs=mhWorldMorphs(wi);
@@ -1405,23 +1470,17 @@ function mhRenderHunt(save, wi){
  const nFound=save.collected.filter(id=>mhMorph(id)&&!mhMorph(id).exclusive).length;
  const xFound=save.collected.filter(id=>mhMorph(id)&&mhMorph(id).exclusive).length;
  return `<div class="mh-world-tabs">${worldTabs}</div>
- <div class="mh-walk-wrap">
-  <canvas id="mh-walk-canvas" class="mh-walk-canvas" width="960" height="520" tabindex="0"></canvas>
-  <div id="mh-walk-hud" class="mh-walk-hud">
-   <span class="mh-walk-zone">${world.emoji} ${world.name}</span>
-   <span class="mh-walk-prompt" hidden>Walk close — then collect</span>
-   <div class="mh-walk-dpad" aria-label="Move">
-    <button type="button" data-mh-dpad="ArrowUp">▲</button>
-    <button type="button" data-mh-dpad="ArrowLeft">◀</button>
-    <button type="button" data-mh-dpad="ArrowDown">▼</button>
-    <button type="button" data-mh-dpad="ArrowRight">▶</button>
+ ${mhRenderHuntDeck(save,wi,morphs)}
+ <details class="mh-walk-optional">
+  <summary>Optional map — walk &amp; click noobies (WASD not required)</summary>
+  <div class="mh-walk-wrap">
+   <canvas id="mh-walk-canvas" class="mh-walk-canvas" width="960" height="360" tabindex="0"></canvas>
+   <div id="mh-walk-hud" class="mh-walk-hud">
+    <span class="mh-walk-zone">${world.emoji} ${world.name}</span>
+    <span class="mh-walk-prompt">Click a noobie on the map to unlock</span>
    </div>
-   <button type="button" class="mh-btn primary" id="mh-walk-interact">Collect / Morph</button>
-   <button type="button" class="mh-btn" id="mh-walk-run">🏃 Run</button>
-   <span class="mh-walk-run">Shift / 🏃 = run</span>
   </div>
- </div>
- <p class="mh-scene-hint">🚶 <b>YOU</b> = yellow/blue noobie in the <b>middle</b> of the screen · WASD to walk · Chase wandering noobies!</p>
+ </details>
  <p class="mh-progress">Zone: <b>${found}/${morphs.length}</b> &nbsp;•&nbsp; Total: <b>${save.collected.length}/${MH_TOTAL_COUNT}</b> &nbsp;•&nbsp; 🕳 Void: <b>${save.collected.filter(id=>mhMorph(id)?.rarity==='voidfallen').length}/${MH_VOID_COUNT}</b></p>`;
 }
 
@@ -1441,7 +1500,7 @@ function mhRenderIndex(save){
   const r=mhRarityInfo(m);
   return `<div class="mh-codex-card${got?' got':''}" style="--mh-rarity:${r.color}">
    <div class="mh-codex-art">${got?`<svg viewBox="0 0 100 130">${mhClassicNoobSvg(m)}</svg>`:'<div class="mh-silhouette">?</div>'}</div>
-   <div class="mh-codex-meta"><b class="mh-noob-name">${got?m.name:'???'}</b><span class="mh-codex-rarity">${mhRarityLabel(m)}${got?'':' · walk & find'}${mhNeedsMinigame(m)?' · 🎮':''}</span></div>
+   <div class="mh-codex-meta"><b class="mh-noob-name">${got?m.name:'???'}</b><span class="mh-codex-rarity">${mhRarityLabel(m)}${got?'':' · hunt deck'}${mhNeedsMinigame(m)?' · 🎮':''}</span></div>
   </div>`;
  }).join('');
  return `<div class="mh-index">
@@ -1501,7 +1560,9 @@ function mhRenderGacha(save){
 function mhBind(root){
  root.querySelector('#mh-leave')?.addEventListener('click',mhClose);
  root.querySelectorAll('[data-mh-id]').forEach(btn=>btn.addEventListener('click',()=>mhCollect(btn.dataset.mhId)));
- root.querySelectorAll('[data-mh-world]').forEach(btn=>btn.addEventListener('click',()=>mhSetWorld(+btn.dataset.mhWorld)));
+ root.querySelectorAll('[data-mh-world]').forEach(btn=>btn.addEventListener('click',()=>{ mhState.huntPage=0; mhSetWorld(+btn.dataset.mhWorld); }));
+ root.querySelectorAll('[data-mh-challenge]').forEach(btn=>btn.addEventListener('click',()=>mhDeckUnlock(mhMorph(btn.dataset.mhChallenge),mhState.save)));
+ root.querySelectorAll('[data-mh-hunt-page]').forEach(btn=>btn.addEventListener('click',()=>{ mhState.huntPage=+btn.dataset.mhHuntPage; mhRender(); }));
  root.querySelectorAll('[data-mh-tab]').forEach(btn=>btn.addEventListener('click',()=>mhSetTab(btn.dataset.mhTab)));
  root.querySelectorAll('[data-mh-wear]').forEach(btn=>btn.addEventListener('click',()=>mhWear(btn.dataset.mhWear)));
  root.querySelector('#mh-gacha-roll')?.addEventListener('click',()=>mhGacha(false));
@@ -1574,7 +1635,7 @@ function mhRender(){
 function playMorphHunt(){
  mhClose();
  if(typeof lithosCloseGameOverlays==='function'){ try{lithosCloseGameOverlays();}catch(_){} }
- mhState={save:mhLoadSave(),world:0,tab:'hunt',page:0,filter:'',indexKind:'all',walkPos:{}};
+ mhState={save:mhLoadSave(),world:0,tab:'hunt',page:0,huntPage:0,filter:'',indexKind:'all',walkPos:{}};
  const wrap=document.createElement('div');
  wrap.id='morphhunt';
  document.body.appendChild(wrap);
