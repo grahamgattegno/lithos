@@ -3,10 +3,10 @@
 'use strict';
 
 const MH_STORE_KEY='lithos_morph_hunt_v9';
-/* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' */
-const MH_BUILD='void-2d-v49';
-const MH_SCENERY_STAMP='VOID_POW_FIX_v49';
-const MH_SCRIPT_FILE='morph-hunt.void-2d-v49.js';
+/* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
+const MH_BUILD='void-2d-v50';
+const MH_SCENERY_STAMP='VOID_LATEST_v50';
+const MH_SCRIPT_FILE='morph-hunt.void-2d-v50.js';
 const MH_KING_STAMP='RED_BLACK_KING_v31';
 const MH_MEGA_W=7;
 const MH_MEGA_H=6;
@@ -3738,7 +3738,17 @@ function mhRender(){
  }
 }
 
+function mhSyncMorphHuntUrl(){
+ try{
+  const u=new URL(location.href);
+  u.searchParams.set('mh',MH_BUILD);
+  u.searchParams.set('t',String(Date.now()));
+  if(!u.hash) u.hash='morphhunt';
+  history.replaceState(null,'',u.toString());
+ }catch(_){}
+}
 function playMorphHunt(){
+ mhSyncMorphHuntUrl();
  mhClose();
  mhEnsureOverlayModals();
  if(typeof lithosCloseGameOverlays==='function'){ try{lithosCloseGameOverlays();}catch(_){} }

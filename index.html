@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- lithos-v:site-live-90-morph-2d-v49 -->
+<!-- lithos-v:site-live-91-morph-2d-v50 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -5478,18 +5478,18 @@
 <script src="gemcopter.js?v=deploy-85"></script>
 <script>
 (function lithosLoadMorphHunt(){
- var qMh=(location.search.match(/[?&]mh=([^&]+)/)||[])[1];
- var MH_NEED=qMh||'void-2d-v49';
- var MH_SCRIPT='morph-hunt.'+MH_NEED+'.js';
- var NEED_MARK="MH_BUILD='"+MH_NEED+"'";
+ var MH_NEED='void-2d-v50';
+ var MH_SCRIPT='morph-hunt.void-2d-v50.js';
+ var NEED_MARK="MH_BUILD='void-2d-v50'";
  var KING_MARK='RED_BLACK_KING_v31';
- var SCENERY_MARK='VOID_POW_FIX_v49';
+ var SCENERY_MARK='VOID_LATEST_v50';
  window.__LITHOS_MH_NEED=MH_NEED;
  window.__LITHOS_MH_SCRIPT=MH_SCRIPT;
  function mhCodeLooksFresh(code){
   if(!code||code.indexOf('playMorphHunt')<0) return false;
   if(code.indexOf(NEED_MARK)>=0) return true;
-  if(code.indexOf('VOID_POW_FIX_v49')>=0||code.indexOf('VOID_ALL_MAPS_v48')>=0) return true;
+  if(code.indexOf('VOID_LATEST_v50')>=0||code.indexOf('VOID_POW_FIX_v49')>=0) return true;
+  if(code.indexOf("MH_BUILD='void-2d-v")>=0&&code.indexOf('mhSyncMorphHuntUrl')>=0) return true;
   if(code.indexOf("MH_BUILD='void-2d-v")>=0&&code.indexOf('mhUseVoidPower')>=0) return true;
   return false;
  }
@@ -5515,7 +5515,7 @@
    .then(function(code){
     if(!mhCodeLooksFresh(code)){
      if(!retry) return loadFresh(1);
-     alert('OLD cached game still loading.\\n\\nUse:\\n'+location.origin+location.pathname+'?mh=void-2d-v49&t='+Date.now()+'#morphhunt\\n\\nHard refresh: Cmd+Shift+R');
+     alert('OLD cached game still loading.\\n\\nUse:\\n'+location.origin+location.pathname+'?mh=void-2d-v50&t='+Date.now()+'#morphhunt\\n\\nHard refresh: Cmd+Shift+R');
      loadScriptTag();
      return;
     }
@@ -5528,18 +5528,14 @@
 </script>
 <script>
 window.lithosPlayMorphHunt=function lithosPlayMorphHunt(){
- var NEED=window.__LITHOS_MH_NEED||'void-2d-v49';
+ var NEED=window.__LITHOS_MH_NEED||'void-2d-v50';
  var tries=0;
  function run(){
   if(typeof playMorphHunt==='function'){
    if(window.LITHOS_MH_BUILD&&window.LITHOS_MH_BUILD!==NEED){
-    console.warn('[Morph Hunt] build mismatch',window.LITHOS_MH_BUILD,'need',NEED);
-    var u=new URL(location.href);
-    u.searchParams.set('mh',NEED);
-    u.searchParams.set('t',String(Date.now()));
-    u.hash='morphhunt';
-    location.replace(u.toString());
-    return;
+    console.warn('[Morph Hunt] build mismatch — using loaded',window.LITHOS_MH_BUILD,'over page',NEED);
+    NEED=window.LITHOS_MH_BUILD;
+    window.__LITHOS_MH_NEED=NEED;
    }
    try{ return playMorphHunt(); }
    catch(e){
