@@ -5,9 +5,11 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v63';
-const MH_SCENERY_STAMP='PLAYER_RED_BLACK_STORM_v63';
-const MH_SCRIPT_FILE='morph-hunt.void-2d-v63.js';
+const MH_BUILD='void-2d-v64';
+const MH_SCENERY_STAMP='ANCIENT_FIVE_SHIELDS_v64';
+const MH_SCRIPT_FILE='morph-hunt.void-2d-v64.js';
+const MH_ANCIENT_GLYPHS=['⌬','☵','⛧','◈','☒'];
+const MH_ANCIENT_NAMES=['Void Seal','Rift Mark','Depth Eye','Abyss Gate','King Ward'];
 const MH_VOID_STORM_NAME='Void Storm';
 const MH_VOID_STORM_POWER={id:'void_storm',name:'Void Storm',color:'#ff2020',kind:'storm',range:200};
 const MH_KING_STAMP='RED_BLACK_KING_v31';
@@ -2649,10 +2651,38 @@ function mhGibberLinkBurst(st,payload){
   t+=0.058;
  }
 }
+function mhActivateFiveAncientShields(st,pos,duration,king){
+ const dur=duration||5.5;
+ st.ancientShieldUntil=performance.now()+dur*1000;
+ st.ancientShieldKing=!!king;
+ const tag={followPlayer:true,foy:-16};
+ for(let i=0;i<5;i++){
+  mhSpawnVoidFx(st,{
+   kind:'ancient_shield',shieldIndex:i,glyph:MH_ANCIENT_GLYPHS[i],name:MH_ANCIENT_NAMES[i],
+   orbitAng:i*Math.PI*2/5,orbitRad:king?72:58,orbitSpeed:0.72,life:dur,
+   color:king?'#ff3030':'#9040ff',...tag
+  });
+ }
+}
+function mhDrawAncientShieldsRing(ctx,st,pos,t){
+ if(!st.ancientShieldUntil||performance.now()>st.ancientShieldUntil) return;
+ const king=!!st.ancientShieldKing;
+ const cx=pos.px, cy=pos.py-(king?16:12);
+ const a=Math.min(1,(st.ancientShieldUntil-performance.now())/700);
+ const rad=king?72:58;
+ ctx.save();
+ ctx.globalAlpha=0.35*a;
+ ctx.strokeStyle='rgba(255,80,80,.45)'; ctx.lineWidth=2;
+ ctx.setLineDash([6,8]);
+ ctx.beginPath(); ctx.ellipse(cx,cy,rad,rad*0.62,0,0,Math.PI*2); ctx.stroke();
+ ctx.setLineDash([]);
+ ctx.restore();
+}
 function mhWrapPlayerRedBlackStorm(st,m,pos,duration){
  const dur=duration||(m?.voidKing?7:5.8);
  st.playerStormUntil=performance.now()+dur*1000;
  st.playerStormKing=!!m?.voidKing;
+ mhActivateFiveAncientShields(st,pos,dur,!!m?.voidKing);
  const px=pos.px, py=pos.py-10;
  const holeR=m?.voidKing?78:62;
  const tag={followPlayer:true,foy:-10};
@@ -2733,7 +2763,7 @@ function mhUpdateVoidFx(st,dt){
   f.age=(f.age||0)+dt;
   if(f.followPlayer&&p){
    const foy=f.foy==null?-10:f.foy;
-   if(f.kind==='storm_orbit'){
+   if(f.kind==='storm_orbit'||f.kind==='ancient_shield'){
     f.orbitAng=(f.orbitAng||0)+dt*(f.orbitSpeed||1.2);
     f.x=p.px+Math.cos(f.orbitAng)*(f.orbitRad||48);
     f.y=p.py+foy+Math.sin(f.orbitAng)*(f.orbitRad||48)*0.62;
@@ -2919,6 +2949,40 @@ function mhDrawVoidFx(ctx,st){
    ctx.beginPath(); ctx.arc(f.x,f.y,rr,0,Math.PI*2); ctx.fill();
    ctx.strokeStyle='rgba(255,100,100,.8)'; ctx.lineWidth=2;
    ctx.beginPath(); ctx.moveTo(f.x-rr*1.4,f.y); ctx.lineTo(f.x+rr*1.4,f.y); ctx.stroke();
+  }else if(f.kind==='ancient_shield'){
+   const glyph=f.glyph||MH_ANCIENT_GLYPHS[(f.shieldIndex||0)%5];
+   const king=col==='#ff3030';
+   const w=19,h=26;
+   ctx.save();
+   ctx.translate(f.x,f.y);
+   ctx.rotate(Math.sin((f.age||0)*3)*0.12);
+   ctx.fillStyle='rgba(0,0,0,.9)';
+   ctx.strokeStyle=king?'#ff5050':'#c898ff';
+   ctx.lineWidth=2.5;
+   ctx.beginPath();
+   ctx.moveTo(0,-h*0.52);
+   ctx.quadraticCurveTo(w*0.58,-h*0.3,w*0.52,h*0.32);
+   ctx.quadraticCurveTo(0,h*0.52,-w*0.52,h*0.32);
+   ctx.quadraticCurveTo(-w*0.58,-h*0.3,0,-h*0.52);
+   ctx.closePath();
+   ctx.fill();
+   ctx.strokeStyle=king?'#0a0a0a':'#401860';
+   ctx.lineWidth=3;
+   ctx.stroke();
+   ctx.strokeStyle=king?'#ff8080':'#e8d0ff';
+   ctx.lineWidth=1.5;
+   ctx.stroke();
+   ctx.fillStyle=king?'#ffe0e0':'#ffe8a0';
+   ctx.font='bold 15px serif';
+   ctx.textAlign='center'; ctx.textBaseline='middle';
+   ctx.shadowColor=king?'#ff2020':'#9040ff';
+   ctx.shadowBlur=8;
+   ctx.fillText(glyph,0,1);
+   ctx.shadowBlur=0;
+   ctx.strokeStyle='rgba(255,60,60,.55)'; ctx.lineWidth=1;
+   ctx.beginPath(); ctx.moveTo(-w*0.35,-h*0.15); ctx.lineTo(w*0.35,-h*0.15); ctx.stroke();
+   ctx.beginPath(); ctx.moveTo(0,-h*0.15); ctx.lineTo(0,h*0.28); ctx.stroke();
+   ctx.restore();
   }else if(f.kind==='storm'){
    const r=f.r||30;
    ctx.strokeStyle=col; ctx.lineWidth=4;
@@ -3149,7 +3213,11 @@ function mhUseVoidPower(st,save,pos,map,wi){
   pos.px+=dir.dx*(pow.dist||80); pos.py+=dir.dy*(pow.dist||80);
   mhClampWalkPos(map,pos);
  }
- if(pow.kind==='shield') st.voidShieldUntil=performance.now()+(pow.time||2.5)*1000;
+ if(pow.kind==='shield'){
+  const sec=pow.time||2.8;
+  st.voidShieldUntil=performance.now()+sec*1000;
+  mhActivateFiveAncientShields(st,pos,sec,!!m.voidKing);
+ }
  else if(pow.kind==='heal'){ save.coins+=pow.coins||8; mhSaveSave(save); st.fightHp=Math.min(st.fightMaxHp||140,(st.fightHp||100)+25); }
  else if(pow.kind==='buff') st.voidRageUntil=performance.now()+(pow.time||4)*1000;
  if(pow.kind==='storm'||pow.id==='forbidden_storm'){
@@ -3857,6 +3925,7 @@ function mhWalkDrawFrame(){
  mhDrawMapStatues(ctx,map,t,st);
  const wear=mhMorph(save.wearing);
  mhDrawRedBlackPlayerStorm(ctx,st,pos,t);
+ mhDrawAncientShieldsRing(ctx,st,pos,t);
  mhDrawYouInWorld(ctx,wear,pos,map,t,st.walkPhase||0,wi,st.playerRunning);
  mhDrawVoidFx(ctx,st);
  ctx.restore();
