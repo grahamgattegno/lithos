@@ -5,10 +5,11 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v58';
-const MH_SCENERY_STAMP='VOID_UNIVERSE_STORM_v58';
-const MH_SCRIPT_FILE='morph-hunt.void-2d-v58.js';
+const MH_BUILD='void-2d-v59';
+const MH_SCENERY_STAMP='VOID_STORM_MADE_v59';
+const MH_SCRIPT_FILE='morph-hunt.void-2d-v59.js';
 const MH_VOID_STORM_NAME='Void Storm';
+const MH_VOID_STORM_POWER={id:'void_storm',name:'Void Storm',color:'#ff2020',kind:'storm',range:200};
 const MH_KING_STAMP='RED_BLACK_KING_v31';
 const MH_MEGA_W=7;
 const MH_MEGA_H=6;
@@ -250,12 +251,12 @@ function mhAssignVoidCombat(m){
  if(m.rarity!=='voidfallen'&&!m.voidFallen) return;
  if(m.voidKing){
   m.voidAttack={id:'king_cleave',name:'Greataxe Cleave',color:'#ff3030',kind:'arc',speed:9,range:130};
-  m.voidPower={id:'forbidden_storm',name:'Forbidden Rift Storm',color:'#ff2020',kind:'storm',range:190,cooldown:0};
+  m.voidPower={...MH_VOID_STORM_POWER,id:'forbidden_storm',name:'Forbidden Void Storm',range:240};
   return;
  }
  const h=mhHashStr(m.id+'vfc');
  m.voidAttack=MH_VOID_ATTACKS[h%MH_VOID_ATTACKS.length];
- m.voidPower=MH_VOID_POWERS[(h>>>4)%MH_VOID_POWERS.length];
+ m.voidPower={...MH_VOID_STORM_POWER};
 }
 function mhVoidTraits(i){
  const h=mhHashStr('vftrait'+i);
@@ -2618,21 +2619,21 @@ function mhSpawnPowerVfx(st,m,pow,dir,pos,map){
 }
 const MH_FORBIDDEN_SPELLS=['Null Sigil','Abyss Hex','Rift Curse','Shadow Bind','Depth Wail','King\'s Edict','Stone Eclipse','Void Lament'];
 function mhSpawnVoidUniverseStorm(st,m,dir,pos,range){
- const reach=range||160;
+ const reach=range||180;
  const hx=pos.px+dir.dx*reach, hy=pos.py+dir.dy*reach;
- const stormLife=m.voidKing?5.2:4.2;
- const holeR=m.voidKing?78:62;
+ const stormLife=m.voidKing?6.5:5.5;
+ const holeR=m.voidKing?105:88;
  mhSpawnVoidFx(st,{kind:'blackhole',x:hx,y:hy,vx:0,vy:0,color:'#ff2020',r:holeR,life:stormLife,spin:0,dr:0});
  mhSpawnVoidFx(st,{kind:'blackhole_core',x:hx,y:hy,vx:0,vy:0,color:'#050505',r:holeR*0.42,life:stormLife,spin:0.6});
  mhSpawnVoidFx(st,{kind:'universe_rift',x:hx,y:hy-200,vx:0,vy:0,color:'#ff3030',r:48,life:stormLife,spin:0,tx:hx,ty:hy});
  mhSpawnVoidFx(st,{kind:'storm',x:hx,y:hy,vx:0,vy:0,color:'#ff2020',r:28,dr:holeR+40,life:stormLife*0.85,spin:0});
  mhSpawnVoidFx(st,{kind:'storm',x:hx,y:hy,vx:0,vy:0,color:'#0a0a0a',r:18,dr:holeR+28,life:stormLife*0.9,spin:0.35});
- for(let i=0;i<14;i++){
+ for(let i=0;i<24;i++){
   const spell=MH_FORBIDDEN_SPELLS[i%MH_FORBIDDEN_SPELLS.length];
-  const delay=i*0.08;
-  mhSpawnVoidFx(st,{kind:'forbidden_spell',x:hx+(Math.random()-0.5)*36,y:hy-190-Math.random()*40,vx:0,vy:0,color:i%2?'#ff4040':'#1a1a1a',life:stormLife-0.15-delay,spell,tx:hx,ty:hy,delay,phase:i*0.7});
+  const delay=i*0.06;
+  mhSpawnVoidFx(st,{kind:'forbidden_spell',x:hx+(Math.random()-0.5)*48,y:hy-220-Math.random()*50,vx:0,vy:0,color:i%2?'#ff4040':'#1a1a1a',life:stormLife-0.1-delay,spell,tx:hx,ty:hy,delay,phase:i*0.7});
  }
- for(let i=0;i<10;i++){
+ for(let i=0;i<16;i++){
   const a=i*Math.PI*2/10+performance.now()/800;
   mhSpawnVoidFx(st,{kind:'spark',x:hx+Math.cos(a)*holeR*0.6,y:hy+Math.sin(a)*holeR*0.35,vx:-Math.cos(a)*6,vy:-Math.sin(a)*6,color:'#ff6060',life:0.75});
  }
@@ -3379,16 +3380,16 @@ function mhWalkApplyKey(e,down){
   const pos=mhWalkEnsurePos(mhState,mhState.world);
   if(mhNearMayorShrine(pos,map)){ mhMayorFlashBeam(); hit=true; }
  }
- if(down&&!e.repeat&&(c==='Digit1'||c==='Numpad1'||k==='1')){
+ if(down&&(c==='Digit1'||c==='Numpad1'||k==='1')){
   const pos=mhWalkEnsurePos(mhState,mhState.world);
   mhUseVoidAttack(mhState,mhState.save,pos); hit=true;
  }
- if(down&&!e.repeat&&(c==='Digit2'||c==='Numpad2'||k==='2')){
+ if(down&&(c==='Digit2'||c==='Numpad2'||k==='2')){
   const map=MH_WORLD_MAPS[mhState.world];
   const pos=mhWalkEnsurePos(mhState,mhState.world);
   mhUseVoidPower(mhState,mhState.save,pos,map); hit=true;
  }
- if(down&&!e.repeat&&(c==='Digit3'||c==='Numpad3'||k==='3')){
+ if(down&&(c==='Digit3'||c==='Numpad3'||k==='3')){
   const pos=mhWalkEnsurePos(mhState,mhState.world);
   mhUseVoidStorm(mhState,mhState.save,pos); hit=true;
  }
@@ -3547,9 +3548,9 @@ function mhWalkDrawFrame(){
   }
  });
  mhDrawMapStatues(ctx,map,t,st);
- mhDrawVoidFx(ctx,st);
  const wear=mhMorph(save.wearing);
  mhDrawYouInWorld(ctx,wear,pos,map,t,st.walkPhase||0,wi,st.playerRunning);
+ mhDrawVoidFx(ctx,st);
  ctx.restore();
  ctx.fillStyle='rgba(0,0,0,.78)'; ctx.fillRect(8,8,380,58);
  ctx.fillStyle='#ffe8a0'; ctx.font='bold 12px system-ui,sans-serif'; ctx.textAlign='left';
