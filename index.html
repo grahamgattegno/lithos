@@ -5458,9 +5458,10 @@
 <script src="gemcopter.js?v=deploy-85"></script>
 <script>
 (function lithosLoadMorphHunt(){
- var MH_NEED='void-2d-v32';
- var NEED_MARK="MH_BUILD='void-2d-v32'";
+ var MH_NEED='void-2d-v33';
+ var NEED_MARK="MH_BUILD='void-2d-v33'";
  var KING_MARK='RED_BLACK_KING_v31';
+ var SCENERY_MARK='BIG_SCENERY_v33';
  window.__LITHOS_MH_NEED=MH_NEED;
  function injectMorphHunt(code){
   document.querySelectorAll('script[data-lithos-mh],script[src*="morph-hunt"]').forEach(function(n){ n.remove(); });
@@ -5475,7 +5476,7 @@
   fetch(url,{cache:'no-store',credentials:'same-origin'})
    .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.text(); })
    .then(function(code){
-    if(code.indexOf(NEED_MARK)<0||code.indexOf(KING_MARK)<0){
+    if(code.indexOf(NEED_MARK)<0||code.indexOf(KING_MARK)<0||code.indexOf(SCENERY_MARK)<0){
      if(!retry) return loadFresh(1);
      alert('Still loading OLD Morph Hunt from cache.\\n\\nOpen this exact link:\\n'+location.origin+location.pathname+'?mh='+MH_NEED+'&t='+Date.now()+'#morphhunt\\n\\nThen Cmd+Shift+R (Mac) or Ctrl+Shift+R (Windows).');
      var fb=document.createElement('script');
@@ -5498,7 +5499,7 @@
 </script>
 <script>
 window.lithosPlayMorphHunt=function lithosPlayMorphHunt(){
- var NEED=window.__LITHOS_MH_NEED||'void-2d-v32';
+ var NEED=window.__LITHOS_MH_NEED||'void-2d-v33';
  var tries=0;
  function run(){
   if(typeof playMorphHunt==='function'){

@@ -3,7 +3,8 @@
 'use strict';
 
 const MH_STORE_KEY='lithos_morph_hunt_v9';
-const MH_BUILD='void-2d-v32';
+const MH_BUILD='void-2d-v33';
+const MH_SCENERY_STAMP='BIG_SCENERY_v33';
 const MH_KING_STAMP='RED_BLACK_KING_v31';
 const MH_TOTAL_COUNT=1101;
 const MH_VOID_KING_DEPTH=100;
@@ -71,7 +72,7 @@ const MH_WORLD_DECORS=[
  ['burned_house','lava_rock','expedition_camp','obsidian','broken_statue','ash_pile'],
  ['nexus_ruins','portal','statue','camp','banner','crystal_shrine'],
  ['vault','neon_sign','exotic_wreck','pillar','expedition_tent','gate'],
- ['void_pillar','red_altar','broken_armor','expedition_bones','ruined_house','forbidden_stone']
+ ['void_pillar','red_altar','broken_armor','expedition_bones','ruined_house','forbidden_stone','void_fallen_building','void_cathedral']
 ];
 
 const MH_CODES={
@@ -379,20 +380,43 @@ function mhGenWorldMap(wi){
  return {w,h,tiles,spawnTx:3,spawnTy:3,doorTx:door,doorTy:mid,wi};
 }
 const MH_WORLD_MAPS=MH_WORLDS.map((_,i)=>mhGenWorldMap(i));
+function mhGenLandmarks(wi,map){
+ const themes=MH_WORLD_DECORS[wi]||MH_WORLD_DECORS[0];
+ const sx=map.spawnTx||5, sy=map.spawnTy||5;
+ const spots=[
+  {tx:sx+4,ty:sy,kind:themes[0],scale:3.2},
+  {tx:sx-5,ty:sy+1,kind:themes[1],scale:3},
+  {tx:sx+1,ty:sy-4,kind:themes[2],scale:2.8},
+  {tx:sx+7,ty:sy+3,kind:themes[3],scale:2.9},
+  {tx:sx-3,ty:sy+5,kind:themes[4],scale:2.7},
+  {tx:sx+5,ty:sy-2,kind:themes[5],scale:2.8}
+ ];
+ if(wi===MH_VOID_WORLD){
+  spots.push({tx:map.throneTx-3,ty:map.throneTy,kind:'void_fallen_building',scale:3.4});
+  spots.push({tx:map.throneTx+3,ty:map.throneTy+1,kind:'void_cathedral',scale:3.2});
+  spots.push({tx:map.throneTx,ty:map.throneTy-4,kind:'ruined_house',scale:3});
+ }
+ return spots.filter(p=>{
+  if(p.tx<2||p.ty<2||p.tx>=map.w-2||p.ty>=map.h-2) return false;
+  return map.tiles[p.ty*map.w+p.tx]===0;
+ });
+}
 (function mhScatterWorldDecor(){
  MH_WORLDS.forEach((_,wi)=>{
   const map=MH_WORLD_MAPS[wi];
   const themes=MH_WORLD_DECORS[wi]||MH_WORLD_DECORS[0];
+  map.landmarks=mhGenLandmarks(wi,map);
   const decors=[];
   const used=new Set();
-  for(let i=0;i<14+wi*2;i++){
+  map.landmarks.forEach(l=>used.add(l.tx+','+l.ty));
+  for(let i=0;i<38+wi*3;i++){
    const tx=2+mhHashStr('decx'+wi+i)%(map.w-4);
    const ty=2+mhHashStr('decy'+wi+i)%(map.h-4);
    const k=tx+','+ty;
    if(map.tiles[ty*map.w+tx]!==0||used.has(k)) continue;
-   if(map.throneTx!=null&&Math.abs(tx-map.throneTx)<=4&&Math.abs(ty-map.throneTy)<=4) continue;
+   if(map.throneTx!=null&&Math.abs(tx-map.throneTx)<=3&&Math.abs(ty-map.throneTy)<=3) continue;
    used.add(k);
-   decors.push({tx,ty,kind:themes[mhHashStr('deck'+wi+i)%themes.length]});
+   decors.push({tx,ty,kind:themes[mhHashStr('deck'+wi+i)%themes.length],scale:1.6+((mhHashStr('ds'+i)%5)*0.15)});
   }
   map.decors=decors;
  });
@@ -700,18 +724,50 @@ function mhDrawDecorKind(ctx,x,y,kind,wi){
   case 'forbidden_stone':
    ctx.fillStyle='#080808'; ctx.fillRect(T/2-8,14,16,16);
    ctx.strokeStyle='#ff2020'; ctx.strokeRect(T/2-8.5,13.5,17,17);
-   mhDrawForbiddenSymbol(ctx,T/2,22,5,mhHashStr(kind+wi)%4);
+   mhDrawForbiddenSymbol(ctx,T/2,22,5,mhHashStr(String(kind)+wi)%4);
+   break;
+  case 'void_fallen_building':
+   ctx.fillStyle='#0a0a0a'; ctx.fillRect(T/2-14,0,28,T-2);
+   ctx.fillStyle='#280808'; ctx.fillRect(T/2-12,4,24,T-8);
+   ctx.strokeStyle='#ff3030'; ctx.lineWidth=2; ctx.strokeRect(T/2-14.5,-0.5,29,T-1);
+   ctx.fillStyle='#ff2020'; ctx.fillRect(T/2-6,10,12,4);
+   for(let r=0;r<3;r++){ ctx.fillStyle='#180818'; ctx.fillRect(T/2-10+r*8,18,5,8); }
+   ctx.fillStyle='#401010'; ctx.fillRect(T/2-16,T-6,32,6);
+   break;
+  case 'void_cathedral':
+   ctx.fillStyle='#101018'; ctx.fillRect(T/2-16,6,32,T-8);
+   ctx.fillStyle='#1a0818'; ctx.beginPath(); ctx.moveTo(T/2,0); ctx.lineTo(T/2+18,22); ctx.lineTo(T/2-18,22); ctx.fill();
+   ctx.strokeStyle='#a01010'; ctx.lineWidth=2; ctx.stroke();
+   ctx.fillStyle='#ff3030'; ctx.fillRect(T/2-4,14,8,12);
+   mhDrawForbiddenSymbol(ctx,T/2-10,24,4,1);
+   mhDrawForbiddenSymbol(ctx,T/2+10,24,4,2);
    break;
   default:
    ctx.fillStyle=stone; ctx.fillRect(10,20,T-20,T-24);
  }
  ctx.restore();
 }
+function mhDrawSceneryPiece(ctx,d,wi){
+ const T=MH_TILE;
+ const x=d.tx*MH_TILE,y=d.ty*MH_TILE;
+ const sc=d.scale||1.65;
+ ctx.save();
+ ctx.translate(x+MH_TILE/2,y+MH_TILE*0.92);
+ ctx.scale(sc,sc);
+ ctx.translate(-MH_TILE/2,-MH_TILE/2);
+ ctx.fillStyle='rgba(0,0,0,.35)';
+ ctx.beginPath(); ctx.ellipse(T/2,T-2,14,4,0,0,Math.PI*2); ctx.fill();
+ mhDrawDecorKind(ctx,0,0,d.kind,wi);
+ ctx.restore();
+}
+function mhDrawThemedPropTile(ctx,x,y,wi,tx,ty){
+ const themes=MH_WORLD_DECORS[wi]||MH_WORLD_DECORS[0];
+ const kind=themes[mhHashStr('pt'+tx+ty+wi)%themes.length];
+ mhDrawSceneryPiece(ctx,{tx,ty,kind,scale:2.1},wi);
+}
 function mhDrawMapDecors(ctx,map,wi){
- if(!map.decors) return;
- map.decors.forEach(d=>{
-  mhDrawDecorKind(ctx,d.tx*MH_TILE,d.ty*MH_TILE,d.kind,wi);
- });
+ (map.landmarks||[]).forEach(d=>mhDrawSceneryPiece(ctx,d,wi));
+ (map.decors||[]).forEach(d=>mhDrawSceneryPiece(ctx,d,wi));
 }
 function mhDrawFlatMapTiles(ctx,map,world,wi){
  const voidRealm=wi===MH_VOID_WORLD;
@@ -730,10 +786,7 @@ function mhDrawFlatMapTiles(ctx,map,world,wi){
     ctx.fillRect(x,y,MH_TILE,MH_TILE);
     ctx.strokeStyle='#301848'; ctx.strokeRect(x+.5,y+.5,MH_TILE-1,MH_TILE-1);
    }
-   if(v===2){
-    ctx.fillStyle=prop; ctx.fillRect(x+8,y+8,MH_TILE-16,MH_TILE-16);
-    ctx.strokeStyle='#9050c0'; ctx.strokeRect(x+8.5,y+8.5,MH_TILE-17,MH_TILE-17);
-   }
+   if(v===2) mhDrawThemedPropTile(ctx,x,y,wi,tx,ty);
    continue;
   }
   if(v===1){
@@ -744,10 +797,7 @@ function mhDrawFlatMapTiles(ctx,map,world,wi){
    ctx.fillRect(x,y,MH_TILE,MH_TILE);
    ctx.strokeStyle='rgba(0,0,0,.18)'; ctx.lineWidth=1; ctx.strokeRect(x+.5,y+.5,MH_TILE-1,MH_TILE-1);
   }
-   if(v===2){
-    ctx.fillStyle=prop; ctx.fillRect(x+8,y+10,MH_TILE-16,MH_TILE-12);
-    ctx.strokeStyle='rgba(0,0,0,.25)'; ctx.strokeRect(x+8.5,y+10.5,MH_TILE-17,MH_TILE-13);
-  }
+   if(v===2) mhDrawThemedPropTile(ctx,x,y,wi,tx,ty);
  }
  mhDrawMapDecors(ctx,map,wi);
 }
@@ -1910,10 +1960,7 @@ function mhWalkDrawFrame(){
    ctx.fillStyle=g; ctx.fillRect(x,y,MH_TILE,MH_TILE);
    ctx.strokeStyle='rgba(0,0,0,.06)'; ctx.strokeRect(x+.5,y+.5,MH_TILE-1,MH_TILE-1);
   }
-  if(v===2){
-   mhGradRect(ctx,x+6,y+4,MH_TILE-12,MH_TILE-8,'#6a5848','#3a2820');
-   ctx.fillStyle='rgba(0,0,0,.2)'; ctx.fillRect(x+8,y+MH_TILE-10,MH_TILE-16,4);
-  }
+  if(v===2) mhDrawThemedPropTile(ctx,x,y,wi,tx,ty);
  }
  mhDrawMapDecors(ctx,map,wi);
  if(wi===MH_VOID_WORLD) mhDrawVoidThrone(ctx,map);
@@ -2312,6 +2359,7 @@ function mhRender(){
     <p class="mh-ftn-tag"><b>${MH_TOTAL_COUNT}</b> noobies · <b>Void Fallen King</b> · ${MH_VOID_KING_DEPTH} Depth · ${MH_VOID_KING_DIM} · Build <b>${MH_BUILD}</b> · ${owner?'Owner: ALL unlocked':''}</p>
     <p class="mh-live-build" style="margin:6px 0 0;font-size:13px;font-weight:900;color:#ffe060">✅ LIVE ${MH_BUILD} · ${MH_KING_STAMP}</p>
     <p class="mh-king-stamp" style="margin:4px 0 0;font-size:12px;font-weight:900;color:#ff4040">Void King = red/black armor · helmet · forbidden stone aura · greataxe + shield (NO crown)</p>
+    <p class="mh-scenery-stamp" style="margin:4px 0 0;font-size:12px;font-weight:900;color:#80ffb0">${MH_SCENERY_STAMP} — big houses &amp; ruins on every map</p>
    </div>
   </header>
   <div class="mh-head">
