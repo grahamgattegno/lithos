@@ -5508,8 +5508,6 @@
   if(code.indexOf('Power recharging')>=0) return false;
   if(code.indexOf(NEED_MARK)>=0&&code.indexOf('VOID_NO_RECHARGE_v57')>=0) return true;
   if(code.indexOf('VOID_NO_RECHARGE_v57')>=0) return true;
-  if(code.indexOf("MH_BUILD='void-2d-v")>=0&&code.indexOf('mhSyncMorphHuntUrl')>=0) return true;
-  if(code.indexOf("MH_BUILD='void-2d-v")>=0&&code.indexOf('mhUseVoidPower')>=0) return true;
   return false;
  }
  function injectMorphHunt(code){
