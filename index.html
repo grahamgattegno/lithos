@@ -5436,7 +5436,15 @@
 <script src="gc-drone-shapes.js?v=deploy-83"></script>
 <script src="gc-gravastar-scene.js?v=deploy-83"></script>
 <script src="gemcopter.js?v=deploy-85"></script>
-<script src="morph-hunt.js?v=void-1000d-v17"></script>
+<script>
+(function(){
+ var MH_JS_BUILD='void-1000d-v18';
+ var s=document.createElement('script');
+ s.src='morph-hunt.js?v='+encodeURIComponent(MH_JS_BUILD)+'&_='+Date.now();
+ s.onerror=function(){ console.error('Morph Hunt failed to load',s.src); };
+ document.head.appendChild(s);
+})();
+</script>
 <script>
 /* ---------- Affiliate partners (tracked links where available) ---------- */
 const DEFAULT_PARTNER='gemsny';

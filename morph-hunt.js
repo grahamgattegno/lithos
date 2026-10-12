@@ -3,7 +3,7 @@
 'use strict';
 
 const MH_STORE_KEY='lithos_morph_hunt_v9';
-const MH_BUILD='void-1000d-v17';
+const MH_BUILD='void-1000d-v18';
 const MH_TOTAL_COUNT=1100;
 const MH_1000D=true;
 const MH_DEPTH_LABEL='1000th Depth';
