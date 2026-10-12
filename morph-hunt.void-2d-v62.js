@@ -5,9 +5,9 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v64';
-const MH_SCENERY_STAMP='ANCIENT_FIVE_SHIELDS_v64';
-const MH_SCRIPT_FILE='morph-hunt.void-2d-v64.js';
+const MH_BUILD='void-2d-v65';
+const MH_SCENERY_STAMP='ANCIENT_FIVE_SHIELDS_v65';
+const MH_SCRIPT_FILE='morph-hunt.js';
 const MH_ANCIENT_GLYPHS=['⌬','☵','⛧','◈','☒'];
 const MH_ANCIENT_NAMES=['Void Seal','Rift Mark','Depth Eye','Abyss Gate','King Ward'];
 const MH_VOID_STORM_NAME='Void Storm';
@@ -2652,17 +2652,19 @@ function mhGibberLinkBurst(st,payload){
  }
 }
 function mhActivateFiveAncientShields(st,pos,duration,king){
- const dur=duration||5.5;
+ const dur=duration||6.5;
  st.ancientShieldUntil=performance.now()+dur*1000;
  st.ancientShieldKing=!!king;
- const tag={followPlayer:true,foy:-16};
+ const tag={followPlayer:true,foy:-18};
+ const rad=king?88:74;
  for(let i=0;i<5;i++){
   mhSpawnVoidFx(st,{
    kind:'ancient_shield',shieldIndex:i,glyph:MH_ANCIENT_GLYPHS[i],name:MH_ANCIENT_NAMES[i],
-   orbitAng:i*Math.PI*2/5,orbitRad:king?72:58,orbitSpeed:0.72,life:dur,
+   orbitAng:i*Math.PI*2/5,orbitRad:rad,orbitSpeed:0.85,life:dur+0.5,
    color:king?'#ff3030':'#9040ff',...tag
   });
  }
+ mhToast('🛡 5 ANCIENT SHIELDS — '+MH_ANCIENT_GLYPHS.join(' '));
 }
 function mhDrawAncientShieldsRing(ctx,st,pos,t){
  if(!st.ancientShieldUntil||performance.now()>st.ancientShieldUntil) return;
@@ -2952,7 +2954,7 @@ function mhDrawVoidFx(ctx,st){
   }else if(f.kind==='ancient_shield'){
    const glyph=f.glyph||MH_ANCIENT_GLYPHS[(f.shieldIndex||0)%5];
    const king=col==='#ff3030';
-   const w=19,h=26;
+   const w=26,h=34;
    ctx.save();
    ctx.translate(f.x,f.y);
    ctx.rotate(Math.sin((f.age||0)*3)*0.12);
@@ -2973,7 +2975,7 @@ function mhDrawVoidFx(ctx,st){
    ctx.lineWidth=1.5;
    ctx.stroke();
    ctx.fillStyle=king?'#ffe0e0':'#ffe8a0';
-   ctx.font='bold 15px serif';
+   ctx.font='bold 20px serif';
    ctx.textAlign='center'; ctx.textBaseline='middle';
    ctx.shadowColor=king?'#ff2020':'#9040ff';
    ctx.shadowBlur=8;
@@ -3944,6 +3946,13 @@ function mhWalkDrawFrame(){
  ctx.textAlign='left';
  ctx.fillStyle='#ffb0b0'; ctx.font='bold 10px system-ui';
  ctx.fillText('⚔ FIGHT: 1 attack · 2 power · 3 storm — face foes & press keys',16,72);
+ if(st.ancientShieldUntil&&performance.now()<st.ancientShieldUntil){
+  ctx.fillStyle='rgba(20,0,40,.92)'; ctx.fillRect(W/2-180,H-58,360,44);
+  ctx.fillStyle='#ffe8a0'; ctx.font='bold 13px system-ui,sans-serif'; ctx.textAlign='center';
+  ctx.fillText('🛡 5 ANCIENT SHIELDS · '+MH_ANCIENT_GLYPHS.join(' '),W/2,H-40);
+  ctx.font='bold 11px system-ui'; ctx.fillStyle='#c898ff';
+  ctx.fillText(MH_ANCIENT_NAMES.join(' · '),W/2,H-24);
+ }
  if(st.voidGibberUntil&&performance.now()<st.voidGibberUntil){
   ctx.fillStyle='rgba(40,0,0,.88)'; ctx.fillRect(W/2-150,H-36,300,28);
   ctx.fillStyle='#ff6060'; ctx.font='bold 12px system-ui,sans-serif'; ctx.textAlign='center';
