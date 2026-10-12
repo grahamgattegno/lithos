@@ -5436,7 +5436,7 @@
 <script src="gc-drone-shapes.js?v=deploy-83"></script>
 <script src="gc-gravastar-scene.js?v=deploy-83"></script>
 <script src="gemcopter.js?v=deploy-85"></script>
-<script src="morph-hunt.js?v=aura-run-v8"></script>
+<script src="morph-hunt.js?v=keys-fix-v9"></script>
 <script>
 /* ---------- Affiliate partners (tracked links where available) ---------- */
 const DEFAULT_PARTNER='gemsny';
@@ -13877,6 +13877,7 @@ function isSpaceKey(e){return!!e&&(e.code==='Space'||e.key===' '||e.key==='Space
 function isTypingTarget(el){return!!(el&&el.closest&&el.closest('input,textarea,select,[contenteditable="true"]'));}
 // Night Shift keyboard controls (works while the spooky game is open)
 document.addEventListener('keydown',e=>{
+ if(document.getElementById('morphhunt'))return;
  if(!nsGame)return;
  if(isTypingTarget(e.target))return;
  if(nsGame.market){ if(e.key==='Escape'){ nsCloseMarket(); e.preventDefault(); } return; }
@@ -13891,6 +13892,7 @@ document.addEventListener('keydown',e=>{
 });
 // arrow keys + space controls
 document.addEventListener('keydown',e=>{
+ if(document.getElementById('morphhunt'))return;
  if(isTypingTarget(e.target))return;
  if(gmState&&gmState.running&&!views.gemmotion.hidden){
   if(e.key==='l'||e.key==='L'){stopGemMotion();buildGemMotion();e.preventDefault();return;}

@@ -3,7 +3,7 @@
 'use strict';
 
 const MH_STORE_KEY='lithos_morph_hunt_v5';
-const MH_BUILD='aura-run-v8';
+const MH_BUILD='keys-fix-v9';
 const MH_TILE=34;
 const MH_MAP_W=46;
 const MH_MAP_H=34;
@@ -782,10 +782,6 @@ function mhPaintNoob3D(ctx,m,x,y,sc,alpha,silhouette,walkPhase){
  }
  if(m.hat==='crown'){ ctx.fillStyle='#ffd700'; ctx.fillRect(-8,-54,16,6); }
  if(m.hat==='gem'){ ctx.fillStyle='#80e0ff'; ctx.beginPath(); ctx.moveTo(0,-56); ctx.lineTo(8,-44); ctx.lineTo(0,-38); ctx.lineTo(-8,-44); ctx.fill(); }
- if(walkPhase!=null&&!silhouette){
-  const s=Math.sin(walkPhase);
-  ctx.fillStyle=mhShade(l,-20); ctx.fillRect(-10+s*3,22,9,32); ctx.fillRect(1-s*3,22,9,32);
- }
  ctx.restore();
 }
 function mhPaintNoobWorld(ctx,m,x,y,sc,alpha,silhouette,t,walkPhase){
@@ -829,23 +825,43 @@ function mhWalkNearMorph(save,wi,pos){
  if(!best||best.d>MH_INTERACT_R) return null;
  return best.m;
 }
+function mhWalkActive(){
+ return !!(mhState&&mhState.tab==='hunt'&&document.getElementById('morphhunt')&&!mhState.minigameMorph);
+}
+function mhWalkApplyKey(e,down){
+ if(!mhWalkActive()) return false;
+ if(!mhState.walkKeys) mhState.walkKeys={};
+ const c=e.code,k=e.key;
+ let hit=false;
+ const touch=(name,on)=>{
+  if(on) mhState.walkKeys[name]=true;
+  else delete mhState.walkKeys[name];
+  hit=true;
+ };
+ if(c==='KeyA'||c==='ArrowLeft'||k==='a'||k==='A') touch('left',down);
+ if(c==='KeyD'||c==='ArrowRight'||k==='d'||k==='D') touch('right',down);
+ if(c==='KeyW'||c==='ArrowUp'||k==='w'||k==='W') touch('up',down);
+ if(c==='KeyS'||c==='ArrowDown'||k==='s'||k==='S') touch('down',down);
+ if(c==='ShiftLeft'||c==='ShiftRight'||k==='Shift') touch('run',down);
+ if(down&&(c==='KeyE'||k==='e'||k==='E'||c==='Space'||isSpaceKey(e))&&mhState.walkNearId){
+  mhCollect(mhState.walkNearId);
+  hit=true;
+ }
+ if(hit){
+  e.preventDefault();
+  e.stopPropagation();
+ }
+ return hit;
+}
+function isSpaceKey(e){ return e&&(e.code==='Space'||e.key===' '||e.key==='Spacebar'); }
 function mhWalkStop(){
  if(mhState&&mhState.walkRaf) cancelAnimationFrame(mhState.walkRaf);
  if(mhState) mhState.walkRaf=0;
- document.removeEventListener('keydown',mhWalkKeysDown);
- document.removeEventListener('keyup',mhWalkKeysUp);
+ document.removeEventListener('keydown',mhWalkKeysDown,true);
+ document.removeEventListener('keyup',mhWalkKeysUp,true);
 }
-function mhWalkKeysDown(e){
- if(!mhState||mhState.tab!=='hunt') return;
- if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','w','a','s','d','W','A','S','D',' ','Shift'].includes(e.key)) e.preventDefault();
- if(!mhState.walkKeys) mhState.walkKeys={};
- mhState.walkKeys[e.key]=true;
- if((e.key==='e'||e.key==='E'||e.key===' ')&&mhState.walkNearId&&!mhState.minigameMorph) mhCollect(mhState.walkNearId);
-}
-function mhWalkKeysUp(e){
- if(!mhState||!mhState.walkKeys) return;
- mhState.walkKeys[e.key]=false;
-}
+function mhWalkKeysDown(e){ mhWalkApplyKey(e,true); }
+function mhWalkKeysUp(e){ mhWalkApplyKey(e,false); }
 function mhWalkDrawFrame(){
  const st=mhState;
  if(!st||st.tab!=='hunt') return;
@@ -861,11 +877,11 @@ function mhWalkDrawFrame(){
  const keys=st.walkKeys||{};
  const t=performance.now()/1000;
  let vx=0,vy=0;
- if(keys.ArrowLeft||keys.a||keys.A) vx-=1;
- if(keys.ArrowRight||keys.d||keys.D) vx+=1;
- if(keys.ArrowUp||keys.w||keys.W) vy-=1;
- if(keys.ArrowDown||keys.s||keys.S) vy+=1;
- const running=!!(keys.Shift||keys.r||keys.R||keys.Run);
+ if(keys.left) vx-=1;
+ if(keys.right) vx+=1;
+ if(keys.up) vy-=1;
+ if(keys.down) vy+=1;
+ const running=!!keys.run;
  const moving=!!(vx||vy);
  if(moving){
   const spd=running?MH_RUN_SPEED:MH_WALK_SPEED;
@@ -961,14 +977,16 @@ function mhWalkStart(){
  mhWalkStop();
  if(!mhState) return;
  mhState.walkKeys={};
- document.addEventListener('keydown',mhWalkKeysDown);
- document.addEventListener('keyup',mhWalkKeysUp);
+ document.addEventListener('keydown',mhWalkKeysDown,true);
+ document.addEventListener('keyup',mhWalkKeysUp,true);
  mhWalkDrawFrame();
  const root=document.getElementById('morphhunt');
  root?.querySelectorAll('[data-mh-dpad]').forEach(btn=>{
   const dir=btn.dataset.mhDpad;
-  const down=()=>{ if(!mhState.walkKeys) mhState.walkKeys={}; mhState.walkKeys[dir]=true; };
-  const up=()=>{ if(mhState.walkKeys) mhState.walkKeys[dir]=false; };
+  const map={ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right'};
+  const name=map[dir]||dir;
+  const down=()=>{ if(!mhState.walkKeys) mhState.walkKeys={}; mhState.walkKeys[name]=true; };
+  const up=()=>{ if(mhState?.walkKeys) delete mhState.walkKeys[name]; };
   btn.addEventListener('pointerdown',e=>{ e.preventDefault(); down(); });
   btn.addEventListener('pointerup',up);
   btn.addEventListener('pointerleave',up);
@@ -978,10 +996,10 @@ function mhWalkStart(){
  });
  root?.querySelector('#mh-walk-run')?.addEventListener('pointerdown',()=>{
   if(!mhState.walkKeys) mhState.walkKeys={};
-  mhState.walkKeys.Run=true;
+   mhState.walkKeys.run=true;
  });
  root?.querySelector('#mh-walk-run')?.addEventListener('pointerup',()=>{
-  if(mhState?.walkKeys) mhState.walkKeys.Run=false;
+  if(mhState?.walkKeys) delete mhState.walkKeys.run;
  });
 }
 
