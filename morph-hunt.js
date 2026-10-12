@@ -3273,7 +3273,7 @@ function mhRenderMorph(save){
  return `<div class="mh-morph-tab">
   <h3>🎭 Morph &amp; Roleplay</h3>
   <p class="mh-scene-hint">Turn into any noobie you own — your morph also shows on the Rock Teacher!</p>
-  <div class="mh-morph-preview large">${wear?`<svg viewBox="0 0 100 130">${mhClassicNoobSvg(wear)}</svg><b>${wear.name}</b><button type="button" class="mh-btn primary" data-mh-wear="${wear.id}">Stay morphed</button>`:'<span>Pick a noobie below</span>'}</div>
+  <div class="mh-morph-preview large">${wear?`<svg viewBox="0 0 100 130">${mhClassicNoobSvg(wear)}</svg><b>${wear.name}</b>${(wear.rarity==='voidfallen'||wear.voidFallen)?`<p class="mh-scene-hint" style="color:#c898ff">🕳 Void map: <b>1</b> ${wear.voidAttack?.name||'Attack'} · <b>2</b> ${wear.voidPower?.name||'Power'}</p>`:''}<button type="button" class="mh-btn primary" data-mh-wear="${wear.id}">Stay morphed</button>`:'<span>Pick a noobie below</span>'}</div>
   <input type="search" id="mh-search" placeholder="Search your morphs…" value="${q.replace(/"/g,'&quot;')}"/>
   <div class="mh-morph-grid">${cards}</div>
   <div class="mh-pager">${pg.page>0?'<button type="button" class="mh-btn" data-mh-page="'+(pg.page-1)+'">←</button>':''}<span>${pg.page+1}/${pg.pages}</span>${pg.page+1<pg.pages?'<button type="button" class="mh-btn" data-mh-page="'+(pg.page+1)+'">→</button>':''}</div>
