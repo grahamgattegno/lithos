@@ -5,9 +5,9 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v62';
-const MH_SCENERY_STAMP='FIGHT_MODE_v62';
-const MH_SCRIPT_FILE='morph-hunt.void-2d-v62.js';
+const MH_BUILD='void-2d-v63';
+const MH_SCENERY_STAMP='PLAYER_RED_BLACK_STORM_v63';
+const MH_SCRIPT_FILE='morph-hunt.void-2d-v63.js';
 const MH_VOID_STORM_NAME='Void Storm';
 const MH_VOID_STORM_POWER={id:'void_storm',name:'Void Storm',color:'#ff2020',kind:'storm',range:200};
 const MH_KING_STAMP='RED_BLACK_KING_v31';
@@ -2649,37 +2649,105 @@ function mhGibberLinkBurst(st,payload){
   t+=0.058;
  }
 }
+function mhWrapPlayerRedBlackStorm(st,m,pos,duration){
+ const dur=duration||(m?.voidKing?7:5.8);
+ st.playerStormUntil=performance.now()+dur*1000;
+ st.playerStormKing=!!m?.voidKing;
+ const px=pos.px, py=pos.py-10;
+ const holeR=m?.voidKing?78:62;
+ const tag={followPlayer:true,foy:-10};
+ mhSpawnVoidFx(st,{kind:'blackhole',x:px,y:py,vx:0,vy:0,color:'#ff2020',r:holeR,life:dur,spin:0,dr:0,...tag});
+ mhSpawnVoidFx(st,{kind:'blackhole_core',x:px,y:py,vx:0,vy:0,color:'#050505',r:holeR*0.45,life:dur,spin:0.7,...tag});
+ mhSpawnVoidFx(st,{kind:'storm',x:px,y:py,vx:0,vy:0,color:'#ff2020',r:26,dr:holeR+36,life:dur*0.95,spin:0,...tag});
+ mhSpawnVoidFx(st,{kind:'storm',x:px,y:py,vx:0,vy:0,color:'#0a0a0a',r:16,dr:holeR+24,life:dur,spin:0.4,...tag});
+ for(let i=0;i<22;i++){
+  const ang=i*Math.PI*2/22;
+  const rad=42+(i%4)*14;
+  mhSpawnVoidFx(st,{kind:'storm_orbit',x:px,y:py,orbitAng:ang,orbitRad:rad,orbitSpeed:1.1+(i%6)*0.12,color:i%2?'#ff3030':'#0c0c0c',life:dur,...tag});
+ }
+ for(let i=0;i<14;i++){
+  mhSpawnVoidFx(st,{kind:'spark',x:px,y:py,vx:Math.cos(i)*8,vy:Math.sin(i)*6,color:i%2?'#ff5050':'#1a1a1a',life:0.55+Math.random()*0.35,...tag,ox:Math.cos(i*0.9)*30,oy:Math.sin(i*0.9)*22});
+ }
+}
+function mhDrawRedBlackPlayerStorm(ctx,st,pos,t){
+ if(!st.playerStormUntil||performance.now()>st.playerStormUntil) return;
+ const king=!!st.playerStormKing;
+ const cx=pos.px, cy=pos.py-(king?14:10);
+ const pulse=0.85+Math.sin(t*5.2)*0.15;
+ const R=(king?92:76)*pulse;
+ const a=Math.min(1,(st.playerStormUntil-performance.now())/900);
+ ctx.save();
+ ctx.globalAlpha=0.55*a;
+ const fog=ctx.createRadialGradient(cx,cy,R*0.1,cx,cy,R*1.15);
+ fog.addColorStop(0,'rgba(0,0,0,.55)');
+ fog.addColorStop(0.45,'rgba(120,10,10,.35)');
+ fog.addColorStop(0.72,'rgba(255,40,40,.18)');
+ fog.addColorStop(1,'rgba(255,80,80,0)');
+ ctx.fillStyle=fog;
+ ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.fill();
+ ctx.globalAlpha=0.9*a;
+ for(let i=0;i<10;i++){
+  const ang=t*2.4+i*Math.PI*2/10;
+  const r0=R*0.35,r1=R*(0.82+Math.sin(t*7+i)*0.08);
+  ctx.strokeStyle=i%2?'rgba(255,50,50,.75)':'rgba(0,0,0,.85)';
+  ctx.lineWidth=i%2?4:6;
+  ctx.beginPath();
+  ctx.moveTo(cx+Math.cos(ang)*r0,cy+Math.sin(ang)*r0*0.7);
+  ctx.lineTo(cx+Math.cos(ang+0.35)*r1,cy+Math.sin(ang+0.35)*r1*0.65);
+  ctx.stroke();
+ }
+ ctx.strokeStyle='rgba(255,80,80,.65)'; ctx.lineWidth=3;
+ for(let i=0;i<6;i++){
+  const ang=t*3.1+i*Math.PI/3;
+  ctx.beginPath();
+  ctx.ellipse(cx,cy,R*0.88,R*0.38,ang,0,Math.PI*2);
+  ctx.stroke();
+ }
+ ctx.strokeStyle='rgba(0,0,0,.92)'; ctx.lineWidth=5;
+ ctx.beginPath(); ctx.arc(cx,cy,R*0.2,0,Math.PI*2); ctx.stroke();
+ ctx.restore();
+}
 function mhSpawnVoidUniverseStorm(st,m,dir,pos,range){
- const reach=range||180;
- const hx=pos.px+dir.dx*reach, hy=pos.py+dir.dy*reach;
  const stormLife=m.voidKing?6.5:5.5;
- const holeR=m.voidKing?105:88;
- mhSpawnVoidFx(st,{kind:'blackhole',x:hx,y:hy,vx:0,vy:0,color:'#ff2020',r:holeR,life:stormLife,spin:0,dr:0});
- mhSpawnVoidFx(st,{kind:'blackhole_core',x:hx,y:hy,vx:0,vy:0,color:'#050505',r:holeR*0.42,life:stormLife,spin:0.6});
- mhSpawnVoidFx(st,{kind:'universe_rift',x:hx,y:hy-200,vx:0,vy:0,color:'#ff3030',r:48,life:stormLife,spin:0,tx:hx,ty:hy});
- mhSpawnVoidFx(st,{kind:'storm',x:hx,y:hy,vx:0,vy:0,color:'#ff2020',r:28,dr:holeR+40,life:stormLife*0.85,spin:0});
- mhSpawnVoidFx(st,{kind:'storm',x:hx,y:hy,vx:0,vy:0,color:'#0a0a0a',r:18,dr:holeR+28,life:stormLife*0.9,spin:0.35});
+ const cx=pos.px, cy=pos.py-10;
+ mhWrapPlayerRedBlackStorm(st,m,pos,stormLife);
+ mhSpawnVoidFx(st,{kind:'universe_rift',x:cx,y:cy-200,vx:0,vy:0,color:'#ff3030',r:48,life:stormLife,spin:0,tx:cx,ty:cy,followPlayer:true,foy:-10});
  for(let i=0;i<24;i++){
   const spell=MH_FORBIDDEN_SPELLS[i%MH_FORBIDDEN_SPELLS.length];
   const delay=i*0.06;
-  mhSpawnVoidFx(st,{kind:'forbidden_spell',x:hx+(Math.random()-0.5)*48,y:hy-220-Math.random()*50,vx:0,vy:0,color:i%2?'#ff4040':'#1a1a1a',life:stormLife-0.1-delay,spell,tx:hx,ty:hy,delay,phase:i*0.7});
- }
- for(let i=0;i<16;i++){
-  const a=i*Math.PI*2/10+performance.now()/800;
-  mhSpawnVoidFx(st,{kind:'spark',x:hx+Math.cos(a)*holeR*0.6,y:hy+Math.sin(a)*holeR*0.35,vx:-Math.cos(a)*6,vy:-Math.sin(a)*6,color:'#ff6060',life:0.75});
+  const sx=cx+(Math.random()-0.5)*40, sy=cy-220-Math.random()*45;
+  mhSpawnVoidFx(st,{kind:'forbidden_spell',x:sx,y:sy,vx:0,vy:0,color:i%2?'#ff4040':'#1a1a1a',life:stormLife-0.1-delay,spell,tx:cx,ty:cy,delay,phase:i*0.7,followPlayer:true,foy:-10,spellOx:sx-cx,spellOy:sy-cy});
  }
  mhGibberLinkBurst(st,m.voidKing?'GIBBERLINK:KING:RIFT':'GIBBERLINK:VOID:STORM');
  for(let i=0;i<8;i++){
-  mhSpawnVoidFx(st,{kind:'gibberlink',x:hx+(i-4)*14,y:hy-210,vx:0,vy:0,color:'#ff6060',life:stormLife*0.7,chip:i%5});
+  mhSpawnVoidFx(st,{kind:'gibberlink',x:cx+(i-4)*14,y:cy-210,vx:0,vy:0,color:'#ff6060',life:stormLife*0.7,chip:i%5,followPlayer:true,foy:-10,gox:(i-4)*14,goy:-200});
  }
  st.voidGibberUntil=performance.now()+stormLife*1000;
  mhVoidShake(st,m.voidKing?220:180,m.voidKing?12:9);
 }
 function mhUpdateVoidFx(st,dt){
  if(!st.voidFx) return;
+ const p=st.walkPos?.[st.world];
  st.voidFx=st.voidFx.filter(f=>{
   f.life-=dt;
   f.age=(f.age||0)+dt;
+  if(f.followPlayer&&p){
+   const foy=f.foy==null?-10:f.foy;
+   if(f.kind==='storm_orbit'){
+    f.orbitAng=(f.orbitAng||0)+dt*(f.orbitSpeed||1.2);
+    f.x=p.px+Math.cos(f.orbitAng)*(f.orbitRad||48);
+    f.y=p.py+foy+Math.sin(f.orbitAng)*(f.orbitRad||48)*0.62;
+   }else if(f.kind==='forbidden_spell'&&f.spellOx!=null){
+    f.x=p.px+f.spellOx;
+    f.y=p.py+foy+f.spellOy;
+    f.tx=p.px; f.ty=p.py+foy;
+   }else if(f.gox!=null){
+    f.x=p.px+f.gox; f.y=p.py+foy+f.goy;
+   }else{
+    f.x=p.px+(f.ox||0);
+    f.y=p.py+foy+(f.oy||0);
+   }
+  }
   f.x+=(f.vx||0)*dt*60; f.y+=(f.vy||0)*dt*60;
   if(f.kind==='forbidden_spell'){
    f.delay=(f.delay||0)-dt;
@@ -2845,6 +2913,12 @@ function mhDrawVoidFx(ctx,st){
    ctx.fillStyle='#ffe0e0'; ctx.font='9px system-ui,sans-serif'; ctx.textAlign='center';
    const sn=(f.spell||'Spell').split(' ')[0];
    ctx.fillText(sn,f.x,f.y+3);
+  }else if(f.kind==='storm_orbit'){
+   const rr=10+Math.sin((f.age||0)*11)*4;
+   ctx.fillStyle=col==='#0c0c0c'?'rgba(0,0,0,.85)':'rgba(255,40,40,.75)';
+   ctx.beginPath(); ctx.arc(f.x,f.y,rr,0,Math.PI*2); ctx.fill();
+   ctx.strokeStyle='rgba(255,100,100,.8)'; ctx.lineWidth=2;
+   ctx.beginPath(); ctx.moveTo(f.x-rr*1.4,f.y); ctx.lineTo(f.x+rr*1.4,f.y); ctx.stroke();
   }else if(f.kind==='storm'){
    const r=f.r||30;
    ctx.strokeStyle=col; ctx.lineWidth=4;
@@ -3032,11 +3106,10 @@ function mhUseFightStorm(st,save,pos,wi){
  mhEnsureFight(st,save);
  const vm=mhVoidCombatMorph(save);
  if(vm) return mhUseVoidStorm(st,save,pos,wi);
- const dir=mhFacingDir(st);
- const cx=pos.px+dir.dx*100, cy=pos.py+dir.dy*100;
- const hits=mhFightAoe(st,save,wi,cx,cy,95,22);
- mhSpawnVoidFx(st,{kind:'nova',x:cx,y:cy,vx:0,vy:0,color:'#9040ff',r:14,dr:100,life:0.55});
- mhToast(hits?'🌪 Mega slam!':'🌪 Slam!');
+ mhWrapPlayerRedBlackStorm(st,null,pos,4.5);
+ const hits=mhFightAoe(st,save,wi,pos.px,pos.py-10,88,22);
+ mhVoidShake(st,120,7);
+ mhToast(hits?'🌪 Red-black storm around you!':'🌪 Storm around you!');
 }
 function mhUseVoidAttack(st,save,pos,wi){
  const m=mhVoidCombatMorph(save);
@@ -3061,8 +3134,8 @@ function mhUseVoidStorm(st,save,pos,wi){
  const range=m.voidKing?210:175;
  mhSpawnVoidUniverseStorm(st,m,dir,pos,range);
  if(wi!=null){
-  const hx=pos.px+dir.dx*range, hy=pos.py+dir.dy*range;
-  mhFightAoe(st,save,wi,hx,hy,m.voidKing?130:105,m.voidKing?55:38);
+  const cx=pos.px, cy=pos.py-10;
+  mhFightAoe(st,save,wi,cx,cy,m.voidKing?115:95,m.voidKing?55:38);
  }
  mhToast('🌌 '+MH_VOID_STORM_NAME+'! GIBBERLINK rift · red-black hole · forbidden spells!');
  try{if(typeof SFX!=='undefined'&&SFX.ui)SFX.ui();}catch(_){}
@@ -3082,9 +3155,7 @@ function mhUseVoidPower(st,save,pos,map,wi){
  if(pow.kind==='storm'||pow.id==='forbidden_storm'){
   mhSpawnVoidUniverseStorm(st,m,dir,pos,pow.range||160);
   if(wi!=null){
-   const reach=pow.range||160;
-   const hx=pos.px+dir.dx*reach, hy=pos.py+dir.dy*reach;
-   mhFightAoe(st,save,wi,hx,hy,m.voidKing?120:100,m.voidKing?48:34);
+   mhFightAoe(st,save,wi,pos.px,pos.py-10,m.voidKing?115:95,m.voidKing?48:34);
   }
  }else{
   mhSpawnPowerVfx(st,m,pow,dir,pos,map);
@@ -3785,6 +3856,7 @@ function mhWalkDrawFrame(){
  });
  mhDrawMapStatues(ctx,map,t,st);
  const wear=mhMorph(save.wearing);
+ mhDrawRedBlackPlayerStorm(ctx,st,pos,t);
  mhDrawYouInWorld(ctx,wear,pos,map,t,st.walkPhase||0,wi,st.playerRunning);
  mhDrawVoidFx(ctx,st);
  ctx.restore();
@@ -4252,7 +4324,7 @@ function playMorphHunt(){
  mhClose();
  mhEnsureOverlayModals();
  if(typeof lithosCloseGameOverlays==='function'){ try{lithosCloseGameOverlays();}catch(_){} }
- mhState={save:mhLoadSave(),world:0,tab:'hunt',page:0,huntPage:0,filter:'',indexKind:'all',walkPos:{}};
+ mhState={save:mhLoadSave(),world:0,tab:'hunt',page:0,huntPage:0,filter:'',indexKind:'all',walkPos:{},enemyHp:{},enemyAggro:{},enemyRespawnAt:{},enemyLastHit:{},enemyHitFlash:{}};
  const wrap=document.createElement('div');
  wrap.id='morphhunt';
  document.body.appendChild(wrap);
