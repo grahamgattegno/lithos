@@ -1583,7 +1583,23 @@
   .mh-preview-legend{display:flex;flex-wrap:wrap;gap:6px 10px;margin-top:10px;font-size:10px;color:#8090a8}
   .mh-preview-legend span{padding:3px 8px;border-radius:999px;background:#141c28;border:1px solid #2a3848;font-weight:800;text-transform:uppercase}
   .mh-hunt-deck{background:#0c1018;border:2px solid #2a3040;border-radius:14px;padding:12px 14px;margin-bottom:10px}
+  .mh-hunt-deck-fold{margin:8px 0 0;border:1px solid #2a3040;border-radius:12px;padding:6px 10px;background:#0a0e14}
+  .mh-hunt-deck-fold summary{cursor:pointer;font-weight:800;color:#a0b0c0;font-size:12px;list-style:none}
+  .mh-hunt-deck-fold summary::-webkit-details-marker{display:none}
+  .mh-hunt-deck-fold[open] summary{margin-bottom:8px;color:#ffe8a0}
   .mh-hunt-deck h3{margin:0 0 6px;font-size:15px;color:#ffe8a0}
+  .mh-hunt-tip{margin:0 0 8px;font-size:12px;font-weight:700;color:#90a8b8;line-height:1.45}
+  .mh-hunt-guide{margin:0 0 10px;padding:10px 12px;border:2px solid #3a6840;border-radius:12px;background:#0a1410;color:#c8e0c8;font-size:12px;line-height:1.5}
+  .mh-hunt-guide b{color:#ffe8a0}
+  .mh-hunt-guide ol{margin:6px 0 0;padding-left:18px}
+  .mh-hunt-guide li{margin:4px 0}
+  .mh-teleport-bar{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between;margin:0 0 8px;padding:10px 12px;border:2px solid #5040a0;border-radius:12px;background:#141028;color:#e0d8ff;font-size:12px}
+  .mh-teleport-bar b{color:#ffe8a0}
+  .mh-teleport-btns{display:flex;flex-wrap:wrap;gap:6px}
+  .mh-world-tabs-compact .mh-world-tab{padding:6px 10px;font-size:11px}
+  .mh-walk-hud-clean{flex-wrap:nowrap;gap:6px;padding:8px 10px}
+  .mh-walk-hud-clean .mh-walk-zone{flex:1;min-width:0;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mh-btn-sm{padding:6px 10px;font-size:11px}
   .mh-hunt-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:8px;margin:10px 0}
   .mh-hunt-card{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 6px;border:2px solid var(--mh-rarity,#666);border-radius:12px;background:#121820;color:#e8e4f0;cursor:pointer;font:inherit;text-align:center}
   .mh-hunt-card:not(.got):hover{filter:brightness(1.08);transform:translateY(-2px)}
@@ -5459,11 +5475,11 @@
 <script src="gemcopter.js?v=deploy-85"></script>
 <script>
 (function lithosLoadMorphHunt(){
- var MH_NEED='void-2d-v36';
- var MH_SCRIPT='morph-hunt.void-2d-v36.js';
- var NEED_MARK="MH_BUILD='void-2d-v36'";
+ var MH_NEED='void-2d-v40';
+ var MH_SCRIPT='morph-hunt.void-2d-v40.js';
+ var NEED_MARK="MH_BUILD='void-2d-v40'";
  var KING_MARK='RED_BLACK_KING_v31';
- var SCENERY_MARK='INDOOR_F_v36';
+ var SCENERY_MARK='RARITY_MAPS_v40';
  window.__LITHOS_MH_NEED=MH_NEED;
  window.__LITHOS_MH_SCRIPT=MH_SCRIPT;
  function injectMorphHunt(code){
@@ -5501,7 +5517,7 @@
 </script>
 <script>
 window.lithosPlayMorphHunt=function lithosPlayMorphHunt(){
- var NEED=window.__LITHOS_MH_NEED||'void-2d-v36';
+ var NEED=window.__LITHOS_MH_NEED||'void-2d-v40';
  var tries=0;
  function run(){
   if(typeof playMorphHunt==='function'){
