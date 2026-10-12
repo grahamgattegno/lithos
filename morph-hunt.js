@@ -3,7 +3,7 @@
 'use strict';
 
 const MH_STORE_KEY='lithos_morph_hunt_v4';
-const MH_BUILD='walk-fusion-v6';
+const MH_BUILD='walk-fusion-v7';
 const MH_TILE=34;
 const MH_MAP_W=46;
 const MH_MAP_H=34;
@@ -955,17 +955,30 @@ function mhRender(){
 function playMorphHunt(){
  mhClose();
  if(typeof lithosCloseGameOverlays==='function'){ try{lithosCloseGameOverlays();}catch(_){} }
- mhState={save:mhLoadSave(),world:0,tab:'hunt',page:0,filter:'',indexKind:'all'};
+ mhState={save:mhLoadSave(),world:0,tab:'hunt',page:0,filter:'',indexKind:'all',walkPos:{}};
  const wrap=document.createElement('div');
  wrap.id='morphhunt';
  document.body.appendChild(wrap);
  mhRender();
+ if(!document.getElementById('mh-walk-canvas')){
+  wrap.innerHTML=`<div class="mh-panel mh-ftn" style="padding:24px;text-align:center;max-width:420px;margin:auto">
+   <h2 style="color:#ff8080">Old Lithos saved in your browser</h2>
+   <p style="color:#e0e8f0;line-height:1.5">The new <b>walk-around</b> Morph Hunt did not load. Hard refresh:</p>
+   <p style="color:#ffe8a0;font-weight:900">Mac: Cmd+Shift+R · Windows: Ctrl+Shift+R</p>
+   <p style="color:#a0a8b8;font-size:13px">Need build <b>${MH_BUILD}</b></p>
+   <button type="button" class="mh-btn primary" onclick="location.href=location.pathname+'?morph=${MH_BUILD}&t='+Date.now()+'#morphhunt'">Reload fresh copy</button>
+  </div>`;
+  if(typeof syncBodyScrollLock==='function')syncBodyScrollLock();
+  return;
+ }
  if(typeof syncBodyScrollLock==='function')syncBodyScrollLock();
+ mhToast('🚶 Walk hunt loaded · '+MH_BUILD+' · WASD to move');
 }
 
 function mhGetWearingMorph(){ return mhMorph(mhLoadWearId()||window.LITHOS_NOOBIE_WEAR); }
 
 window.playMorphHunt=playMorphHunt;
+window.LITHOS_MH_BUILD=MH_BUILD;
 window.mhClose=mhClose;
 window.mhRedeemMorphCode=mhRedeemCode;
 window.mhGetWearingMorph=mhGetWearingMorph;

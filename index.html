@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- lithos-v:site-live-76 -->
+<!-- lithos-v:site-live-77-morph-walk -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -5422,7 +5422,7 @@
 <script src="gc-drone-shapes.js?v=deploy-83"></script>
 <script src="gc-gravastar-scene.js?v=deploy-83"></script>
 <script src="gemcopter.js?v=deploy-85"></script>
-<script src="morph-hunt.js?v=walk-v6"></script>
+<script src="morph-hunt.js?v=1da8dde-w7"></script>
 <script>
 /* ---------- Affiliate partners (tracked links where available) ---------- */
 const DEFAULT_PARTNER='gemsny';
@@ -6523,6 +6523,11 @@ function closeSiteOverlays(){
  lithosCloseGameOverlays();
 }
 function switchView(name){
+ if(name==='morphhunt'){playMorphHunt();if(location.hash!=='#morphhunt')history.replaceState(null,'','#morphhunt');return;}
+ if(name==='gemrush'){playGemRush();return;}
+ if(name==='gemdigger'){playGemDigger();return;}
+ if(name==='gemdrive'){playGemDrive();return;}
+ if(name==='gemheli'||name==='gemcopter'){playGemCopter();return;}
  if(name==='parts'){openGamesHub();return;}
  if(name==='nightshift'){
   try{closeGamesHub({skipHash:true});}catch(_){}
