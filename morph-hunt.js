@@ -3,7 +3,12 @@
 'use strict';
 
 const MH_STORE_KEY='lithos_morph_hunt_v4';
-const MH_BUILD='named-noobies-v5';
+const MH_BUILD='walk-fusion-v6';
+const MH_TILE=34;
+const MH_MAP_W=46;
+const MH_MAP_H=34;
+const MH_WALK_SPEED=3.4;
+const MH_INTERACT_R=52;
 const MH_BODIES=['classic','tall','chibi','robot','ghost','builder','wide'];
 const MH_WEAR_KEY='lithos_noobie_wear';
 const MH_NORMAL_COUNT=268;
@@ -186,6 +191,52 @@ const MH_MORPHS=mhBuildMorphs();
 const MH_NORMALS=MH_MORPHS.filter(m=>!m.exclusive);
 const MH_EXCLUSIVES=MH_MORPHS.filter(m=>m.exclusive);
 
+function mhHashStr(s){
+ let h=2166136261;
+ for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619); }
+ return h>>>0;
+}
+function mhGenWorldMap(wi){
+ const w=MH_MAP_W,h=MH_MAP_H;
+ const tiles=new Uint8Array(w*h);
+ for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+  if(x<1||y<1||x>=w-1||y>=h-1) tiles[y*w+x]=1;
+  else tiles[y*w+x]=0;
+ }
+ const mid=Math.floor(h/2);
+ const door=8+(mhHashStr('door'+wi)% (w-16));
+ for(let x=2;x<w-2;x++) if(Math.abs(x-door)>2) tiles[mid*w+x]=1;
+ for(let r=0;r<4+wi;r++){
+  const rx=4+mhHashStr('rx'+wi+r)%(w-8);
+  const ry=4+mhHashStr('ry'+wi+r)%(h-8);
+  if(tiles[ry*w+rx]===0) tiles[ry*w+rx]=2;
+ }
+ for(let x=2;x<w-2;x+=6) for(let y=2;y<h-2;y+=5){
+  if(tiles[y*w+x]===0&&mhHashStr('p'+x+y+wi)%7===0) tiles[y*w+x]=2;
+ }
+ return {w,h,tiles,spawnTx:3,spawnTy:3,doorTx:door,doorTy:mid,wi};
+}
+const MH_WORLD_MAPS=MH_WORLDS.map((_,i)=>mhGenWorldMap(i));
+(function mhScatterMorphTiles(){
+ const occ=new Map();
+ MH_WORLDS.forEach((_,wi)=>{
+  const map=MH_WORLD_MAPS[wi];
+  if(!occ.has(wi)) occ.set(wi,new Set());
+  const set=occ.get(wi);
+  MH_MORPHS.filter(m=>!m.exclusive&&m.world===wi).forEach(m=>{
+   for(let t=0;t<400;t++){
+    const tx=3+mhHashStr(m.id+'x'+t)%(map.w-6);
+    const ty=3+mhHashStr(m.id+'y'+t)%(map.h-6);
+    const k=tx+','+ty;
+    if(map.tiles[ty*map.w+tx]!==0||set.has(k)) continue;
+    set.add(k);
+    m.tileX=tx; m.tileY=ty;
+    break;
+   }
+  });
+ });
+})();
+
 function mhIsOwner(){
  if(typeof isOwner!=='undefined'&&isOwner)return true;
  if(typeof document!=='undefined'&&document.body&&document.body.classList.contains('is-owner'))return true;
@@ -361,6 +412,7 @@ let mhState=null;
 let mhPendingFound=null;
 
 function mhClose(){
+ mhWalkStop();
  const el=document.getElementById('morphhunt');
  if(el)el.remove();
  mhState=null;
@@ -493,22 +545,247 @@ function mhPaginate(arr,page,size){
  return{slice:arr.slice(start,start+size),page:p,pages:Math.max(1,Math.ceil(arr.length/size)),total:arr.length};
 }
 
+function mhHex(c,a){
+ if(!c||c[0]!=='#') return c||'#888';
+ const n=parseInt(c.slice(1),16);
+ const r=(n>>16)&255,g=(n>>8)&255,b=n&255;
+ return `rgba(${r},${g},${b},${a==null?1:a})`;
+}
+function mhShade(hex,amt){
+ if(!hex||hex[0]!=='#') return hex||'#888';
+ let n=parseInt(hex.slice(1),16);
+ let r=(n>>16)&255,g=(n>>8)&255,b=n&255;
+ r=Math.max(0,Math.min(255,r+amt)); g=Math.max(0,Math.min(255,g+amt)); b=Math.max(0,Math.min(255,b+amt));
+ return '#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);
+}
+function mhGradRect(ctx,x,y,w,h,c1,c2){
+ const g=ctx.createLinearGradient(x,y,x,y+h);
+ g.addColorStop(0,c1); g.addColorStop(1,c2);
+ ctx.fillStyle=g; ctx.fillRect(x,y,w,h);
+}
+function mhPaintNoob3D(ctx,m,x,y,sc,alpha,silhouette){
+ if(!m) return;
+ ctx.save();
+ ctx.translate(x,y);
+ ctx.scale(sc,sc);
+ ctx.globalAlpha=alpha==null?1:alpha;
+ if(silhouette){
+  ctx.fillStyle='#0a0c14';
+  ctx.fillRect(-18,-52,36,64);
+  ctx.restore();
+  return;
+ }
+ const h=m.head||'#F5CD30', t=m.torso||'#0085DB', l=m.legs||'#A4BD47', a=m.arms||h;
+ ctx.fillStyle='rgba(0,0,0,.35)';
+ ctx.beginPath(); ctx.ellipse(0,58,20,5,0,0,Math.PI*2); ctx.fill();
+ if(m.body==='ghost'){
+  mhGradRect(ctx,-16,-8,32,52,t,mhShade(t,-40));
+  const hg=ctx.createRadialGradient(-6,-36,2,0,-28,24);
+  hg.addColorStop(0,mhShade(h,35)); hg.addColorStop(1,mhShade(h,-25));
+  ctx.fillStyle=hg; ctx.fillRect(-16,-48,32,32);
+ }else if(m.body==='robot'){
+  mhGradRect(ctx,-12,18,10,34,l,mhShade(l,-35)); mhGradRect(ctx,2,18,10,34,l,mhShade(l,-35));
+  mhGradRect(ctx,-18,0,36,22,t,mhShade(t,-30));
+  mhGradRect(ctx,-20,-2,12,20,a,mhShade(a,-20)); mhGradRect(ctx,8,-2,12,20,a,mhShade(a,-20));
+  ctx.fillStyle='#505860'; ctx.fillRect(-14,-46,28,28);
+  ctx.fillStyle='#00eaff'; ctx.fillRect(-10,-36,8,8); ctx.fillRect(2,-36,8,8);
+ }else{
+  mhGradRect(ctx,-10,22,9,32,l,mhShade(l,-30)); mhGradRect(ctx,1,22,9,32,l,mhShade(l,-30));
+  mhGradRect(ctx,-16,0,32,24,t,mhShade(t,-35));
+  if(m.stripe){ ctx.fillStyle='rgba(255,255,255,.25)'; ctx.fillRect(-16,8,32,6); }
+  mhGradRect(ctx,-22,2,10,22,a,mhShade(a,-25)); mhGradRect(ctx,12,2,10,22,a,mhShade(a,-25));
+  ctx.fillStyle='#303840'; ctx.beginPath(); ctx.arc(-16,14,3,0,Math.PI*2); ctx.arc(16,14,3,0,Math.PI*2); ctx.fill();
+  const hg=ctx.createRadialGradient(-8,-36,1,0,-32,26);
+  hg.addColorStop(0,mhShade(h,40)); hg.addColorStop(.55,h); hg.addColorStop(1,mhShade(h,-35));
+  ctx.fillStyle=hg; ctx.fillRect(-14,-48,28,28);
+  ctx.fillStyle='#1a1a20'; ctx.fillRect(-8,-36,5,5); ctx.fillRect(3,-36,5,5);
+  ctx.fillStyle='rgba(255,255,255,.7)'; ctx.fillRect(-7,-35,2,2); ctx.fillRect(4,-35,2,2);
+  const r=MH_RARITY[m.rarity];
+  if(r&&(m.rarity==='legendary'||m.rarity==='epic'||m.rarity==='secret')){
+   ctx.shadowColor=r.color; ctx.shadowBlur=8;
+   ctx.fillStyle=r.color; ctx.fillRect(-6,-34,3,3); ctx.fillRect(4,-34,3,3);
+   ctx.shadowBlur=0;
+  }
+  if(m.glasses){
+   ctx.strokeStyle='#101820'; ctx.lineWidth=1.2;
+   ctx.strokeRect(-10,-38,9,8); ctx.strokeRect(1,-38,9,8);
+  }
+ }
+ if(m.hat==='crown'){ ctx.fillStyle='#ffd700'; ctx.fillRect(-8,-54,16,6); }
+ if(m.hat==='gem'){ ctx.fillStyle='#80e0ff'; ctx.beginPath(); ctx.moveTo(0,-56); ctx.lineTo(8,-44); ctx.lineTo(0,-38); ctx.lineTo(-8,-44); ctx.fill(); }
+ ctx.restore();
+}
+
+function mhWalkTileBlocked(map,tx,ty){
+ if(tx<0||ty<0||tx>=map.w||ty>=map.h) return true;
+ const v=map.tiles[ty*map.w+tx];
+ return v===1||v===2;
+}
+function mhWalkCollide(map,px,py,r){
+ const tx0=Math.floor((px-r)/MH_TILE), tx1=Math.floor((px+r)/MH_TILE);
+ const ty0=Math.floor((py-r)/MH_TILE), ty1=Math.floor((py+r)/MH_TILE);
+ for(let ty=ty0;ty<=ty1;ty++)for(let tx=tx0;tx<=tx1;tx++) if(mhWalkTileBlocked(map,tx,ty)) return true;
+ return false;
+}
+function mhWalkEnsurePos(st,wi){
+ const map=MH_WORLD_MAPS[wi];
+ if(!st.walkPos) st.walkPos={};
+ if(!st.walkPos[wi]){
+  st.walkPos[wi]={px:map.spawnTx*MH_TILE+MH_TILE/2, py:map.spawnTy*MH_TILE+MH_TILE/2};
+ }
+ return st.walkPos[wi];
+}
+function mhWalkNearMorph(save,wi,pos){
+ const morphs=mhWorldMorphs(wi);
+ let best=null,bd=1e9;
+ morphs.forEach(m=>{
+  if(m.tileX==null) return;
+  const mx=m.tileX*MH_TILE+MH_TILE/2, my=m.tileY*MH_TILE+MH_TILE/2;
+  const d=Math.hypot(mx-pos.px,my-pos.py);
+  if(d<bd){ bd=d; best={m,d}; }
+ });
+ if(!best||best.d>MH_INTERACT_R) return null;
+ return best.m;
+}
+function mhWalkStop(){
+ if(mhState&&mhState.walkRaf) cancelAnimationFrame(mhState.walkRaf);
+ if(mhState) mhState.walkRaf=0;
+ document.removeEventListener('keydown',mhWalkKeysDown);
+ document.removeEventListener('keyup',mhWalkKeysUp);
+}
+function mhWalkKeysDown(e){
+ if(!mhState||mhState.tab!=='hunt') return;
+ if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','w','a','s','d','W','A','S','D',' '].includes(e.key)) e.preventDefault();
+ if(!mhState.walkKeys) mhState.walkKeys={};
+ mhState.walkKeys[e.key]=true;
+ if((e.key==='e'||e.key==='E'||e.key===' ')&&mhState.walkNearId) mhCollect(mhState.walkNearId);
+}
+function mhWalkKeysUp(e){
+ if(!mhState||!mhState.walkKeys) return;
+ mhState.walkKeys[e.key]=false;
+}
+function mhWalkDrawFrame(){
+ const st=mhState;
+ if(!st||st.tab!=='hunt') return;
+ const canvas=document.getElementById('mh-walk-canvas');
+ if(!canvas) return;
+ const ctx=canvas.getContext('2d');
+ const wi=st.world;
+ const save=st.save;
+ const map=MH_WORLD_MAPS[wi];
+ const world=MH_WORLDS[wi];
+ const pos=mhWalkEnsurePos(st,wi);
+ const keys=st.walkKeys||{};
+ let vx=0,vy=0;
+ if(keys.ArrowLeft||keys.a||keys.A) vx-=1;
+ if(keys.ArrowRight||keys.d||keys.D) vx+=1;
+ if(keys.ArrowUp||keys.w||keys.W) vy-=1;
+ if(keys.ArrowDown||keys.s||keys.S) vy+=1;
+ if(vx||vy){
+  const len=Math.hypot(vx,vy)||1;
+  vx=vx/len*MH_WALK_SPEED; vy=vy/len*MH_WALK_SPEED;
+  const npx=pos.px+vx,npy=pos.py+vy;
+  if(!mhWalkCollide(map,npx,pos.py,10)) pos.px=npx;
+  if(!mhWalkCollide(map,pos.px,npy,10)) pos.py=npy;
+ }
+ const morphs=mhWorldMorphs(wi);
+ const near=mhWalkNearMorph(save,wi,pos);
+ st.walkNearId=near?near.id:null;
+ const W=canvas.width,H=canvas.height;
+ const camX=pos.px-W/2,camY=pos.py-H/2;
+ ctx.fillStyle=world.bg;
+ ctx.fillRect(0,0,W,H);
+ ctx.save();
+ ctx.translate(-camX,-camY);
+ for(let ty=0;ty<map.h;ty++)for(let tx=0;tx<map.w;tx++){
+  const v=map.tiles[ty*map.w+tx];
+  const x=tx*MH_TILE,y=ty*MH_TILE;
+  if(v===1){
+   mhGradRect(ctx,x,y,MH_TILE,MH_TILE,'#3a4048','#1a1e24');
+   ctx.strokeStyle='rgba(255,255,255,.06)'; ctx.strokeRect(x+.5,y+.5,MH_TILE-1,MH_TILE-1);
+  }else{
+   const g=ctx.createLinearGradient(x,y,x,y+MH_TILE);
+   g.addColorStop(0,mhShade(world.ground,25)); g.addColorStop(1,world.ground);
+   ctx.fillStyle=g; ctx.fillRect(x,y,MH_TILE,MH_TILE);
+   ctx.strokeStyle='rgba(0,0,0,.06)'; ctx.strokeRect(x+.5,y+.5,MH_TILE-1,MH_TILE-1);
+  }
+  if(v===2){
+   mhGradRect(ctx,x+6,y+4,MH_TILE-12,MH_TILE-8,'#6a5848','#3a2820');
+   ctx.fillStyle='rgba(0,0,0,.2)'; ctx.fillRect(x+8,y+MH_TILE-10,MH_TILE-16,4);
+  }
+ }
+ morphs.sort((a,b)=>(a.tileY||0)-(b.tileY||0));
+ morphs.forEach(m=>{
+  if(m.tileX==null) return;
+  const mx=m.tileX*MH_TILE+MH_TILE/2, my=m.tileY*MH_TILE+MH_TILE/2;
+  const got=mhHasMorph(save,m.id);
+  const dist=Math.hypot(mx-pos.px,my-pos.py);
+  const seen=got||dist<110;
+  if(!seen) return;
+  const sc=(m.scale||1)*0.72;
+  mhPaintNoob3D(ctx,m,mx,my-8,sc,got?0.55:1,!got&&dist>MH_INTERACT_R);
+  if(dist<MH_INTERACT_R&&!got){
+   ctx.fillStyle='rgba(0,0,0,.65)'; ctx.fillRect(mx-42,my-78,84,14);
+   ctx.fillStyle='#ffe8a0'; ctx.font='bold 10px system-ui'; ctx.textAlign='center';
+   ctx.fillText('?',mx,my-68);
+  }else if(got||dist<MH_INTERACT_R){
+   ctx.fillStyle='rgba(0,0,0,.7)'; ctx.fillRect(mx-48,my-78,96,14);
+   ctx.fillStyle='#fff'; ctx.font='bold 10px system-ui'; ctx.textAlign='center';
+   ctx.fillText(got?m.name.slice(0,14):'???',mx,my-68);
+  }
+ });
+ const wear=mhMorph(save.wearing);
+ mhPaintNoob3D(ctx,wear||{head:'#F5CD30',torso:'#0085DB',legs:'#A4BD47',body:'classic'},pos.px,pos.py-8,0.78,1,false);
+ ctx.restore();
+ if(wi===3||wi===4){
+  const grd=ctx.createRadialGradient(W/2,H/2,40,W/2,H/2,Math.max(W,H)*0.65);
+  grd.addColorStop(0,'rgba(0,0,0,0)'); grd.addColorStop(1,'rgba(0,0,0,.82)');
+  ctx.fillStyle=grd; ctx.fillRect(0,0,W,H);
+  ctx.save();
+  ctx.globalCompositeOperation='destination-out';
+  const lg=ctx.createRadialGradient(W/2,H/2,10,W/2,H/2,130);
+  lg.addColorStop(0,'rgba(0,0,0,1)'); lg.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=lg; ctx.fillRect(0,0,W,H);
+  ctx.restore();
+ }
+ const hud=document.getElementById('mh-walk-hud');
+ if(hud){
+  const found=morphs.filter(m=>mhHasMorph(save,m.id)).length;
+  hud.querySelector('.mh-walk-zone').textContent=world.emoji+' '+world.name+' · '+found+'/'+morphs.length;
+  const prompt=hud.querySelector('.mh-walk-prompt');
+  if(near){
+   const got=mhHasMorph(save,near.id);
+   prompt.textContent=got?'E — morph into '+near.name:'E / Space — collect noobie!';
+   prompt.hidden=false;
+  }else prompt.hidden=true;
+ }
+ st.walkRaf=requestAnimationFrame(mhWalkDrawFrame);
+}
+function mhWalkStart(){
+ mhWalkStop();
+ if(!mhState) return;
+ mhState.walkKeys={};
+ document.addEventListener('keydown',mhWalkKeysDown);
+ document.addEventListener('keyup',mhWalkKeysUp);
+ mhWalkDrawFrame();
+ const root=document.getElementById('morphhunt');
+ root?.querySelectorAll('[data-mh-dpad]').forEach(btn=>{
+  const dir=btn.dataset.mhDpad;
+  const down=()=>{ if(!mhState.walkKeys) mhState.walkKeys={}; mhState.walkKeys[dir]=true; };
+  const up=()=>{ if(mhState.walkKeys) mhState.walkKeys[dir]=false; };
+  btn.addEventListener('pointerdown',e=>{ e.preventDefault(); down(); });
+  btn.addEventListener('pointerup',up);
+  btn.addEventListener('pointerleave',up);
+ });
+ root?.querySelector('#mh-walk-interact')?.addEventListener('click',()=>{
+  if(mhState?.walkNearId) mhCollect(mhState.walkNearId);
+ });
+}
+
 function mhRenderHunt(save, wi){
  const world=MH_WORLDS[wi];
  const morphs=mhWorldMorphs(wi);
  const found=morphs.filter(m=>mhHasMorph(save,m.id)).length;
- const wear=mhMorph(save.wearing);
- const spots=morphs.map(m=>{
-  const got=mhHasMorph(save,m.id);
-  const r=MH_RARITY[m.rarity]||MH_RARITY.common;
-  return `<button type="button" class="mh-spot${got?' got':''}" style="left:${m.x}%;top:${m.y}%;--mh-glow:${r.glow};--mh-rarity:${r.color};--mh-scale:${m.scale||1}" data-mh-id="${m.id}" title="${m.name}${got?' — tap to morph':' — tap to find!'}">
-   <span class="mh-spot-inner">
-    <svg viewBox="0 0 100 130" class="mh-spot-svg">${mhClassicNoobSvg(m)}</svg>
-    <span class="mh-spot-label">${m.name}</span>
-   </span>
-   ${got?'<span class="mh-spot-check">✓</span>':''}
-  </button>`;
- }).join('');
  const worldTabs=MH_WORLDS.map((w,i)=>{
   const locked=i>=save.worldsUnlocked;
   const done=mhWorldComplete(save,i);
@@ -517,14 +794,22 @@ function mhRenderHunt(save, wi){
  const nFound=save.collected.filter(id=>mhMorph(id)&&!mhMorph(id).exclusive).length;
  const xFound=save.collected.filter(id=>mhMorph(id)&&mhMorph(id).exclusive).length;
  return `<div class="mh-world-tabs">${worldTabs}</div>
- <div class="mh-hub-wrap">
-  <div class="mh-hub" style="--mh-sky:${world.bg};--mh-grass:${world.ground}">
-   <div class="mh-hub-path"></div><div class="mh-hub-stud"></div>${spots}
-   ${wear?`<div class="mh-you morphed" style="left:6%;bottom:8%"><svg viewBox="0 0 100 130">${mhClassicNoobSvg(wear)}</svg><span>You · ${wear.name}</span></div>`:''}
+ <div class="mh-walk-wrap">
+  <canvas id="mh-walk-canvas" class="mh-walk-canvas" width="960" height="520" tabindex="0"></canvas>
+  <div id="mh-walk-hud" class="mh-walk-hud">
+   <span class="mh-walk-zone">${world.emoji} ${world.name}</span>
+   <span class="mh-walk-prompt" hidden>Walk close — then collect</span>
+   <div class="mh-walk-dpad" aria-label="Move">
+    <button type="button" data-mh-dpad="ArrowUp">▲</button>
+    <button type="button" data-mh-dpad="ArrowLeft">◀</button>
+    <button type="button" data-mh-dpad="ArrowDown">▼</button>
+    <button type="button" data-mh-dpad="ArrowRight">▶</button>
+   </div>
+   <button type="button" class="mh-btn primary" id="mh-walk-interact">Collect / Morph</button>
   </div>
-  <p class="mh-scene-hint">🔎 Tap noobies to collect. Tap again to <b>morph</b> into them!</p>
-  <p class="mh-progress">Zone: <b>${found}/${morphs.length}</b> &nbsp;•&nbsp; Normal: <b>${nFound}/${MH_NORMAL_COUNT}</b> &nbsp;•&nbsp; Exclusive: <b>${xFound}/${MH_EXCLUSIVE_COUNT}</b></p>
- </div>`;
+ </div>
+ <p class="mh-scene-hint">🚶 <b>Walk</b> with WASD / arrows (Fusion-style rooms). Noobies hide until you get close — like a 3ds Max–shaded hunt! Exclusives: Gacha &amp; codes.</p>
+ <p class="mh-progress">Zone: <b>${found}/${morphs.length}</b> &nbsp;•&nbsp; Normal: <b>${nFound}/${MH_NORMAL_COUNT}</b> &nbsp;•&nbsp; Exclusive: <b>${xFound}/${MH_EXCLUSIVE_COUNT}</b></p>`;
 }
 
 function mhRenderIndex(save){
@@ -541,7 +826,7 @@ function mhRenderIndex(save){
   const r=MH_RARITY[m.rarity]||MH_RARITY.common;
   return `<div class="mh-codex-card${got?' got':''}" style="--mh-rarity:${r.color}">
    <div class="mh-codex-art">${got?`<svg viewBox="0 0 100 130">${mhClassicNoobSvg(m)}</svg>`:'<div class="mh-silhouette">?</div>'}</div>
-   <div class="mh-codex-meta"><b class="mh-noob-name${got?'':' locked'}">${m.name}</b><span class="mh-codex-rarity">${m.exclusive?'Exclusive':r.label}${got?'':' · not found yet'}</span></div>
+   <div class="mh-codex-meta"><b class="mh-noob-name">${got?m.name:'???'}</b><span class="mh-codex-rarity">${m.exclusive?'Exclusive':r.label}${got?'':' · walk & find'}</span></div>
   </div>`;
  }).join('');
  return `<div class="mh-index">
@@ -637,7 +922,7 @@ function mhRender(){
   <header class="mh-ftn-banner">
    <div class="mh-ftn-banner-text">
     <h2 class="mh-title">Find The Noobies Morphs</h2>
-    <p class="mh-ftn-tag">🔎 ${MH_NORMAL_COUNT} normal + ${MH_EXCLUSIVE_COUNT} exclusive · each has a <b>unique name</b> &amp; body type · Build <b>${MH_BUILD}</b> · ${owner?'Owner: ALL unlocked':''}</p>
+    <p class="mh-ftn-tag">🚶 Walk-around hunt (Clickteam Fusion–style rooms) · 3D-shaded noobies · Build <b>${MH_BUILD}</b> · ${owner?'Owner: ALL unlocked':''}</p>
    </div>
   </header>
   <div class="mh-head">
@@ -660,6 +945,11 @@ function mhRender(){
  </div>`;
  mhBind(root);
  if(save.wearing) mhSaveWearId(save.wearing);
+ mhWalkStop();
+ if(tab==='hunt'){
+  mhWalkStart();
+  root.querySelector('#mh-walk-canvas')?.focus();
+ }
 }
 
 function playMorphHunt(){

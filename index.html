@@ -1575,7 +1575,16 @@
   .mh-you svg{width:100%;height:auto;display:block;filter:drop-shadow(0 4px 6px rgba(0,0,0,.4))}
   .mh-spot-label{display:block;max-width:min(24vw,104px);margin-top:3px;padding:2px 4px;border-radius:6px;font-size:10px;font-weight:900;line-height:1.2;color:#fff;background:rgba(0,0,0,.55);text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;pointer-events:none}
   .mh-spot:not(.got) .mh-spot-label{color:#ffe8a0;border:1px solid rgba(255,232,160,.35)}
-  .mh-noob-name.locked{color:#b8c0d0;font-weight:700}
+  .mh-walk-wrap{position:relative;border-radius:16px;overflow:hidden;border:3px solid #2a4030;box-shadow:0 8px 32px rgba(0,0,0,.45)}
+  .mh-walk-canvas{display:block;width:100%;height:auto;max-height:min(58vh,520px);background:#101820;cursor:crosshair;touch-action:none}
+  .mh-walk-hud{position:absolute;left:0;right:0;bottom:0;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:10px 12px;background:linear-gradient(180deg,transparent,rgba(0,0,0,.85))}
+  .mh-walk-zone{font-weight:900;color:#ffe8a0;font-size:12px;text-shadow:0 1px 3px #000}
+  .mh-walk-prompt{flex:1;text-align:center;font-size:12px;font-weight:800;color:#80e8ff}
+  .mh-walk-dpad{display:grid;grid-template-columns:repeat(3,36px);grid-template-rows:repeat(2,32px);gap:4px}
+  .mh-walk-dpad button{grid-column:2;border:none;border-radius:8px;background:rgba(255,255,255,.15);color:#fff;font-weight:900;cursor:pointer}
+  .mh-walk-dpad button[data-mh-dpad="ArrowLeft"]{grid-column:1;grid-row:2}
+  .mh-walk-dpad button[data-mh-dpad="ArrowDown"]{grid-column:2;grid-row:2}
+  .mh-walk-dpad button[data-mh-dpad="ArrowRight"]{grid-column:3;grid-row:2}
   .mh-you.morphed{width:min(18vw,90px);filter:drop-shadow(0 0 12px rgba(0,162,255,.6))}
   .mh-morph-preview.large svg{width:140px;height:auto}
   .mh-index-tools{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:10px}
@@ -5413,7 +5422,7 @@
 <script src="gc-drone-shapes.js?v=deploy-83"></script>
 <script src="gc-gravastar-scene.js?v=deploy-83"></script>
 <script src="gemcopter.js?v=deploy-85"></script>
-<script src="morph-hunt.js?v=named-v5"></script>
+<script src="morph-hunt.js?v=walk-v6"></script>
 <script>
 /* ---------- Affiliate partners (tracked links where available) ---------- */
 const DEFAULT_PARTNER='gemsny';
