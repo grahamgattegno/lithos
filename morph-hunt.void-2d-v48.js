@@ -4,9 +4,11 @@
 
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
-const MH_BUILD='void-2d-v50';
-const MH_SCENERY_STAMP='VOID_LATEST_v50';
-const MH_SCRIPT_FILE='morph-hunt.void-2d-v50.js';
+/* loader bridge: MH_BUILD='void-2d-v50' */
+const MH_BUILD='void-2d-v51';
+const MH_SCENERY_STAMP='VOID_COOL_COMBAT_v51';
+const MH_SCRIPT_FILE='morph-hunt.void-2d-v51.js';
+const MH_VOID_ATK_CD=0.38;
 const MH_KING_STAMP='RED_BLACK_KING_v31';
 const MH_MEGA_W=7;
 const MH_MEGA_H=6;
@@ -2485,16 +2487,22 @@ function mhRefreshVoidCombatHud(save,st){
  const atkN=vm?.voidAttack?.name||'—';
  const powN=vm?.voidPower?.name||'—';
  const powLeft=st?mhVoidPowLeft(st):0;
+ const atkLeft=st?mhVoidAtkLeft(st):0;
  const powReady=!powLeft;
+ const atkReady=!atkLeft;
  const bar=document.getElementById('mh-void-combat-readout');
  if(bar){
   bar.innerHTML=vm
-   ?`<b>⚔ 1</b> ${atkN} · <b>✦ 2</b> ${powN}${powReady?' · <span style="color:#80ffb0">POWER READY</span>':(' · recharge <b>'+powLeft.toFixed(1)+'s</b>')}${vm.voidKing?' · 👑 storm':''}`
+   ?`<b>⚔ 1</b> ${atkN}${atkReady?'':(' <b>'+atkLeft.toFixed(1)+'s</b>')} · <b>✦ 2</b> ${powN}${powReady?' · <span style="color:#80ffb0">POWER READY</span>':(' · <b>'+powLeft.toFixed(1)+'s</b>')}${vm.voidKing?' · 👑 storm':''}`
    :'🎭 Morph a <b>Void Fallen</b> in Morph tab — then <b>1</b> attack · <b>2</b> power on any map';
  }
  const btnA=document.getElementById('mh-void-atk');
  const btnP=document.getElementById('mh-void-pow');
- if(btnA) btnA.textContent=vm?('⚔ 1 '+atkN):'⚔ 1 Attack';
+ if(btnA){
+  btnA.textContent=vm?(atkReady?('⚔ 1 '+atkN):('⚔ '+atkLeft.toFixed(1)+'s')):'⚔ 1 Attack';
+  btnA.disabled=!!vm&&!atkReady;
+  btnA.style.opacity=vm&&!atkReady?'0.55':'1';
+ }
  if(btnP){
   btnP.textContent=vm
    ?(powReady?('✦ 2 '+powN):('✦ '+powLeft.toFixed(1)+'s'))
@@ -2515,16 +2523,127 @@ function mhDrawVoidAbyssMist(ctx,map,t){
   ctx.beginPath(); ctx.arc(x,y,r*0.55,0,Math.PI*2); ctx.fill();
  }
 }
+function mhVoidShake(st,ms,mag){
+ st.voidShakeUntil=performance.now()+(ms||90);
+ st.voidShakeMag=mag||5;
+}
+function mhVoidAtkLeft(st){
+ if(!st?.voidCd?.atk) return 0;
+ return Math.max(0,(st.voidCd.atk-performance.now())/1000);
+}
 function mhSpawnVoidFx(st,fx){
  if(!st.voidFx) st.voidFx=[];
- st.voidFx.push({...fx,life:fx.life||0.55,born:performance.now()});
+ st.voidFx.push({...fx,life:fx.life||0.55,born:performance.now(),age:0});
+}
+function mhSpawnAttackVfx(st,m,atk,dir,pos,rage){
+ const col=atk.color||'#9040ff';
+ const ang=Math.atan2(dir.dy,dir.dx);
+ const range=(atk.range||90)*(rage?1.25:1);
+ const px=pos.px, py=pos.py-12;
+ const kind=atk.kind||'arc';
+ if(kind==='beam'){
+  mhSpawnVoidFx(st,{kind:'beam',x:px,y:py,vx:dir.dx*16,vy:dir.dy*16,color:col,life:0.5,len:range});
+  mhSpawnVoidFx(st,{kind:'beam_core',x:px,y:py,vx:dir.dx*20,vy:dir.dy*20,color:'#e8d0ff',life:0.38,len:range});
+  for(let i=1;i<=6;i++){
+   const d=i*(range/7);
+   mhSpawnVoidFx(st,{kind:'spark',x:px+dir.dx*d,y:py+dir.dy*d,vx:(Math.random()-0.5)*3,vy:(Math.random()-0.5)*3,color:col,life:0.35});
+  }
+  mhSpawnVoidFx(st,{kind:'shock',x:px+dir.dx*range*0.85,y:py+dir.dy*range*0.85,vx:0,vy:0,color:col,r:8,dr:140,life:0.45});
+  mhVoidShake(st,100,6);
+  return;
+ }
+ if(kind==='orbs'){
+  for(let i=-3;i<=3;i++){
+   const ca=ang+i*0.28;
+   mhSpawnVoidFx(st,{kind:'orb',x:px,y:py,vx:Math.cos(ca)*10,vy:Math.sin(ca)*10,color:col,life:0.6});
+  }
+  mhSpawnVoidFx(st,{kind:'ring',x:px,y:py,vx:0,vy:0,color:col,r:12,dr:100,life:0.4});
+  mhVoidShake(st,70,4);
+  return;
+ }
+ if(kind==='nova'){
+  mhSpawnVoidFx(st,{kind:'nova',x:px+dir.dx*40,y:py+dir.dy*40,vx:0,vy:0,color:col,r:14,dr:range,life:0.55});
+  mhSpawnVoidFx(st,{kind:'shock',x:px+dir.dx*40,y:py+dir.dy*40,vx:0,vy:0,color:'#fff',r:6,dr:110,life:0.35});
+  mhVoidShake(st,110,7);
+  return;
+ }
+ mhSpawnVoidFx(st,{kind:'arc',x:px,y:py,vx:dir.dx*8,vy:dir.dy*8,color:col,a0:ang-1.1,a1:ang+1.1,r:range*0.55,dr:80,life:0.5});
+ mhSpawnVoidFx(st,{kind:'arc',x:px,y:py,vx:0,vy:0,color:'#fff',a0:ang-0.65,a1:ang+0.65,r:range*0.35,dr:60,life:0.35});
+ for(let i=0;i<5;i++){
+  const ca=ang+(i-2)*0.22;
+  mhSpawnVoidFx(st,{kind:'spark',x:px,y:py,vx:Math.cos(ca)*12,vy:Math.sin(ca)*12,color:col,life:0.45});
+ }
+ mhSpawnVoidFx(st,{kind:'ring',x:px,y:py,vx:0,vy:0,color:col,r:10,dr:90,life:0.38});
+ mhVoidShake(st,85,5);
+ if(m.voidKing){
+  mhSpawnVoidFx(st,{kind:'storm',x:px,y:py-8,vx:0,vy:0,color:'#ff3030',r:22,dr:110,life:0.5,spin:0});
+  mhSpawnVoidFx(st,{kind:'storm',x:px,y:py-8,vx:0,vy:0,color:'#0a0a0a',r:14,dr:95,life:0.55,spin:0.5});
+  mhVoidShake(st,130,8);
+ }
+}
+function mhSpawnPowerVfx(st,m,pow,dir,pos,map){
+ const col=pow.color||m.voidAccent||'#9040ff';
+ const px=pos.px, py=pos.py-10;
+ if(pow.kind==='dash'){
+  mhSpawnVoidFx(st,{kind:'trail',x:px-dir.dx*50,y:py-dir.dy*50,vx:0,vy:0,color:col,life:0.45});
+  mhSpawnVoidFx(st,{kind:'nova',x:px,y:py,vx:0,vy:0,color:col,r:16,dr:70,life:0.45});
+  mhSpawnVoidFx(st,{kind:'spark',x:px,y:py,vx:dir.dx*6,vy:dir.dy*6,color:'#fff',life:0.35});
+  mhVoidShake(st,60,3);
+  return;
+ }
+ if(pow.kind==='shield'){
+  mhSpawnVoidFx(st,{kind:'hex',x:px,y:py,vx:0,vy:0,color:col,r:38,life:0.7});
+  for(let i=0;i<8;i++) mhSpawnVoidFx(st,{kind:'spark',x:px,y:py,vx:Math.cos(i)*5,vy:Math.sin(i)*5,color:'#a0c8ff',life:0.5});
+  return;
+ }
+ if(pow.kind==='buff'){
+  mhSpawnVoidFx(st,{kind:'nova',x:px,y:py,vx:0,vy:0,color:'#ff6080',r:10,dr:85,life:0.55});
+  mhSpawnVoidFx(st,{kind:'ring',x:px,y:py,vx:0,vy:0,color:'#ff2040',r:18,dr:120,life:0.5});
+  mhVoidShake(st,90,5);
+  return;
+ }
+ if(pow.kind==='echo'){
+  for(let i=0;i<(pow.count||3);i++){
+   mhSpawnVoidFx(st,{kind:'orb',x:px+(i-1)*20,y:py-16-i*6,vx:dir.dx*6,vy:dir.dy*6-2,color:col,life:0.65});
+   mhSpawnVoidFx(st,{kind:'spark',x:px+(i-1)*20,y:py-16-i*6,vx:-dir.dy*4,vy:dir.dx*4,color:'#fff',life:0.35});
+  }
+  return;
+ }
+ if(pow.kind==='pull'||pow.id==='gravity_well'){
+  mhSpawnVoidFx(st,{kind:'storm',x:px,y:py,vx:0,vy:0,color:col,r:20,dr:(pow.range||120),life:0.75,spin:0});
+  mhSpawnVoidFx(st,{kind:'ring',x:px,y:py,vx:0,vy:0,color:'#000',r:8,dr:-90,life:0.65,drNeg:true});
+  mhVoidShake(st,120,6);
+  return;
+ }
+ if(pow.kind==='heal'){
+  mhSpawnVoidFx(st,{kind:'nova',x:px,y:py,vx:0,vy:0,color:'#80ffb0',r:12,dr:65,life:0.55});
+  for(let i=0;i<6;i++) mhSpawnVoidFx(st,{kind:'spark',x:px,y:py-20,vx:(Math.random()-0.5)*4,vy:-2-Math.random()*4,color:'#80ffb0',life:0.6});
+  return;
+ }
+ const kind=pow.kind==='storm'?'storm':'nova';
+ mhSpawnVoidFx(st,{kind,x:px,y:py,vx:0,vy:0,color:col,r:18,dr:pow.range||110,life:0.75,spin:kind==='storm'?0:undefined});
+ mhSpawnVoidFx(st,{kind:'shock',x:px,y:py,vx:0,vy:0,color:'#fff',r:10,dr:130,life:0.45});
+ mhSpawnVoidFx(st,{kind:'ring',x:px,y:py,vx:0,vy:0,color:col,r:14,dr:140,life:0.55});
+ if(m.voidKing&&kind==='storm'){
+  mhSpawnVoidFx(st,{kind:'storm',x:px,y:py,vx:0,vy:0,color:'#0a0a0a',r:12,dr:(pow.range||110)*0.9,life:0.8,spin:0.45});
+  for(let i=0;i<10;i++){
+   const a=i*Math.PI*2/10;
+   mhSpawnVoidFx(st,{kind:'spark',x:px,y:py,vx:Math.cos(a)*8,vy:Math.sin(a)*8,color:'#ff4040',life:0.55});
+  }
+  mhVoidShake(st,160,9);
+ }else mhVoidShake(st,100,6);
 }
 function mhUpdateVoidFx(st,dt){
  if(!st.voidFx) return;
  st.voidFx=st.voidFx.filter(f=>{
   f.life-=dt;
+  f.age=(f.age||0)+dt;
   f.x+=(f.vx||0)*dt*60; f.y+=(f.vy||0)*dt*60;
-  if(f.kind==='nova'||f.kind==='storm') f.r=(f.r||20)+(f.dr||80)*dt;
+  if(f.kind==='nova'||f.kind==='storm'||f.kind==='shock'||f.kind==='ring'){
+   const dr=f.drNeg?-(f.dr||80): (f.dr||80);
+   f.r=(f.r||20)+dr*dt;
+  }
+  if(f.kind==='orb') f.vy=(f.vy||0)+dt*12;
   return f.life>0;
  });
  if(st.voidShieldUntil&&performance.now()>st.voidShieldUntil) st.voidShieldUntil=0;
@@ -2534,29 +2653,72 @@ function mhDrawVoidFx(ctx,st){
  (st.voidFx||[]).forEach(f=>{
   const a=Math.max(0,Math.min(1,f.life*2));
   ctx.save(); ctx.globalAlpha=a;
-  if(f.kind==='beam'){
-   ctx.strokeStyle=f.color||'#9040ff'; ctx.lineWidth=5; ctx.shadowColor=f.color; ctx.shadowBlur=12;
-   ctx.beginPath(); ctx.moveTo(f.x,f.y); ctx.lineTo(f.x+(f.vx||0)*8,f.y+(f.vy||0)*8); ctx.stroke();
+  const col=f.color||'#9040ff';
+  if(f.kind==='beam'||f.kind==='beam_core'){
+   const len=f.len||100;
+   const ex=f.x+(f.vx||0)*(len/16), ey=f.y+(f.vy||0)*(len/16);
+   ctx.strokeStyle=col; ctx.lineWidth=f.kind==='beam_core'?3:9;
+   ctx.shadowColor=col; ctx.shadowBlur=f.kind==='beam_core'?18:8;
+   ctx.lineCap='round';
+   ctx.beginPath(); ctx.moveTo(f.x,f.y); ctx.lineTo(ex,ey); ctx.stroke();
+   ctx.shadowBlur=0;
   }else if(f.kind==='arc'){
-   ctx.strokeStyle=f.color||'#c080ff'; ctx.lineWidth=6;
+   ctx.strokeStyle=col; ctx.lineWidth=7; ctx.shadowColor=col; ctx.shadowBlur=10;
    ctx.beginPath(); ctx.arc(f.x,f.y,f.r||40,f.a0||0,f.a1||Math.PI); ctx.stroke();
-  }else if(f.kind==='orbs'){
-   ctx.fillStyle=f.color||'#ff48e8';
-   for(let i=0;i<3;i++) ctx.beginPath().arc(f.x+i*10-10,f.y,6,0,Math.PI*2).fill();
+   ctx.strokeStyle='rgba(255,255,255,.35)'; ctx.lineWidth=2; ctx.shadowBlur=0;
+   ctx.beginPath(); ctx.arc(f.x,f.y,(f.r||40)*0.82,f.a0||0,f.a1||Math.PI); ctx.stroke();
+  }else if(f.kind==='orb'){
+   ctx.fillStyle=col; ctx.shadowColor=col; ctx.shadowBlur=14;
+   ctx.beginPath(); ctx.arc(f.x,f.y,7,0,Math.PI*2); ctx.fill();
+   ctx.fillStyle='#fff'; ctx.shadowBlur=0;
+   ctx.beginPath(); ctx.arc(f.x-2,f.y-2,2.5,0,Math.PI*2); ctx.fill();
+  }else if(f.kind==='spark'){
+   ctx.strokeStyle=col; ctx.lineWidth=3; ctx.shadowColor=col; ctx.shadowBlur=8;
+   ctx.beginPath(); ctx.moveTo(f.x,f.y); ctx.lineTo(f.x-(f.vx||0)*3,f.y-(f.vy||0)*3); ctx.stroke();
+  }else if(f.kind==='trail'){
+   const g=ctx.createRadialGradient(f.x,f.y,4,f.x,f.y,55);
+   g.addColorStop(0,mhHex(col,0.55)); g.addColorStop(1,mhHex(col,0));
+   ctx.fillStyle=g; ctx.beginPath(); ctx.arc(f.x,f.y,55,0,Math.PI*2); ctx.fill();
+  }else if(f.kind==='hex'){
+   const r=f.r||36;
+   ctx.strokeStyle=col; ctx.lineWidth=3;
+   ctx.beginPath();
+   for(let i=0;i<=6;i++){
+    const ang=i*Math.PI/3;
+    const hx=f.x+Math.cos(ang)*r, hy=f.y+Math.sin(ang)*r*0.85;
+    if(i===0) ctx.moveTo(hx,hy); else ctx.lineTo(hx,hy);
+   }
+   ctx.closePath(); ctx.stroke();
+   ctx.fillStyle=mhHex(col,0.12); ctx.fill();
+  }else if(f.kind==='ring'){
+   ctx.strokeStyle=col; ctx.lineWidth=4;
+   ctx.beginPath(); ctx.arc(f.x,f.y,Math.max(4,f.r||20),0,Math.PI*2); ctx.stroke();
+  }else if(f.kind==='shock'){
+   const r=Math.max(8,f.r||20);
+   ctx.strokeStyle=col; ctx.lineWidth=5; ctx.globalAlpha=a*0.85;
+   ctx.beginPath(); ctx.arc(f.x,f.y,r,0,Math.PI*2); ctx.stroke();
+   ctx.strokeStyle='rgba(255,255,255,.5)'; ctx.lineWidth=2;
+   ctx.beginPath(); ctx.arc(f.x,f.y,r*0.7,0,Math.PI*2); ctx.stroke();
   }else if(f.kind==='storm'){
    const r=f.r||30;
-   ctx.strokeStyle=f.color||'#ff2020'; ctx.lineWidth=4;
+   ctx.strokeStyle=col; ctx.lineWidth=4;
    ctx.beginPath(); ctx.arc(f.x,f.y,r,0,Math.PI*2); ctx.stroke();
-   ctx.strokeStyle='rgba(0,0,0,.85)'; ctx.lineWidth=6;
+   ctx.strokeStyle=col==='#0a0a0a'?'rgba(0,0,0,.85)':'rgba(255,255,255,.25)'; ctx.lineWidth=col==='#0a0a0a'?7:2;
    ctx.beginPath(); ctx.arc(f.x,f.y,r*0.72,0,Math.PI*2); ctx.stroke();
    ctx.strokeStyle='rgba(255,60,60,.55)'; ctx.lineWidth=2;
-   for(let i=0;i<6;i++){
-    const a=(f.spin||0)+i*Math.PI/3;
-    ctx.beginPath(); ctx.moveTo(f.x,f.y); ctx.lineTo(f.x+Math.cos(a)*r,f.y+Math.sin(a)*r*0.6); ctx.stroke();
+   for(let i=0;i<8;i++){
+    const ang=(f.spin||0)+i*Math.PI/4;
+    ctx.beginPath(); ctx.moveTo(f.x,f.y); ctx.lineTo(f.x+Math.cos(ang)*r,f.y+Math.sin(ang)*r*0.65); ctx.stroke();
    }
-   if(f.spin!=null) f.spin+=0.08;
+   if(f.spin!=null) f.spin+=0.12;
+  }else if(f.kind==='nova'){
+   const r=f.r||30;
+   const g=ctx.createRadialGradient(f.x,f.y,0,f.x,f.y,r);
+   g.addColorStop(0,mhHex(col,0.65)); g.addColorStop(0.45,mhHex(col,0.25)); g.addColorStop(1,mhHex(col,0));
+   ctx.fillStyle=g; ctx.beginPath(); ctx.arc(f.x,f.y,r,0,Math.PI*2); ctx.fill();
+   ctx.strokeStyle=col; ctx.lineWidth=3; ctx.stroke();
   }else{
-   ctx.strokeStyle=f.color||'#9040ff'; ctx.lineWidth=3;
+   ctx.strokeStyle=col; ctx.lineWidth=3;
    ctx.beginPath(); ctx.arc(f.x,f.y,f.r||30,0,Math.PI*2); ctx.stroke();
   }
   ctx.restore();
@@ -2588,15 +2750,14 @@ function mhVoidCooldown(st,slot,sec){
 function mhUseVoidAttack(st,save,pos){
  const m=mhVoidCombatMorph(save);
  if(!m){ mhToast('Morph into a Void Fallen noobie first (Morph tab)!'); return; }
+ if(!mhVoidCooldown(st,'atk',MH_VOID_ATK_CD)){
+  mhToast('Attack… '+mhVoidAtkLeft(st).toFixed(1)+'s');
+  return;
+ }
  const atk=m.voidAttack||MH_VOID_ATTACKS[0];
  const dir=mhFacingDir(st);
  const rage=st.voidRageUntil&&performance.now()<st.voidRageUntil;
- const spd=(atk.speed||10)*(rage?1.35:1);
- mhSpawnVoidFx(st,{kind:atk.kind,x:pos.px,y:pos.py-12,vx:dir.dx*spd,vy:dir.dy*spd,color:atk.color,a0:Math.atan2(dir.dy,dir.dx)-0.8,a1:Math.atan2(dir.dy,dir.dx)+0.8,r:atk.range||90,dr:120});
- if(m.voidKing){
-  mhSpawnVoidFx(st,{kind:'arc',x:pos.px,y:pos.py-20,vx:0,vy:0,color:'#ff2020',a0:0,a1:Math.PI*2,r:40,dr:100,life:0.35});
-  mhSpawnVoidFx(st,{kind:'storm',x:pos.px,y:pos.py-16,vx:0,vy:0,color:'#ff3030',r:18,dr:90,life:0.45,spin:0});
- }
+ mhSpawnAttackVfx(st,m,atk,dir,pos,rage);
  mhToast('⚔ '+atk.name+'!');
  try{if(typeof SFX!=='undefined'&&SFX.hit)SFX.hit();}catch(_){}
 }
@@ -2614,24 +2775,11 @@ function mhUseVoidPower(st,save,pos,map){
  if(pow.kind==='dash'){
   pos.px+=dir.dx*(pow.dist||80); pos.py+=dir.dy*(pow.dist||80);
   mhClampWalkPos(map,pos);
-  mhSpawnVoidFx(st,{kind:'nova',x:pos.px,y:pos.py,vx:0,vy:0,color:pow.color,r:10,dr:60,life:0.4});
- }else if(pow.kind==='shield'){
-  st.voidShieldUntil=performance.now()+(pow.time||2.5)*1000;
- }else if(pow.kind==='heal'){
-  save.coins+=pow.coins||8; mhSaveSave(save);
- }else if(pow.kind==='buff'){
-  st.voidRageUntil=performance.now()+(pow.time||4)*1000;
- }else if(pow.kind==='echo'){
-  for(let i=0;i<(pow.count||3);i++){
-   mhSpawnVoidFx(st,{kind:'orbs',x:pos.px+(i-1)*24,y:pos.py-20-i*8,vx:dir.dx*4,vy:dir.dy*4,color:m.voidAccent||pow.color,life:0.5});
-  }
- }else{
-  const kind=pow.kind==='storm'?'storm':'nova';
-  mhSpawnVoidFx(st,{kind,x:pos.px,y:pos.py-10,vx:0,vy:0,color:pow.color,r:20,dr:pow.range||110,life:0.65,spin:kind==='storm'?0:undefined});
-  if(m.voidKing&&kind==='storm'){
-   mhSpawnVoidFx(st,{kind:'storm',x:pos.px,y:pos.py-8,vx:0,vy:0,color:'#0a0a0a',r:12,dr:(pow.range||110)*0.85,life:0.7,spin:0.4});
-  }
  }
+ if(pow.kind==='shield') st.voidShieldUntil=performance.now()+(pow.time||2.5)*1000;
+ else if(pow.kind==='heal'){ save.coins+=pow.coins||8; mhSaveSave(save); }
+ else if(pow.kind==='buff') st.voidRageUntil=performance.now()+(pow.time||4)*1000;
+ mhSpawnPowerVfx(st,m,pow,dir,pos,map);
  mhToast('✦ '+pow.name+'!');
  try{if(typeof SFX!=='undefined'&&SFX.ui)SFX.ui();}catch(_){}
 }
@@ -3241,8 +3389,14 @@ function mhWalkDrawFrame(){
  const flatMap=mhMapFlat2D(wi);
  ctx.fillStyle=world.bg;
  ctx.fillRect(0,0,W,H);
+ let shakeX=0,shakeY=0;
+ if(st.voidShakeUntil&&performance.now()<st.voidShakeUntil){
+  const mag=st.voidShakeMag||4;
+  shakeX=(Math.random()-0.5)*mag*2;
+  shakeY=(Math.random()-0.5)*mag*2;
+ }
  ctx.save();
- ctx.translate(-camX,-camY);
+ ctx.translate(-camX+shakeX,-camY+shakeY);
  if(flatMap) mhDrawFlatMapTiles(ctx,map,world,wi,t);
  else for(let ty=0;ty<map.h;ty++)for(let tx=0;tx<map.w;tx++){
   const v=map.tiles[ty*map.w+tx];
