@@ -3997,9 +3997,9 @@ function mhTryStartMinigame(){
   const d=Math.hypot(p.px-pos.px,p.py-pos.py);
   if(d<bd){ bd=d; best=m; }
  });
- if(best){ mhOpenMinigame(best); mhToast('🎮 Minigame started!'); return; }
+ if(best){ mhOpenMinigame(best); mhToast('⚔ Duel / obby started!'); return; }
  const next=mhWorldMorphs(wi).find(m=>!mhHasMorph(save,m.id)&&!m.voidKing);
- if(next){ mhOpenMinigame(next); mhToast('🎮 Minigame — pick from this map\'s deck too!'); return; }
+ if(next){ mhOpenMinigame(next); mhToast('⚔ Fight challenge — deck noobie!'); return; }
  mhToast('All noobies on this map collected! Try 💎 Epic+ or 🕳 Void teleport.');
 }
 function mhWalkNearMorph(save,wi,pos,st){
@@ -4505,7 +4505,7 @@ function mhRenderHuntDeck(save,wi,morphs){
   </button>`;
  }).join('');
  return `<details class="mh-hunt-deck-fold" open>
-  <summary>🎮 Minigame deck — tap any card to play &amp; unlock</summary>
+  <summary>⚔ Unlock deck — duel / obby / jump-fight (tap a card)</summary>
   <div class="mh-hunt-cards">${cards}</div>
   <div class="mh-pager">${pg.page>0?'<button type="button" class="mh-btn" data-mh-hunt-page="'+(pg.page-1)+'">← Prev</button>':''}<span>Page ${pg.page+1} / ${pg.pages}</span>${pg.page+1<pg.pages?'<button type="button" class="mh-btn" data-mh-hunt-page="'+(pg.page+1)+'">Next →</button>':''}</div>
  </details>`;
@@ -4544,7 +4544,7 @@ function mhRenderHunt(save, wi){
   <div id="mh-walk-hud" class="mh-walk-hud mh-walk-hud-clean">
    <span class="mh-walk-zone">${world.emoji} ${world.name} · ${found}/${morphs.length}</span>
    <span class="mh-walk-prompt" hidden>Walk closer</span>
-   <button type="button" class="mh-btn primary mh-btn-sm" id="mh-walk-interact">🎮 Minigame (E)</button>
+   <button type="button" class="mh-btn primary mh-btn-sm" id="mh-walk-interact">⚔ Fight (E)</button>
    <button type="button" class="mh-btn mh-btn-sm" id="mh-walk-enter">F House</button>
    <button type="button" class="mh-btn mh-btn-sm" id="mh-walk-run">Run</button>
    <button type="button" class="mh-btn mh-btn-sm" id="mh-void-atk">⚔ 1 Attack</button><button type="button" class="mh-btn mh-btn-sm" id="mh-void-pow">✦ 2 Power</button><button type="button" class="mh-btn mh-btn-sm" id="mh-void-storm">🌌 3 Storm</button><button type="button" class="mh-btn mh-btn-sm" id="mh-void-cutscene" hidden>🎬 4 Cutscene</button>

@@ -3997,9 +3997,9 @@ function mhTryStartMinigame(){
   const d=Math.hypot(p.px-pos.px,p.py-pos.py);
   if(d<bd){ bd=d; best=m; }
  });
- if(best){ mhOpenMinigame(best); mhToast('🎮 Minigame started!'); return; }
+ if(best){ mhOpenMinigame(best); mhToast('⚔ Duel / obby started!'); return; }
  const next=mhWorldMorphs(wi).find(m=>!mhHasMorph(save,m.id)&&!m.voidKing);
- if(next){ mhOpenMinigame(next); mhToast('🎮 Minigame — pick from this map\'s deck too!'); return; }
+ if(next){ mhOpenMinigame(next); mhToast('⚔ Fight challenge — deck noobie!'); return; }
  mhToast('All noobies on this map collected! Try 💎 Epic+ or 🕳 Void teleport.');
 }
 function mhWalkNearMorph(save,wi,pos,st){
