@@ -5,8 +5,8 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v65';
-const MH_SCENERY_STAMP='ANCIENT_FIVE_SHIELDS_v65';
+const MH_BUILD='void-2d-v66';
+const MH_SCENERY_STAMP='VOID_FALLEN_REDESIGN_v66';
 const MH_SCRIPT_FILE='morph-hunt.js';
 const MH_ANCIENT_GLYPHS=['⌬','☵','⛧','◈','☒'];
 const MH_ANCIENT_NAMES=['Void Seal','Rift Mark','Depth Eye','Abyss Gate','King Ward'];
@@ -280,22 +280,22 @@ function mhVoidTraits(i){
 function mhVoidPal(i,kind){
  const h=mhHashStr('vfpal'+i);
  const schemes=[
-  {head:272,torso:286,legs:298,s:52},
-  {head:312,torso:278,legs:302,s:48},
-  {head:198,torso:218,legs:235,s:42},
-  {head:8,torso:348,legs:328,s:54},
-  {head:138,torso:158,legs:175,s:46},
-  {head:42,torso:268,legs:252,s:50}
+  {head:350,torso:0,legs:280,s:38},
+  {head:340,torso:350,legs:300,s:42},
+  {head:0,torso:320,legs:290,s:45},
+  {head:280,torso:10,legs:270,s:40},
+  {head:300,torso:340,legs:310,s:44},
+  {head:15,torso:280,legs:300,s:36}
  ];
  const ki=(((kind==null?i:kind)%schemes.length)+schemes.length)%schemes.length;
  const s=schemes[ki];
  const b=12+(i%28);
  return{
-  head:`hsl(${s.head+(h%18)},${s.s}%,${b+20}%)`,
-  torso:`hsl(${s.torso+(h%22)},${s.s+4}%,${b+6}%)`,
-  legs:`hsl(${s.legs+(h%14)},${Math.max(28,s.s-12)}%,${Math.max(10,b-4)}%)`,
-  arms:`hsl(${s.head+(h%12)},${s.s}%,${b+12}%)`,
-  voidAccent:`hsl(${s.torso+35},72%,${58+(h%18)}%)`
+  head:`hsl(${s.head+(h%12)},${s.s}%,${Math.max(8,b+8)}%)`,
+  torso:`hsl(${s.torso+(h%16)},${Math.min(72,s.s+8)}%,${Math.max(12,b)}%)`,
+  legs:`hsl(${s.legs+(h%10)},${Math.max(22,s.s-8)}%,${Math.max(6,b-6)}%)`,
+  arms:`hsl(${s.head+(h%8)},${s.s}%,${Math.max(8,b+4)}%)`,
+  voidAccent:`hsl(${s.torso+20},78%,${52+(h%16)}%)`
  };
 }
 const MH_VOID_NAMES=mhUniqueNames(MH_VOID_FALLEN_COUNT,mhVoidName);
@@ -1692,6 +1692,8 @@ function mhDrawYouInWorld(ctx,wear,pos,map,t,walkPhase,wi,running){
   ctx.strokeRect(pos.px-72,pos.py+66,144,22);
   ctx.fillStyle='#e8d0ff'; ctx.font='bold 9px system-ui'; ctx.textAlign='center';
   ctx.fillText('⚔ '+atk+' · ✦ '+pow,pos.px,pos.py+80);
+  ctx.fillStyle='#ff8080'; ctx.font='bold 8px system-ui';
+  ctx.fillText('VOID FALLEN · red-black storm · '+MH_BUILD,pos.px,pos.py+92);
  }
  ctx.restore();
 }
@@ -1869,17 +1871,22 @@ function mhClassicNoobSvg(m){
  }
  if(m.rarity==='voidfallen'||m.voidFallen){
   const gid='vf'+((mhHashStr(m.id||'vf')>>>0)%99999);
-  const ve=m.voidEyes||'#70e8ff';
-  const acc=m.voidAccent||'#9040ff';
+  const ve=m.voidEyes||'#ff5050';
+  const acc=m.voidAccent||'#ff3030';
   const body=mhBodyShape(m);
-  return `<defs><radialGradient id="${gid}"><stop offset="0%" stop-color="${acc}" stop-opacity=".55"/><stop offset="45%" stop-color="#280818" stop-opacity=".5"/><stop offset="100%" stop-color="#000" stop-opacity="0"/></radialGradient></defs>
-   <ellipse cx="50" cy="72" rx="40" ry="54" fill="url(#${gid})"/>
+  const sym=MH_ANCIENT_GLYPHS[(mhHashStr(m.id||'vf')%5)];
+  return `<defs><radialGradient id="${gid}"><stop offset="0%" stop-color="#ff4040" stop-opacity=".5"/><stop offset="40%" stop-color="#280808" stop-opacity=".65"/><stop offset="100%" stop-color="#000" stop-opacity="0"/></radialGradient></defs>
+   <ellipse cx="50" cy="72" rx="42" ry="56" fill="url(#${gid})"/>
+   <ellipse cx="50" cy="72" rx="36" ry="48" fill="none" stroke="#0a0a0a" stroke-width="4" opacity=".85"/>
+   <ellipse cx="50" cy="72" rx="36" ry="48" fill="none" stroke="${acc}" stroke-width="2" opacity=".75"/>
    ${body}
-   <rect x="28" y="48" width="44" height="8" fill="#0a0a0a" opacity=".65"/>
-   <rect x="30" y="50" width="40" height="3" fill="${acc}" opacity=".9"/>
-   <rect x="38" y="18" width="8" height="8" fill="${ve}"/><rect x="54" y="18" width="8" height="8" fill="${ve}"/>
-   <rect x="40" y="20" width="4" height="4" fill="#fff" opacity=".45"/><rect x="56" y="20" width="4" height="4" fill="#fff" opacity=".45"/>
-   <rect x="34" y="56" width="32" height="4" fill="rgba(255,40,80,.45)"/>`;
+   <rect x="26" y="46" width="48" height="10" fill="#0a0a0a" opacity=".85"/>
+   <rect x="28" y="48" width="44" height="4" fill="${acc}" opacity=".95"/>
+   <text x="50" y="54" text-anchor="middle" font-size="10" fill="#ffe0e0" font-family="serif">${sym}</text>
+   <rect x="36" y="16" width="10" height="10" fill="${ve}"/><rect x="54" y="16" width="10" height="10" fill="${ve}"/>
+   <rect x="38" y="18" width="5" height="5" fill="#fff" opacity=".5"/><rect x="56" y="18" width="5" height="5" fill="#fff" opacity=".5"/>
+   <rect x="32" y="58" width="36" height="5" fill="rgba(255,40,40,.55)"/>
+   <path d="M50 62 L46 72 L54 72 Z" fill="#0a0a0a" stroke="${acc}" stroke-width="1"/>`;
  }
  let hat='';
  if(m.hat==='crown') hat='<polygon points="50,2 58,14 42,14" fill="#ffd700"/><rect x="42" y="12" width="16" height="5" fill="#e8b020"/>';
@@ -2441,34 +2448,37 @@ function mhPaintKingRedBlackStormAura(ctx,x,y,t,alpha,silhouette){
 const mhPaintKingStoneAura=mhPaintKingRedBlackStormAura;
 function mhPaintVoidFallenStormAura(ctx,x,y,t,alpha,silhouette,m){
  if(!m||m.voidKing) return;
- const a=silhouette?0.22:(alpha==null?1:alpha);
+ const a=silhouette?0.28:(alpha==null?1:alpha);
  const cy=y-18;
- const pulse=1+Math.sin(t*2.6+(mhHashStr(m.id)%5))*0.14;
- const rad=(38+(m.voidMale?6:0))*pulse;
- const accent=m.voidAccent||'#9040ff';
+ const pulse=1+Math.sin(t*3.2+(mhHashStr(m.id)%5))*0.18;
+ const rad=(52+(m.voidMale?10:0))*pulse;
+ const accent=m.voidAccent||'#ff3030';
  ctx.save();
  ctx.globalAlpha=a;
- const g=ctx.createRadialGradient(x,cy,6,x,cy,rad+30);
- g.addColorStop(0,mhHex(accent,0.55));
- g.addColorStop(0.4,'rgba(80,0,120,.35)');
- g.addColorStop(0.7,'rgba(20,0,0,.45)');
+ const g=ctx.createRadialGradient(x,cy,4,x,cy,rad+42);
+ g.addColorStop(0,'rgba(255,40,40,.45)');
+ g.addColorStop(0.35,'rgba(80,0,0,.4)');
+ g.addColorStop(0.62,'rgba(0,0,0,.55)');
  g.addColorStop(1,'rgba(0,0,0,0)');
  ctx.fillStyle=g;
- ctx.beginPath(); ctx.arc(x,cy,rad+30,0,Math.PI*2); ctx.fill();
- ctx.strokeStyle=mhHex(accent,0.5);
- ctx.lineWidth=2;
+ ctx.beginPath(); ctx.arc(x,cy,rad+42,0,Math.PI*2); ctx.fill();
+ ctx.strokeStyle='rgba(255,60,60,.75)'; ctx.lineWidth=3;
  ctx.beginPath(); ctx.arc(x,cy,rad,0,Math.PI*2); ctx.stroke();
- ctx.strokeStyle='rgba(0,0,0,.7)'; ctx.lineWidth=3;
- ctx.beginPath(); ctx.arc(x,cy,rad*0.65,0,Math.PI*2); ctx.stroke();
- for(let i=0;i<5;i++){
-  const ang=t*1.4+i*Math.PI*2/5;
-  ctx.strokeStyle=i%2?mhHex(accent,0.65):'rgba(255,40,60,.5)';
-  ctx.lineWidth=2;
+ ctx.strokeStyle='rgba(0,0,0,.92)'; ctx.lineWidth=5;
+ ctx.beginPath(); ctx.arc(x,cy,rad*0.58,0,Math.PI*2); ctx.stroke();
+ for(let i=0;i<8;i++){
+  const ang=t*1.8+i*Math.PI*2/8;
+  ctx.strokeStyle=i%2?'rgba(255,50,50,.8)':'rgba(0,0,0,.85)';
+  ctx.lineWidth=i%2?3:4;
   ctx.beginPath();
-  ctx.moveTo(x+Math.cos(ang)*rad*0.2,cy+Math.sin(ang)*rad*0.15);
-  ctx.lineTo(x+Math.cos(ang)*rad*0.95,cy+Math.sin(ang)*rad*0.4);
+  ctx.moveTo(x+Math.cos(ang)*rad*0.15,cy+Math.sin(ang)*rad*0.12);
+  ctx.lineTo(x+Math.cos(ang)*rad*1.05,cy+Math.sin(ang)*rad*0.45);
   ctx.stroke();
  }
+ ctx.fillStyle=mhHex(accent,0.35);
+ ctx.font='bold 11px serif';
+ ctx.textAlign='center';
+ ctx.fillText(MH_ANCIENT_GLYPHS[(mhHashStr(m.id)%5)]||'⌬',x,cy-rad*0.55);
  ctx.restore();
 }
 function mhEnsureVoidCombat(m){
@@ -3488,7 +3498,7 @@ function mhPaintNoob3D(ctx,m,x,y,sc,alpha,silhouette,walkPhase,running){
  }
  ctx.restore();
 }
-function mhPaintNoobFlat(ctx,m,x,y,sc,alpha,silhouette,walkPhase,running){
+function mhPaintNoobFlat(ctx,m,x,y,sc,alpha,silhouette,walkPhase,running,t){
  if(!m) return;
  ctx.save();
  ctx.translate(x,y);
@@ -3498,21 +3508,36 @@ function mhPaintNoobFlat(ctx,m,x,y,sc,alpha,silhouette,walkPhase,running){
  if(silhouette){ h='#3a4050'; t='#283040'; l='#1e2430'; a='#3a4050'; ctx.globalAlpha=(alpha==null?0.75:alpha); }
  const wa=mhWalkLegAnim(walkPhase,running);
  ctx.translate(0,-wa.bob);
+ const isVoid=m.rarity==='voidfallen'||m.voidFallen;
+ if(isVoid&&!silhouette){ h='#141014'; t=m.torso||'#580808'; l=m.legs||'#0a0a0a'; a=m.arms||'#1a1018'; }
  ctx.fillStyle=l; ctx.fillRect(-10+wa.lx,22+wa.ly,9,32); ctx.fillRect(1+wa.rx,22+wa.ry,9,32);
  ctx.fillStyle=t; ctx.fillRect(-16,0,32,24);
  ctx.fillStyle=a; ctx.fillRect(-22,2+wa.ax,10,22); ctx.fillRect(12,2-wa.ax,10,22);
  ctx.fillStyle=h; ctx.fillRect(-14,-48,28,28);
- ctx.fillStyle='#101018'; ctx.fillRect(-8,-36,5,5); ctx.fillRect(3,-36,5,5);
- if(m.rarity==='voidfallen'&&!silhouette){
-  ctx.strokeStyle=m.voidAccent||'#9040ff'; ctx.lineWidth=2;
-  ctx.strokeRect(-17,-49,34,78);
-  if(m.voidMale){ ctx.fillStyle='rgba(0,0,0,.55)'; ctx.fillRect(-18,4,36,8); ctx.fillStyle=m.voidAccent||'#9040ff'; ctx.fillRect(-16,6,32,3); }
-  const ve=m.voidEyes||'#70e8ff';
-  ctx.fillStyle=ve; ctx.shadowColor=ve; ctx.shadowBlur=8;
-  ctx.fillRect(-9,-36,6,6); ctx.fillRect(3,-36,6,6);
+ if(!isVoid){ ctx.fillStyle='#101018'; ctx.fillRect(-8,-36,5,5); ctx.fillRect(3,-36,5,5); }
+ if(isVoid){
+  ctx.strokeStyle=m.voidAccent||'#ff4040'; ctx.lineWidth=3;
+  ctx.strokeRect(-18,-50,36,82);
+  ctx.strokeStyle='#0a0a0a'; ctx.lineWidth=2;
+  ctx.strokeRect(-16,-48,32,78);
+  if(m.voidMale){ ctx.fillStyle='rgba(0,0,0,.75)'; ctx.fillRect(-18,4,36,10); ctx.fillStyle=m.voidAccent||'#ff3030'; ctx.fillRect(-16,6,32,4); }
+  const ve=m.voidEyes||'#ff5050';
+  ctx.fillStyle=ve; ctx.shadowColor=ve; ctx.shadowBlur=12;
+  ctx.fillRect(-10,-37,7,7); ctx.fillRect(2,-37,7,7);
   ctx.shadowBlur=0;
-  ctx.fillStyle='rgba(40,0,60,.75)'; ctx.fillRect(-14,-6,8,14); ctx.fillRect(6,-6,8,14);
-  ctx.fillStyle='rgba(255,40,60,.35)'; ctx.fillRect(-12,8,24,4);
+  ctx.fillStyle='rgba(0,0,0,.85)'; ctx.fillRect(-15,-8,10,16); ctx.fillRect(5,-8,10,16);
+  ctx.fillStyle='rgba(255,40,40,.5)'; ctx.fillRect(-13,10,26,5);
+  ctx.fillStyle='#ffe8e0'; ctx.font='bold 11px serif'; ctx.textAlign='center';
+  ctx.fillText(MH_ANCIENT_GLYPHS[(mhHashStr(m.id||'x')%5)]||'⌬',0,18);
+  if(!silhouette){
+   const ft=performance.now()/1000;
+   for(let i=0;i<4;i++){
+    const ang=ft*2.2+i*Math.PI/2;
+    ctx.strokeStyle=i%2?'rgba(255,60,60,.65)':'rgba(0,0,0,.8)';
+    ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(Math.cos(ang)*12,Math.sin(ang)*8); ctx.lineTo(Math.cos(ang)*28,Math.sin(ang)*20); ctx.stroke();
+   }
+  }
  }
  ctx.restore();
 }
@@ -3546,7 +3571,7 @@ function mhPaintNoobWorld(ctx,m,x,y,sc,alpha,silhouette,t,walkPhase,flat,running
  if(!flat) ctx.rotate(off.rot);
  if(!flat) mhPaintAura(ctx,m,0,-8,t);
  if(m.void5D) mhPaintNoob5D(ctx,m,0,-8,sc*off.sc,alpha,silhouette,walkPhase,running);
- else if(flat) mhPaintNoobFlat(ctx,m,0,-8,sc*off.sc,alpha,silhouette,walkPhase,running);
+ else if(flat) mhPaintNoobFlat(ctx,m,0,-8,sc*off.sc,alpha,silhouette,walkPhase,running,t);
  else mhPaintNoob3D(ctx,m,0,-8,sc*off.sc,alpha,silhouette,walkPhase,running);
  ctx.restore();
 }
