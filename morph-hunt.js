@@ -5,8 +5,9 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v68';
-const MH_SCENERY_STAMP='PASSIVE_ANCIENT_SHIELDS_v68';
+const MH_BUILD='void-2d-v69';
+const MH_SCENERY_STAMP='KING_ACTION4_CUTSCENE_v69';
+const MH_KING_CUTSCENE_TITLE='Axe → Sword · Void Judgment';
 const MH_SCRIPT_FILE='morph-hunt.js';
 const MH_ANCIENT_GLYPHS=['⌬','☵','⛧','◈','☒'];
 const MH_ANCIENT_NAMES=['Void Seal','Rift Mark','Depth Eye','Abyss Gate','King Ward'];
@@ -2498,7 +2499,7 @@ function mhRefreshVoidCombatHud(save){
  const bar=document.getElementById('mh-void-combat-readout');
  if(bar){
   bar.innerHTML=vm
-   ?`<b>⚔ 1</b> ${atkN} · <b>✦ 2</b> ${powN} · <b>🌌 3</b> ${MH_VOID_STORM_NAME} — <span style="color:#ff9090">FIGHT</span> · <span style="color:#80ffb0">instant</span>${vm.voidKing?' · 👑 boss dmg':''}`
+   ?`<b>⚔ 1</b> ${atkN} · <b>✦ 2</b> ${powN} · <b>🌌 3</b> ${MH_VOID_STORM_NAME}${vm.voidKing?' · <b>🎬 4</b> '+MH_KING_CUTSCENE_TITLE:''} — <span style="color:#ff9090">FIGHT</span> · <span style="color:#80ffb0">instant</span>${vm.voidKing?' · 👑 boss dmg':''}`
    :'⚔ <b>1</b> punch · <b>2</b> blast · <b>3</b> slam — fight map noobies! (Void morph = stronger)';
  }
  const btnA=document.getElementById('mh-void-atk');
@@ -2512,6 +2513,17 @@ function mhRefreshVoidCombatHud(save){
   btnP.textContent=vm?('✦ 2 '+powN):'✦ 2 Power';
   btnP.disabled=false;
   btnP.style.opacity='1';
+ }
+ const btn4=document.getElementById('mh-void-cutscene');
+ if(btn4){
+  if(vm?.voidKing){
+   btn4.hidden=false;
+   btn4.textContent='🎬 4 Cutscene';
+   btn4.disabled=false;
+   btn4.style.opacity='1';
+  }else{
+   btn4.hidden=true;
+  }
  }
 }
 function mhDrawVoidAbyssMist(ctx,map,t){
@@ -3152,6 +3164,282 @@ function mhDrawFightHpBar(ctx,x,y,w,hp,maxHp,color){
  ctx.fillStyle=color||'#ff5050'; ctx.fillRect(x-w/2,y,w*pct,7);
  ctx.strokeStyle='rgba(255,255,255,.35)'; ctx.lineWidth=1; ctx.strokeRect(x-w/2+0.5,y+0.5,w-1,6);
 }
+function mhBuildKingCutsceneCrowd(n){
+ const slash=Math.round(n*0.54);
+ const jump=Math.round(n*0.16);
+ const stone=Math.round(n*0.06);
+ const voidAlly=Math.round(n*0.30);
+ const crowd=[];
+ for(let i=0;i<n;i++){
+  let role='survivor';
+  if(i<slash) role='slash';
+  else if(i<slash+jump) role='jump';
+  else if(i<slash+jump+stone) role='stone';
+  else if(i<slash+jump+stone+voidAlly) role='voidally';
+  const ang=Math.PI*0.12+(i/(n-1||1))*Math.PI*0.76;
+  const dist=120+(i%6)*22;
+  crowd.push({
+   role,
+   bx:Math.cos(ang)*dist,
+   by:-70-Math.sin(ang)*dist*0.45-(i%5)*10,
+   slashT:0,
+   jumpT:0,
+   stoneT:0,
+   cursed:false,
+   voided:false,
+   gone:false
+  });
+ }
+ return crowd;
+}
+function mhStartKingAction4Cutscene(st,save,wi,pos){
+ if(st.kingCutscene) return;
+ const m=mhVoidCombatMorph(save);
+ if(!m?.voidKing){
+  mhToast('👑 Action 4 is a cutscene — morph into Void Fallen King first!');
+  return;
+ }
+ st.kingCutscene={
+  start:performance.now(),
+  wi:wi??st.world,
+  pos:{px:pos.px,py:pos.py},
+  swordBlend:0,
+  slashWave:0,
+  crowd:mhBuildKingCutsceneCrowd(50),
+  starT:0,
+  holeR:0
+ };
+ mhToast('🎬 Action 4 · '+MH_KING_CUTSCENE_TITLE);
+ try{if(typeof SFX!=='undefined'&&SFX.ui)SFX.ui();}catch(_){}
+}
+function mhFinishKingAction4Cutscene(st,save){
+ if(!st.kingCutscene) return;
+ const wi=st.kingCutscene.wi;
+ const pos=mhWalkEnsurePos(st,wi);
+ st.kingCutscene=null;
+ mhFightAoe(st,save,wi,pos.px,pos.py-18,220,72);
+ mhWrapPlayerRedBlackStorm(st,mhVoidCombatMorph(save),pos,4);
+ mhVoidShake(st,280,11);
+ mhGibberLinkBurst(st,'GIBBERLINK:KING:CUTSCENE:END');
+ mhToast('☉ Star black hole fades — cursed noobies vanish into the void!');
+}
+function mhUpdateKingCutscene(st,dt){
+ const cs=st.kingCutscene;
+ if(!cs) return;
+ const elapsed=(performance.now()-cs.start)/1000;
+ cs.swordBlend=Math.min(1,elapsed/1.7);
+ if(elapsed>=1.5) cs.slashWave=Math.min(1,(elapsed-1.5)/2.2);
+ if(elapsed>=5) cs.jumpPhase=(elapsed-5)/3.2;
+ if(elapsed>=8.2) cs.stonePhase=(elapsed-8.2)/2.8;
+ if(elapsed>=11) cs.starT=Math.min(1,(elapsed-11)/4.2);
+ if(elapsed>=11) cs.holeR=Math.min(220,(elapsed-11)*95);
+ cs.crowd.forEach(e=>{
+  if(e.role==='slash'&&cs.slashWave>0) e.slashT=Math.min(1,cs.slashWave*1.15);
+  if(e.role==='jump'&&cs.jumpPhase>0){
+   e.jumpT=Math.min(1,cs.jumpPhase*1.1);
+   if(e.jumpT>0.72&&!e.cursed) e.cursed=true;
+  }
+  if(e.role==='stone'&&cs.stonePhase>0) e.stoneT=Math.min(1,cs.stonePhase*1.2);
+  if(cs.starT>0.35) e.gone=cs.starT>0.55&&e.role!=='voidally';
+  if(cs.starT>0.75) e.gone=true;
+ });
+ if(elapsed>=16.2) mhFinishKingAction4Cutscene(st,st.save);
+}
+function mhDrawCutsceneMiniNoob(ctx,x,y,voidAlly,split,diag){
+ if(split>0&&split<1){
+  const d=diag?0.65:-0.65;
+  const off=split*14;
+  ctx.save();
+  ctx.translate(x,y);
+  ctx.rotate(d);
+  ctx.fillStyle=voidAlly?'#502878':'#ffe060';
+  ctx.fillRect(-7,-16+off,14,14);
+  ctx.fillStyle=voidAlly?'#301848':'#6080ff';
+  ctx.fillRect(-9,-2+off,18,18);
+  ctx.fillStyle='#111';
+  ctx.fillRect(-5,-12+off,10,10);
+  ctx.restore();
+  ctx.save();
+  ctx.translate(x,y);
+  ctx.rotate(d);
+  ctx.fillStyle=voidAlly?'#502878':'#ffe060';
+  ctx.fillRect(-7,2-off,14,14);
+  ctx.fillStyle=voidAlly?'#301848':'#6080ff';
+  ctx.fillRect(-9,14-off,18,18);
+  ctx.strokeStyle='rgba(255,40,40,.9)'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(-12,-4); ctx.lineTo(12,8); ctx.stroke();
+  ctx.restore();
+  return;
+ }
+ if(split>=1){
+  ctx.save(); ctx.globalAlpha=0.15; ctx.fillStyle='#000';
+  ctx.beginPath(); ctx.ellipse(x,y+20,12,4,0,0,Math.PI*2); ctx.fill(); ctx.restore();
+  return;
+ }
+ ctx.fillStyle=voidAlly?'#502878':'#ffe060';
+ ctx.fillRect(x-7,y-16,14,14);
+ ctx.fillStyle=voidAlly?'#301848':'#6080ff';
+ ctx.fillRect(x-9,y-2,18,18);
+ ctx.fillStyle='#111';
+ ctx.fillRect(x-5,y-12,10,10);
+}
+function mhDrawKingAction4Cutscene(ctx,W,H,st,t){
+ const cs=st.kingCutscene;
+ if(!cs) return;
+ const elapsed=(performance.now()-cs.start)/1000;
+ const cx=W/2, cy=H*0.72;
+ const bg=ctx.createRadialGradient(cx,cy,40,cx,cy,Math.max(W,H)*0.75);
+ bg.addColorStop(0,'#1a0818');
+ bg.addColorStop(0.5,'#080408');
+ bg.addColorStop(1,'#000');
+ ctx.fillStyle=bg;
+ ctx.fillRect(0,0,W,H);
+ ctx.fillStyle='rgba(255,40,40,.08)';
+ for(let i=0;i<8;i++){
+  const ang=t*0.4+i*0.9;
+  ctx.beginPath();
+  ctx.moveTo(cx,cy);
+  ctx.lineTo(cx+Math.cos(ang)*W,cy+Math.sin(ang)*H*0.35);
+  ctx.strokeStyle='rgba(255,30,30,.06)'; ctx.lineWidth=40; ctx.stroke();
+ }
+ let phase='Greataxe awakens…';
+ if(elapsed>=1.5) phase='54% slashed — cut diagonal, not down the middle!';
+ if(elapsed>=5) phase='16% leap — shields curse them unto the void!';
+ if(elapsed>=8.2) phase='Void Fallen (30%) hurl stones — 6% crushed!';
+ if(elapsed>=11) phase='Double star spell → BLACK HOLE!';
+ ctx.fillStyle='rgba(0,0,0,.82)'; ctx.fillRect(0,0,W,52);
+ ctx.fillStyle='#ff9090'; ctx.font='bold 14px system-ui'; ctx.textAlign='center';
+ ctx.fillText('🎬 Action 4 · '+MH_KING_CUTSCENE_TITLE,W/2,22);
+ ctx.fillStyle='#ffe8a0'; ctx.font='bold 11px system-ui';
+ ctx.fillText(phase,W/2,42);
+ ctx.fillStyle='rgba(0,0,0,.7)'; ctx.fillRect(0,H-28,W,28);
+ ctx.fillStyle='#a0a8b8'; ctx.font='10px system-ui';
+ ctx.fillText('Esc to skip · Build '+MH_BUILD,W/2,H-10);
+ cs.crowd.forEach(e=>{
+  if(e.gone) return;
+  let ex=cx+e.bx, ey=cy+e.by;
+  if(e.role==='jump'&&cs.jumpPhase>0){
+   const j=Math.min(1,e.jumpT||0);
+   ex=cx+e.bx*(1-j*0.92);
+   ey=cy+e.by*(1-j*0.92)-Math.sin(j*Math.PI)*36;
+  }
+  if(e.voided) return;
+  if(e.cursed){
+   ctx.strokeStyle='rgba(180,60,255,.85)'; ctx.lineWidth=2;
+   for(let s=0;s<5;s++){
+    const a=t*2.2+s*Math.PI*2/5;
+    const sx=cx+Math.cos(a)*58, sy=cy-22+Math.sin(a)*36;
+    ctx.beginPath(); ctx.moveTo(sx,sy); ctx.lineTo(ex,ey-8); ctx.stroke();
+   }
+   ctx.fillStyle='rgba(120,0,180,.55)'; ctx.font='bold 9px system-ui'; ctx.textAlign='center';
+   ctx.fillText('VOID CURSE',ex,ey-28);
+   e.voided=e.jumpT>0.88;
+   if(e.voided) return;
+  }
+  let split=0;
+  if(e.role==='slash') split=e.slashT||0;
+  if(e.role==='stone'&&(e.stoneT||0)>0.65) split=1;
+  mhDrawCutsceneMiniNoob(ctx,ex,ey,e.role==='voidally',split,e.role==='slash');
+  if(e.role==='voidally'&&cs.stonePhase>0){
+   const p=Math.min(1,cs.stonePhase);
+   cs.crowd.filter(x=>x.role==='stone').forEach((tgt,ti)=>{
+    const tx=cx+tgt.bx, ty=cy+tgt.by;
+    const fromX=ex, fromY=ey-20;
+    const u=Math.min(1,p*1.3-ti*0.08);
+    if(u<=0) return;
+    const sx=fromX+(tx-fromX)*u, sy=fromY+(ty-fromY)*u+Math.sin(u*Math.PI)*-20;
+    ctx.fillStyle='#444'; ctx.beginPath(); ctx.arc(sx,sy,7,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle='#888'; ctx.stroke();
+   });
+  }
+  if(e.role==='stone'&&e.stoneT>0&&e.stoneT<0.65){
+   const fall=e.stoneT;
+   ctx.fillStyle='#555';
+   ctx.beginPath(); ctx.arc(ex,ey-40-fall*50,9,0,Math.PI*2); ctx.fill();
+  }
+ });
+ if(cs.slashWave>0.05&&cs.slashWave<0.95){
+  ctx.save();
+  ctx.strokeStyle='rgba(255,60,60,.95)'; ctx.lineWidth=5;
+  ctx.shadowColor='#ff2020'; ctx.shadowBlur=18;
+  const sw=cs.slashWave;
+  ctx.beginPath();
+  ctx.moveTo(cx-220+sw*40,cy-120);
+  ctx.lineTo(cx+220,cy+20);
+  ctx.stroke();
+  ctx.restore();
+ }
+ const blend=cs.swordBlend||0;
+ ctx.save();
+ ctx.translate(cx,cy-8);
+ ctx.fillStyle='#1a1a1a'; ctx.fillRect(-14,8,28,36);
+ ctx.fillStyle='#ff3030'; ctx.fillRect(-16,-28,32,32);
+ if(blend<1){
+  ctx.save(); ctx.globalAlpha=1-blend;
+  ctx.strokeStyle='#888'; ctx.lineWidth=4;
+  ctx.beginPath(); ctx.moveTo(28,-10); ctx.lineTo(52,-38); ctx.lineTo(48,-42); ctx.lineTo(24,-14); ctx.closePath();
+  ctx.fillStyle='#666'; ctx.fill(); ctx.stroke();
+  ctx.fillStyle='#444'; ctx.fillRect(20,-18,14,8);
+  ctx.restore();
+ }
+ if(blend>0){
+  ctx.save(); ctx.globalAlpha=blend;
+  ctx.fillStyle='#ccc'; ctx.fillRect(22,-42,6,52);
+  ctx.fillStyle='#ff5050'; ctx.fillRect(18,-46,14,8);
+  ctx.shadowColor='#ff8080'; ctx.shadowBlur=12;
+  ctx.strokeStyle='#fff'; ctx.lineWidth=3;
+  ctx.beginPath(); ctx.moveTo(25,-38); ctx.lineTo(25,-90); ctx.stroke();
+  ctx.restore();
+ }
+ for(let i=0;i<5;i++){
+  const a=t*0.85+i*Math.PI*2/5;
+  const sx=Math.cos(a)*62, sy=-18+Math.sin(a)*38;
+  mhPaintOneAncientShield(ctx,sx,sy,MH_ANCIENT_GLYPHS[i],true,t+i);
+ }
+ ctx.restore();
+ if(cs.starT>0){
+  const stT=cs.starT;
+  const hole=cs.holeR||0;
+  ctx.save();
+  ctx.translate(cx,cy-120);
+  ctx.globalAlpha=0.25+stT*0.75;
+  const drawStar=(r,rot,stroke)=>{
+   ctx.save(); ctx.rotate(rot);
+   ctx.strokeStyle=stroke; ctx.lineWidth=3;
+   ctx.beginPath();
+   for(let i=0;i<10;i++){
+    const a=i*Math.PI/5-Math.PI/2;
+    const rad=i%2?r*0.42:r;
+    const px=Math.cos(a)*rad, py=Math.sin(a)*rad;
+    if(i===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+   }
+   ctx.closePath(); ctx.stroke();
+   ctx.restore();
+  };
+  drawStar(38+stT*22,t*1.8,'rgba(255,80,80,.95)');
+  drawStar(18+stT*12,-t*2.4,'rgba(255,240,200,.9)');
+  if(hole>8){
+   const g=ctx.createRadialGradient(0,0,0,0,0,hole);
+   g.addColorStop(0,'#000'); g.addColorStop(0.35,'#200008');
+   g.addColorStop(0.7,'rgba(255,40,40,.35)'); g.addColorStop(1,'rgba(255,80,80,0)');
+   ctx.fillStyle=g;
+   ctx.beginPath(); ctx.arc(0,0,hole,0,Math.PI*2); ctx.fill();
+   ctx.strokeStyle='rgba(0,0,0,.9)'; ctx.lineWidth=hole*0.08;
+   ctx.beginPath(); ctx.arc(0,0,hole*0.55,0,Math.PI*2); ctx.stroke();
+  }
+  ctx.restore();
+  cs.crowd.forEach(e=>{
+   if(e.gone||e.role==='voidally') return;
+   const pull=Math.min(1,stT*1.2);
+   e.bx*=1-pull*0.04;
+   e.by*=1-pull*0.04;
+  });
+ }
+}
+function mhUseKingAction4Cutscene(st,save,pos,wi){
+ mhEnsureFight(st,save);
+ mhStartKingAction4Cutscene(st,save,wi,pos);
+}
 function mhUseFightAttack(st,save,pos,wi){
  mhEnsureFight(st,save);
  const vm=mhVoidCombatMorph(save);
@@ -3783,6 +4071,14 @@ function mhWalkApplyKey(e,down){
   const pos=mhWalkEnsurePos(mhState,mhState.world);
   mhUseFightStorm(mhState,mhState.save,pos,mhState.world); hit=true;
  }
+ if(down&&(c==='Digit4'||c==='Numpad4'||k==='4')){
+  const pos=mhWalkEnsurePos(mhState,mhState.world);
+  mhUseKingAction4Cutscene(mhState,mhState.save,pos,mhState.world); hit=true;
+ }
+ if(mhState.kingCutscene&&down&&(c==='Escape'||k==='Escape')){
+  mhFinishKingAction4Cutscene(mhState,mhState.save); hit=true;
+ }
+ if(mhState.kingCutscene&&down) hit=true;
  if(hit){
   e.preventDefault();
   e.stopPropagation();
@@ -3809,6 +4105,16 @@ function mhWalkDrawFrame(){
   ctx=canvas.getContext('2d');
   if(!ctx) throw new Error('no ctx');
  const W=canvas.width,H=canvas.height;
+ const nowMs=performance.now();
+ const tCut=nowMs/1000;
+ const dtCut=Math.min(0.05,(nowMs-(st.lastWalkMs||nowMs))/1000||0.016);
+ st.lastWalkMs=nowMs;
+ if(st.kingCutscene){
+  mhUpdateKingCutscene(st,dtCut);
+  mhDrawKingAction4Cutscene(ctx,W,H,st,tCut);
+  st.walkRaf=requestAnimationFrame(mhWalkDrawFrame);
+  return;
+ }
  if(st.insideBuilding){
   const t=performance.now()/1000;
   mhDrawInteriorScreen(ctx,W,H,st,t);
@@ -3821,10 +4127,8 @@ function mhWalkDrawFrame(){
  const world=MH_WORLDS[wi];
  const pos=mhWalkEnsurePos(st,wi);
  const keys=st.walkKeys||{};
- const nowMs=performance.now();
- const t=nowMs/1000;
- const dt=Math.min(0.05,(nowMs-(st.lastWalkMs||nowMs))/1000||0.016);
- st.lastWalkMs=nowMs;
+ const t=tCut;
+ const dt=dtCut;
  let vx=0,vy=0;
  if(keys.left) vx-=1;
  if(keys.right) vx+=1;
@@ -3966,7 +4270,8 @@ function mhWalkDrawFrame(){
  ctx.fillText('❤ HP '+Math.ceil(php)+'/'+pmax,W-90,32);
  ctx.textAlign='left';
  ctx.fillStyle='#ffb0b0'; ctx.font='bold 10px system-ui';
- ctx.fillText('⚔ FIGHT: 1 attack · 2 power · 3 storm — face foes & press keys',16,72);
+ const vk=mhVoidCombatMorph(save);
+ ctx.fillText(vk?.voidKing?'⚔ 1–3 fight · 🎬 4 king cutscene (axe→sword · void judgment)':'⚔ FIGHT: 1 attack · 2 power · 3 storm — face foes & press keys',16,72);
  if(mhVoidCombatMorph(save)){
   ctx.fillStyle='rgba(20,0,40,.88)'; ctx.fillRect(W/2-190,H-52,380,36);
   ctx.fillStyle='#ffe8a0'; ctx.font='bold 12px system-ui,sans-serif'; ctx.textAlign='center';
@@ -4173,6 +4478,13 @@ function mhWalkStart(){
   mhUseFightPower(mhState,mhState.save,pos,map,mhState.world);
  };
  const voidStorm=root?.querySelector('#mh-void-storm');
+ const voidCut=root?.querySelector('#mh-void-cutscene');
+ if(voidCut) voidCut.onclick=()=>{
+  if(!mhState?.save) return;
+  root.querySelector('#mh-walk-canvas')?.focus();
+  const pos=mhWalkEnsurePos(mhState,mhState.world);
+  mhUseKingAction4Cutscene(mhState,mhState.save,pos,mhState.world);
+ };
  if(voidStorm) voidStorm.onclick=()=>{
   if(!mhState?.save) return;
   root.querySelector('#mh-walk-canvas')?.focus();
@@ -4239,7 +4551,7 @@ function mhRenderHunt(save, wi){
    <button type="button" class="mh-btn primary mh-btn-sm" id="mh-walk-interact">🎮 Minigame (E)</button>
    <button type="button" class="mh-btn mh-btn-sm" id="mh-walk-enter">F House</button>
    <button type="button" class="mh-btn mh-btn-sm" id="mh-walk-run">Run</button>
-   <button type="button" class="mh-btn mh-btn-sm" id="mh-void-atk">⚔ 1 Attack</button><button type="button" class="mh-btn mh-btn-sm" id="mh-void-pow">✦ 2 Power</button><button type="button" class="mh-btn mh-btn-sm" id="mh-void-storm">🌌 3 Storm</button>
+   <button type="button" class="mh-btn mh-btn-sm" id="mh-void-atk">⚔ 1 Attack</button><button type="button" class="mh-btn mh-btn-sm" id="mh-void-pow">✦ 2 Power</button><button type="button" class="mh-btn mh-btn-sm" id="mh-void-storm">🌌 3 Storm</button><button type="button" class="mh-btn mh-btn-sm" id="mh-void-cutscene" hidden>🎬 4 Cutscene</button>
   </div>
  </div>
  ${mhRenderHuntDeck(save,wi,morphs)}
@@ -4297,7 +4609,7 @@ function mhRenderMorph(save){
  return `<div class="mh-morph-tab">
   <h3>🎭 Morph &amp; Roleplay</h3>
   <p class="mh-scene-hint">Turn into any noobie you own — your morph also shows on the Rock Teacher!</p>
-  <div class="mh-morph-preview large">${wear?`<svg viewBox="0 0 100 130">${mhClassicNoobSvg(wear)}</svg><b>${wear.name}</b>${(wear.rarity==='voidfallen'||wear.voidFallen)?`<p class="mh-scene-hint" style="color:${wear.voidKing?'#ff6060':'#c898ff'}">Any map · <b>1</b> ⚔ ${wear.voidAttack?.name||'Attack'} · <b>2</b> ✦ ${wear.voidPower?.name||'Power'} · <b>3</b> 🌌 ${MH_VOID_STORM_NAME}${wear.voidKing?' · 👑 universe rift king':' · 🕳 void storm aura'}</p>`:''}<button type="button" class="mh-btn primary" data-mh-wear="${wear.id}">Stay morphed</button>`:'<span>Pick a noobie below</span>'}</div>
+  <div class="mh-morph-preview large">${wear?`<svg viewBox="0 0 100 130">${mhClassicNoobSvg(wear)}</svg><b>${wear.name}</b>${(wear.rarity==='voidfallen'||wear.voidFallen)?`<p class="mh-scene-hint" style="color:${wear.voidKing?'#ff6060':'#c898ff'}">Any map · <b>1</b> ⚔ ${wear.voidAttack?.name||'Attack'} · <b>2</b> ✦ ${wear.voidPower?.name||'Power'} · <b>3</b> 🌌 ${MH_VOID_STORM_NAME}${wear.voidKing?' · 👑 universe rift king · <b>4</b> 🎬 cutscene':' · 🕳 void storm aura'}</p>`:''}<button type="button" class="mh-btn primary" data-mh-wear="${wear.id}">Stay morphed</button>`:'<span>Pick a noobie below</span>'}</div>
   <input type="search" id="mh-search" placeholder="Search your morphs…" value="${q.replace(/"/g,'&quot;')}"/>
   <div class="mh-morph-grid">${cards}</div>
   <div class="mh-pager">${pg.page>0?'<button type="button" class="mh-btn" data-mh-page="'+(pg.page-1)+'">←</button>':''}<span>${pg.page+1}/${pg.pages}</span>${pg.page+1<pg.pages?'<button type="button" class="mh-btn" data-mh-page="'+(pg.page+1)+'">→</button>':''}</div>
