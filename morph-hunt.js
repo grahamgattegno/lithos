@@ -3,7 +3,7 @@
 'use strict';
 
 const MH_STORE_KEY='lithos_morph_hunt_v9';
-const MH_BUILD='void-1000d-v14';
+const MH_BUILD='void-1000d-v15';
 const MH_TOTAL_COUNT=1100;
 const MH_1000D=true;
 const MH_DEPTH_LABEL='1000th Depth';
@@ -930,9 +930,43 @@ function mhWalkEnsurePos(st,wi){
  const map=MH_WORLD_MAPS[wi];
  if(!st.walkPos) st.walkPos={};
  if(!st.walkPos[wi]){
-  st.walkPos[wi]={px:map.spawnTx*MH_TILE+MH_TILE/2, py:map.spawnTy*MH_TILE+MH_TILE/2};
+  let px=map.spawnTx*MH_TILE+MH_TILE/2, py=map.spawnTy*MH_TILE+MH_TILE/2;
+  if(mhWalkCollide(map,px,py,10)){
+   let ok=false;
+   for(let ty=2;ty<map.h-2&&!ok;ty++)for(let tx=2;tx<map.w-2;tx++){
+    if(map.tiles[ty*map.w+tx]!==0) continue;
+    px=tx*MH_TILE+MH_TILE/2; py=ty*MH_TILE+MH_TILE/2;
+    if(!mhWalkCollide(map,px,py,10)){ ok=true; break; }
+   }
+  }
+  st.walkPos[wi]={px,py};
  }
- return st.walkPos[wi];
+ const p=st.walkPos[wi];
+ if(!Number.isFinite(p.px)||!Number.isFinite(p.py)){
+  p.px=map.spawnTx*MH_TILE+MH_TILE/2;
+  p.py=map.spawnTy*MH_TILE+MH_TILE/2;
+ }
+ return p;
+}
+function mhDrawYouPlayer(ctx,W,H,wear,t,walkPhase,map,pos){
+ const m=wear||{head:'#F5CD30',torso:'#0085DB',legs:'#A4BD47',body:'classic',anim:'bounce',rarity:'common',id:'you'};
+ let sc=0.95;
+ if(MH_1000D) sc*=0.9+(pos.py/(map.h*MH_TILE))*0.2;
+ const cx=W/2, cy=H/2;
+ ctx.save();
+ ctx.strokeStyle='rgba(255,232,120,.9)';
+ ctx.lineWidth=3;
+ ctx.setLineDash([5,4]);
+ ctx.beginPath(); ctx.ellipse(cx,cy+24,30,9,0,0,Math.PI*2); ctx.stroke();
+ ctx.setLineDash([]);
+ mhPaintNoobWorld(ctx,m,cx,cy,sc,1,false,t,walkPhase||0);
+ ctx.fillStyle='rgba(0,0,0,.78)';
+ ctx.fillRect(cx-24,cy+50,48,15);
+ ctx.fillStyle='#ffe8a0';
+ ctx.font='bold 11px system-ui';
+ ctx.textAlign='center';
+ ctx.fillText('YOU',cx,cy+61);
+ ctx.restore();
 }
 function mhNpcState(st,wi,m){
  if(!st.npc) st.npc={};
@@ -1129,11 +1163,8 @@ function mhWalkDrawFrame(){
    ctx.fillText(got?m.name.slice(0,14):'???',mx,my-68);
   }
  });
- const wear=mhMorph(save.wearing);
- let psc=0.78;
- if(MH_1000D) psc*=0.88+(pos.py/(map.h*MH_TILE))*0.26;
- mhPaintNoobWorld(ctx,wear||{head:'#F5CD30',torso:'#0085DB',legs:'#A4BD47',body:'classic',anim:'bounce',rarity:'common'},pos.px,pos.py,psc,1,false,t,st.walkPhase||0);
  ctx.restore();
+ const wear=mhMorph(save.wearing);
  if(wi===MH_VOID_WORLD){
   ctx.fillStyle='rgba(0,0,0,.35)'; ctx.fillRect(0,0,W,H);
   ctx.strokeStyle='rgba(140,60,255,.15)'; ctx.lineWidth=1;
@@ -1150,11 +1181,12 @@ function mhWalkDrawFrame(){
   ctx.fillStyle=grd; ctx.fillRect(0,0,W,H);
   ctx.save();
   ctx.globalCompositeOperation='destination-out';
-  const lg=ctx.createRadialGradient(W/2,H/2,10,W/2,H/2,130);
+  const lg=ctx.createRadialGradient(W/2,H/2,10,W/2,H/2,150);
   lg.addColorStop(0,'rgba(0,0,0,1)'); lg.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle=lg; ctx.fillRect(0,0,W,H);
   ctx.restore();
  }
+ mhDrawYouPlayer(ctx,W,H,wear,t,st.walkPhase||0,map,pos);
  const hud=document.getElementById('mh-walk-hud');
  if(hud){
   const found=morphs.filter(m=>mhHasMorph(save,m.id)).length;
@@ -1229,7 +1261,7 @@ function mhRenderHunt(save, wi){
    <span class="mh-walk-run">Shift / 🏃 = run</span>
   </div>
  </div>
- <p class="mh-scene-hint">🚶 You walk with WASD · <b>Noobies wander on their own</b> — chase them down! · Epic+ = minigame · Exotic = rarest ✨</p>
+ <p class="mh-scene-hint">🚶 <b>YOU</b> = center of the map (gold ring) · WASD to walk · Noobies wander — chase them! · Epic+ = minigame</p>
  <p class="mh-progress">Zone: <b>${found}/${morphs.length}</b> &nbsp;•&nbsp; Total: <b>${save.collected.length}/${MH_TOTAL_COUNT}</b> &nbsp;•&nbsp; 🕳 Void: <b>${save.collected.filter(id=>mhMorph(id)?.rarity==='voidfallen').length}/${MH_VOID_COUNT}</b></p>`;
 }
 
