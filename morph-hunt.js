@@ -1,9 +1,10 @@
-/* Find The Noobies Morphs — Lithos (268 normal + 104 exclusive) */
+/* Find The Noobies Morphs — Lithos (420 normal + 104 exclusive = 524) */
 (function(){
 'use strict';
 
-const MH_STORE_KEY='lithos_morph_hunt_v5';
-const MH_BUILD='npc-walk-v10';
+const MH_STORE_KEY='lithos_morph_hunt_v6';
+const MH_BUILD='noobies-524-v11';
+const MH_TOTAL_COUNT=524;
 const MH_NPC_SPEED=1.25;
 const MH_TILE=34;
 const MH_MAP_W=46;
@@ -15,12 +16,14 @@ const MH_ANIMS=['bounce','sway','hop','pulse','float','wiggle','spin','glitch'];
 const MH_HIGH_RARITY=new Set(['epic','legendary','secret','exclusive','exotic']);
 const MH_BODIES=['classic','tall','chibi','robot','ghost','builder','wide'];
 const MH_WEAR_KEY='lithos_noobie_wear';
-const MH_NORMAL_COUNT=268;
+const MH_NORMAL_COUNT=420;
 const MH_EXCLUSIVE_COUNT=104;
+const MH_NORMAL_WORLDS=8;
+const MH_EXOTIC_WORLD=8;
 const MH_COINS_PER_FIND=15;
 const MH_GACHA_COST=50;
 const MH_GACHA_EX_COST=120;
-const MH_WORLDS_COUNT=8;
+const MH_WORLDS_COUNT=9;
 
 const MH_RARITY={
  common:{label:'Common',color:'#b8c0c8',glow:'rgba(184,192,200,.4)'},
@@ -41,7 +44,8 @@ const MH_WORLDS=[
  {id:'w4',name:'Shadow Backrooms',emoji:'🚪',tagline:'Spooky fluorescent halls.',bg:'#c8c4a8',ground:'#a8a890'},
  {id:'w5',name:'Sky Islands',emoji:'☁',tagline:'Floating platforms in the clouds.',bg:'#a8d8ff',ground:'#88c8f0'},
  {id:'w6',name:'Lava Park',emoji:'🌋',tagline:'Hot zones — rare spawns!',bg:'#ff8860',ground:'#8a4030'},
- {id:'w7',name:'Legend Nexus',emoji:'👑',tagline:'Last normal zone before exclusives.',bg:'#6080c0',ground:'#506898'}
+ {id:'w7',name:'Legend Nexus',emoji:'👑',tagline:'Last normal zone before Exotic Realm.',bg:'#6080c0',ground:'#506898'},
+ {id:'w8',name:'Exotic Realm',emoji:'💎',tagline:'All Exotic rank noobies wander here!',bg:'#281040',ground:'#502868'}
 ];
 
 const MH_CODES={
@@ -127,7 +131,7 @@ function mhUniqueNames(count,fn){
  }
  return out;
 }
-const MH_NORMAL_NAMES=mhUniqueNames(MH_NORMAL_COUNT,(i)=>mhNormalName(i,Math.min(MH_WORLDS_COUNT-1,Math.floor(i/Math.ceil(MH_NORMAL_COUNT/MH_WORLDS_COUNT)))));
+const MH_NORMAL_NAMES=mhUniqueNames(MH_NORMAL_COUNT,(i)=>mhNormalName(i,Math.min(MH_NORMAL_WORLDS-1,Math.floor(i/Math.ceil(MH_NORMAL_COUNT/MH_NORMAL_WORLDS)))));
 const MH_EXCLUSIVE_NAMES=mhUniqueNames(MH_EXCLUSIVE_COUNT,mhExclusiveName);
 function mhSpotPos(idx,total){
  const cols=11;
@@ -141,16 +145,18 @@ function mhSpotPos(idx,total){
 
 function mhBuildMorphs(){
  const list=[];
- const perWorld=Math.ceil(MH_NORMAL_COUNT/MH_WORLDS_COUNT);
+ const perWorld=Math.ceil(MH_NORMAL_COUNT/MH_NORMAL_WORLDS);
  for(let i=0;i<MH_NORMAL_COUNT;i++){
-  const wi=Math.min(MH_WORLDS_COUNT-1,Math.floor(i/perWorld));
+  let wi=Math.min(MH_NORMAL_WORLDS-1,Math.floor(i/perWorld));
   const idx=i-wi*perWorld;
   const pos=mhSpotPos(idx,perWorld);
   const classic=MH_ROBLOX_PALS[i%MH_ROBLOX_PALS.length];
   const pal=i%6===0?{head:classic.head,torso:classic.torso,legs:classic.legs,arms:classic.arms}:mhPal(i);
   const name=i%6===0?classic.label:MH_NORMAL_NAMES[i];
   let rarity=MH_RARITY_N[i%MH_RARITY_N.length];
-  if(rarity==='legendary'&&(i%11===0||i%7===0)) rarity='exotic';
+  if(rarity==='legendary'&&(i%11===0||i%7===0||i%13===0)) rarity='exotic';
+  if(i%17===0) rarity='exotic';
+  if(rarity==='exotic') wi=MH_EXOTIC_WORLD;
   list.push({
    id:'n-'+i,
    name,
@@ -174,7 +180,7 @@ function mhBuildMorphs(){
    id:'ex-'+i,
    name:MH_EXCLUSIVE_NAMES[i],
    exclusive:true,
-   world:MH_WORLDS_COUNT,
+   world:MH_EXOTIC_WORLD,
    x:50,y:40,
    scale:1.05+(i%5)*0.02,
    head:pal.head||pal.torso,torso:pal.torso,legs:pal.legs,arms:pal.arms||pal.head,
@@ -185,10 +191,11 @@ function mhBuildMorphs(){
    hat:i%7===0?'gem':i%5===0?'party':i%3===0?'crown':i%11===0?'star':null,
    body:MH_BODIES[(i+2)%MH_BODIES.length],
    anim:MH_ANIMS[(i+3)%MH_ANIMS.length],
-   vaultOnly:true
+   vaultOnly:i>=12&&i%9!==0
   });
   const ex=list[list.length-1];
   if(i%9===0||i<6) ex.rarity='exotic';
+  if(ex.rarity==='exotic') ex.vaultOnly=false;
  }
  const welcome=list.find(m=>m.id==='ex-0');
  if(welcome){ welcome.id='ex-welcome'; welcome.name='Welcome Noobie'; welcome.hat='wave'; }
@@ -201,6 +208,8 @@ function mhBuildMorphs(){
 const MH_MORPHS=mhBuildMorphs();
 const MH_NORMALS=MH_MORPHS.filter(m=>!m.exclusive);
 const MH_EXCLUSIVES=MH_MORPHS.filter(m=>m.exclusive);
+const MH_EXOTICS=MH_MORPHS.filter(m=>m.rarity==='exotic');
+const MH_EXOTIC_COUNT=MH_EXOTICS.length;
 
 function mhHashStr(s){
  let h=2166136261;
@@ -210,6 +219,13 @@ function mhHashStr(s){
 function mhGenWorldMap(wi){
  const w=MH_MAP_W,h=MH_MAP_H;
  const tiles=new Uint8Array(w*h);
+ if(wi===MH_EXOTIC_WORLD){
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+   if(x<1||y<1||x>=w-1||y>=h-1) tiles[y*w+x]=1;
+   else tiles[y*w+x]=mhHashStr('ex'+x+y)%9===0?2:0;
+  }
+  return {w,h,tiles,spawnTx:4,spawnTy:4,doorTx:23,doorTy:17,wi};
+ }
  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
   if(x<1||y<1||x>=w-1||y>=h-1) tiles[y*w+x]=1;
   else tiles[y*w+x]=0;
@@ -234,7 +250,10 @@ const MH_WORLD_MAPS=MH_WORLDS.map((_,i)=>mhGenWorldMap(i));
   const map=MH_WORLD_MAPS[wi];
   if(!occ.has(wi)) occ.set(wi,new Set());
   const set=occ.get(wi);
-  MH_MORPHS.filter(m=>!m.exclusive&&m.world===wi).forEach(m=>{
+  const pool=wi===MH_EXOTIC_WORLD
+   ?MH_MORPHS.filter(m=>m.rarity==='exotic')
+   :MH_MORPHS.filter(m=>!m.exclusive&&m.world===wi);
+  pool.forEach(m=>{
    for(let t=0;t<400;t++){
     const tx=3+mhHashStr(m.id+'x'+t)%(map.w-6);
     const ty=3+mhHashStr(m.id+'y'+t)%(map.h-6);
@@ -325,7 +344,10 @@ function mhSaveSave(data){
 }
 
 function mhMorph(id){return MH_MORPHS.find(m=>m.id===id);}
-function mhWorldMorphs(wi){return MH_MORPHS.filter(m=>!m.exclusive&&m.world===wi);}
+function mhWorldMorphs(wi){
+ if(wi===MH_EXOTIC_WORLD) return MH_EXOTICS.slice();
+ return MH_MORPHS.filter(m=>!m.exclusive&&m.world===wi);
+}
 function mhHasMorph(save,id){return save.collected.includes(id);}
 function mhWorldComplete(save,wi){
  const need=mhWorldMorphs(wi);
@@ -490,7 +512,7 @@ function mhFinishCollect(m){
  save.coins+=MH_COINS_PER_FIND;
  mhSaveSave(save);
  const wi=m.world;
- if(!m.exclusive&&mhWorldComplete(save,wi)&&save.worldsUnlocked<=wi+1&&wi+1<MH_WORLDS.length){
+ if(mhWorldComplete(save,wi)&&save.worldsUnlocked<=wi+1&&wi+1<MH_WORLDS.length){
   save.worldsUnlocked=Math.max(save.worldsUnlocked,wi+2);
   mhSaveSave(save);
   mhToast('Zone cleared! Unlocked: '+MH_WORLDS[wi+1].emoji+' '+MH_WORLDS[wi+1].name);
@@ -507,7 +529,9 @@ function mhCollect(id){
   mhWear(id);
   return;
  }
- if(m.exclusive&&!mhIsOwner()&&m.vaultOnly){ mhToast('Exclusive noobies come from codes or Exclusive Gacha!'); return; }
+ if(m.exclusive&&!mhIsOwner()&&m.vaultOnly&&mhState.world!==MH_EXOTIC_WORLD){
+  mhToast('Find this one in 💎 Exotic Realm or Exclusive Gacha!'); return;
+ }
  if(mhNeedsMinigame(m)&&!mhMinigameCleared(save,m.id)){
   mhOpenMinigame(m);
   return;
@@ -980,6 +1004,11 @@ function mhWalkDrawFrame(){
   if(!seen) return;
   const sc=(m.scale||1)*0.72;
   mhPaintNoobWorld(ctx,m,mx,my,sc,got?0.55:1,!got&&dist>MH_INTERACT_R,t,npc.phase);
+  if(m.rarity==='exotic'){
+   ctx.fillStyle='rgba(255,40,200,.85)'; ctx.fillRect(mx-54,my-98,108,14);
+   ctx.fillStyle='#fff'; ctx.font='bold 10px system-ui'; ctx.textAlign='center';
+   ctx.fillText('✦ EXOTIC',mx,my-88);
+  }
   if(dist<MH_INTERACT_R&&!got){
    if(mhNeedsMinigame(m)&&!mhMinigameCleared(save,m.id)){
     ctx.fillStyle='rgba(120,60,200,.85)'; ctx.fillRect(mx-52,my-92,104,12);
@@ -1084,7 +1113,7 @@ function mhRenderHunt(save, wi){
   </div>
  </div>
  <p class="mh-scene-hint">🚶 You walk with WASD · <b>Noobies wander on their own</b> — chase them down! · Epic+ = minigame · Exotic = rarest ✨</p>
- <p class="mh-progress">Zone: <b>${found}/${morphs.length}</b> &nbsp;•&nbsp; Normal: <b>${nFound}/${MH_NORMAL_COUNT}</b> &nbsp;•&nbsp; Exclusive: <b>${xFound}/${MH_EXCLUSIVE_COUNT}</b></p>`;
+ <p class="mh-progress">Zone: <b>${found}/${morphs.length}</b> &nbsp;•&nbsp; Total: <b>${save.collected.length}/${MH_TOTAL_COUNT}</b> &nbsp;•&nbsp; 💎 Exotic: <b>${save.collected.filter(id=>mhMorph(id)?.rarity==='exotic').length}/${MH_EXOTIC_COUNT}</b></p>`;
 }
 
 function mhRenderIndex(save){
@@ -1093,6 +1122,7 @@ function mhRenderIndex(save){
  let list=MH_MORPHS.slice();
  if(kind==='normal') list=MH_NORMALS;
  if(kind==='exclusive') list=MH_EXCLUSIVES;
+ if(kind==='exotic') list=MH_EXOTICS;
  list=mhFilterList(list,q);
  list.sort((a,b)=>a.exclusive!==b.exclusive? (a.exclusive?1:-1) : a.name.localeCompare(b.name));
  const pg=mhPaginate(list,mhState.page||0,48);
@@ -1107,9 +1137,10 @@ function mhRenderIndex(save){
  return `<div class="mh-index">
   <h3>📖 Noobie Index</h3>
   <div class="mh-index-tools">
-   <button type="button" class="mh-filter${kind==='all'?' on':''}" data-mh-kind="all">All ${MH_MORPHS.length}</button>
+   <button type="button" class="mh-filter${kind==='all'?' on':''}" data-mh-kind="all">All ${MH_TOTAL_COUNT}</button>
    <button type="button" class="mh-filter${kind==='normal'?' on':''}" data-mh-kind="normal">Normal ${MH_NORMAL_COUNT}</button>
    <button type="button" class="mh-filter${kind==='exclusive'?' on':''}" data-mh-kind="exclusive">Exclusive ${MH_EXCLUSIVE_COUNT}</button>
+   <button type="button" class="mh-filter${kind==='exotic'?' on':''}" data-mh-kind="exotic">💎 Exotic ${MH_EXOTIC_COUNT}</button>
    <input type="search" id="mh-search" placeholder="Search noobies…" value="${q.replace(/"/g,'&quot;')}"/>
   </div>
   <div class="mh-codex-grid index">${cards}</div>
@@ -1197,7 +1228,7 @@ function mhRender(){
   <header class="mh-ftn-banner">
    <div class="mh-ftn-banner-text">
     <h2 class="mh-title">Find The Noobies Morphs</h2>
-    <p class="mh-ftn-tag">🏃 Run · ✨ Auras · 🎮 Epic+ minigames · 💎 Exotic rank · Build <b>${MH_BUILD}</b> · ${owner?'Owner: ALL unlocked':''}</p>
+    <p class="mh-ftn-tag">${MH_TOTAL_COUNT} noobies · 💎 Exotic Realm tab · Build <b>${MH_BUILD}</b> · ${owner?'Owner: ALL unlocked':''}</p>
    </div>
   </header>
   <div class="mh-head">
@@ -1209,7 +1240,7 @@ function mhRender(){
    </div>
    <div class="mh-head-stats">
     <span class="mh-coins">💰 <b>${save.coins}</b></span>
-    <span>Normal <b>${save.collected.filter(id=>!mhMorph(id)?.exclusive).length}</b>/${MH_NORMAL_COUNT} · Excl. <b>${save.collected.filter(id=>mhMorph(id)?.exclusive).length}</b>/${MH_EXCLUSIVE_COUNT}</span>
+    <span>${MH_TOTAL_COUNT} total · 💎 <b>${save.collected.filter(id=>mhMorph(id)?.rarity==='exotic').length}</b>/${MH_EXOTIC_COUNT} Exotic</span>
     ${owner?'<span class="mh-owner-tag">Owner — all '+MH_MORPHS.length+' unlocked</span>':''}
     <button type="button" class="mh-btn ghost" id="mh-leave">Leave</button>
    </div>
