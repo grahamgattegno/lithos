@@ -3,9 +3,9 @@
 'use strict';
 
 const MH_STORE_KEY='lithos_morph_hunt_v9';
-const MH_BUILD='void-2d-v40';
-const MH_SCENERY_STAMP='RARITY_MAPS_v40';
-const MH_SCRIPT_FILE='morph-hunt.void-2d-v40.js';
+const MH_BUILD='void-2d-v41';
+const MH_SCENERY_STAMP='MINIGAMES_v41';
+const MH_SCRIPT_FILE='morph-hunt.void-2d-v41.js';
 const MH_KING_STAMP='RED_BLACK_KING_v31';
 const MH_MEGA_W=7;
 const MH_MEGA_H=6;
@@ -1346,23 +1346,27 @@ function mhDeckUnlock(m,save){
 function mhMinigameCleared(save,id){
  return (save.minigameWon||[]).includes(id);
 }
+function mhModalHost(){
+ return document.getElementById('morphhunt')||document.body;
+}
 function mhEnsureOverlayModals(){
+ const host=mhModalHost();
  let mg=document.getElementById('mh-minigame-modal');
  if(!mg){
   mg=document.createElement('div');
   mg.id='mh-minigame-modal';
   mg.className='mh-found-modal mh-minigame-modal';
   mg.hidden=true;
-  document.body.appendChild(mg);
- }
+  host.appendChild(mg);
+ }else if(mg.parentElement!==host) host.appendChild(mg);
  let fd=document.getElementById('mh-found-modal');
  if(!fd){
   fd=document.createElement('div');
   fd.id='mh-found-modal';
   fd.className='mh-found-modal';
   fd.hidden=true;
-  document.body.appendChild(fd);
- }
+  host.appendChild(fd);
+ }else if(fd.parentElement!==host) host.appendChild(fd);
 }
 function mhSaveSave(data){
  if(mhIsOwner()){
@@ -1594,6 +1598,7 @@ function mhOpenMinigame(m){
  if(!modal) return;
  const r=mhRarityInfo(m);
  modal.hidden=false;
+ modal.style.zIndex='100020';
  modal.innerHTML=`<div class="mh-minigame-card" style="--mh-rarity:${r.color}">
   <div class="mh-found-badge">Unlock ${mhRarityLabel(m)} · ${m.name}</div>
   <p class="mh-mini-desc">${kind==='gemtap'?'Tap 6 gems before time runs out!':kind==='zonehit'?'Click when the bar is in the green zone — 3 hits!':kind==='memory'?'Watch the colors, then repeat the pattern!':kind==='voidpulse'?'Click when the void pulse fills the ring!':'Find the two matching noobie colors!'}</p>
@@ -2311,15 +2316,69 @@ function mhDrawHideoutGroves(ctx,map,pos){
   ctx.restore();
  });
 }
+function mhGroveAt(map,px,py){
+ const tx=Math.floor(px/MH_TILE), ty=Math.floor(py/MH_TILE);
+ for(const g of map.hideouts||[]){
+  if(tx>=g.tx&&tx<g.tx+g.w&&ty>=g.ty&&ty<g.ty+g.h) return g;
+ }
+ return null;
+}
+function mhMorphsInGrove(save,wi,grove){
+ return mhWorldMorphs(wi).filter(m=>{
+  if(m.tileX==null||m.voidKing||mhHasMorph(save,m.id)) return false;
+  return m.tileX>=grove.tx&&m.tileX<grove.tx+grove.w&&m.tileY>=grove.ty&&m.tileY<grove.ty+grove.h;
+ });
+}
+function mhTryStartMinigame(){
+ if(!mhState?.save) return;
+ const wi=mhState.world, save=mhState.save, map=MH_WORLD_MAPS[wi];
+ const pos=mhWalkEnsurePos(mhState,wi);
+ if(mhState.walkNearId){
+  mhDeckUnlock(mhMorph(mhState.walkNearId),save);
+  return;
+ }
+ const grove=mhGroveAt(map,pos.px,pos.py);
+ if(grove){
+  const pool=mhMorphsInGrove(save,wi,grove);
+  if(pool.length){
+   pool.sort((a,b)=>{
+    const da=Math.hypot(mhGetNpcPos(mhState,wi,a).px-pos.px,mhGetNpcPos(mhState,wi,a).py-pos.py);
+    const db=Math.hypot(mhGetNpcPos(mhState,wi,b).px-pos.px,mhGetNpcPos(mhState,wi,b).py-pos.py);
+    return da-db;
+   });
+   mhOpenMinigame(pool[0]);
+   mhToast('🎮 Minigame — unlock a noobie hidden in this grove!');
+   return;
+  }
+ }
+ let best=null,bd=380;
+ mhWorldMorphs(wi).forEach(m=>{
+  if(m.tileX==null||m.voidKing||mhHasMorph(save,m.id)) return;
+  const p=mhGetNpcPos(mhState,wi,m);
+  const d=Math.hypot(p.px-pos.px,p.py-pos.py);
+  if(d<bd){ bd=d; best=m; }
+ });
+ if(best){ mhOpenMinigame(best); mhToast('🎮 Minigame started!'); return; }
+ const next=mhWorldMorphs(wi).find(m=>!mhHasMorph(save,m.id)&&!m.voidKing);
+ if(next){ mhOpenMinigame(next); mhToast('🎮 Minigame — pick from this map\'s deck too!'); return; }
+ mhToast('All noobies on this map collected! Try 💎 Epic+ or 🕳 Void teleport.');
+}
 function mhWalkNearMorph(save,wi,pos,st){
+ const map=MH_WORLD_MAPS[wi];
+ const grove=mhGroveAt(map,pos.px,pos.py);
  const morphs=mhWorldMorphs(wi);
  let best=null,bd=1e9;
- morphs.forEach(m=>{
-  if(m.tileX==null) return;
+ const tryMorph=(m,maxD)=>{
+  if(m.tileX==null||mhHasMorph(save,m.id)) return;
   const p=mhGetNpcPos(st,wi,m);
   const d=Math.hypot(p.px-pos.px,p.py-pos.py);
-  if(d<bd){ bd=d; best={m,d}; }
- });
+  if(d<maxD&&d<bd){ bd=d; best={m,d}; }
+ };
+ if(grove){
+  mhMorphsInGrove(save,wi,grove).forEach(m=>tryMorph(m,130));
+  if(best) return best.m;
+ }
+ morphs.forEach(m=>tryMorph(m,MH_INTERACT_R));
  if(!best||best.d>MH_INTERACT_R) return null;
  return best.m;
 }
@@ -2341,8 +2400,8 @@ function mhWalkApplyKey(e,down){
  if(c==='KeyW'||c==='ArrowUp'||k==='w'||k==='W') touch('up',down);
  if(c==='KeyS'||c==='ArrowDown'||k==='s'||k==='S') touch('down',down);
  if(c==='ShiftLeft'||c==='ShiftRight'||k==='Shift') touch('run',down);
- if(down&&(c==='KeyE'||k==='e'||k==='E'||c==='Space'||isSpaceKey(e))&&mhState.walkNearId){
-  mhDeckUnlock(mhMorph(mhState.walkNearId),mhState.save);
+ if(down&&(c==='KeyE'||k==='e'||k==='E'||c==='Space'||isSpaceKey(e))){
+  mhTryStartMinigame();
   hit=true;
  }
  if(down&&(c==='KeyF'||k==='f'||k==='F')){
@@ -2664,9 +2723,7 @@ function mhWalkStart(){
   btn.addEventListener('pointerup',up);
   btn.addEventListener('pointerleave',up);
  });
- root?.querySelector('#mh-walk-interact')?.addEventListener('click',()=>{
-  if(mhState?.walkNearId) mhDeckUnlock(mhMorph(mhState.walkNearId),mhState.save);
- });
+ root?.querySelector('#mh-walk-interact')?.addEventListener('click',()=> mhTryStartMinigame());
  root?.querySelector('#mh-walk-enter')?.addEventListener('click',()=>{
   if(mhState?.insideBuilding) mhExitBuilding();
   else if(mhState?.walkNearBuilding) mhEnterBuilding(mhState.walkNearBuilding,mhState.world);
@@ -2695,8 +2752,8 @@ function mhRenderHuntDeck(save,wi,morphs){
    <em class="mh-hunt-card-btn">${btn}</em>
   </button>`;
  }).join('');
- return `<details class="mh-hunt-deck-fold">
-  <summary>🎮 Quick unlock deck (optional — map + E works too)</summary>
+ return `<details class="mh-hunt-deck-fold" open>
+  <summary>🎮 Minigame deck — tap any card to play &amp; unlock</summary>
   <div class="mh-hunt-cards">${cards}</div>
   <div class="mh-pager">${pg.page>0?'<button type="button" class="mh-btn" data-mh-hunt-page="'+(pg.page-1)+'">← Prev</button>':''}<span>Page ${pg.page+1} / ${pg.pages}</span>${pg.page+1<pg.pages?'<button type="button" class="mh-btn" data-mh-hunt-page="'+(pg.page+1)+'">Next →</button>':''}</div>
  </details>`;
@@ -2724,7 +2781,7 @@ function mhRenderHunt(save, wi){
    <li><b>Maps 0–7</b> (Buddy, Fair, Beach…): only <b>Common · Uncommon · Rare</b>. They stay inside <b>🕵 hidden groves</b> (dashed boxes) — not scattered on the whole map.</li>
    <li><b>💎 Epic+ Realm</b> (teleport tab or button): <b>Epic · Legendary · Secret · Exotic · Exclusive</b> — also in groves on that map.</li>
    <li><b>🕳 Void map</b>: <b>Male Void Fallen</b> + King — teleport when you are ready for void tier.</li>
-   <li>Walk into a grove → noobie appears → <b>E</b> minigame. Houses still use <b>F</b> for codes.</li>
+   <li>Walk into a dashed grove → press <b>E</b> or <b>🎮 Minigame</b> (or tap a card in the deck below). Houses use <b>F</b> for codes.</li>
   </ol>
  </div>
  <div class="mh-walk-wrap">
@@ -2732,7 +2789,7 @@ function mhRenderHunt(save, wi){
   <div id="mh-walk-hud" class="mh-walk-hud mh-walk-hud-clean">
    <span class="mh-walk-zone">${world.emoji} ${world.name} · ${found}/${morphs.length}</span>
    <span class="mh-walk-prompt" hidden>Walk closer</span>
-   <button type="button" class="mh-btn primary mh-btn-sm" id="mh-walk-interact">E Collect</button>
+   <button type="button" class="mh-btn primary mh-btn-sm" id="mh-walk-interact">🎮 Minigame (E)</button>
    <button type="button" class="mh-btn mh-btn-sm" id="mh-walk-enter">F House</button>
    <button type="button" class="mh-btn mh-btn-sm" id="mh-walk-run">Run</button>
   </div>
