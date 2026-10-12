@@ -3,9 +3,9 @@
 'use strict';
 
 const MH_STORE_KEY='lithos_morph_hunt_v9';
-const MH_BUILD='void-2d-v45';
-const MH_SCENERY_STAMP='VOID_KING_STORM_v45';
-const MH_SCRIPT_FILE='morph-hunt.void-2d-v45.js';
+const MH_BUILD='void-2d-v46';
+const MH_SCENERY_STAMP='VOID_FALLEN_AURA_v46';
+const MH_SCRIPT_FILE='morph-hunt.void-2d-v46.js';
 const MH_KING_STAMP='RED_BLACK_KING_v31';
 const MH_MEGA_W=7;
 const MH_MEGA_H=6;
@@ -1622,6 +1622,15 @@ function mhDrawYouInWorld(ctx,wear,pos,map,t,walkPhase,wi,running){
  ctx.font='bold 12px system-ui,sans-serif';
  ctx.textAlign='center';
  ctx.fillText('YOU',pos.px,pos.py+62);
+ if(m&&(m.rarity==='voidfallen'||m.voidFallen)){
+  const atk=m.voidAttack?.name||'Attack';
+  const pow=m.voidPower?.name||'Power';
+  ctx.fillStyle='rgba(20,0,40,.9)'; ctx.fillRect(pos.px-72,pos.py+66,144,22);
+  ctx.strokeStyle=m.voidKing?'#ff4040':(m.voidAccent||'#9040ff'); ctx.lineWidth=1.5;
+  ctx.strokeRect(pos.px-72,pos.py+66,144,22);
+  ctx.fillStyle='#e8d0ff'; ctx.font='bold 9px system-ui'; ctx.textAlign='center';
+  ctx.fillText('⚔ '+atk+' · ✦ '+pow,pos.px,pos.py+80);
+ }
  ctx.restore();
 }
 function mhLoadSave(){
@@ -1795,6 +1804,20 @@ function mhClassicNoobSvg(m){
    <rect x="33" y="6" width="34" height="34" fill="#161616" stroke="#801010" stroke-width="1.5"/>
    <rect x="36" y="10" width="28" height="26" fill="#0a0a0a"/>
    <rect x="40" y="22" width="20" height="4" fill="#ff2020" opacity=".9"/>`;
+ }
+ if(m.rarity==='voidfallen'||m.voidFallen){
+  const gid='vf'+((mhHashStr(m.id||'vf')>>>0)%99999);
+  const ve=m.voidEyes||'#70e8ff';
+  const acc=m.voidAccent||'#9040ff';
+  const body=mhBodyShape(m);
+  return `<defs><radialGradient id="${gid}"><stop offset="0%" stop-color="${acc}" stop-opacity=".55"/><stop offset="45%" stop-color="#280818" stop-opacity=".5"/><stop offset="100%" stop-color="#000" stop-opacity="0"/></radialGradient></defs>
+   <ellipse cx="50" cy="72" rx="40" ry="54" fill="url(#${gid})"/>
+   ${body}
+   <rect x="28" y="48" width="44" height="8" fill="#0a0a0a" opacity=".65"/>
+   <rect x="30" y="50" width="40" height="3" fill="${acc}" opacity=".9"/>
+   <rect x="38" y="18" width="8" height="8" fill="${ve}"/><rect x="54" y="18" width="8" height="8" fill="${ve}"/>
+   <rect x="40" y="20" width="4" height="4" fill="#fff" opacity=".45"/><rect x="56" y="20" width="4" height="4" fill="#fff" opacity=".45"/>
+   <rect x="34" y="56" width="32" height="4" fill="rgba(255,40,80,.45)"/>`;
  }
  let hat='';
  if(m.hat==='crown') hat='<polygon points="50,2 58,14 42,14" fill="#ffd700"/><rect x="42" y="12" width="16" height="5" fill="#e8b020"/>';
@@ -2354,6 +2377,38 @@ function mhPaintKingRedBlackStormAura(ctx,x,y,t,alpha,silhouette){
  ctx.restore();
 }
 const mhPaintKingStoneAura=mhPaintKingRedBlackStormAura;
+function mhPaintVoidFallenStormAura(ctx,x,y,t,alpha,silhouette,m){
+ if(!m||m.voidKing) return;
+ const a=silhouette?0.22:(alpha==null?1:alpha);
+ const cy=y-18;
+ const pulse=1+Math.sin(t*2.6+(mhHashStr(m.id)%5))*0.14;
+ const rad=(38+(m.voidMale?6:0))*pulse;
+ const accent=m.voidAccent||'#9040ff';
+ ctx.save();
+ ctx.globalAlpha=a;
+ const g=ctx.createRadialGradient(x,cy,6,x,cy,rad+30);
+ g.addColorStop(0,mhHex(accent,0.55));
+ g.addColorStop(0.4,'rgba(80,0,120,.35)');
+ g.addColorStop(0.7,'rgba(20,0,0,.45)');
+ g.addColorStop(1,'rgba(0,0,0,0)');
+ ctx.fillStyle=g;
+ ctx.beginPath(); ctx.arc(x,cy,rad+30,0,Math.PI*2); ctx.fill();
+ ctx.strokeStyle=mhHex(accent,0.5);
+ ctx.lineWidth=2;
+ ctx.beginPath(); ctx.arc(x,cy,rad,0,Math.PI*2); ctx.stroke();
+ ctx.strokeStyle='rgba(0,0,0,.7)'; ctx.lineWidth=3;
+ ctx.beginPath(); ctx.arc(x,cy,rad*0.65,0,Math.PI*2); ctx.stroke();
+ for(let i=0;i<5;i++){
+  const ang=t*1.4+i*Math.PI*2/5;
+  ctx.strokeStyle=i%2?mhHex(accent,0.65):'rgba(255,40,60,.5)';
+  ctx.lineWidth=2;
+  ctx.beginPath();
+  ctx.moveTo(x+Math.cos(ang)*rad*0.2,cy+Math.sin(ang)*rad*0.15);
+  ctx.lineTo(x+Math.cos(ang)*rad*0.95,cy+Math.sin(ang)*rad*0.4);
+  ctx.stroke();
+ }
+ ctx.restore();
+}
 function mhVoidCombatMorph(save,st){
  const wear=mhMorph(save?.wearing);
  if(wear&&(wear.rarity==='voidfallen'||wear.voidFallen)) return wear;
@@ -2744,10 +2799,15 @@ function mhPaintNoobFlat(ctx,m,x,y,sc,alpha,silhouette,walkPhase,running){
  ctx.fillStyle=h; ctx.fillRect(-14,-48,28,28);
  ctx.fillStyle='#101018'; ctx.fillRect(-8,-36,5,5); ctx.fillRect(3,-36,5,5);
  if(m.rarity==='voidfallen'&&!silhouette){
-  if(m.voidMale){ ctx.fillStyle=mhHex(t,0.5); ctx.fillRect(-18,4,36,6); }
+  ctx.strokeStyle=m.voidAccent||'#9040ff'; ctx.lineWidth=2;
+  ctx.strokeRect(-17,-49,34,78);
+  if(m.voidMale){ ctx.fillStyle='rgba(0,0,0,.55)'; ctx.fillRect(-18,4,36,8); ctx.fillStyle=m.voidAccent||'#9040ff'; ctx.fillRect(-16,6,32,3); }
   const ve=m.voidEyes||'#70e8ff';
-  ctx.fillStyle=ve; ctx.fillRect(-8,-35,4,4); ctx.fillRect(4,-35,4,4);
-  ctx.fillStyle='rgba(80,20,120,.6)'; ctx.fillRect(-14,-6,8,14); ctx.fillRect(6,-6,8,14);
+  ctx.fillStyle=ve; ctx.shadowColor=ve; ctx.shadowBlur=8;
+  ctx.fillRect(-9,-36,6,6); ctx.fillRect(3,-36,6,6);
+  ctx.shadowBlur=0;
+  ctx.fillStyle='rgba(40,0,60,.75)'; ctx.fillRect(-14,-6,8,14); ctx.fillRect(6,-6,8,14);
+  ctx.fillStyle='rgba(255,40,60,.35)'; ctx.fillRect(-12,8,24,4);
  }
  ctx.restore();
 }
@@ -2777,6 +2837,7 @@ function mhPaintNoobWorld(ctx,m,x,y,sc,alpha,silhouette,t,walkPhase,flat,running
   ctx.restore();
   return;
  }
+ if(m.rarity==='voidfallen'||m.voidFallen) mhPaintVoidFallenStormAura(ctx,0,-8,t,alpha,silhouette,m);
  if(!flat) ctx.rotate(off.rot);
  if(!flat) mhPaintAura(ctx,m,0,-8,t);
  if(m.void5D) mhPaintNoob5D(ctx,m,0,-8,sc*off.sc,alpha,silhouette,walkPhase,running);
@@ -3474,14 +3535,14 @@ function mhRenderMorph(save){
   const on=save.wearing===m.id;
   const r=MH_RARITY[m.rarity]||MH_RARITY.common;
   return `<button type="button" class="mh-morph-wear${on?' on':''}" data-mh-wear="${m.id}" style="--mh-rarity:${r.color}">
-   <svg viewBox="0 0 100 130">${mhClassicNoobSvg(m)}</svg><span>${m.name}</span>${on?'<em>Morphed</em>':'<em>Tap to morph</em>'}
+   <svg viewBox="0 0 100 130">${mhClassicNoobSvg(m)}</svg><span>${m.name}</span>${(m.rarity==='voidfallen'||m.voidFallen)?`<small class="mh-morph-void-moves">⚔ ${m.voidAttack?.name||'?'} · ✦ ${m.voidPower?.name||'?'}</small>`:''}${on?'<em>Morphed</em>':'<em>Tap to morph</em>'}
   </button>`;
  }).join('');
  const wear=mhMorph(save.wearing);
  return `<div class="mh-morph-tab">
   <h3>🎭 Morph &amp; Roleplay</h3>
   <p class="mh-scene-hint">Turn into any noobie you own — your morph also shows on the Rock Teacher!</p>
-  <div class="mh-morph-preview large">${wear?`<svg viewBox="0 0 100 130">${mhClassicNoobSvg(wear)}</svg><b>${wear.name}</b>${(wear.rarity==='voidfallen'||wear.voidFallen)?`<p class="mh-scene-hint" style="color:${wear.voidKing?'#ff6060':'#c898ff'}">🕳 Void map only · <b>1</b> ⚔ ${wear.voidAttack?.name||'Attack'} · <b>2</b> ✦ ${wear.voidPower?.name||'Power'}${wear.voidKing?' · 👑 red-black storm aura':''}</p>`:''}<button type="button" class="mh-btn primary" data-mh-wear="${wear.id}">Stay morphed</button>`:'<span>Pick a noobie below</span>'}</div>
+  <div class="mh-morph-preview large">${wear?`<svg viewBox="0 0 100 130">${mhClassicNoobSvg(wear)}</svg><b>${wear.name}</b>${(wear.rarity==='voidfallen'||wear.voidFallen)?`<p class="mh-scene-hint" style="color:${wear.voidKing?'#ff6060':'#c898ff'}">🕳 Void map only · <b>1</b> ⚔ ${wear.voidAttack?.name||'Attack'} · <b>2</b> ✦ ${wear.voidPower?.name||'Power'}${wear.voidKing?' · 👑 red-black storm aura':' · 🕳 purple-black void storm aura'}</p>`:''}<button type="button" class="mh-btn primary" data-mh-wear="${wear.id}">Stay morphed</button>`:'<span>Pick a noobie below</span>'}</div>
   <input type="search" id="mh-search" placeholder="Search your morphs…" value="${q.replace(/"/g,'&quot;')}"/>
   <div class="mh-morph-grid">${cards}</div>
   <div class="mh-pager">${pg.page>0?'<button type="button" class="mh-btn" data-mh-page="'+(pg.page-1)+'">←</button>':''}<span>${pg.page+1}/${pg.pages}</span>${pg.page+1<pg.pages?'<button type="button" class="mh-btn" data-mh-page="'+(pg.page+1)+'">→</button>':''}</div>
