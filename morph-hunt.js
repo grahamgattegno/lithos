@@ -3,7 +3,7 @@
 'use strict';
 
 const MH_STORE_KEY='lithos_morph_hunt_v9';
-const MH_BUILD='void-1000d-v18';
+const MH_BUILD='void-1000d-v19';
 const MH_TOTAL_COUNT=1100;
 const MH_1000D=true;
 const MH_DEPTH_LABEL='1000th Depth';
@@ -158,13 +158,41 @@ const MH_VOID_SUF=['Walker','Noobie','Shade','Wanderer','Fragment','Soul','Drift
 function mhVoidName(i){
  return mhPick(MH_VOID_PRE,i*5+1)+' '+mhPick(MH_VOID_SUF,i*11+3);
 }
-function mhVoidPal(i){
- const b=18+(i%22);
+const MH_VOID_HATS=['voidhorn','voidhalo','riftshard','gem','crown','headphones','bow','party','star',null,null];
+function mhVoidTraits(i){
+ const h=mhHashStr('vftrait'+i);
  return{
-  head:`hsl(${270+(i%35)},42%,${b+14}%)`,
-  torso:`hsl(${255+(i%40)},55%,${b}%)`,
-  legs:`hsl(${280+(i%20)},30%,${Math.max(8,b-6)}%)`,
-  arms:`hsl(${290+(i%25)},38%,${b+8}%)`
+  body:MH_BODIES[h%MH_BODIES.length],
+  anim:MH_ANIMS[(h>>3)%MH_ANIMS.length],
+  face:['flat','o','grin','w','smile'][(h>>6)%5],
+  stripe:((h>>4)&3)===0,
+  glasses:((h>>5)&7)===0,
+  hat:MH_VOID_HATS[(h>>7)%MH_VOID_HATS.length],
+  prop:MH_PROPS[(h>>10)%MH_PROPS.length],
+  voidMark:(h>>2)%19,
+  voidEyes:['#70e8ff','#ff58c8','#ffe048','#98ff88','#c898ff','#ff8860'][(h>>12)%6],
+  voidPalette:(h>>9)%6,
+  fallen:true
+ };
+}
+function mhVoidPal(i,kind){
+ const h=mhHashStr('vfpal'+i);
+ const schemes=[
+  {head:272,torso:286,legs:298,s:52},
+  {head:312,torso:278,legs:302,s:48},
+  {head:198,torso:218,legs:235,s:42},
+  {head:8,torso:348,legs:328,s:54},
+  {head:138,torso:158,legs:175,s:46},
+  {head:42,torso:268,legs:252,s:50}
+ ];
+ const s=schemes[(kind==null?i:kind)%schemes.length];
+ const b=12+(i%28);
+ return{
+  head:`hsl(${s.head+(h%18)},${s.s}%,${b+20}%)`,
+  torso:`hsl(${s.torso+(h%22)},${s.s+4}%,${b+6}%)`,
+  legs:`hsl(${s.legs+(h%14)},${Math.max(28,s.s-12)}%,${Math.max(10,b-4)}%)`,
+  arms:`hsl(${s.head+(h%12)},${s.s}%,${b+12}%)`,
+  voidAccent:`hsl(${s.torso+35},72%,${58+(h%18)}%)`
  };
 }
 const MH_VOID_NAMES=mhUniqueNames(MH_VOID_FALLEN_COUNT,mhVoidName);
@@ -238,8 +266,8 @@ function mhBuildMorphs(){
  const gem=list.find(m=>m.id==='ex-2');
  if(gem){ gem.id='ex-gemcrown'; gem.name='Gem Crown Noobie'; gem.hat='gem'; }
  for(let i=0;i<MH_VOID_FALLEN_COUNT;i++){
-  const pal=mhVoidPal(i+9000);
-  const tr=mhMorphTraits(i+9000);
+  const tr=mhVoidTraits(i);
+  const pal=mhVoidPal(i,tr.voidPalette);
   list.push({
    id:'vf-'+i,
    name:MH_VOID_NAMES[i],
@@ -247,17 +275,10 @@ function mhBuildMorphs(){
    voidFallen:true,
    world:MH_VOID_WORLD,
    x:50,y:40,
-   scale:1.02+(i%6)*0.025,
+   scale:0.96+(i%9)*0.045,
    ...pal,
-   rarity:'voidfallen',
-   body:i%3===0?'ghost':'classic',
-   anim:MH_ANIMS[(i+2)%MH_ANIMS.length],
-   face:['flat','o','grin'][i%3],
-   stripe:false,
-   glasses:i%5===0,
-   hat:i%8===0?'gem':null,
-   prop:MH_PROPS[(i+4)%MH_PROPS.length],
-   fallen:true
+   ...tr,
+   rarity:'voidfallen'
   });
  }
  return list;
@@ -536,6 +557,9 @@ function mhClassicNoobSvg(m){
  if(m.hat==='gem') hat='<polygon points="50,0 58,14 50,20 42,14" fill="#80e0ff" stroke="#fff" stroke-width="1"/>';
  if(m.hat==='headphones') hat='<path d="M32 24 Q32 8 50 8 Q68 8 68 24" fill="none" stroke="#303840" stroke-width="4"/><rect x="28" y="22" width="8" height="14" rx="2" fill="#404850"/><rect x="64" y="22" width="8" height="14" rx="2" fill="#404850"/>';
  if(m.hat==='bow') hat='<polygon points="50,10 58,4 58,16" fill="#ff5090"/><polygon points="50,10 42,4 42,16" fill="#ff5090"/><circle cx="50" cy="10" r="3" fill="#ffc0d8"/>';
+ if(m.hat==='voidhorn') hat='<polygon points="50,2 56,16 44,16" fill="#402060" stroke="#c080ff" stroke-width="1"/>';
+ if(m.hat==='voidhalo') hat='<path d="M36 12 A14 14 0 0 1 64 12" fill="none" stroke="#c898ff" stroke-width="3"/><path d="M40 10 A10 10 0 0 1 60 10" fill="none" stroke="#fff" stroke-width="1" opacity=".4"/>';
+ if(m.hat==='riftshard') hat='<polygon points="62,6 70,18 62,24 54,18" fill="#80e0ff" stroke="#fff" stroke-width="1"/>';
  const stripe=m.stripe&&m.body!=='ghost'?`<rect x="30" y="48" width="40" height="7" fill="rgba(255,255,255,.28)"/><rect x="30" y="58" width="40" height="5" fill="rgba(0,0,0,.12)"/>`:'';
  const glasses=m.glasses&&m.body!=='robot'?'<rect x="36" y="18" width="11" height="9" rx="2" fill="rgba(200,230,255,.35)" stroke="#1a1a20" stroke-width="1.2"/><rect x="53" y="18" width="11" height="9" rx="2" fill="rgba(200,230,255,.35)" stroke="#1a1a20" stroke-width="1.2"/><line x1="47" y1="22" x2="53" y2="22" stroke="#1a1a20" stroke-width="1.2"/>':'';
  const face=m.body==='robot'?'':mhFacePath(m.face||'smile');
@@ -893,6 +917,27 @@ function mhPaintNoob3D(ctx,m,x,y,sc,alpha,silhouette,walkPhase){
   const hg=ctx.createRadialGradient(-6,-36,2,0,-28,24);
   hg.addColorStop(0,mhShade(h,35)); hg.addColorStop(1,mhShade(h,-25));
   ctx.fillStyle=hg; ctx.fillRect(-16,-48,32,32);
+ }else if(m.body==='chibi'){
+  mhGradRect(ctx,-8,18,7,24,l,mhShade(l,-30)); mhGradRect(ctx,1,18,7,24,l,mhShade(l,-30));
+  mhGradRect(ctx,-14,0,28,18,t,mhShade(t,-35));
+  mhGradRect(ctx,-18,2,8,16,a,mhShade(a,-25)); mhGradRect(ctx,10,2,8,16,a,mhShade(a,-25));
+  mhGradRect(ctx,-18,-44,36,38,h,mhShade(h,-20));
+ }else if(m.body==='tall'){
+  mhGradRect(ctx,-9,16,8,38,l,mhShade(l,-30)); mhGradRect(ctx,1,16,8,38,l,mhShade(l,-30));
+  mhGradRect(ctx,-15,-2,30,22,t,mhShade(t,-35));
+  mhGradRect(ctx,-20,0,9,24,a,mhShade(a,-25)); mhGradRect(ctx,11,0,9,24,a,mhShade(a,-25));
+  mhGradRect(ctx,-12,-50,24,26,h,mhShade(h,-25));
+ }else if(m.body==='wide'){
+  mhGradRect(ctx,-12,20,11,32,l,mhShade(l,-30)); mhGradRect(ctx,1,20,11,32,l,mhShade(l,-30));
+  mhGradRect(ctx,-20,0,40,26,t,mhShade(t,-35));
+  mhGradRect(ctx,-26,2,12,24,a,mhShade(a,-25)); mhGradRect(ctx,14,2,12,24,a,mhShade(a,-25));
+  mhGradRect(ctx,-14,-48,28,32,h,mhShade(h,-25));
+ }else if(m.body==='builder'){
+  mhGradRect(ctx,-10,22,9,32,l,mhShade(l,-30)); mhGradRect(ctx,1,22,9,32,l,mhShade(l,-30));
+  mhGradRect(ctx,-16,0,32,24,t,mhShade(t,-35));
+  mhGradRect(ctx,-22,2,10,22,a,mhShade(a,-25)); mhGradRect(ctx,12,2,10,22,a,mhShade(a,-25));
+  mhGradRect(ctx,-14,-48,28,28,h,mhShade(h,-25));
+  ctx.fillStyle='#f4c430'; ctx.beginPath(); ctx.moveTo(0,-58); ctx.lineTo(10,-48); ctx.lineTo(-10,-48); ctx.fill();
  }else if(m.body==='robot'){
   mhGradRect(ctx,-12,18,10,34,l,mhShade(l,-35)); mhGradRect(ctx,2,18,10,34,l,mhShade(l,-35));
   mhGradRect(ctx,-18,0,36,22,t,mhShade(t,-30));
@@ -926,6 +971,39 @@ function mhPaintNoob3D(ctx,m,x,y,sc,alpha,silhouette,walkPhase){
  if(m.hat==='headphones'){ ctx.strokeStyle='#404850'; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(0,-32,18,Math.PI,0); ctx.stroke(); }
  if(m.hat==='bow'){ ctx.fillStyle='#ff5090'; ctx.fillRect(-10,-52,8,8); ctx.fillRect(2,-52,8,8); }
  if(m.hat==='party'){ ctx.fillStyle='#ff4080'; ctx.beginPath(); ctx.arc(-8,-50,4,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#40c0ff'; ctx.beginPath(); ctx.arc(8,-48,3,0,Math.PI*2); ctx.fill(); }
+ if(m.hat==='voidhorn'&&!silhouette){
+  ctx.fillStyle=mhShade(m.torso||'#502080',-20);
+  ctx.beginPath(); ctx.moveTo(0,-56); ctx.lineTo(6,-44); ctx.lineTo(-6,-44); ctx.fill();
+ }
+ if(m.hat==='voidhalo'&&!silhouette){
+  ctx.strokeStyle=m.voidAccent||'#c080ff'; ctx.lineWidth=2.5;
+  ctx.beginPath(); ctx.arc(0,-52,14,Math.PI,0); ctx.stroke();
+  ctx.strokeStyle='rgba(255,255,255,.35)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.arc(0,-52,10,Math.PI,0); ctx.stroke();
+ }
+ if(m.hat==='riftshard'&&!silhouette){
+  const ac=m.voidAccent||'#80e0ff';
+  ctx.fillStyle=ac; ctx.beginPath(); ctx.moveTo(10,-54); ctx.lineTo(18,-42); ctx.lineTo(10,-36); ctx.lineTo(2,-42); ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,.5)'; ctx.lineWidth=1; ctx.stroke();
+ }
+ if(m.rarity==='voidfallen'&&!silhouette){
+  const ve=m.voidEyes||'#70e8ff';
+  ctx.fillStyle='#101018'; ctx.fillRect(-9,-37,6,6); ctx.fillRect(3,-37,6,6);
+  ctx.fillStyle=ve; ctx.shadowColor=ve; ctx.shadowBlur=6;
+  ctx.fillRect(-8,-36,4,4); ctx.fillRect(4,-36,4,4);
+  ctx.shadowBlur=0;
+  const mk=m.voidMark|0;
+  ctx.strokeStyle=mhHex(ve,0.45);
+  ctx.lineWidth=1;
+  for(let k=0;k<3;k++){
+   const y=2+k*9+(mk%5);
+   ctx.beginPath(); ctx.moveTo(-14+((mk+k*3)%6),y); ctx.lineTo(14-((mk+k*5)%6),y+2); ctx.stroke();
+  }
+  if(m.voidAccent){
+   ctx.fillStyle=mhHex(m.voidAccent,0.35);
+   ctx.fillRect(-16,4+(mk%4),32,3);
+  }
+ }
  if((m.fallen||m.rarity==='voidfallen')&&!silhouette){
   ctx.fillStyle='rgba(80,20,120,.55)';
   ctx.beginPath(); ctx.moveTo(-14,-8); ctx.lineTo(-22,18); ctx.lineTo(-6,12); ctx.fill();
@@ -1150,7 +1228,8 @@ function mhWalkDrawFrame(){
    const depth=0.82+(my/(map.h*MH_TILE))*0.32;
    sc*=wi===MH_VOID_WORLD?depth*1.08:depth;
   }
-  mhPaintNoobWorld(ctx,m,mx,my,sc,got?0.55:1,!got&&dist>MH_INTERACT_R,t,npc.phase);
+  const sil=!got&&dist>MH_INTERACT_R&&m.rarity!=='voidfallen';
+  mhPaintNoobWorld(ctx,m,mx,my,sc,got?0.55:1,sil,t,npc.phase);
   if(m.rarity==='exotic'){
    ctx.fillStyle='rgba(255,40,200,.85)'; ctx.fillRect(mx-54,my-98,108,14);
    ctx.fillStyle='#fff'; ctx.font='bold 10px system-ui'; ctx.textAlign='center';
