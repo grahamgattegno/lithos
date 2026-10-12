@@ -1575,6 +1575,7 @@
   .mh-you svg{width:100%;height:auto;display:block;filter:drop-shadow(0 4px 6px rgba(0,0,0,.4))}
   .mh-spot-label{display:block;max-width:min(24vw,104px);margin-top:3px;padding:2px 4px;border-radius:6px;font-size:10px;font-weight:900;line-height:1.2;color:#fff;background:rgba(0,0,0,.55);text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;pointer-events:none}
   .mh-spot:not(.got) .mh-spot-label{color:#ffe8a0;border:1px solid rgba(255,232,160,.35)}
+  .mh-map-banner{margin:8px 0;padding:10px 14px;border-radius:12px;background:linear-gradient(90deg,#0a3018,#103818);border:2px solid #60ff90;color:#d8ffe0;font-size:13px;font-weight:800;text-align:center}
   .mh-preview-tab{padding:4px 0 12px}
   .mh-preview-tab h3{margin:0 0 6px;color:#ffe8a0;font-size:16px}
   .mh-preview-tools{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
@@ -5458,11 +5459,13 @@
 <script src="gemcopter.js?v=deploy-85"></script>
 <script>
 (function lithosLoadMorphHunt(){
- var MH_NEED='void-2d-v33';
- var NEED_MARK="MH_BUILD='void-2d-v33'";
+ var MH_NEED='void-2d-v34';
+ var MH_SCRIPT='morph-hunt.void-2d-v34.js';
+ var NEED_MARK="MH_BUILD='void-2d-v34'";
  var KING_MARK='RED_BLACK_KING_v31';
- var SCENERY_MARK='BIG_SCENERY_v33';
+ var SCENERY_MARK='CENTER_SCENERY_v34';
  window.__LITHOS_MH_NEED=MH_NEED;
+ window.__LITHOS_MH_SCRIPT=MH_SCRIPT;
  function injectMorphHunt(code){
   document.querySelectorAll('script[data-lithos-mh],script[src*="morph-hunt"]').forEach(function(n){ n.remove(); });
   try{ delete window.playMorphHunt; delete window.LITHOS_MH_BUILD; delete window.LITHOS_MH_KING_STAMP; }catch(_){}
@@ -5471,35 +5474,34 @@
   s.textContent=code;
   document.head.appendChild(s);
  }
+ function loadScriptTag(){
+  var fb=document.createElement('script');
+  fb.setAttribute('data-lithos-mh','1');
+  fb.src=MH_SCRIPT+'?t='+Date.now();
+  fb.onerror=function(){ alert('Morph Hunt failed. Need file: '+MH_SCRIPT); };
+  document.head.appendChild(fb);
+ }
  function loadFresh(retry){
-  var url='morph-hunt.js?nocache='+Date.now()+(retry?'&retry='+retry:'');
+  var url=MH_SCRIPT+'?nocache='+Date.now()+(retry?'&r=1':'');
   fetch(url,{cache:'no-store',credentials:'same-origin'})
    .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.text(); })
    .then(function(code){
-    if(code.indexOf(NEED_MARK)<0||code.indexOf(KING_MARK)<0||code.indexOf(SCENERY_MARK)<0){
+    if(code.indexOf(NEED_MARK)<0||code.indexOf(SCENERY_MARK)<0){
      if(!retry) return loadFresh(1);
-     alert('Still loading OLD Morph Hunt from cache.\\n\\nOpen this exact link:\\n'+location.origin+location.pathname+'?mh='+MH_NEED+'&t='+Date.now()+'#morphhunt\\n\\nThen Cmd+Shift+R (Mac) or Ctrl+Shift+R (Windows).');
-     var fb=document.createElement('script');
-     fb.src='morph-hunt.js?fallback='+Date.now();
-     fb.onerror=function(){ alert('Morph Hunt file failed to load.'); };
-     document.head.appendChild(fb);
+     alert('OLD cached game still loading.\\n\\nUse:\\n'+location.origin+location.pathname+'?mh='+MH_NEED+'&t='+Date.now()+'#morphhunt\\n\\nHard refresh: Cmd+Shift+R');
+     loadScriptTag();
      return;
     }
     injectMorphHunt(code);
    })
-   .catch(function(){
-    var fb=document.createElement('script');
-    fb.src='morph-hunt.js?fallback='+Date.now();
-    fb.onerror=function(){ alert('Morph Hunt file failed to load. Check internet.'); };
-    document.head.appendChild(fb);
-   });
+   .catch(function(){ loadScriptTag(); });
  }
  loadFresh(0);
 })();
 </script>
 <script>
 window.lithosPlayMorphHunt=function lithosPlayMorphHunt(){
- var NEED=window.__LITHOS_MH_NEED||'void-2d-v33';
+ var NEED=window.__LITHOS_MH_NEED||'void-2d-v34';
  var tries=0;
  function run(){
   if(typeof playMorphHunt==='function'){

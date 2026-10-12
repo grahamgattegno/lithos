@@ -3,8 +3,9 @@
 'use strict';
 
 const MH_STORE_KEY='lithos_morph_hunt_v9';
-const MH_BUILD='void-2d-v33';
-const MH_SCENERY_STAMP='BIG_SCENERY_v33';
+const MH_BUILD='void-2d-v34';
+const MH_SCENERY_STAMP='CENTER_SCENERY_v34';
+const MH_SCRIPT_FILE='morph-hunt.void-2d-v34.js';
 const MH_KING_STAMP='RED_BLACK_KING_v31';
 const MH_TOTAL_COUNT=1101;
 const MH_VOID_KING_DEPTH=100;
@@ -382,22 +383,30 @@ function mhGenWorldMap(wi){
 const MH_WORLD_MAPS=MH_WORLDS.map((_,i)=>mhGenWorldMap(i));
 function mhGenLandmarks(wi,map){
  const themes=MH_WORLD_DECORS[wi]||MH_WORLD_DECORS[0];
- const sx=map.spawnTx||5, sy=map.spawnTy||5;
- const spots=[
-  {tx:sx+4,ty:sy,kind:themes[0],scale:3.2},
-  {tx:sx-5,ty:sy+1,kind:themes[1],scale:3},
-  {tx:sx+1,ty:sy-4,kind:themes[2],scale:2.8},
-  {tx:sx+7,ty:sy+3,kind:themes[3],scale:2.9},
-  {tx:sx-3,ty:sy+5,kind:themes[4],scale:2.7},
-  {tx:sx+5,ty:sy-2,kind:themes[5],scale:2.8}
+ const sp=mhMapSpawnPos(map);
+ const sx=Math.floor(sp.px/MH_TILE), sy=Math.floor(sp.py/MH_TILE);
+ map.playerSpawnTx=sx; map.playerSpawnTy=sy;
+ const ring=[
+  {dx:3,dy:0,i:0},{dx:-3,dy:0,i:1},{dx:0,dy:3,i:2},{dx:0,dy:-3,i:3},
+  {dx:2,dy:2,i:4},{dx:-2,dy:2,i:5},{dx:2,dy:-2,i:6},{dx:-2,dy:-2,i:7}
  ];
- if(wi===MH_VOID_WORLD){
-  spots.push({tx:map.throneTx-3,ty:map.throneTy,kind:'void_fallen_building',scale:3.4});
-  spots.push({tx:map.throneTx+3,ty:map.throneTy+1,kind:'void_cathedral',scale:3.2});
-  spots.push({tx:map.throneTx,ty:map.throneTy-4,kind:'ruined_house',scale:3});
+ const spots=ring.map(r=>({
+  tx:sx+r.dx, ty:sy+r.dy,
+  kind:themes[(r.i+(wi*2))%themes.length],
+  scale:3.4-(r.i%3)*0.15
+ }));
+ if(wi===MH_VOID_WORLD&&map.throneTx!=null){
+  spots.push({tx:map.throneTx-2,ty:map.throneTy,kind:'void_fallen_building',scale:3.8});
+  spots.push({tx:map.throneTx+2,ty:map.throneTy,kind:'void_cathedral',scale:3.6});
+  spots.push({tx:map.throneTx,ty:map.throneTy-3,kind:'ruined_house',scale:3.5});
+  spots.push({tx:map.throneTx-1,ty:map.throneTy+2,kind:'forbidden_stone',scale:3.2});
+ }
+ for(let i=0;i<themes.length;i++){
+  const tx=sx+((i%4)-1)*5, ty=sy+Math.floor(i/4)*4-2;
+  if(tx>2&&ty>2&&tx<map.w-2&&ty<map.h-2) spots.push({tx,ty,kind:themes[i],scale:3.1});
  }
  return spots.filter(p=>{
-  if(p.tx<2||p.ty<2||p.tx>=map.w-2||p.ty>=map.h-2) return false;
+  if(p.tx<1||p.ty<1||p.tx>=map.w-1||p.ty>=map.h-1) return false;
   return map.tiles[p.ty*map.w+p.tx]===0;
  });
 }
@@ -2015,6 +2024,11 @@ function mhWalkDrawFrame(){
  const wear=mhMorph(save.wearing);
  mhDrawYouInWorld(ctx,wear,pos,map,t,st.walkPhase||0,wi,st.playerRunning);
  ctx.restore();
+ ctx.fillStyle='rgba(0,0,0,.72)'; ctx.fillRect(8,8,320,52);
+ ctx.fillStyle='#80ff90'; ctx.font='bold 13px system-ui,sans-serif'; ctx.textAlign='left';
+ ctx.fillText(MH_BUILD+' · '+MH_SCENERY_STAMP,16,28);
+ ctx.fillStyle='#e8ffe8'; ctx.font='bold 12px system-ui,sans-serif';
+ ctx.fillText('Houses on map: '+(map.landmarks?.length||0)+' big · '+(map.decors?.length||0)+' small',16,48);
  if(flatMap) mhPaperFlatOverlay(ctx,W,H);
  if(wi===MH_VOID_WORLD){
   mhVoidFlatScreenOverlay(ctx,W,H);
@@ -2206,6 +2220,7 @@ function mhRenderHunt(save, wi){
  const nFound=save.collected.filter(id=>mhMorph(id)&&!mhMorph(id).exclusive).length;
  const xFound=save.collected.filter(id=>mhMorph(id)&&mhMorph(id).exclusive).length;
  return `<div class="mh-world-tabs">${worldTabs}</div>
+ <p class="mh-map-banner">⬇ <b>LOOK AT THE MAP CANVAS</b> — big houses &amp; ruins spawn around YOU (${MH_SCENERY_STAMP})</p>
  <div class="mh-walk-wrap">
   <canvas id="mh-walk-canvas" class="mh-walk-canvas" width="960" height="520" tabindex="0"></canvas>
   <div id="mh-walk-hud" class="mh-walk-hud">
