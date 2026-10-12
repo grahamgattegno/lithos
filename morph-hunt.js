@@ -3,7 +3,7 @@
 'use strict';
 
 const MH_STORE_KEY='lithos_morph_hunt_v9';
-const MH_BUILD='void-1000d-v16';
+const MH_BUILD='void-1000d-v17';
 const MH_TOTAL_COUNT=1100;
 const MH_1000D=true;
 const MH_DEPTH_LABEL='1000th Depth';
@@ -360,12 +360,45 @@ function mhDefaultSave(){
 function mhStarterMorph(){
  return mhMorph('ex-welcome')||{head:'#F5CD30',torso:'#0085DB',legs:'#A4BD47',body:'classic',name:'Your Noobie',id:'you'};
 }
-function mhSyncYouOverlay(save){
- const el=document.getElementById('mh-you-avatar');
- if(!el||!mhWalkActive()) return;
- const m=mhMorph(save?.wearing)||mhStarterMorph();
- el.innerHTML=`<svg viewBox="0 0 100 130" aria-hidden="true">${mhClassicNoobSvg(m)}</svg><b>YOU</b>`;
- el.hidden=false;
+function mhMapSpawnPos(map){
+ const cx=Math.floor(map.w/2), cy=Math.floor(map.h/2);
+ for(let r=0;r<Math.max(map.w,map.h);r++){
+  for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++){
+   const tx=cx+dx, ty=cy+dy;
+   if(tx<2||ty<2||tx>=map.w-2||ty>=map.h-2) continue;
+   if(map.tiles[ty*map.w+tx]!==0) continue;
+   const px=tx*MH_TILE+MH_TILE/2, py=ty*MH_TILE+MH_TILE/2;
+   if(!mhWalkCollide(map,px,py,10)) return {px,py};
+  }
+ }
+ return {px:map.spawnTx*MH_TILE+MH_TILE/2, py:map.spawnTy*MH_TILE+MH_TILE/2};
+}
+function mhClampWalkPos(map,pos){
+ const pad=MH_TILE*1.5;
+ const maxX=map.w*MH_TILE-pad, maxY=map.h*MH_TILE-pad;
+ if(!Number.isFinite(pos.px)||!Number.isFinite(pos.py)||pos.px<pad||pos.py<pad||pos.px>maxX||pos.py>maxY){
+  const sp=mhMapSpawnPos(map);
+  pos.px=sp.px; pos.py=sp.py;
+ }
+}
+function mhDrawYouInWorld(ctx,wear,pos,map,t,walkPhase,wi){
+ const m=wear||mhStarterMorph();
+ let sc=1.08;
+ if(MH_1000D) sc*=0.92+(pos.py/(map.h*MH_TILE))*0.18;
+ ctx.save();
+ ctx.strokeStyle='rgba(255,232,120,.95)';
+ ctx.lineWidth=3;
+ ctx.setLineDash([6,4]);
+ ctx.beginPath(); ctx.ellipse(pos.px,pos.py+26,34,11,0,0,Math.PI*2); ctx.stroke();
+ ctx.setLineDash([]);
+ mhPaintNoobWorld(ctx,m,pos.px,pos.py,sc,1,false,t,walkPhase||0);
+ ctx.fillStyle='rgba(0,0,0,.82)';
+ ctx.fillRect(pos.px-28,pos.py+50,56,16);
+ ctx.fillStyle='#ffe8a0';
+ ctx.font='bold 12px system-ui,sans-serif';
+ ctx.textAlign='center';
+ ctx.fillText('YOU',pos.px,pos.py+62);
+ ctx.restore();
 }
 function mhLoadSave(){
  const wear=mhLoadWearId();
@@ -745,6 +778,7 @@ function mhSetWorld(wi){
  if(!mhState)return;
  if(wi>=mhState.save.worldsUnlocked)return;
  mhState.world=wi;
+ if(mhState.walkPos) delete mhState.walkPos[wi];
  mhRender();
 }
 
@@ -939,44 +973,10 @@ function mhWalkCollide(map,px,py,r){
 function mhWalkEnsurePos(st,wi){
  const map=MH_WORLD_MAPS[wi];
  if(!st.walkPos) st.walkPos={};
- if(!st.walkPos[wi]){
-  let px=map.spawnTx*MH_TILE+MH_TILE/2, py=map.spawnTy*MH_TILE+MH_TILE/2;
-  if(mhWalkCollide(map,px,py,10)){
-   let ok=false;
-   for(let ty=2;ty<map.h-2&&!ok;ty++)for(let tx=2;tx<map.w-2;tx++){
-    if(map.tiles[ty*map.w+tx]!==0) continue;
-    px=tx*MH_TILE+MH_TILE/2; py=ty*MH_TILE+MH_TILE/2;
-    if(!mhWalkCollide(map,px,py,10)){ ok=true; break; }
-   }
-  }
-  st.walkPos[wi]={px,py};
- }
+ if(!st.walkPos[wi]) st.walkPos[wi]=mhMapSpawnPos(map);
  const p=st.walkPos[wi];
- if(!Number.isFinite(p.px)||!Number.isFinite(p.py)){
-  p.px=map.spawnTx*MH_TILE+MH_TILE/2;
-  p.py=map.spawnTy*MH_TILE+MH_TILE/2;
- }
+ mhClampWalkPos(map,p);
  return p;
-}
-function mhDrawYouPlayer(ctx,W,H,wear,t,walkPhase,map,pos){
- const m=wear||{head:'#F5CD30',torso:'#0085DB',legs:'#A4BD47',body:'classic',anim:'bounce',rarity:'common',id:'you'};
- let sc=0.95;
- if(MH_1000D) sc*=0.9+(pos.py/(map.h*MH_TILE))*0.2;
- const cx=W/2, cy=H/2;
- ctx.save();
- ctx.strokeStyle='rgba(255,232,120,.9)';
- ctx.lineWidth=3;
- ctx.setLineDash([5,4]);
- ctx.beginPath(); ctx.ellipse(cx,cy+24,30,9,0,0,Math.PI*2); ctx.stroke();
- ctx.setLineDash([]);
- mhPaintNoobWorld(ctx,m,cx,cy,sc,1,false,t,walkPhase||0);
- ctx.fillStyle='rgba(0,0,0,.78)';
- ctx.fillRect(cx-24,cy+50,48,15);
- ctx.fillStyle='#ffe8a0';
- ctx.font='bold 11px system-ui';
- ctx.textAlign='center';
- ctx.fillText('YOU',cx,cy+61);
- ctx.restore();
 }
 function mhNpcState(st,wi,m){
  if(!st.npc) st.npc={};
@@ -1074,8 +1074,11 @@ function mhWalkDrawFrame(){
  if(!st||st.tab!=='hunt') return;
  if(st.minigameMorph){ st.walkRaf=requestAnimationFrame(mhWalkDrawFrame); return; }
  const canvas=document.getElementById('mh-walk-canvas');
- if(!canvas) return;
- const ctx=canvas.getContext('2d');
+ if(!canvas){ st.walkRaf=requestAnimationFrame(mhWalkDrawFrame); return; }
+ let ctx;
+ try{
+  ctx=canvas.getContext('2d');
+  if(!ctx) throw new Error('no ctx');
  const wi=st.world;
  const save=st.save;
  const map=MH_WORLD_MAPS[wi];
@@ -1173,17 +1176,13 @@ function mhWalkDrawFrame(){
    ctx.fillText(got?m.name.slice(0,14):'???',mx,my-68);
   }
  });
- ctx.restore();
  const wear=mhMorph(save.wearing);
+ mhDrawYouInWorld(ctx,wear,pos,map,t,st.walkPhase||0,wi);
+ ctx.restore();
  if(wi===MH_VOID_WORLD){
-  ctx.fillStyle='rgba(0,0,0,.35)'; ctx.fillRect(0,0,W,H);
-  ctx.strokeStyle='rgba(140,60,255,.15)'; ctx.lineWidth=1;
-  for(let i=0;i<8;i++){
-   const px=(Math.sin(t*0.7+i)*0.5+0.5)*W, py=(Math.cos(t*0.5+i*1.3)*0.5+0.5)*H;
-   ctx.beginPath(); ctx.arc(px,py,40+Math.sin(t+i)*20,0,Math.PI*2); ctx.stroke();
-  }
-  ctx.fillStyle='rgba(180,120,255,.12)'; ctx.font='bold 11px system-ui'; ctx.textAlign='center';
-  ctx.fillText(MH_DIM_LABEL+' · '+MH_DEPTH_LABEL, W/2, 22);
+  ctx.fillStyle='rgba(0,0,0,.28)'; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='rgba(200,160,255,.85)'; ctx.font='bold 11px system-ui,sans-serif'; ctx.textAlign='center';
+  ctx.fillText(MH_DIM_LABEL+' · '+MH_DEPTH_LABEL, W/2, 20);
  }
  if(wi===3||wi===4){
   const grd=ctx.createRadialGradient(W/2,H/2,40,W/2,H/2,Math.max(W,H)*0.65);
@@ -1196,8 +1195,6 @@ function mhWalkDrawFrame(){
   ctx.fillStyle=lg; ctx.fillRect(0,0,W,H);
   ctx.restore();
  }
- mhDrawYouPlayer(ctx,W,H,wear,t,st.walkPhase||0,map,pos);
- mhSyncYouOverlay(save);
  const hud=document.getElementById('mh-walk-hud');
  if(hud){
   const found=morphs.filter(m=>mhHasMorph(save,m.id)).length;
@@ -1211,6 +1208,9 @@ function mhWalkDrawFrame(){
   }else prompt.hidden=true;
   const runEl=hud.querySelector('.mh-walk-run');
   if(runEl) runEl.textContent=running?'🏃 RUNNING':'Shift / 🏃 = run';
+ }
+ }catch(err){
+  console.error('[Morph Hunt walk]',err);
  }
  st.walkRaf=requestAnimationFrame(mhWalkDrawFrame);
 }
@@ -1258,8 +1258,6 @@ function mhRenderHunt(save, wi){
  return `<div class="mh-world-tabs">${worldTabs}</div>
  <div class="mh-walk-wrap">
   <canvas id="mh-walk-canvas" class="mh-walk-canvas" width="960" height="520" tabindex="0"></canvas>
-  <div class="mh-you-ring" aria-hidden="true"></div>
-  <div id="mh-you-avatar" class="mh-you-avatar" aria-label="Your character"></div>
   <div id="mh-walk-hud" class="mh-walk-hud">
    <span class="mh-walk-zone">${world.emoji} ${world.name}</span>
    <span class="mh-walk-prompt" hidden>Walk close — then collect</span>
@@ -1274,7 +1272,7 @@ function mhRenderHunt(save, wi){
    <span class="mh-walk-run">Shift / 🏃 = run</span>
   </div>
  </div>
- <p class="mh-scene-hint">🚶 <b>YOU</b> = center of the map (gold ring) · WASD to walk · Noobies wander — chase them! · Epic+ = minigame</p>
+ <p class="mh-scene-hint">🚶 <b>YOU</b> = yellow/blue noobie in the <b>middle</b> of the screen · WASD to walk · Chase wandering noobies!</p>
  <p class="mh-progress">Zone: <b>${found}/${morphs.length}</b> &nbsp;•&nbsp; Total: <b>${save.collected.length}/${MH_TOTAL_COUNT}</b> &nbsp;•&nbsp; 🕳 Void: <b>${save.collected.filter(id=>mhMorph(id)?.rarity==='voidfallen').length}/${MH_VOID_COUNT}</b></p>`;
 }
 
@@ -1443,8 +1441,7 @@ function playMorphHunt(){
   return;
  }
  if(typeof syncBodyScrollLock==='function')syncBodyScrollLock();
- mhSyncYouOverlay(mhState.save);
- mhToast('👤 YOU = center of the map (bouncing noobie)! WASD to walk · '+MH_BUILD);
+ mhToast('👤 YOU spawn in the middle — gold ring + WASD to walk · '+MH_BUILD);
 }
 
 function mhGetWearingMorph(){ return mhMorph(mhLoadWearId()||window.LITHOS_NOOBIE_WEAR); }
