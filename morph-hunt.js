@@ -1,10 +1,12 @@
-/* Find The Noobies Morphs — Lithos (820+180+100 Male Void Fallen = 1100 · 2nd Dimensional Abyss) */
+/* Find The Noobies Morphs — Lithos (820+180+100 Male Void Fallen + King = 1101 · 5D Abyss) */
 (function(){
 'use strict';
 
 const MH_STORE_KEY='lithos_morph_hunt_v9';
-const MH_BUILD='void-2d-v27';
-const MH_TOTAL_COUNT=1100;
+const MH_BUILD='void-2d-v28';
+const MH_TOTAL_COUNT=1101;
+const MH_VOID_KING_DEPTH=100;
+const MH_VOID_KING_DIM='5th Dimensional';
 const MH_1000D=false;
 const MH_2D=true;
 const MH_DEPTH_LABEL='Abyss Depth';
@@ -288,6 +290,35 @@ function mhBuildMorphs(){
    rarity:'voidfallen'
   });
  }
+ list.push({
+  id:'vf-king',
+  name:'Void Fallen King',
+  exclusive:false,
+  voidFallen:true,
+  voidMale:true,
+  voidKing:true,
+  voidDepth:MH_VOID_KING_DEPTH,
+  void5D:true,
+  world:MH_VOID_WORLD,
+  x:50,y:40,
+  scale:1.32,
+  head:'hsl(278,82%,64%)',
+  torso:'hsl(288,88%,32%)',
+  legs:'hsl(302,62%,18%)',
+  arms:'hsl(278,76%,46%)',
+  body:'tall',
+  anim:'pulse',
+  face:'grin',
+  stripe:true,
+  glasses:false,
+  hat:'crown',
+  prop:'trophy',
+  voidMark:0,
+  voidEyes:'#ffe860',
+  voidAccent:'#d0a0ff',
+  fallen:true,
+  rarity:'voidfallen'
+ });
  return list;
 }
 const MH_MORPHS=mhBuildMorphs();
@@ -302,16 +333,18 @@ function mhGenWorldMap(wi){
  const w=MH_MAP_W,h=MH_MAP_H;
  const tiles=new Uint8Array(w*h);
  if(wi===MH_VOID_WORLD){
+  const cx=Math.floor(w/2),cy=Math.floor(h/2);
   for(let y=0;y<h;y++)for(let x=0;x<w;x++){
    if(x<1||y<1||x>=w-1||y>=h-1) tiles[y*w+x]=1;
-   else tiles[y*w+x]=0;
+   else if(Math.abs(x-cx)<=4&&Math.abs(y-cy)<=3) tiles[y*w+x]=0;
+   else tiles[y*w+x]=mhHashStr('void'+x+y)%8===0?2:0;
   }
-  return {w,h,tiles,spawnTx:5,spawnTy:5,doorTx:22,doorTy:16,wi};
+  return {w,h,tiles,spawnTx:5,spawnTy:5,doorTx:22,doorTy:16,wi,throneTx:cx,throneTy:cy};
  }
  if(wi===MH_EXOTIC_WORLD){
   for(let y=0;y<h;y++)for(let x=0;x<w;x++){
    if(x<1||y<1||x>=w-1||y>=h-1) tiles[y*w+x]=1;
-   else tiles[y*w+x]=0;
+   else tiles[y*w+x]=mhHashStr('ex'+x+y)%10===0?2:0;
   }
   return {w,h,tiles,spawnTx:4,spawnTy:4,doorTx:23,doorTy:17,wi};
  }
@@ -322,6 +355,14 @@ function mhGenWorldMap(wi){
  const mid=Math.floor(h/2);
  const door=8+(mhHashStr('door'+wi)% (w-16));
  for(let x=2;x<w-2;x++) if(Math.abs(x-door)>2) tiles[mid*w+x]=1;
+ for(let r=0;r<3+wi;r++){
+  const rx=4+mhHashStr('rx'+wi+r)%(w-8);
+  const ry=4+mhHashStr('ry'+wi+r)%(h-8);
+  if(tiles[ry*w+rx]===0) tiles[ry*w+rx]=2;
+ }
+ for(let x=2;x<w-2;x+=8) for(let y=2;y<h-2;y+=6){
+  if(tiles[y*w+x]===0&&mhHashStr('p'+x+y+wi)%10===0) tiles[y*w+x]=2;
+ }
  return {w,h,tiles,spawnTx:3,spawnTy:3,doorTx:door,doorTy:mid,wi};
 }
 const MH_WORLD_MAPS=MH_WORLDS.map((_,i)=>mhGenWorldMap(i));
@@ -336,6 +377,11 @@ const MH_WORLD_MAPS=MH_WORLDS.map((_,i)=>mhGenWorldMap(i));
   else if(wi===MH_EXOTIC_WORLD) pool=MH_MORPHS.filter(m=>m.rarity==='exotic');
   else pool=MH_MORPHS.filter(m=>!m.exclusive&&!m.voidFallen&&m.world===wi);
   pool.forEach(m=>{
+   if(m.id==='vf-king'&&map.throneTx!=null){
+    m.tileX=map.throneTx; m.tileY=map.throneTy;
+    set.add(map.throneTx+','+map.throneTy);
+    return;
+   }
    for(let t=0;t<400;t++){
     const tx=3+mhHashStr(m.id+'x'+t)%(map.w-6);
     const ty=3+mhHashStr(m.id+'y'+t)%(map.h-6);
@@ -452,7 +498,7 @@ function mhPaperFlatOverlay(ctx,W,H){
  ctx.strokeStyle='rgba(255,255,255,.08)'; ctx.lineWidth=1;
  ctx.strokeRect(3,3,W-6,H-6);
 }
-function mhDrawYouInWorld(ctx,wear,pos,map,t,walkPhase,wi){
+function mhDrawYouInWorld(ctx,wear,pos,map,t,walkPhase,wi,running){
  const m=wear||mhStarterMorph();
  const flat=mhMapFlat2D(wi);
  let sc=flat?0.82:1.08;
@@ -467,7 +513,7 @@ function mhDrawYouInWorld(ctx,wear,pos,map,t,walkPhase,wi){
   ctx.beginPath(); ctx.ellipse(pos.px,pos.py+26,34,11,0,0,Math.PI*2); ctx.stroke();
   ctx.setLineDash([]);
  }
- mhPaintNoobWorld(ctx,m,pos.px,pos.py,sc,1,false,t,walkPhase||0,flat);
+ mhPaintNoobWorld(ctx,m,pos.px,pos.py,sc,1,false,t,walkPhase||0,flat,!!running);
  ctx.fillStyle='rgba(0,0,0,.82)';
  ctx.fillRect(pos.px-28,pos.py+50,56,16);
  ctx.fillStyle='#ffe8a0';
@@ -959,11 +1005,27 @@ function mhGradRect(ctx,x,y,w,h,c1,c2){
 }
 function mhRarityLabel(m){
  if(!m) return 'Common';
+ if(m.voidKing) return 'Void Fallen King · '+MH_VOID_KING_DEPTH+' Depth · 5D';
  if(m.rarity==='voidfallen') return m.voidMale?'Male Void Fallen':'Void Fallen';
  if(m.exclusive&&m.rarity!=='exotic') return 'Exclusive';
  return (MH_RARITY[m.rarity]||MH_RARITY.common).label;
 }
-function mhAnimOffset(m,t,walkPhase){
+function mhWalkLegAnim(walkPhase,running){
+ const p=walkPhase||0;
+ if(Math.abs(p)<0.02) return {bob:0,ly:0,ry:0,lx:0,rx:0,ax:0};
+ const mul=running?1.45:1;
+ const s=Math.sin(p*mul);
+ const c=Math.cos(p*mul);
+ return {
+  bob:Math.abs(s)*4.5*mul,
+  ly:-Math.max(0,s)*11,
+  ry:-Math.max(0,-s)*11,
+  lx:c*3.5,
+  rx:-c*3.5,
+  ax:s*6
+ };
+}
+function mhAnimOffset(m,t,walkPhase,running){
  const a=m?.anim||'bounce';
  const seed=(mhHashStr(m?.id||'x')%100)/17;
  const p=t*4+seed;
@@ -976,7 +1038,11 @@ function mhAnimOffset(m,t,walkPhase){
  else if(a==='wiggle') rot=Math.sin(p*2)*0.12;
  else if(a==='spin') rot=(t*2+seed)*0.5;
  else if(a==='glitch'){ dx=(Math.random()<0.04)?(Math.random()*6-3):0; dy=Math.sin(p)*3; }
- if(walkPhase!=null) dy+=Math.sin(walkPhase)*4;
+ if(walkPhase!=null){
+  const wa=mhWalkLegAnim(walkPhase,running);
+  dy-=wa.bob;
+  if(a==='bounce'||a==='hop') dy+=Math.sin(walkPhase*(running?0.9:0.55))*2;
+ }
  return {dx,dy,rot,sc};
 }
 function mhPaintAura(ctx,m,x,y,t){
@@ -1013,7 +1079,40 @@ function mhPaintAura(ctx,m,x,y,t){
   }
  }
 }
-function mhPaintNoob3D(ctx,m,x,y,sc,alpha,silhouette,walkPhase){
+function mhPaintNoob5D(ctx,m,x,y,sc,alpha,silhouette,walkPhase,running){
+ const layers=[
+  {dx:-10,dy:6,rot:-0.12,hue:300,a:0.14},
+  {dx:10,dy:4,rot:0.1,hue:240,a:0.12},
+  {dx:-6,dy:-8,rot:0.08,hue:330,a:0.11},
+  {dx:8,dy:-6,rot:-0.06,hue:270,a:0.1}
+ ];
+ layers.forEach(L=>{
+  ctx.save();
+  ctx.translate(L.dx,L.dy);
+  ctx.rotate(L.rot);
+  ctx.globalAlpha=L.a*(alpha==null?1:alpha);
+  mhPaintNoob3D(ctx,m,x,y,sc*0.97,alpha,true,walkPhase,running);
+  ctx.restore();
+ });
+ mhPaintNoob3D(ctx,m,x,y,sc,alpha,silhouette,walkPhase,running);
+ ctx.save();
+ ctx.translate(x,y-18);
+ ctx.scale(sc,sc);
+ ctx.strokeStyle=mhHex(m.voidAccent||'#c080ff',0.55);
+ ctx.lineWidth=1.4;
+ for(let i=0;i<5;i++){
+  const a=(walkPhase||0)*0.4+i*Math.PI*2/5;
+  const r=26+Math.sin((walkPhase||0)+i)*4;
+  ctx.beginPath();
+  ctx.moveTo(Math.cos(a)*r,Math.sin(a)*r);
+  ctx.lineTo(Math.cos(a+0.5)*r*0.55,Math.sin(a+0.5)*r*0.55);
+  ctx.stroke();
+ }
+ ctx.fillStyle=mhHex(m.voidEyes||'#ffe860',0.35);
+ ctx.beginPath(); ctx.arc(0,0,8,0,Math.PI*2); ctx.fill();
+ ctx.restore();
+}
+function mhPaintNoob3D(ctx,m,x,y,sc,alpha,silhouette,walkPhase,running){
  if(!m) return;
  ctx.save();
  ctx.translate(x,y);
@@ -1037,9 +1136,11 @@ function mhPaintNoob3D(ctx,m,x,y,sc,alpha,silhouette,walkPhase){
   mhGradRect(ctx,-18,2,8,16,a,mhShade(a,-25)); mhGradRect(ctx,10,2,8,16,a,mhShade(a,-25));
   mhGradRect(ctx,-18,-44,36,38,h,mhShade(h,-20));
  }else if(m.body==='tall'){
-  mhGradRect(ctx,-9,16,8,38,l,mhShade(l,-30)); mhGradRect(ctx,1,16,8,38,l,mhShade(l,-30));
+  const wa=mhWalkLegAnim(walkPhase,running);
+  ctx.translate(0,-wa.bob);
+  mhGradRect(ctx,-9+wa.lx,16+wa.ly,8,38,l,mhShade(l,-30)); mhGradRect(ctx,1+wa.rx,16+wa.ry,8,38,l,mhShade(l,-30));
   mhGradRect(ctx,-15,-2,30,22,t,mhShade(t,-35));
-  mhGradRect(ctx,-20,0,9,24,a,mhShade(a,-25)); mhGradRect(ctx,11,0,9,24,a,mhShade(a,-25));
+  mhGradRect(ctx,-20,0+wa.ax,9,24,a,mhShade(a,-25)); mhGradRect(ctx,11,0-wa.ax,9,24,a,mhShade(a,-25));
   mhGradRect(ctx,-12,-50,24,26,h,mhShade(h,-25));
  }else if(m.body==='wide'){
   mhGradRect(ctx,-12,20,11,32,l,mhShade(l,-30)); mhGradRect(ctx,1,20,11,32,l,mhShade(l,-30));
@@ -1059,10 +1160,12 @@ function mhPaintNoob3D(ctx,m,x,y,sc,alpha,silhouette,walkPhase){
   ctx.fillStyle='#505860'; ctx.fillRect(-14,-46,28,28);
   ctx.fillStyle='#00eaff'; ctx.fillRect(-10,-36,8,8); ctx.fillRect(2,-36,8,8);
  }else{
-  mhGradRect(ctx,-10,22,9,32,l,mhShade(l,-30)); mhGradRect(ctx,1,22,9,32,l,mhShade(l,-30));
+  const wa=mhWalkLegAnim(walkPhase,running);
+  ctx.translate(0,-wa.bob);
+  mhGradRect(ctx,-10+wa.lx,22+wa.ly,9,32,l,mhShade(l,-30)); mhGradRect(ctx,1+wa.rx,22+wa.ry,9,32,l,mhShade(l,-30));
   mhGradRect(ctx,-16,0,32,24,t,mhShade(t,-35));
   if(m.stripe){ ctx.fillStyle='rgba(255,255,255,.25)'; ctx.fillRect(-16,8,32,6); }
-  mhGradRect(ctx,-22,2,10,22,a,mhShade(a,-25)); mhGradRect(ctx,12,2,10,22,a,mhShade(a,-25));
+  mhGradRect(ctx,-22,2+wa.ax,10,22,a,mhShade(a,-25)); mhGradRect(ctx,12,2-wa.ax,10,22,a,mhShade(a,-25));
   ctx.fillStyle='#303840'; ctx.beginPath(); ctx.arc(-16,14,3,0,Math.PI*2); ctx.arc(16,14,3,0,Math.PI*2); ctx.fill();
   const hg=ctx.createRadialGradient(-8,-36,1,0,-32,26);
   hg.addColorStop(0,mhShade(h,40)); hg.addColorStop(.55,h); hg.addColorStop(1,mhShade(h,-35));
@@ -1145,7 +1248,7 @@ function mhPaintNoob3D(ctx,m,x,y,sc,alpha,silhouette,walkPhase){
  }
  ctx.restore();
 }
-function mhPaintNoobFlat(ctx,m,x,y,sc,alpha,silhouette){
+function mhPaintNoobFlat(ctx,m,x,y,sc,alpha,silhouette,walkPhase,running){
  if(!m) return;
  ctx.save();
  ctx.translate(x,y);
@@ -1153,9 +1256,11 @@ function mhPaintNoobFlat(ctx,m,x,y,sc,alpha,silhouette){
  ctx.globalAlpha=alpha==null?1:alpha;
  let h=m.head||'#F5CD30', t=m.torso||'#0085DB', l=m.legs||'#A4BD47', a=m.arms||h;
  if(silhouette){ h='#3a4050'; t='#283040'; l='#1e2430'; a='#3a4050'; ctx.globalAlpha=(alpha==null?0.75:alpha); }
- ctx.fillStyle=l; ctx.fillRect(-10,22,9,32); ctx.fillRect(1,22,9,32);
+ const wa=mhWalkLegAnim(walkPhase,running);
+ ctx.translate(0,-wa.bob);
+ ctx.fillStyle=l; ctx.fillRect(-10+wa.lx,22+wa.ly,9,32); ctx.fillRect(1+wa.rx,22+wa.ry,9,32);
  ctx.fillStyle=t; ctx.fillRect(-16,0,32,24);
- ctx.fillStyle=a; ctx.fillRect(-22,2,10,22); ctx.fillRect(12,2,10,22);
+ ctx.fillStyle=a; ctx.fillRect(-22,2+wa.ax,10,22); ctx.fillRect(12,2-wa.ax,10,22);
  ctx.fillStyle=h; ctx.fillRect(-14,-48,28,28);
  ctx.fillStyle='#101018'; ctx.fillRect(-8,-36,5,5); ctx.fillRect(3,-36,5,5);
  if(m.rarity==='voidfallen'&&!silhouette){
@@ -1180,22 +1285,34 @@ function mhVoidFlatScreenOverlay(ctx,W,H){
  ctx.fillStyle='#d0a8ff'; ctx.font='bold 11px monospace,sans-serif'; ctx.textAlign='center';
  ctx.fillText('FLAT SCREEN · '+MH_VOID_DIM_LABEL, W/2, b-4);
 }
-function mhPaintNoobWorld(ctx,m,x,y,sc,alpha,silhouette,t,walkPhase,flat){
+function mhPaintNoobWorld(ctx,m,x,y,sc,alpha,silhouette,t,walkPhase,flat,running){
  const off=flat
   ?{dx:Math.sin(walkPhase||0)*3,dy:0,rot:0,sc:1}
-  :mhAnimOffset(m,t,walkPhase);
+  :mhAnimOffset(m,t,walkPhase,running);
  ctx.save();
  ctx.translate(x+off.dx,y+off.dy);
  if(!flat) ctx.rotate(off.rot);
  if(!flat) mhPaintAura(ctx,m,0,-8,t);
- if(flat) mhPaintNoobFlat(ctx,m,0,-8,sc*off.sc,alpha,silhouette);
- else mhPaintNoob3D(ctx,m,0,-8,sc*off.sc,alpha,silhouette,walkPhase);
+ if(m.void5D) mhPaintNoob5D(ctx,m,0,-8,sc*off.sc,alpha,silhouette,walkPhase,running);
+ else if(flat) mhPaintNoobFlat(ctx,m,0,-8,sc*off.sc,alpha,silhouette,walkPhase,running);
+ else mhPaintNoob3D(ctx,m,0,-8,sc*off.sc,alpha,silhouette,walkPhase,running);
  ctx.restore();
 }
 
 function mhWalkTileBlocked(map,tx,ty){
  if(tx<0||ty<0||tx>=map.w||ty>=map.h) return true;
- return map.tiles[ty*map.w+tx]===1;
+ const v=map.tiles[ty*map.w+tx];
+ return v===1||v===2;
+}
+function mhDrawVoidThrone(ctx,map){
+ if(map.throneTx==null) return;
+ const x=map.throneTx*MH_TILE,y=map.throneTy*MH_TILE;
+ ctx.fillStyle='rgba(60,20,100,.35)'; ctx.fillRect(x-MH_TILE,y-MH_TILE,MH_TILE*3,MH_TILE*3);
+ ctx.fillStyle='#502878'; ctx.fillRect(x-4,y+8,MH_TILE+8,12);
+ ctx.fillStyle='#ffd860'; ctx.fillRect(x+6,y-6,MH_TILE-12,10);
+ ctx.strokeStyle='#c898ff'; ctx.lineWidth=2; ctx.strokeRect(x+.5,y+.5,MH_TILE-1,MH_TILE-1);
+ ctx.fillStyle='#e8d0ff'; ctx.font='bold 9px system-ui'; ctx.textAlign='center';
+ ctx.fillText('👑 THRONE · '+MH_VOID_KING_DEPTH+' DEPTH · 5D',x+MH_TILE/2,y-10);
 }
 function mhCanvasToWorld(canvas,camX,camY,clientX,clientY){
  const rect=canvas.getBoundingClientRect();
@@ -1271,9 +1388,10 @@ function mhNpcWander(st,map,m,npc,dt,save){
    npc.wait=0.25+Math.random()*0.5;
   }else{
    npc.px=npx; npc.py=npy;
-   npc.phase+=spd*0.12;
+   npc.phase+=spd*0.14;
+   npc.walking=true;
   }
- }else npc.phase+=dt*1.5;
+ }else{ npc.phase+=dt*1.5; npc.walking=false; }
 }
 function mhWalkNearMorph(save,wi,pos,st){
  const morphs=mhWorldMorphs(wi);
@@ -1300,7 +1418,15 @@ function mhWalkApplyKey(e,down){
   else delete mhState.walkKeys[name];
   hit=true;
  };
- /* Hunt uses deck + map clicks — no WASD / E spam */
+ if(c==='KeyA'||c==='ArrowLeft'||k==='a'||k==='A') touch('left',down);
+ if(c==='KeyD'||c==='ArrowRight'||k==='d'||k==='D') touch('right',down);
+ if(c==='KeyW'||c==='ArrowUp'||k==='w'||k==='W') touch('up',down);
+ if(c==='KeyS'||c==='ArrowDown'||k==='s'||k==='S') touch('down',down);
+ if(c==='ShiftLeft'||c==='ShiftRight'||k==='Shift') touch('run',down);
+ if(down&&(c==='KeyE'||k==='e'||k==='E'||c==='Space'||isSpaceKey(e))&&mhState.walkNearId){
+  mhDeckUnlock(mhMorph(mhState.walkNearId),mhState.save);
+  hit=true;
+ }
  if(hit){
   e.preventDefault();
   e.stopPropagation();
@@ -1350,8 +1476,9 @@ function mhWalkDrawFrame(){
   const npx=pos.px+vx,npy=pos.py+vy;
   if(!mhWalkCollide(map,npx,pos.py,10)) pos.px=npx;
   if(!mhWalkCollide(map,pos.px,npy,10)) pos.py=npy;
-  st.walkPhase=(st.walkPhase||0)+(running?0.38:0.24);
- }else st.walkPhase=(st.walkPhase||0)*0.9;
+  st.walkPhase=(st.walkPhase||0)+(running?0.42:0.26);
+  st.playerRunning=running;
+ }else{ st.walkPhase=(st.walkPhase||0)*0.9; st.playerRunning=false; }
  const morphs=mhWorldMorphs(wi);
  morphs.forEach(m=>{
   if(m.tileX==null) return;
@@ -1384,6 +1511,7 @@ function mhWalkDrawFrame(){
    ctx.fillStyle='rgba(0,0,0,.2)'; ctx.fillRect(x+8,y+MH_TILE-10,MH_TILE-16,4);
   }
  }
+ if(wi===MH_VOID_WORLD) mhDrawVoidThrone(ctx,map);
  morphs.sort((a,b)=>mhGetNpcPos(st,wi,a).py-mhGetNpcPos(st,wi,b).py);
  morphs.forEach(m=>{
   if(m.tileX==null) return;
@@ -1395,12 +1523,18 @@ function mhWalkDrawFrame(){
   const seen=got||dist<150||onScreen;
   if(!seen) return;
   let sc=(m.scale||1)*(flatMap?0.78:0.72);
+  if(m.voidKing) sc*=1.12;
   if(MH_1000D&&!flatMap){
    const depth=0.82+(my/(map.h*MH_TILE))*0.32;
    sc*=depth;
   }
   const sil=!got&&dist>MH_INTERACT_R&&m.rarity!=='voidfallen';
-  mhPaintNoobWorld(ctx,m,mx,my,sc,got?0.55:1,sil,t,npc.phase,flatMap);
+  mhPaintNoobWorld(ctx,m,mx,my,sc,got?0.55:1,sil,t,npc.phase,flatMap,!!npc.walking);
+  if(m.voidKing){
+   ctx.fillStyle='rgba(20,0,48,.92)'; ctx.fillRect(mx-78,my-108,156,20);
+   ctx.fillStyle='#ffe860'; ctx.font='bold 11px system-ui'; ctx.textAlign='center';
+   ctx.fillText('👑 VOID FALLEN KING · '+MH_VOID_KING_DEPTH+' DEPTH · 5D',mx,my-94);
+  }
   if(m.rarity==='exotic'){
    ctx.fillStyle='rgba(255,40,200,.85)'; ctx.fillRect(mx-54,my-98,108,14);
    ctx.fillStyle='#fff'; ctx.font='bold 10px system-ui'; ctx.textAlign='center';
@@ -1427,13 +1561,13 @@ function mhWalkDrawFrame(){
   }
  });
  const wear=mhMorph(save.wearing);
- mhDrawYouInWorld(ctx,wear,pos,map,t,st.walkPhase||0,wi);
+ mhDrawYouInWorld(ctx,wear,pos,map,t,st.walkPhase||0,wi,st.playerRunning);
  ctx.restore();
  if(flatMap) mhPaperFlatOverlay(ctx,W,H);
  if(wi===MH_VOID_WORLD){
   mhVoidFlatScreenOverlay(ctx,W,H);
   ctx.fillStyle='rgba(200,160,255,.92)'; ctx.font='bold 11px system-ui,sans-serif'; ctx.textAlign='center';
-  ctx.fillText(MH_VOID_ABYSS_LABEL+' · Male Void Fallen · '+MH_DEPTH_LABEL, W/2, H-16);
+  ctx.fillText(MH_VOID_ABYSS_LABEL+' · King '+MH_VOID_KING_DEPTH+' Depth · '+MH_VOID_KING_DIM, W/2, H-16);
  }
  const hud=document.getElementById('mh-walk-hud');
  if(hud){
@@ -1443,9 +1577,11 @@ function mhWalkDrawFrame(){
   if(near){
    const got=mhHasMorph(save,near.id);
    const mini=mhNeedsMinigame(near)&&!mhMinigameCleared(save,near.id);
-   prompt.textContent=got?'Click to morph into '+near.name:(mini?'Click to play minigame!':'Click to unlock!');
+   prompt.textContent=got?'E — morph into '+near.name:(mini?'E — play minigame!':'E / Space — collect!');
    prompt.hidden=false;
-  }else prompt.hidden=false;
+  }else prompt.hidden=true;
+  const runEl=hud.querySelector('.mh-walk-run');
+  if(runEl) runEl.textContent=running?'🏃 RUNNING':'Shift / 🏃 = run';
  }
  }catch(err){
   console.error('[Morph Hunt walk]',err);
@@ -1456,12 +1592,32 @@ function mhWalkStart(){
  mhWalkStop();
  if(!mhState) return;
  mhState.walkKeys={};
+ document.addEventListener('keydown',mhWalkKeysDown,true);
+ document.addEventListener('keyup',mhWalkKeysUp,true);
  mhWalkDrawFrame();
  const root=document.getElementById('morphhunt');
+ root?.querySelectorAll('[data-mh-dpad]').forEach(btn=>{
+  const dir=btn.dataset.mhDpad;
+  const map={ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right'};
+  const name=map[dir]||dir;
+  const down=()=>{ if(!mhState.walkKeys) mhState.walkKeys={}; mhState.walkKeys[name]=true; };
+  const up=()=>{ if(mhState?.walkKeys) delete mhState.walkKeys[name]; };
+  btn.addEventListener('pointerdown',e=>{ e.preventDefault(); down(); });
+  btn.addEventListener('pointerup',up);
+  btn.addEventListener('pointerleave',up);
+ });
+ root?.querySelector('#mh-walk-interact')?.addEventListener('click',()=>{
+  if(mhState?.walkNearId) mhDeckUnlock(mhMorph(mhState.walkNearId),mhState.save);
+ });
+ root?.querySelector('#mh-walk-run')?.addEventListener('pointerdown',()=>{
+  if(!mhState.walkKeys) mhState.walkKeys={};
+  mhState.walkKeys.run=true;
+ });
+ root?.querySelector('#mh-walk-run')?.addEventListener('pointerup',()=>{
+  if(mhState?.walkKeys) delete mhState.walkKeys.run;
+ });
  const canvas=root?.querySelector('#mh-walk-canvas');
- if(canvas){
-  canvas.onclick=mhWalkCanvasClick;
- }
+ if(canvas) canvas.onclick=mhWalkCanvasClick;
 }
 
 function mhRenderHuntDeck(save,wi,morphs){
@@ -1479,8 +1635,8 @@ function mhRenderHuntDeck(save,wi,morphs){
   </button>`;
  }).join('');
  return `<section class="mh-hunt-deck">
-  <h3>🎮 Tap a noobie — play the minigame to unlock!</h3>
-  <p class="mh-scene-hint">No walking required. <b>Click a card</b> (or tap one on the optional map below).</p>
+  <h3>🎮 Quick unlock deck</h3>
+  <p class="mh-scene-hint">Or explore the <b>world map</b> above — walk with WASD, run with Shift, collect with <b>E</b>.</p>
   <div class="mh-hunt-cards">${cards}</div>
   <div class="mh-pager">${pg.page>0?'<button type="button" class="mh-btn" data-mh-hunt-page="'+(pg.page-1)+'">← Prev</button>':''}<span>Page ${pg.page+1} / ${pg.pages}</span>${pg.page+1<pg.pages?'<button type="button" class="mh-btn" data-mh-hunt-page="'+(pg.page+1)+'">Next →</button>':''}</div>
  </section>`;
@@ -1497,17 +1653,24 @@ function mhRenderHunt(save, wi){
  const nFound=save.collected.filter(id=>mhMorph(id)&&!mhMorph(id).exclusive).length;
  const xFound=save.collected.filter(id=>mhMorph(id)&&mhMorph(id).exclusive).length;
  return `<div class="mh-world-tabs">${worldTabs}</div>
- ${mhRenderHuntDeck(save,wi,morphs)}
- <details class="mh-walk-optional">
-  <summary>Optional map — walk &amp; click noobies (WASD not required)</summary>
-  <div class="mh-walk-wrap">
-   <canvas id="mh-walk-canvas" class="mh-walk-canvas" width="960" height="360" tabindex="0"></canvas>
-   <div id="mh-walk-hud" class="mh-walk-hud">
-    <span class="mh-walk-zone">${world.emoji} ${world.name}</span>
-    <span class="mh-walk-prompt">Click a noobie on the map to unlock</span>
+ <div class="mh-walk-wrap">
+  <canvas id="mh-walk-canvas" class="mh-walk-canvas" width="960" height="520" tabindex="0"></canvas>
+  <div id="mh-walk-hud" class="mh-walk-hud">
+   <span class="mh-walk-zone">${world.emoji} ${world.name}${wi===MH_VOID_WORLD?' · 👑 King · '+MH_VOID_KING_DEPTH+' Depth · 5D':''}</span>
+   <span class="mh-walk-prompt" hidden>Walk close — then collect</span>
+   <div class="mh-walk-dpad" aria-label="Move">
+    <button type="button" data-mh-dpad="ArrowUp">▲</button>
+    <button type="button" data-mh-dpad="ArrowLeft">◀</button>
+    <button type="button" data-mh-dpad="ArrowDown">▼</button>
+    <button type="button" data-mh-dpad="ArrowRight">▶</button>
    </div>
+   <button type="button" class="mh-btn primary" id="mh-walk-interact">Collect / Morph</button>
+   <button type="button" class="mh-btn" id="mh-walk-run">🏃 Run</button>
+   <span class="mh-walk-run">Shift / 🏃 = run</span>
   </div>
- </details>
+ </div>
+ <p class="mh-scene-hint">🚶 <b>YOU</b> in the center · <b>WASD</b> walk · <b>Shift</b> run · legs animate! · <b>E</b> collect · Void has props + throne</p>
+ ${mhRenderHuntDeck(save,wi,morphs)}
  <p class="mh-progress">Zone: <b>${found}/${morphs.length}</b> &nbsp;•&nbsp; Total: <b>${save.collected.length}/${MH_TOTAL_COUNT}</b> &nbsp;•&nbsp; 🕳 Void: <b>${save.collected.filter(id=>mhMorph(id)?.rarity==='voidfallen').length}/${MH_VOID_COUNT}</b></p>`;
 }
 
@@ -1627,7 +1790,7 @@ function mhRender(){
   <header class="mh-ftn-banner">
    <div class="mh-ftn-banner-text">
     <h2 class="mh-title">Find The Noobies Morphs</h2>
-    <p class="mh-ftn-tag"><b>${MH_TOTAL_COUNT}</b> noobies · 🕳 <b>${MH_VOID_ABYSS_LABEL}</b> · <b>${MH_VOID_DIM_LABEL}</b> · Male Void Fallen · Build <b>${MH_BUILD}</b> · ${owner?'Owner: ALL unlocked':''}</p>
+    <p class="mh-ftn-tag"><b>${MH_TOTAL_COUNT}</b> noobies · 👑 <b>Void Fallen King</b> · ${MH_VOID_KING_DEPTH} Depth · ${MH_VOID_KING_DIM} · Build <b>${MH_BUILD}</b> · ${owner?'Owner: ALL unlocked':''}</p>
     <p class="mh-live-build" style="margin:6px 0 0;font-size:13px;font-weight:900;color:#ffe060">✅ LIVE ${MH_BUILD} — all worlds paper-flat 2D</p>
    </div>
   </header>
