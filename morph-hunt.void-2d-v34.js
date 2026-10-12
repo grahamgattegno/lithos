@@ -3,11 +3,40 @@
 'use strict';
 
 const MH_STORE_KEY='lithos_morph_hunt_v9';
-const MH_BUILD='void-2d-v34';
-const MH_SCENERY_STAMP='CENTER_SCENERY_v34';
-const MH_SCRIPT_FILE='morph-hunt.void-2d-v34.js';
+/* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
+/* loader bridge: MH_BUILD='void-2d-v50' */
+const MH_BUILD='void-2d-v57';
+const MH_SCENERY_STAMP='VOID_NO_RECHARGE_v57';
+const MH_SCRIPT_FILE='morph-hunt.void-2d-v57.js';
 const MH_KING_STAMP='RED_BLACK_KING_v31';
-const MH_TOTAL_COUNT=1101;
+const MH_MEGA_W=7;
+const MH_MEGA_H=6;
+const MH_MEGA_BUILDING_KINDS=new Set(['house','shop','stall','booth','tent','cloud_house','sky_bridge','beach_hut','lifeguard','burned_house','ruined_house','void_fallen_building','void_cathedral','fluoro_hall','liminal_door','vault','expedition_tent','expedition_camp','crystal','nexus_ruins','neon_sign']);
+const MH_WORLD_MEGA_BUILDINGS=[
+ ['house','shop'],
+ ['stall','booth','tent'],
+ ['beach_hut','lifeguard'],
+ ['expedition_tent','crystal'],
+ ['fluoro_hall','liminal_door'],
+ ['cloud_house','sky_bridge'],
+ ['burned_house','expedition_camp'],
+ ['nexus_ruins','vault'],
+ ['vault','neon_sign'],
+ ['void_fallen_building','void_cathedral','ruined_house']
+];
+const MH_WORLD_PARK_NAMES=[
+ ['Buddy North','Buddy East','Buddy South','Buddy West'],
+ ['Midway Green','Tent Row','Fair South','Carousel Park'],
+ ['Dune Park','Pier Lawn','Surf Green','Shore Rest'],
+ ['Crystal Glade','Mine Rest','Gem Grove','Cavern Picnic'],
+ ['Liminal Lawn','Fluoro Picnic','Office Patch','Yellow Zone'],
+ ['Cloud Rest','Sky Garden','Nest Green','Bridge Park'],
+ ['Ash Rest','Lava View','Camp Green','Obsidian Park'],
+ ['Nexus Green','Portal Park','Legend Rest','Shrine Lawn'],
+ ['Neon Park','Vault Green','Exotic Rest','Prism Lawn'],
+ ['Fallen Rest','Void Garden','Abyss Green','King Memorial']
+];
+const MH_TOTAL_COUNT=1105;
 const MH_VOID_KING_DEPTH=100;
 const MH_VOID_KING_DIM='5th Dimensional';
 const MH_1000D=false;
@@ -23,6 +52,13 @@ const MH_MAP_H=34;
 const MH_WALK_SPEED=3.4;
 const MH_RUN_SPEED=6.6;
 const MH_INTERACT_R=52;
+const MH_MAP_NPC_DRAW_R=190;
+const MH_HIDDEN_REVEAL_R=108;
+const MH_GROVES_PER_NORMAL=10;
+const MH_GROVES_EPIC=12;
+const MH_GROVES_VOID=8;
+const MH_PARK_W=14;
+const MH_PARK_H=7;
 const MH_ANIMS=['bounce','sway','hop','pulse','float','wiggle','spin','glitch'];
 const MH_PROPS=['balloon','gemstick','sword','pet','skate','umbrella','sparkler','book','trophy','rocket'];
 const MH_HIGH_RARITY=new Set(['epic','legendary','secret','exclusive','exotic','voidfallen']);
@@ -52,7 +88,7 @@ const MH_RARITY={
 };
 
 const MH_WORLDS=[
- {id:'w0',name:'Buddy Plaza',emoji:'🏠',tagline:'Paper-flat plaza — noobies everywhere!',bg:'#87CEEB',ground:'#7ec850',wall:'#6a9850',prop:'#508040'},
+ {id:'w0',name:'Buddy Plaza',emoji:'🏠',tagline:'Common · Uncommon · Rare — hidden in groves only.',bg:'#87CEEB',ground:'#7ec850',wall:'#6a9850',prop:'#508040'},
  {id:'w1',name:'Rainbow Fair',emoji:'🎡',tagline:'Flat fairground tiles.',bg:'#ffb8d0',ground:'#98d868',wall:'#c06090',prop:'#e04080'},
  {id:'w2',name:'Blocky Beach',emoji:'🏖',tagline:'Flat sand & surf.',bg:'#70c8f0',ground:'#e8d878',wall:'#c0a858',prop:'#40a0c0'},
  {id:'w3',name:'Crystal Cave',emoji:'💎',tagline:'Flat crystal floor — no fog.',bg:'#483868',ground:'#685888',wall:'#302848',prop:'#9080c0'},
@@ -60,11 +96,11 @@ const MH_WORLDS=[
  {id:'w5',name:'Sky Islands',emoji:'☁',tagline:'Flat cloud platforms.',bg:'#a8d8ff',ground:'#88c8f0',wall:'#6090c0',prop:'#ffffff'},
  {id:'w6',name:'Lava Park',emoji:'🌋',tagline:'Flat lava tiles.',bg:'#ff8860',ground:'#8a4030',wall:'#602818',prop:'#ff6040'},
  {id:'w7',name:'Legend Nexus',emoji:'👑',tagline:'Flat nexus floor.',bg:'#6080c0',ground:'#506898',wall:'#384868',prop:'#ffd060'},
- {id:'w8',name:'Exotic Realm',emoji:'💎',tagline:'Flat exotic plane.',bg:'#281040',ground:'#502868',wall:'#381838',prop:'#ff48e8'},
- {id:'w9',name:'Void Fallen Abyss',emoji:'🕳',tagline:'Flattest screen — Male Void Fallen abyss!',bg:'#050008',ground:'#120818',wall:'#282038',prop:'#402060'}
+ {id:'w8',name:'Epic+ Realm',emoji:'💎',tagline:'TELEPORT HERE — Epic · Legendary · Secret · Exotic · Exclusive.',bg:'#281040',ground:'#502868',wall:'#381838',prop:'#ff48e8'},
+ {id:'w9',name:'Void Fallen Abyss',emoji:'🕳',tagline:'TELEPORT HERE — Male Void Fallen + King.',bg:'#050008',ground:'#120818',wall:'#282038',prop:'#402060'}
 ];
 const MH_WORLD_DECORS=[
- ['house','shop','tree','fountain','bench','plaza_ruins'],
+ ['house','shop','park','noobie_statue','fountain','playground'],
  ['ferris','tent','booth','banner','stall','broken_ride'],
  ['beach_hut','pier','palm','surf','lifeguard','wrecked_boat'],
  ['crystal','expedition_tent','mine_cart','stalagmite','drill','crate'],
@@ -82,7 +118,11 @@ const MH_CODES={
  thanksforverified:{coins:100},
  bubblebuddy:{title:'Bubble Buddy'},
  lithosgem:{morph:'ex-gemcrown'},
- happyanniversaryftn1:{morph:'ex-party'}
+ happyanniversaryftn1:{morph:'ex-party'},
+ glitchhouse:{morph:'code-glitch',coins:120,title:'Glitch Hunter'},
+ mythinside:{morph:'code-myth',coins:120,title:'Myth Seeker'},
+ minigamevault:{morph:'code-minigame',coins:120,title:'Minigame Master'},
+ enterhouse:{coins:60}
 };
 
 const MH_RARITY_N=['common','common','uncommon','common','uncommon','rare','common','uncommon','rare','epic','uncommon','legendary'];
@@ -131,14 +171,19 @@ function mhPal(i){
 }
 function mhMorphTraits(i){
  const h=mhHashStr('trait'+i);
+ const body=MH_BODIES[h%MH_BODIES.length];
+ const hatPool=['star','crown','headphones','bow','gem','party','wave','voidhalo',null];
  return{
-  body:MH_BODIES[h%MH_BODIES.length],
+  body,
   anim:MH_ANIMS[(h>>>3)%MH_ANIMS.length],
   face:['smile','grin','o','flat','w'][(h>>>6)%5],
-  stripe:((h>>>4)&3)===0,
-  glasses:((h>>>5)&7)===0,
-  hat:['star','crown','headphones','bow','gem','party',null,null][(h>>>7)%8],
-  prop:MH_PROPS[(h>>>10)%MH_PROPS.length]
+  stripe:((h>>>4)&3)!==2,
+  sleeves:((h>>>8)&3)===0,
+  glasses:((h>>>5)&5)===0,
+  hat:hatPool[(h>>>7)%hatPool.length],
+  prop:MH_PROPS[(h>>>10)%MH_PROPS.length],
+  accent:mhHsl((h>>>11)%360,62,55),
+  shoe:mhHsl((h>>>13)%360,45,32)
  };
 }
 function mhPick(arr,seed){ return arr[((seed%arr.length)+arr.length)%arr.length]; }
@@ -180,6 +225,37 @@ function mhVoidName(i){
 }
 const MH_VOID_MALE_BODIES=['classic','tall','builder','wide','robot','ghost'];
 const MH_VOID_HATS=['voidhorn','voidhalo','riftshard','gem','crown','headphones','bow','party','star',null,null];
+const MH_VOID_ATTACKS=[
+ {id:'rift_slash',name:'Rift Slash',color:'#c080ff',kind:'arc',speed:9,range:95},
+ {id:'abyss_bolt',name:'Abyss Bolt',color:'#9040ff',kind:'beam',speed:11,range:140},
+ {id:'shadow_lance',name:'Shadow Lance',color:'#6080c0',kind:'beam',speed:13,range:120},
+ {id:'void_orbs',name:'Void Orbs',color:'#ff48e8',kind:'orbs',speed:7,range:80},
+ {id:'maelstrom_cut',name:'Maelstrom Cut',color:'#80e0ff',kind:'arc',speed:10,range:100},
+ {id:'fallen_rend',name:'Fallen Rend',color:'#b010ff',kind:'arc',speed:8,range:110},
+ {id:'depth_spike',name:'Depth Spike',color:'#7040c0',kind:'beam',speed:12,range:130},
+ {id:'king_breaker',name:'King Breaker',color:'#ff4040',kind:'nova',speed:6,range:90}
+];
+const MH_VOID_POWERS=[
+ {id:'void_step',name:'Void Step',color:'#c898ff',kind:'dash',dist:90,cooldown:1.2},
+ {id:'shadow_shield',name:'Shadow Shield',color:'#5060a0',kind:'shield',time:2.8,cooldown:2.5},
+ {id:'abyss_surge',name:'Abyss Surge',color:'#9040ff',kind:'nova',range:100,cooldown:2},
+ {id:'rift_heal',name:'Rift Mend',color:'#80ffb0',kind:'heal',coins:8,cooldown:3},
+ {id:'fallen_rage',name:'Fallen Rage',color:'#ff6080',kind:'buff',time:4,cooldown:4},
+ {id:'mirror_clone',name:'Mirror Echo',color:'#80e8ff',kind:'echo',count:3,cooldown:2.2},
+ {id:'gravity_well',name:'Gravity Well',color:'#6040a0',kind:'pull',range:120,cooldown:2.8},
+ {id:'forbidden_storm',name:'Forbidden Storm',color:'#ff2020',kind:'storm',range:150,cooldown:3.5}
+];
+function mhAssignVoidCombat(m){
+ if(m.rarity!=='voidfallen'&&!m.voidFallen) return;
+ if(m.voidKing){
+  m.voidAttack={id:'king_cleave',name:'Greataxe Cleave',color:'#ff3030',kind:'arc',speed:9,range:130};
+  m.voidPower={id:'forbidden_storm',name:'Forbidden Stone Storm',color:'#ff2020',kind:'storm',range:170,cooldown:3};
+  return;
+ }
+ const h=mhHashStr(m.id+'vfc');
+ m.voidAttack=MH_VOID_ATTACKS[h%MH_VOID_ATTACKS.length];
+ m.voidPower=MH_VOID_POWERS[(h>>>4)%MH_VOID_POWERS.length];
+}
 function mhVoidTraits(i){
  const h=mhHashStr('vftrait'+i);
  return{
@@ -334,9 +410,31 @@ function mhBuildMorphs(){
   fallen:true,
   rarity:'voidfallen'
  });
+ list.push({
+  id:'code-glitch', name:'Glitch Noobie', exclusive:true, codeOnly:true, world:0,
+  head:'#39ff14', torso:'#283040', legs:'#1a2030', arms:'#39ff14', body:'robot',
+  anim:'glitch', face:'w', rarity:'secret', hat:null, prop:'sparkler'
+ });
+ list.push({
+  id:'code-myth', name:'Myth Noobie', exclusive:true, codeOnly:true, world:7,
+  head:'#ffd060', torso:'#506898', legs:'#384868', arms:'#ffd060', body:'tall',
+  anim:'float', face:'grin', rarity:'legendary', hat:'crown', prop:'trophy'
+ });
+ list.push({
+  id:'code-minigame', name:'Minigame Noobie', exclusive:true, codeOnly:true, world:1,
+  head:'#ff48e8', torso:'#0085DB', legs:'#A4BD47', arms:'#ff48e8', body:'classic',
+  anim:'bounce', face:'grin', rarity:'epic', hat:'party', prop:'gemstick'
+ });
+ list.push({
+  id:'ex-mayor', name:'Mayor Noobie', exclusive:true, mayorOnly:true, world:0,
+  head:'#ffe8a0', torso:'#2040a0', legs:'#303850', arms:'#ffe8a0', body:'tall',
+  anim:'sway', face:'grin', rarity:'legendary', hat:'crown', prop:'trophy',
+  stripe:true, glasses:true, accent:'#ffd060'
+ });
  return list;
 }
 const MH_MORPHS=mhBuildMorphs();
+MH_MORPHS.forEach(mhAssignVoidCombat);
 const MH_NORMALS=MH_MORPHS.filter(m=>!m.exclusive&&!m.voidFallen);
 const MH_EXCLUSIVES=MH_MORPHS.filter(m=>m.exclusive);
 const MH_EXOTICS=MH_MORPHS.filter(m=>m.rarity==='exotic');
@@ -344,120 +442,465 @@ const MH_EXOTIC_COUNT=MH_EXOTICS.length;
 const MH_VOID_FALLEN=MH_MORPHS.filter(m=>m.rarity==='voidfallen');
 const MH_VOID_COUNT=MH_VOID_FALLEN.length;
 
+function mhHuntWorld(m){
+ if(!m||m.codeOnly||m.mayorOnly) return -1;
+ if(m.voidKing||m.voidFallen||m.rarity==='voidfallen') return MH_VOID_WORLD;
+ if(MH_HIGH_RARITY.has(m.rarity)) return MH_EXOTIC_WORLD;
+ const w=typeof m.world==='number'?m.world:0;
+ return w>=MH_EXOTIC_WORLD?0:w;
+}
+function mhWorldRarityHint(wi){
+ if(wi===MH_VOID_WORLD) return 'Void Fallen only';
+ if(wi===MH_EXOTIC_WORLD) return 'Epic · Legendary · Secret · Exotic · Exclusive';
+ return 'Common · Uncommon · Rare (hidden groves)';
+}
+function mhWorldTeleportUnlocked(save,wi){
+ if(wi===MH_EXOTIC_WORLD||wi===MH_VOID_WORLD) return true;
+ return wi<save.worldsUnlocked;
+}
+function mhGroveCount(wi){
+ if(wi===MH_VOID_WORLD) return MH_GROVES_VOID;
+ if(wi===MH_EXOTIC_WORLD) return MH_GROVES_EPIC;
+ return MH_GROVES_PER_NORMAL;
+}
+
+function mhTileWalkable(map,tx,ty){
+ if(tx<1||ty<1||tx>=map.w-1||ty>=map.h-1) return false;
+ return map.tiles[ty*map.w+tx]!==1;
+}
 function mhGenWorldMap(wi){
  const w=MH_MAP_W,h=MH_MAP_H;
  const tiles=new Uint8Array(w*h);
- if(wi===MH_VOID_WORLD){
-  const cx=Math.floor(w/2),cy=Math.floor(h/2);
-  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
-   if(x<1||y<1||x>=w-1||y>=h-1) tiles[y*w+x]=1;
-   else if(Math.abs(x-cx)<=4&&Math.abs(y-cy)<=3) tiles[y*w+x]=0;
-   else tiles[y*w+x]=mhHashStr('void'+x+y)%8===0?2:0;
-  }
-  return {w,h,tiles,spawnTx:5,spawnTy:5,doorTx:22,doorTy:16,wi,throneTx:cx,throneTy:cy};
- }
- if(wi===MH_EXOTIC_WORLD){
-  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
-   if(x<1||y<1||x>=w-1||y>=h-1) tiles[y*w+x]=1;
-   else tiles[y*w+x]=mhHashStr('ex'+x+y)%10===0?2:0;
-  }
-  return {w,h,tiles,spawnTx:4,spawnTy:4,doorTx:23,doorTy:17,wi};
- }
+ const cx=Math.floor(w/2), cy=Math.floor(h/2);
  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
   if(x<1||y<1||x>=w-1||y>=h-1) tiles[y*w+x]=1;
   else tiles[y*w+x]=0;
  }
- const mid=Math.floor(h/2);
- const door=8+(mhHashStr('door'+wi)% (w-16));
- for(let x=2;x<w-2;x++) if(Math.abs(x-door)>2) tiles[mid*w+x]=1;
- for(let r=0;r<3+wi;r++){
-  const rx=4+mhHashStr('rx'+wi+r)%(w-8);
-  const ry=4+mhHashStr('ry'+wi+r)%(h-8);
-  if(tiles[ry*w+rx]===0) tiles[ry*w+rx]=2;
+ if(wi===MH_VOID_WORLD){
+  for(let x=2;x<w-2;x++)for(let y=2;y<h-2;y++){
+   const hv=mhHashStr('abyss'+x+y);
+   if(Math.abs(x-cx)<=2&&Math.abs(y-cy)<=2) tiles[y*w+x]=12;
+   else if(hv%17===0) tiles[y*w+x]=10;
+   else if(hv%13===0) tiles[y*w+x]=11;
+   else tiles[y*w+x]=9;
+  }
+  return {w,h,tiles,spawnTx:cx,spawnTy:cy+3,wi,throneTx:cx,throneTy:cy,abyssStamp:'v48'};
  }
- for(let x=2;x<w-2;x+=8) for(let y=2;y<h-2;y+=6){
-  if(tiles[y*w+x]===0&&mhHashStr('p'+x+y+wi)%10===0) tiles[y*w+x]=2;
+ if(wi===MH_EXOTIC_WORLD){
+  for(let x=2;x<w-2;x++)for(let y=2;y<h-2;y++){
+   if(mhHashStr('exf'+x+y)%11===0) tiles[y*w+x]=6;
+  }
+  return {w,h,tiles,spawnTx:cx,spawnTy:cy,wi};
  }
- return {w,h,tiles,spawnTx:3,spawnTy:3,doorTx:door,doorTy:mid,wi};
+ if(wi===2){
+  for(let x=1;x<w-1;x++)for(let y=h-7;y<h-1;y++) tiles[y*w+x]=3;
+ }
+ if(wi===4){
+  for(let x=2;x<w-2;x++)for(let y=2;y<h-2;y++){
+   if(((x+y+wi)%4)===0) tiles[y*w+x]=4;
+  }
+ }
+ if(wi===3){
+  for(let i=0;i<28;i++){
+   const tx=2+mhHashStr('cavx'+wi+i)%(w-4), ty=2+mhHashStr('cavy'+wi+i)%(h-4);
+   if(tiles[ty*w+tx]===0) tiles[ty*w+tx]=5;
+  }
+ }
+ if(wi===5){
+  for(let i=0;i<18;i++){
+   const tx=2+mhHashStr('clx'+i)%(w-4), ty=2+mhHashStr('cly'+i)%(h-4);
+   if(tiles[ty*w+tx]===0) tiles[ty*w+tx]=7;
+  }
+ }
+ if(wi===6){
+  for(let x=2;x<w-2;x++)for(let y=2;y<h-2;y++){
+   if(mhHashStr('lav'+x+y)%9===0) tiles[y*w+x]=8;
+  }
+ }
+ const spx=3+mhHashStr('spx'+wi)%6, spy=3+mhHashStr('spy'+wi)%6;
+ return {w,h,tiles,spawnTx:spx,spawnTy:spy,wi};
+}
+function mhPaintWorldGroundTile(ctx,x,y,v,world,wi){
+ if(v===1){
+  ctx.fillStyle=world.wall||'#4a5058';
+  ctx.fillRect(x,y,MH_TILE,MH_TILE);
+  return;
+ }
+ if(v===3&&wi===2){
+  ctx.fillStyle='#4090c8'; ctx.fillRect(x,y,MH_TILE,MH_TILE);
+  ctx.fillStyle='rgba(255,255,255,.15)'; ctx.fillRect(x,y+MH_TILE-6,MH_TILE,6);
+  return;
+ }
+ if(v===4&&wi===4){
+  ctx.fillStyle=((x/MH_TILE+y/MH_TILE)&1)?'#d8d4b0':'#c8c4a0';
+  ctx.fillRect(x,y,MH_TILE,MH_TILE);
+  ctx.fillStyle='#ffffa0'; ctx.fillRect(x+4,y+4,MH_TILE-8,3);
+  return;
+ }
+ if(v===5&&wi===3){
+  ctx.fillStyle='#585088'; ctx.fillRect(x,y,MH_TILE,MH_TILE);
+  ctx.fillStyle='#9080c0'; ctx.beginPath(); ctx.moveTo(x+MH_TILE/2,y+4); ctx.lineTo(x+MH_TILE-4,y+MH_TILE-4); ctx.lineTo(x+4,y+MH_TILE-4); ctx.fill();
+  return;
+ }
+ if(v===6&&wi===MH_EXOTIC_WORLD){
+  ctx.fillStyle='#381848'; ctx.fillRect(x,y,MH_TILE,MH_TILE);
+  ctx.fillStyle='#ff48e8'; ctx.fillRect(x+6,y+MH_TILE/2, MH_TILE-12,3);
+  return;
+ }
+ if(v===7&&wi===5){
+  ctx.fillStyle='#a8d8ff'; ctx.fillRect(x,y,MH_TILE,MH_TILE);
+  ctx.fillStyle='rgba(255,255,255,.55)'; ctx.beginPath(); ctx.arc(x+MH_TILE/2,y+MH_TILE/2,10,0,Math.PI*2); ctx.fill();
+  return;
+ }
+ if(v===8&&wi===6){
+  ctx.fillStyle='#602818'; ctx.fillRect(x,y,MH_TILE,MH_TILE);
+  ctx.fillStyle='#ff6040'; ctx.fillRect(x+8,y+10,6,4);
+  return;
+ }
+ if(wi===MH_VOID_WORLD){
+  if(v===12){
+   ctx.fillStyle='#280808'; ctx.fillRect(x,y,MH_TILE,MH_TILE);
+   ctx.fillStyle='#ff3030'; ctx.fillRect(x+4,y+4,MH_TILE-8,MH_TILE-8);
+   ctx.fillStyle='#0a0a0a'; ctx.fillRect(x+10,y+10,MH_TILE-20,MH_TILE-20);
+   return;
+  }
+  if(v===10){
+   ctx.fillStyle='#180610'; ctx.fillRect(x,y,MH_TILE,MH_TILE);
+   ctx.fillStyle='#ff2040'; ctx.fillRect(x+6,y+MH_TILE/2-1,MH_TILE-12,3);
+   ctx.fillStyle='rgba(255,40,80,.25)'; ctx.fillRect(x,y,MH_TILE,MH_TILE);
+   return;
+  }
+  if(v===11){
+   ctx.fillStyle='#0c0818'; ctx.fillRect(x,y,MH_TILE,MH_TILE);
+   ctx.fillStyle='#9040ff'; ctx.fillRect(x+8,y+12,4,4); ctx.fillRect(x+20,y+22,3,3);
+   return;
+  }
+  if(v===9||v===0){
+   const dark=((x/MH_TILE+y/MH_TILE)&1)?'#06040c':'#0e0a14';
+   ctx.fillStyle=dark; ctx.fillRect(x,y,MH_TILE,MH_TILE);
+   ctx.fillStyle='rgba(80,0,40,.12)'; ctx.fillRect(x,y+MH_TILE-4,MH_TILE,4);
+   return;
+  }
+ }
+ const pair=mhFlatGroundPair(world.ground);
+ ctx.fillStyle=((x/MH_TILE+y/MH_TILE)&1)?mhShade(world.ground,18):world.ground;
+ ctx.fillRect(x,y,MH_TILE,MH_TILE);
 }
 const MH_WORLD_MAPS=MH_WORLDS.map((_,i)=>mhGenWorldMap(i));
+function mhEnterableKinds(wi){
+ return MH_WORLD_MEGA_BUILDINGS[wi]||MH_WORLD_MEGA_BUILDINGS[0];
+}
+function mhPickDecorKind(themes,wi,i){
+ for(let t=0;t<10;t++){
+  const kind=themes[mhHashStr('deck'+wi+i+t)%themes.length];
+  if(MH_MEGA_BUILDING_KINDS.has(kind)) continue;
+  if(kind==='noobie_statue'||kind==='park'||kind==='playground') continue;
+  return kind;
+ }
+ return themes.find(k=>!MH_MEGA_BUILDING_KINDS.has(k))||'fountain';
+}
+function mhGenVoidAbyssLandmarks(map){
+ map.playerSpawnTx=map.spawnTx;
+ map.playerSpawnTy=map.spawnTy;
+ const kinds=['void_fallen_building','void_cathedral','ruined_house','void_fallen_building'];
+ const slots=[
+  {tx:3,ty:3},{tx:map.w-MH_MEGA_W-3,ty:3},
+  {tx:3,ty:map.h-MH_MEGA_H-3},{tx:map.w-MH_MEGA_W-3,ty:map.h-MH_MEGA_H-3}
+ ];
+ return slots.map((s,i)=>({
+  tx:s.tx, ty:s.ty, kind:kinds[i], mega:true, footW:MH_MEGA_W, footH:MH_MEGA_H, id:'void-abyss-'+i
+ })).filter(p=>mhMegaFits(map,p.tx,p.ty,p.footW,p.footH));
+}
 function mhGenLandmarks(wi,map){
- const themes=MH_WORLD_DECORS[wi]||MH_WORLD_DECORS[0];
+ if(wi===MH_VOID_WORLD) return mhGenVoidAbyssLandmarks(map);
+ const enter=mhEnterableKinds(wi);
  const sp=mhMapSpawnPos(map);
  const sx=Math.floor(sp.px/MH_TILE), sy=Math.floor(sp.py/MH_TILE);
  map.playerSpawnTx=sx; map.playerSpawnTy=sy;
  const ring=[
-  {dx:3,dy:0,i:0},{dx:-3,dy:0,i:1},{dx:0,dy:3,i:2},{dx:0,dy:-3,i:3},
-  {dx:2,dy:2,i:4},{dx:-2,dy:2,i:5},{dx:2,dy:-2,i:6},{dx:-2,dy:-2,i:7}
+  {dx:4,dy:0,i:0},{dx:-4,dy:0,i:1},{dx:0,dy:4,i:2},{dx:0,dy:-4,i:3},
+  {dx:3,dy:3,i:4},{dx:-3,dy:3,i:5},{dx:3,dy:-3,i:6},{dx:-3,dy:-3,i:7}
  ];
  const spots=ring.map(r=>({
   tx:sx+r.dx, ty:sy+r.dy,
-  kind:themes[(r.i+(wi*2))%themes.length],
-  scale:3.4-(r.i%3)*0.15
+  kind:enter[(r.i+(wi*2))%enter.length],
+  mega:true, footW:MH_MEGA_W, footH:MH_MEGA_H,
+  id:'bld-'+wi+'-'+sx+'-'+sy+'-'+r.i
  }));
+ for(let i=0;i<4;i++){
+  const tx=sx+((i%3)-1)*9, ty=sy+Math.floor(i/2)*8-4;
+  if(tx>2&&ty>2&&tx<map.w-MH_MEGA_W-1&&ty<map.h-MH_MEGA_H-1){
+   spots.push({tx,ty,kind:enter[i%enter.length],mega:true,footW:MH_MEGA_W,footH:MH_MEGA_H,id:'bld-'+wi+'-extra-'+i});
+  }
+ }
  if(wi===MH_VOID_WORLD&&map.throneTx!=null){
-  spots.push({tx:map.throneTx-2,ty:map.throneTy,kind:'void_fallen_building',scale:3.8});
-  spots.push({tx:map.throneTx+2,ty:map.throneTy,kind:'void_cathedral',scale:3.6});
-  spots.push({tx:map.throneTx,ty:map.throneTy-3,kind:'ruined_house',scale:3.5});
-  spots.push({tx:map.throneTx-1,ty:map.throneTy+2,kind:'forbidden_stone',scale:3.2});
+  spots.push({tx:map.throneTx-5,ty:map.throneTy-3,kind:'void_fallen_building',mega:true,footW:8,footH:6,id:'bld-void-tower'});
+  spots.push({tx:map.throneTx+4,ty:map.throneTy-1,kind:'void_cathedral',mega:true,footW:MH_MEGA_W,footH:MH_MEGA_H,id:'bld-void-cath'});
  }
- for(let i=0;i<themes.length;i++){
-  const tx=sx+((i%4)-1)*5, ty=sy+Math.floor(i/4)*4-2;
-  if(tx>2&&ty>2&&tx<map.w-2&&ty<map.h-2) spots.push({tx,ty,kind:themes[i],scale:3.1});
+ if(spots.filter(p=>mhMegaFits(map,p.tx,p.ty,p.footW,p.footH)).length<4){
+  for(let r=5;r<16;r++){
+   for(let a=0;a<12;a++){
+    const dx=Math.round(Math.cos(a*Math.PI/6)*r);
+    const dy=Math.round(Math.sin(a*Math.PI/6)*r);
+    spots.push({
+     tx:sx+dx, ty:sy+dy,
+     kind:enter[(spots.length+wi)%enter.length],
+     mega:true, footW:MH_MEGA_W, footH:MH_MEGA_H,
+     id:'bld-'+wi+'-scan-'+dx+'-'+dy
+    });
+   }
+  }
  }
+ const seen=new Set();
  return spots.filter(p=>{
-  if(p.tx<1||p.ty<1||p.tx>=map.w-1||p.ty>=map.h-1) return false;
-  return map.tiles[p.ty*map.w+p.tx]===0;
+  const fw=p.footW||MH_MEGA_W, fh=p.footH||MH_MEGA_H;
+  if(!mhMegaFits(map,p.tx,p.ty,fw,fh)) return false;
+  const key=p.tx+','+p.ty;
+  if(seen.has(key)) return false;
+  seen.add(key);
+  return true;
+ }).slice(0,12);
+}
+function mhGenWorldFeature(wi,map){
+ if(wi!==4||map.playerSpawnTx==null) return null;
+ const sx=map.playerSpawnTx, sy=map.playerSpawnTy;
+ return {type:'backrooms_atrium',tx:sx-6,ty:sy-4,w:12,h:7,label:'LIMINAL ATRIUM · BACKROOMS'};
+}
+function mhGenCourt(map,wi){
+ const sx=map.playerSpawnTx, sy=map.playerSpawnTy;
+ if(sx==null||wi!==0) return null;
+ const w=12,h=8;
+ const tx=Math.max(2,sx-Math.floor(w/2)), ty=Math.max(2,sy-Math.floor(h/2));
+ if(tx+w>=map.w-2||ty+h>=map.h-2) return null;
+ return {tx,ty,w,h,id:'court-'+wi};
+}
+function mhTileInCourt(map,tx,ty){
+ const c=map.court;
+ if(!c) return false;
+ return tx>=c.tx&&tx<c.tx+c.w&&ty>=c.ty&&ty<c.ty+c.h;
+}
+function mhGenMayorShrine(map){
+ if(!map.court) return null;
+ const c=map.court;
+ const sx=c.tx+Math.floor(c.w/2), sy=c.ty+2;
+ const reflectors=[
+  {tx:c.tx+1,ty:c.ty+1,label:'Mirror A'},
+  {tx:c.tx+c.w-2,ty:c.ty+1,label:'Mirror B'},
+  {tx:c.tx+1,ty:c.ty+c.h-2,label:'Mirror C'},
+  {tx:c.tx+c.w-2,ty:c.ty+c.h-2,label:'Mirror D'}
+ ].map((r,i)=>({
+  ...r, px:r.tx*MH_TILE+MH_TILE/2, py:r.ty*MH_TILE+MH_TILE/2, lit:false, i
+ }));
+ return {
+  tx:sx, ty:sy,
+  px:sx*MH_TILE+MH_TILE/2, py:sy*MH_TILE+MH_TILE/2,
+  crankAngle:0, reflectors, solved:false
+ };
+}
+function mhParkFits(map,p){
+ if(p.tx<2||p.ty<2||p.tx+p.w>=map.w-2||p.ty+p.h>=map.h-2) return false;
+ for(let dy=0;dy<p.h;dy++)for(let dx=0;dx<p.w;dx++){
+  if(!mhTileWalkable(map,p.tx+dx,p.ty+dy)) return false;
+ }
+ return true;
+}
+function mhGenParks(wi,map){
+ if(wi===MH_VOID_WORLD) return [];
+ const sx=map.playerSpawnTx||10, sy=map.playerSpawnTy||10;
+ const names=MH_WORLD_PARK_NAMES[wi]||MH_WORLD_PARK_NAMES[0];
+ const w=10,h=5;
+ const slots=[
+  {dx:-15,dy:4,suffix:'North Green'},{dx:15,dy:4,suffix:'East Green'},
+  {dx:0,dy:13,suffix:'South Park'},{dx:0,dy:-11,suffix:'West Garden'}
+ ];
+ const out=[];
+ slots.forEach((s,i)=>{
+  const p={tx:sx+ s.dx-Math.floor(w/2), ty:sy+s.dy, w,h, name:names[i]||('Park '+(i+1)), parkIndex:i};
+  if(mhParkFits(map,p)&&!mhTileInCourt(map,p.tx,p.ty)) out.push(p);
  });
+ for(let r=8;r<20&&out.length<4;r++){
+  for(let a=0;a<12&&out.length<4;a++){
+   const tx=Math.round(sx+Math.cos(a*Math.PI/6)*r)-Math.floor(w/2);
+   const ty=Math.round(sy+Math.sin(a*Math.PI/6)*r);
+   const p={tx,ty,w,h,name:names[out.length]||('Park '+(out.length+1)),parkIndex:out.length};
+   if(mhParkFits(map,p)&&!out.some(q=>q.tx===tx&&q.ty===ty)) out.push(p);
+  }
+ }
+ return out.slice(0,4);
+}
+function mhGenParkStatues(map,wi){
+ const out=[];
+ const morphs=mhWorldMorphs(wi).filter(m=>!m.voidKing).slice(0,16);
+ (map.parks||[]).forEach((park,pi)=>{
+  const chunk=morphs.slice(pi*3,pi*3+3);
+  chunk.forEach((m,i)=>{
+   out.push({
+    tx:park.tx+1+i*2, ty:park.ty+Math.floor(park.h/2),
+    kind:'noobie_statue', morphId:m.id, morph:m,
+    statue:true, scale:5.8
+   });
+  });
+ });
+ if(map.mayorShrine){
+  const mayor=mhMorph('ex-mayor');
+  out.push({
+   tx:map.mayorShrine.tx, ty:map.mayorShrine.ty-1,
+   kind:'mayor_statue', morphId:'ex-mayor', morph:mayor,
+   statue:true, scale:7.5, mayor:true
+  });
+ }
+ return out;
+}
+function mhTileInPark(map,tx,ty){
+ for(const p of map.parks||[]){
+  if(tx>=p.tx&&tx<p.tx+p.w&&ty>=p.ty&&ty<p.ty+p.h) return true;
+ }
+ return false;
+}
+function mhShouldDrawMapMorph(m,save,dist,nearId){
+ if(m.voidKing) return dist<320;
+ if(nearId&&m.id===nearId) return true;
+ if(mhHasMorph(save,m.id)) return dist<220;
+ return dist<MH_HIDDEN_REVEAL_R;
+}
+function mhGroveCenterFree(map,tx,ty,used,minDist){
+ if(tx<3||ty<3||tx>=map.w-6||ty>=map.h-6) return false;
+ for(let dy=0;dy<4;dy++)for(let dx=0;dx<5;dx++){
+  if(!mhTileWalkable(map,tx+dx,ty+dy)) return false;
+ }
+ if(mhTileInPark(map,tx,ty)||mhTileInCourt(map,tx,ty)) return false;
+ for(const u of used){
+  if(Math.hypot(tx-u.tx,ty-u.ty)<minDist) return false;
+ }
+ return true;
+}
+function mhPickGroveCenters(map,wi,count){
+ const used=[];
+ const centers=[];
+ for(let g=0;g<count;g++){
+  let found=null;
+  for(let t=0;t<300;t++){
+   const tx=3+mhHashStr('gvx'+wi+g+t)%(map.w-10);
+   const ty=3+mhHashStr('gvy'+wi+g+t)%(map.h-10);
+   if(mhGroveCenterFree(map,tx,ty,used,6)){
+    found={tx,ty,w:5,h:4,g};
+    used.push(found);
+    break;
+   }
+  }
+  if(found) centers.push(found);
+ }
+ return centers;
+}
+function mhPlaceMorphInGrove(map,set,m,grove,slot){
+ for(let a=0;a<24;a++){
+  const tx=grove.tx+(slot%3)*2-1+(a%2);
+  const ty=grove.ty+Math.floor(slot/3)*2+Math.floor(a/6);
+  const k=tx+','+ty;
+  if(tx<2||ty<2||tx>=map.w-2||ty>=map.h-2) continue;
+  if(!mhTileWalkable(map,tx,ty)||set.has(k)||mhTileInPark(map,tx,ty)||mhTileInCourt(map,tx,ty)) continue;
+  set.add(k);
+  m.tileX=tx; m.tileY=ty; m.hideGrove=grove.g;
+  return true;
+ }
+ return false;
+}
+function mhScatterHiddenHideouts(){
+ MH_WORLDS.forEach((_,wi)=>{
+  const map=MH_WORLD_MAPS[wi];
+  const morphs=MH_MORPHS.filter(m=>mhHuntWorld(m)===wi&&!m.codeOnly);
+  const centers=mhPickGroveCenters(map,wi,mhGroveCount(wi));
+  map.hideouts=centers.map(c=>({
+   ...c,
+   label:wi===MH_VOID_WORLD?('🕳 Abyss grove '+(c.g+1)):('🕵 Hidden grove '+(c.g+1))
+  }));
+  const set=new Set();
+  if(wi===MH_VOID_WORLD&&map.throneTx!=null){
+   const king=morphs.find(m=>m.voidKing);
+   if(king){
+    king.tileX=map.throneTx; king.tileY=map.throneTy;
+    set.add(map.throneTx+','+map.throneTy);
+   }
+  }
+  morphs.forEach((m,i)=>{
+   if(m.voidKing) return;
+   const grove=centers[i%centers.length];
+   if(!grove) return;
+   const slot=Math.floor(i/centers.length);
+   mhPlaceMorphInGrove(map,set,m,grove,slot);
+  });
+ });
+}
+function mhMegaFits(map,tx,ty,fw,fh){
+ if(tx<1||ty<1||tx+fw>=map.w-1||ty+fh>=map.h-1) return false;
+ for(let dy=0;dy<fh;dy++)for(let dx=0;dx<fw;dx++){
+  if(!mhTileWalkable(map,tx+dx,ty+dy)) return false;
+ }
+ return true;
+}
+function mhSpawnCivilians(map,wi){
+ const list=[];
+ (map.landmarks||[]).forEach(l=>{
+  if(!l.mega) return;
+  const x=l.tx*MH_TILE,y=l.ty*MH_TILE,w=(l.footW||3)*MH_TILE,h=(l.footH||2)*MH_TILE;
+  list.push({
+   id:'civ-'+l.tx+'-'+l.ty,
+   px:x+w/2, py:y+h+12,
+   variant:(mhHashStr('cv'+l.tx+l.ty+wi)>>>0)%14,
+   phase:0, wander:false, homePx:x+w/2, homePy:y+h+18
+  });
+ });
+ (map.parks||[]).forEach((p,pi)=>{
+  list.push({
+   id:'parkc-'+pi,
+   px:p.tx*MH_TILE+p.w*MH_TILE/2,
+   py:p.ty*MH_TILE+p.h*MH_TILE-10,
+   variant:(mhHashStr('pk'+pi+wi)>>>0)%14,
+   phase:0, wander:false,
+   homePx:p.tx*MH_TILE+p.w*MH_TILE/2, homePy:p.ty*MH_TILE+p.h*MH_TILE
+  });
+ });
+ map.civilians=list;
 }
 (function mhScatterWorldDecor(){
  MH_WORLDS.forEach((_,wi)=>{
   const map=MH_WORLD_MAPS[wi];
   const themes=MH_WORLD_DECORS[wi]||MH_WORLD_DECORS[0];
   map.landmarks=mhGenLandmarks(wi,map);
+  map.court=mhGenCourt(map,wi);
+  map.worldFeature=mhGenWorldFeature(wi,map);
+  map.mayorShrine=wi===0?mhGenMayorShrine(map):null;
+  map.parks=mhGenParks(wi,map);
+  map.statues=mhGenParkStatues(map,wi);
+  if(wi===MH_VOID_WORLD){
+   map.parks=[];
+   map.statues=[];
+   map.court=null;
+   map.worldFeature=null;
+   map.mayorShrine=null;
+  }
   const decors=[];
   const used=new Set();
-  map.landmarks.forEach(l=>used.add(l.tx+','+l.ty));
-  for(let i=0;i<38+wi*3;i++){
+  const decorCount=wi===MH_VOID_WORLD?8:(14+wi);
+  if(map.court){
+   for(let dy=0;dy<map.court.h;dy++)for(let dx=0;dx<map.court.w;dx++) used.add((map.court.tx+dx)+','+(map.court.ty+dy));
+  }
+  map.landmarks.forEach(l=>{ for(let dy=0;dy<(l.footH||1);dy++)for(let dx=0;dx<(l.footW||1);dx++) used.add((l.tx+dx)+','+(l.ty+dy)); });
+  (map.parks||[]).forEach(p=>{ for(let dy=0;dy<p.h;dy++)for(let dx=0;dx<p.w;dx++) used.add((p.tx+dx)+','+(p.ty+dy)); });
+  for(let i=0;i<decorCount;i++){
    const tx=2+mhHashStr('decx'+wi+i)%(map.w-4);
    const ty=2+mhHashStr('decy'+wi+i)%(map.h-4);
    const k=tx+','+ty;
-   if(map.tiles[ty*map.w+tx]!==0||used.has(k)) continue;
+   if(!mhTileWalkable(map,tx,ty)||map.tiles[ty*map.w+tx]!==0||used.has(k)) continue;
    if(map.throneTx!=null&&Math.abs(tx-map.throneTx)<=3&&Math.abs(ty-map.throneTy)<=3) continue;
    used.add(k);
-   decors.push({tx,ty,kind:themes[mhHashStr('deck'+wi+i)%themes.length],scale:1.6+((mhHashStr('ds'+i)%5)*0.15)});
+   decors.push({tx,ty,kind:mhPickDecorKind(themes,wi,i),scale:2.1+((mhHashStr('ds'+i)%4)*0.2)});
   }
   map.decors=decors;
+  mhSpawnCivilians(map,wi);
  });
 })();
-(function mhScatterMorphTiles(){
- const occ=new Map();
- MH_WORLDS.forEach((_,wi)=>{
-  const map=MH_WORLD_MAPS[wi];
-  if(!occ.has(wi)) occ.set(wi,new Set());
-  const set=occ.get(wi);
-  let pool;
-  if(wi===MH_VOID_WORLD) pool=MH_VOID_FALLEN;
-  else if(wi===MH_EXOTIC_WORLD) pool=MH_MORPHS.filter(m=>m.rarity==='exotic');
-  else pool=MH_MORPHS.filter(m=>!m.exclusive&&!m.voidFallen&&m.world===wi);
-  pool.forEach(m=>{
-   if(m.id==='vf-king'&&map.throneTx!=null){
-    m.tileX=map.throneTx; m.tileY=map.throneTy;
-    set.add(map.throneTx+','+map.throneTy);
-    return;
-   }
-   for(let t=0;t<400;t++){
-    const tx=3+mhHashStr(m.id+'x'+t)%(map.w-6);
-    const ty=3+mhHashStr(m.id+'y'+t)%(map.h-6);
-    const k=tx+','+ty;
-    if(map.tiles[ty*map.w+tx]!==0||set.has(k)) continue;
-    set.add(k);
-    m.tileX=tx; m.tileY=ty;
-    break;
-   }
-  });
- });
-})();
+mhScatterHiddenHideouts();
 
 function mhIsOwner(){
  if(typeof isOwner!=='undefined'&&isOwner)return true;
@@ -496,7 +939,7 @@ function mhMapSpawnPos(map){
   for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++){
    const tx=cx+dx, ty=cy+dy;
    if(tx<2||ty<2||tx>=map.w-2||ty>=map.h-2) continue;
-   if(map.tiles[ty*map.w+tx]!==0) continue;
+   if(!mhTileWalkable(map,tx,ty)) continue;
    const px=tx*MH_TILE+MH_TILE/2, py=ty*MH_TILE+MH_TILE/2;
    if(!mhWalkCollide(map,px,py,10)) return {px,py};
   }
@@ -540,6 +983,20 @@ function mhDrawDecorKind(ctx,x,y,kind,wi){
   case 'fountain':
    ctx.fillStyle=stone; ctx.fillRect(10,24,T-20,8);
    ctx.fillStyle='#60a8e0'; ctx.beginPath(); ctx.arc(T/2,22,8,0,Math.PI*2); ctx.fill();
+   break;
+  case 'park':
+   ctx.fillStyle='#5a9a48'; ctx.fillRect(2,20,T-4,T-22);
+   ctx.fillStyle='#3a7838'; ctx.beginPath(); ctx.arc(T/2,14,11,0,Math.PI*2); ctx.fill();
+   ctx.fillStyle='#6a5040'; ctx.fillRect(T/2-8,24,16,4);
+   break;
+  case 'playground':
+   ctx.strokeStyle='#8090a0'; ctx.lineWidth=2;
+   ctx.beginPath(); ctx.moveTo(8,28); ctx.lineTo(8,10); ctx.lineTo(T-8,10); ctx.lineTo(T-8,28); ctx.stroke();
+   ctx.fillStyle='#ff6080'; ctx.fillRect(T/2-12,14,24,4);
+   break;
+  case 'noobie_statue':
+   ctx.fillStyle='#9098a8'; ctx.fillRect(T/2-6,T-6,12,T-4);
+   mhPaintHuman(ctx,T/2,T-8,variant%14,0,0.95);
    break;
   case 'bench':
    ctx.fillStyle=wood; ctx.fillRect(8,26,T-16,4); ctx.fillRect(10,22,4,8); ctx.fillRect(T-14,22,4,8);
@@ -756,10 +1213,149 @@ function mhDrawDecorKind(ctx,x,y,kind,wi){
  }
  ctx.restore();
 }
-function mhDrawSceneryPiece(ctx,d,wi){
+function mhPaintHuman(ctx,x,y,variant,phase,sc){
+ sc=sc||0.72;
+ const pal=[
+  ['#F5CD30','#0085DB','#A4BD47'],['#FF98DC','#C4281C','#0085DB'],
+  ['#E0AC00','#008000','#6B8E23'],['#BFA029','#004080','#A4BD47'],
+  ['#D9BC00','#800080','#A3A2A5'],['#F5CD30','#800080','#A4BD47']
+ ][variant%6];
+ const h=pal[0],t=pal[1],l=pal[2];
+ const bob=Math.sin(phase||0)*3;
+ ctx.save();
+ ctx.translate(x,y+bob);
+ ctx.scale(sc,sc);
+ ctx.fillStyle='rgba(0,0,0,.35)'; ctx.beginPath(); ctx.ellipse(0,22,12,3,0,0,Math.PI*2); ctx.fill();
+ mhGradRect(ctx,-7,8,6,16,l,mhShade(l,-25));
+ mhGradRect(ctx,1,8,6,16,l,mhShade(l,-25));
+ mhGradRect(ctx,-9,-2,18,12,t,mhShade(t,-30));
+ ctx.fillStyle=h; ctx.fillRect(-8,-18,16,16);
+ ctx.fillStyle='#1a1a20'; ctx.fillRect(-5,-12,4,4); ctx.fillRect(1,-12,4,4);
+ ctx.fillStyle='rgba(255,255,255,.6)'; ctx.fillRect(-4,-11,2,2); ctx.fillRect(2,-11,2,2);
+ ctx.restore();
+}
+function mhDrawInteriorProps(ctx,ix,iy,w,h,seed){
+ ctx.fillStyle='#ffe890'; ctx.fillRect(ix,iy,w,h);
+ ctx.fillStyle='#604028'; ctx.fillRect(ix+3,iy+h-8,w-6,5);
+ ctx.fillStyle='#5080c0'; ctx.fillRect(ix+4,iy+4,10,6);
+ ctx.fillStyle='#804030'; ctx.fillRect(ix+w-14,iy+5,8,10);
+ if(seed%2===0){ ctx.fillStyle='#806040'; ctx.fillRect(ix+w/2-4,iy+8,8,6); }
+ if(seed%3===0){ ctx.fillStyle='#ffd060'; ctx.beginPath(); ctx.arc(ix+w-6,iy+6,3,0,Math.PI*2); ctx.fill(); }
+ mhPaintHuman(ctx,ix+w*0.55,iy+h-2,(seed+3)%14,seed*0.4,0.45);
+}
+function mhDrawMegaBuilding(ctx,d,wi,t){
+ const T=MH_TILE, x=d.tx*T, y=d.ty*T;
+ const fw=d.footW||MH_MEGA_W, fh=d.footH||MH_MEGA_H;
+ const W=fw*T, H=fh*T;
+ const roofLift=Math.min(18,fw*2);
+ const kind=d.kind;
+ ctx.fillStyle='rgba(0,0,0,.25)'; ctx.fillRect(x+4,y+H+2,W-8,10);
+ if(kind==='void_fallen_building'||kind==='void_cathedral'||kind==='ruined_house'){
+  ctx.fillStyle='#0a0a0a'; ctx.fillRect(x,y+8,W,H-8);
+  ctx.fillStyle='#280808'; ctx.fillRect(x+6,y+14,W-12,H-18);
+  ctx.strokeStyle='#ff3030'; ctx.lineWidth=2; ctx.strokeRect(x+4,y+10,W-8,H-14);
+  for(let wx=0;wx<2;wx++){
+   const ix=x+14+wx*(W/2-10);
+   mhDrawInteriorProps(ctx,ix,y+22,26,22,(d.tx+d.ty+wx+wi)%7);
+   ctx.fillStyle='#401010'; ctx.fillRect(ix+4,y+24,18,16);
+  }
+  ctx.fillStyle='#ff2020'; ctx.fillRect(x+W/2-14,y+H-22,28,18);
+  mhPaintHuman(ctx,x+W*0.2,y+H+8,8,t,0.75);
+  mhPaintHuman(ctx,x+W*0.55,y+H+10,11,t*1.1,0.78);
+  mhPaintHuman(ctx,x+W*0.82,y+H+6,9,t*0.9,0.7);
+  return;
+ }
+ if(kind==='fluoro_hall'||kind==='liminal_door'){
+  ctx.fillStyle='#d8d4b0'; ctx.fillRect(x+2,y+10,W-4,H-12);
+  ctx.fillStyle='#ffffa0'; ctx.fillRect(x+6,y+14,W-12,6);
+  ctx.fillStyle='#909088'; ctx.fillRect(x+W/2-14,y+H*0.35,28,H*0.55);
+  ctx.fillStyle='#101018'; ctx.fillRect(x+W/2-10,y+H*0.42,20,H*0.4);
+  ctx.fillStyle='rgba(0,0,0,.55)'; ctx.fillRect(x+W/2-42,y+H*0.28,84,22);
+  ctx.fillStyle='#303028'; ctx.font='bold 12px system-ui'; ctx.textAlign='center';
+  ctx.fillText('F ENTER · BACKROOMS',x+W/2,y+H*0.42);
+  mhPaintHuman(ctx,x+W*0.3,y+H+8,3,t,0.85);
+  return;
+ }
+ if(kind==='beach_hut'||kind==='lifeguard'){
+  ctx.fillStyle='#e8d878'; ctx.fillRect(x+4,y+H*0.32,W-8,H*0.68);
+  ctx.fillStyle='#40a0c0'; ctx.fillRect(x+6,y+8,W-12,H*0.22);
+  ctx.fillStyle='#604818'; ctx.fillRect(x+W/2-28,y+H*0.48,56,H*0.45);
+  ctx.fillStyle='#ffe8a0'; ctx.font='bold 12px system-ui'; ctx.textAlign='center';
+  ctx.fillText('F ENTER · BEACH',x+W/2,y+H*0.52);
+  return;
+ }
+ if(kind==='cloud_house'||kind==='sky_bridge'){
+  ctx.fillStyle='#e8f4ff'; ctx.fillRect(x+4,y+H*0.3,W-8,H*0.7);
+  ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(x+W*0.3,y+16,16,0,Math.PI*2); ctx.arc(x+W*0.7,y+18,14,0,Math.PI*2); ctx.fill();
+  if(kind==='sky_bridge'){
+   ctx.fillStyle='#c8e8ff'; ctx.fillRect(x+2,y+H*0.55,W-4,10);
+   ctx.strokeStyle='#8098b0'; ctx.strokeRect(x+2,y+H*0.55,W-4,10);
+  }
+  ctx.fillStyle='#ffe8a0'; ctx.font='bold 12px system-ui'; ctx.textAlign='center';
+  ctx.fillText('F ENTER · SKY',x+W/2,y+H*0.5);
+  return;
+ }
+ if(kind==='expedition_tent'||kind==='crystal'){
+  ctx.fillStyle=kind==='crystal'?'#685898':'#c8a860';
+  ctx.fillRect(x+4,y+H*0.25,W-8,H*0.75);
+  ctx.beginPath(); ctx.moveTo(x,y+H*0.25); ctx.lineTo(x+W/2,y+6); ctx.lineTo(x+W,y+H*0.25); ctx.fill();
+  ctx.fillStyle='#ffe8a0'; ctx.font='bold 12px system-ui'; ctx.textAlign='center';
+  ctx.fillText('F ENTER · CAVE',x+W/2,y+H*0.5);
+  return;
+ }
+ if(kind==='tent'){
+  ctx.fillStyle='#ff6080'; ctx.fillRect(x+8,y+H*0.3,W-16,H*0.65);
+  ctx.beginPath(); ctx.moveTo(x+4,y+H*0.3); ctx.lineTo(x+W/2,y+8); ctx.lineTo(x+W-4,y+H*0.3); ctx.fill();
+  ctx.fillStyle='#ffe8a0'; ctx.font='bold 12px system-ui'; ctx.textAlign='center';
+  ctx.fillText('F ENTER · FAIR',x+W/2,y+H*0.5);
+  return;
+ }
+ if(kind==='burned_house'||kind==='expedition_camp'){
+  ctx.fillStyle='#4a3028'; ctx.fillRect(x+4,y+H*0.28,W-8,H*0.72);
+  ctx.fillStyle='#ff6040'; ctx.fillRect(x+10,y+12,12,8);
+  ctx.fillStyle='#ffe8a0'; ctx.font='bold 12px system-ui'; ctx.textAlign='center';
+  ctx.fillText('F ENTER · LAVA',x+W/2,y+H*0.5);
+  return;
+ }
+ if(kind==='vault'||kind==='neon_sign'||kind==='nexus_ruins'){
+  ctx.fillStyle=wi===MH_EXOTIC_WORLD?'#281838':'#384868';
+  ctx.fillRect(x+4,y+12,W-8,H-14);
+  ctx.fillStyle=wi===MH_EXOTIC_WORLD?'#ff48e8':'#ffd060';
+  ctx.fillRect(x+8,y+20,W-16,8);
+  ctx.fillStyle='#ffe8a0'; ctx.font='bold 12px system-ui'; ctx.textAlign='center';
+  ctx.fillText('F ENTER · '+MH_WORLDS[wi].name.split(' ')[0].toUpperCase(),x+W/2,y+H*0.5);
+  return;
+ }
+ if(kind==='shop'||kind==='stall'||kind==='booth'){
+  ctx.fillStyle='#5080a0'; ctx.fillRect(x+4,y+H*0.35,W-8,H*0.65);
+  ctx.fillStyle='#ffd060'; ctx.fillRect(x+6,y+H*0.42,W-12,H*0.12);
+  ctx.fillStyle='#303840'; ctx.fillRect(x+W/2-16,y+H*0.58,32,H*0.42);
+  mhDrawInteriorProps(ctx,x+10,y+H*0.4,28,24,(d.tx+wi)%9);
+  mhDrawInteriorProps(ctx,x+W-38,y+H*0.4,28,24,(d.tx+1)%9);
+  ctx.fillStyle='#e04080'; ctx.fillRect(x+4,y+6,W-8,14);
+  mhPaintHuman(ctx,x+W*0.25,y+H+6,2,t,0.8);
+  mhPaintHuman(ctx,x+W*0.7,y+H+8,5,t,0.82);
+  return;
+ }
+ ctx.fillStyle='#8a6048'; ctx.fillRect(x+4,y+H*0.28,W-8,H*0.72);
+ ctx.fillStyle='#6a3028'; ctx.beginPath(); ctx.moveTo(x-8,y+H*0.28); ctx.lineTo(x+W/2,y-roofLift); ctx.lineTo(x+W+8,y+H*0.28); ctx.fill();
+ ctx.fillStyle='#505860'; ctx.fillRect(x+W-26,y+4,14,24);
+ mhDrawInteriorProps(ctx,x+12,y+H*0.34,34,28,(d.tx+wi)%11);
+ mhDrawInteriorProps(ctx,x+W-46,y+H*0.34,34,28,(d.ty+wi)%11);
+ ctx.fillStyle='#402818'; ctx.fillRect(x+W/2-32,y+H*0.48,64,H*0.52);
+ ctx.fillStyle='#ffe060'; ctx.fillRect(x+W/2-20,y+H*0.58,14,12);
+ ctx.fillStyle='rgba(0,0,0,.55)'; ctx.fillRect(x+W/2-38,y+H*0.34,76,24);
+ ctx.fillStyle='#ffe8a0'; ctx.font='bold 13px system-ui'; ctx.textAlign='center';
+ ctx.fillText('F ENTER',x+W/2,y+H*0.5);
+ mhPaintHuman(ctx,x+W*0.18,y+H+6,(d.tx+wi)%14,t,1.15);
+ mhPaintHuman(ctx,x+W*0.5,y+H+10,(d.ty+1)%14,t*1.05,1.0);
+ mhPaintHuman(ctx,x+W*0.78,y+H+6,(d.tx+d.ty)%14,t*0.95,0.92);
+}
+function mhDrawSceneryPiece(ctx,d,wi,t){
+ if(d.mega){ mhDrawMegaBuilding(ctx,d,wi,t||0); return; }
  const T=MH_TILE;
  const x=d.tx*MH_TILE,y=d.ty*MH_TILE;
- const sc=d.scale||1.65;
+ const sc=d.scale||2.8;
  ctx.save();
  ctx.translate(x+MH_TILE/2,y+MH_TILE*0.92);
  ctx.scale(sc,sc);
@@ -769,16 +1365,279 @@ function mhDrawSceneryPiece(ctx,d,wi){
  mhDrawDecorKind(ctx,0,0,d.kind,wi);
  ctx.restore();
 }
-function mhDrawThemedPropTile(ctx,x,y,wi,tx,ty){
+function mhDrawThemedPropTile(ctx,x,y,wi,tx,ty,t){
  const themes=MH_WORLD_DECORS[wi]||MH_WORLD_DECORS[0];
  const kind=themes[mhHashStr('pt'+tx+ty+wi)%themes.length];
- mhDrawSceneryPiece(ctx,{tx,ty,kind,scale:2.1},wi);
+ mhDrawSceneryPiece(ctx,{tx,ty,kind,mega:true,footW:4,footH:3,id:'prop-'+tx+'-'+ty},wi,t);
 }
-function mhDrawMapDecors(ctx,map,wi){
- (map.landmarks||[]).forEach(d=>mhDrawSceneryPiece(ctx,d,wi));
- (map.decors||[]).forEach(d=>mhDrawSceneryPiece(ctx,d,wi));
+function mhBuildingDoor(d){
+ const T=MH_TILE,fw=d.footW||MH_MEGA_W,fh=d.footH||MH_MEGA_H;
+ return {px:d.tx*T+fw*T/2, py:d.ty*T+fh*T-6};
 }
-function mhDrawFlatMapTiles(ctx,map,world,wi){
+function mhBuildingSecret(d,wi){
+ const slot=mhHashStr((d.id||d.tx)+'|'+d.ty+'|'+wi)%3;
+ if(slot===0) return {redeem:'glitchhouse', morph:'code-glitch', label:'GLITCH', color:'#39ff14'};
+ if(slot===1) return {redeem:'mythinside', morph:'code-myth', label:'MYTH', color:'#ffd060'};
+ return {redeem:'minigamevault', morph:'code-minigame', label:'MINIGAME', color:'#ff48e8'};
+}
+function mhWalkNearBuilding(pos,map){
+ let best=null,bd=120;
+ (map.landmarks||[]).forEach(d=>{
+  if(!d.mega) return;
+  const door=mhBuildingDoor(d);
+  const dist=Math.hypot(door.px-pos.px,door.py-pos.py);
+  if(dist<bd){ bd=dist; best=d; }
+ });
+ return best;
+}
+function mhEnterBuilding(d,wi){
+ if(!mhState) return;
+ mhState.insideBuilding={...d,wi,secret:mhBuildingSecret(d,wi)};
+ mhToast('🏠 Inside! Read the big wall sign · Press F to leave');
+}
+function mhExitBuilding(){
+ if(mhState) mhState.insideBuilding=null;
+}
+function mhDrawInteriorProp(ctx,x,y,type,sc){
+ ctx.save(); ctx.translate(x,y); ctx.scale(sc,sc);
+ if(type==='bed'){
+  ctx.fillStyle='#5080c0'; ctx.fillRect(-40,0,80,28); ctx.fillStyle='#fff'; ctx.fillRect(-36,4,72,16);
+ }else if(type==='table'){
+  ctx.fillStyle='#604028'; ctx.fillRect(-35,-8,70,12); ctx.fillRect(-30,4,8,22); ctx.fillRect(22,4,8,22);
+  ctx.fillStyle='#ffd060'; ctx.fillRect(-8,-4,16,8);
+ }else if(type==='tv'){
+  ctx.fillStyle='#303840'; ctx.fillRect(-30,-20,60,40); ctx.fillStyle='#80e0ff'; ctx.fillRect(-24,-14,48,28);
+ }else if(type==='crate'){
+  ctx.fillStyle='#6a5038'; ctx.fillRect(-22,-18,44,36); ctx.strokeStyle='#3a2818'; ctx.strokeRect(-22.5,-18.5,45,37);
+ }else if(type==='glitch'){
+  ctx.fillStyle='#101818'; ctx.fillRect(-28,-22,56,44); ctx.fillStyle='#39ff14'; ctx.font='bold 10px monospace';
+  ctx.fillText('GLITCH',-20,-4); ctx.fillText('////',-16,10);
+ }else if(type==='trophy'){
+  ctx.fillStyle='#ffd060'; ctx.fillRect(-12,-24,24,20); ctx.fillRect(-18,-28,36,8);
+ }
+ ctx.restore();
+}
+function mhDrawInteriorScreen(ctx,W,H,st,t){
+ const ib=st.insideBuilding;
+ if(!ib) return;
+ const sec=ib.secret||mhBuildingSecret(ib,ib.wi||0);
+ const g=ctx.createLinearGradient(0,0,0,H);
+ g.addColorStop(0,'#2a2420'); g.addColorStop(0.45,'#4a4038'); g.addColorStop(1,'#3a3028');
+ ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+ ctx.fillStyle='#5a5048'; ctx.fillRect(0,H*0.72,W,H*0.28);
+ ctx.fillStyle='#6a6058'; ctx.fillRect(0,40,W,H*0.32);
+ ctx.fillStyle='#ffe890'; ctx.fillRect(40,70,120,90); ctx.fillRect(W-160,70,120,90);
+ ctx.fillStyle='#604028'; ctx.fillRect(W/2-50,H*0.72-8,100,14);
+ mhDrawInteriorProp(ctx,W*0.2,H*0.62,'bed',2.2);
+ mhDrawInteriorProp(ctx,W*0.5,H*0.58,'table',2.4);
+ mhDrawInteriorProp(ctx,W*0.78,H*0.6,'tv',2);
+ mhDrawInteriorProp(ctx,W*0.35,H*0.65,'crate',1.8);
+ mhDrawInteriorProp(ctx,W*0.62,H*0.64,'trophy',1.9);
+ mhDrawInteriorProp(ctx,W*0.12,H*0.55,'glitch',2);
+ mhPaintHuman(ctx,W*0.28,H*0.68,2,t,1.35);
+ mhPaintHuman(ctx,W*0.55,H*0.7,5,t*1.1,1.4);
+ mhPaintHuman(ctx,W*0.72,H*0.69,8,t*0.9,1.3);
+ ctx.fillStyle='rgba(0,0,0,.75)'; ctx.fillRect(W/2-220,100,440,130);
+ ctx.strokeStyle=sec.color; ctx.lineWidth=4; ctx.strokeRect(W/2-220,100,440,130);
+ ctx.fillStyle=sec.color; ctx.font='bold 28px system-ui,sans-serif'; ctx.textAlign='center';
+ ctx.fillText(sec.label+' SECRET',W/2,140);
+ ctx.fillStyle='#fff'; ctx.font='bold 22px monospace'; ctx.fillText('CODE: '+sec.redeem.toUpperCase(),W/2,178);
+ ctx.font='14px system-ui'; ctx.fillStyle='#c0d0e0';
+ ctx.fillText('Gacha tab → Redeem code → unlock '+sec.label+' Noobie',W/2,208);
+ ctx.fillStyle='#ffe8a0'; ctx.font='bold 16px system-ui'; ctx.fillText('Press F to leave the house',W/2,H-28);
+ ctx.fillStyle='rgba(0,0,0,.6)'; ctx.fillRect(8,8,300,36);
+ ctx.fillStyle='#80ff90'; ctx.font='bold 13px system-ui'; ctx.textAlign='left';
+ ctx.fillText(MH_BUILD+' · '+MH_SCENERY_STAMP+' · INDOOR',16,30);
+}
+function mhDrawWorldFeature(ctx,map,wi){
+ const f=map.worldFeature;
+ if(!f||f.type!=='backrooms_atrium') return;
+ const x=f.tx*MH_TILE,y=f.ty*MH_TILE,w=f.w*MH_TILE,h=f.h*MH_TILE;
+ ctx.fillStyle='#d8d4b0'; ctx.fillRect(x,y,w,h);
+ ctx.strokeStyle='#909080'; ctx.lineWidth=3; ctx.strokeRect(x+2,y+2,w-4,h-4);
+ for(let px=x+10;px<x+w-10;px+=28){
+  ctx.fillStyle='#ffffa0'; ctx.fillRect(px,y+8,MH_TILE-4,4);
+  ctx.fillStyle='#ffffa0'; ctx.fillRect(px,y+h-12,MH_TILE-4,4);
+ }
+ ctx.fillStyle='#303028'; ctx.font='bold 13px system-ui'; ctx.textAlign='center';
+ ctx.fillText('🚪 '+f.label,x+w/2,y+22);
+}
+function mhDrawCourtZone(ctx,map,wi){
+ const c=map.court;
+ if(!c) return;
+ const x=c.tx*MH_TILE,y=c.ty*MH_TILE,w=c.w*MH_TILE,h=c.h*MH_TILE;
+ ctx.fillStyle=wi===MH_VOID_WORLD?'#281830':'#c89860';
+ ctx.fillRect(x,y,w,h);
+ ctx.strokeStyle='#804020'; ctx.lineWidth=3; ctx.strokeRect(x+2,y+2,w-4,h-4);
+ ctx.strokeStyle='rgba(255,255,255,.45)'; ctx.lineWidth=2;
+ ctx.beginPath(); ctx.moveTo(x+w/2,y+6); ctx.lineTo(x+w/2,y+h-6); ctx.stroke();
+ ctx.beginPath(); ctx.arc(x+w/2,y+h/2,Math.min(w,h)*0.22,0,Math.PI*2); ctx.stroke();
+ ctx.fillStyle='rgba(0,0,0,.55)'; ctx.fillRect(x+w/2-70,y+8,140,18);
+ ctx.fillStyle='#ffe8a0'; ctx.font='bold 12px system-ui'; ctx.textAlign='center';
+ ctx.fillText('🏀 COURT PLAZA',x+w/2,y+22);
+}
+function mhDrawMayorShrine(ctx,map,t,st){
+ const sh=map.mayorShrine;
+ if(!sh||!map.court) return;
+ sh.reflectors.forEach(ref=>{
+  const rx=ref.tx*MH_TILE, ry=ref.ty*MH_TILE;
+  ctx.fillStyle=ref.lit?'#ffe060':'#a0b0c0';
+  ctx.fillRect(rx+6,ry+8,MH_TILE-12,MH_TILE-14);
+  ctx.strokeStyle=ref.lit?'#fff':'#607080'; ctx.lineWidth=2; ctx.strokeRect(rx+6.5,ry+8.5,MH_TILE-13,MH_TILE-15);
+  ctx.fillStyle='#203040'; ctx.font='bold 8px system-ui'; ctx.textAlign='center';
+  ctx.fillText(ref.lit?'✓':'↺',rx+MH_TILE/2,ry+MH_TILE/2+3);
+ });
+ const sx=sh.px, sy=sh.py;
+ const mayor=mhMorph('ex-mayor');
+ if(mayor) mhPaintNoobWorld(ctx,mayor,sx,sy-MH_TILE*0.5,1.1,1,false,t,0,false,false);
+ ctx.fillStyle='#505860'; ctx.fillRect(sx-34,sy+8,68,28);
+ ctx.fillStyle='#303840'; ctx.fillRect(sx-28,sy+14,56,16);
+ ctx.fillStyle='#ffe8a0'; ctx.font='bold 9px system-ui'; ctx.textAlign='center';
+ ctx.fillText('HAND CRANK',sx,sy+24);
+ const ang=(sh.crankAngle||0)*Math.PI/180;
+ ctx.save(); ctx.translate(sx,sy+18); ctx.rotate(ang);
+ ctx.fillStyle='#8090a0'; ctx.fillRect(-4,-14,8,28);
+ ctx.fillStyle='#606870'; ctx.beginPath(); ctx.arc(0,0,10,0,Math.PI*2); ctx.fill();
+ ctx.restore();
+ if(st.mayorBeamT&&performance.now()-st.mayorBeamT<800){
+  ctx.strokeStyle='rgba(255,240,120,.85)'; ctx.lineWidth=4;
+  ctx.beginPath(); ctx.moveTo(sx,sy);
+  sh.reflectors.forEach(ref=>{
+   ctx.lineTo(ref.px,ref.py);
+  });
+  ctx.stroke();
+ }
+ ctx.fillStyle='rgba(0,0,0,.7)'; ctx.fillRect(sx-90,sy+36,180,28);
+ ctx.fillStyle='#80ffb0'; ctx.font='bold 10px system-ui'; ctx.textAlign='center';
+ ctx.fillText('J/L crank · R flash light → all mirrors',sx,sy+54);
+}
+function mhNearMayorShrine(pos,map){
+ const sh=map.mayorShrine;
+ if(!sh) return false;
+ return Math.hypot(sh.px-pos.px,sh.py-pos.py)<110;
+}
+function mhMayorCrank(delta){
+ if(!mhState||mhState.world!==0) return;
+ const sh=MH_WORLD_MAPS[0].mayorShrine;
+ if(!sh||sh.solved) return;
+ sh.crankAngle=((sh.crankAngle||0)+delta+360)%360;
+}
+function mhMayorFlashBeam(){
+ if(!mhState?.save||mhState.world!==0) return;
+ const save=mhState.save;
+ if(mhHasMorph(save,'ex-mayor')) return;
+ const sh=MH_WORLD_MAPS[0].mayorShrine;
+ if(!sh||sh.solved) return;
+ const rad=(sh.crankAngle||0)*Math.PI/180;
+ const sx=sh.px, sy=sh.py;
+ sh.reflectors.forEach(ref=>{
+  const target=Math.atan2(ref.py-sy,ref.px-sx);
+  let diff=Math.atan2(Math.sin(rad-target),Math.cos(rad-target));
+  if(Math.abs(diff)<0.35) ref.lit=true;
+ });
+ mhState.mayorBeamT=performance.now();
+ if(sh.reflectors.every(r=>r.lit)){
+  sh.solved=true;
+  const mayor=mhMorph('ex-mayor');
+  if(mayor&&!mhHasMorph(save,'ex-mayor')){
+   mhFinishCollect(mayor);
+   mhToast('👑 MAYOR NOOBIE unlocked — light puzzle complete!');
+  }
+ }else mhToast('Light hit '+sh.reflectors.filter(r=>r.lit).length+'/'+sh.reflectors.length+' mirrors');
+}
+function mhParkColors(wi){
+ if(wi===4) return {fill:'#c8c4a0',edge:'#808070',tree:'#909080',label:'#303028'};
+ if(wi===2) return {fill:'#e8d878',edge:'#c0a858',tree:'#40a0c0',label:'#604818'};
+ if(wi===3) return {fill:'#685898',edge:'#483868',tree:'#9080c0',label:'#e8e0ff'};
+ if(wi===6) return {fill:'#5a3028',edge:'#401818',tree:'#ff6040',label:'#ffd0c0'};
+ if(wi===MH_VOID_WORLD) return {fill:'#241028',edge:'#8040a0',tree:'#502868',label:'#e8d0ff'};
+ if(wi===MH_EXOTIC_WORLD) return {fill:'#381848',edge:'#ff48e8',tree:'#684888',label:'#ffe8ff'};
+ return {fill:'#62b852',edge:'#2a6830',tree:'#4a9848',label:'#ffe8a0'};
+}
+function mhDrawParkZones(ctx,map,wi){
+ const pal=mhParkColors(wi);
+ (map.parks||[]).forEach(p=>{
+  const x=p.tx*MH_TILE,y=p.ty*MH_TILE,w=p.w*MH_TILE,h=p.h*MH_TILE;
+  ctx.fillStyle=pal.fill;
+  ctx.fillRect(x,y,w,h);
+  ctx.strokeStyle=pal.edge;
+  ctx.lineWidth=4; ctx.strokeRect(x+2,y+2,w-4,h-4);
+  ctx.fillStyle=pal.tree;
+  for(let px=x+12;px<x+w-12;px+=28){
+   if(wi===4){ ctx.fillStyle='#ffffa0'; ctx.fillRect(px,y+10, MH_TILE-8,4); ctx.fillRect(px,y+h-16,MH_TILE-8,4); }
+   else if(wi===2){ ctx.fillStyle='#40a0c0'; ctx.fillRect(px,y+h-14,8,10); }
+   else{ ctx.beginPath(); ctx.arc(px,y+14,10,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(px,y+h-12,10,0,Math.PI*2); ctx.fill(); }
+  }
+  ctx.fillStyle='rgba(255,255,255,.92)'; ctx.font='bold 16px system-ui'; ctx.textAlign='center';
+  ctx.fillText((wi===4?'🚪':'🌳')+' '+p.name,x+w/2,y+22);
+  ctx.font='bold 11px system-ui'; ctx.fillStyle=pal.label;
+  ctx.fillText(wi===4?'Backrooms picnic zone · statues':'Noobie statues · collect in groves with E',x+w/2,y+38);
+ });
+}
+function mhDrawNoobieStatue(ctx,d,t){
+ const T=MH_TILE,x=d.tx*T,y=d.ty*T;
+ const m=d.morph||mhMorph(d.morphId);
+ const pw=T*1.35, ph=T*0.55;
+ ctx.fillStyle='rgba(0,0,0,.35)'; ctx.beginPath(); ctx.ellipse(x+T/2,y+T*1.95,22,5,0,0,Math.PI*2); ctx.fill();
+ ctx.fillStyle='#a8b0c0'; ctx.fillRect(x+T/2-pw/2,y+T*0.75,pw,ph);
+ ctx.fillStyle='#788090'; ctx.fillRect(x+T/2-pw/2+6,y+T*0.75,pw-12,8);
+ ctx.fillStyle='#c0c8d8'; ctx.fillRect(x+T/2-4,y+T*0.62,8,ph+6);
+ const sc=(d.scale||6)*0.32;
+ if(m) mhPaintNoobWorld(ctx,m,x+T/2,y+T*0.58,sc,1,false,t,0,false,false);
+ else mhPaintHuman(ctx,x+T/2,y+T*0.58,0,t,1.45);
+ ctx.fillStyle='rgba(0,0,0,.72)'; ctx.fillRect(x+T/2-52,y+T*1.72,104,16);
+ ctx.fillStyle='#ffe8a0'; ctx.font='bold 10px system-ui'; ctx.textAlign='center';
+ ctx.fillText(m?(m.name.slice(0,14).toUpperCase()):('NOOBIE'),x+T/2,y+T*1.84);
+}
+function mhDrawMapDecors(ctx,map,wi,t){
+ mhDrawCourtZone(ctx,map,wi);
+ mhDrawWorldFeature(ctx,map,wi);
+ mhDrawParkZones(ctx,map,wi);
+ (map.landmarks||[]).forEach(d=>mhDrawSceneryPiece(ctx,d,wi,t));
+ (map.decors||[]).forEach(d=>mhDrawSceneryPiece(ctx,d,wi,t));
+}
+function mhDrawMapStatues(ctx,map,t,st){
+ (map.statues||[]).forEach(d=>{ if(!d.mayor) mhDrawNoobieStatue(ctx,d,t); });
+ mhDrawMayorShrine(ctx,map,t,st||{});
+}
+function mhParkCenter(map){
+ const p=map.parks&&map.parks[0];
+ if(!p) return null;
+ return {px:(p.tx+p.w/2)*MH_TILE, py:(p.ty+p.h/2)*MH_TILE};
+}
+function mhCivState(st,wi,c){
+ if(!st.civ) st.civ={};
+ if(!st.civ[wi]) st.civ[wi]={};
+ if(!st.civ[wi][c.id]) st.civ[wi][c.id]={px:c.px,py:c.py,phase:c.phase||0,dir:Math.random()*6.28,wait:0};
+ return st.civ[wi][c.id];
+}
+function mhUpdateCivilians(st,map,wi,dt){
+ if(!map.civilians) return;
+ map.civilians.forEach(c=>{
+  const s=mhCivState(st,wi,c);
+  s.phase+=dt*3;
+  if(!c.wander) return;
+  s.wait-=dt;
+  if(s.wait<=0){
+   s.dir+=(Math.random()-0.5)*1.2;
+   s.wait=0.6+Math.random()*2;
+  }
+  const spd=0.55;
+  const npx=s.px+Math.cos(s.dir)*spd, npy=s.py+Math.sin(s.dir)*spd;
+  if(!mhWalkCollide(map,npx,s.py,6)&&!mhWalkCollide(map,s.px,npy,6)){
+   s.px=npx; s.py=npy;
+  }else s.dir+=Math.PI*0.6;
+  const hx=c.homePx||s.px, hy=c.homePy||s.py;
+  if(Math.hypot(s.px-hx,s.py-hy)>90) s.dir=Math.atan2(hy-s.py,hx-s.px);
+ });
+}
+function mhDrawCivilians(ctx,st,wi,map){
+ if(!map.civilians) return;
+ const list=map.civilians.map(c=>{ const s=mhCivState(st,wi,c); return {s,c}; });
+ list.sort((a,b)=>a.s.py-b.s.py);
+ list.forEach(({s,c})=>mhPaintHuman(ctx,s.px,s.py,c.variant,s.phase,0.78));
+}
+function mhDrawFlatMapTiles(ctx,map,world,wi,t){
  const voidRealm=wi===MH_VOID_WORLD;
  const pair=mhFlatGroundPair(world.ground);
  const wall=world.wall||(voidRealm?'#282038':'#4a5058');
@@ -786,29 +1645,10 @@ function mhDrawFlatMapTiles(ctx,map,world,wi){
  for(let ty=0;ty<map.h;ty++)for(let tx=0;tx<map.w;tx++){
   const v=map.tiles[ty*map.w+tx];
   const x=tx*MH_TILE,y=ty*MH_TILE;
-  if(voidRealm){
-   if(v===1){
-    ctx.fillStyle=wall; ctx.fillRect(x,y,MH_TILE,MH_TILE);
-    ctx.strokeStyle='#503070'; ctx.lineWidth=1; ctx.strokeRect(x+.5,y+.5,MH_TILE-1,MH_TILE-1);
-   }else{
-    ctx.fillStyle=((tx+ty)&1)?'#120818':'#0e0612';
-    ctx.fillRect(x,y,MH_TILE,MH_TILE);
-    ctx.strokeStyle='#301848'; ctx.strokeRect(x+.5,y+.5,MH_TILE-1,MH_TILE-1);
-   }
-   if(v===2) mhDrawThemedPropTile(ctx,x,y,wi,tx,ty);
-   continue;
-  }
-  if(v===1){
-   ctx.fillStyle=wall; ctx.fillRect(x,y,MH_TILE,MH_TILE);
-   ctx.strokeStyle='#1a1e24'; ctx.lineWidth=1; ctx.strokeRect(x+.5,y+.5,MH_TILE-1,MH_TILE-1);
-  }else{
-   ctx.fillStyle=((tx+ty)&1)?pair.a:pair.b;
-   ctx.fillRect(x,y,MH_TILE,MH_TILE);
-   ctx.strokeStyle='rgba(0,0,0,.18)'; ctx.lineWidth=1; ctx.strokeRect(x+.5,y+.5,MH_TILE-1,MH_TILE-1);
-  }
-   if(v===2) mhDrawThemedPropTile(ctx,x,y,wi,tx,ty);
+  mhPaintWorldGroundTile(ctx,x,y,v,world,wi);
+  ctx.strokeStyle=voidRealm?'#301848':'rgba(0,0,0,.12)';
+  ctx.strokeRect(x+.5,y+.5,MH_TILE-1,MH_TILE-1);
  }
- mhDrawMapDecors(ctx,map,wi);
 }
 function mhPaperFlatOverlay(ctx,W,H){
  ctx.fillStyle='rgba(255,252,240,.06)';
@@ -840,6 +1680,15 @@ function mhDrawYouInWorld(ctx,wear,pos,map,t,walkPhase,wi,running){
  ctx.font='bold 12px system-ui,sans-serif';
  ctx.textAlign='center';
  ctx.fillText('YOU',pos.px,pos.py+62);
+ if(m&&(m.rarity==='voidfallen'||m.voidFallen)){
+  const atk=m.voidAttack?.name||'Attack';
+  const pow=m.voidPower?.name||'Power';
+  ctx.fillStyle='rgba(20,0,40,.9)'; ctx.fillRect(pos.px-72,pos.py+66,144,22);
+  ctx.strokeStyle=m.voidKing?'#ff4040':(m.voidAccent||'#9040ff'); ctx.lineWidth=1.5;
+  ctx.strokeRect(pos.px-72,pos.py+66,144,22);
+  ctx.fillStyle='#e8d0ff'; ctx.font='bold 9px system-ui'; ctx.textAlign='center';
+  ctx.fillText('⚔ '+atk+' · ✦ '+pow,pos.px,pos.py+80);
+ }
  ctx.restore();
 }
 function mhLoadSave(){
@@ -892,23 +1741,27 @@ function mhDeckUnlock(m,save){
 function mhMinigameCleared(save,id){
  return (save.minigameWon||[]).includes(id);
 }
+function mhModalHost(){
+ return document.getElementById('morphhunt')||document.body;
+}
 function mhEnsureOverlayModals(){
+ const host=mhModalHost();
  let mg=document.getElementById('mh-minigame-modal');
  if(!mg){
   mg=document.createElement('div');
   mg.id='mh-minigame-modal';
   mg.className='mh-found-modal mh-minigame-modal';
   mg.hidden=true;
-  document.body.appendChild(mg);
- }
+  host.appendChild(mg);
+ }else if(mg.parentElement!==host) host.appendChild(mg);
  let fd=document.getElementById('mh-found-modal');
  if(!fd){
   fd=document.createElement('div');
   fd.id='mh-found-modal';
   fd.className='mh-found-modal';
   fd.hidden=true;
-  document.body.appendChild(fd);
- }
+  host.appendChild(fd);
+ }else if(fd.parentElement!==host) host.appendChild(fd);
 }
 function mhSaveSave(data){
  if(mhIsOwner()){
@@ -921,9 +1774,7 @@ function mhSaveSave(data){
 
 function mhMorph(id){return MH_MORPHS.find(m=>m.id===id);}
 function mhWorldMorphs(wi){
- if(wi===MH_VOID_WORLD) return MH_VOID_FALLEN.slice();
- if(wi===MH_EXOTIC_WORLD) return MH_EXOTICS.slice();
- return MH_MORPHS.filter(m=>!m.exclusive&&!m.voidFallen&&m.world===wi);
+ return MH_MORPHS.filter(m=>mhHuntWorld(m)===wi&&!m.codeOnly);
 }
 function mhHasMorph(save,id){return save.collected.includes(id);}
 function mhWorldComplete(save,wi){
@@ -1011,6 +1862,20 @@ function mhClassicNoobSvg(m){
    <rect x="33" y="6" width="34" height="34" fill="#161616" stroke="#801010" stroke-width="1.5"/>
    <rect x="36" y="10" width="28" height="26" fill="#0a0a0a"/>
    <rect x="40" y="22" width="20" height="4" fill="#ff2020" opacity=".9"/>`;
+ }
+ if(m.rarity==='voidfallen'||m.voidFallen){
+  const gid='vf'+((mhHashStr(m.id||'vf')>>>0)%99999);
+  const ve=m.voidEyes||'#70e8ff';
+  const acc=m.voidAccent||'#9040ff';
+  const body=mhBodyShape(m);
+  return `<defs><radialGradient id="${gid}"><stop offset="0%" stop-color="${acc}" stop-opacity=".55"/><stop offset="45%" stop-color="#280818" stop-opacity=".5"/><stop offset="100%" stop-color="#000" stop-opacity="0"/></radialGradient></defs>
+   <ellipse cx="50" cy="72" rx="40" ry="54" fill="url(#${gid})"/>
+   ${body}
+   <rect x="28" y="48" width="44" height="8" fill="#0a0a0a" opacity=".65"/>
+   <rect x="30" y="50" width="40" height="3" fill="${acc}" opacity=".9"/>
+   <rect x="38" y="18" width="8" height="8" fill="${ve}"/><rect x="54" y="18" width="8" height="8" fill="${ve}"/>
+   <rect x="40" y="20" width="4" height="4" fill="#fff" opacity=".45"/><rect x="56" y="20" width="4" height="4" fill="#fff" opacity=".45"/>
+   <rect x="34" y="56" width="32" height="4" fill="rgba(255,40,80,.45)"/>`;
  }
  let hat='';
  if(m.hat==='crown') hat='<polygon points="50,2 58,14 42,14" fill="#ffd700"/><rect x="42" y="12" width="16" height="5" fill="#e8b020"/>';
@@ -1131,20 +1996,24 @@ function mhCollect(id){
  }
  mhDeckUnlock(m,save);
 }
+function mhMinigameKind(m){
+ const kinds=['gemtap','zonehit','memory','voidpulse','noobmatch','rhythm','catchfall','maze','whack','colorwheel'];
+ return kinds[(mhHashStr(m.id+'mg')>>>0)%kinds.length];
+}
 function mhOpenMinigame(m){
  if(!mhState) return;
  mhEnsureOverlayModals();
  mhState.minigameMorph=m;
- const kinds=['gemtap','zonehit','memory','voidpulse','noobmatch'];
- const kind=kinds[mhHashStr(m.id)%kinds.length];
+ const kind=mhMinigameKind(m);
  mhState.minigameKind=kind;
  const modal=document.getElementById('mh-minigame-modal');
  if(!modal) return;
  const r=mhRarityInfo(m);
  modal.hidden=false;
+ modal.style.zIndex='100020';
  modal.innerHTML=`<div class="mh-minigame-card" style="--mh-rarity:${r.color}">
   <div class="mh-found-badge">Unlock ${mhRarityLabel(m)} · ${m.name}</div>
-  <p class="mh-mini-desc">${kind==='gemtap'?'Tap 6 gems before time runs out!':kind==='zonehit'?'Click when the bar is in the green zone — 3 hits!':kind==='memory'?'Watch the colors, then repeat the pattern!':kind==='voidpulse'?'Click when the void pulse fills the ring!':'Find the two matching noobie colors!'}</p>
+  <p class="mh-mini-desc">${({gemtap:'Tap 6 gems!',zonehit:'Hit the green zone 3×!',memory:'Repeat the color pattern!',voidpulse:'Click on the bright pulse!',noobmatch:'Match the pair!',rhythm:'Tap on the beat!',catchfall:'Catch 8 stars!',maze:'Reach the goal tile!',whack:'Whack 10 moles!',colorwheel:'Stop on your noobie color!'})[kind]||'Win to unlock!'}</p>
   <div id="mh-mini-stage" class="mh-mini-stage"></div>
   <button type="button" class="mh-btn ghost" id="mh-mini-cancel">Back to hunt</button>
  </div>`;
@@ -1243,7 +2112,7 @@ function mhRunMinigame(kind,m){
   };
   return;
  }
- /* noobmatch */
+ if(kind==='noobmatch'){
  const cols=[m.head||'#F5CD30',m.torso||'#0085DB',m.legs||'#A4BD47',mhHsl(mhHashStr(m.id)%360,55,55)];
  while(cols.length<8) cols.push(mhHsl((mhHashStr(m.id+'c'+cols.length)*7)%360,50,50));
  const pair=cols[0]; cols.push(pair);
@@ -1272,13 +2141,101 @@ function mhRunMinigame(kind,m){
   };
   grid.appendChild(b);
  });
+ return;
+ }
+ if(kind==='rhythm'){
+  let score=0,beat=0;
+  const status=document.createElement('p'); status.className='mh-mini-status'; status.textContent='Tap on beat! 0/6';
+  stage.appendChild(status);
+  const pad=document.createElement('button'); pad.type='button'; pad.className='mh-mini-voidring';
+  pad.textContent='TAP'; pad.style.cssText='display:block;margin:12px auto;padding:20px 40px;font-weight:900;border-radius:14px;border:3px solid #ff48e8;background:#281838;color:#fff;cursor:pointer';
+  stage.appendChild(pad);
+  const tmr=setInterval(()=>{ beat=(beat+1)%4; pad.style.boxShadow=beat===0?'0 0 24px #ff48e8':'none'; },350);
+  pad.onclick=()=>{ if(beat===0||beat===1){ score++; status.textContent='Tap on beat! '+score+'/6'; if(score>=6){ clearInterval(tmr); mhWinMinigame(m); } } else mhToast('Off beat!'); };
+  return;
+ }
+ if(kind==='catchfall'){
+  let caught=0;
+  const status=document.createElement('p'); status.className='mh-mini-status'; status.textContent='Catch stars! 0/8';
+  stage.appendChild(status);
+  const box=document.createElement('div'); box.className='mh-mini-gembox'; box.style.height='130px'; stage.appendChild(box);
+  const basket=document.createElement('div'); basket.style.cssText='position:absolute;bottom:4px;left:45%;width:40px;height:12px;background:#ffe060;border-radius:4px';
+  box.appendChild(basket);
+  let bx=45;
+  box.onmousemove=ev=>{ const r=box.getBoundingClientRect(); bx=Math.max(5,Math.min(85,(ev.clientX-r.left)/r.width*100)); basket.style.left=bx+'%'; };
+  const iv=setInterval(()=>{
+   const s=document.createElement('button'); s.type='button'; s.className='mh-mini-gem'; s.style.background='#ffe060'; s.style.borderRadius='50%';
+   s.style.left=(10+Math.random()*80)+'%'; s.style.top='4px';
+   s.onclick=()=>{ s.remove(); caught++; status.textContent='Catch stars! '+caught+'/8'; if(caught>=8){ clearInterval(iv); mhWinMinigame(m); } };
+   box.appendChild(s);
+   setTimeout(()=>s.remove(),1400);
+  },450);
+  return;
+ }
+ if(kind==='whack'){
+  let hits=0;
+  const status=document.createElement('p'); status.className='mh-mini-status'; status.textContent='Whack! 0/10';
+  stage.appendChild(status);
+  const grid=document.createElement('div'); grid.style.cssText='display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:200px;margin:0 auto';
+  stage.appendChild(grid);
+  for(let i=0;i<9;i++){
+   const h=document.createElement('button'); h.type='button'; h.style.cssText='height:44px;border-radius:10px;border:2px solid #4a5060;background:#1a2030;cursor:pointer';
+   h.onclick=()=>{ if(h.dataset.up==='1'){ h.dataset.up='0'; h.style.background='#1a2030'; hits++; status.textContent='Whack! '+hits+'/10'; if(hits>=10) mhWinMinigame(m); } };
+   grid.appendChild(h);
+  }
+  setInterval(()=>{
+   const cells=[...grid.querySelectorAll('button')];
+   cells.forEach(c=>{ c.dataset.up='0'; c.style.background='#1a2030'; });
+   const pick=cells[mhHashStr(String(Date.now())+'w')%cells.length];
+   pick.dataset.up='1'; pick.style.background='#6080ff';
+   setTimeout(()=>{ pick.dataset.up='0'; pick.style.background='#1a2030'; },650);
+  },750);
+  return;
+ }
+ if(kind==='maze'){
+  const status=document.createElement('p'); status.className='mh-mini-status'; status.textContent='Reach the ★';
+  stage.appendChild(status);
+  let px=0,py=0;
+  const grid=document.createElement('div'); grid.style.cssText='display:grid;grid-template-columns:repeat(5,1fr);gap:4px;max-width:220px;margin:0 auto';
+  stage.appendChild(grid);
+  for(let y=0;y<5;y++)for(let x=0;x<5;x++){
+   const cell=document.createElement('button'); cell.type='button';
+   const wall=(x+y)%3===0&&!(x===4&&y===4);
+   cell.style.cssText='height:32px;border-radius:6px;border:1px solid #3a4050;background:'+(wall?'#0a0e14':'#283848')+';cursor:'+(wall?'default':'pointer');
+   if(x===4&&y===4){ cell.textContent='★'; cell.style.background='#ffd060'; }
+   cell.onclick=()=>{
+    if(wall) return;
+    if(Math.abs(x-px)+Math.abs(y-py)===1){ px=x; py=y; [...grid.children].forEach((c,i)=>{ c.style.outline=(i===py*5+px)?'2px solid #80ffb0':''; }); if(px===4&&py===4) mhWinMinigame(m); }
+   };
+   grid.appendChild(cell);
+  }
+  return;
+ }
+ if(kind==='colorwheel'){
+  const target=m.head||'#F5CD30';
+  const status=document.createElement('p'); status.className='mh-mini-status'; status.textContent='Stop on YOUR color!';
+  stage.appendChild(status);
+  const wheel=document.createElement('button'); wheel.type='button';
+  wheel.style.cssText='display:block;margin:12px auto;width:100px;height:100px;border-radius:50%;border:4px solid #fff;background:conic-gradient(red,yellow,lime,cyan,blue,magenta,red);cursor:pointer';
+  stage.appendChild(wheel);
+  let spin=0,spinning=true;
+  const iv=setInterval(()=>{ if(spinning){ spin=(spin+24)%360; wheel.style.transform='rotate('+spin+'deg)'; } },50);
+  wheel.onclick=()=>{
+   spinning=false; clearInterval(iv);
+   const slice=Math.floor(((spin%360)+360)%360/60);
+   const colors=['#ff4040','#ffd060','#80ff60','#40d0ff','#4060ff','#ff40c0'];
+   if(colors[slice]===target||slice===mhHashStr(m.id)%6){ mhWinMinigame(m); }
+   else{ mhToast('Wrong color — try again!'); mhRunMinigame('colorwheel',m); }
+  };
+  return;
+ }
 }
 
 function mhRedeemCode(raw){
  const key=String(raw||'').trim().toLowerCase().replace(/\s+/g,'');
  if(!key||!mhState)return false;
  const pack=MH_CODES[key];
- if(!pack){ mhToast('Invalid code — try WELCOMEBUDDY'); return false; }
+ if(!pack){ mhToast('Invalid code — try GLITCHHOUSE or WELCOMEBUDDY'); return false; }
  const save=mhState.save;
  if(save.codesUsed.includes(key)){ mhToast('Code already used!'); return false; }
  save.codesUsed.push(key);
@@ -1314,10 +2271,11 @@ function mhGacha(exclusive){
 
 function mhSetWorld(wi){
  if(!mhState)return;
- if(wi>=mhState.save.worldsUnlocked)return;
+ if(!mhWorldTeleportUnlocked(mhState.save,wi)) return;
  mhState.world=wi;
  if(mhState.walkPos) delete mhState.walkPos[wi];
  mhRender();
+ mhToast('🗺 '+MH_WORLDS[wi].emoji+' '+MH_WORLDS[wi].name+' — '+mhWorldRarityHint(wi));
 }
 
 function mhSetTab(tab){
@@ -1434,27 +2392,363 @@ function mhPaintForbiddenStone(ctx,sx,sy,t,i,alpha){
  ctx.shadowBlur=0;
  ctx.restore();
 }
-function mhPaintKingStoneAura(ctx,x,y,t,alpha,silhouette){
- const pulse=1+Math.sin(t*2.8)*0.12;
- const rad=40*pulse;
- const a=silhouette?0.25:(alpha==null?1:alpha);
+function mhPaintKingRedBlackStormAura(ctx,x,y,t,alpha,silhouette){
+ const pulse=1+Math.sin(t*3.2)*0.18;
+ const rad=46*pulse;
+ const a=silhouette?0.28:(alpha==null?1:alpha);
+ const cy=y-18;
  ctx.save();
- ctx.globalAlpha=a*0.9;
- const g=ctx.createRadialGradient(x,y-18,6,x,y-18,rad+28);
- g.addColorStop(0,'rgba(220,20,20,.4)');
- g.addColorStop(0.45,'rgba(60,0,0,.25)');
+ ctx.globalAlpha=a;
+ const g=ctx.createRadialGradient(x,cy,4,x,cy,rad+36);
+ g.addColorStop(0,'rgba(255,40,40,.55)');
+ g.addColorStop(0.35,'rgba(120,0,0,.35)');
+ g.addColorStop(0.65,'rgba(20,0,0,.55)');
  g.addColorStop(1,'rgba(0,0,0,0)');
  ctx.fillStyle=g;
- ctx.beginPath(); ctx.arc(x,y-18,rad+28,0,Math.PI*2); ctx.fill();
- ctx.strokeStyle='rgba(180,0,0,.35)';
- ctx.lineWidth=2;
- ctx.beginPath(); ctx.arc(x,y-18,rad,0,Math.PI*2); ctx.stroke();
- for(let i=0;i<8;i++){
-  const ang=t*0.5+i*Math.PI*2/8;
-  const sx=x+Math.cos(ang)*rad, sy=y-18+Math.sin(ang)*rad*0.42;
-  mhPaintForbiddenStone(ctx,sx,sy,t,i,a);
+ ctx.beginPath(); ctx.arc(x,cy,rad+36,0,Math.PI*2); ctx.fill();
+ for(let ring=0;ring<3;ring++){
+  const rr=rad*(0.55+ring*0.22);
+  ctx.strokeStyle=ring===0?'rgba(255,30,30,.45)':ring===1?'rgba(0,0,0,.65)':'rgba(180,0,0,.3)';
+  ctx.lineWidth=ring===1?4:2;
+  ctx.setLineDash(ring===2?[5,7]:[]);
+  ctx.beginPath(); ctx.arc(x,cy,rr+Math.sin(t*4+ring)*3,0,Math.PI*2); ctx.stroke();
+ }
+ ctx.setLineDash([]);
+ for(let i=0;i<10;i++){
+  const ang=t*1.8+i*Math.PI*2/10;
+  const dist=rad*(0.35+0.55*((i%3)/2));
+  const sx=x+Math.cos(ang)*dist, sy=cy+Math.sin(ang)*dist*0.55;
+  ctx.strokeStyle=i%2?'rgba(255,50,50,.75)':'rgba(0,0,0,.85)';
+  ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(sx,sy-10); ctx.lineTo(sx+(Math.sin(t*6+i)*8),sy+8); ctx.stroke();
+ }
+ for(let i=0;i<6;i++){
+  const ang=t*0.65+i*Math.PI*2/6;
+  const sx=x+Math.cos(ang)*rad*0.92, sy=cy+Math.sin(ang)*rad*0.38;
+  if(i%2===0) mhPaintForbiddenStone(ctx,sx,sy,t,i,a);
+  else{
+   ctx.fillStyle='rgba(0,0,0,.75)';
+   ctx.beginPath(); ctx.arc(sx,sy,5+Math.sin(t*5+i),0,Math.PI*2); ctx.fill();
+   ctx.strokeStyle='rgba(255,40,40,.6)'; ctx.stroke();
+  }
  }
  ctx.restore();
+}
+const mhPaintKingStoneAura=mhPaintKingRedBlackStormAura;
+function mhPaintVoidFallenStormAura(ctx,x,y,t,alpha,silhouette,m){
+ if(!m||m.voidKing) return;
+ const a=silhouette?0.22:(alpha==null?1:alpha);
+ const cy=y-18;
+ const pulse=1+Math.sin(t*2.6+(mhHashStr(m.id)%5))*0.14;
+ const rad=(38+(m.voidMale?6:0))*pulse;
+ const accent=m.voidAccent||'#9040ff';
+ ctx.save();
+ ctx.globalAlpha=a;
+ const g=ctx.createRadialGradient(x,cy,6,x,cy,rad+30);
+ g.addColorStop(0,mhHex(accent,0.55));
+ g.addColorStop(0.4,'rgba(80,0,120,.35)');
+ g.addColorStop(0.7,'rgba(20,0,0,.45)');
+ g.addColorStop(1,'rgba(0,0,0,0)');
+ ctx.fillStyle=g;
+ ctx.beginPath(); ctx.arc(x,cy,rad+30,0,Math.PI*2); ctx.fill();
+ ctx.strokeStyle=mhHex(accent,0.5);
+ ctx.lineWidth=2;
+ ctx.beginPath(); ctx.arc(x,cy,rad,0,Math.PI*2); ctx.stroke();
+ ctx.strokeStyle='rgba(0,0,0,.7)'; ctx.lineWidth=3;
+ ctx.beginPath(); ctx.arc(x,cy,rad*0.65,0,Math.PI*2); ctx.stroke();
+ for(let i=0;i<5;i++){
+  const ang=t*1.4+i*Math.PI*2/5;
+  ctx.strokeStyle=i%2?mhHex(accent,0.65):'rgba(255,40,60,.5)';
+  ctx.lineWidth=2;
+  ctx.beginPath();
+  ctx.moveTo(x+Math.cos(ang)*rad*0.2,cy+Math.sin(ang)*rad*0.15);
+  ctx.lineTo(x+Math.cos(ang)*rad*0.95,cy+Math.sin(ang)*rad*0.4);
+  ctx.stroke();
+ }
+ ctx.restore();
+}
+function mhEnsureVoidCombat(m){
+ if(!m) return null;
+ if(!m.voidAttack||!m.voidPower) mhAssignVoidCombat(m);
+ return m;
+}
+function mhVoidCombatMorph(save){
+ const wear=mhMorph(save?.wearing);
+ if(wear&&(wear.rarity==='voidfallen'||wear.voidFallen)) return mhEnsureVoidCombat(wear);
+ return null;
+}
+function mhRefreshVoidCombatHud(save){
+ const vm=mhVoidCombatMorph(save);
+ const atkN=vm?.voidAttack?.name||'—';
+ const powN=vm?.voidPower?.name||'—';
+ const bar=document.getElementById('mh-void-combat-readout');
+ if(bar){
+  bar.innerHTML=vm
+   ?`<b>⚔ 1</b> ${atkN} · <b>✦ 2</b> ${powN} — <span style="color:#80ffb0">instant</span>${vm.voidKing?' · 👑 storm':''}`
+   :'🎭 Morph a <b>Void Fallen</b> in Morph tab — then <b>1</b> / <b>2</b> on any map';
+ }
+ const btnA=document.getElementById('mh-void-atk');
+ const btnP=document.getElementById('mh-void-pow');
+ if(btnA){
+  btnA.textContent=vm?('⚔ 1 '+atkN):'⚔ 1 Attack';
+  btnA.disabled=false;
+  btnA.style.opacity='1';
+ }
+ if(btnP){
+  btnP.textContent=vm?('✦ 2 '+powN):'✦ 2 Power';
+  btnP.disabled=false;
+  btnP.style.opacity='1';
+ }
+}
+function mhDrawVoidAbyssMist(ctx,map,t){
+ for(let i=0;i<10;i++){
+  const tx=2+mhHashStr('vfm'+i)%(map.w-4);
+  const ty=2+mhHashStr('vfmy'+i)%(map.h-4);
+  const x=tx*MH_TILE+MH_TILE/2, y=ty*MH_TILE+MH_TILE/2;
+  const r=24+Math.sin(t*0.8+i)*6;
+  ctx.fillStyle='rgba(120,20,80,.07)';
+  ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='rgba(0,0,0,.06)';
+  ctx.beginPath(); ctx.arc(x,y,r*0.55,0,Math.PI*2); ctx.fill();
+ }
+}
+function mhVoidShake(st,ms,mag){
+ st.voidShakeUntil=performance.now()+(ms||90);
+ st.voidShakeMag=mag||5;
+}
+function mhSpawnVoidFx(st,fx){
+ if(!st.voidFx) st.voidFx=[];
+ st.voidFx.push({...fx,life:fx.life||0.55,born:performance.now(),age:0});
+}
+function mhSpawnAttackVfx(st,m,atk,dir,pos,rage){
+ const col=atk.color||'#9040ff';
+ const ang=Math.atan2(dir.dy,dir.dx);
+ const range=(atk.range||90)*(rage?1.25:1);
+ const px=pos.px, py=pos.py-12;
+ const kind=atk.kind||'arc';
+ if(kind==='beam'){
+  mhSpawnVoidFx(st,{kind:'beam',x:px,y:py,vx:dir.dx*16,vy:dir.dy*16,color:col,life:0.5,len:range});
+  mhSpawnVoidFx(st,{kind:'beam_core',x:px,y:py,vx:dir.dx*20,vy:dir.dy*20,color:'#e8d0ff',life:0.38,len:range});
+  for(let i=1;i<=6;i++){
+   const d=i*(range/7);
+   mhSpawnVoidFx(st,{kind:'spark',x:px+dir.dx*d,y:py+dir.dy*d,vx:(Math.random()-0.5)*3,vy:(Math.random()-0.5)*3,color:col,life:0.35});
+  }
+  mhSpawnVoidFx(st,{kind:'shock',x:px+dir.dx*range*0.85,y:py+dir.dy*range*0.85,vx:0,vy:0,color:col,r:8,dr:140,life:0.45});
+  mhVoidShake(st,100,6);
+  return;
+ }
+ if(kind==='orbs'){
+  for(let i=-3;i<=3;i++){
+   const ca=ang+i*0.28;
+   mhSpawnVoidFx(st,{kind:'orb',x:px,y:py,vx:Math.cos(ca)*10,vy:Math.sin(ca)*10,color:col,life:0.6});
+  }
+  mhSpawnVoidFx(st,{kind:'ring',x:px,y:py,vx:0,vy:0,color:col,r:12,dr:100,life:0.4});
+  mhVoidShake(st,70,4);
+  return;
+ }
+ if(kind==='nova'){
+  mhSpawnVoidFx(st,{kind:'nova',x:px+dir.dx*40,y:py+dir.dy*40,vx:0,vy:0,color:col,r:14,dr:range,life:0.55});
+  mhSpawnVoidFx(st,{kind:'shock',x:px+dir.dx*40,y:py+dir.dy*40,vx:0,vy:0,color:'#fff',r:6,dr:110,life:0.35});
+  mhVoidShake(st,110,7);
+  return;
+ }
+ mhSpawnVoidFx(st,{kind:'arc',x:px,y:py,vx:dir.dx*8,vy:dir.dy*8,color:col,a0:ang-1.1,a1:ang+1.1,r:range*0.55,dr:80,life:0.5});
+ mhSpawnVoidFx(st,{kind:'arc',x:px,y:py,vx:0,vy:0,color:'#fff',a0:ang-0.65,a1:ang+0.65,r:range*0.35,dr:60,life:0.35});
+ for(let i=0;i<5;i++){
+  const ca=ang+(i-2)*0.22;
+  mhSpawnVoidFx(st,{kind:'spark',x:px,y:py,vx:Math.cos(ca)*12,vy:Math.sin(ca)*12,color:col,life:0.45});
+ }
+ mhSpawnVoidFx(st,{kind:'ring',x:px,y:py,vx:0,vy:0,color:col,r:10,dr:90,life:0.38});
+ mhVoidShake(st,85,5);
+ if(m.voidKing){
+  mhSpawnVoidFx(st,{kind:'storm',x:px,y:py-8,vx:0,vy:0,color:'#ff3030',r:22,dr:110,life:0.5,spin:0});
+  mhSpawnVoidFx(st,{kind:'storm',x:px,y:py-8,vx:0,vy:0,color:'#0a0a0a',r:14,dr:95,life:0.55,spin:0.5});
+  mhVoidShake(st,130,8);
+ }
+}
+function mhSpawnPowerVfx(st,m,pow,dir,pos,map){
+ const col=pow.color||m.voidAccent||'#9040ff';
+ const px=pos.px, py=pos.py-10;
+ if(pow.kind==='dash'){
+  mhSpawnVoidFx(st,{kind:'trail',x:px-dir.dx*50,y:py-dir.dy*50,vx:0,vy:0,color:col,life:0.45});
+  mhSpawnVoidFx(st,{kind:'nova',x:px,y:py,vx:0,vy:0,color:col,r:16,dr:70,life:0.45});
+  mhSpawnVoidFx(st,{kind:'spark',x:px,y:py,vx:dir.dx*6,vy:dir.dy*6,color:'#fff',life:0.35});
+  mhVoidShake(st,60,3);
+  return;
+ }
+ if(pow.kind==='shield'){
+  mhSpawnVoidFx(st,{kind:'hex',x:px,y:py,vx:0,vy:0,color:col,r:38,life:0.7});
+  for(let i=0;i<8;i++) mhSpawnVoidFx(st,{kind:'spark',x:px,y:py,vx:Math.cos(i)*5,vy:Math.sin(i)*5,color:'#a0c8ff',life:0.5});
+  return;
+ }
+ if(pow.kind==='buff'){
+  mhSpawnVoidFx(st,{kind:'nova',x:px,y:py,vx:0,vy:0,color:'#ff6080',r:10,dr:85,life:0.55});
+  mhSpawnVoidFx(st,{kind:'ring',x:px,y:py,vx:0,vy:0,color:'#ff2040',r:18,dr:120,life:0.5});
+  mhVoidShake(st,90,5);
+  return;
+ }
+ if(pow.kind==='echo'){
+  for(let i=0;i<(pow.count||3);i++){
+   mhSpawnVoidFx(st,{kind:'orb',x:px+(i-1)*20,y:py-16-i*6,vx:dir.dx*6,vy:dir.dy*6-2,color:col,life:0.65});
+   mhSpawnVoidFx(st,{kind:'spark',x:px+(i-1)*20,y:py-16-i*6,vx:-dir.dy*4,vy:dir.dx*4,color:'#fff',life:0.35});
+  }
+  return;
+ }
+ if(pow.kind==='pull'||pow.id==='gravity_well'){
+  mhSpawnVoidFx(st,{kind:'storm',x:px,y:py,vx:0,vy:0,color:col,r:20,dr:(pow.range||120),life:0.75,spin:0});
+  mhSpawnVoidFx(st,{kind:'ring',x:px,y:py,vx:0,vy:0,color:'#000',r:8,dr:-90,life:0.65,drNeg:true});
+  mhVoidShake(st,120,6);
+  return;
+ }
+ if(pow.kind==='heal'){
+  mhSpawnVoidFx(st,{kind:'nova',x:px,y:py,vx:0,vy:0,color:'#80ffb0',r:12,dr:65,life:0.55});
+  for(let i=0;i<6;i++) mhSpawnVoidFx(st,{kind:'spark',x:px,y:py-20,vx:(Math.random()-0.5)*4,vy:-2-Math.random()*4,color:'#80ffb0',life:0.6});
+  return;
+ }
+ const kind=pow.kind==='storm'?'storm':'nova';
+ mhSpawnVoidFx(st,{kind,x:px,y:py,vx:0,vy:0,color:col,r:18,dr:pow.range||110,life:0.75,spin:kind==='storm'?0:undefined});
+ mhSpawnVoidFx(st,{kind:'shock',x:px,y:py,vx:0,vy:0,color:'#fff',r:10,dr:130,life:0.45});
+ mhSpawnVoidFx(st,{kind:'ring',x:px,y:py,vx:0,vy:0,color:col,r:14,dr:140,life:0.55});
+ if(m.voidKing&&kind==='storm'){
+  mhSpawnVoidFx(st,{kind:'storm',x:px,y:py,vx:0,vy:0,color:'#0a0a0a',r:12,dr:(pow.range||110)*0.9,life:0.8,spin:0.45});
+  for(let i=0;i<10;i++){
+   const a=i*Math.PI*2/10;
+   mhSpawnVoidFx(st,{kind:'spark',x:px,y:py,vx:Math.cos(a)*8,vy:Math.sin(a)*8,color:'#ff4040',life:0.55});
+  }
+  mhVoidShake(st,160,9);
+ }else mhVoidShake(st,100,6);
+}
+function mhUpdateVoidFx(st,dt){
+ if(!st.voidFx) return;
+ st.voidFx=st.voidFx.filter(f=>{
+  f.life-=dt;
+  f.age=(f.age||0)+dt;
+  f.x+=(f.vx||0)*dt*60; f.y+=(f.vy||0)*dt*60;
+  if(f.kind==='nova'||f.kind==='storm'||f.kind==='shock'||f.kind==='ring'){
+   const dr=f.drNeg?-(f.dr||80): (f.dr||80);
+   f.r=(f.r||20)+dr*dt;
+  }
+  if(f.kind==='orb') f.vy=(f.vy||0)+dt*12;
+  return f.life>0;
+ });
+ if(st.voidShieldUntil&&performance.now()>st.voidShieldUntil) st.voidShieldUntil=0;
+ if(st.voidRageUntil&&performance.now()>st.voidRageUntil) st.voidRageUntil=0;
+}
+function mhDrawVoidFx(ctx,st){
+ (st.voidFx||[]).forEach(f=>{
+  const a=Math.max(0,Math.min(1,f.life*2));
+  ctx.save(); ctx.globalAlpha=a;
+  const col=f.color||'#9040ff';
+  if(f.kind==='beam'||f.kind==='beam_core'){
+   const len=f.len||100;
+   const ex=f.x+(f.vx||0)*(len/16), ey=f.y+(f.vy||0)*(len/16);
+   ctx.strokeStyle=col; ctx.lineWidth=f.kind==='beam_core'?3:9;
+   ctx.shadowColor=col; ctx.shadowBlur=f.kind==='beam_core'?18:8;
+   ctx.lineCap='round';
+   ctx.beginPath(); ctx.moveTo(f.x,f.y); ctx.lineTo(ex,ey); ctx.stroke();
+   ctx.shadowBlur=0;
+  }else if(f.kind==='arc'){
+   ctx.strokeStyle=col; ctx.lineWidth=7; ctx.shadowColor=col; ctx.shadowBlur=10;
+   ctx.beginPath(); ctx.arc(f.x,f.y,f.r||40,f.a0||0,f.a1||Math.PI); ctx.stroke();
+   ctx.strokeStyle='rgba(255,255,255,.35)'; ctx.lineWidth=2; ctx.shadowBlur=0;
+   ctx.beginPath(); ctx.arc(f.x,f.y,(f.r||40)*0.82,f.a0||0,f.a1||Math.PI); ctx.stroke();
+  }else if(f.kind==='orb'){
+   ctx.fillStyle=col; ctx.shadowColor=col; ctx.shadowBlur=14;
+   ctx.beginPath(); ctx.arc(f.x,f.y,7,0,Math.PI*2); ctx.fill();
+   ctx.fillStyle='#fff'; ctx.shadowBlur=0;
+   ctx.beginPath(); ctx.arc(f.x-2,f.y-2,2.5,0,Math.PI*2); ctx.fill();
+  }else if(f.kind==='spark'){
+   ctx.strokeStyle=col; ctx.lineWidth=3; ctx.shadowColor=col; ctx.shadowBlur=8;
+   ctx.beginPath(); ctx.moveTo(f.x,f.y); ctx.lineTo(f.x-(f.vx||0)*3,f.y-(f.vy||0)*3); ctx.stroke();
+  }else if(f.kind==='trail'){
+   const g=ctx.createRadialGradient(f.x,f.y,4,f.x,f.y,55);
+   g.addColorStop(0,mhHex(col,0.55)); g.addColorStop(1,mhHex(col,0));
+   ctx.fillStyle=g; ctx.beginPath(); ctx.arc(f.x,f.y,55,0,Math.PI*2); ctx.fill();
+  }else if(f.kind==='hex'){
+   const r=f.r||36;
+   ctx.strokeStyle=col; ctx.lineWidth=3;
+   ctx.beginPath();
+   for(let i=0;i<=6;i++){
+    const ang=i*Math.PI/3;
+    const hx=f.x+Math.cos(ang)*r, hy=f.y+Math.sin(ang)*r*0.85;
+    if(i===0) ctx.moveTo(hx,hy); else ctx.lineTo(hx,hy);
+   }
+   ctx.closePath(); ctx.stroke();
+   ctx.fillStyle=mhHex(col,0.12); ctx.fill();
+  }else if(f.kind==='ring'){
+   ctx.strokeStyle=col; ctx.lineWidth=4;
+   ctx.beginPath(); ctx.arc(f.x,f.y,Math.max(4,f.r||20),0,Math.PI*2); ctx.stroke();
+  }else if(f.kind==='shock'){
+   const r=Math.max(8,f.r||20);
+   ctx.strokeStyle=col; ctx.lineWidth=5; ctx.globalAlpha=a*0.85;
+   ctx.beginPath(); ctx.arc(f.x,f.y,r,0,Math.PI*2); ctx.stroke();
+   ctx.strokeStyle='rgba(255,255,255,.5)'; ctx.lineWidth=2;
+   ctx.beginPath(); ctx.arc(f.x,f.y,r*0.7,0,Math.PI*2); ctx.stroke();
+  }else if(f.kind==='storm'){
+   const r=f.r||30;
+   ctx.strokeStyle=col; ctx.lineWidth=4;
+   ctx.beginPath(); ctx.arc(f.x,f.y,r,0,Math.PI*2); ctx.stroke();
+   ctx.strokeStyle=col==='#0a0a0a'?'rgba(0,0,0,.85)':'rgba(255,255,255,.25)'; ctx.lineWidth=col==='#0a0a0a'?7:2;
+   ctx.beginPath(); ctx.arc(f.x,f.y,r*0.72,0,Math.PI*2); ctx.stroke();
+   ctx.strokeStyle='rgba(255,60,60,.55)'; ctx.lineWidth=2;
+   for(let i=0;i<8;i++){
+    const ang=(f.spin||0)+i*Math.PI/4;
+    ctx.beginPath(); ctx.moveTo(f.x,f.y); ctx.lineTo(f.x+Math.cos(ang)*r,f.y+Math.sin(ang)*r*0.65); ctx.stroke();
+   }
+   if(f.spin!=null) f.spin+=0.12;
+  }else if(f.kind==='nova'){
+   const r=f.r||30;
+   const g=ctx.createRadialGradient(f.x,f.y,0,f.x,f.y,r);
+   g.addColorStop(0,mhHex(col,0.65)); g.addColorStop(0.45,mhHex(col,0.25)); g.addColorStop(1,mhHex(col,0));
+   ctx.fillStyle=g; ctx.beginPath(); ctx.arc(f.x,f.y,r,0,Math.PI*2); ctx.fill();
+   ctx.strokeStyle=col; ctx.lineWidth=3; ctx.stroke();
+  }else{
+   ctx.strokeStyle=col; ctx.lineWidth=3;
+   ctx.beginPath(); ctx.arc(f.x,f.y,f.r||30,0,Math.PI*2); ctx.stroke();
+  }
+  ctx.restore();
+ });
+ if(st.voidShieldUntil&&performance.now()<st.voidShieldUntil){
+  const p=st.walkPos?.[st.world];
+  if(p){
+   ctx.strokeStyle='rgba(120,160,255,.75)'; ctx.lineWidth=3;
+   ctx.beginPath(); ctx.arc(p.px,p.py,42+Math.sin(performance.now()/200)*4,0,Math.PI*2); ctx.stroke();
+  }
+ }
+}
+function mhFacingDir(st){
+ const k=st.walkKeys||{};
+ let dx=0,dy=0;
+ if(k.left) dx-=1; if(k.right) dx+=1; if(k.up) dy-=1; if(k.down) dy+=1;
+ if(!dx&&!dy) return {dx:0,dy:1};
+ const l=Math.hypot(dx,dy)||1;
+ return {dx:dx/l,dy:dy/l};
+}
+function mhUseVoidAttack(st,save,pos){
+ const m=mhVoidCombatMorph(save);
+ if(!m){ mhToast('Morph into a Void Fallen noobie first (Morph tab)!'); return; }
+ const atk=m.voidAttack||MH_VOID_ATTACKS[0];
+ const dir=mhFacingDir(st);
+ const rage=st.voidRageUntil&&performance.now()<st.voidRageUntil;
+ mhSpawnAttackVfx(st,m,atk,dir,pos,rage);
+ mhToast('⚔ '+atk.name+'!');
+ try{if(typeof SFX!=='undefined'&&SFX.hit)SFX.hit();}catch(_){}
+}
+function mhUseVoidPower(st,save,pos,map){
+ const m=mhVoidCombatMorph(save);
+ if(!m){ mhToast('Morph into a Void Fallen noobie first!'); return; }
+ const pow=m.voidPower||MH_VOID_POWERS[0];
+ const dir=mhFacingDir(st);
+ if(pow.kind==='dash'){
+  pos.px+=dir.dx*(pow.dist||80); pos.py+=dir.dy*(pow.dist||80);
+  mhClampWalkPos(map,pos);
+ }
+ if(pow.kind==='shield') st.voidShieldUntil=performance.now()+(pow.time||2.5)*1000;
+ else if(pow.kind==='heal'){ save.coins+=pow.coins||8; mhSaveSave(save); }
+ else if(pow.kind==='buff') st.voidRageUntil=performance.now()+(pow.time||4)*1000;
+ mhSpawnPowerVfx(st,m,pow,dir,pos,map);
+ mhToast('✦ '+pow.name+'!');
+ try{if(typeof SFX!=='undefined'&&SFX.ui)SFX.ui();}catch(_){}
 }
 function mhPaintVoidKing(ctx,x,y,sc,alpha,silhouette,walkPhase,running,t,flat){
  ctx.save();
@@ -1506,16 +2800,16 @@ function mhPaintAura(ctx,m,x,y,t){
  if(!m||m.voidKing) return;
  const r=MH_RARITY[m.rarity]||MH_RARITY.common;
  const tier={common:0,uncommon:1,rare:2,epic:3,legendary:4,secret:4,exclusive:4,exotic:5,voidfallen:6}[m.rarity]||0;
- if(tier<2) return;
  const pulse=1+Math.sin(t*3+(mhHashStr(m.id)%7))*0.15;
- const rad=(22+tier*8)*pulse;
+ const rad=(16+tier*9)*pulse;
+ const alphaMul=[0.35,0.5,0.65,0.82,0.92,1,1.05,1.1][tier]||0.4;
  const g=ctx.createRadialGradient(x,y-20,4,x,y-20,rad);
- g.addColorStop(0,mhHex(r.color,0.45));
- g.addColorStop(0.5,mhHex(r.color,0.12));
+ g.addColorStop(0,mhHex(r.color,0.45*alphaMul));
+ g.addColorStop(0.5,mhHex(r.color,0.12*alphaMul));
  g.addColorStop(1,mhHex(r.color,0));
  ctx.fillStyle=g;
  ctx.beginPath(); ctx.arc(x,y-20,rad,0,Math.PI*2); ctx.fill();
- if(tier>=4){
+ if(tier>=3){
   ctx.strokeStyle=mhHex(r.color,0.35+Math.sin(t*5)*0.15);
   ctx.lineWidth=m.rarity==='exotic'?3:2;
   ctx.beginPath(); ctx.arc(x,y-20,rad*0.72,0,Math.PI*2); ctx.stroke();
@@ -1622,6 +2916,8 @@ function mhPaintNoob3D(ctx,m,x,y,sc,alpha,silhouette,walkPhase,running){
   mhGradRect(ctx,-10+wa.lx,22+wa.ly,9,32,l,mhShade(l,-30)); mhGradRect(ctx,1+wa.rx,22+wa.ry,9,32,l,mhShade(l,-30));
   mhGradRect(ctx,-16,0,32,24,t,mhShade(t,-35));
   if(m.stripe){ ctx.fillStyle='rgba(255,255,255,.25)'; ctx.fillRect(-16,8,32,6); }
+  if(m.sleeves&&m.accent){ ctx.fillStyle=m.accent; ctx.fillRect(-16,4,6,14); ctx.fillRect(10,4,6,14); }
+  if(m.shoe){ ctx.fillStyle=m.shoe; ctx.fillRect(-10+wa.lx,48+wa.ly,9,6); ctx.fillRect(1+wa.rx,48+wa.ry,9,6); }
   mhGradRect(ctx,-22,2+wa.ax,10,22,a,mhShade(a,-25)); mhGradRect(ctx,12,2-wa.ax,10,22,a,mhShade(a,-25));
   ctx.fillStyle='#303840'; ctx.beginPath(); ctx.arc(-16,14,3,0,Math.PI*2); ctx.arc(16,14,3,0,Math.PI*2); ctx.fill();
   const hg=ctx.createRadialGradient(-8,-36,1,0,-32,26);
@@ -1721,10 +3017,15 @@ function mhPaintNoobFlat(ctx,m,x,y,sc,alpha,silhouette,walkPhase,running){
  ctx.fillStyle=h; ctx.fillRect(-14,-48,28,28);
  ctx.fillStyle='#101018'; ctx.fillRect(-8,-36,5,5); ctx.fillRect(3,-36,5,5);
  if(m.rarity==='voidfallen'&&!silhouette){
-  if(m.voidMale){ ctx.fillStyle=mhHex(t,0.5); ctx.fillRect(-18,4,36,6); }
+  ctx.strokeStyle=m.voidAccent||'#9040ff'; ctx.lineWidth=2;
+  ctx.strokeRect(-17,-49,34,78);
+  if(m.voidMale){ ctx.fillStyle='rgba(0,0,0,.55)'; ctx.fillRect(-18,4,36,8); ctx.fillStyle=m.voidAccent||'#9040ff'; ctx.fillRect(-16,6,32,3); }
   const ve=m.voidEyes||'#70e8ff';
-  ctx.fillStyle=ve; ctx.fillRect(-8,-35,4,4); ctx.fillRect(4,-35,4,4);
-  ctx.fillStyle='rgba(80,20,120,.6)'; ctx.fillRect(-14,-6,8,14); ctx.fillRect(6,-6,8,14);
+  ctx.fillStyle=ve; ctx.shadowColor=ve; ctx.shadowBlur=8;
+  ctx.fillRect(-9,-36,6,6); ctx.fillRect(3,-36,6,6);
+  ctx.shadowBlur=0;
+  ctx.fillStyle='rgba(40,0,60,.75)'; ctx.fillRect(-14,-6,8,14); ctx.fillRect(6,-6,8,14);
+  ctx.fillStyle='rgba(255,40,60,.35)'; ctx.fillRect(-12,8,24,4);
  }
  ctx.restore();
 }
@@ -1740,7 +3041,7 @@ function mhVoidFlatScreenOverlay(ctx,W,H){
  ctx.fillStyle='rgba(0,0,0,.08)';
  for(let y=0;y<H;y+=4) ctx.fillRect(0,y,W,1);
  ctx.fillStyle='#d0a8ff'; ctx.font='bold 11px monospace,sans-serif'; ctx.textAlign='center';
- ctx.fillText('FLAT SCREEN · '+MH_VOID_DIM_LABEL, W/2, b-4);
+ ctx.fillText(MH_VOID_ABYSS_LABEL+' · '+MH_VOID_DIM_LABEL, W/2, b-4);
 }
 function mhPaintNoobWorld(ctx,m,x,y,sc,alpha,silhouette,t,walkPhase,flat,running){
  const off=flat
@@ -1754,6 +3055,7 @@ function mhPaintNoobWorld(ctx,m,x,y,sc,alpha,silhouette,t,walkPhase,flat,running
   ctx.restore();
   return;
  }
+ if(m.rarity==='voidfallen'||m.voidFallen) mhPaintVoidFallenStormAura(ctx,0,-8,t,alpha,silhouette,m);
  if(!flat) ctx.rotate(off.rot);
  if(!flat) mhPaintAura(ctx,m,0,-8,t);
  if(m.void5D) mhPaintNoob5D(ctx,m,0,-8,sc*off.sc,alpha,silhouette,walkPhase,running);
@@ -1763,9 +3065,8 @@ function mhPaintNoobWorld(ctx,m,x,y,sc,alpha,silhouette,t,walkPhase,flat,running
 }
 
 function mhWalkTileBlocked(map,tx,ty){
- if(tx<0||ty<0||tx>=map.w||ty>=map.h) return true;
- const v=map.tiles[ty*map.w+tx];
- return v===1||v===2;
+ if(tx<1||ty<1||tx>=map.w-1||ty>=map.h-1) return true;
+ return false;
 }
 function mhDrawVoidThrone(ctx,map){
  if(map.throneTx==null) return;
@@ -1832,39 +3133,98 @@ function mhGetNpcPos(st,wi,m){
  return {px:n.px,py:n.py,phase:n.phase};
 }
 function mhNpcWander(st,map,m,npc,dt,save){
- if(mhHasMorph(save,m.id)){
-  npc.phase+=dt*2;
+ if(m.tileX==null) return;
+ npc.px=m.tileX*MH_TILE+MH_TILE/2;
+ npc.py=m.tileY*MH_TILE+MH_TILE/2;
+ npc.walking=false;
+ npc.phase+=dt*(mhHasMorph(save,m.id)?2:1.3);
+}
+function mhDrawHideoutGroves(ctx,map,pos,wi){
+ const abyss=wi===MH_VOID_WORLD||map.abyssStamp;
+ (map.hideouts||[]).forEach(g=>{
+  const x=g.tx*MH_TILE,y=g.ty*MH_TILE,w=g.w*MH_TILE,h=g.h*MH_TILE;
+  const cx=x+w/2,cy=y+h/2;
+  const dist=Math.hypot(cx-pos.px,cy-pos.py);
+  if(dist>520) return;
+  ctx.save();
+  ctx.strokeStyle=abyss
+   ?(dist<MH_HIDDEN_REVEAL_R+40?'rgba(255,80,120,.95)':'rgba(120,40,160,.45)')
+   :(dist<MH_HIDDEN_REVEAL_R+40?'rgba(255,232,160,.9)':'rgba(200,220,255,.35)');
+  ctx.lineWidth=dist<180?3:2;
+  ctx.setLineDash([8,6]);
+  ctx.strokeRect(x+2,y+2,w-4,h-4);
+  ctx.setLineDash([]);
+  if(dist<280){
+   ctx.fillStyle='rgba(0,0,0,.55)'; ctx.fillRect(cx-72,y-18,144,16);
+   ctx.fillStyle=abyss?'#ffb0d0':'#ffe8a0'; ctx.font='bold 11px system-ui'; ctx.textAlign='center';
+   ctx.fillText(g.label||(abyss?'Abyss grove':'Hidden grove'),cx,y-6);
+  }
+  ctx.restore();
+ });
+}
+function mhGroveAt(map,px,py){
+ const tx=Math.floor(px/MH_TILE), ty=Math.floor(py/MH_TILE);
+ for(const g of map.hideouts||[]){
+  if(tx>=g.tx&&tx<g.tx+g.w&&ty>=g.ty&&ty<g.ty+g.h) return g;
+ }
+ return null;
+}
+function mhMorphsInGrove(save,wi,grove){
+ return mhWorldMorphs(wi).filter(m=>{
+  if(m.tileX==null||m.voidKing||mhHasMorph(save,m.id)) return false;
+  return m.tileX>=grove.tx&&m.tileX<grove.tx+grove.w&&m.tileY>=grove.ty&&m.tileY<grove.ty+grove.h;
+ });
+}
+function mhTryStartMinigame(){
+ if(!mhState?.save) return;
+ const wi=mhState.world, save=mhState.save, map=MH_WORLD_MAPS[wi];
+ const pos=mhWalkEnsurePos(mhState,wi);
+ if(mhState.walkNearId){
+  mhDeckUnlock(mhMorph(mhState.walkNearId),save);
   return;
  }
- npc.wait-=dt;
- if(npc.wait<=0){
-  if(Math.random()<0.035){
-   npc.dir=Math.random()*Math.PI*2;
-   npc.wait=0.4+Math.random()*1.8;
+ const grove=mhGroveAt(map,pos.px,pos.py);
+ if(grove){
+  const pool=mhMorphsInGrove(save,wi,grove);
+  if(pool.length){
+   pool.sort((a,b)=>{
+    const da=Math.hypot(mhGetNpcPos(mhState,wi,a).px-pos.px,mhGetNpcPos(mhState,wi,a).py-pos.py);
+    const db=Math.hypot(mhGetNpcPos(mhState,wi,b).px-pos.px,mhGetNpcPos(mhState,wi,b).py-pos.py);
+    return da-db;
+   });
+   mhOpenMinigame(pool[0]);
+   mhToast('🎮 Minigame — unlock a noobie hidden in this grove!');
    return;
   }
-  const spd=MH_NPC_SPEED*(0.85+(mhHashStr(m.id+'s')%6)*0.08);
-  const vx=Math.cos(npc.dir)*spd, vy=Math.sin(npc.dir)*spd;
-  const npx=npc.px+vx,npy=npc.py+vy;
-  if(mhWalkCollide(map,npx,npc.py,8)||mhWalkCollide(map,npc.px,npy,8)){
-   npc.dir+=Math.PI*(0.5+Math.random()*0.8);
-   npc.wait=0.25+Math.random()*0.5;
-  }else{
-   npc.px=npx; npc.py=npy;
-   npc.phase+=spd*0.14;
-   npc.walking=true;
-  }
- }else{ npc.phase+=dt*1.5; npc.walking=false; }
+ }
+ let best=null,bd=380;
+ mhWorldMorphs(wi).forEach(m=>{
+  if(m.tileX==null||m.voidKing||mhHasMorph(save,m.id)) return;
+  const p=mhGetNpcPos(mhState,wi,m);
+  const d=Math.hypot(p.px-pos.px,p.py-pos.py);
+  if(d<bd){ bd=d; best=m; }
+ });
+ if(best){ mhOpenMinigame(best); mhToast('🎮 Minigame started!'); return; }
+ const next=mhWorldMorphs(wi).find(m=>!mhHasMorph(save,m.id)&&!m.voidKing);
+ if(next){ mhOpenMinigame(next); mhToast('🎮 Minigame — pick from this map\'s deck too!'); return; }
+ mhToast('All noobies on this map collected! Try 💎 Epic+ or 🕳 Void teleport.');
 }
 function mhWalkNearMorph(save,wi,pos,st){
+ const map=MH_WORLD_MAPS[wi];
+ const grove=mhGroveAt(map,pos.px,pos.py);
  const morphs=mhWorldMorphs(wi);
  let best=null,bd=1e9;
- morphs.forEach(m=>{
-  if(m.tileX==null) return;
+ const tryMorph=(m,maxD)=>{
+  if(m.tileX==null||mhHasMorph(save,m.id)) return;
   const p=mhGetNpcPos(st,wi,m);
   const d=Math.hypot(p.px-pos.px,p.py-pos.py);
-  if(d<bd){ bd=d; best={m,d}; }
- });
+  if(d<maxD&&d<bd){ bd=d; best={m,d}; }
+ };
+ if(grove){
+  mhMorphsInGrove(save,wi,grove).forEach(m=>tryMorph(m,130));
+  if(best) return best.m;
+ }
+ morphs.forEach(m=>tryMorph(m,MH_INTERACT_R));
  if(!best||best.d>MH_INTERACT_R) return null;
  return best.m;
 }
@@ -1886,9 +3246,29 @@ function mhWalkApplyKey(e,down){
  if(c==='KeyW'||c==='ArrowUp'||k==='w'||k==='W') touch('up',down);
  if(c==='KeyS'||c==='ArrowDown'||k==='s'||k==='S') touch('down',down);
  if(c==='ShiftLeft'||c==='ShiftRight'||k==='Shift') touch('run',down);
- if(down&&(c==='KeyE'||k==='e'||k==='E'||c==='Space'||isSpaceKey(e))&&mhState.walkNearId){
-  mhDeckUnlock(mhMorph(mhState.walkNearId),mhState.save);
+ if(down&&(c==='KeyE'||k==='e'||k==='E'||c==='Space'||isSpaceKey(e))){
+  mhTryStartMinigame();
   hit=true;
+ }
+ if(down&&(c==='KeyF'||k==='f'||k==='F')){
+  if(mhState.insideBuilding){ mhExitBuilding(); hit=true; }
+  else if(mhState.walkNearBuilding){ mhEnterBuilding(mhState.walkNearBuilding,mhState.world); hit=true; }
+ }
+ if(down&&(c==='KeyJ'||k==='j'||k==='J')){ mhMayorCrank(-14); hit=true; }
+ if(down&&(c==='KeyL'||k==='k'||k==='K')){ mhMayorCrank(14); hit=true; }
+ if(down&&(c==='KeyR'||k==='r'||k==='R')&&!keys.run){
+  const map=MH_WORLD_MAPS[mhState.world];
+  const pos=mhWalkEnsurePos(mhState,mhState.world);
+  if(mhNearMayorShrine(pos,map)){ mhMayorFlashBeam(); hit=true; }
+ }
+ if(down&&!e.repeat&&(c==='Digit1'||c==='Numpad1'||k==='1')){
+  const pos=mhWalkEnsurePos(mhState,mhState.world);
+  mhUseVoidAttack(mhState,mhState.save,pos); hit=true;
+ }
+ if(down&&!e.repeat&&(c==='Digit2'||c==='Numpad2'||k==='2')){
+  const map=MH_WORLD_MAPS[mhState.world];
+  const pos=mhWalkEnsurePos(mhState,mhState.world);
+  mhUseVoidPower(mhState,mhState.save,pos,map); hit=true;
  }
  if(hit){
   e.preventDefault();
@@ -1915,6 +3295,13 @@ function mhWalkDrawFrame(){
  try{
   ctx=canvas.getContext('2d');
   if(!ctx) throw new Error('no ctx');
+ const W=canvas.width,H=canvas.height;
+ if(st.insideBuilding){
+  const t=performance.now()/1000;
+  mhDrawInteriorScreen(ctx,W,H,st,t);
+  st.walkRaf=requestAnimationFrame(mhWalkDrawFrame);
+  return;
+ }
  const wi=st.world;
  const save=st.save;
  const map=MH_WORLD_MAPS[wi];
@@ -1943,36 +3330,52 @@ function mhWalkDrawFrame(){
   st.playerRunning=running;
  }else{ st.walkPhase=(st.walkPhase||0)*0.9; st.playerRunning=false; }
  const morphs=mhWorldMorphs(wi);
+ const near=mhWalkNearMorph(save,wi,pos,st);
+ const nearId=near?near.id:null;
  morphs.forEach(m=>{
   if(m.tileX==null) return;
+  const np=mhGetNpcPos(st,wi,m);
+  if(!mhShouldDrawMapMorph(m,save,Math.hypot(np.px-pos.px,np.py-pos.py),nearId)) return;
   mhNpcWander(st,map,m,mhNpcState(st,wi,m),dt,save);
  });
- const near=mhWalkNearMorph(save,wi,pos,st);
+ mhUpdateCivilians(st,map,wi,dt);
+ mhUpdateVoidFx(st,dt);
  st.walkNearId=near?near.id:null;
- const W=canvas.width,H=canvas.height;
+ st.walkNearBuilding=mhWalkNearBuilding(pos,map);
+ if(wi===MH_VOID_WORLD){
+  let bv=null,bd=220;
+  morphs.forEach(m=>{
+   if(m.voidKing||m.rarity!=='voidfallen') return;
+   const p=mhGetNpcPos(st,wi,m);
+   const d=Math.hypot(p.px-pos.px,p.py-pos.py);
+   if(d<bd){ bd=d; bv=m; }
+  });
+  st.walkNearVoidId=bv?bv.id:null;
+ }else st.walkNearVoidId=null;
  const camX=pos.px-W/2,camY=pos.py-H/2;
  const flatMap=mhMapFlat2D(wi);
  ctx.fillStyle=world.bg;
  ctx.fillRect(0,0,W,H);
+ let shakeX=0,shakeY=0;
+ if(st.voidShakeUntil&&performance.now()<st.voidShakeUntil){
+  const mag=st.voidShakeMag||4;
+  shakeX=(Math.random()-0.5)*mag*2;
+  shakeY=(Math.random()-0.5)*mag*2;
+ }
  ctx.save();
- ctx.translate(-camX,-camY);
- if(flatMap) mhDrawFlatMapTiles(ctx,map,world,wi);
+ ctx.translate(-camX+shakeX,-camY+shakeY);
+ if(flatMap) mhDrawFlatMapTiles(ctx,map,world,wi,t);
  else for(let ty=0;ty<map.h;ty++)for(let tx=0;tx<map.w;tx++){
   const v=map.tiles[ty*map.w+tx];
   const x=tx*MH_TILE,y=ty*MH_TILE;
-  if(v===1){
-   mhGradRect(ctx,x,y,MH_TILE,MH_TILE,'#3a4048','#1a1e24');
-   ctx.strokeStyle='rgba(255,255,255,.06)'; ctx.strokeRect(x+.5,y+.5,MH_TILE-1,MH_TILE-1);
-  }else{
-   const g=ctx.createLinearGradient(x,y,x,y+MH_TILE);
-   g.addColorStop(0,mhShade(world.ground,25)); g.addColorStop(1,world.ground);
-   ctx.fillStyle=g; ctx.fillRect(x,y,MH_TILE,MH_TILE);
-   ctx.strokeStyle='rgba(0,0,0,.06)'; ctx.strokeRect(x+.5,y+.5,MH_TILE-1,MH_TILE-1);
-  }
-  if(v===2) mhDrawThemedPropTile(ctx,x,y,wi,tx,ty);
+  mhPaintWorldGroundTile(ctx,x,y,v,world,wi);
+  ctx.strokeStyle='rgba(0,0,0,.06)'; ctx.strokeRect(x+.5,y+.5,MH_TILE-1,MH_TILE-1);
  }
- mhDrawMapDecors(ctx,map,wi);
+ mhDrawMapDecors(ctx,map,wi,t);
+ if(wi===MH_VOID_WORLD) mhDrawVoidAbyssMist(ctx,map,t);
+ mhDrawHideoutGroves(ctx,map,pos,wi);
  if(wi===MH_VOID_WORLD) mhDrawVoidThrone(ctx,map);
+ mhDrawCivilians(ctx,st,wi,map);
  morphs.sort((a,b)=>mhGetNpcPos(st,wi,a).py-mhGetNpcPos(st,wi,b).py);
  morphs.forEach(m=>{
   if(m.tileX==null) return;
@@ -1980,9 +3383,7 @@ function mhWalkDrawFrame(){
   const mx=npc.px, my=npc.py;
   const got=mhHasMorph(save,m.id);
   const dist=Math.hypot(mx-pos.px,my-pos.py);
-  const onScreen=mx>=camX-40&&mx<=camX+W+40&&my>=camY-60&&my<=camY+H+40;
-  const seen=got||dist<150||onScreen;
-  if(!seen) return;
+  if(!mhShouldDrawMapMorph(m,save,dist,nearId)) return;
   let sc=(m.scale||1)*(flatMap?0.78:0.72);
   if(m.voidKing) sc*=1.35;
   if(MH_1000D&&!flatMap){
@@ -1991,20 +3392,22 @@ function mhWalkDrawFrame(){
   }
   const sil=!got&&dist>MH_INTERACT_R&&m.rarity!=='voidfallen';
   mhPaintNoobWorld(ctx,m,mx,my,sc,got?0.55:1,sil,t,npc.phase,flatMap,!!npc.walking);
-  if(m.voidKing){
-   ctx.fillStyle='rgba(8,0,0,.92)'; ctx.fillRect(mx-88,my-108,176,20);
-   ctx.fillStyle='#ff4040'; ctx.font='bold 11px system-ui'; ctx.textAlign='center';
-   ctx.fillText('VOID FALLEN KING · GREATAXE & SHIELD · '+MH_VOID_KING_DEPTH+' DEPTH',mx,my-94);
+  if(m.voidKing&&dist<240){
+   ctx.fillStyle='rgba(0,0,0,.88)'; ctx.fillRect(mx-78,my-98,156,22);
+   ctx.fillStyle='#ff4040'; ctx.font='bold 9px system-ui'; ctx.textAlign='center';
+   ctx.fillText('👑 '+MH_VOID_ABYSS_LABEL+' · KING',mx,my-84);
+   ctx.fillStyle='#ffe8a0'; ctx.font='bold 8px system-ui';
+   ctx.fillText('⚔ '+(m.voidAttack?.name||'Cleave')+' · ✦ '+(m.voidPower?.name||'Storm'),mx,my-74);
   }
   if(m.rarity==='exotic'){
    ctx.fillStyle='rgba(255,40,200,.85)'; ctx.fillRect(mx-54,my-98,108,14);
    ctx.fillStyle='#fff'; ctx.font='bold 10px system-ui'; ctx.textAlign='center';
    ctx.fillText('✦ EXOTIC',mx,my-88);
   }
-  if(m.rarity==='voidfallen'&&!m.voidKing){
-   ctx.fillStyle='rgba(40,0,80,.9)'; ctx.fillRect(mx-62,my-100,124,16);
-   ctx.fillStyle='#c898ff'; ctx.font='bold 10px system-ui'; ctx.textAlign='center';
-   ctx.fillText('🕳 MALE VOID FALLEN',mx,my-89);
+  if(m.rarity==='voidfallen'&&!m.voidKing&&dist<100){
+   ctx.fillStyle='rgba(20,0,40,.85)'; ctx.fillRect(mx-58,my-92,116,16);
+   ctx.fillStyle='#c898ff'; ctx.font='bold 8px system-ui'; ctx.textAlign='center';
+   ctx.fillText(m.name.slice(0,14),mx,my-82);
   }
   if(dist<MH_INTERACT_R&&!got){
    if(!got){
@@ -2021,25 +3424,46 @@ function mhWalkDrawFrame(){
    ctx.fillText(got?m.name.slice(0,14):'???',mx,my-68);
   }
  });
+ mhDrawMapStatues(ctx,map,t,st);
+ mhDrawVoidFx(ctx,st);
  const wear=mhMorph(save.wearing);
  mhDrawYouInWorld(ctx,wear,pos,map,t,st.walkPhase||0,wi,st.playerRunning);
  ctx.restore();
- ctx.fillStyle='rgba(0,0,0,.72)'; ctx.fillRect(8,8,320,52);
- ctx.fillStyle='#80ff90'; ctx.font='bold 13px system-ui,sans-serif'; ctx.textAlign='left';
- ctx.fillText(MH_BUILD+' · '+MH_SCENERY_STAMP,16,28);
- ctx.fillStyle='#e8ffe8'; ctx.font='bold 12px system-ui,sans-serif';
- ctx.fillText('Houses on map: '+(map.landmarks?.length||0)+' big · '+(map.decors?.length||0)+' small',16,48);
- if(flatMap) mhPaperFlatOverlay(ctx,W,H);
+ ctx.fillStyle='rgba(0,0,0,.78)'; ctx.fillRect(8,8,380,58);
+ ctx.fillStyle='#ffe8a0'; ctx.font='bold 12px system-ui,sans-serif'; ctx.textAlign='left';
+ ctx.fillText('This map: '+mhWorldRarityHint(wi),16,24);
+ ctx.fillStyle='#80ffb0'; ctx.font='bold 11px system-ui,sans-serif';
+ ctx.fillText('Search dashed groves · noobies appear when you walk in · E unlock',16,42);
+ ctx.fillStyle='#a0c8ff'; ctx.font='bold 11px system-ui,sans-serif';
+ ctx.fillText('Epic+ → teleport 💎 · Void → teleport 🕳 (tabs above)',16,56);
+ const pc=mhParkCenter(map);
+ if(pc){
+  const pd=Math.hypot(pc.px-pos.px,pc.py-pos.py);
+  if(pd>120){
+   const ang=Math.atan2(pc.py-pos.py,pc.px-pos.px);
+   const ax=W/2+Math.cos(ang)*200, ay=H/2+Math.sin(ang)*120;
+   ctx.save(); ctx.translate(ax,ay); ctx.rotate(ang);
+   ctx.fillStyle='#62b852'; ctx.beginPath(); ctx.moveTo(16,0); ctx.lineTo(-8,-10); ctx.lineTo(-8,10); ctx.closePath(); ctx.fill();
+   ctx.fillStyle='#fff'; ctx.font='bold 11px system-ui'; ctx.textAlign='center';
+   ctx.fillText('PARK',0,-14);
+   ctx.restore();
+  }
+ }
+ if(flatMap&&wi!==MH_VOID_WORLD) mhPaperFlatOverlay(ctx,W,H);
+ mhRefreshVoidCombatHud(save);
  if(wi===MH_VOID_WORLD){
   mhVoidFlatScreenOverlay(ctx,W,H);
-  ctx.fillStyle='rgba(255,80,80,.95)'; ctx.font='bold 11px system-ui,sans-serif'; ctx.textAlign='center';
-  ctx.fillText(MH_VOID_ABYSS_LABEL+' · RED/BLACK KING at center · '+MH_KING_STAMP+' · '+MH_BUILD, W/2, H-16);
+  ctx.fillStyle='rgba(0,0,0,.78)'; ctx.fillRect(W/2-185,22,370,24);
+  ctx.fillStyle='#ff6060'; ctx.font='bold 13px system-ui,sans-serif'; ctx.textAlign='center';
+  ctx.fillText('🕳 '+MH_VOID_ABYSS_LABEL+' · '+MH_BUILD+' · rifts · 👑 King',W/2,40);
   if(map.throneTx!=null){
    const tx=map.throneTx*MH_TILE+MH_TILE/2, ty=map.throneTy*MH_TILE+MH_TILE/2;
    const ang=Math.atan2(ty-pos.py,tx-pos.px);
-   const ax=pos.px-Math.cos(ang)*42+Math.cos(ang)*28, ay=pos.py-Math.sin(ang)*42+Math.sin(ang)*28;
+   const ax=W/2+Math.cos(ang)*118, ay=H/2+Math.sin(ang)*72;
    ctx.save(); ctx.translate(ax,ay); ctx.rotate(ang);
-   ctx.fillStyle='#ff3030'; ctx.beginPath(); ctx.moveTo(18,0); ctx.lineTo(-8,-10); ctx.lineTo(-8,10); ctx.closePath(); ctx.fill();
+   ctx.fillStyle='#ff3030'; ctx.beginPath(); ctx.moveTo(14,0); ctx.lineTo(-6,-8); ctx.lineTo(-6,8); ctx.closePath(); ctx.fill();
+   ctx.fillStyle='#ffe8a0'; ctx.font='bold 9px system-ui'; ctx.textAlign='center';
+   ctx.fillText('KING',0,-12);
    ctx.restore();
   }
  }
@@ -2048,13 +3472,17 @@ function mhWalkDrawFrame(){
   const found=morphs.filter(m=>mhHasMorph(save,m.id)).length;
   hud.querySelector('.mh-walk-zone').textContent=world.emoji+' '+world.name+' · '+found+'/'+morphs.length;
   const prompt=hud.querySelector('.mh-walk-prompt');
-  if(near){
-   const got=mhHasMorph(save,near.id);
-   prompt.textContent=got?'E — morph into '+near.name:'E — play minigame to unlock!';
+  if(st.walkNearBuilding){
+   prompt.textContent='Step 2: Press F to enter house (secret code inside)';
    prompt.hidden=false;
-  }else prompt.hidden=true;
-  const runEl=hud.querySelector('.mh-walk-run');
-  if(runEl) runEl.textContent=running?'🏃 RUNNING':'Shift / 🏃 = run';
+  }else if(near){
+   const got=mhHasMorph(save,near.id);
+   prompt.textContent=got?'E — morph into '+near.name:'Step 1: Press E — minigame unlocks this noobie!';
+   prompt.hidden=false;
+  }else{
+   prompt.textContent='Find a dashed 🕵 Hidden grove — walk inside to reveal noobies';
+   prompt.hidden=false;
+  }
  }
  }catch(err){
   console.error('[Morph Hunt walk]',err);
@@ -2174,8 +3602,10 @@ function mhWalkStart(){
   btn.addEventListener('pointerup',up);
   btn.addEventListener('pointerleave',up);
  });
- root?.querySelector('#mh-walk-interact')?.addEventListener('click',()=>{
-  if(mhState?.walkNearId) mhDeckUnlock(mhMorph(mhState.walkNearId),mhState.save);
+ root?.querySelector('#mh-walk-interact')?.addEventListener('click',()=> mhTryStartMinigame());
+ root?.querySelector('#mh-walk-enter')?.addEventListener('click',()=>{
+  if(mhState?.insideBuilding) mhExitBuilding();
+  else if(mhState?.walkNearBuilding) mhEnterBuilding(mhState.walkNearBuilding,mhState.world);
  });
  root?.querySelector('#mh-walk-run')?.addEventListener('pointerdown',()=>{
   if(!mhState.walkKeys) mhState.walkKeys={};
@@ -2184,6 +3614,21 @@ function mhWalkStart(){
  root?.querySelector('#mh-walk-run')?.addEventListener('pointerup',()=>{
   if(mhState?.walkKeys) delete mhState.walkKeys.run;
  });
+ const voidAtk=root?.querySelector('#mh-void-atk');
+ const voidPow=root?.querySelector('#mh-void-pow');
+ if(voidAtk) voidAtk.onclick=()=>{
+  if(!mhState?.save) return;
+  root.querySelector('#mh-walk-canvas')?.focus();
+  const pos=mhWalkEnsurePos(mhState,mhState.world);
+  mhUseVoidAttack(mhState,mhState.save,pos);
+ };
+ if(voidPow) voidPow.onclick=()=>{
+  if(!mhState?.save) return;
+  root.querySelector('#mh-walk-canvas')?.focus();
+  const map=MH_WORLD_MAPS[mhState.world];
+  const pos=mhWalkEnsurePos(mhState,mhState.world);
+  mhUseVoidPower(mhState,mhState.save,pos,map);
+ };
  const canvas=root?.querySelector('#mh-walk-canvas');
  if(canvas) canvas.onclick=mhWalkCanvasClick;
 }
@@ -2201,43 +3646,52 @@ function mhRenderHuntDeck(save,wi,morphs){
    <em class="mh-hunt-card-btn">${btn}</em>
   </button>`;
  }).join('');
- return `<section class="mh-hunt-deck">
-  <h3>🎮 Minigame unlock deck</h3>
-  <p class="mh-scene-hint">Every noobie needs a <b>minigame win</b> first! Map above has houses, ruins, expedition camps &amp; more per zone.</p>
+ return `<details class="mh-hunt-deck-fold" open>
+  <summary>🎮 Minigame deck — tap any card to play &amp; unlock</summary>
   <div class="mh-hunt-cards">${cards}</div>
   <div class="mh-pager">${pg.page>0?'<button type="button" class="mh-btn" data-mh-hunt-page="'+(pg.page-1)+'">← Prev</button>':''}<span>Page ${pg.page+1} / ${pg.pages}</span>${pg.page+1<pg.pages?'<button type="button" class="mh-btn" data-mh-hunt-page="'+(pg.page+1)+'">Next →</button>':''}</div>
- </section>`;
+ </details>`;
 }
 function mhRenderHunt(save, wi){
  const world=MH_WORLDS[wi];
+ const voidCombat=mhVoidCombatMorph(save);
  const morphs=mhWorldMorphs(wi);
  const found=morphs.filter(m=>mhHasMorph(save,m.id)).length;
  const worldTabs=MH_WORLDS.map((w,i)=>{
-  const locked=i>=save.worldsUnlocked;
+  const locked=!mhWorldTeleportUnlocked(save,i);
   const done=mhWorldComplete(save,i);
-  return `<button type="button" class="mh-world-tab${i===wi?' on':''}${locked?' locked':''}" data-mh-world="${i}" ${locked?'disabled':''}>${w.emoji} ${w.name}${done?' ✓':''}</button>`;
+  const tag=i===MH_EXOTIC_WORLD?' Epic+':i===MH_VOID_WORLD?' Void':'';
+  return `<button type="button" class="mh-world-tab${i===wi?' on':''}${locked?' locked':''}" data-mh-world="${i}" ${locked?'disabled':''} title="${w.tagline}">${w.emoji} ${w.name}${tag}${done?' ✓':''}</button>`;
  }).join('');
- const nFound=save.collected.filter(id=>mhMorph(id)&&!mhMorph(id).exclusive).length;
- const xFound=save.collected.filter(id=>mhMorph(id)&&mhMorph(id).exclusive).length;
- return `<div class="mh-world-tabs">${worldTabs}</div>
- <p class="mh-map-banner">⬇ <b>LOOK AT THE MAP CANVAS</b> — big houses &amp; ruins spawn around YOU (${MH_SCENERY_STAMP})</p>
+ const tpEpic=wi!==MH_EXOTIC_WORLD?`<button type="button" class="mh-btn primary mh-btn-sm" data-mh-world="${MH_EXOTIC_WORLD}">💎 Teleport Epic+ Map</button>`:'';
+ const tpVoid=wi!==MH_VOID_WORLD?`<button type="button" class="mh-btn mh-btn-sm" data-mh-world="${MH_VOID_WORLD}">🕳 Teleport Void Map</button>`:'';
+ return `<div class="mh-teleport-bar">
+  <span><b>${world.emoji} ${world.name}</b> — ${mhWorldRarityHint(wi)} · ${found}/${morphs.length} here</span>
+  <span class="mh-teleport-btns">${tpEpic}${tpVoid}</span>
+ </div>
+ <div class="mh-world-tabs mh-world-tabs-compact">${worldTabs}</div>
+ <div class="mh-hunt-guide">
+  <b>Rarity rules</b>
+  <ol>
+   <li><b>Maps 0–7</b> (Buddy, Fair, Beach…): only <b>Common · Uncommon · Rare</b>. They stay inside <b>🕵 hidden groves</b> (dashed boxes) — not scattered on the whole map.</li>
+   <li><b>💎 Epic+ Realm</b> (teleport tab or button): <b>Epic · Legendary · Secret · Exotic · Exclusive</b> — also in groves on that map.</li>
+   <li><b>Void Fallen morph</b>: 🎭 Morph tab → <b>1</b> attack · <b>2</b> power on <b>every map</b> (King = red-black storm!). 🕳 Abyss = King + groves.</li>
+   <li>Walk into a dashed grove → press <b>E</b> or <b>🎮 Minigame</b> (10 minigame types!). <b>F</b> = big homes.</li>
+   <li><b>🏀 Court plaza</b> stays at spawn · <b>4 parks</b> around the map · <b>Mayor statue</b> on court: <b>J/L</b> crank, <b>R</b> flash light at all 4 mirrors → <b>Mayor Noobie</b>!</li>
+  </ol>
+ </div>
  <div class="mh-walk-wrap">
+  <div id="mh-void-combat-readout" class="mh-void-combat-readout">${voidCombat?('⚔ '+voidCombat.voidAttack?.name+' · ✦ '+voidCombat.voidPower?.name):'🎭 Morph a Void Fallen → <b>1</b> / <b>2</b> on any map'}${wi===MH_VOID_WORLD?' · <b>'+MH_VOID_ABYSS_LABEL+'</b>':''}</div>
   <canvas id="mh-walk-canvas" class="mh-walk-canvas" width="960" height="520" tabindex="0"></canvas>
-  <div id="mh-walk-hud" class="mh-walk-hud">
-   <span class="mh-walk-zone">${world.emoji} ${world.name}${wi===MH_VOID_WORLD?' · 👑 King · '+MH_VOID_KING_DEPTH+' Depth · 5D':''}</span>
-   <span class="mh-walk-prompt" hidden>Walk close — then collect</span>
-   <div class="mh-walk-dpad" aria-label="Move">
-    <button type="button" data-mh-dpad="ArrowUp">▲</button>
-    <button type="button" data-mh-dpad="ArrowLeft">◀</button>
-    <button type="button" data-mh-dpad="ArrowDown">▼</button>
-    <button type="button" data-mh-dpad="ArrowRight">▶</button>
-   </div>
-   <button type="button" class="mh-btn primary" id="mh-walk-interact">Collect / Morph</button>
-   <button type="button" class="mh-btn" id="mh-walk-run">🏃 Run</button>
-   <span class="mh-walk-run">Shift / 🏃 = run</span>
+  <div id="mh-walk-hud" class="mh-walk-hud mh-walk-hud-clean">
+   <span class="mh-walk-zone">${world.emoji} ${world.name} · ${found}/${morphs.length}</span>
+   <span class="mh-walk-prompt" hidden>Walk closer</span>
+   <button type="button" class="mh-btn primary mh-btn-sm" id="mh-walk-interact">🎮 Minigame (E)</button>
+   <button type="button" class="mh-btn mh-btn-sm" id="mh-walk-enter">F House</button>
+   <button type="button" class="mh-btn mh-btn-sm" id="mh-walk-run">Run</button>
+   <button type="button" class="mh-btn mh-btn-sm" id="mh-void-atk">⚔ 1 Attack</button><button type="button" class="mh-btn mh-btn-sm" id="mh-void-pow">✦ 2 Power</button>
   </div>
  </div>
- <p class="mh-scene-hint">🚶 <b>YOU</b> in the center · <b>WASD</b> walk · <b>Shift</b> run · legs animate! · <b>E</b> collect · Void has props + throne</p>
  ${mhRenderHuntDeck(save,wi,morphs)}
  <p class="mh-progress">Zone: <b>${found}/${morphs.length}</b> &nbsp;•&nbsp; Total: <b>${save.collected.length}/${MH_TOTAL_COUNT}</b> &nbsp;•&nbsp; 🕳 Void: <b>${save.collected.filter(id=>mhMorph(id)?.rarity==='voidfallen').length}/${MH_VOID_COUNT}</b></p>`;
 }
@@ -2286,14 +3740,14 @@ function mhRenderMorph(save){
   const on=save.wearing===m.id;
   const r=MH_RARITY[m.rarity]||MH_RARITY.common;
   return `<button type="button" class="mh-morph-wear${on?' on':''}" data-mh-wear="${m.id}" style="--mh-rarity:${r.color}">
-   <svg viewBox="0 0 100 130">${mhClassicNoobSvg(m)}</svg><span>${m.name}</span>${on?'<em>Morphed</em>':'<em>Tap to morph</em>'}
+   <svg viewBox="0 0 100 130">${mhClassicNoobSvg(m)}</svg><span>${m.name}</span>${(m.rarity==='voidfallen'||m.voidFallen)?`<small class="mh-morph-void-moves">⚔ ${m.voidAttack?.name||'?'} · ✦ ${m.voidPower?.name||'?'}</small>`:''}${on?'<em>Morphed</em>':'<em>Tap to morph</em>'}
   </button>`;
  }).join('');
  const wear=mhMorph(save.wearing);
  return `<div class="mh-morph-tab">
   <h3>🎭 Morph &amp; Roleplay</h3>
   <p class="mh-scene-hint">Turn into any noobie you own — your morph also shows on the Rock Teacher!</p>
-  <div class="mh-morph-preview large">${wear?`<svg viewBox="0 0 100 130">${mhClassicNoobSvg(wear)}</svg><b>${wear.name}</b><button type="button" class="mh-btn primary" data-mh-wear="${wear.id}">Stay morphed</button>`:'<span>Pick a noobie below</span>'}</div>
+  <div class="mh-morph-preview large">${wear?`<svg viewBox="0 0 100 130">${mhClassicNoobSvg(wear)}</svg><b>${wear.name}</b>${(wear.rarity==='voidfallen'||wear.voidFallen)?`<p class="mh-scene-hint" style="color:${wear.voidKing?'#ff6060':'#c898ff'}">Any map · <b>1</b> ⚔ ${wear.voidAttack?.name||'Attack'} · <b>2</b> ✦ ${wear.voidPower?.name||'Power'}${wear.voidKing?' · 👑 red-black storm aura':' · 🕳 purple-black void storm aura'}</p>`:''}<button type="button" class="mh-btn primary" data-mh-wear="${wear.id}">Stay morphed</button>`:'<span>Pick a noobie below</span>'}</div>
   <input type="search" id="mh-search" placeholder="Search your morphs…" value="${q.replace(/"/g,'&quot;')}"/>
   <div class="mh-morph-grid">${cards}</div>
   <div class="mh-pager">${pg.page>0?'<button type="button" class="mh-btn" data-mh-page="'+(pg.page-1)+'">←</button>':''}<span>${pg.page+1}/${pg.pages}</span>${pg.page+1<pg.pages?'<button type="button" class="mh-btn" data-mh-page="'+(pg.page+1)+'">→</button>':''}</div>
@@ -2304,6 +3758,7 @@ function mhRenderGacha(save){
  return `<div class="mh-gacha-tab">
   <h3>🎲 Noobie Gacha</h3>
   <p class="mh-scene-hint">Normal pool: ${MH_NORMAL_COUNT} · Exclusive pool: ${MH_EXCLUSIVE_COUNT}</p>
+  <p class="mh-scene-hint" style="color:#80ffb0">🏠 House codes (press F inside buildings): <b>GLITCHHOUSE</b> · <b>MYTHINSIDE</b> · <b>MINIGAMEVAULT</b> · <b>ENTERHOUSE</b> (coins)</p>
   <div class="mh-gacha-row">
    <div class="mh-gacha-machine"><div class="mh-gacha-window">?</div><button type="button" class="mh-btn primary" id="mh-gacha-roll">Normal roll — ${MH_GACHA_COST}💰</button></div>
    <div class="mh-gacha-machine exclusive"><div class="mh-gacha-window">★</div><button type="button" class="mh-btn primary" id="mh-gacha-ex">Exclusive roll — ${MH_GACHA_EX_COST}💰</button></div>
@@ -2371,10 +3826,7 @@ function mhRender(){
   <header class="mh-ftn-banner">
    <div class="mh-ftn-banner-text">
     <h2 class="mh-title">Find The Noobies Morphs</h2>
-    <p class="mh-ftn-tag"><b>${MH_TOTAL_COUNT}</b> noobies · <b>Void Fallen King</b> · ${MH_VOID_KING_DEPTH} Depth · ${MH_VOID_KING_DIM} · Build <b>${MH_BUILD}</b> · ${owner?'Owner: ALL unlocked':''}</p>
-    <p class="mh-live-build" style="margin:6px 0 0;font-size:13px;font-weight:900;color:#ffe060">✅ LIVE ${MH_BUILD} · ${MH_KING_STAMP}</p>
-    <p class="mh-king-stamp" style="margin:4px 0 0;font-size:12px;font-weight:900;color:#ff4040">Void King = red/black armor · helmet · forbidden stone aura · greataxe + shield (NO crown)</p>
-    <p class="mh-scenery-stamp" style="margin:4px 0 0;font-size:12px;font-weight:900;color:#80ffb0">${MH_SCENERY_STAMP} — big houses &amp; ruins on every map</p>
+    <p class="mh-ftn-tag"><b>${MH_TOTAL_COUNT}</b> noobies · ${MH_SCENERY_STAMP} · parks + statues · <b>F</b> houses · Build <b>${MH_BUILD}</b>${owner?' · Owner unlocked':''}</p>
    </div>
   </header>
   <div class="mh-head">
@@ -2407,7 +3859,17 @@ function mhRender(){
  }
 }
 
+function mhSyncMorphHuntUrl(){
+ try{
+  const u=new URL(location.href);
+  u.searchParams.set('mh',MH_BUILD);
+  u.searchParams.set('t',String(Date.now()));
+  if(!u.hash) u.hash='morphhunt';
+  history.replaceState(null,'',u.toString());
+ }catch(_){}
+}
 function playMorphHunt(){
+ mhSyncMorphHuntUrl();
  mhClose();
  mhEnsureOverlayModals();
  if(typeof lithosCloseGameOverlays==='function'){ try{lithosCloseGameOverlays();}catch(_){} }

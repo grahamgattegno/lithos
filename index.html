@@ -5484,11 +5484,11 @@
 <script src="gemcopter.js?v=deploy-85"></script>
 <script>
 (function lithosLoadMorphHunt(){
- var MH_NEED='void-2d-v56';
- var MH_SCRIPT='morph-hunt.void-2d-v56.js';
- var NEED_MARK="MH_BUILD='void-2d-v56'";
+ var MH_NEED='void-2d-v57';
+ var MH_SCRIPT='morph-hunt.void-2d-v57.js';
+ var NEED_MARK="MH_BUILD='void-2d-v57'";
  var KING_MARK='RED_BLACK_KING_v31';
- var SCENERY_MARK='VOID_NO_RECHARGE_v56';
+ var SCENERY_MARK='VOID_NO_RECHARGE_v57';
  window.__LITHOS_MH_LATEST=MH_NEED;
  window.__LITHOS_MH_NEED=MH_NEED;
  window.__LITHOS_MH_SCRIPT=MH_SCRIPT;
@@ -5505,8 +5505,9 @@
  }catch(_){}
  function mhCodeLooksFresh(code){
   if(!code||code.indexOf('playMorphHunt')<0) return false;
-  if(code.indexOf(NEED_MARK)>=0) return true;
-  if(code.indexOf('VOID_RECHARGE_BARS_v55')>=0||code.indexOf('VOID_POWER_RECHARGE_v54')>=0||code.indexOf('VOID_NO_RECHARGE_v52')>=0) return true;
+  if(code.indexOf('Power recharging')>=0) return false;
+  if(code.indexOf(NEED_MARK)>=0&&code.indexOf('VOID_NO_RECHARGE_v57')>=0) return true;
+  if(code.indexOf('VOID_NO_RECHARGE_v57')>=0) return true;
   if(code.indexOf("MH_BUILD='void-2d-v")>=0&&code.indexOf('mhSyncMorphHuntUrl')>=0) return true;
   if(code.indexOf("MH_BUILD='void-2d-v")>=0&&code.indexOf('mhUseVoidPower')>=0) return true;
   return false;
@@ -5533,7 +5534,7 @@
    .then(function(code){
     if(!mhCodeLooksFresh(code)){
      if(!retry) return loadFresh(1);
-     alert('OLD cached game still loading.\\n\\nUse:\\n'+location.origin+location.pathname+'?mh=void-2d-v55&t='+Date.now()+'#morphhunt\\n\\nHard refresh: Cmd+Shift+R');
+     alert('OLD cached game still loading.\\n\\nUse:\\n'+location.origin+location.pathname+'?mh=void-2d-v57&t='+Date.now()+'#morphhunt\\n\\nHard refresh: Cmd+Shift+R');
      loadScriptTag();
      return;
     }
@@ -5546,7 +5547,7 @@
 </script>
 <script>
 window.lithosPlayMorphHunt=function lithosPlayMorphHunt(){
- var NEED=window.__LITHOS_MH_LATEST||window.__LITHOS_MH_NEED||'void-2d-v55';
+ var NEED=window.__LITHOS_MH_LATEST||window.__LITHOS_MH_NEED||'void-2d-v57';
  var tries=0;
  function run(){
   if(typeof playMorphHunt==='function'){
