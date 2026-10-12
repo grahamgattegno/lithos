@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- lithos-v:site-live-78-morph-2d-v24 -->
+<!-- lithos-v:site-live-79-morph-2d-v27 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1588,10 +1588,10 @@
   .mh-hunt-card-btn{font-size:10px;font-weight:800;color:#80e8ff;font-style:normal}
   .mh-walk-optional{margin-top:8px;border:1px solid #2a3040;border-radius:12px;padding:8px 10px;background:#0a0e14}
   .mh-walk-optional summary{cursor:pointer;font-weight:800;color:#a0b0c0;font-size:12px}
-  .mh-walk-wrap{position:relative;border-radius:16px;overflow:hidden;border:3px solid #2a4030;box-shadow:0 8px 32px rgba(0,0,0,.45)}
-  .mh-walk-canvas{display:block;width:100%;height:min(58vh,520px);max-height:min(58vh,520px);aspect-ratio:960/520;min-height:200px;background:#101820;cursor:crosshair;touch-action:none}
-  .mh-walk-hud{position:absolute;left:0;right:0;bottom:0;z-index:8;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:10px 12px;background:linear-gradient(180deg,transparent,rgba(0,0,0,.85))}
-  .mh-walk-zone{font-weight:900;color:#ffe8a0;font-size:12px;text-shadow:0 1px 3px #000}
+  .mh-walk-wrap{position:relative;border-radius:4px;overflow:hidden;border:2px solid #1a1e24;box-shadow:none;background:#fff8ef}
+  .mh-walk-canvas{display:block;width:100%;height:min(58vh,520px);max-height:min(58vh,520px);aspect-ratio:960/520;min-height:200px;background:#101820;cursor:crosshair;touch-action:none;image-rendering:pixelated;image-rendering:crisp-edges}
+  .mh-walk-hud{position:absolute;left:0;right:0;bottom:0;z-index:8;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(16,20,28,.92);border-top:2px solid #1a1e24}
+  .mh-walk-zone{font-weight:900;color:#ffe8a0;font-size:12px;text-shadow:none}
   .mh-walk-prompt{flex:1;text-align:center;font-size:12px;font-weight:800;color:#80e8ff}
   .mh-walk-run{font-size:11px;font-weight:800;color:#80ffb0;text-shadow:0 1px 2px #000}
   .mh-minigame-modal{z-index:10004}
@@ -5451,7 +5451,7 @@
 <script src="gemcopter.js?v=deploy-85"></script>
 <script>
 (function lithosLoadMorphHunt(){
- var MH_NEED='void-2d-v26';
+ var MH_NEED='void-2d-v27';
  window.__LITHOS_MH_NEED=MH_NEED;
  var s=document.createElement('script');
  s.src='morph-hunt.js?v='+encodeURIComponent(MH_NEED)+'&_='+Date.now();
@@ -5461,7 +5461,7 @@
 </script>
 <script>
 window.lithosPlayMorphHunt=function lithosPlayMorphHunt(){
- var NEED=window.__LITHOS_MH_NEED||'void-2d-v26';
+ var NEED=window.__LITHOS_MH_NEED||'void-2d-v27';
  var tries=0;
  function run(){
   if(typeof playMorphHunt==='function'){
