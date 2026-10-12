@@ -3,7 +3,8 @@
 'use strict';
 
 const MH_STORE_KEY='lithos_morph_hunt_v5';
-const MH_BUILD='keys-fix-v9';
+const MH_BUILD='npc-walk-v10';
+const MH_NPC_SPEED=1.25;
 const MH_TILE=34;
 const MH_MAP_W=46;
 const MH_MAP_H=34;
@@ -813,13 +814,55 @@ function mhWalkEnsurePos(st,wi){
  }
  return st.walkPos[wi];
 }
-function mhWalkNearMorph(save,wi,pos){
+function mhNpcState(st,wi,m){
+ if(!st.npc) st.npc={};
+ if(!st.npc[wi]) st.npc[wi]={};
+ if(!st.npc[wi][m.id]){
+  st.npc[wi][m.id]={
+   px:m.tileX*MH_TILE+MH_TILE/2,
+   py:m.tileY*MH_TILE+MH_TILE/2,
+   dir:(mhHashStr(m.id)%628)/100,
+   wait:0,
+   phase:mhHashStr(m.id+'p')%100/10
+  };
+ }
+ return st.npc[wi][m.id];
+}
+function mhGetNpcPos(st,wi,m){
+ const n=mhNpcState(st,wi,m);
+ return {px:n.px,py:n.py,phase:n.phase};
+}
+function mhNpcWander(st,map,m,npc,dt,save){
+ if(mhHasMorph(save,m.id)){
+  npc.phase+=dt*2;
+  return;
+ }
+ npc.wait-=dt;
+ if(npc.wait<=0){
+  if(Math.random()<0.035){
+   npc.dir=Math.random()*Math.PI*2;
+   npc.wait=0.4+Math.random()*1.8;
+   return;
+  }
+  const spd=MH_NPC_SPEED*(0.85+(mhHashStr(m.id+'s')%6)*0.08);
+  const vx=Math.cos(npc.dir)*spd, vy=Math.sin(npc.dir)*spd;
+  const npx=npc.px+vx,npy=npc.py+vy;
+  if(mhWalkCollide(map,npx,npc.py,8)||mhWalkCollide(map,npc.px,npy,8)){
+   npc.dir+=Math.PI*(0.5+Math.random()*0.8);
+   npc.wait=0.25+Math.random()*0.5;
+  }else{
+   npc.px=npx; npc.py=npy;
+   npc.phase+=spd*0.12;
+  }
+ }else npc.phase+=dt*1.5;
+}
+function mhWalkNearMorph(save,wi,pos,st){
  const morphs=mhWorldMorphs(wi);
  let best=null,bd=1e9;
  morphs.forEach(m=>{
   if(m.tileX==null) return;
-  const mx=m.tileX*MH_TILE+MH_TILE/2, my=m.tileY*MH_TILE+MH_TILE/2;
-  const d=Math.hypot(mx-pos.px,my-pos.py);
+  const p=mhGetNpcPos(st,wi,m);
+  const d=Math.hypot(p.px-pos.px,p.py-pos.py);
   if(d<bd){ bd=d; best={m,d}; }
  });
  if(!best||best.d>MH_INTERACT_R) return null;
@@ -875,7 +918,10 @@ function mhWalkDrawFrame(){
  const world=MH_WORLDS[wi];
  const pos=mhWalkEnsurePos(st,wi);
  const keys=st.walkKeys||{};
- const t=performance.now()/1000;
+ const nowMs=performance.now();
+ const t=nowMs/1000;
+ const dt=Math.min(0.05,(nowMs-(st.lastWalkMs||nowMs))/1000||0.016);
+ st.lastWalkMs=nowMs;
  let vx=0,vy=0;
  if(keys.left) vx-=1;
  if(keys.right) vx+=1;
@@ -893,7 +939,11 @@ function mhWalkDrawFrame(){
   st.walkPhase=(st.walkPhase||0)+(running?0.38:0.24);
  }else st.walkPhase=(st.walkPhase||0)*0.9;
  const morphs=mhWorldMorphs(wi);
- const near=mhWalkNearMorph(save,wi,pos);
+ morphs.forEach(m=>{
+  if(m.tileX==null) return;
+  mhNpcWander(st,map,m,mhNpcState(st,wi,m),dt,save);
+ });
+ const near=mhWalkNearMorph(save,wi,pos,st);
  st.walkNearId=near?near.id:null;
  const W=canvas.width,H=canvas.height;
  const camX=pos.px-W/2,camY=pos.py-H/2;
@@ -918,16 +968,18 @@ function mhWalkDrawFrame(){
    ctx.fillStyle='rgba(0,0,0,.2)'; ctx.fillRect(x+8,y+MH_TILE-10,MH_TILE-16,4);
   }
  }
- morphs.sort((a,b)=>(a.tileY||0)-(b.tileY||0));
+ morphs.sort((a,b)=>mhGetNpcPos(st,wi,a).py-mhGetNpcPos(st,wi,b).py);
  morphs.forEach(m=>{
   if(m.tileX==null) return;
-  const mx=m.tileX*MH_TILE+MH_TILE/2, my=m.tileY*MH_TILE+MH_TILE/2;
+  const npc=mhNpcState(st,wi,m);
+  const mx=npc.px, my=npc.py;
   const got=mhHasMorph(save,m.id);
   const dist=Math.hypot(mx-pos.px,my-pos.py);
-  const seen=got||dist<110;
+  const onScreen=mx>=camX-40&&mx<=camX+W+40&&my>=camY-60&&my<=camY+H+40;
+  const seen=got||dist<150||onScreen;
   if(!seen) return;
   const sc=(m.scale||1)*0.72;
-  mhPaintNoobWorld(ctx,m,mx,my,sc,got?0.55:1,!got&&dist>MH_INTERACT_R,t,null);
+  mhPaintNoobWorld(ctx,m,mx,my,sc,got?0.55:1,!got&&dist>MH_INTERACT_R,t,npc.phase);
   if(dist<MH_INTERACT_R&&!got){
    if(mhNeedsMinigame(m)&&!mhMinigameCleared(save,m.id)){
     ctx.fillStyle='rgba(120,60,200,.85)'; ctx.fillRect(mx-52,my-92,104,12);
@@ -1031,7 +1083,7 @@ function mhRenderHunt(save, wi){
    <span class="mh-walk-run">Shift / 🏃 = run</span>
   </div>
  </div>
- <p class="mh-scene-hint">🚶 <b>Walk</b> WASD · <b>Run</b> Shift/🏃 · <b>Auras</b> on rare+ noobies · <b>Epic+</b> need a minigame · top tier = <b>Exotic</b> ✨</p>
+ <p class="mh-scene-hint">🚶 You walk with WASD · <b>Noobies wander on their own</b> — chase them down! · Epic+ = minigame · Exotic = rarest ✨</p>
  <p class="mh-progress">Zone: <b>${found}/${morphs.length}</b> &nbsp;•&nbsp; Normal: <b>${nFound}/${MH_NORMAL_COUNT}</b> &nbsp;•&nbsp; Exclusive: <b>${xFound}/${MH_EXCLUSIVE_COUNT}</b></p>`;
 }
 
