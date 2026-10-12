@@ -607,7 +607,7 @@ function mhGroveCenterFree(map,tx,ty,used,minDist){
  for(let dy=0;dy<4;dy++)for(let dx=0;dx<5;dx++){
   if(map.tiles[(ty+dy)*map.w+(tx+dx)]!==0) return false;
  }
- if(mhTileInPark(map,tx,ty)) return false;
+ if(mhTileInPark(map,tx,ty)||mhTileInCourt(map,tx,ty)) return false;
  for(const u of used){
   if(Math.hypot(tx-u.tx,ty-u.ty)<minDist) return false;
  }
@@ -3027,7 +3027,8 @@ function mhRenderHunt(save, wi){
    <li><b>Maps 0–7</b> (Buddy, Fair, Beach…): only <b>Common · Uncommon · Rare</b>. They stay inside <b>🕵 hidden groves</b> (dashed boxes) — not scattered on the whole map.</li>
    <li><b>💎 Epic+ Realm</b> (teleport tab or button): <b>Epic · Legendary · Secret · Exotic · Exclusive</b> — also in groves on that map.</li>
    <li><b>🕳 Void map</b>: <b>Male Void Fallen</b> + King — teleport when you are ready for void tier.</li>
-   <li>Walk into a dashed grove → press <b>E</b> or <b>🎮 Minigame</b> (or tap a card in the deck below). Houses use <b>F</b> for codes.</li>
+   <li>Walk into a dashed grove → press <b>E</b> or <b>🎮 Minigame</b> (10 minigame types!). <b>F</b> = big homes.</li>
+   <li><b>🏀 Court plaza</b> stays at spawn · <b>4 parks</b> around the map · <b>Mayor statue</b> on court: <b>J/L</b> crank, <b>R</b> flash light at all 4 mirrors → <b>Mayor Noobie</b>!</li>
   </ol>
  </div>
  <div class="mh-walk-wrap">
