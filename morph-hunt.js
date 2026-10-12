@@ -1,15 +1,15 @@
-/* Find The Noobies Morphs — Lithos (820+180+100 Male Void Fallen = 1100 · 5th Dimensional Abyss) */
+/* Find The Noobies Morphs — Lithos (820+180+100 Male Void Fallen = 1100 · 2nd Dimensional Abyss) */
 (function(){
 'use strict';
 
 const MH_STORE_KEY='lithos_morph_hunt_v9';
-const MH_BUILD='void-5d-v22';
+const MH_BUILD='void-2d-v23';
 const MH_TOTAL_COUNT=1100;
 const MH_1000D=true;
-const MH_5D=true;
+const MH_2D=true;
 const MH_DEPTH_LABEL='Abyss Depth';
-const MH_DIM_LABEL='5th Dimensional';
-const MH_VOID_DIM_LABEL='5th Dimensional';
+const MH_DIM_LABEL='2nd Dimensional';
+const MH_VOID_DIM_LABEL='2nd Dimensional';
 const MH_VOID_ABYSS_LABEL='Void Fallen Abyss';
 const MH_NPC_SPEED=1.25;
 const MH_TILE=34;
@@ -56,7 +56,7 @@ const MH_WORLDS=[
  {id:'w6',name:'Lava Park',emoji:'🌋',tagline:'Hot zones — rare spawns!',bg:'#ff8860',ground:'#8a4030'},
  {id:'w7',name:'Legend Nexus',emoji:'👑',tagline:'Last normal zone before Exotic Realm.',bg:'#6080c0',ground:'#506898'},
  {id:'w8',name:'Exotic Realm',emoji:'💎',tagline:'All Exotic rank noobies wander here!',bg:'#281040',ground:'#502868'},
- {id:'w9',name:'Void Fallen Abyss',emoji:'🕳',tagline:'5th Dimensional · Male Void Fallen — hunt the abyss!',bg:'#080010',ground:'#180828'}
+ {id:'w9',name:'Void Fallen Abyss',emoji:'🕳',tagline:'2nd Dimensional · Male Void Fallen — hunt the abyss!',bg:'#080010',ground:'#180828'}
 ];
 
 const MH_CODES={
@@ -1271,12 +1271,14 @@ function mhWalkDrawFrame(){
  ctx.restore();
  if(wi===MH_VOID_WORLD){
   ctx.fillStyle='rgba(0,0,0,.28)'; ctx.fillRect(0,0,W,H);
-  if(MH_5D){
-   ctx.strokeStyle='rgba(140,80,255,.22)'; ctx.lineWidth=1.5;
-   for(let d=0;d<5;d++){
-    const a=t*0.35+d*(Math.PI*2/5);
-    ctx.beginPath(); ctx.ellipse(W/2,H/2,90+d*18,34+d*8,a); ctx.stroke();
+  if(MH_2D){
+   ctx.strokeStyle='rgba(140,80,255,.28)'; ctx.lineWidth=2;
+   for(let d=0;d<2;d++){
+    const a=t*0.4+d*Math.PI/2;
+    ctx.beginPath(); ctx.ellipse(W/2,H/2,110+d*28,40+d*10,a); ctx.stroke();
    }
+   ctx.strokeStyle='rgba(200,160,255,.15)'; ctx.lineWidth=1;
+   ctx.strokeRect(W/2-120,H/2-70,240,140);
   }
   ctx.fillStyle='rgba(200,160,255,.9)'; ctx.font='bold 11px system-ui,sans-serif'; ctx.textAlign='center';
   ctx.fillText(MH_VOID_ABYSS_LABEL+' · '+MH_VOID_DIM_LABEL+' · Male Void Fallen', W/2, 20);
