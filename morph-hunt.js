@@ -3,14 +3,14 @@
 'use strict';
 
 const MH_STORE_KEY='lithos_morph_hunt_v9';
-const MH_BUILD='void-2d-v41';
-const MH_SCENERY_STAMP='MINIGAMES_v41';
-const MH_SCRIPT_FILE='morph-hunt.void-2d-v41.js';
+const MH_BUILD='void-2d-v42';
+const MH_SCENERY_STAMP='MAYOR_COURT_v42';
+const MH_SCRIPT_FILE='morph-hunt.void-2d-v42.js';
 const MH_KING_STAMP='RED_BLACK_KING_v31';
 const MH_MEGA_W=7;
 const MH_MEGA_H=6;
 const MH_MEGA_BUILDING_KINDS=new Set(['house','shop','stall','booth','cloud_house','beach_hut','burned_house','ruined_house','void_fallen_building','void_cathedral','fluoro_hall','vault']);
-const MH_TOTAL_COUNT=1104;
+const MH_TOTAL_COUNT=1105;
 const MH_VOID_KING_DEPTH=100;
 const MH_VOID_KING_DIM='5th Dimensional';
 const MH_1000D=false;
@@ -145,14 +145,19 @@ function mhPal(i){
 }
 function mhMorphTraits(i){
  const h=mhHashStr('trait'+i);
+ const body=MH_BODIES[h%MH_BODIES.length];
+ const hatPool=['star','crown','headphones','bow','gem','party','wave','voidhalo',null];
  return{
-  body:MH_BODIES[h%MH_BODIES.length],
+  body,
   anim:MH_ANIMS[(h>>>3)%MH_ANIMS.length],
   face:['smile','grin','o','flat','w'][(h>>>6)%5],
-  stripe:((h>>>4)&3)===0,
-  glasses:((h>>>5)&7)===0,
-  hat:['star','crown','headphones','bow','gem','party',null,null][(h>>>7)%8],
-  prop:MH_PROPS[(h>>>10)%MH_PROPS.length]
+  stripe:((h>>>4)&3)!==2,
+  sleeves:((h>>>8)&3)===0,
+  glasses:((h>>>5)&5)===0,
+  hat:hatPool[(h>>>7)%hatPool.length],
+  prop:MH_PROPS[(h>>>10)%MH_PROPS.length],
+  accent:mhHsl((h>>>11)%360,62,55),
+  shoe:mhHsl((h>>>13)%360,45,32)
  };
 }
 function mhPick(arr,seed){ return arr[((seed%arr.length)+arr.length)%arr.length]; }
@@ -363,6 +368,12 @@ function mhBuildMorphs(){
   head:'#ff48e8', torso:'#0085DB', legs:'#A4BD47', arms:'#ff48e8', body:'classic',
   anim:'bounce', face:'grin', rarity:'epic', hat:'party', prop:'gemstick'
  });
+ list.push({
+  id:'ex-mayor', name:'Mayor Noobie', exclusive:true, mayorOnly:true, world:0,
+  head:'#ffe8a0', torso:'#2040a0', legs:'#303850', arms:'#ffe8a0', body:'tall',
+  anim:'sway', face:'grin', rarity:'legendary', hat:'crown', prop:'trophy',
+  stripe:true, glasses:true, accent:'#ffd060'
+ });
  return list;
 }
 const MH_MORPHS=mhBuildMorphs();
@@ -374,7 +385,7 @@ const MH_VOID_FALLEN=MH_MORPHS.filter(m=>m.rarity==='voidfallen');
 const MH_VOID_COUNT=MH_VOID_FALLEN.length;
 
 function mhHuntWorld(m){
- if(!m||m.codeOnly) return -1;
+ if(!m||m.codeOnly||m.mayorOnly) return -1;
  if(m.voidKing||m.voidFallen||m.rarity==='voidfallen') return MH_VOID_WORLD;
  if(MH_HIGH_RARITY.has(m.rarity)) return MH_EXOTIC_WORLD;
  const w=typeof m.world==='number'?m.world:0;
@@ -493,7 +504,38 @@ function mhGenLandmarks(wi,map){
   if(seen.has(key)) return false;
   seen.add(key);
   return true;
- }).slice(0,6);
+ }).slice(0,12);
+}
+function mhGenCourt(map,wi){
+ const sx=map.playerSpawnTx, sy=map.playerSpawnTy;
+ if(sx==null||wi>MH_EXOTIC_WORLD) return null;
+ const w=12,h=8;
+ const tx=Math.max(2,sx-Math.floor(w/2)), ty=Math.max(2,sy-Math.floor(h/2));
+ if(tx+w>=map.w-2||ty+h>=map.h-2) return null;
+ return {tx,ty,w,h,id:'court-'+wi};
+}
+function mhTileInCourt(map,tx,ty){
+ const c=map.court;
+ if(!c) return false;
+ return tx>=c.tx&&tx<c.tx+c.w&&ty>=c.ty&&ty<c.ty+c.h;
+}
+function mhGenMayorShrine(map){
+ if(!map.court) return null;
+ const c=map.court;
+ const sx=c.tx+Math.floor(c.w/2), sy=c.ty+2;
+ const reflectors=[
+  {tx:c.tx+1,ty:c.ty+1,label:'Mirror A'},
+  {tx:c.tx+c.w-2,ty:c.ty+1,label:'Mirror B'},
+  {tx:c.tx+1,ty:c.ty+c.h-2,label:'Mirror C'},
+  {tx:c.tx+c.w-2,ty:c.ty+c.h-2,label:'Mirror D'}
+ ].map((r,i)=>({
+  ...r, px:r.tx*MH_TILE+MH_TILE/2, py:r.ty*MH_TILE+MH_TILE/2, lit:false, i
+ }));
+ return {
+  tx:sx, ty:sy,
+  px:sx*MH_TILE+MH_TILE/2, py:sy*MH_TILE+MH_TILE/2,
+  crankAngle:0, reflectors, solved:false
+ };
 }
 function mhParkFits(map,p){
  if(p.tx<2||p.ty<2||p.tx+p.w>=map.w-2||p.ty+p.h>=map.h-2) return false;
@@ -504,35 +546,49 @@ function mhParkFits(map,p){
 }
 function mhGenParks(wi,map){
  const sx=map.playerSpawnTx||10, sy=map.playerSpawnTy||10;
- const names=['Buddy Park','Fair Green','Beach Park','Crystal Garden','Backroom Yard','Sky Park','Lava Rest','Nexus Green','Exotic Park','Fallen Memorial'];
- const w=MH_PARK_W, h=MH_PARK_H;
- const name=names[wi]||'Noobie Statue Park';
- for(let r=4;r<18;r++){
-  for(let a=0;a<16;a++){
-   const tx=Math.round(sx+Math.cos(a*Math.PI/8)*r)-Math.floor(w/2);
-   const ty=Math.round(sy+Math.sin(a*Math.PI/8)*r)+2;
-   const p={tx,ty,w,h,name};
-   if(mhParkFits(map,p)) return [p];
+ const base=['Buddy','Fair','Beach','Crystal','Backroom','Sky','Lava','Nexus','Exotic','Fallen'][wi]||'Zone';
+ const w=10,h=5;
+ const slots=[
+  {dx:-15,dy:4,suffix:'North Green'},{dx:15,dy:4,suffix:'East Green'},
+  {dx:0,dy:13,suffix:'South Park'},{dx:0,dy:-11,suffix:'West Garden'}
+ ];
+ const out=[];
+ slots.forEach((s,i)=>{
+  const p={tx:sx+ s.dx-Math.floor(w/2), ty:sy+s.dy, w,h, name:base+' '+s.suffix, parkIndex:i};
+  if(mhParkFits(map,p)&&!mhTileInCourt(map,p.tx,p.ty)) out.push(p);
+ });
+ for(let r=8;r<20&&out.length<4;r++){
+  for(let a=0;a<12&&out.length<4;a++){
+   const tx=Math.round(sx+Math.cos(a*Math.PI/6)*r)-Math.floor(w/2);
+   const ty=Math.round(sy+Math.sin(a*Math.PI/6)*r);
+   const p={tx,ty,w,h,name:base+' Park '+(out.length+1),parkIndex:out.length};
+   if(mhParkFits(map,p)&&!out.some(q=>q.tx===tx&&q.ty===ty)) out.push(p);
   }
  }
- for(let dy=6;dy<14;dy++){
-  const p={tx:sx-Math.floor(w/2),ty:sy+dy,w,h,name};
-  if(mhParkFits(map,p)) return [p];
- }
- return [];
+ return out.slice(0,4);
 }
 function mhGenParkStatues(map,wi){
- const park=map.parks&&map.parks[0];
- if(!park) return [];
- const morphs=mhWorldMorphs(wi).filter(m=>!m.voidKing).slice(0,6);
- const rowY=park.ty+Math.floor(park.h/2)-1;
- const cols=Math.min(morphs.length, Math.floor((park.w-2)/2));
- const startX=park.tx+Math.max(1,Math.floor((park.w-cols*2)/2));
- return morphs.slice(0,cols).map((m,i)=>({
-  tx:startX+i*2, ty:rowY,
-  kind:'noobie_statue', morphId:m.id, morph:m,
-  statue:true, scale:6.2
- }));
+ const out=[];
+ const morphs=mhWorldMorphs(wi).filter(m=>!m.voidKing).slice(0,16);
+ (map.parks||[]).forEach((park,pi)=>{
+  const chunk=morphs.slice(pi*3,pi*3+3);
+  chunk.forEach((m,i)=>{
+   out.push({
+    tx:park.tx+1+i*2, ty:park.ty+Math.floor(park.h/2),
+    kind:'noobie_statue', morphId:m.id, morph:m,
+    statue:true, scale:5.8
+   });
+  });
+ });
+ if(map.mayorShrine){
+  const mayor=mhMorph('ex-mayor');
+  out.push({
+   tx:map.mayorShrine.tx, ty:map.mayorShrine.ty-1,
+   kind:'mayor_statue', morphId:'ex-mayor', morph:mayor,
+   statue:true, scale:7.5, mayor:true
+  });
+ }
+ return out;
 }
 function mhTileInPark(map,tx,ty){
  for(const p of map.parks||[]){
@@ -581,7 +637,7 @@ function mhPlaceMorphInGrove(map,set,m,grove,slot){
   const ty=grove.ty+Math.floor(slot/3)*2+Math.floor(a/6);
   const k=tx+','+ty;
   if(tx<2||ty<2||tx>=map.w-2||ty>=map.h-2) continue;
-  if(map.tiles[ty*map.w+tx]!==0||set.has(k)||mhTileInPark(map,tx,ty)) continue;
+  if(map.tiles[ty*map.w+tx]!==0||set.has(k)||mhTileInPark(map,tx,ty)||mhTileInCourt(map,tx,ty)) continue;
   set.add(k);
   m.tileX=tx; m.tileY=ty; m.hideGrove=grove.g;
   return true;
@@ -646,11 +702,16 @@ function mhSpawnCivilians(map,wi){
  MH_WORLDS.forEach((_,wi)=>{
   const map=MH_WORLD_MAPS[wi];
   const themes=MH_WORLD_DECORS[wi]||MH_WORLD_DECORS[0];
+  map.court=mhGenCourt(wi,map);
+  map.mayorShrine=wi===0?mhGenMayorShrine(map):null;
   map.landmarks=mhGenLandmarks(wi,map);
   map.parks=mhGenParks(wi,map);
   map.statues=mhGenParkStatues(map,wi);
   const decors=[];
   const used=new Set();
+  if(map.court){
+   for(let dy=0;dy<map.court.h;dy++)for(let dx=0;dx<map.court.w;dx++) used.add((map.court.tx+dx)+','+(map.court.ty+dy));
+  }
   map.landmarks.forEach(l=>{ for(let dy=0;dy<(l.footH||1);dy++)for(let dx=0;dx<(l.footW||1);dx++) used.add((l.tx+dx)+','+(l.ty+dy)); });
   (map.parks||[]).forEach(p=>{ for(let dy=0;dy<p.h;dy++)for(let dx=0;dx<p.w;dx++) used.add((p.tx+dx)+','+(p.ty+dy)); });
   for(let i=0;i<5+Math.floor(wi/2);i++){
@@ -1154,6 +1215,89 @@ function mhDrawInteriorScreen(ctx,W,H,st,t){
  ctx.fillStyle='#80ff90'; ctx.font='bold 13px system-ui'; ctx.textAlign='left';
  ctx.fillText(MH_BUILD+' · '+MH_SCENERY_STAMP+' · INDOOR',16,30);
 }
+function mhDrawCourtZone(ctx,map,wi){
+ const c=map.court;
+ if(!c) return;
+ const x=c.tx*MH_TILE,y=c.ty*MH_TILE,w=c.w*MH_TILE,h=c.h*MH_TILE;
+ ctx.fillStyle=wi===MH_VOID_WORLD?'#281830':'#c89860';
+ ctx.fillRect(x,y,w,h);
+ ctx.strokeStyle='#804020'; ctx.lineWidth=3; ctx.strokeRect(x+2,y+2,w-4,h-4);
+ ctx.strokeStyle='rgba(255,255,255,.45)'; ctx.lineWidth=2;
+ ctx.beginPath(); ctx.moveTo(x+w/2,y+6); ctx.lineTo(x+w/2,y+h-6); ctx.stroke();
+ ctx.beginPath(); ctx.arc(x+w/2,y+h/2,Math.min(w,h)*0.22,0,Math.PI*2); ctx.stroke();
+ ctx.fillStyle='rgba(0,0,0,.55)'; ctx.fillRect(x+w/2-70,y+8,140,18);
+ ctx.fillStyle='#ffe8a0'; ctx.font='bold 12px system-ui'; ctx.textAlign='center';
+ ctx.fillText('🏀 COURT PLAZA',x+w/2,y+22);
+}
+function mhDrawMayorShrine(ctx,map,t,st){
+ const sh=map.mayorShrine;
+ if(!sh||!map.court) return;
+ sh.reflectors.forEach(ref=>{
+  const rx=ref.tx*MH_TILE, ry=ref.ty*MH_TILE;
+  ctx.fillStyle=ref.lit?'#ffe060':'#a0b0c0';
+  ctx.fillRect(rx+6,ry+8,MH_TILE-12,MH_TILE-14);
+  ctx.strokeStyle=ref.lit?'#fff':'#607080'; ctx.lineWidth=2; ctx.strokeRect(rx+6.5,ry+8.5,MH_TILE-13,MH_TILE-15);
+  ctx.fillStyle='#203040'; ctx.font='bold 8px system-ui'; ctx.textAlign='center';
+  ctx.fillText(ref.lit?'✓':'↺',rx+MH_TILE/2,ry+MH_TILE/2+3);
+ });
+ const sx=sh.px, sy=sh.py;
+ const mayor=mhMorph('ex-mayor');
+ if(mayor) mhPaintNoobWorld(ctx,mayor,sx,sy-MH_TILE*0.5,1.1,1,false,t,0,false,false);
+ ctx.fillStyle='#505860'; ctx.fillRect(sx-34,sy+8,68,28);
+ ctx.fillStyle='#303840'; ctx.fillRect(sx-28,sy+14,56,16);
+ ctx.fillStyle='#ffe8a0'; ctx.font='bold 9px system-ui'; ctx.textAlign='center';
+ ctx.fillText('HAND CRANK',sx,sy+24);
+ const ang=(sh.crankAngle||0)*Math.PI/180;
+ ctx.save(); ctx.translate(sx,sy+18); ctx.rotate(ang);
+ ctx.fillStyle='#8090a0'; ctx.fillRect(-4,-14,8,28);
+ ctx.fillStyle='#606870'; ctx.beginPath(); ctx.arc(0,0,10,0,Math.PI*2); ctx.fill();
+ ctx.restore();
+ if(st.mayorBeamT&&performance.now()-st.mayorBeamT<800){
+  ctx.strokeStyle='rgba(255,240,120,.85)'; ctx.lineWidth=4;
+  ctx.beginPath(); ctx.moveTo(sx,sy);
+  sh.reflectors.forEach(ref=>{
+   ctx.lineTo(ref.px,ref.py);
+  });
+  ctx.stroke();
+ }
+ ctx.fillStyle='rgba(0,0,0,.7)'; ctx.fillRect(sx-90,sy+36,180,28);
+ ctx.fillStyle='#80ffb0'; ctx.font='bold 10px system-ui'; ctx.textAlign='center';
+ ctx.fillText('J/L crank · R flash light → all mirrors',sx,sy+54);
+}
+function mhNearMayorShrine(pos,map){
+ const sh=map.mayorShrine;
+ if(!sh) return false;
+ return Math.hypot(sh.px-pos.px,sh.py-pos.py)<110;
+}
+function mhMayorCrank(delta){
+ if(!mhState||mhState.world!==0) return;
+ const sh=MH_WORLD_MAPS[0].mayorShrine;
+ if(!sh||sh.solved) return;
+ sh.crankAngle=((sh.crankAngle||0)+delta+360)%360;
+}
+function mhMayorFlashBeam(){
+ if(!mhState?.save||mhState.world!==0) return;
+ const save=mhState.save;
+ if(mhHasMorph(save,'ex-mayor')) return;
+ const sh=MH_WORLD_MAPS[0].mayorShrine;
+ if(!sh||sh.solved) return;
+ const rad=(sh.crankAngle||0)*Math.PI/180;
+ const sx=sh.px, sy=sh.py;
+ sh.reflectors.forEach(ref=>{
+  const target=Math.atan2(ref.py-sy,ref.px-sx);
+  let diff=Math.atan2(Math.sin(rad-target),Math.cos(rad-target));
+  if(Math.abs(diff)<0.35) ref.lit=true;
+ });
+ mhState.mayorBeamT=performance.now();
+ if(sh.reflectors.every(r=>r.lit)){
+  sh.solved=true;
+  const mayor=mhMorph('ex-mayor');
+  if(mayor&&!mhHasMorph(save,'ex-mayor')){
+   mhFinishCollect(mayor);
+   mhToast('👑 MAYOR NOOBIE unlocked — light puzzle complete!');
+  }
+ }else mhToast('Light hit '+sh.reflectors.filter(r=>r.lit).length+'/'+sh.reflectors.length+' mirrors');
+}
 function mhDrawParkZones(ctx,map,wi){
  (map.parks||[]).forEach(p=>{
   const x=p.tx*MH_TILE,y=p.ty*MH_TILE,w=p.w*MH_TILE,h=p.h*MH_TILE;
@@ -1188,12 +1332,14 @@ function mhDrawNoobieStatue(ctx,d,t){
  ctx.fillText(m?(m.name.slice(0,14).toUpperCase()):('NOOBIE'),x+T/2,y+T*1.84);
 }
 function mhDrawMapDecors(ctx,map,wi,t){
+ mhDrawCourtZone(ctx,map,wi);
  mhDrawParkZones(ctx,map,wi);
  (map.landmarks||[]).forEach(d=>mhDrawSceneryPiece(ctx,d,wi,t));
  (map.decors||[]).forEach(d=>mhDrawSceneryPiece(ctx,d,wi,t));
 }
-function mhDrawMapStatues(ctx,map,t){
- (map.statues||[]).forEach(d=>mhDrawNoobieStatue(ctx,d,t));
+function mhDrawMapStatues(ctx,map,t,st){
+ (map.statues||[]).forEach(d=>{ if(!d.mayor) mhDrawNoobieStatue(ctx,d,t); });
+ mhDrawMayorShrine(ctx,map,t,st||{});
 }
 function mhParkCenter(map){
  const p=map.parks&&map.parks[0];
@@ -1587,12 +1733,15 @@ function mhCollect(id){
  }
  mhDeckUnlock(m,save);
 }
+function mhMinigameKind(m){
+ const kinds=['gemtap','zonehit','memory','voidpulse','noobmatch','rhythm','catchfall','maze','whack','colorwheel'];
+ return kinds[(mhHashStr(m.id+'mg')>>>0)%kinds.length];
+}
 function mhOpenMinigame(m){
  if(!mhState) return;
  mhEnsureOverlayModals();
  mhState.minigameMorph=m;
- const kinds=['gemtap','zonehit','memory','voidpulse','noobmatch'];
- const kind=kinds[mhHashStr(m.id)%kinds.length];
+ const kind=mhMinigameKind(m);
  mhState.minigameKind=kind;
  const modal=document.getElementById('mh-minigame-modal');
  if(!modal) return;
@@ -1601,7 +1750,7 @@ function mhOpenMinigame(m){
  modal.style.zIndex='100020';
  modal.innerHTML=`<div class="mh-minigame-card" style="--mh-rarity:${r.color}">
   <div class="mh-found-badge">Unlock ${mhRarityLabel(m)} · ${m.name}</div>
-  <p class="mh-mini-desc">${kind==='gemtap'?'Tap 6 gems before time runs out!':kind==='zonehit'?'Click when the bar is in the green zone — 3 hits!':kind==='memory'?'Watch the colors, then repeat the pattern!':kind==='voidpulse'?'Click when the void pulse fills the ring!':'Find the two matching noobie colors!'}</p>
+  <p class="mh-mini-desc">${({gemtap:'Tap 6 gems!',zonehit:'Hit the green zone 3×!',memory:'Repeat the color pattern!',voidpulse:'Click on the bright pulse!',noobmatch:'Match the pair!',rhythm:'Tap on the beat!',catchfall:'Catch 8 stars!',maze:'Reach the goal tile!',whack:'Whack 10 moles!',colorwheel:'Stop on your noobie color!'})[kind]||'Win to unlock!'}</p>
   <div id="mh-mini-stage" class="mh-mini-stage"></div>
   <button type="button" class="mh-btn ghost" id="mh-mini-cancel">Back to hunt</button>
  </div>`;
@@ -1700,7 +1849,7 @@ function mhRunMinigame(kind,m){
   };
   return;
  }
- /* noobmatch */
+ if(kind==='noobmatch'){
  const cols=[m.head||'#F5CD30',m.torso||'#0085DB',m.legs||'#A4BD47',mhHsl(mhHashStr(m.id)%360,55,55)];
  while(cols.length<8) cols.push(mhHsl((mhHashStr(m.id+'c'+cols.length)*7)%360,50,50));
  const pair=cols[0]; cols.push(pair);
@@ -1729,6 +1878,94 @@ function mhRunMinigame(kind,m){
   };
   grid.appendChild(b);
  });
+ return;
+ }
+ if(kind==='rhythm'){
+  let score=0,beat=0;
+  const status=document.createElement('p'); status.className='mh-mini-status'; status.textContent='Tap on beat! 0/6';
+  stage.appendChild(status);
+  const pad=document.createElement('button'); pad.type='button'; pad.className='mh-mini-voidring';
+  pad.textContent='TAP'; pad.style.cssText='display:block;margin:12px auto;padding:20px 40px;font-weight:900;border-radius:14px;border:3px solid #ff48e8;background:#281838;color:#fff;cursor:pointer';
+  stage.appendChild(pad);
+  const tmr=setInterval(()=>{ beat=(beat+1)%4; pad.style.boxShadow=beat===0?'0 0 24px #ff48e8':'none'; },350);
+  pad.onclick=()=>{ if(beat===0||beat===1){ score++; status.textContent='Tap on beat! '+score+'/6'; if(score>=6){ clearInterval(tmr); mhWinMinigame(m); } } else mhToast('Off beat!'); };
+  return;
+ }
+ if(kind==='catchfall'){
+  let caught=0;
+  const status=document.createElement('p'); status.className='mh-mini-status'; status.textContent='Catch stars! 0/8';
+  stage.appendChild(status);
+  const box=document.createElement('div'); box.className='mh-mini-gembox'; box.style.height='130px'; stage.appendChild(box);
+  const basket=document.createElement('div'); basket.style.cssText='position:absolute;bottom:4px;left:45%;width:40px;height:12px;background:#ffe060;border-radius:4px';
+  box.appendChild(basket);
+  let bx=45;
+  box.onmousemove=ev=>{ const r=box.getBoundingClientRect(); bx=Math.max(5,Math.min(85,(ev.clientX-r.left)/r.width*100)); basket.style.left=bx+'%'; };
+  const iv=setInterval(()=>{
+   const s=document.createElement('button'); s.type='button'; s.className='mh-mini-gem'; s.style.background='#ffe060'; s.style.borderRadius='50%';
+   s.style.left=(10+Math.random()*80)+'%'; s.style.top='4px';
+   s.onclick=()=>{ s.remove(); caught++; status.textContent='Catch stars! '+caught+'/8'; if(caught>=8){ clearInterval(iv); mhWinMinigame(m); } };
+   box.appendChild(s);
+   setTimeout(()=>s.remove(),1400);
+  },450);
+  return;
+ }
+ if(kind==='whack'){
+  let hits=0;
+  const status=document.createElement('p'); status.className='mh-mini-status'; status.textContent='Whack! 0/10';
+  stage.appendChild(status);
+  const grid=document.createElement('div'); grid.style.cssText='display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:200px;margin:0 auto';
+  stage.appendChild(grid);
+  for(let i=0;i<9;i++){
+   const h=document.createElement('button'); h.type='button'; h.style.cssText='height:44px;border-radius:10px;border:2px solid #4a5060;background:#1a2030;cursor:pointer';
+   h.onclick=()=>{ if(h.dataset.up==='1'){ h.dataset.up='0'; h.style.background='#1a2030'; hits++; status.textContent='Whack! '+hits+'/10'; if(hits>=10) mhWinMinigame(m); } };
+   grid.appendChild(h);
+  }
+  setInterval(()=>{
+   const cells=[...grid.querySelectorAll('button')];
+   cells.forEach(c=>{ c.dataset.up='0'; c.style.background='#1a2030'; });
+   const pick=cells[mhHashStr(String(Date.now())+'w')%cells.length];
+   pick.dataset.up='1'; pick.style.background='#6080ff';
+   setTimeout(()=>{ pick.dataset.up='0'; pick.style.background='#1a2030'; },650);
+  },750);
+  return;
+ }
+ if(kind==='maze'){
+  const status=document.createElement('p'); status.className='mh-mini-status'; status.textContent='Reach the ★';
+  stage.appendChild(status);
+  let px=0,py=0;
+  const grid=document.createElement('div'); grid.style.cssText='display:grid;grid-template-columns:repeat(5,1fr);gap:4px;max-width:220px;margin:0 auto';
+  stage.appendChild(grid);
+  for(let y=0;y<5;y++)for(let x=0;x<5;x++){
+   const cell=document.createElement('button'); cell.type='button';
+   const wall=(x+y)%3===0&&!(x===4&&y===4);
+   cell.style.cssText='height:32px;border-radius:6px;border:1px solid #3a4050;background:'+(wall?'#0a0e14':'#283848')+';cursor:'+(wall?'default':'pointer');
+   if(x===4&&y===4){ cell.textContent='★'; cell.style.background='#ffd060'; }
+   cell.onclick=()=>{
+    if(wall) return;
+    if(Math.abs(x-px)+Math.abs(y-py)===1){ px=x; py=y; [...grid.children].forEach((c,i)=>{ c.style.outline=(i===py*5+px)?'2px solid #80ffb0':''; }); if(px===4&&py===4) mhWinMinigame(m); }
+   };
+   grid.appendChild(cell);
+  }
+  return;
+ }
+ if(kind==='colorwheel'){
+  const target=m.head||'#F5CD30';
+  const status=document.createElement('p'); status.className='mh-mini-status'; status.textContent='Stop on YOUR color!';
+  stage.appendChild(status);
+  const wheel=document.createElement('button'); wheel.type='button';
+  wheel.style.cssText='display:block;margin:12px auto;width:100px;height:100px;border-radius:50%;border:4px solid #fff;background:conic-gradient(red,yellow,lime,cyan,blue,magenta,red);cursor:pointer';
+  stage.appendChild(wheel);
+  let spin=0,spinning=true;
+  const iv=setInterval(()=>{ if(spinning){ spin=(spin+24)%360; wheel.style.transform='rotate('+spin+'deg)'; } },50);
+  wheel.onclick=()=>{
+   spinning=false; clearInterval(iv);
+   const slice=Math.floor(((spin%360)+360)%360/60);
+   const colors=['#ff4040','#ffd060','#80ff60','#40d0ff','#4060ff','#ff40c0'];
+   if(colors[slice]===target||slice===mhHashStr(m.id)%6){ mhWinMinigame(m); }
+   else{ mhToast('Wrong color — try again!'); mhRunMinigame('colorwheel',m); }
+  };
+  return;
+ }
 }
 
 function mhRedeemCode(raw){
@@ -1964,16 +2201,16 @@ function mhPaintAura(ctx,m,x,y,t){
  if(!m||m.voidKing) return;
  const r=MH_RARITY[m.rarity]||MH_RARITY.common;
  const tier={common:0,uncommon:1,rare:2,epic:3,legendary:4,secret:4,exclusive:4,exotic:5,voidfallen:6}[m.rarity]||0;
- if(tier<2) return;
  const pulse=1+Math.sin(t*3+(mhHashStr(m.id)%7))*0.15;
- const rad=(22+tier*8)*pulse;
+ const rad=(16+tier*9)*pulse;
+ const alphaMul=[0.35,0.5,0.65,0.82,0.92,1,1.05,1.1][tier]||0.4;
  const g=ctx.createRadialGradient(x,y-20,4,x,y-20,rad);
- g.addColorStop(0,mhHex(r.color,0.45));
- g.addColorStop(0.5,mhHex(r.color,0.12));
+ g.addColorStop(0,mhHex(r.color,0.45*alphaMul));
+ g.addColorStop(0.5,mhHex(r.color,0.12*alphaMul));
  g.addColorStop(1,mhHex(r.color,0));
  ctx.fillStyle=g;
  ctx.beginPath(); ctx.arc(x,y-20,rad,0,Math.PI*2); ctx.fill();
- if(tier>=4){
+ if(tier>=3){
   ctx.strokeStyle=mhHex(r.color,0.35+Math.sin(t*5)*0.15);
   ctx.lineWidth=m.rarity==='exotic'?3:2;
   ctx.beginPath(); ctx.arc(x,y-20,rad*0.72,0,Math.PI*2); ctx.stroke();
@@ -2080,6 +2317,8 @@ function mhPaintNoob3D(ctx,m,x,y,sc,alpha,silhouette,walkPhase,running){
   mhGradRect(ctx,-10+wa.lx,22+wa.ly,9,32,l,mhShade(l,-30)); mhGradRect(ctx,1+wa.rx,22+wa.ry,9,32,l,mhShade(l,-30));
   mhGradRect(ctx,-16,0,32,24,t,mhShade(t,-35));
   if(m.stripe){ ctx.fillStyle='rgba(255,255,255,.25)'; ctx.fillRect(-16,8,32,6); }
+  if(m.sleeves&&m.accent){ ctx.fillStyle=m.accent; ctx.fillRect(-16,4,6,14); ctx.fillRect(10,4,6,14); }
+  if(m.shoe){ ctx.fillStyle=m.shoe; ctx.fillRect(-10+wa.lx,48+wa.ly,9,6); ctx.fillRect(1+wa.rx,48+wa.ry,9,6); }
   mhGradRect(ctx,-22,2+wa.ax,10,22,a,mhShade(a,-25)); mhGradRect(ctx,12,2-wa.ax,10,22,a,mhShade(a,-25));
   ctx.fillStyle='#303840'; ctx.beginPath(); ctx.arc(-16,14,3,0,Math.PI*2); ctx.arc(16,14,3,0,Math.PI*2); ctx.fill();
   const hg=ctx.createRadialGradient(-8,-36,1,0,-32,26);
@@ -2408,6 +2647,13 @@ function mhWalkApplyKey(e,down){
   if(mhState.insideBuilding){ mhExitBuilding(); hit=true; }
   else if(mhState.walkNearBuilding){ mhEnterBuilding(mhState.walkNearBuilding,mhState.world); hit=true; }
  }
+ if(down&&(c==='KeyJ'||k==='j'||k==='J')){ mhMayorCrank(-14); hit=true; }
+ if(down&&(c==='KeyL'||k==='k'||k==='K')){ mhMayorCrank(14); hit=true; }
+ if(down&&(c==='KeyR'||k==='r'||k==='R')&&!keys.run){
+  const map=MH_WORLD_MAPS[mhState.world];
+  const pos=mhWalkEnsurePos(mhState,mhState.world);
+  if(mhNearMayorShrine(pos,map)){ mhMayorFlashBeam(); hit=true; }
+ }
  if(hit){
   e.preventDefault();
   e.stopPropagation();
@@ -2550,7 +2796,7 @@ function mhWalkDrawFrame(){
    ctx.fillText(got?m.name.slice(0,14):'???',mx,my-68);
   }
  });
- mhDrawMapStatues(ctx,map,t);
+ mhDrawMapStatues(ctx,map,t,st);
  const wear=mhMorph(save.wearing);
  mhDrawYouInWorld(ctx,wear,pos,map,t,st.walkPhase||0,wi,st.playerRunning);
  ctx.restore();
