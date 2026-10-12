@@ -3,9 +3,9 @@
 'use strict';
 
 const MH_STORE_KEY='lithos_morph_hunt_v9';
-const MH_BUILD='void-2d-v44';
-const MH_SCENERY_STAMP='WORLD_THEMES_v44';
-const MH_SCRIPT_FILE='morph-hunt.void-2d-v44.js';
+const MH_BUILD='void-2d-v45';
+const MH_SCENERY_STAMP='VOID_KING_STORM_v45';
+const MH_SCRIPT_FILE='morph-hunt.void-2d-v45.js';
 const MH_KING_STAMP='RED_BLACK_KING_v31';
 const MH_MEGA_W=7;
 const MH_MEGA_H=6;
@@ -2311,28 +2311,49 @@ function mhPaintForbiddenStone(ctx,sx,sy,t,i,alpha){
  ctx.shadowBlur=0;
  ctx.restore();
 }
-function mhPaintKingStoneAura(ctx,x,y,t,alpha,silhouette){
- const pulse=1+Math.sin(t*2.8)*0.12;
- const rad=40*pulse;
- const a=silhouette?0.25:(alpha==null?1:alpha);
+function mhPaintKingRedBlackStormAura(ctx,x,y,t,alpha,silhouette){
+ const pulse=1+Math.sin(t*3.2)*0.18;
+ const rad=46*pulse;
+ const a=silhouette?0.28:(alpha==null?1:alpha);
+ const cy=y-18;
  ctx.save();
- ctx.globalAlpha=a*0.9;
- const g=ctx.createRadialGradient(x,y-18,6,x,y-18,rad+28);
- g.addColorStop(0,'rgba(220,20,20,.4)');
- g.addColorStop(0.45,'rgba(60,0,0,.25)');
+ ctx.globalAlpha=a;
+ const g=ctx.createRadialGradient(x,cy,4,x,cy,rad+36);
+ g.addColorStop(0,'rgba(255,40,40,.55)');
+ g.addColorStop(0.35,'rgba(120,0,0,.35)');
+ g.addColorStop(0.65,'rgba(20,0,0,.55)');
  g.addColorStop(1,'rgba(0,0,0,0)');
  ctx.fillStyle=g;
- ctx.beginPath(); ctx.arc(x,y-18,rad+28,0,Math.PI*2); ctx.fill();
- ctx.strokeStyle='rgba(180,0,0,.35)';
- ctx.lineWidth=2;
- ctx.beginPath(); ctx.arc(x,y-18,rad,0,Math.PI*2); ctx.stroke();
- for(let i=0;i<8;i++){
-  const ang=t*0.5+i*Math.PI*2/8;
-  const sx=x+Math.cos(ang)*rad, sy=y-18+Math.sin(ang)*rad*0.42;
-  mhPaintForbiddenStone(ctx,sx,sy,t,i,a);
+ ctx.beginPath(); ctx.arc(x,cy,rad+36,0,Math.PI*2); ctx.fill();
+ for(let ring=0;ring<3;ring++){
+  const rr=rad*(0.55+ring*0.22);
+  ctx.strokeStyle=ring===0?'rgba(255,30,30,.45)':ring===1?'rgba(0,0,0,.65)':'rgba(180,0,0,.3)';
+  ctx.lineWidth=ring===1?4:2;
+  ctx.setLineDash(ring===2?[5,7]:[]);
+  ctx.beginPath(); ctx.arc(x,cy,rr+Math.sin(t*4+ring)*3,0,Math.PI*2); ctx.stroke();
+ }
+ ctx.setLineDash([]);
+ for(let i=0;i<10;i++){
+  const ang=t*1.8+i*Math.PI*2/10;
+  const dist=rad*(0.35+0.55*((i%3)/2));
+  const sx=x+Math.cos(ang)*dist, sy=cy+Math.sin(ang)*dist*0.55;
+  ctx.strokeStyle=i%2?'rgba(255,50,50,.75)':'rgba(0,0,0,.85)';
+  ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(sx,sy-10); ctx.lineTo(sx+(Math.sin(t*6+i)*8),sy+8); ctx.stroke();
+ }
+ for(let i=0;i<6;i++){
+  const ang=t*0.65+i*Math.PI*2/6;
+  const sx=x+Math.cos(ang)*rad*0.92, sy=cy+Math.sin(ang)*rad*0.38;
+  if(i%2===0) mhPaintForbiddenStone(ctx,sx,sy,t,i,a);
+  else{
+   ctx.fillStyle='rgba(0,0,0,.75)';
+   ctx.beginPath(); ctx.arc(sx,sy,5+Math.sin(t*5+i),0,Math.PI*2); ctx.fill();
+   ctx.strokeStyle='rgba(255,40,40,.6)'; ctx.stroke();
+  }
  }
  ctx.restore();
 }
+const mhPaintKingStoneAura=mhPaintKingRedBlackStormAura;
 function mhVoidCombatMorph(save,st){
  const wear=mhMorph(save?.wearing);
  if(wear&&(wear.rarity==='voidfallen'||wear.voidFallen)) return wear;
@@ -2367,6 +2388,18 @@ function mhDrawVoidFx(ctx,st){
   }else if(f.kind==='orbs'){
    ctx.fillStyle=f.color||'#ff48e8';
    for(let i=0;i<3;i++) ctx.beginPath().arc(f.x+i*10-10,f.y,6,0,Math.PI*2).fill();
+  }else if(f.kind==='storm'){
+   const r=f.r||30;
+   ctx.strokeStyle=f.color||'#ff2020'; ctx.lineWidth=4;
+   ctx.beginPath(); ctx.arc(f.x,f.y,r,0,Math.PI*2); ctx.stroke();
+   ctx.strokeStyle='rgba(0,0,0,.85)'; ctx.lineWidth=6;
+   ctx.beginPath(); ctx.arc(f.x,f.y,r*0.72,0,Math.PI*2); ctx.stroke();
+   ctx.strokeStyle='rgba(255,60,60,.55)'; ctx.lineWidth=2;
+   for(let i=0;i<6;i++){
+    const a=(f.spin||0)+i*Math.PI/3;
+    ctx.beginPath(); ctx.moveTo(f.x,f.y); ctx.lineTo(f.x+Math.cos(a)*r,f.y+Math.sin(a)*r*0.6); ctx.stroke();
+   }
+   if(f.spin!=null) f.spin+=0.08;
   }else{
    ctx.strokeStyle=f.color||'#9040ff'; ctx.lineWidth=3;
    ctx.beginPath(); ctx.arc(f.x,f.y,f.r||30,0,Math.PI*2); ctx.stroke();
@@ -2405,7 +2438,10 @@ function mhUseVoidAttack(st,save,pos){
  const rage=st.voidRageUntil&&performance.now()<st.voidRageUntil;
  const spd=(atk.speed||10)*(rage?1.35:1);
  mhSpawnVoidFx(st,{kind:atk.kind,x:pos.px,y:pos.py-12,vx:dir.dx*spd,vy:dir.dy*spd,color:atk.color,a0:Math.atan2(dir.dy,dir.dx)-0.8,a1:Math.atan2(dir.dy,dir.dx)+0.8,r:atk.range||90,dr:120});
- if(m.voidKing) mhSpawnVoidFx(st,{kind:'arc',x:pos.px,y:pos.py-20,vx:0,vy:0,color:'#ff2020',a0:0,a1:Math.PI*2,r:40,dr:100,life:0.35});
+ if(m.voidKing){
+  mhSpawnVoidFx(st,{kind:'arc',x:pos.px,y:pos.py-20,vx:0,vy:0,color:'#ff2020',a0:0,a1:Math.PI*2,r:40,dr:100,life:0.35});
+  mhSpawnVoidFx(st,{kind:'storm',x:pos.px,y:pos.py-16,vx:0,vy:0,color:'#ff3030',r:18,dr:90,life:0.45,spin:0});
+ }
  mhToast('⚔ '+atk.name+'!');
  try{if(typeof SFX!=='undefined'&&SFX.hit)SFX.hit();}catch(_){}
 }
@@ -2432,7 +2468,11 @@ function mhUseVoidPower(st,save,pos,map){
    mhSpawnVoidFx(st,{kind:'orbs',x:pos.px+(i-1)*24,y:pos.py-20-i*8,vx:dir.dx*4,vy:dir.dy*4,color:m.voidAccent||pow.color,life:0.5});
   }
  }else{
-  mhSpawnVoidFx(st,{kind:pow.kind==='storm'?'storm':'nova',x:pos.px,y:pos.py-10,vx:0,vy:0,color:pow.color,r:20,dr:pow.range||110,life:0.65});
+  const kind=pow.kind==='storm'?'storm':'nova';
+  mhSpawnVoidFx(st,{kind,x:pos.px,y:pos.py-10,vx:0,vy:0,color:pow.color,r:20,dr:pow.range||110,life:0.65,spin:kind==='storm'?0:undefined});
+  if(m.voidKing&&kind==='storm'){
+   mhSpawnVoidFx(st,{kind:'storm',x:pos.px,y:pos.py-8,vx:0,vy:0,color:'#0a0a0a',r:12,dr:(pow.range||110)*0.85,life:0.7,spin:0.4});
+  }
  }
  mhToast('✦ '+pow.name+'!');
  try{if(typeof SFX!=='undefined'&&SFX.ui)SFX.ui();}catch(_){}
@@ -2939,11 +2979,11 @@ function mhWalkApplyKey(e,down){
   const pos=mhWalkEnsurePos(mhState,mhState.world);
   if(mhNearMayorShrine(pos,map)){ mhMayorFlashBeam(); hit=true; }
  }
- if(down&&(c==='Digit1'||k==='1')){
+ if(down&&(c==='Digit1'||c==='Numpad1'||k==='1')){
   const pos=mhWalkEnsurePos(mhState,mhState.world);
   mhUseVoidAttack(mhState,mhState.save,pos); hit=true;
  }
- if(down&&(c==='Digit2'||k==='2')){
+ if(down&&(c==='Digit2'||c==='Numpad2'||k==='2')){
   const map=MH_WORLD_MAPS[mhState.world];
   const pos=mhWalkEnsurePos(mhState,mhState.world);
   mhUseVoidPower(mhState,mhState.save,pos,map); hit=true;
@@ -3064,9 +3104,16 @@ function mhWalkDrawFrame(){
   const sil=!got&&dist>MH_INTERACT_R&&m.rarity!=='voidfallen';
   mhPaintNoobWorld(ctx,m,mx,my,sc,got?0.55:1,sil,t,npc.phase,flatMap,!!npc.walking);
   if(m.voidKing){
-   ctx.fillStyle='rgba(8,0,0,.92)'; ctx.fillRect(mx-88,my-108,176,20);
-   ctx.fillStyle='#ff4040'; ctx.font='bold 11px system-ui'; ctx.textAlign='center';
-   ctx.fillText('VOID FALLEN KING · GREATAXE & SHIELD · '+MH_VOID_KING_DEPTH+' DEPTH',mx,my-94);
+   const katk=m.voidAttack?.name||'Greataxe Cleave';
+   const kpow=m.voidPower?.name||'Forbidden Stone Storm';
+   ctx.fillStyle='rgba(0,0,0,.94)'; ctx.fillRect(mx-98,my-124,196,44);
+   ctx.strokeStyle='rgba(255,40,40,.85)'; ctx.lineWidth=2; ctx.strokeRect(mx-98,my-124,196,44);
+   ctx.fillStyle='#ff4040'; ctx.font='bold 10px system-ui'; ctx.textAlign='center';
+   ctx.fillText('👑 VOID FALLEN KING · '+MH_VOID_KING_DEPTH+' DEPTH',mx,my-108);
+   ctx.fillStyle='#ffe8a0'; ctx.font='bold 9px system-ui';
+   ctx.fillText('⚔ '+katk+' · ✦ '+kpow,mx,my-92);
+   ctx.fillStyle='#808080'; ctx.font='bold 8px system-ui';
+   ctx.fillText('Red-black storm aura · morph King to use 1 & 2',mx,my-82);
   }
   if(m.rarity==='exotic'){
    ctx.fillStyle='rgba(255,40,200,.85)'; ctx.fillRect(mx-54,my-98,108,14);
@@ -3126,11 +3173,26 @@ function mhWalkDrawFrame(){
  if(wi===MH_VOID_WORLD){
   mhVoidFlatScreenOverlay(ctx,W,H);
   const vm=mhVoidCombatMorph(save,st);
-  ctx.fillStyle='rgba(40,0,80,.85)'; ctx.fillRect(W/2-200,H-52,400,36);
-  ctx.fillStyle='#e8d0ff'; ctx.font='bold 11px system-ui'; ctx.textAlign='center';
-  ctx.fillText(vm?('⚔ 1 Attack: '+(vm.voidAttack?.name||'?')+' · ✦ 2 Power: '+(vm.voidPower?.name||'?')):'Morph a Void Fallen · then 1=Attack 2=Power',W/2,H-32);
-  ctx.fillStyle='rgba(255,80,80,.95)'; ctx.font='bold 11px system-ui,sans-serif';
-  ctx.fillText(MH_VOID_ABYSS_LABEL+' · 👑 King at center', W/2, H-12);
+  const atkN=vm?.voidAttack?.name||'—';
+  const powN=vm?.voidPower?.name||'—';
+  ctx.fillStyle='rgba(0,0,0,.92)'; ctx.fillRect(W/2-220,H-78,440,58);
+  ctx.strokeStyle='rgba(255,40,40,.9)'; ctx.lineWidth=2; ctx.strokeRect(W/2-220,H-78,440,58);
+  ctx.fillStyle='#ff5050'; ctx.font='bold 12px system-ui'; ctx.textAlign='center';
+  ctx.fillText(vm?('YOUR MOVES · ⚔ 1 '+atkN+'  ·  ✦ 2 '+powN):'🎭 Morph tab → pick a Void Fallen (or 👑 King) · then keys 1 & 2',W/2,H-58);
+  ctx.fillStyle='#c898ff'; ctx.font='bold 10px system-ui';
+  ctx.fillText(vm?(vm.voidKing?'👑 King storm aura active':'🕳 Void combat ready'):'Must be morphed on this map to fight',W/2,H-42);
+  ctx.fillStyle='rgba(255,80,80,.95)'; ctx.font='bold 10px system-ui,sans-serif';
+  ctx.fillText(MH_VOID_ABYSS_LABEL+' · 👑 King at center · HUD buttons work too', W/2, H-24);
+  const bar=document.getElementById('mh-void-combat-readout');
+  if(bar){
+   bar.innerHTML=vm
+    ?`<b>⚔ 1</b> ${atkN} &nbsp; <b>✦ 2</b> ${powN}${vm.voidKing?' · <span style="color:#ff6060">👑 red-black storm</span>':''}`
+    :'Morph a <b>Void Fallen</b> or <b>King</b> in the 🎭 Morph tab, then press <b>1</b> / <b>2</b>';
+  }
+  const btnA=document.getElementById('mh-void-atk');
+  const btnP=document.getElementById('mh-void-pow');
+  if(btnA) btnA.textContent=vm?('⚔ 1 '+atkN):'⚔ 1 Attack';
+  if(btnP) btnP.textContent=vm?('✦ 2 '+powN):'✦ 2 Power';
   if(map.throneTx!=null){
    const tx=map.throneTx*MH_TILE+MH_TILE/2, ty=map.throneTy*MH_TILE+MH_TILE/2;
    const ang=Math.atan2(ty-pos.py,tx-pos.px);
@@ -3287,17 +3349,21 @@ function mhWalkStart(){
  root?.querySelector('#mh-walk-run')?.addEventListener('pointerup',()=>{
   if(mhState?.walkKeys) delete mhState.walkKeys.run;
  });
- root?.querySelector('#mh-void-atk')?.addEventListener('click',()=>{
+ const voidAtk=root?.querySelector('#mh-void-atk');
+ const voidPow=root?.querySelector('#mh-void-pow');
+ if(voidAtk) voidAtk.onclick=()=>{
   if(!mhState?.save) return;
+  root.querySelector('#mh-walk-canvas')?.focus();
   const pos=mhWalkEnsurePos(mhState,mhState.world);
   mhUseVoidAttack(mhState,mhState.save,pos);
- });
- root?.querySelector('#mh-void-pow')?.addEventListener('click',()=>{
+ };
+ if(voidPow) voidPow.onclick=()=>{
   if(!mhState?.save) return;
+  root.querySelector('#mh-walk-canvas')?.focus();
   const map=MH_WORLD_MAPS[mhState.world];
   const pos=mhWalkEnsurePos(mhState,mhState.world);
   mhUseVoidPower(mhState,mhState.save,pos,map);
- });
+ };
  const canvas=root?.querySelector('#mh-walk-canvas');
  if(canvas) canvas.onclick=mhWalkCanvasClick;
 }
@@ -3343,12 +3409,13 @@ function mhRenderHunt(save, wi){
   <ol>
    <li><b>Maps 0–7</b> (Buddy, Fair, Beach…): only <b>Common · Uncommon · Rare</b>. They stay inside <b>🕵 hidden groves</b> (dashed boxes) — not scattered on the whole map.</li>
    <li><b>💎 Epic+ Realm</b> (teleport tab or button): <b>Epic · Legendary · Secret · Exotic · Exclusive</b> — also in groves on that map.</li>
-   <li><b>🕳 Void map</b>: <b>Male Void Fallen</b> + King — teleport when you are ready for void tier.</li>
+   <li><b>🕳 Void map</b>: morph a <b>Void Fallen</b> or <b>👑 King</b> in 🎭 Morph tab → <b>1</b> = attack · <b>2</b> = power (King = red-black storm!).</li>
    <li>Walk into a dashed grove → press <b>E</b> or <b>🎮 Minigame</b> (10 minigame types!). <b>F</b> = big homes.</li>
    <li><b>🏀 Court plaza</b> stays at spawn · <b>4 parks</b> around the map · <b>Mayor statue</b> on court: <b>J/L</b> crank, <b>R</b> flash light at all 4 mirrors → <b>Mayor Noobie</b>!</li>
   </ol>
  </div>
  <div class="mh-walk-wrap">
+  ${wi===MH_VOID_WORLD?`<div id="mh-void-combat-readout" class="mh-void-combat-readout">🕳 Teleport here → 🎭 Morph a Void Fallen → press <b>1</b> / <b>2</b></div>`:''}
   <canvas id="mh-walk-canvas" class="mh-walk-canvas" width="960" height="520" tabindex="0"></canvas>
   <div id="mh-walk-hud" class="mh-walk-hud mh-walk-hud-clean">
    <span class="mh-walk-zone">${world.emoji} ${world.name} · ${found}/${morphs.length}</span>
@@ -3414,7 +3481,7 @@ function mhRenderMorph(save){
  return `<div class="mh-morph-tab">
   <h3>🎭 Morph &amp; Roleplay</h3>
   <p class="mh-scene-hint">Turn into any noobie you own — your morph also shows on the Rock Teacher!</p>
-  <div class="mh-morph-preview large">${wear?`<svg viewBox="0 0 100 130">${mhClassicNoobSvg(wear)}</svg><b>${wear.name}</b>${(wear.rarity==='voidfallen'||wear.voidFallen)?`<p class="mh-scene-hint" style="color:#c898ff">🕳 Void map: <b>1</b> ${wear.voidAttack?.name||'Attack'} · <b>2</b> ${wear.voidPower?.name||'Power'}</p>`:''}<button type="button" class="mh-btn primary" data-mh-wear="${wear.id}">Stay morphed</button>`:'<span>Pick a noobie below</span>'}</div>
+  <div class="mh-morph-preview large">${wear?`<svg viewBox="0 0 100 130">${mhClassicNoobSvg(wear)}</svg><b>${wear.name}</b>${(wear.rarity==='voidfallen'||wear.voidFallen)?`<p class="mh-scene-hint" style="color:${wear.voidKing?'#ff6060':'#c898ff'}">🕳 Void map only · <b>1</b> ⚔ ${wear.voidAttack?.name||'Attack'} · <b>2</b> ✦ ${wear.voidPower?.name||'Power'}${wear.voidKing?' · 👑 red-black storm aura':''}</p>`:''}<button type="button" class="mh-btn primary" data-mh-wear="${wear.id}">Stay morphed</button>`:'<span>Pick a noobie below</span>'}</div>
   <input type="search" id="mh-search" placeholder="Search your morphs…" value="${q.replace(/"/g,'&quot;')}"/>
   <div class="mh-morph-grid">${cards}</div>
   <div class="mh-pager">${pg.page>0?'<button type="button" class="mh-btn" data-mh-page="'+(pg.page-1)+'">←</button>':''}<span>${pg.page+1}/${pg.pages}</span>${pg.page+1<pg.pages?'<button type="button" class="mh-btn" data-mh-page="'+(pg.page+1)+'">→</button>':''}</div>
