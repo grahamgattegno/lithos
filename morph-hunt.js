@@ -3,11 +3,13 @@
 'use strict';
 
 const MH_STORE_KEY='lithos_morph_hunt_v9';
-const MH_BUILD='void-2d-v35';
-const MH_SCENERY_STAMP='TOWN_LIFE_v35';
-const MH_SCRIPT_FILE='morph-hunt.void-2d-v35.js';
+const MH_BUILD='void-2d-v36';
+const MH_SCENERY_STAMP='INDOOR_F_v36';
+const MH_SCRIPT_FILE='morph-hunt.void-2d-v36.js';
 const MH_KING_STAMP='RED_BLACK_KING_v31';
-const MH_TOTAL_COUNT=1101;
+const MH_MEGA_W=6;
+const MH_MEGA_H=5;
+const MH_TOTAL_COUNT=1104;
 const MH_VOID_KING_DEPTH=100;
 const MH_VOID_KING_DIM='5th Dimensional';
 const MH_1000D=false;
@@ -82,7 +84,11 @@ const MH_CODES={
  thanksforverified:{coins:100},
  bubblebuddy:{title:'Bubble Buddy'},
  lithosgem:{morph:'ex-gemcrown'},
- happyanniversaryftn1:{morph:'ex-party'}
+ happyanniversaryftn1:{morph:'ex-party'},
+ glitchhouse:{morph:'code-glitch',coins:120,title:'Glitch Hunter'},
+ mythinside:{morph:'code-myth',coins:120,title:'Myth Seeker'},
+ minigamevault:{morph:'code-minigame',coins:120,title:'Minigame Master'},
+ enterhouse:{coins:60}
 };
 
 const MH_RARITY_N=['common','common','uncommon','common','uncommon','rare','common','uncommon','rare','epic','uncommon','legendary'];
@@ -334,6 +340,21 @@ function mhBuildMorphs(){
   fallen:true,
   rarity:'voidfallen'
  });
+ list.push({
+  id:'code-glitch', name:'Glitch Noobie', exclusive:true, codeOnly:true, world:0,
+  head:'#39ff14', torso:'#283040', legs:'#1a2030', arms:'#39ff14', body:'robot',
+  anim:'glitch', face:'w', rarity:'secret', hat:null, prop:'sparkler'
+ });
+ list.push({
+  id:'code-myth', name:'Myth Noobie', exclusive:true, codeOnly:true, world:7,
+  head:'#ffd060', torso:'#506898', legs:'#384868', arms:'#ffd060', body:'tall',
+  anim:'float', face:'grin', rarity:'legendary', hat:'crown', prop:'trophy'
+ });
+ list.push({
+  id:'code-minigame', name:'Minigame Noobie', exclusive:true, codeOnly:true, world:1,
+  head:'#ff48e8', torso:'#0085DB', legs:'#A4BD47', arms:'#ff48e8', body:'classic',
+  anim:'bounce', face:'grin', rarity:'epic', hat:'party', prop:'gemstick'
+ });
  return list;
 }
 const MH_MORPHS=mhBuildMorphs();
@@ -393,18 +414,20 @@ function mhGenLandmarks(wi,map){
  const spots=ring.map(r=>({
   tx:sx+r.dx, ty:sy+r.dy,
   kind:themes[(r.i+(wi*2))%themes.length],
-  mega:true, footW:3, footH:2+(r.i%2)
+  mega:true, footW:MH_MEGA_W, footH:MH_MEGA_H,
+  id:'bld-'+wi+'-'+sx+'-'+sy+'-'+r.i
  }));
  if(wi===MH_VOID_WORLD&&map.throneTx!=null){
-  spots.push({tx:map.throneTx-3,ty:map.throneTy-1,kind:'void_fallen_building',mega:true,footW:4,footH:3});
-  spots.push({tx:map.throneTx+2,ty:map.throneTy,kind:'void_cathedral',mega:true,footW:3,footH:3});
-  spots.push({tx:map.throneTx-1,ty:map.throneTy-4,kind:'ruined_house',mega:true,footW:3,footH:2});
+  spots.push({tx:map.throneTx-4,ty:map.throneTy-2,kind:'void_fallen_building',mega:true,footW:7,footH:5,id:'bld-void-tower'});
+  spots.push({tx:map.throneTx+3,ty:map.throneTy,kind:'void_cathedral',mega:true,footW:6,footH:5,id:'bld-void-cath'});
  }
- for(let i=0;i<4;i++){
-  const tx=sx+((i%3)-1)*6, ty=sy+Math.floor(i/2)*5-2;
-  if(tx>2&&ty>2&&tx<map.w-3&&ty<map.h-3) spots.push({tx,ty,kind:themes[i],mega:true,footW:3,footH:2});
+ for(let i=0;i<3;i++){
+  const tx=sx+((i%3)-1)*8, ty=sy+Math.floor(i/2)*7-3;
+  if(tx>2&&ty>2&&tx<map.w-MH_MEGA_W-1&&ty<map.h-MH_MEGA_H-1){
+   spots.push({tx,ty,kind:themes[i],mega:true,footW:MH_MEGA_W,footH:MH_MEGA_H,id:'bld-'+wi+'-extra-'+i});
+  }
  }
- return spots.filter(p=>mhMegaFits(map,p.tx,p.ty,p.footW||3,p.footH||2));
+ return spots.filter(p=>mhMegaFits(map,p.tx,p.ty,p.footW||MH_MEGA_W,p.footH||MH_MEGA_H));
 }
 function mhMegaFits(map,tx,ty,fw,fh){
  if(tx<1||ty<1||tx+fw>=map.w-1||ty+fh>=map.h-1) return false;
@@ -854,9 +877,12 @@ function mhDrawMegaBuilding(ctx,d,wi,t){
  ctx.fillStyle='#505860'; ctx.fillRect(x+W-22,y+8,12,20);
  mhDrawInteriorProps(ctx,x+10,y+H*0.38,30,26,(d.tx+wi)%11);
  mhDrawInteriorProps(ctx,x+W-42,y+H*0.38,30,26,(d.ty+wi)%11);
- ctx.fillStyle='#402818'; ctx.fillRect(x+W/2-18,y+H*0.55,36,H*0.45);
- ctx.fillStyle='#ffe060'; ctx.fillRect(x+W/2-12,y+H*0.62,8,6);
- mhPaintHuman(ctx,x+W*0.18,y+H+4,(d.tx+wi)%14,t,0.85);
+ ctx.fillStyle='#402818'; ctx.fillRect(x+W/2-28,y+H*0.52,56,H*0.48);
+ ctx.fillStyle='#ffe060'; ctx.fillRect(x+W/2-18,y+H*0.62,12,10);
+ ctx.fillStyle='rgba(0,0,0,.55)'; ctx.fillRect(x+W/2-34,y+H*0.38,68,22);
+ ctx.fillStyle='#ffe8a0'; ctx.font='bold 11px system-ui'; ctx.textAlign='center';
+ ctx.fillText('F ENTER',x+W/2,y+H*0.52);
+ mhPaintHuman(ctx,x+W*0.18,y+H+4,(d.tx+wi)%14,t,1.05);
  mhPaintHuman(ctx,x+W*0.5,y+H+8,(d.ty+1)%14,t*1.05,0.88);
  mhPaintHuman(ctx,x+W*0.78,y+H+5,(d.tx+d.ty)%14,t*0.95,0.8);
 }
@@ -877,7 +903,86 @@ function mhDrawSceneryPiece(ctx,d,wi,t){
 function mhDrawThemedPropTile(ctx,x,y,wi,tx,ty,t){
  const themes=MH_WORLD_DECORS[wi]||MH_WORLD_DECORS[0];
  const kind=themes[mhHashStr('pt'+tx+ty+wi)%themes.length];
- mhDrawSceneryPiece(ctx,{tx,ty,kind,mega:true,footW:2,footH:2},wi,t);
+ mhDrawSceneryPiece(ctx,{tx,ty,kind,mega:true,footW:4,footH:3,id:'prop-'+tx+'-'+ty},wi,t);
+}
+function mhBuildingDoor(d){
+ const T=MH_TILE,fw=d.footW||MH_MEGA_W,fh=d.footH||MH_MEGA_H;
+ return {px:d.tx*T+fw*T/2, py:d.ty*T+fh*T-6};
+}
+function mhBuildingSecret(d,wi){
+ const slot=mhHashStr((d.id||d.tx)+'|'+d.ty+'|'+wi)%3;
+ if(slot===0) return {redeem:'glitchhouse', morph:'code-glitch', label:'GLITCH', color:'#39ff14'};
+ if(slot===1) return {redeem:'mythinside', morph:'code-myth', label:'MYTH', color:'#ffd060'};
+ return {redeem:'minigamevault', morph:'code-minigame', label:'MINIGAME', color:'#ff48e8'};
+}
+function mhWalkNearBuilding(pos,map){
+ let best=null,bd=95;
+ (map.landmarks||[]).forEach(d=>{
+  if(!d.mega) return;
+  const door=mhBuildingDoor(d);
+  const dist=Math.hypot(door.px-pos.px,door.py-pos.py);
+  if(dist<bd){ bd=dist; best=d; }
+ });
+ return best;
+}
+function mhEnterBuilding(d,wi){
+ if(!mhState) return;
+ mhState.insideBuilding={...d,wi,secret:mhBuildingSecret(d,wi)};
+ mhToast('🏠 Inside! Read the big wall sign · Press F to leave');
+}
+function mhExitBuilding(){
+ if(mhState) mhState.insideBuilding=null;
+}
+function mhDrawInteriorProp(ctx,x,y,type,sc){
+ ctx.save(); ctx.translate(x,y); ctx.scale(sc,sc);
+ if(type==='bed'){
+  ctx.fillStyle='#5080c0'; ctx.fillRect(-40,0,80,28); ctx.fillStyle='#fff'; ctx.fillRect(-36,4,72,16);
+ }else if(type==='table'){
+  ctx.fillStyle='#604028'; ctx.fillRect(-35,-8,70,12); ctx.fillRect(-30,4,8,22); ctx.fillRect(22,4,8,22);
+  ctx.fillStyle='#ffd060'; ctx.fillRect(-8,-4,16,8);
+ }else if(type==='tv'){
+  ctx.fillStyle='#303840'; ctx.fillRect(-30,-20,60,40); ctx.fillStyle='#80e0ff'; ctx.fillRect(-24,-14,48,28);
+ }else if(type==='crate'){
+  ctx.fillStyle='#6a5038'; ctx.fillRect(-22,-18,44,36); ctx.strokeStyle='#3a2818'; ctx.strokeRect(-22.5,-18.5,45,37);
+ }else if(type==='glitch'){
+  ctx.fillStyle='#101818'; ctx.fillRect(-28,-22,56,44); ctx.fillStyle='#39ff14'; ctx.font='bold 10px monospace';
+  ctx.fillText('GLITCH',-20,-4); ctx.fillText('////',-16,10);
+ }else if(type==='trophy'){
+  ctx.fillStyle='#ffd060'; ctx.fillRect(-12,-24,24,20); ctx.fillRect(-18,-28,36,8);
+ }
+ ctx.restore();
+}
+function mhDrawInteriorScreen(ctx,W,H,st,t){
+ const ib=st.insideBuilding;
+ if(!ib) return;
+ const sec=ib.secret||mhBuildingSecret(ib,ib.wi||0);
+ const g=ctx.createLinearGradient(0,0,0,H);
+ g.addColorStop(0,'#2a2420'); g.addColorStop(0.45,'#4a4038'); g.addColorStop(1,'#3a3028');
+ ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+ ctx.fillStyle='#5a5048'; ctx.fillRect(0,H*0.72,W,H*0.28);
+ ctx.fillStyle='#6a6058'; ctx.fillRect(0,40,W,H*0.32);
+ ctx.fillStyle='#ffe890'; ctx.fillRect(40,70,120,90); ctx.fillRect(W-160,70,120,90);
+ ctx.fillStyle='#604028'; ctx.fillRect(W/2-50,H*0.72-8,100,14);
+ mhDrawInteriorProp(ctx,W*0.2,H*0.62,'bed',2.2);
+ mhDrawInteriorProp(ctx,W*0.5,H*0.58,'table',2.4);
+ mhDrawInteriorProp(ctx,W*0.78,H*0.6,'tv',2);
+ mhDrawInteriorProp(ctx,W*0.35,H*0.65,'crate',1.8);
+ mhDrawInteriorProp(ctx,W*0.62,H*0.64,'trophy',1.9);
+ mhDrawInteriorProp(ctx,W*0.12,H*0.55,'glitch',2);
+ mhPaintHuman(ctx,W*0.28,H*0.68,2,t,1.35);
+ mhPaintHuman(ctx,W*0.55,H*0.7,5,t*1.1,1.4);
+ mhPaintHuman(ctx,W*0.72,H*0.69,8,t*0.9,1.3);
+ ctx.fillStyle='rgba(0,0,0,.75)'; ctx.fillRect(W/2-220,100,440,130);
+ ctx.strokeStyle=sec.color; ctx.lineWidth=4; ctx.strokeRect(W/2-220,100,440,130);
+ ctx.fillStyle=sec.color; ctx.font='bold 28px system-ui,sans-serif'; ctx.textAlign='center';
+ ctx.fillText(sec.label+' SECRET',W/2,140);
+ ctx.fillStyle='#fff'; ctx.font='bold 22px monospace'; ctx.fillText('CODE: '+sec.redeem.toUpperCase(),W/2,178);
+ ctx.font='14px system-ui'; ctx.fillStyle='#c0d0e0';
+ ctx.fillText('Gacha tab → Redeem code → unlock '+sec.label+' Noobie',W/2,208);
+ ctx.fillStyle='#ffe8a0'; ctx.font='bold 16px system-ui'; ctx.fillText('Press F to leave the house',W/2,H-28);
+ ctx.fillStyle='rgba(0,0,0,.6)'; ctx.fillRect(8,8,300,36);
+ ctx.fillStyle='#80ff90'; ctx.font='bold 13px system-ui'; ctx.textAlign='left';
+ ctx.fillText(MH_BUILD+' · '+MH_SCENERY_STAMP+' · INDOOR',16,30);
 }
 function mhDrawMapDecors(ctx,map,wi,t){
  (map.landmarks||[]).forEach(d=>mhDrawSceneryPiece(ctx,d,wi,t));
@@ -1415,7 +1520,7 @@ function mhRedeemCode(raw){
  const key=String(raw||'').trim().toLowerCase().replace(/\s+/g,'');
  if(!key||!mhState)return false;
  const pack=MH_CODES[key];
- if(!pack){ mhToast('Invalid code — try WELCOMEBUDDY'); return false; }
+ if(!pack){ mhToast('Invalid code — try GLITCHHOUSE or WELCOMEBUDDY'); return false; }
  const save=mhState.save;
  if(save.codesUsed.includes(key)){ mhToast('Code already used!'); return false; }
  save.codesUsed.push(key);
@@ -2027,6 +2132,10 @@ function mhWalkApplyKey(e,down){
   mhDeckUnlock(mhMorph(mhState.walkNearId),mhState.save);
   hit=true;
  }
+ if(down&&(c==='KeyF'||k==='f'||k==='F')){
+  if(mhState.insideBuilding){ mhExitBuilding(); hit=true; }
+  else if(mhState.walkNearBuilding){ mhEnterBuilding(mhState.walkNearBuilding,mhState.world); hit=true; }
+ }
  if(hit){
   e.preventDefault();
   e.stopPropagation();
@@ -2052,6 +2161,13 @@ function mhWalkDrawFrame(){
  try{
   ctx=canvas.getContext('2d');
   if(!ctx) throw new Error('no ctx');
+ const W=canvas.width,H=canvas.height;
+ if(st.insideBuilding){
+  const t=performance.now()/1000;
+  mhDrawInteriorScreen(ctx,W,H,st,t);
+  st.walkRaf=requestAnimationFrame(mhWalkDrawFrame);
+  return;
+ }
  const wi=st.world;
  const save=st.save;
  const map=MH_WORLD_MAPS[wi];
@@ -2087,7 +2203,7 @@ function mhWalkDrawFrame(){
  mhUpdateCivilians(st,map,wi,dt);
  const near=mhWalkNearMorph(save,wi,pos,st);
  st.walkNearId=near?near.id:null;
- const W=canvas.width,H=canvas.height;
+ st.walkNearBuilding=mhWalkNearBuilding(pos,map);
  const camX=pos.px-W/2,camY=pos.py-H/2;
  const flatMap=mhMapFlat2D(wi);
  ctx.fillStyle=world.bg;
@@ -2187,7 +2303,10 @@ function mhWalkDrawFrame(){
   const found=morphs.filter(m=>mhHasMorph(save,m.id)).length;
   hud.querySelector('.mh-walk-zone').textContent=world.emoji+' '+world.name+' · '+found+'/'+morphs.length;
   const prompt=hud.querySelector('.mh-walk-prompt');
-  if(near){
+  if(st.walkNearBuilding){
+   prompt.textContent='F — enter house (big building)!';
+   prompt.hidden=false;
+  }else if(near){
    const got=mhHasMorph(save,near.id);
    prompt.textContent=got?'E — morph into '+near.name:'E — play minigame to unlock!';
    prompt.hidden=false;
@@ -2316,6 +2435,10 @@ function mhWalkStart(){
  root?.querySelector('#mh-walk-interact')?.addEventListener('click',()=>{
   if(mhState?.walkNearId) mhDeckUnlock(mhMorph(mhState.walkNearId),mhState.save);
  });
+ root?.querySelector('#mh-walk-enter')?.addEventListener('click',()=>{
+  if(mhState?.insideBuilding) mhExitBuilding();
+  else if(mhState?.walkNearBuilding) mhEnterBuilding(mhState.walkNearBuilding,mhState.world);
+ });
  root?.querySelector('#mh-walk-run')?.addEventListener('pointerdown',()=>{
   if(!mhState.walkKeys) mhState.walkKeys={};
   mhState.walkKeys.run=true;
@@ -2359,7 +2482,7 @@ function mhRenderHunt(save, wi){
  const nFound=save.collected.filter(id=>mhMorph(id)&&!mhMorph(id).exclusive).length;
  const xFound=save.collected.filter(id=>mhMorph(id)&&mhMorph(id).exclusive).length;
  return `<div class="mh-world-tabs">${worldTabs}</div>
- <p class="mh-map-banner">⬇ <b>MEGA HOUSES</b> with furniture &amp; people inside + humans walking around (${MH_SCENERY_STAMP})</p>
+ <p class="mh-map-banner">⬇ Walk to a <b>HUGE house</b> · press <b>F</b> to go inside · find <b>GLITCH / MYTH / MINIGAME</b> codes on the wall (${MH_SCENERY_STAMP})</p>
  <div class="mh-walk-wrap">
   <canvas id="mh-walk-canvas" class="mh-walk-canvas" width="960" height="520" tabindex="0"></canvas>
   <div id="mh-walk-hud" class="mh-walk-hud">
@@ -2372,6 +2495,7 @@ function mhRenderHunt(save, wi){
     <button type="button" data-mh-dpad="ArrowRight">▶</button>
    </div>
    <button type="button" class="mh-btn primary" id="mh-walk-interact">Collect / Morph</button>
+   <button type="button" class="mh-btn primary" id="mh-walk-enter">🏠 Enter (F)</button>
    <button type="button" class="mh-btn" id="mh-walk-run">🏃 Run</button>
    <span class="mh-walk-run">Shift / 🏃 = run</span>
   </div>
@@ -2443,6 +2567,7 @@ function mhRenderGacha(save){
  return `<div class="mh-gacha-tab">
   <h3>🎲 Noobie Gacha</h3>
   <p class="mh-scene-hint">Normal pool: ${MH_NORMAL_COUNT} · Exclusive pool: ${MH_EXCLUSIVE_COUNT}</p>
+  <p class="mh-scene-hint" style="color:#80ffb0">🏠 House codes (press F inside buildings): <b>GLITCHHOUSE</b> · <b>MYTHINSIDE</b> · <b>MINIGAMEVAULT</b> · <b>ENTERHOUSE</b> (coins)</p>
   <div class="mh-gacha-row">
    <div class="mh-gacha-machine"><div class="mh-gacha-window">?</div><button type="button" class="mh-btn primary" id="mh-gacha-roll">Normal roll — ${MH_GACHA_COST}💰</button></div>
    <div class="mh-gacha-machine exclusive"><div class="mh-gacha-window">★</div><button type="button" class="mh-btn primary" id="mh-gacha-ex">Exclusive roll — ${MH_GACHA_EX_COST}💰</button></div>
