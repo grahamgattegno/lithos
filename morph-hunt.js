@@ -1,10 +1,11 @@
-/* Find The Noobies Morphs — Lithos (420 normal + 104 exclusive = 524) */
+/* Find The Noobies Morphs — Lithos (820 normal + 180 exclusive = 1000 · 100D depth) */
 (function(){
 'use strict';
 
-const MH_STORE_KEY='lithos_morph_hunt_v7';
-const MH_BUILD='unique-524-v12';
-const MH_TOTAL_COUNT=524;
+const MH_STORE_KEY='lithos_morph_hunt_v8';
+const MH_BUILD='1000-100d-v13';
+const MH_TOTAL_COUNT=1000;
+const MH_100D=true;
 const MH_NPC_SPEED=1.25;
 const MH_TILE=34;
 const MH_MAP_W=46;
@@ -17,8 +18,8 @@ const MH_PROPS=['balloon','gemstick','sword','pet','skate','umbrella','sparkler'
 const MH_HIGH_RARITY=new Set(['epic','legendary','secret','exclusive','exotic']);
 const MH_BODIES=['classic','tall','chibi','robot','ghost','builder','wide'];
 const MH_WEAR_KEY='lithos_noobie_wear';
-const MH_NORMAL_COUNT=420;
-const MH_EXCLUSIVE_COUNT=104;
+const MH_NORMAL_COUNT=820;
+const MH_EXCLUSIVE_COUNT=180;
 const MH_NORMAL_WORLDS=8;
 const MH_EXOTIC_WORLD=8;
 const MH_COINS_PER_FIND=15;
@@ -1025,7 +1026,8 @@ function mhWalkDrawFrame(){
   const onScreen=mx>=camX-40&&mx<=camX+W+40&&my>=camY-60&&my<=camY+H+40;
   const seen=got||dist<150||onScreen;
   if(!seen) return;
-  const sc=(m.scale||1)*0.72;
+  let sc=(m.scale||1)*0.72;
+  if(MH_100D) sc*=0.86+(my/(map.h*MH_TILE))*0.28;
   mhPaintNoobWorld(ctx,m,mx,my,sc,got?0.55:1,!got&&dist>MH_INTERACT_R,t,npc.phase);
   if(m.rarity==='exotic'){
    ctx.fillStyle='rgba(255,40,200,.85)'; ctx.fillRect(mx-54,my-98,108,14);
@@ -1048,7 +1050,9 @@ function mhWalkDrawFrame(){
   }
  });
  const wear=mhMorph(save.wearing);
- mhPaintNoobWorld(ctx,wear||{head:'#F5CD30',torso:'#0085DB',legs:'#A4BD47',body:'classic',anim:'bounce',rarity:'common'},pos.px,pos.py,0.78,1,false,t,st.walkPhase||0);
+ let psc=0.78;
+ if(MH_100D) psc*=0.9+(pos.py/(map.h*MH_TILE))*0.22;
+ mhPaintNoobWorld(ctx,wear||{head:'#F5CD30',torso:'#0085DB',legs:'#A4BD47',body:'classic',anim:'bounce',rarity:'common'},pos.px,pos.py,psc,1,false,t,st.walkPhase||0);
  ctx.restore();
  if(wi===3||wi===4){
   const grd=ctx.createRadialGradient(W/2,H/2,40,W/2,H/2,Math.max(W,H)*0.65);
@@ -1251,7 +1255,7 @@ function mhRender(){
   <header class="mh-ftn-banner">
    <div class="mh-ftn-banner-text">
     <h2 class="mh-title">Find The Noobies Morphs</h2>
-    <p class="mh-ftn-tag">${MH_TOTAL_COUNT} noobies · 💎 Exotic Realm tab · Build <b>${MH_BUILD}</b> · ${owner?'Owner: ALL unlocked':''}</p>
+    <p class="mh-ftn-tag"><b>${MH_TOTAL_COUNT}</b> noobies · <b>100D</b> depth world · 💎 Exotic Realm · Build <b>${MH_BUILD}</b> · ${owner?'Owner: ALL unlocked':''}</p>
    </div>
   </header>
   <div class="mh-head">
