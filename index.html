@@ -1613,6 +1613,7 @@
   .mh-walk-optional summary{cursor:pointer;font-weight:800;color:#a0b0c0;font-size:12px}
   .mh-void-combat-readout{position:relative;z-index:9;padding:10px 12px;background:linear-gradient(90deg,#0a0a0a,#280808 40%,#0a0a0a);border-bottom:2px solid #ff4040;color:#ffe8e0;font-size:12px;font-weight:700;text-align:center;line-height:1.45}
   .mh-void-combat-readout b{color:#ff6060}
+  .mh-morph-void-moves{display:block;font-size:9px;font-weight:800;color:#c898ff;margin-top:2px;line-height:1.2}
   .mh-walk-wrap{position:relative;border-radius:4px;overflow:hidden;border:2px solid #1a1e24;box-shadow:none;background:#fff8ef}
   .mh-walk-canvas{display:block;width:100%;height:min(58vh,520px);max-height:min(58vh,520px);aspect-ratio:960/520;min-height:200px;background:#101820;cursor:crosshair;touch-action:none;image-rendering:pixelated;image-rendering:crisp-edges}
   .mh-walk-hud{position:absolute;left:0;right:0;bottom:0;z-index:8;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(16,20,28,.92);border-top:2px solid #1a1e24}
@@ -5477,11 +5478,11 @@
 <script src="gemcopter.js?v=deploy-85"></script>
 <script>
 (function lithosLoadMorphHunt(){
- var MH_NEED='void-2d-v46';
- var MH_SCRIPT='morph-hunt.void-2d-v46.js';
- var NEED_MARK="MH_BUILD='void-2d-v46'";
+ var MH_NEED='void-2d-v47';
+ var MH_SCRIPT='morph-hunt.void-2d-v47.js';
+ var NEED_MARK="MH_BUILD='void-2d-v47'";
  var KING_MARK='RED_BLACK_KING_v31';
- var SCENERY_MARK='VOID_FALLEN_AURA_v46';
+ var SCENERY_MARK='VOID_ABYSS_FIX_v47';
  window.__LITHOS_MH_NEED=MH_NEED;
  window.__LITHOS_MH_SCRIPT=MH_SCRIPT;
  function injectMorphHunt(code){
@@ -5519,7 +5520,7 @@
 </script>
 <script>
 window.lithosPlayMorphHunt=function lithosPlayMorphHunt(){
- var NEED=window.__LITHOS_MH_NEED||'void-2d-v45';
+ var NEED=window.__LITHOS_MH_NEED||'void-2d-v47';
  var tries=0;
  function run(){
   if(typeof playMorphHunt==='function'){
