@@ -3,7 +3,7 @@
 'use strict';
 
 const MH_STORE_KEY='lithos_morph_hunt_v9';
-const MH_BUILD='void-2d-v24';
+const MH_BUILD='void-2d-v25';
 const MH_TOTAL_COUNT=1100;
 const MH_1000D=true;
 const MH_2D=true;
@@ -56,7 +56,7 @@ const MH_WORLDS=[
  {id:'w6',name:'Lava Park',emoji:'🌋',tagline:'Hot zones — rare spawns!',bg:'#ff8860',ground:'#8a4030'},
  {id:'w7',name:'Legend Nexus',emoji:'👑',tagline:'Last normal zone before Exotic Realm.',bg:'#6080c0',ground:'#506898'},
  {id:'w8',name:'Exotic Realm',emoji:'💎',tagline:'All Exotic rank noobies wander here!',bg:'#281040',ground:'#502868'},
- {id:'w9',name:'Void Fallen Abyss',emoji:'🕳',tagline:'2nd Dimensional · Male Void Fallen — hunt the abyss!',bg:'#080010',ground:'#180828'}
+ {id:'w9',name:'Void Fallen Abyss',emoji:'🕳',tagline:'Flat Screen 2D · Male Void Fallen — hunt the abyss!',bg:'#050008',ground:'#120818'}
 ];
 
 const MH_CODES={
@@ -411,15 +411,20 @@ function mhClampWalkPos(map,pos){
 }
 function mhDrawYouInWorld(ctx,wear,pos,map,t,walkPhase,wi){
  const m=wear||mhStarterMorph();
- let sc=1.08;
- if(MH_1000D) sc*=0.92+(pos.py/(map.h*MH_TILE))*0.18;
+ const flat=wi===MH_VOID_WORLD;
+ let sc=flat?0.82:1.08;
+ if(!flat&&MH_1000D) sc*=0.92+(pos.py/(map.h*MH_TILE))*0.18;
  ctx.save();
- ctx.strokeStyle='rgba(255,232,120,.95)';
- ctx.lineWidth=3;
- ctx.setLineDash([6,4]);
- ctx.beginPath(); ctx.ellipse(pos.px,pos.py+26,34,11,0,0,Math.PI*2); ctx.stroke();
- ctx.setLineDash([]);
- mhPaintNoobWorld(ctx,m,pos.px,pos.py,sc,1,false,t,walkPhase||0);
+ if(flat){
+  ctx.strokeStyle='rgba(255,232,120,.95)'; ctx.lineWidth=2;
+  ctx.strokeRect(pos.px-22,pos.py+18,44,6);
+ }else{
+  ctx.strokeStyle='rgba(255,232,120,.95)'; ctx.lineWidth=3;
+  ctx.setLineDash([6,4]);
+  ctx.beginPath(); ctx.ellipse(pos.px,pos.py+26,34,11,0,0,Math.PI*2); ctx.stroke();
+  ctx.setLineDash([]);
+ }
+ mhPaintNoobWorld(ctx,m,pos.px,pos.py,sc,1,false,t,walkPhase||0,flat);
  ctx.fillStyle='rgba(0,0,0,.82)';
  ctx.fillRect(pos.px-28,pos.py+50,56,16);
  ctx.fillStyle='#ffe8a0';
@@ -1038,13 +1043,51 @@ function mhPaintNoob3D(ctx,m,x,y,sc,alpha,silhouette,walkPhase){
  }
  ctx.restore();
 }
-function mhPaintNoobWorld(ctx,m,x,y,sc,alpha,silhouette,t,walkPhase){
- const off=mhAnimOffset(m,t,walkPhase);
+function mhPaintNoobFlat(ctx,m,x,y,sc,alpha,silhouette){
+ if(!m) return;
+ ctx.save();
+ ctx.translate(x,y);
+ ctx.scale(sc,sc);
+ ctx.globalAlpha=alpha==null?1:alpha;
+ let h=m.head||'#F5CD30', t=m.torso||'#0085DB', l=m.legs||'#A4BD47', a=m.arms||h;
+ if(silhouette){ h='#3a4050'; t='#283040'; l='#1e2430'; a='#3a4050'; ctx.globalAlpha=(alpha==null?0.75:alpha); }
+ ctx.fillStyle=l; ctx.fillRect(-10,22,9,32); ctx.fillRect(1,22,9,32);
+ ctx.fillStyle=t; ctx.fillRect(-16,0,32,24);
+ ctx.fillStyle=a; ctx.fillRect(-22,2,10,22); ctx.fillRect(12,2,10,22);
+ ctx.fillStyle=h; ctx.fillRect(-14,-48,28,28);
+ ctx.fillStyle='#101018'; ctx.fillRect(-8,-36,5,5); ctx.fillRect(3,-36,5,5);
+ if(m.rarity==='voidfallen'&&!silhouette){
+  if(m.voidMale){ ctx.fillStyle=mhHex(t,0.5); ctx.fillRect(-18,4,36,6); }
+  const ve=m.voidEyes||'#70e8ff';
+  ctx.fillStyle=ve; ctx.fillRect(-8,-35,4,4); ctx.fillRect(4,-35,4,4);
+  ctx.fillStyle='rgba(80,20,120,.6)'; ctx.fillRect(-14,-6,8,14); ctx.fillRect(6,-6,8,14);
+ }
+ ctx.restore();
+}
+function mhVoidFlatScreenOverlay(ctx,W,H){
+ const b=16;
+ ctx.fillStyle='rgba(0,0,0,.82)';
+ ctx.fillRect(0,0,W,b); ctx.fillRect(0,H-b,W,b);
+ ctx.fillRect(0,0,b,H); ctx.fillRect(W-b,0,b,H);
+ ctx.strokeStyle='#b070ff'; ctx.lineWidth=3;
+ ctx.strokeRect(b*.5,b*.5,W-b,H-b);
+ ctx.strokeStyle='rgba(200,160,255,.3)'; ctx.lineWidth=1;
+ ctx.strokeRect(b*.5+2,b*.5+2,W-b-4,H-b-4);
+ ctx.fillStyle='rgba(0,0,0,.08)';
+ for(let y=0;y<H;y+=4) ctx.fillRect(0,y,W,1);
+ ctx.fillStyle='#d0a8ff'; ctx.font='bold 11px monospace,sans-serif'; ctx.textAlign='center';
+ ctx.fillText('FLAT SCREEN · '+MH_VOID_DIM_LABEL, W/2, b-4);
+}
+function mhPaintNoobWorld(ctx,m,x,y,sc,alpha,silhouette,t,walkPhase,flat){
+ const off=flat
+  ?{dx:Math.sin(walkPhase||0)*3,dy:0,rot:0,sc:1}
+  :mhAnimOffset(m,t,walkPhase);
  ctx.save();
  ctx.translate(x+off.dx,y+off.dy);
- ctx.rotate(off.rot);
- mhPaintAura(ctx,m,0,-8,t);
- mhPaintNoob3D(ctx,m,0,-8,sc*off.sc,alpha,silhouette,walkPhase);
+ if(!flat) ctx.rotate(off.rot);
+ if(!flat) mhPaintAura(ctx,m,0,-8,t);
+ if(flat) mhPaintNoobFlat(ctx,m,0,-8,sc*off.sc,alpha,silhouette);
+ else mhPaintNoob3D(ctx,m,0,-8,sc*off.sc,alpha,silhouette,walkPhase);
  ctx.restore();
 }
 
@@ -1203,13 +1246,29 @@ function mhWalkDrawFrame(){
  st.walkNearId=near?near.id:null;
  const W=canvas.width,H=canvas.height;
  const camX=pos.px-W/2,camY=pos.py-H/2;
- ctx.fillStyle=world.bg;
+ const voidFlat=wi===MH_VOID_WORLD;
+ ctx.fillStyle=voidFlat?'#050008':world.bg;
  ctx.fillRect(0,0,W,H);
  ctx.save();
  ctx.translate(-camX,-camY);
  for(let ty=0;ty<map.h;ty++)for(let tx=0;tx<map.w;tx++){
   const v=map.tiles[ty*map.w+tx];
   const x=tx*MH_TILE,y=ty*MH_TILE;
+  if(voidFlat){
+   if(v===1){
+    ctx.fillStyle='#282038'; ctx.fillRect(x,y,MH_TILE,MH_TILE);
+    ctx.strokeStyle='rgba(120,60,180,.35)'; ctx.strokeRect(x+.5,y+.5,MH_TILE-1,MH_TILE-1);
+   }else{
+    ctx.fillStyle=((tx+ty)&1)?'#120818':'#0e0612';
+    ctx.fillRect(x,y,MH_TILE,MH_TILE);
+    ctx.strokeStyle='rgba(80,40,120,.22)'; ctx.strokeRect(x+.5,y+.5,MH_TILE-1,MH_TILE-1);
+   }
+   if(v===2){
+    ctx.fillStyle='#402060'; ctx.fillRect(x+8,y+8,MH_TILE-16,MH_TILE-16);
+    ctx.strokeStyle='#9050c0'; ctx.strokeRect(x+8.5,y+8.5,MH_TILE-17,MH_TILE-17);
+   }
+   continue;
+  }
   if(v===1){
    mhGradRect(ctx,x,y,MH_TILE,MH_TILE,'#3a4048','#1a1e24');
    ctx.strokeStyle='rgba(255,255,255,.06)'; ctx.strokeRect(x+.5,y+.5,MH_TILE-1,MH_TILE-1);
@@ -1234,13 +1293,13 @@ function mhWalkDrawFrame(){
   const onScreen=mx>=camX-40&&mx<=camX+W+40&&my>=camY-60&&my<=camY+H+40;
   const seen=got||dist<150||onScreen;
   if(!seen) return;
-  let sc=(m.scale||1)*0.72;
-  if(MH_1000D){
+  let sc=(m.scale||1)*(voidFlat?0.78:0.72);
+  if(MH_1000D&&!voidFlat){
    const depth=0.82+(my/(map.h*MH_TILE))*0.32;
-   sc*=wi===MH_VOID_WORLD?depth*1.08:depth;
+   sc*=depth;
   }
   const sil=!got&&dist>MH_INTERACT_R&&m.rarity!=='voidfallen';
-  mhPaintNoobWorld(ctx,m,mx,my,sc,got?0.55:1,sil,t,npc.phase);
+  mhPaintNoobWorld(ctx,m,mx,my,sc,got?0.55:1,sil,t,npc.phase,voidFlat);
   if(m.rarity==='exotic'){
    ctx.fillStyle='rgba(255,40,200,.85)'; ctx.fillRect(mx-54,my-98,108,14);
    ctx.fillStyle='#fff'; ctx.font='bold 10px system-ui'; ctx.textAlign='center';
@@ -1270,20 +1329,9 @@ function mhWalkDrawFrame(){
  mhDrawYouInWorld(ctx,wear,pos,map,t,st.walkPhase||0,wi);
  ctx.restore();
  if(wi===MH_VOID_WORLD){
-  ctx.fillStyle='rgba(0,0,0,.28)'; ctx.fillRect(0,0,W,H);
-  if(MH_2D){
-   ctx.strokeStyle='rgba(140,80,255,.28)'; ctx.lineWidth=2;
-   for(let d=0;d<2;d++){
-    const a=t*0.4+d*Math.PI/2;
-    ctx.beginPath(); ctx.ellipse(W/2,H/2,110+d*28,40+d*10,a); ctx.stroke();
-   }
-   ctx.strokeStyle='rgba(200,160,255,.15)'; ctx.lineWidth=1;
-   ctx.strokeRect(W/2-120,H/2-70,240,140);
-  }
-  ctx.fillStyle='rgba(200,160,255,.9)'; ctx.font='bold 11px system-ui,sans-serif'; ctx.textAlign='center';
-  ctx.fillText(MH_VOID_ABYSS_LABEL+' · '+MH_VOID_DIM_LABEL+' · Male Void Fallen', W/2, 20);
-  ctx.fillStyle='rgba(160,120,220,.75)'; ctx.font='bold 10px system-ui,sans-serif';
-  ctx.fillText(MH_DEPTH_LABEL, W/2, 34);
+  mhVoidFlatScreenOverlay(ctx,W,H);
+  ctx.fillStyle='rgba(200,160,255,.92)'; ctx.font='bold 11px system-ui,sans-serif'; ctx.textAlign='center';
+  ctx.fillText(MH_VOID_ABYSS_LABEL+' · Male Void Fallen · '+MH_DEPTH_LABEL, W/2, H-16);
  }
  if(wi===3||wi===4){
   const grd=ctx.createRadialGradient(W/2,H/2,40,W/2,H/2,Math.max(W,H)*0.65);
@@ -1492,7 +1540,7 @@ function mhRender(){
    <div class="mh-ftn-banner-text">
     <h2 class="mh-title">Find The Noobies Morphs</h2>
     <p class="mh-ftn-tag"><b>${MH_TOTAL_COUNT}</b> noobies · 🕳 <b>${MH_VOID_ABYSS_LABEL}</b> · <b>${MH_VOID_DIM_LABEL}</b> · Male Void Fallen · Build <b>${MH_BUILD}</b> · ${owner?'Owner: ALL unlocked':''}</p>
-    <p class="mh-live-build" style="margin:6px 0 0;font-size:13px;font-weight:900;color:#ffe060;text-shadow:0 1px 0 #000">✅ LIVE ${MH_BUILD} — 2nd Dimensional Male Void Fallen Abyss</p>
+    <p class="mh-live-build" style="margin:6px 0 0;font-size:13px;font-weight:900;color:#ffe060;text-shadow:0 1px 0 #000">✅ LIVE ${MH_BUILD} — Flat Screen 2D Void Abyss</p>
    </div>
   </header>
   <div class="mh-head">
