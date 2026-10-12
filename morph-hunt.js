@@ -3,9 +3,9 @@
 'use strict';
 
 const MH_STORE_KEY='lithos_morph_hunt_v9';
-const MH_BUILD='void-2d-v34';
-const MH_SCENERY_STAMP='CENTER_SCENERY_v34';
-const MH_SCRIPT_FILE='morph-hunt.void-2d-v34.js';
+const MH_BUILD='void-2d-v35';
+const MH_SCENERY_STAMP='TOWN_LIFE_v35';
+const MH_SCRIPT_FILE='morph-hunt.void-2d-v35.js';
 const MH_KING_STAMP='RED_BLACK_KING_v31';
 const MH_TOTAL_COUNT=1101;
 const MH_VOID_KING_DEPTH=100;
@@ -393,22 +393,52 @@ function mhGenLandmarks(wi,map){
  const spots=ring.map(r=>({
   tx:sx+r.dx, ty:sy+r.dy,
   kind:themes[(r.i+(wi*2))%themes.length],
-  scale:3.4-(r.i%3)*0.15
+  mega:true, footW:3, footH:2+(r.i%2)
  }));
  if(wi===MH_VOID_WORLD&&map.throneTx!=null){
-  spots.push({tx:map.throneTx-2,ty:map.throneTy,kind:'void_fallen_building',scale:3.8});
-  spots.push({tx:map.throneTx+2,ty:map.throneTy,kind:'void_cathedral',scale:3.6});
-  spots.push({tx:map.throneTx,ty:map.throneTy-3,kind:'ruined_house',scale:3.5});
-  spots.push({tx:map.throneTx-1,ty:map.throneTy+2,kind:'forbidden_stone',scale:3.2});
+  spots.push({tx:map.throneTx-3,ty:map.throneTy-1,kind:'void_fallen_building',mega:true,footW:4,footH:3});
+  spots.push({tx:map.throneTx+2,ty:map.throneTy,kind:'void_cathedral',mega:true,footW:3,footH:3});
+  spots.push({tx:map.throneTx-1,ty:map.throneTy-4,kind:'ruined_house',mega:true,footW:3,footH:2});
  }
- for(let i=0;i<themes.length;i++){
-  const tx=sx+((i%4)-1)*5, ty=sy+Math.floor(i/4)*4-2;
-  if(tx>2&&ty>2&&tx<map.w-2&&ty<map.h-2) spots.push({tx,ty,kind:themes[i],scale:3.1});
+ for(let i=0;i<4;i++){
+  const tx=sx+((i%3)-1)*6, ty=sy+Math.floor(i/2)*5-2;
+  if(tx>2&&ty>2&&tx<map.w-3&&ty<map.h-3) spots.push({tx,ty,kind:themes[i],mega:true,footW:3,footH:2});
  }
- return spots.filter(p=>{
-  if(p.tx<1||p.ty<1||p.tx>=map.w-1||p.ty>=map.h-1) return false;
-  return map.tiles[p.ty*map.w+p.tx]===0;
+ return spots.filter(p=>mhMegaFits(map,p.tx,p.ty,p.footW||3,p.footH||2));
+}
+function mhMegaFits(map,tx,ty,fw,fh){
+ if(tx<1||ty<1||tx+fw>=map.w-1||ty+fh>=map.h-1) return false;
+ for(let dy=0;dy<fh;dy++)for(let dx=0;dx<fw;dx++){
+  if(map.tiles[(ty+dy)*map.w+(tx+dx)]!==0) return false;
+ }
+ return true;
+}
+function mhSpawnCivilians(map,wi){
+ const list=[];
+ (map.landmarks||[]).forEach(l=>{
+  if(!l.mega) return;
+  const x=l.tx*MH_TILE,y=l.ty*MH_TILE,w=(l.footW||3)*MH_TILE,h=(l.footH||2)*MH_TILE;
+  for(let i=0;i<3;i++){
+   list.push({
+    id:'civ-'+l.tx+'-'+l.ty+'-'+i,
+    px:x+w*(0.15+i*0.28), py:y+h+10+i*4,
+    variant:(mhHashStr('cv'+l.tx+l.ty+i+wi)>>>0)%14,
+    phase:(mhHashStr('cp'+i+l.tx)>>>0)%100/10,
+    wander:i===2, homePx:x+w/2, homePy:y+h+18
+   });
+  }
  });
+ const sx=(map.playerSpawnTx||10)*MH_TILE, sy=(map.playerSpawnTy||10)*MH_TILE;
+ for(let i=0;i<10;i++){
+  list.push({
+   id:'plaza-'+wi+'-'+i,
+   px:sx+(i-5)*36, py:sy+50+(i%3)*12,
+   variant:(mhHashStr('pl'+wi+i)>>>0)%14,
+   phase:i*0.7, wander:true,
+   homePx:sx, homePy:sy+55
+  });
+ }
+ map.civilians=list;
 }
 (function mhScatterWorldDecor(){
  MH_WORLDS.forEach((_,wi)=>{
@@ -428,6 +458,7 @@ function mhGenLandmarks(wi,map){
    decors.push({tx,ty,kind:themes[mhHashStr('deck'+wi+i)%themes.length],scale:1.6+((mhHashStr('ds'+i)%5)*0.15)});
   }
   map.decors=decors;
+  mhSpawnCivilians(map,wi);
  });
 })();
 (function mhScatterMorphTiles(){
@@ -756,10 +787,84 @@ function mhDrawDecorKind(ctx,x,y,kind,wi){
  }
  ctx.restore();
 }
-function mhDrawSceneryPiece(ctx,d,wi){
+function mhPaintHuman(ctx,x,y,variant,phase,sc){
+ sc=sc||0.72;
+ const pal=[
+  ['#F5CD30','#0085DB','#A4BD47'],['#FF98DC','#C4281C','#0085DB'],
+  ['#E0AC00','#008000','#6B8E23'],['#BFA029','#004080','#A4BD47'],
+  ['#D9BC00','#800080','#A3A2A5'],['#F5CD30','#800080','#A4BD47']
+ ][variant%6];
+ const h=pal[0],t=pal[1],l=pal[2];
+ const bob=Math.sin(phase||0)*3;
+ ctx.save();
+ ctx.translate(x,y+bob);
+ ctx.scale(sc,sc);
+ ctx.fillStyle='rgba(0,0,0,.35)'; ctx.beginPath(); ctx.ellipse(0,22,12,3,0,0,Math.PI*2); ctx.fill();
+ mhGradRect(ctx,-7,8,6,16,l,mhShade(l,-25));
+ mhGradRect(ctx,1,8,6,16,l,mhShade(l,-25));
+ mhGradRect(ctx,-9,-2,18,12,t,mhShade(t,-30));
+ ctx.fillStyle=h; ctx.fillRect(-8,-18,16,16);
+ ctx.fillStyle='#1a1a20'; ctx.fillRect(-5,-12,4,4); ctx.fillRect(1,-12,4,4);
+ ctx.fillStyle='rgba(255,255,255,.6)'; ctx.fillRect(-4,-11,2,2); ctx.fillRect(2,-11,2,2);
+ ctx.restore();
+}
+function mhDrawInteriorProps(ctx,ix,iy,w,h,seed){
+ ctx.fillStyle='#ffe890'; ctx.fillRect(ix,iy,w,h);
+ ctx.fillStyle='#604028'; ctx.fillRect(ix+3,iy+h-8,w-6,5);
+ ctx.fillStyle='#5080c0'; ctx.fillRect(ix+4,iy+4,10,6);
+ ctx.fillStyle='#804030'; ctx.fillRect(ix+w-14,iy+5,8,10);
+ if(seed%2===0){ ctx.fillStyle='#806040'; ctx.fillRect(ix+w/2-4,iy+8,8,6); }
+ if(seed%3===0){ ctx.fillStyle='#ffd060'; ctx.beginPath(); ctx.arc(ix+w-6,iy+6,3,0,Math.PI*2); ctx.fill(); }
+ mhPaintHuman(ctx,ix+w*0.55,iy+h-2,(seed+3)%14,seed*0.4,0.45);
+}
+function mhDrawMegaBuilding(ctx,d,wi,t){
+ const T=MH_TILE, x=d.tx*T, y=d.ty*T;
+ const fw=d.footW||3, fh=d.footH||2;
+ const W=fw*T, H=fh*T;
+ const kind=d.kind;
+ ctx.fillStyle='rgba(0,0,0,.25)'; ctx.fillRect(x+4,y+H+2,W-8,10);
+ if(kind==='void_fallen_building'||kind==='void_cathedral'||kind==='ruined_house'){
+  ctx.fillStyle='#0a0a0a'; ctx.fillRect(x,y+8,W,H-8);
+  ctx.fillStyle='#280808'; ctx.fillRect(x+6,y+14,W-12,H-18);
+  ctx.strokeStyle='#ff3030'; ctx.lineWidth=2; ctx.strokeRect(x+4,y+10,W-8,H-14);
+  for(let wx=0;wx<2;wx++){
+   const ix=x+14+wx*(W/2-10);
+   mhDrawInteriorProps(ctx,ix,y+22,26,22,(d.tx+d.ty+wx+wi)%7);
+   ctx.fillStyle='#401010'; ctx.fillRect(ix+4,y+24,18,16);
+  }
+  ctx.fillStyle='#ff2020'; ctx.fillRect(x+W/2-14,y+H-22,28,18);
+  mhPaintHuman(ctx,x+W*0.2,y+H+8,8,t,0.75);
+  mhPaintHuman(ctx,x+W*0.55,y+H+10,11,t*1.1,0.78);
+  mhPaintHuman(ctx,x+W*0.82,y+H+6,9,t*0.9,0.7);
+  return;
+ }
+ if(kind==='shop'||kind==='stall'||kind==='booth'){
+  ctx.fillStyle='#5080a0'; ctx.fillRect(x+4,y+H*0.35,W-8,H*0.65);
+  ctx.fillStyle='#ffd060'; ctx.fillRect(x+6,y+H*0.42,W-12,H*0.12);
+  ctx.fillStyle='#303840'; ctx.fillRect(x+W/2-16,y+H*0.58,32,H*0.42);
+  mhDrawInteriorProps(ctx,x+10,y+H*0.4,28,24,(d.tx+wi)%9);
+  mhDrawInteriorProps(ctx,x+W-38,y+H*0.4,28,24,(d.tx+1)%9);
+  ctx.fillStyle='#e04080'; ctx.fillRect(x+4,y+6,W-8,14);
+  mhPaintHuman(ctx,x+W*0.25,y+H+6,2,t,0.8);
+  mhPaintHuman(ctx,x+W*0.7,y+H+8,5,t,0.82);
+  return;
+ }
+ ctx.fillStyle='#8a6048'; ctx.fillRect(x+2,y+H*0.32,W-4,H*0.68);
+ ctx.fillStyle='#6a3028'; ctx.beginPath(); ctx.moveTo(x-6,y+H*0.32); ctx.lineTo(x+W/2,y+2); ctx.lineTo(x+W+6,y+H*0.32); ctx.fill();
+ ctx.fillStyle='#505860'; ctx.fillRect(x+W-22,y+8,12,20);
+ mhDrawInteriorProps(ctx,x+10,y+H*0.38,30,26,(d.tx+wi)%11);
+ mhDrawInteriorProps(ctx,x+W-42,y+H*0.38,30,26,(d.ty+wi)%11);
+ ctx.fillStyle='#402818'; ctx.fillRect(x+W/2-18,y+H*0.55,36,H*0.45);
+ ctx.fillStyle='#ffe060'; ctx.fillRect(x+W/2-12,y+H*0.62,8,6);
+ mhPaintHuman(ctx,x+W*0.18,y+H+4,(d.tx+wi)%14,t,0.85);
+ mhPaintHuman(ctx,x+W*0.5,y+H+8,(d.ty+1)%14,t*1.05,0.88);
+ mhPaintHuman(ctx,x+W*0.78,y+H+5,(d.tx+d.ty)%14,t*0.95,0.8);
+}
+function mhDrawSceneryPiece(ctx,d,wi,t){
+ if(d.mega){ mhDrawMegaBuilding(ctx,d,wi,t||0); return; }
  const T=MH_TILE;
  const x=d.tx*MH_TILE,y=d.ty*MH_TILE;
- const sc=d.scale||1.65;
+ const sc=d.scale||2.8;
  ctx.save();
  ctx.translate(x+MH_TILE/2,y+MH_TILE*0.92);
  ctx.scale(sc,sc);
@@ -769,16 +874,48 @@ function mhDrawSceneryPiece(ctx,d,wi){
  mhDrawDecorKind(ctx,0,0,d.kind,wi);
  ctx.restore();
 }
-function mhDrawThemedPropTile(ctx,x,y,wi,tx,ty){
+function mhDrawThemedPropTile(ctx,x,y,wi,tx,ty,t){
  const themes=MH_WORLD_DECORS[wi]||MH_WORLD_DECORS[0];
  const kind=themes[mhHashStr('pt'+tx+ty+wi)%themes.length];
- mhDrawSceneryPiece(ctx,{tx,ty,kind,scale:2.1},wi);
+ mhDrawSceneryPiece(ctx,{tx,ty,kind,mega:true,footW:2,footH:2},wi,t);
 }
-function mhDrawMapDecors(ctx,map,wi){
- (map.landmarks||[]).forEach(d=>mhDrawSceneryPiece(ctx,d,wi));
- (map.decors||[]).forEach(d=>mhDrawSceneryPiece(ctx,d,wi));
+function mhDrawMapDecors(ctx,map,wi,t){
+ (map.landmarks||[]).forEach(d=>mhDrawSceneryPiece(ctx,d,wi,t));
+ (map.decors||[]).forEach(d=>mhDrawSceneryPiece(ctx,d,wi,t));
 }
-function mhDrawFlatMapTiles(ctx,map,world,wi){
+function mhCivState(st,wi,c){
+ if(!st.civ) st.civ={};
+ if(!st.civ[wi]) st.civ[wi]={};
+ if(!st.civ[wi][c.id]) st.civ[wi][c.id]={px:c.px,py:c.py,phase:c.phase||0,dir:Math.random()*6.28,wait:0};
+ return st.civ[wi][c.id];
+}
+function mhUpdateCivilians(st,map,wi,dt){
+ if(!map.civilians) return;
+ map.civilians.forEach(c=>{
+  const s=mhCivState(st,wi,c);
+  s.phase+=dt*3;
+  if(!c.wander) return;
+  s.wait-=dt;
+  if(s.wait<=0){
+   s.dir+=(Math.random()-0.5)*1.2;
+   s.wait=0.6+Math.random()*2;
+  }
+  const spd=0.55;
+  const npx=s.px+Math.cos(s.dir)*spd, npy=s.py+Math.sin(s.dir)*spd;
+  if(!mhWalkCollide(map,npx,s.py,6)&&!mhWalkCollide(map,s.px,npy,6)){
+   s.px=npx; s.py=npy;
+  }else s.dir+=Math.PI*0.6;
+  const hx=c.homePx||s.px, hy=c.homePy||s.py;
+  if(Math.hypot(s.px-hx,s.py-hy)>90) s.dir=Math.atan2(hy-s.py,hx-s.px);
+ });
+}
+function mhDrawCivilians(ctx,st,wi,map){
+ if(!map.civilians) return;
+ const list=map.civilians.map(c=>{ const s=mhCivState(st,wi,c); return {s,c}; });
+ list.sort((a,b)=>a.s.py-b.s.py);
+ list.forEach(({s,c})=>mhPaintHuman(ctx,s.px,s.py,c.variant,s.phase,0.78));
+}
+function mhDrawFlatMapTiles(ctx,map,world,wi,t){
  const voidRealm=wi===MH_VOID_WORLD;
  const pair=mhFlatGroundPair(world.ground);
  const wall=world.wall||(voidRealm?'#282038':'#4a5058');
@@ -795,7 +932,7 @@ function mhDrawFlatMapTiles(ctx,map,world,wi){
     ctx.fillRect(x,y,MH_TILE,MH_TILE);
     ctx.strokeStyle='#301848'; ctx.strokeRect(x+.5,y+.5,MH_TILE-1,MH_TILE-1);
    }
-   if(v===2) mhDrawThemedPropTile(ctx,x,y,wi,tx,ty);
+   if(v===2) mhDrawThemedPropTile(ctx,x,y,wi,tx,ty,t);
    continue;
   }
   if(v===1){
@@ -806,9 +943,9 @@ function mhDrawFlatMapTiles(ctx,map,world,wi){
    ctx.fillRect(x,y,MH_TILE,MH_TILE);
    ctx.strokeStyle='rgba(0,0,0,.18)'; ctx.lineWidth=1; ctx.strokeRect(x+.5,y+.5,MH_TILE-1,MH_TILE-1);
   }
-   if(v===2) mhDrawThemedPropTile(ctx,x,y,wi,tx,ty);
+   if(v===2) mhDrawThemedPropTile(ctx,x,y,wi,tx,ty,t);
  }
- mhDrawMapDecors(ctx,map,wi);
+ mhDrawMapDecors(ctx,map,wi,t);
 }
 function mhPaperFlatOverlay(ctx,W,H){
  ctx.fillStyle='rgba(255,252,240,.06)';
@@ -1947,6 +2084,7 @@ function mhWalkDrawFrame(){
   if(m.tileX==null) return;
   mhNpcWander(st,map,m,mhNpcState(st,wi,m),dt,save);
  });
+ mhUpdateCivilians(st,map,wi,dt);
  const near=mhWalkNearMorph(save,wi,pos,st);
  st.walkNearId=near?near.id:null;
  const W=canvas.width,H=canvas.height;
@@ -1956,7 +2094,7 @@ function mhWalkDrawFrame(){
  ctx.fillRect(0,0,W,H);
  ctx.save();
  ctx.translate(-camX,-camY);
- if(flatMap) mhDrawFlatMapTiles(ctx,map,world,wi);
+ if(flatMap) mhDrawFlatMapTiles(ctx,map,world,wi,t);
  else for(let ty=0;ty<map.h;ty++)for(let tx=0;tx<map.w;tx++){
   const v=map.tiles[ty*map.w+tx];
   const x=tx*MH_TILE,y=ty*MH_TILE;
@@ -1969,10 +2107,11 @@ function mhWalkDrawFrame(){
    ctx.fillStyle=g; ctx.fillRect(x,y,MH_TILE,MH_TILE);
    ctx.strokeStyle='rgba(0,0,0,.06)'; ctx.strokeRect(x+.5,y+.5,MH_TILE-1,MH_TILE-1);
   }
-  if(v===2) mhDrawThemedPropTile(ctx,x,y,wi,tx,ty);
+  if(v===2) mhDrawThemedPropTile(ctx,x,y,wi,tx,ty,t);
  }
- mhDrawMapDecors(ctx,map,wi);
+ mhDrawMapDecors(ctx,map,wi,t);
  if(wi===MH_VOID_WORLD) mhDrawVoidThrone(ctx,map);
+ mhDrawCivilians(ctx,st,wi,map);
  morphs.sort((a,b)=>mhGetNpcPos(st,wi,a).py-mhGetNpcPos(st,wi,b).py);
  morphs.forEach(m=>{
   if(m.tileX==null) return;
@@ -2028,7 +2167,7 @@ function mhWalkDrawFrame(){
  ctx.fillStyle='#80ff90'; ctx.font='bold 13px system-ui,sans-serif'; ctx.textAlign='left';
  ctx.fillText(MH_BUILD+' · '+MH_SCENERY_STAMP,16,28);
  ctx.fillStyle='#e8ffe8'; ctx.font='bold 12px system-ui,sans-serif';
- ctx.fillText('Houses on map: '+(map.landmarks?.length||0)+' big · '+(map.decors?.length||0)+' small',16,48);
+ ctx.fillText('Mega buildings: '+(map.landmarks?.length||0)+' · Humans: '+(map.civilians?.length||0),16,48);
  if(flatMap) mhPaperFlatOverlay(ctx,W,H);
  if(wi===MH_VOID_WORLD){
   mhVoidFlatScreenOverlay(ctx,W,H);
@@ -2220,7 +2359,7 @@ function mhRenderHunt(save, wi){
  const nFound=save.collected.filter(id=>mhMorph(id)&&!mhMorph(id).exclusive).length;
  const xFound=save.collected.filter(id=>mhMorph(id)&&mhMorph(id).exclusive).length;
  return `<div class="mh-world-tabs">${worldTabs}</div>
- <p class="mh-map-banner">⬇ <b>LOOK AT THE MAP CANVAS</b> — big houses &amp; ruins spawn around YOU (${MH_SCENERY_STAMP})</p>
+ <p class="mh-map-banner">⬇ <b>MEGA HOUSES</b> with furniture &amp; people inside + humans walking around (${MH_SCENERY_STAMP})</p>
  <div class="mh-walk-wrap">
   <canvas id="mh-walk-canvas" class="mh-walk-canvas" width="960" height="520" tabindex="0"></canvas>
   <div id="mh-walk-hud" class="mh-walk-hud">
