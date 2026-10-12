@@ -3,7 +3,7 @@
 'use strict';
 
 const MH_STORE_KEY='lithos_morph_hunt_v9';
-const MH_BUILD='void-2d-v29';
+const MH_BUILD='void-2d-v30';
 const MH_TOTAL_COUNT=1101;
 const MH_VOID_KING_DEPTH=100;
 const MH_VOID_KING_DIM='5th Dimensional';
@@ -298,24 +298,24 @@ function mhBuildMorphs(){
   voidMale:true,
   voidKing:true,
   voidDepth:MH_VOID_KING_DEPTH,
-  void5D:true,
+  void5D:false,
   world:MH_VOID_WORLD,
   x:50,y:40,
   scale:1.32,
-  head:'hsl(278,82%,64%)',
-  torso:'hsl(288,88%,32%)',
-  legs:'hsl(302,62%,18%)',
-  arms:'hsl(278,76%,46%)',
+  head:'#0a0a0a',
+  torso:'#580808',
+  legs:'#141414',
+  arms:'#1a1a1a',
   body:'tall',
   anim:'pulse',
-  face:'grin',
-  stripe:true,
+  face:'flat',
+  stripe:false,
   glasses:false,
-  hat:'crown',
-  prop:'trophy',
+  hat:null,
+  prop:null,
   voidMark:0,
-  voidEyes:'#ffe860',
-  voidAccent:'#d0a0ff',
+  voidEyes:'#ff2020',
+  voidAccent:'#cc0000',
   fallen:true,
   rarity:'voidfallen'
  });
@@ -656,6 +656,21 @@ function mhBodyShape(m){
 /** Full R6-style body (head, torso, arms, legs) + archetypes */
 function mhClassicNoobSvg(m){
  if(!m) return '';
+ if(m.voidKing){
+  return `<ellipse cx="50" cy="124" rx="22" ry="4" fill="#000" opacity=".25"/>
+   <rect x="32" y="66" width="14" height="36" fill="#141414" stroke="#801010" stroke-width="1"/>
+   <rect x="54" y="66" width="14" height="36" fill="#141414" stroke="#801010" stroke-width="1"/>
+   <rect x="28" y="38" width="44" height="28" fill="#580808" stroke="#a01010" stroke-width="1.5"/>
+   <rect x="14" y="42" width="12" height="24" fill="#161616"/>
+   <rect x="74" y="42" width="12" height="24" fill="#161616"/>
+   <rect x="8" y="36" width="16" height="32" fill="#480808" stroke="#cc1010" stroke-width="1.5"/>
+   <path d="M78 38 L88 28 L88 52 L78 48 Z" fill="#1a1a1a" stroke="#b01010"/>
+   <rect x="76" y="20" width="6" height="28" fill="#2a1810"/>
+   <rect x="72" y="8" width="14" height="14" fill="#0a0a0a" stroke="#ff2020"/>
+   <rect x="33" y="6" width="34" height="34" fill="#161616" stroke="#801010" stroke-width="1.5"/>
+   <rect x="36" y="10" width="28" height="26" fill="#0a0a0a"/>
+   <rect x="40" y="22" width="20" height="4" fill="#ff2020" opacity=".9"/>`;
+ }
  let hat='';
  if(m.hat==='crown') hat='<polygon points="50,2 58,14 42,14" fill="#ffd700"/><rect x="42" y="12" width="16" height="5" fill="#e8b020"/>';
  if(m.hat==='star') hat='<polygon points="50,0 52,10 62,10 54,16 57,26 50,20 43,26 46,16 38,10 48,10" fill="#ffe060"/>';
@@ -1046,8 +1061,111 @@ function mhAnimOffset(m,t,walkPhase,running){
  }
  return {dx,dy,rot,sc};
 }
+function mhDrawForbiddenSymbol(ctx,cx,cy,s,kind){
+ ctx.save();
+ ctx.translate(cx,cy);
+ ctx.strokeStyle='#ff2828';
+ ctx.lineWidth=1.6;
+ ctx.lineCap='round';
+ if(kind===0){
+  ctx.beginPath(); ctx.arc(0,0,s,0,Math.PI*2); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(-s*.65,-s*.65); ctx.lineTo(s*.65,s*.65); ctx.moveTo(s*.65,-s*.65); ctx.lineTo(-s*.65,s*.65); ctx.stroke();
+ }else if(kind===1){
+  ctx.beginPath(); ctx.moveTo(0,-s); ctx.lineTo(s*.85,s*.7); ctx.lineTo(-s*.85,s*.7); ctx.closePath(); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0,-s*.35); ctx.lineTo(0,s*.45); ctx.stroke();
+ }else if(kind===2){
+  ctx.strokeRect(-s*.7,-s*.7,s*1.4,s*1.4);
+  ctx.beginPath(); ctx.moveTo(-s*.45,0); ctx.lineTo(s*.45,0); ctx.moveTo(0,-s*.45); ctx.lineTo(0,s*.45); ctx.stroke();
+ }else{
+  ctx.beginPath(); ctx.arc(0,0,s*.75,0,Math.PI*2); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(-s*.5,0); ctx.quadraticCurveTo(0,-s*.9,s*.5,0); ctx.quadraticCurveTo(0,s*.9,-s*.5,0); ctx.stroke();
+ }
+ ctx.restore();
+}
+function mhPaintForbiddenStone(ctx,sx,sy,t,i,alpha){
+ ctx.save();
+ ctx.globalAlpha=alpha==null?1:alpha;
+ ctx.fillStyle='#080808';
+ ctx.fillRect(sx-8,sy-10,16,20);
+ ctx.strokeStyle='#a01010';
+ ctx.lineWidth=1.5;
+ ctx.strokeRect(sx-8.5,sy-10.5,17,21);
+ ctx.shadowColor='#ff0000';
+ ctx.shadowBlur=5+Math.sin(t*4+i)*4;
+ mhDrawForbiddenSymbol(ctx,sx,sy-1,5,i%4);
+ ctx.shadowBlur=0;
+ ctx.restore();
+}
+function mhPaintKingStoneAura(ctx,x,y,t,alpha,silhouette){
+ const pulse=1+Math.sin(t*2.8)*0.12;
+ const rad=40*pulse;
+ const a=silhouette?0.25:(alpha==null?1:alpha);
+ ctx.save();
+ ctx.globalAlpha=a*0.9;
+ const g=ctx.createRadialGradient(x,y-18,6,x,y-18,rad+28);
+ g.addColorStop(0,'rgba(220,20,20,.4)');
+ g.addColorStop(0.45,'rgba(60,0,0,.25)');
+ g.addColorStop(1,'rgba(0,0,0,0)');
+ ctx.fillStyle=g;
+ ctx.beginPath(); ctx.arc(x,y-18,rad+28,0,Math.PI*2); ctx.fill();
+ ctx.strokeStyle='rgba(180,0,0,.35)';
+ ctx.lineWidth=2;
+ ctx.beginPath(); ctx.arc(x,y-18,rad,0,Math.PI*2); ctx.stroke();
+ for(let i=0;i<8;i++){
+  const ang=t*0.5+i*Math.PI*2/8;
+  const sx=x+Math.cos(ang)*rad, sy=y-18+Math.sin(ang)*rad*0.42;
+  mhPaintForbiddenStone(ctx,sx,sy,t,i,a);
+ }
+ ctx.restore();
+}
+function mhPaintVoidKing(ctx,x,y,sc,alpha,silhouette,walkPhase,running,t,flat){
+ ctx.save();
+ ctx.translate(x,y);
+ ctx.scale(sc,sc);
+ ctx.globalAlpha=alpha==null?1:alpha;
+ const wa=mhWalkLegAnim(walkPhase,running);
+ ctx.translate(0,-wa.bob);
+ const black='#0a0a0a', armor='#161616', darkRed='#480808', red='#b01010', glow='#ff2020';
+ const swing=Math.sin(t*2.6)*0.72-0.15;
+ ctx.fillStyle='rgba(0,0,0,.45)';
+ ctx.beginPath(); ctx.ellipse(0,58,22,5,0,0,Math.PI*2); ctx.fill();
+ mhGradRect(ctx,-11+wa.lx,20+wa.ly,10,36,black,darkRed);
+ mhGradRect(ctx,1+wa.rx,20+wa.ry,10,36,black,darkRed);
+ ctx.fillStyle=red; ctx.fillRect(-11+wa.lx,28+wa.ly,10,2); ctx.fillRect(1+wa.rx,28+wa.ry,10,2);
+ mhGradRect(ctx,-20,-4,40,28,darkRed,armor);
+ ctx.fillStyle=armor; ctx.fillRect(-20,-4,40,6); ctx.fillRect(-20,10,40,4);
+ ctx.fillStyle=red; ctx.fillRect(-20,2,40,3);
+ ctx.fillStyle=black; ctx.fillRect(-22,8,6,14); ctx.fillRect(16,8,6,14);
+ ctx.save();
+ ctx.translate(-24,6+wa.ax);
+ ctx.fillStyle=armor; ctx.fillRect(-8,-12,10,24);
+ ctx.fillStyle=darkRed; ctx.fillRect(-26,-18,18,36);
+ ctx.strokeStyle=red; ctx.lineWidth=2; ctx.strokeRect(-26.5,-18.5,19,37);
+ ctx.fillStyle=black; ctx.fillRect(-24,-14,15,8);
+ mhDrawForbiddenSymbol(ctx,-17,-2,4,2);
+ ctx.restore();
+ ctx.save();
+ ctx.translate(22,4-wa.ax);
+ ctx.rotate(swing);
+ ctx.fillStyle=armor; ctx.fillRect(-4,-10,10,22);
+ ctx.fillStyle='#2a1810'; ctx.fillRect(2,0,5,34);
+ ctx.fillStyle=black; ctx.fillRect(-2,-32,18,16);
+ ctx.fillStyle=darkRed; ctx.fillRect(0,-30,14,4);
+ ctx.fillStyle=red; ctx.fillRect(1,-28,12,2);
+ ctx.fillRect(4,2,3,28);
+ ctx.restore();
+ ctx.fillStyle=armor; ctx.fillRect(-16,-54,32,34);
+ ctx.fillStyle=black; ctx.fillRect(-14,-52,28,30);
+ ctx.fillStyle=red; ctx.shadowColor=glow; ctx.shadowBlur=silhouette?0:10;
+ ctx.fillRect(-10,-44,20,3);
+ ctx.shadowBlur=0;
+ if(!silhouette&&!flat){
+  ctx.fillStyle='rgba(80,0,0,.5)'; ctx.fillRect(-16,-8,10,16); ctx.fillRect(6,-8,10,16);
+ }
+ ctx.restore();
+}
 function mhPaintAura(ctx,m,x,y,t){
- if(!m) return;
+ if(!m||m.voidKing) return;
  const r=MH_RARITY[m.rarity]||MH_RARITY.common;
  const tier={common:0,uncommon:1,rare:2,epic:3,legendary:4,secret:4,exclusive:4,exotic:5,voidfallen:6}[m.rarity]||0;
  if(tier<2) return;
@@ -1292,6 +1410,12 @@ function mhPaintNoobWorld(ctx,m,x,y,sc,alpha,silhouette,t,walkPhase,flat,running
   :mhAnimOffset(m,t,walkPhase,running);
  ctx.save();
  ctx.translate(x+off.dx,y+off.dy);
+ if(m.voidKing){
+  mhPaintKingStoneAura(ctx,0,-8,t,alpha,silhouette);
+  mhPaintVoidKing(ctx,0,-8,sc*off.sc,alpha,silhouette,walkPhase,running,t,flat);
+  ctx.restore();
+  return;
+ }
  if(!flat) ctx.rotate(off.rot);
  if(!flat) mhPaintAura(ctx,m,0,-8,t);
  if(m.void5D) mhPaintNoob5D(ctx,m,0,-8,sc*off.sc,alpha,silhouette,walkPhase,running);
@@ -1308,12 +1432,12 @@ function mhWalkTileBlocked(map,tx,ty){
 function mhDrawVoidThrone(ctx,map){
  if(map.throneTx==null) return;
  const x=map.throneTx*MH_TILE,y=map.throneTy*MH_TILE;
- ctx.fillStyle='rgba(60,20,100,.35)'; ctx.fillRect(x-MH_TILE,y-MH_TILE,MH_TILE*3,MH_TILE*3);
- ctx.fillStyle='#502878'; ctx.fillRect(x-4,y+8,MH_TILE+8,12);
- ctx.fillStyle='#ffd860'; ctx.fillRect(x+6,y-6,MH_TILE-12,10);
- ctx.strokeStyle='#c898ff'; ctx.lineWidth=2; ctx.strokeRect(x+.5,y+.5,MH_TILE-1,MH_TILE-1);
- ctx.fillStyle='#e8d0ff'; ctx.font='bold 9px system-ui'; ctx.textAlign='center';
- ctx.fillText('👑 THRONE · '+MH_VOID_KING_DEPTH+' DEPTH · 5D',x+MH_TILE/2,y-10);
+ ctx.fillStyle='rgba(40,0,0,.35)'; ctx.fillRect(x-MH_TILE,y-MH_TILE,MH_TILE*3,MH_TILE*3);
+ ctx.fillStyle='#280808'; ctx.fillRect(x-4,y+8,MH_TILE+8,12);
+ ctx.fillStyle='#a01010'; ctx.fillRect(x+6,y-6,MH_TILE-12,10);
+ ctx.strokeStyle='#ff3030'; ctx.lineWidth=2; ctx.strokeRect(x+.5,y+.5,MH_TILE-1,MH_TILE-1);
+ ctx.fillStyle='#ff8080'; ctx.font='bold 9px system-ui'; ctx.textAlign='center';
+ ctx.fillText('FORBIDDEN THRONE · '+MH_VOID_KING_DEPTH+' DEPTH · 5D',x+MH_TILE/2,y-10);
 }
 function mhCanvasToWorld(canvas,camX,camY,clientX,clientY){
  const rect=canvas.getBoundingClientRect();
@@ -1532,16 +1656,16 @@ function mhWalkDrawFrame(){
   const sil=!got&&dist>MH_INTERACT_R&&m.rarity!=='voidfallen';
   mhPaintNoobWorld(ctx,m,mx,my,sc,got?0.55:1,sil,t,npc.phase,flatMap,!!npc.walking);
   if(m.voidKing){
-   ctx.fillStyle='rgba(20,0,48,.92)'; ctx.fillRect(mx-78,my-108,156,20);
-   ctx.fillStyle='#ffe860'; ctx.font='bold 11px system-ui'; ctx.textAlign='center';
-   ctx.fillText('👑 VOID FALLEN KING · '+MH_VOID_KING_DEPTH+' DEPTH · 5D',mx,my-94);
+   ctx.fillStyle='rgba(8,0,0,.92)'; ctx.fillRect(mx-88,my-108,176,20);
+   ctx.fillStyle='#ff4040'; ctx.font='bold 11px system-ui'; ctx.textAlign='center';
+   ctx.fillText('VOID FALLEN KING · GREATAXE & SHIELD · '+MH_VOID_KING_DEPTH+' DEPTH',mx,my-94);
   }
   if(m.rarity==='exotic'){
    ctx.fillStyle='rgba(255,40,200,.85)'; ctx.fillRect(mx-54,my-98,108,14);
    ctx.fillStyle='#fff'; ctx.font='bold 10px system-ui'; ctx.textAlign='center';
    ctx.fillText('✦ EXOTIC',mx,my-88);
   }
-  if(m.rarity==='voidfallen'){
+  if(m.rarity==='voidfallen'&&!m.voidKing){
    ctx.fillStyle='rgba(40,0,80,.9)'; ctx.fillRect(mx-62,my-100,124,16);
    ctx.fillStyle='#c898ff'; ctx.font='bold 10px system-ui'; ctx.textAlign='center';
    ctx.fillText('🕳 MALE VOID FALLEN',mx,my-89);
@@ -1658,7 +1782,7 @@ function mhPreviewDrawFrame(){
  ctx.fillStyle='#80e8ff'; ctx.font='bold 14px system-ui'; ctx.textAlign='left';
  ctx.fillText('Movement (same noobie · legs + arms)',16,H-168);
  const move=mhDemoMorph('bounce',{id:'demo-move',name:'Walker'});
- const king=mhMorph('vf-king')||mhDemoMorph('pulse',{voidKing:true,void5D:true,body:'tall',hat:'crown',rarity:'voidfallen'});
+ const king=mhMorph('vf-king')||mhDemoMorph('pulse',{voidKing:true,body:'tall',rarity:'voidfallen'});
  ctx.fillStyle='rgba(0,0,0,.5)'; ctx.fillRect(40,H-150,200,130); ctx.fillRect(280,H-150,200,130);
  ctx.fillStyle='rgba(40,0,80,.55)'; ctx.fillRect(520,H-150,240,130);
  ctx.fillStyle='rgba(0,0,0,.45)'; ctx.fillRect(780,H-150,160,130);
@@ -1669,8 +1793,8 @@ function mhPreviewDrawFrame(){
  ctx.fillStyle='#ffe060'; ctx.fillText('RUN',380,H-28);
  mhPaintNoobWorld(ctx,king,640,H-82,1.05,1,false,t,phase,true,false);
  ctx.fillStyle='#e8d0ff'; ctx.font='bold 10px system-ui';
- ctx.fillText('👑 KING · 5D',640,H-28);
- ctx.fillText(MH_VOID_KING_DEPTH+' DEPTH',640,H-14);
+ ctx.fillText('KING · RED/BLACK ARMOR',640,H-28);
+ ctx.fillText('AXE + SHIELD · '+MH_VOID_KING_DEPTH+' DEPTH',640,H-14);
  const flatDemo=mhDemoMorph('sway',{torso:'#0085DB'});
  mhPaintNoobWorld(ctx,flatDemo,860,H-78,0.88,1,false,t,phase,flat,false);
  ctx.fillStyle='#c0d0e0'; ctx.fillText(flat?'FLAT 2D':'3D',860,H-28);
