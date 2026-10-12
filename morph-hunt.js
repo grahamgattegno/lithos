@@ -5,8 +5,8 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v69';
-const MH_SCENERY_STAMP='KING_ACTION4_CUTSCENE_v69';
+const MH_BUILD='void-2d-v70';
+const MH_SCENERY_STAMP='ACTION_MINIGAMES_v70';
 const MH_KING_CUTSCENE_TITLE='Axe → Sword · Void Judgment';
 const MH_SCRIPT_FILE='morph-hunt.js';
 const MH_ANCIENT_GLYPHS=['⌬','☵','⛧','◈','☒'];
@@ -2008,13 +2008,32 @@ function mhCollect(id){
  }
  mhDeckUnlock(m,save);
 }
+const MH_MINI_KINDS=['noobduel','obbyrun','jumpfight'];
+const MH_MINI_DESC={
+ noobduel:'⚔ Duel — fight this noobie! Punch · Block · Win the brawl!',
+ obbyrun:'🏃 Obby — auto-run & jump (Space) over pits & spikes to the flag!',
+ jumpfight:'👊 Jump-in fight — counter when they leap at you (5 times)!'
+};
 function mhMinigameKind(m){
- const kinds=['gemtap','zonehit','memory','voidpulse','noobmatch','rhythm','catchfall','maze','whack','colorwheel'];
- return kinds[(mhHashStr(m.id+'mg')>>>0)%kinds.length];
+ return MH_MINI_KINDS[(mhHashStr(m.id+'mg')>>>0)%MH_MINI_KINDS.length];
+}
+function mhMinigameEnemyHp(m){
+ const t={common:55,uncommon:72,rare:92,epic:118,legendary:145,secret:165,exotic:185,voidfallen:220,exclusive:100};
+ return t[m.rarity]||65;
+}
+function mhMinigameCleanup(){
+ if(!mhState) return;
+ if(mhState.minigameRaf){ cancelAnimationFrame(mhState.minigameRaf); mhState.minigameRaf=0; }
+ if(mhState.minigameIv){ clearInterval(mhState.minigameIv); mhState.minigameIv=0; }
+ if(mhState.minigameKeys){
+  document.removeEventListener('keydown',mhState.minigameKeys,true);
+  mhState.minigameKeys=null;
+ }
 }
 function mhOpenMinigame(m){
  if(!mhState) return;
  mhEnsureOverlayModals();
+ mhMinigameCleanup();
  mhState.minigameMorph=m;
  const kind=mhMinigameKind(m);
  mhState.minigameKind=kind;
@@ -2023,17 +2042,18 @@ function mhOpenMinigame(m){
  const r=mhRarityInfo(m);
  modal.hidden=false;
  modal.style.zIndex='100020';
- modal.innerHTML=`<div class="mh-minigame-card" style="--mh-rarity:${r.color}">
+ modal.innerHTML=`<div class="mh-minigame-card mh-minigame-card-action" style="--mh-rarity:${r.color}">
   <div class="mh-found-badge">Unlock ${mhRarityLabel(m)} · ${m.name}</div>
-  <p class="mh-mini-desc">${({gemtap:'Tap 6 gems!',zonehit:'Hit the green zone 3×!',memory:'Repeat the color pattern!',voidpulse:'Click on the bright pulse!',noobmatch:'Match the pair!',rhythm:'Tap on the beat!',catchfall:'Catch 8 stars!',maze:'Reach the goal tile!',whack:'Whack 10 moles!',colorwheel:'Stop on your noobie color!'})[kind]||'Win to unlock!'}</p>
-  <div id="mh-mini-stage" class="mh-mini-stage"></div>
+  <p class="mh-mini-desc">${MH_MINI_DESC[kind]||'Win the action challenge!'}</p>
+  <div id="mh-mini-stage" class="mh-mini-stage mh-mini-stage-action"></div>
   <button type="button" class="mh-btn ghost" id="mh-mini-cancel">Back to hunt</button>
  </div>`;
- modal.querySelector('#mh-mini-cancel').onclick=()=>{ modal.hidden=true; mhState.minigameMorph=null; };
+ modal.querySelector('#mh-mini-cancel').onclick=()=>{ mhMinigameCleanup(); modal.hidden=true; mhState.minigameMorph=null; };
  mhRunMinigame(kind,m);
 }
 function mhWinMinigame(m){
  if(!mhState||!m) return;
+ mhMinigameCleanup();
  const save=mhState.save;
  if(!save.minigameWon) save.minigameWon=[];
  if(!save.minigameWon.includes(m.id)) save.minigameWon.push(m.id);
@@ -2041,203 +2061,179 @@ function mhWinMinigame(m){
  const modal=document.getElementById('mh-minigame-modal');
  if(modal) modal.hidden=true;
  mhState.minigameMorph=null;
- mhToast('Minigame cleared!');
+ mhToast('You won the fight — noobie unlocked!');
  mhFinishCollect(m);
+}
+function mhMiniFail(m,msg,kind){
+ mhToast(msg||'Try again!');
+ mhMinigameCleanup();
+ mhRunMinigame(kind,m);
 }
 function mhRunMinigame(kind,m){
  const stage=document.getElementById('mh-mini-stage');
  if(!stage) return;
+ mhMinigameCleanup();
  stage.innerHTML='';
- if(kind==='gemtap'){
-  let left=6,time=8,tmr;
-  const status=document.createElement('p'); status.className='mh-mini-status'; status.textContent='Tap gems! '+left+' left';
+ const head=m.head||'#F5CD30', torso=m.torso||'#0085DB', legs=m.legs||'#A4BD47';
+ if(kind==='noobduel'){
+  let playerHp=100, enemyHp=mhMinigameEnemyHp(m), blocking=false, enemyWind=0, flash=0;
+  const status=document.createElement('p'); status.className='mh-mini-status'; status.textContent='⚔ Fight '+m.name+'!';
   stage.appendChild(status);
-  const box=document.createElement('div'); box.className='mh-mini-gembox'; stage.appendChild(box);
-  function spawn(){
-   if(left<=0) return;
-   const b=document.createElement('button'); b.type='button'; b.className='mh-mini-gem';
-   b.style.left=(10+Math.random()*80)+'%'; b.style.top=(10+Math.random()*70)+'%';
-   b.onclick=()=>{ b.remove(); left--; status.textContent='Tap gems! '+left+' left'; if(left<=0){ clearInterval(tmr); mhWinMinigame(m); } spawn(); };
-   box.appendChild(b);
-  }
-  for(let i=0;i<4;i++) spawn();
-  tmr=setInterval(()=>{ time--; status.textContent='Tap gems! '+left+' left · '+time+'s'; if(time<=0){ clearInterval(tmr); mhToast('Try again!'); stage.innerHTML=''; mhRunMinigame('gemtap',m); } },1000);
-  return;
- }
- if(kind==='zonehit'){
-  let hits=0;
-  const status=document.createElement('p'); status.className='mh-mini-status'; status.textContent='Hit green! 0/3';
-  stage.appendChild(status);
-  const track=document.createElement('div'); track.className='mh-mini-track'; stage.appendChild(track);
-  const bar=document.createElement('div'); bar.className='mh-mini-bar'; track.appendChild(bar);
-  const zone=document.createElement('div'); zone.className='mh-mini-zone'; zone.style.left='42%'; track.appendChild(zone);
-  let pos=0,dir=1,raf;
-  const loop=()=>{ pos+=dir*2.5; if(pos>100){pos=100;dir=-1;} if(pos<0){pos=0;dir=1;} bar.style.left=pos+'%'; raf=requestAnimationFrame(loop); };
+  const canvas=document.createElement('canvas'); canvas.className='mh-mini-canvas'; canvas.width=340; canvas.height=168;
+  stage.appendChild(canvas);
+  const ctx=canvas.getContext('2d');
+  const btns=document.createElement('div'); btns.className='mh-mini-fightbtns';
+  btns.innerHTML='<button type="button" class="mh-btn primary mh-btn-sm" data-a="punch">👊 Punch</button><button type="button" class="mh-btn mh-btn-sm" data-a="block">🛡 Block</button>';
+  stage.appendChild(btns);
+  const draw=()=>{
+   ctx.fillStyle='#0a1018'; ctx.fillRect(0,0,340,168);
+   ctx.fillStyle='#1a2838'; ctx.fillRect(0,130,340,38);
+   ctx.fillStyle='#ffe8a0'; ctx.font='bold 11px system-ui'; ctx.textAlign='left';
+   ctx.fillText('YOU '+Math.max(0,Math.ceil(playerHp)),12,18);
+   ctx.textAlign='right'; ctx.fillText(m.name.slice(0,16)+' '+Math.max(0,Math.ceil(enemyHp)),328,18);
+   ctx.fillStyle='rgba(0,0,0,.5)'; ctx.fillRect(12,22,100,6); ctx.fillRect(228,22,100,6);
+   ctx.fillStyle='#80ffb0'; ctx.fillRect(12,22,100*Math.max(0,playerHp/100),6);
+   ctx.fillStyle='#ff7070'; ctx.fillRect(228,22,100*Math.max(0,enemyHp/mhMinigameEnemyHp(m)),6);
+   ctx.fillStyle=head; ctx.fillRect(52,72,22,22);
+   ctx.fillStyle=torso; ctx.fillRect(48,94,30,28);
+   ctx.fillStyle=legs; ctx.fillRect(50,122,12,18); ctx.fillRect(64,122,12,18);
+   if(blocking){ ctx.strokeStyle='#80c8ff'; ctx.lineWidth=3; ctx.strokeRect(38,68,50,78); }
+   ctx.fillStyle=head; ctx.fillRect(252,68,24,24);
+   ctx.fillStyle=torso; ctx.fillRect(246,92,36,30);
+   ctx.fillStyle=legs; ctx.fillRect(250,122,14,18); ctx.fillRect(268,122,14,18);
+   if(enemyWind>0){ ctx.fillStyle='rgba(255,80,80,.7)'; ctx.font='bold 14px system-ui'; ctx.textAlign='center'; ctx.fillText('!',286,58); }
+   if(flash>0){ ctx.fillStyle='rgba(255,255,255,'+(flash*0.35)+')'; ctx.fillRect(0,0,340,168); flash-=0.08; }
+  };
+  const loop=()=>{ draw(); mhState.minigameRaf=requestAnimationFrame(loop); };
   loop();
-  track.onclick=()=>{
-   if(pos>38&&pos<58){ hits++; status.textContent='Hit green! '+hits+'/3'; if(hits>=3){ cancelAnimationFrame(raf); mhWinMinigame(m); } }
-   else mhToast('Miss!');
+  const enemyAtk=()=>{
+   if(enemyHp<=0||playerHp<=0) return;
+   enemyWind=1;
+   setTimeout(()=>{
+    enemyWind=0;
+    if(enemyHp<=0||playerHp<=0) return;
+    const dmg=blocking?4:14+(mhHashStr(m.id+'atk')%8);
+    playerHp-=dmg; flash=1;
+    status.textContent=blocking?'Blocked!':'Ouch — they hit you!';
+    if(playerHp<=0){ clearInterval(mhState.minigameIv); mhMiniFail(m,'Knocked out — rematch!','noobduel'); }
+   },520);
+  };
+  mhState.minigameIv=setInterval(enemyAtk,1900);
+  btns.querySelector('[data-a="punch"]').onclick=()=>{
+   if(enemyHp<=0||playerHp<=0) return;
+   const dmg=10+(mhHashStr(String(Date.now()))%9);
+   enemyHp-=dmg; flash=0.6;
+   status.textContent='Punch! -'+dmg+' HP';
+   try{if(typeof SFX!=='undefined'&&SFX.hit)SFX.hit();}catch(_){}
+   if(enemyHp<=0){ clearInterval(mhState.minigameIv); mhWinMinigame(m); }
+  };
+  btns.querySelector('[data-a="block"]').onclick=()=>{
+   blocking=true; status.textContent='Blocking…';
+   setTimeout(()=>{ blocking=false; },650);
   };
   return;
  }
- if(kind==='memory'){
- const colors=['#ff4080','#40c0ff','#ffe060','#4caf7d'];
- const seq=[]; for(let i=0;i<4;i++) seq.push(colors[mhHashStr(m.id+i)%colors.length]);
- let step=0,showing=true;
- const status=document.createElement('p'); status.className='mh-mini-status'; status.textContent='Watch…';
- stage.appendChild(status);
- const row=document.createElement('div'); row.className='mh-mini-mem'; stage.appendChild(row);
- colors.forEach(c=>{ const b=document.createElement('button'); b.type='button'; b.className='mh-mini-membtn'; b.style.background=c; b.disabled=true; row.appendChild(b); });
- const btns=[...row.querySelectorAll('button')];
- let i=0;
- const flash=()=>{
-  if(i>=seq.length){ showing=false; step=0; status.textContent='Your turn!'; btns.forEach(b=>b.disabled=false); return; }
-  const c=seq[i]; btns.forEach(b=>b.classList.toggle('lit',b.style.background===c));
-  setTimeout(()=>{ btns.forEach(b=>b.classList.remove('lit')); i++; setTimeout(flash,280); },420);
- };
- flash();
- btns.forEach(b=>b.onclick=()=>{
-  if(showing) return;
-  if(b.style.background===seq[step]){ step++; status.textContent='Your turn! '+step+'/4'; if(step>=seq.length) mhWinMinigame(m); }
-  else{ mhToast('Wrong — watch again'); showing=true; step=0; i=0; btns.forEach(x=>x.disabled=true); setTimeout(flash,400); }
- });
- return;
- }
- if(kind==='voidpulse'){
-  let score=0;
-  const status=document.createElement('p'); status.className='mh-mini-status'; status.textContent='Click on pulse! 0/5';
+ if(kind==='obbyrun'){
+  let px=24, py=96, vy=0, onGround=true, scroll=0, dead=false, won=false;
+  const len=920;
+  const status=document.createElement('p'); status.className='mh-mini-status'; status.textContent='🏃 Space / Tap = jump · reach the flag!';
   stage.appendChild(status);
-  const ring=document.createElement('button'); ring.type='button'; ring.className='mh-mini-voidring';
-  ring.style.cssText='display:block;margin:12px auto;width:120px;height:120px;border-radius:50%;border:4px solid #9040ff;background:radial-gradient(circle,#280840,#080010);cursor:pointer';
-  stage.appendChild(ring);
-  let phase=0,good=false,tmr;
+  const canvas=document.createElement('canvas'); canvas.className='mh-mini-canvas'; canvas.width=340; canvas.height=168;
+  stage.appendChild(canvas);
+  const ctx=canvas.getContext('2d');
+  const jump=()=>{ if(onGround&&!dead&&!won){ vy=-11.5; onGround=false; } };
+  canvas.onclick=jump;
+  const onKey=(e)=>{
+   if(e.code==='Space'||e.code==='ArrowUp'){ e.preventDefault(); jump(); }
+  };
+  document.addEventListener('keydown',onKey,true);
+  mhState.minigameKeys=onKey;
+  const pits=[]; for(let i=0;i<14;i++){
+   pits.push({x:120+i*58, w:28+(i%3)*8, spike:i%2===0});
+  }
   const tick=()=>{
-   phase=(phase+0.08)%1;
-   good=phase>0.72&&phase<0.92;
-   ring.style.boxShadow=good?'0 0 28px #c080ff':'0 0 8px #402060';
-   ring.style.transform='scale('+(0.85+phase*0.3)+')';
-  };
-  tmr=setInterval(tick,40);
-  ring.onclick=()=>{
-   if(good){ score++; status.textContent='Click on pulse! '+score+'/5'; if(score>=5){ clearInterval(tmr); mhWinMinigame(m); } }
-   else mhToast('Wait for the bright pulse!');
-  };
-  return;
- }
- if(kind==='noobmatch'){
- const cols=[m.head||'#F5CD30',m.torso||'#0085DB',m.legs||'#A4BD47',mhHsl(mhHashStr(m.id)%360,55,55)];
- while(cols.length<8) cols.push(mhHsl((mhHashStr(m.id+'c'+cols.length)*7)%360,50,50));
- const pair=cols[0]; cols.push(pair);
- for(let i=cols.length-1;i>0;i--){ const j=mhHashStr(m.id+'s'+i)%(i+1); const t=cols[i]; cols[i]=cols[j]; cols[j]=t; }
- let picks=[];
- const status=document.createElement('p'); status.className='mh-mini-status'; status.textContent='Find the 2 matching squares!';
- stage.appendChild(status);
- const grid=document.createElement('div'); grid.className='mh-mini-match'; grid.style.cssText='display:grid;grid-template-columns:repeat(4,1fr);gap:8px;max-width:240px;margin:0 auto';
- stage.appendChild(grid);
- cols.forEach((c,i)=>{
-  const b=document.createElement('button'); b.type='button'; b.className='mh-mini-matchcell';
-  b.style.cssText='height:44px;border-radius:8px;border:2px solid rgba(255,255,255,.2);cursor:pointer;background:#222';
-  b.dataset.c=c; b.dataset.i=String(i);
-  b.onclick=()=>{
-   if(b.classList.contains('open')) return;
-   b.classList.add('open'); b.style.background=c;
-   picks.push(b);
-   if(picks.length===2){
-    const ok=picks[0].dataset.c===picks[1].dataset.c;
-    if(ok){ mhWinMinigame(m); }
-    else{
-     mhToast('Not a match — try again!');
-     setTimeout(()=>{ picks.forEach(x=>{ x.classList.remove('open'); x.style.background='#222'; }); picks=[]; },500);
+   if(dead||won) return;
+   scroll+=2.4;
+   px+=2.4;
+   vy+=0.55; py+=vy;
+   if(py>=96){ py=96; vy=0; onGround=true; }
+   const wx=px;
+   let overPit=false;
+   pits.forEach(p=>{
+    if(wx>p.x&&wx<p.x+p.w) overPit=true;
+   });
+   if(overPit&&py>=94){ dead=true; mhMiniFail(m,'Fell in the pit — run it back!','obbyrun'); return; }
+   pits.forEach(p=>{
+    if(p.spike&&Math.abs(wx-(p.x+p.w*0.5))<14&&py>78){ dead=true; mhMiniFail(m,'Spikes got you!','obbyrun'); }
+   });
+   if(px>=len){ won=true; mhWinMinigame(m); return; }
+   ctx.fillStyle='#101820'; ctx.fillRect(0,0,340,168);
+   ctx.fillStyle='#283848'; ctx.fillRect(0,108,340,60);
+   ctx.save(); ctx.translate(-scroll*0.85+40,0);
+   pits.forEach(p=>{
+    ctx.fillStyle='#0a0e14'; ctx.fillRect(p.x,108,p.w,60);
+    if(p.spike){
+     ctx.fillStyle='#ff4040';
+     for(let s=0;s<p.w;s+=10) ctx.fillRect(p.x+s,100,8,12);
     }
-   }
+   });
+   ctx.fillStyle='#80ffb0'; ctx.fillRect(len,88,16,20); ctx.fillStyle='#ffe060'; ctx.font='20px system-ui'; ctx.fillText('🏁',len-4,82);
+   ctx.fillStyle=head; ctx.fillRect(px-10,py-28,20,20);
+   ctx.fillStyle=torso; ctx.fillRect(px-12,py-8,24,22);
+   ctx.fillStyle=legs; ctx.fillRect(px-10,py+14,8,14); ctx.fillRect(px+2,py+14,8,14);
+   ctx.restore();
+   status.textContent='🏃 Distance '+Math.floor(px)+' / '+len;
+   mhState.minigameRaf=requestAnimationFrame(tick);
   };
-  grid.appendChild(b);
- });
- return;
- }
- if(kind==='rhythm'){
-  let score=0,beat=0;
-  const status=document.createElement('p'); status.className='mh-mini-status'; status.textContent='Tap on beat! 0/6';
-  stage.appendChild(status);
-  const pad=document.createElement('button'); pad.type='button'; pad.className='mh-mini-voidring';
-  pad.textContent='TAP'; pad.style.cssText='display:block;margin:12px auto;padding:20px 40px;font-weight:900;border-radius:14px;border:3px solid #ff48e8;background:#281838;color:#fff;cursor:pointer';
-  stage.appendChild(pad);
-  const tmr=setInterval(()=>{ beat=(beat+1)%4; pad.style.boxShadow=beat===0?'0 0 24px #ff48e8':'none'; },350);
-  pad.onclick=()=>{ if(beat===0||beat===1){ score++; status.textContent='Tap on beat! '+score+'/6'; if(score>=6){ clearInterval(tmr); mhWinMinigame(m); } } else mhToast('Off beat!'); };
+  mhState.minigameRaf=requestAnimationFrame(tick);
   return;
  }
- if(kind==='catchfall'){
-  let caught=0;
-  const status=document.createElement('p'); status.className='mh-mini-status'; status.textContent='Catch stars! 0/8';
+ if(kind==='jumpfight'){
+  let score=0, misses=0, phase='idle', t=0, lx=170;
+  const need=5, maxMiss=3;
+  const status=document.createElement('p'); status.className='mh-mini-status'; status.textContent='Wait… then FIGHT when '+m.name+' jumps in!';
   stage.appendChild(status);
-  const box=document.createElement('div'); box.className='mh-mini-gembox'; box.style.height='130px'; stage.appendChild(box);
-  const basket=document.createElement('div'); basket.style.cssText='position:absolute;bottom:4px;left:45%;width:40px;height:12px;background:#ffe060;border-radius:4px';
-  box.appendChild(basket);
-  let bx=45;
-  box.onmousemove=ev=>{ const r=box.getBoundingClientRect(); bx=Math.max(5,Math.min(85,(ev.clientX-r.left)/r.width*100)); basket.style.left=bx+'%'; };
-  const iv=setInterval(()=>{
-   const s=document.createElement('button'); s.type='button'; s.className='mh-mini-gem'; s.style.background='#ffe060'; s.style.borderRadius='50%';
-   s.style.left=(10+Math.random()*80)+'%'; s.style.top='4px';
-   s.onclick=()=>{ s.remove(); caught++; status.textContent='Catch stars! '+caught+'/8'; if(caught>=8){ clearInterval(iv); mhWinMinigame(m); } };
-   box.appendChild(s);
-   setTimeout(()=>s.remove(),1400);
-  },450);
-  return;
- }
- if(kind==='whack'){
-  let hits=0;
-  const status=document.createElement('p'); status.className='mh-mini-status'; status.textContent='Whack! 0/10';
-  stage.appendChild(status);
-  const grid=document.createElement('div'); grid.style.cssText='display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:200px;margin:0 auto';
-  stage.appendChild(grid);
-  for(let i=0;i<9;i++){
-   const h=document.createElement('button'); h.type='button'; h.style.cssText='height:44px;border-radius:10px;border:2px solid #4a5060;background:#1a2030;cursor:pointer';
-   h.onclick=()=>{ if(h.dataset.up==='1'){ h.dataset.up='0'; h.style.background='#1a2030'; hits++; status.textContent='Whack! '+hits+'/10'; if(hits>=10) mhWinMinigame(m); } };
-   grid.appendChild(h);
-  }
-  setInterval(()=>{
-   const cells=[...grid.querySelectorAll('button')];
-   cells.forEach(c=>{ c.dataset.up='0'; c.style.background='#1a2030'; });
-   const pick=cells[mhHashStr(String(Date.now())+'w')%cells.length];
-   pick.dataset.up='1'; pick.style.background='#6080ff';
-   setTimeout(()=>{ pick.dataset.up='0'; pick.style.background='#1a2030'; },650);
-  },750);
-  return;
- }
- if(kind==='maze'){
-  const status=document.createElement('p'); status.className='mh-mini-status'; status.textContent='Reach the ★';
-  stage.appendChild(status);
-  let px=0,py=0;
-  const grid=document.createElement('div'); grid.style.cssText='display:grid;grid-template-columns:repeat(5,1fr);gap:4px;max-width:220px;margin:0 auto';
-  stage.appendChild(grid);
-  for(let y=0;y<5;y++)for(let x=0;x<5;x++){
-   const cell=document.createElement('button'); cell.type='button';
-   const wall=(x+y)%3===0&&!(x===4&&y===4);
-   cell.style.cssText='height:32px;border-radius:6px;border:1px solid #3a4050;background:'+(wall?'#0a0e14':'#283848')+';cursor:'+(wall?'default':'pointer');
-   if(x===4&&y===4){ cell.textContent='★'; cell.style.background='#ffd060'; }
-   cell.onclick=()=>{
-    if(wall) return;
-    if(Math.abs(x-px)+Math.abs(y-py)===1){ px=x; py=y; [...grid.children].forEach((c,i)=>{ c.style.outline=(i===py*5+px)?'2px solid #80ffb0':''; }); if(px===4&&py===4) mhWinMinigame(m); }
-   };
-   grid.appendChild(cell);
-  }
-  return;
- }
- if(kind==='colorwheel'){
-  const target=m.head||'#F5CD30';
-  const status=document.createElement('p'); status.className='mh-mini-status'; status.textContent='Stop on YOUR color!';
-  stage.appendChild(status);
-  const wheel=document.createElement('button'); wheel.type='button';
-  wheel.style.cssText='display:block;margin:12px auto;width:100px;height:100px;border-radius:50%;border:4px solid #fff;background:conic-gradient(red,yellow,lime,cyan,blue,magenta,red);cursor:pointer';
-  stage.appendChild(wheel);
-  let spin=0,spinning=true;
-  const iv=setInterval(()=>{ if(spinning){ spin=(spin+24)%360; wheel.style.transform='rotate('+spin+'deg)'; } },50);
-  wheel.onclick=()=>{
-   spinning=false; clearInterval(iv);
-   const slice=Math.floor(((spin%360)+360)%360/60);
-   const colors=['#ff4040','#ffd060','#80ff60','#40d0ff','#4060ff','#ff40c0'];
-   if(colors[slice]===target||slice===mhHashStr(m.id)%6){ mhWinMinigame(m); }
-   else{ mhToast('Wrong color — try again!'); mhRunMinigame('colorwheel',m); }
+  const canvas=document.createElement('canvas'); canvas.className='mh-mini-canvas'; canvas.width=340; canvas.height=168;
+  stage.appendChild(canvas);
+  const ctx=canvas.getContext('2d');
+  const btn=document.createElement('button'); btn.type='button'; btn.className='mh-btn primary mh-btn-sm mh-mini-counter';
+  btn.textContent='👊 FIGHT!'; stage.appendChild(btn);
+  const draw=()=>{
+   ctx.fillStyle='#120818'; ctx.fillRect(0,0,340,168);
+   ctx.fillStyle='#ffe8a0'; ctx.font='bold 11px system-ui'; ctx.textAlign='center';
+   ctx.fillText('Counters '+score+'/'+need+' · Misses '+misses+'/'+maxMiss,170,20);
+   ctx.fillStyle=head; ctx.fillRect(lx-14,phase==='lunge'?72:48,28,28);
+   ctx.fillStyle=torso; ctx.fillRect(lx-18,phase==='lunge'?96:76,36,32);
+   if(phase==='lunge'){
+    ctx.strokeStyle='#ff8080'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(lx,100); ctx.lineTo(80,110); ctx.stroke();
+   }
+   ctx.fillStyle='#6080ff'; ctx.fillRect(40,90,24,24); ctx.fillRect(36,114,12,20); ctx.fillRect(52,114,12,20);
+  };
+  const loop=()=>{ t++; draw(); mhState.minigameRaf=requestAnimationFrame(loop); };
+  loop();
+  const schedule=()=>{
+   phase='idle'; lx=80+mhHashStr(String(Date.now())+'j')%180;
+   const wait=900+mhHashStr(String(Date.now())+'w')%900;
+   setTimeout(()=>{
+    if(score>=need) return;
+    phase='lunge'; status.textContent='NOW — FIGHT!';
+    setTimeout(()=>{
+     if(phase==='lunge'){
+      phase='idle'; misses++; status.textContent='Too slow! '+misses+'/'+maxMiss+' misses';
+      if(misses>=maxMiss) mhMiniFail(m,m.name+' overwhelmed you!','jumpfight');
+      else schedule();
+     }
+    },550);
+   },wait);
+  };
+  schedule();
+  btn.onclick=()=>{
+   if(phase==='lunge'){
+    phase='idle'; score++; status.textContent='Counter! '+score+'/'+need;
+    try{if(typeof SFX!=='undefined'&&SFX.hit)SFX.hit();}catch(_){}
+    if(score>=need) mhWinMinigame(m);
+    else schedule();
+   }else{ misses++; status.textContent='Not yet! '+misses+'/'+maxMiss; if(misses>=maxMiss) mhMiniFail(m,'Wrong timing!','jumpfight'); }
   };
   return;
  }
@@ -3990,7 +3986,7 @@ function mhTryStartMinigame(){
     return da-db;
    });
    mhOpenMinigame(pool[0]);
-   mhToast('🎮 Minigame — unlock a noobie hidden in this grove!');
+   mhToast('⚔ Fight or obby — unlock a noobie in this grove!');
    return;
   }
  }
@@ -4026,7 +4022,7 @@ function mhWalkNearMorph(save,wi,pos,st){
  return best.m;
 }
 function mhWalkActive(){
- return !!(mhState&&mhState.tab==='hunt'&&document.getElementById('morphhunt')&&!mhState.minigameMorph);
+ return !!(mhState&&mhState.tab==='hunt'&&document.getElementById('morphhunt')&&!mhState.minigameMorph&&!mhState.kingCutscene);
 }
 function mhWalkApplyKey(e,down){
  if(!mhWalkActive()) return false;
@@ -4239,7 +4235,7 @@ function mhWalkDrawFrame(){
    if(!got){
     ctx.fillStyle='rgba(120,60,200,.85)'; ctx.fillRect(mx-52,my-92,104,12);
     ctx.fillStyle='#e8d0ff'; ctx.font='bold 9px system-ui'; ctx.textAlign='center';
-    ctx.fillText('🎮 MINIGAME',mx,my-84);
+    ctx.fillText('⚔ FIGHT',mx,my-84);
    }
    ctx.fillStyle='rgba(0,0,0,.65)'; ctx.fillRect(mx-42,my-78,84,14);
    ctx.fillStyle='#ffe8a0'; ctx.font='bold 10px system-ui'; ctx.textAlign='center';
@@ -4325,7 +4321,7 @@ function mhWalkDrawFrame(){
    prompt.hidden=false;
   }else if(near){
    const got=mhHasMorph(save,near.id);
-   prompt.textContent=got?'E — morph into '+near.name:'Step 1: Press E — minigame unlocks this noobie!';
+   prompt.textContent=got?'E — morph into '+near.name:'Press E — fight or obby to unlock this noobie!';
    prompt.hidden=false;
   }else{
    prompt.textContent='Find a dashed 🕵 Hidden grove — walk inside to reveal noobies';
@@ -4363,10 +4359,10 @@ function mhRenderPreview(){
    <button type="button" class="mh-btn${run?' primary':''}" data-mh-prev-mode="run">🏃 Run cycle</button>
    <button type="button" class="mh-btn${flat?' primary':''}" data-mh-prev-flat="1">📄 Flat 2D</button>
    <button type="button" class="mh-btn${!flat?' primary':''}" data-mh-prev-flat="0">🧊 Depth / 3D</button>
-   <button type="button" class="mh-btn" data-mh-prev-minigame="gemtap">Preview minigame</button>
+   <button type="button" class="mh-btn" data-mh-prev-minigame="noobduel">Preview fight / obby</button>
   </div>
   <canvas id="mh-preview-canvas" class="mh-preview-canvas" width="960" height="560" aria-label="Animation preview"></canvas>
-  <p class="mh-preview-legend">${MH_ANIMS.map(a=>'<span>'+a+'</span>').join('')} · NPC wander on maps · map props · void pulse &amp; match minigames in Hunt</p>
+  <p class="mh-preview-legend">${MH_ANIMS.map(a=>'<span>'+a+'</span>').join('')} · NPC wander · Hunt unlock = <b>duel</b>, <b>obby</b>, or <b>jump fight</b> (not puzzles)</p>
  </div>`;
 }
 function mhPreviewStop(){
@@ -4500,7 +4496,7 @@ function mhRenderHuntDeck(save,wi,morphs){
  const cards=pg.slice.map(m=>{
   const got=mhHasMorph(save,m.id);
   const r=mhRarityInfo(m);
-  const btn=got?(mhIsOwner()?'🎮 Practice':'✓ Owned'):'🎮 Play minigame';
+  const btn=got?(mhIsOwner()?'🎮 Practice fight':'✓ Owned'):'⚔ Fight / obby';
   return `<button type="button" class="mh-hunt-card${got?' got':''}" data-mh-challenge="${m.id}" style="--mh-rarity:${r.color}">
    <span class="mh-hunt-card-art">${got?`<svg viewBox="0 0 100 130">${mhClassicNoobSvg(m)}</svg>`:'?'}</span>
    <span class="mh-hunt-card-name">${got?m.name:'???'}</span>
@@ -4509,7 +4505,7 @@ function mhRenderHuntDeck(save,wi,morphs){
   </button>`;
  }).join('');
  return `<details class="mh-hunt-deck-fold" open>
-  <summary>🎮 Minigame deck — tap any card to play &amp; unlock</summary>
+  <summary>⚔ Unlock deck — duel / obby / jump-fight (tap a card)</summary>
   <div class="mh-hunt-cards">${cards}</div>
   <div class="mh-pager">${pg.page>0?'<button type="button" class="mh-btn" data-mh-hunt-page="'+(pg.page-1)+'">← Prev</button>':''}<span>Page ${pg.page+1} / ${pg.pages}</span>${pg.page+1<pg.pages?'<button type="button" class="mh-btn" data-mh-hunt-page="'+(pg.page+1)+'">Next →</button>':''}</div>
  </details>`;
@@ -4538,7 +4534,7 @@ function mhRenderHunt(save, wi){
    <li><b>Maps 0–7</b> (Buddy, Fair, Beach…): only <b>Common · Uncommon · Rare</b>. They stay inside <b>🕵 hidden groves</b> (dashed boxes) — not scattered on the whole map.</li>
    <li><b>💎 Epic+ Realm</b> (teleport tab or button): <b>Epic · Legendary · Secret · Exotic · Exclusive</b> — also in groves on that map.</li>
    <li><b>Void Fallen morph</b>: 🎭 Morph tab → <b>1</b> attack · <b>2</b> power on <b>every map</b> (King = red-black storm!). 🕳 Abyss = King + groves.</li>
-   <li>Walk into a dashed grove → press <b>E</b> or <b>🎮 Minigame</b> (10 minigame types!). <b>F</b> = big homes.</li>
+   <li>Walk into a dashed grove → press <b>E</b> — <b>duel</b> the noobie, run an <b>obby</b>, or <b>counter-fight</b> to unlock. <b>F</b> = big homes.</li>
    <li><b>🏀 Court plaza</b> stays at spawn · <b>4 parks</b> around the map · <b>Mayor statue</b> on court: <b>J/L</b> crank, <b>R</b> flash light at all 4 mirrors → <b>Mayor Noobie</b>!</li>
   </ol>
  </div>
@@ -4548,7 +4544,7 @@ function mhRenderHunt(save, wi){
   <div id="mh-walk-hud" class="mh-walk-hud mh-walk-hud-clean">
    <span class="mh-walk-zone">${world.emoji} ${world.name} · ${found}/${morphs.length}</span>
    <span class="mh-walk-prompt" hidden>Walk closer</span>
-   <button type="button" class="mh-btn primary mh-btn-sm" id="mh-walk-interact">🎮 Minigame (E)</button>
+   <button type="button" class="mh-btn primary mh-btn-sm" id="mh-walk-interact">⚔ Fight (E)</button>
    <button type="button" class="mh-btn mh-btn-sm" id="mh-walk-enter">F House</button>
    <button type="button" class="mh-btn mh-btn-sm" id="mh-walk-run">Run</button>
    <button type="button" class="mh-btn mh-btn-sm" id="mh-void-atk">⚔ 1 Attack</button><button type="button" class="mh-btn mh-btn-sm" id="mh-void-pow">✦ 2 Power</button><button type="button" class="mh-btn mh-btn-sm" id="mh-void-storm">🌌 3 Storm</button><button type="button" class="mh-btn mh-btn-sm" id="mh-void-cutscene" hidden>🎬 4 Cutscene</button>
@@ -4574,7 +4570,7 @@ function mhRenderIndex(save){
   const r=mhRarityInfo(m);
   return `<div class="mh-codex-card${got?' got':''}" style="--mh-rarity:${r.color}">
    <div class="mh-codex-art">${got?`<svg viewBox="0 0 100 130">${mhClassicNoobSvg(m)}</svg>`:'<div class="mh-silhouette">?</div>'}</div>
-   <div class="mh-codex-meta"><b class="mh-noob-name">${got?m.name:'???'}</b><span class="mh-codex-rarity">${mhRarityLabel(m)}${got?'':' · 🎮 minigame unlock'}</span></div>
+   <div class="mh-codex-meta"><b class="mh-noob-name">${got?m.name:'???'}</b><span class="mh-codex-rarity">${mhRarityLabel(m)}${got?'':' · ⚔ fight/obby unlock'}</span></div>
   </div>`;
  }).join('');
  return `<div class="mh-index">
@@ -4764,7 +4760,7 @@ function playMorphHunt(){
   return;
  }
  if(typeof syncBodyScrollLock==='function')syncBodyScrollLock();
- mhToast('🎮 Tap a card or press E near a noobie — minigame unlock! · '+MH_BUILD);
+ mhToast('⚔ Press E near a noobie — duel, obby, or jump-fight to unlock! · '+MH_BUILD);
 }
 
 function mhGetWearingMorph(){ return mhMorph(mhLoadWearId()||window.LITHOS_NOOBIE_WEAR); }

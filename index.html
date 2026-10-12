@@ -1629,8 +1629,13 @@
   .mh-minigame-modal{z-index:100010!important}
   #mh-minigame-modal,#mh-found-modal{z-index:100010!important}
   .mh-minigame-card{background:linear-gradient(180deg,#1a1838,#0c1018);border:3px solid var(--mh-rarity,#b060e8);border-radius:18px;padding:20px;max-width:360px;width:100%;text-align:center}
+  .mh-minigame-card-action{max-width:400px}
   .mh-mini-desc{color:#b8c0d8;font-size:13px;margin:8px 0 12px}
   .mh-mini-stage{min-height:140px;margin-bottom:12px}
+  .mh-mini-stage-action{min-height:200px}
+  .mh-mini-canvas{width:100%;max-width:340px;border-radius:12px;border:2px solid #3a4050;display:block;margin:0 auto;cursor:pointer}
+  .mh-mini-fightbtns{display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap}
+  .mh-mini-counter{display:block;margin:10px auto 0}
   .mh-mini-status{font-weight:800;color:#ffe8a0;margin:0 0 8px;font-size:13px}
   .mh-mini-gembox{position:relative;height:120px;background:#0a0e14;border-radius:12px;border:1px solid #3a4050;overflow:hidden}
   .mh-mini-gem{position:absolute;width:36px;height:36px;border:none;border-radius:8px;cursor:pointer;background:linear-gradient(135deg,#ff6090,#ffd060);transform:rotate(45deg);box-shadow:0 2px 8px rgba(0,0,0,.4)}
@@ -5484,7 +5489,7 @@
 <script src="gemcopter.js?v=deploy-85"></script>
 <script>
 (function lithosLoadMorphHunt(){
- var MH_NEED='void-2d-v69';
+ var MH_NEED='void-2d-v70';
  var MH_SCRIPT='morph-hunt.js';
  window.__LITHOS_MH_LATEST=MH_NEED;
  window.__LITHOS_MH_NEED=MH_NEED;
@@ -5522,7 +5527,7 @@
 </script>
 <script>
 window.lithosPlayMorphHunt=function lithosPlayMorphHunt(){
- var NEED=window.__LITHOS_MH_LATEST||window.__LITHOS_MH_NEED||'void-2d-v69';
+ var NEED=window.__LITHOS_MH_LATEST||window.__LITHOS_MH_NEED||'void-2d-v70';
  var tries=0;
  function mhBuildNum(tag){
   var m=String(tag||'').match(/void-2d-v(\d+)/);
