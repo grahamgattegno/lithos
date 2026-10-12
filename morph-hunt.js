@@ -699,6 +699,7 @@ let mhPendingFound=null;
 
 function mhClose(){
  mhWalkStop();
+ mhPreviewStop();
  const el=document.getElementById('morphhunt');
  if(el)el.remove();
  mhState=null;
