@@ -5,9 +5,9 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v52';
-const MH_SCENERY_STAMP='VOID_NO_RECHARGE_v52';
-const MH_SCRIPT_FILE='morph-hunt.void-2d-v52.js';
+const MH_BUILD='void-2d-v53';
+const MH_SCENERY_STAMP='VOID_POWER_RECHARGE_v53';
+const MH_SCRIPT_FILE='morph-hunt.void-2d-v53.js';
 const MH_KING_STAMP='RED_BLACK_KING_v31';
 const MH_MEGA_W=7;
 const MH_MEGA_H=6;
@@ -2481,14 +2481,16 @@ function mhVoidPowLeft(st){
  if(!st?.voidCd?.pow) return 0;
  return Math.max(0,(st.voidCd.pow-performance.now())/1000);
 }
-function mhRefreshVoidCombatHud(save){
+function mhRefreshVoidCombatHud(save,st){
  const vm=mhVoidCombatMorph(save);
  const atkN=vm?.voidAttack?.name||'—';
  const powN=vm?.voidPower?.name||'—';
+ const powLeft=st?mhVoidPowLeft(st):0;
+ const powReady=!powLeft;
  const bar=document.getElementById('mh-void-combat-readout');
  if(bar){
   bar.innerHTML=vm
-   ?`<b>⚔ 1</b> ${atkN} · <b>✦ 2</b> ${powN} — <span style="color:#80ffb0">no recharge · spam away</span>${vm.voidKing?' · 👑 storm':''}`
+   ?`<b>⚔ 1</b> ${atkN} <span style="color:#a0c8ff">(spam OK)</span> · <b>✦ 2</b> ${powN}${powReady?' · <span style="color:#80ffb0">POWER READY</span>':(' · recharge <b>'+powLeft.toFixed(1)+'s</b>')}${vm.voidKing?' · 👑 storm':''}`
    :'🎭 Morph a <b>Void Fallen</b> in Morph tab — then <b>1</b> attack · <b>2</b> power on any map';
  }
  const btnA=document.getElementById('mh-void-atk');
@@ -2499,9 +2501,9 @@ function mhRefreshVoidCombatHud(save){
   btnA.style.opacity='1';
  }
  if(btnP){
-  btnP.textContent=vm?('✦ 2 '+powN):'✦ 2 Power';
-  btnP.disabled=false;
-  btnP.style.opacity='1';
+  btnP.textContent=vm?(powReady?('✦ 2 '+powN):('✦ '+powLeft.toFixed(1)+'s')):'✦ 2 Power';
+  btnP.disabled=!!vm&&!powReady;
+  btnP.style.opacity=vm&&!powReady?'0.55':'1';
  }
 }
 function mhDrawVoidAbyssMist(ctx,map,t){
@@ -2754,6 +2756,11 @@ function mhUseVoidPower(st,save,pos,map){
  const m=mhVoidCombatMorph(save);
  if(!m){ mhToast('Morph into a Void Fallen noobie first!'); return; }
  const pow=m.voidPower||MH_VOID_POWERS[0];
+ const cd=Math.max(0.8,+(pow.cooldown||2));
+ if(!mhVoidCooldown(st,'pow',cd)){
+  mhToast('Power recharging… '+mhVoidPowLeft(st).toFixed(1)+'s');
+  return;
+ }
  const dir=mhFacingDir(st);
  if(pow.kind==='dash'){
   pos.px+=dir.dx*(pow.dist||80); pos.py+=dir.dy*(pow.dist||80);
@@ -3466,7 +3473,7 @@ function mhWalkDrawFrame(){
   }
  }
  if(flatMap&&wi!==MH_VOID_WORLD) mhPaperFlatOverlay(ctx,W,H);
- mhRefreshVoidCombatHud(save);
+ mhRefreshVoidCombatHud(save,st);
  if(wi===MH_VOID_WORLD){
   mhVoidFlatScreenOverlay(ctx,W,H);
   ctx.fillStyle='rgba(0,0,0,.78)'; ctx.fillRect(W/2-185,22,370,24);
