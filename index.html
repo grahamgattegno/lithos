@@ -1636,6 +1636,28 @@
   .mh-mini-canvas{width:100%;max-width:340px;border-radius:12px;border:2px solid #3a4050;display:block;margin:0 auto;cursor:pointer}
   .mh-mini-fightbtns{display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap}
   .mh-mini-counter{display:block;margin:10px auto 0}
+  .mh-walk-with-chat{display:grid;grid-template-columns:1fr min(280px,32%);gap:10px;align-items:start}
+  @media(max-width:900px){.mh-walk-with-chat{grid-template-columns:1fr}}
+  .mh-walk-game{min-width:0}
+  .mh-chat-panel{background:linear-gradient(180deg,#121828,#0a0e14);border:2px solid rgba(120,160,255,.35);border-radius:14px;padding:10px 12px;font-size:12px;color:#c0c8d8;display:flex;flex-direction:column;gap:8px;max-height:560px}
+  .mh-chat-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px;font-weight:800;color:#ffe8a0}
+  .mh-chat-head code{font-size:10px;color:#80ffb0;font-weight:600}
+  .mh-chat-tabs{display:flex;gap:4px}
+  .mh-chat-tab{flex:1;border:1px solid #3a4050;background:#1a2030;color:#a8b0c0;border-radius:8px;padding:6px 4px;font-size:10px;font-weight:800;cursor:pointer}
+  .mh-chat-tab.on{border-color:#80c8ff;color:#ffe8a0;background:rgba(80,160,255,.15)}
+  .mh-chat-log{flex:1;min-height:120px;max-height:220px;overflow-y:auto;background:rgba(0,0,0,.35);border-radius:8px;padding:8px;border:1px solid #2a3040}
+  .mh-chat-line{margin-bottom:6px;line-height:1.35;word-break:break-word}
+  .mh-chat-line.mine{color:#ffe8a0}
+  .mh-chat-line.dim{color:#808898;font-size:11px}
+  .mh-chat-row{display:flex;gap:6px}
+  .mh-chat-row input{flex:1;min-width:0;padding:8px 10px;border-radius:8px;border:1px solid #4a5060;background:#0a0e14;color:#fff;font-size:12px}
+  .mh-chat-chips{display:flex;flex-wrap:wrap;gap:4px}
+  .mh-chat-chip{border:1px solid #4a5060;background:#1a2030;color:#c0c8ff;border-radius:999px;padding:4px 8px;font-size:10px;cursor:pointer}
+  .mh-chat-friend-add{display:flex;gap:4px;margin-bottom:4px}
+  .mh-chat-friend-add input{flex:1;padding:6px 8px;border-radius:6px;border:1px solid #4a5060;background:#0a0e14;color:#fff;font-size:11px}
+  .mh-chat-friend-pick{width:100%;padding:6px;border-radius:6px;border:1px solid #4a5060;background:#0a0e14;color:#fff;font-size:11px}
+  .mh-chat-friends.hidden{display:none}
+  .mh-chat-hint{margin:0;font-size:10px;line-height:1.4;color:#808898}
   .mh-mini-status{font-weight:800;color:#ffe8a0;margin:0 0 8px;font-size:13px}
   .mh-mini-gembox{position:relative;height:120px;background:#0a0e14;border-radius:12px;border:1px solid #3a4050;overflow:hidden}
   .mh-mini-gem{position:absolute;width:36px;height:36px;border:none;border-radius:8px;cursor:pointer;background:linear-gradient(135deg,#ff6090,#ffd060);transform:rotate(45deg);box-shadow:0 2px 8px rgba(0,0,0,.4)}
@@ -5489,7 +5511,7 @@
 <script src="gemcopter.js?v=deploy-85"></script>
 <script>
 (function lithosLoadMorphHunt(){
- var MH_NEED='void-2d-v70';
+ var MH_NEED='void-2d-v71';
  var MH_SCRIPT='morph-hunt.js';
  window.__LITHOS_MH_LATEST=MH_NEED;
  window.__LITHOS_MH_NEED=MH_NEED;
@@ -5527,7 +5549,7 @@
 </script>
 <script>
 window.lithosPlayMorphHunt=function lithosPlayMorphHunt(){
- var NEED=window.__LITHOS_MH_LATEST||window.__LITHOS_MH_NEED||'void-2d-v70';
+ var NEED=window.__LITHOS_MH_LATEST||window.__LITHOS_MH_NEED||'void-2d-v71';
  var tries=0;
  function mhBuildNum(tag){
   var m=String(tag||'').match(/void-2d-v(\d+)/);

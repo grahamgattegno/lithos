@@ -5,8 +5,11 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v70';
-const MH_SCENERY_STAMP='ACTION_MINIGAMES_v70';
+const MH_BUILD='void-2d-v71';
+const MH_SCENERY_STAMP='CHARACTER_CHAT_v71';
+const MH_CHAT_LOG_KEY='lithos_mh_chat_log_v1';
+const MH_CHAT_POLL_MS=3500;
+const MH_CHAT_BROADCAST='lithos-mh-chat';
 const MH_KING_CUTSCENE_TITLE='Axe → Sword · Void Judgment';
 const MH_SCRIPT_FILE='morph-hunt.js';
 const MH_ANCIENT_GLYPHS=['⌬','☵','⛧','◈','☒'];
@@ -933,7 +936,7 @@ function mhSaveWearId(id){
 }
 
 function mhDefaultSave(){
- return{collected:['ex-welcome'],worldsUnlocked:1,coins:100,wearing:'ex-welcome',title:'',codesUsed:[],minigameWon:[]};
+ return{collected:['ex-welcome'],worldsUnlocked:1,coins:100,wearing:'ex-welcome',title:'',codesUsed:[],minigameWon:[],chatPlayerId:'',chatDisplayName:'',chatFriends:[]};
 }
 function mhStarterMorph(){
  return mhMorph('ex-welcome')||{head:'#F5CD30',torso:'#0085DB',legs:'#A4BD47',body:'classic',name:'Your Noobie',id:'you'};
@@ -1708,7 +1711,10 @@ function mhLoadSave(){
    wearing:wear||'ex-welcome',
    title:'Collector',
    codesUsed:[],
-   minigameWon:[]
+   minigameWon:[],
+   chatPlayerId:'owner',
+   chatDisplayName:'Owner',
+   chatFriends:[]
   };
  }
  try{
@@ -1723,7 +1729,10 @@ function mhLoadSave(){
    wearing:(raw.wearing&&MH_MORPHS.some(m=>m.id===raw.wearing))?raw.wearing:(wear||collected[0]||'ex-welcome'),
    title:typeof raw.title==='string'?raw.title:'',
    codesUsed:Array.isArray(raw.codesUsed)?raw.codesUsed:[],
-   minigameWon:Array.isArray(raw.minigameWon)?raw.minigameWon:[]
+   minigameWon:Array.isArray(raw.minigameWon)?raw.minigameWon:[],
+   chatPlayerId:typeof raw.chatPlayerId==='string'?raw.chatPlayerId:'',
+   chatDisplayName:typeof raw.chatDisplayName==='string'?raw.chatDisplayName:'',
+   chatFriends:Array.isArray(raw.chatFriends)?raw.chatFriends.filter(x=>typeof x==='string'):[]
   };
  }catch(_){return {...mhDefaultSave(),wearing:wear};}
 }
@@ -1946,6 +1955,338 @@ function mhToast(msg){
  t.classList.add('show');
  clearTimeout(t._tm);
  t._tm=setTimeout(()=>t.classList.remove('show'),2400);
+}
+let mhChatBroadcast=null;
+function mhChatConfig(){
+ return (typeof window!=='undefined'&&window.LITHOS_CHAT_CONFIG)||null;
+}
+function mhChatRelayOn(){
+ const c=mhChatConfig();
+ return !!(c&&c.relay);
+}
+function mhEnsureChatProfile(save){
+ if(!save) return {id:'guest',name:'Noobie'};
+ if(!save.chatPlayerId){
+  save.chatPlayerId='noob-'+Math.random().toString(36).slice(2,11);
+  mhSaveSave(save);
+ }
+ const morph=mhMorph(save.wearing);
+ const name=(save.chatDisplayName||'').trim()||(morph?.name)||('Noobie '+save.chatPlayerId.slice(-4));
+ return {id:save.chatPlayerId,name:name.slice(0,24),morphId:save.wearing||''};
+}
+function mhChatLoadStore(){
+ try{
+  const raw=JSON.parse(localStorage.getItem(MH_CHAT_LOG_KEY)||'[]');
+  return Array.isArray(raw)?raw:[];
+ }catch(_){ return []; }
+}
+function mhChatSaveStore(list){
+ try{ localStorage.setItem(MH_CHAT_LOG_KEY,JSON.stringify(list.slice(-400))); }catch(_){}
+}
+function mhChatLocalQuery(channel,since,world,peerId){
+ const sinceT=+(since||0);
+ return mhChatLoadStore().filter(m=>{
+  if(!m||m.t<=sinceT) return false;
+  if(m.channel!==channel) return false;
+  if(channel==='server'&&world!=null&&m.world!==world) return false;
+  if(channel==='friend'&&peerId){
+   const me=mhState?.save?mhEnsureChatProfile(mhState.save).id:'';
+   return (m.fromId===me&&m.toId===peerId)||(m.fromId===peerId&&m.toId===me);
+  }
+  return true;
+ });
+}
+async function mhChatFetchRemote(channel,since,world,peerId){
+ const cfg=mhChatConfig();
+ if(!cfg?.relay) return null;
+ try{
+  const base=String(cfg.relay).replace(/\/$/,'');
+  const path=base.includes('/messages')?base:(base+'/messages');
+  const q=new URLSearchParams();
+  q.set('channel',channel);
+  q.set('since',String(since||0));
+  if(channel==='server'&&world!=null) q.set('world',String(world));
+  if(channel==='friend'&&peerId) q.set('peer',peerId);
+  const r=await fetch(path+'?'+q.toString(),{headers:cfg.headers||{},cache:'no-store'});
+  if(!r.ok) return null;
+  const data=await r.json();
+  return Array.isArray(data)?data:(data.messages||[]);
+ }catch(_){ return null; }
+}
+async function mhChatPostRemote(msg){
+ const cfg=mhChatConfig();
+ if(!cfg?.relay) return false;
+ try{
+  const base=String(cfg.relay).replace(/\/$/,'');
+  const url=base.includes('/messages')?base:base+'/messages';
+  const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json',...(cfg.headers||{})},body:JSON.stringify(msg)});
+  return r.ok;
+ }catch(_){ return false; }
+}
+function mhChatMergeMessages(incoming){
+ if(!incoming?.length) return;
+ const store=mhChatLoadStore();
+ const ids=new Set(store.map(m=>m.id));
+ let added=0;
+ incoming.forEach(m=>{
+  if(!m?.id||ids.has(m.id)) return;
+  store.push(m); ids.add(m.id); added++;
+ });
+ if(added) mhChatSaveStore(store);
+ return added;
+}
+function mhChatBroadcastInit(){
+ if(mhChatBroadcast||typeof BroadcastChannel==='undefined') return;
+ mhChatBroadcast=new BroadcastChannel(MH_CHAT_BROADCAST);
+ mhChatBroadcast.onmessage=(e)=>{ if(e?.data?.id) mhChatIngest(e.data,true); };
+}
+function mhChatSpawnBubble(st,wx,wy,text,who,ms){
+ if(!st) return;
+ if(!st.chatBubbles) st.chatBubbles=[];
+ st.chatBubbles.push({x:wx,y:wy,text:String(text).slice(0,72),who:who||'',until:performance.now()+(ms||5000)});
+}
+function mhChatIngest(msg,silent){
+ if(!msg?.id||!mhState) return;
+ const added=mhChatMergeMessages([msg]);
+ if(!added) return;
+ const me=mhEnsureChatProfile(mhState.save).id;
+ if(msg.fromId===me) return;
+ const wi=mhState.world;
+ const pos=mhWalkEnsurePos(mhState,wi);
+ if(msg.channel==='server'&&msg.world===wi){
+  const nx=pos.px+((mhHashStr(msg.fromId)%160)-80);
+  const ny=pos.py-30-((mhHashStr(msg.fromId+'y')%50));
+  mhChatSpawnBubble(mhState,nx,ny,(msg.fromName||'Noobie')+': '+msg.text,'remote');
+  if(!mhState.chatNpcLine) mhState.chatNpcLine={};
+  mhState.chatNpcLine['_remote_'+msg.fromId]={text:msg.text.slice(0,48),until:performance.now()+5000};
+ }
+ if(!silent) mhChatRefreshLog();
+}
+function mhChatSend(st,save,text){
+ const raw=String(text||'').trim();
+ if(!raw||!st||!save) return;
+ const prof=mhEnsureChatProfile(save);
+ const channel=st.chatChannel||'global';
+ const wi=st.world;
+ let toId='';
+ if(channel==='friend'){
+  toId=(st.chatFriendPeer||'').trim();
+  if(!toId){ mhToast('Pick a friend code first!'); return; }
+  if(!save.chatFriends?.includes(toId)){ mhToast('Add them as a friend first (Friends tab).'); return; }
+ }
+ const msg={
+  id:'m'+Date.now()+'-'+Math.random().toString(36).slice(2,8),
+  channel,
+  world:channel==='server'?wi:undefined,
+  fromId:prof.id,
+  fromName:prof.name,
+  morphId:prof.morphId,
+  toId:toId||undefined,
+  text:raw.slice(0,160),
+  t:Date.now()
+ };
+ mhChatMergeMessages([msg]);
+ mhChatPostRemote(msg);
+ try{ mhChatBroadcast?.postMessage(msg); }catch(_){}
+ const pos=mhWalkEnsurePos(st,wi);
+ mhChatSpawnBubble(st,pos.px,pos.py-28,raw,'you',5500);
+ if(channel==='server'){
+  const near=mhWalkNearMorph(save,wi,pos,st);
+  if(near){
+   const replies=['Hey!','Want a duel?','Cool noobie!','I was gonna say that!','See you in the grove!'];
+   if(!st.chatNpcLine) st.chatNpcLine={};
+   st.chatNpcLine[near.id]={text:replies[mhHashStr(raw+near.id)%replies.length],until:performance.now()+5200};
+  }
+ }
+ mhChatRefreshLog();
+ const inp=document.getElementById('mh-chat-input');
+ if(inp) inp.value='';
+ if(!mhChatRelayOn()&&channel!=='friend') mhToast(channel==='global'?'💬 Global (device + tabs). Set LITHOS_CHAT_CONFIG.relay for real server!':'💬 Server chat on this map (device + tabs).');
+}
+function mhChatRefreshLog(){
+ const log=document.getElementById('mh-chat-log');
+ if(!log||!mhState) return;
+ const channel=mhState.chatChannel||'global';
+ const wi=mhState.world;
+ const peer=mhState.chatFriendPeer||'';
+ const me=mhEnsureChatProfile(mhState.save).id;
+ const rows=mhChatLoadStore()
+  .filter(m=>{
+   if(m.channel!==channel) return false;
+   if(channel==='server'&&m.world!==wi) return false;
+   if(channel==='friend'){
+    return (m.fromId===me&&m.toId===peer)||(m.fromId===peer&&m.toId===me);
+   }
+   return true;
+  })
+  .sort((a,b)=>a.t-b.t)
+  .slice(-40);
+ log.innerHTML=rows.length?rows.map(m=>{
+  const mine=m.fromId===me;
+  const tag=channel==='server'?(' · map '+m.world):'';
+  return `<div class="mh-chat-line${mine?' mine':''}"><b>${mine?'You':(m.fromName||'Noobie')}</b>${tag}: ${m.text.replace(/</g,'&lt;')}</div>`;
+ }).join(''):'<div class="mh-chat-line dim">Say hi! Press <b>T</b> to talk. Your noobie shows speech bubbles on the map.</div>';
+ log.scrollTop=log.scrollHeight;
+}
+async function mhChatPoll(st){
+ if(!st||st.tab!=='hunt') return;
+ const channel=st.chatChannel||'global';
+ if(!st.chatSince) st.chatSince={global:0,server:0,friend:0};
+ const since=st.chatSince[channel]||0;
+ const wi=st.world;
+ const peer=st.chatFriendPeer||'';
+ const remote=await mhChatFetchRemote(channel,since,wi,peer);
+ const local=mhChatLocalQuery(channel,since,channel==='server'?wi:null,channel==='friend'?peer:null);
+ const batch=[...(remote||[]),...local].sort((a,b)=>a.t-b.t);
+ let maxT=since;
+ batch.forEach(m=>{
+  if(m.t<=since) return;
+  mhChatIngest(m,true);
+  if(m.t>maxT) maxT=m.t;
+ });
+ st.chatSince[channel]=maxT;
+ mhChatRefreshLog();
+}
+function mhChatStartPoll(st){
+ mhChatBroadcastInit();
+ mhChatStopPoll(st);
+ st.chatPollIv=setInterval(()=>{ mhChatPoll(st); },MH_CHAT_POLL_MS);
+ mhChatPoll(st);
+}
+function mhChatStopPoll(st){
+ if(st?.chatPollIv){ clearInterval(st.chatPollIv); st.chatPollIv=0; }
+}
+function mhDrawChatBubble(ctx,sx,sy,text,mine){
+ const t=String(text||'');
+ if(!t) return;
+ ctx.save();
+ ctx.font='bold 11px system-ui,sans-serif';
+ const maxW=140;
+ const words=t.split(' ');
+ let line='', lines=[];
+ words.forEach(w=>{
+  const tryLine=line?(line+' '+w):w;
+  if(ctx.measureText(tryLine).width>maxW){ if(line) lines.push(line); line=w; }
+  else line=tryLine;
+ });
+ if(line) lines.push(line);
+ const h=lines.length*14+10;
+ const w=Math.min(maxW,Math.max(...lines.map(l=>ctx.measureText(l).width),40))+16;
+ const x=sx-w/2, y=sy-h-8;
+ ctx.fillStyle=mine?'rgba(255,232,120,.95)':'rgba(240,248,255,.92)';
+ ctx.strokeStyle=mine?'rgba(255,180,60,.8)':'rgba(120,160,255,.55)';
+ ctx.lineWidth=2;
+ ctx.beginPath();
+ if(typeof ctx.roundRect==='function') ctx.roundRect(x,y,w,h,8);
+ else ctx.rect(x,y,w,h);
+ ctx.fill(); ctx.stroke();
+ ctx.beginPath();
+ ctx.moveTo(sx,y+h);
+ ctx.lineTo(sx-6,y+h+8);
+ ctx.lineTo(sx+6,y+h+8);
+ ctx.closePath();
+ ctx.fill(); ctx.stroke();
+ ctx.fillStyle='#1a1a20';
+ ctx.textAlign='center';
+ lines.forEach((ln,i)=>ctx.fillText(ln,sx,y+18+i*14));
+ ctx.restore();
+}
+function mhDrawChatBubbles(ctx,st,camX,camY){
+ if(!st?.chatBubbles?.length) return;
+ const now=performance.now();
+ st.chatBubbles=st.chatBubbles.filter(b=>b.until>now);
+ st.chatBubbles.forEach(b=>{
+  mhDrawChatBubble(ctx,b.x-camX,b.y-camY,b.text,b.who==='you');
+ });
+}
+function mhDrawNpcChatLines(ctx,st,wi,morphs,camX,camY){
+ if(!st?.chatNpcLine) return;
+ const now=performance.now();
+ Object.keys(st.chatNpcLine).forEach(k=>{
+  const line=st.chatNpcLine[k];
+  if(!line||line.until<now){ delete st.chatNpcLine[k]; return; }
+  let mx,my;
+  if(k.startsWith('_remote_')){
+   const pos=mhWalkEnsurePos(st,wi);
+   mx=pos.px+((mhHashStr(k)%120)-60);
+   my=pos.py-40;
+  }else{
+   const morph=morphs.find(x=>x.id===k);
+   if(!morph?.tileX) return;
+   const p=mhGetNpcPos(st,wi,morph);
+   mx=p.px; my=p.py;
+  }
+  mhDrawChatBubble(ctx,mx-camX,my-camY-56,line.text,false);
+ });
+}
+function mhRenderChatPanel(save){
+ const prof=mhEnsureChatProfile(save);
+ const ch=mhState?.chatChannel||'global';
+ const friends=Array.isArray(save.chatFriends)?save.chatFriends:[];
+ const relay=mhChatRelayOn();
+ return `<aside class="mh-chat-panel" aria-label="Character chat">
+  <div class="mh-chat-head"><span>💬 Talk</span><small>${relay?'🌐 Server live':'📱 Device + tabs'} · <code>${prof.id}</code></small></div>
+  <div class="mh-chat-tabs">
+   <button type="button" class="mh-chat-tab${ch==='global'?' on':''}" data-mh-chat-ch="global">Global</button>
+   <button type="button" class="mh-chat-tab${ch==='server'?' on':''}" data-mh-chat-ch="server">Server</button>
+   <button type="button" class="mh-chat-tab${ch==='friend'?' on':''}" data-mh-chat-ch="friends">Friends</button>
+  </div>
+  <div id="mh-chat-log" class="mh-chat-log"></div>
+  <div class="mh-chat-friends${ch==='friend'?'':' hidden'}" id="mh-chat-friends-ui">
+   <div class="mh-chat-friend-add"><input type="text" id="mh-chat-friend-code" placeholder="Friend code…" autocomplete="off"/><button type="button" class="mh-btn mh-btn-sm" id="mh-chat-friend-add">Add</button></div>
+   <select id="mh-chat-friend-pick" class="mh-chat-friend-pick"><option value="">— message friend —</option>${friends.map(f=>`<option value="${f.replace(/"/g,'&quot;')}"${mhState?.chatFriendPeer===f?' selected':''}>${f}</option>`).join('')}</select>
+  </div>
+  <div class="mh-chat-chips">
+   <button type="button" class="mh-chat-chip" data-mh-chat-quick="Hello!">Hello!</button>
+   <button type="button" class="mh-chat-chip" data-mh-chat-quick="Want to fight?">Want to fight?</button>
+   <button type="button" class="mh-chat-chip" data-mh-chat-quick="Follow me!">Follow me!</button>
+  </div>
+  <div class="mh-chat-row">
+   <input id="mh-chat-input" type="text" maxlength="160" placeholder="Type & Enter · T to focus" autocomplete="off"/>
+   <button type="button" class="mh-btn primary mh-btn-sm" id="mh-chat-send">Send</button>
+  </div>
+  <p class="mh-chat-hint">Your morphed noobie speaks in bubbles. <b>Server</b> = this map zone. Optional: <code>LITHOS_CHAT_CONFIG.relay</code> in the page for real online chat.</p>
+ </aside>`;
+}
+function mhBindChat(root){
+ if(!root||!mhState) return;
+ root.querySelectorAll('[data-mh-chat-ch]').forEach(btn=>{
+  btn.onclick=()=>{
+   const v=btn.dataset.mhChatCh;
+   mhState.chatChannel=v==='friends'?'friend':v;
+   root.querySelectorAll('.mh-chat-tab').forEach(t=>t.classList.toggle('on',t.dataset.mhChatCh===v));
+   root.querySelector('#mh-chat-friends-ui')?.classList.toggle('hidden',v!=='friends');
+   mhChatRefreshLog();
+  };
+ });
+ const send=()=>{
+  const inp=root.querySelector('#mh-chat-input');
+  if(inp?.value) mhChatSend(mhState,mhState.save,inp.value);
+ };
+ root.querySelector('#mh-chat-send')?.addEventListener('click',send);
+ const inp=root.querySelector('#mh-chat-input');
+ if(inp){
+  inp.onkeydown=(e)=>{
+   if(e.key==='Enter'){ e.preventDefault(); send(); }
+   e.stopPropagation();
+  };
+ }
+ root.querySelectorAll('[data-mh-chat-quick]').forEach(btn=>{
+  btn.onclick=()=>mhChatSend(mhState,mhState.save,btn.dataset.mhChatQuick);
+ });
+ const friendAdd=root.querySelector('#mh-chat-friend-add');
+ if(friendAdd) friendAdd.onclick=()=>{
+  const code=(root.querySelector('#mh-chat-friend-code')?.value||'').trim();
+  if(!code||code===mhEnsureChatProfile(mhState.save).id){ mhToast('Need a different friend code.'); return; }
+  if(!mhState.save.chatFriends) mhState.save.chatFriends=[];
+  if(!mhState.save.chatFriends.includes(code)) mhState.save.chatFriends.push(code);
+  mhSaveSave(mhState.save);
+  mhToast('Friend added: '+code);
+  mhRender();
+ };
+ const pick=root.querySelector('#mh-chat-friend-pick');
+ if(pick) pick.onchange=()=>{ mhState.chatFriendPeer=pick.value; mhChatRefreshLog(); };
+ mhChatRefreshLog();
 }
 
 function mhShowFound(m){
@@ -4026,6 +4367,9 @@ function mhWalkActive(){
 }
 function mhWalkApplyKey(e,down){
  if(!mhWalkActive()) return false;
+ const ae=document.activeElement;
+ const typing=ae&&(ae.id==='mh-chat-input'||ae.id==='mh-chat-friend-code');
+ if(typing&&e.code!=='Enter'&&e.code!=='Escape') return false;
  if(!mhState.walkKeys) mhState.walkKeys={};
  const c=e.code,k=e.key;
  let hit=false;
@@ -4071,6 +4415,13 @@ function mhWalkApplyKey(e,down){
   const pos=mhWalkEnsurePos(mhState,mhState.world);
   mhUseKingAction4Cutscene(mhState,mhState.save,pos,mhState.world); hit=true;
  }
+ if(down&&(c==='KeyT'||k==='t'||k==='T')){
+  const ae=document.activeElement;
+  if(ae?.id!=='mh-chat-input'&&ae?.id!=='mh-chat-friend-code'){
+   document.getElementById('mh-chat-input')?.focus();
+   hit=true;
+  }
+ }
  if(mhState.kingCutscene&&down&&(c==='Escape'||k==='Escape')){
   mhFinishKingAction4Cutscene(mhState,mhState.save); hit=true;
  }
@@ -4083,6 +4434,7 @@ function mhWalkApplyKey(e,down){
 }
 function isSpaceKey(e){ return e&&(e.code==='Space'||e.key===' '||e.key==='Spacebar'); }
 function mhWalkStop(){
+ if(mhState) mhChatStopPoll(mhState);
  if(mhState&&mhState.walkRaf) cancelAnimationFrame(mhState.walkRaf);
  if(mhState) mhState.walkRaf=0;
  document.removeEventListener('keydown',mhWalkKeysDown,true);
@@ -4250,6 +4602,8 @@ function mhWalkDrawFrame(){
  const wear=mhMorph(save.wearing);
  mhDrawRedBlackPlayerStorm(ctx,st,pos,t);
  mhDrawYouInWorld(ctx,wear,pos,map,t,st.walkPhase||0,wi,st.playerRunning);
+ mhDrawChatBubbles(ctx,st,camX,camY);
+ mhDrawNpcChatLines(ctx,st,wi,morphs,camX,camY);
  mhDrawVoidFx(ctx,st);
  ctx.restore();
  ctx.fillStyle='rgba(0,0,0,.78)'; ctx.fillRect(8,8,420,78);
@@ -4431,9 +4785,12 @@ function mhPreviewStart(){
 function mhWalkStart(){
  mhWalkStop();
  if(!mhState) return;
+ if(!mhState.chatChannel) mhState.chatChannel='global';
+ if(!mhState.chatSince) mhState.chatSince={global:0,server:0,friend:0};
  mhState.walkKeys={};
  document.addEventListener('keydown',mhWalkKeysDown,true);
  document.addEventListener('keyup',mhWalkKeysUp,true);
+ mhChatStartPoll(mhState);
  mhWalkDrawFrame();
  const root=document.getElementById('morphhunt');
  root?.querySelectorAll('[data-mh-dpad]').forEach(btn=>{
@@ -4535,10 +4892,12 @@ function mhRenderHunt(save, wi){
    <li><b>💎 Epic+ Realm</b> (teleport tab or button): <b>Epic · Legendary · Secret · Exotic · Exclusive</b> — also in groves on that map.</li>
    <li><b>Void Fallen morph</b>: 🎭 Morph tab → <b>1</b> attack · <b>2</b> power on <b>every map</b> (King = red-black storm!). 🕳 Abyss = King + groves.</li>
    <li>Walk into a dashed grove → press <b>E</b> — <b>duel</b> the noobie, run an <b>obby</b>, or <b>counter-fight</b> to unlock. <b>F</b> = big homes.</li>
+   <li><b>💬 Chat</b> panel on Hunt: <b>Global</b> · <b>Server</b> (this map) · <b>Friends</b> (share your code). Press <b>T</b> — your noobie talks in speech bubbles!</li>
    <li><b>🏀 Court plaza</b> stays at spawn · <b>4 parks</b> around the map · <b>Mayor statue</b> on court: <b>J/L</b> crank, <b>R</b> flash light at all 4 mirrors → <b>Mayor Noobie</b>!</li>
   </ol>
  </div>
- <div class="mh-walk-wrap">
+ <div class="mh-walk-wrap mh-walk-with-chat">
+  <div class="mh-walk-game">
   <div id="mh-void-combat-readout" class="mh-void-combat-readout">${voidCombat?('⚔ FIGHT · '+voidCombat.voidAttack?.name+' · ✦ '+voidCombat.voidPower?.name+' · 🌌 '+MH_VOID_STORM_NAME):'⚔ FIGHT · <b>1</b> punch · <b>2</b> blast · <b>3</b> slam (Void morph = stronger)'}${wi===MH_VOID_WORLD?' · <b>'+MH_VOID_ABYSS_LABEL+'</b>':''}</div>
   <canvas id="mh-walk-canvas" class="mh-walk-canvas" width="960" height="520" tabindex="0"></canvas>
   <div id="mh-walk-hud" class="mh-walk-hud mh-walk-hud-clean">
@@ -4547,8 +4906,10 @@ function mhRenderHunt(save, wi){
    <button type="button" class="mh-btn primary mh-btn-sm" id="mh-walk-interact">⚔ Fight (E)</button>
    <button type="button" class="mh-btn mh-btn-sm" id="mh-walk-enter">F House</button>
    <button type="button" class="mh-btn mh-btn-sm" id="mh-walk-run">Run</button>
-   <button type="button" class="mh-btn mh-btn-sm" id="mh-void-atk">⚔ 1 Attack</button><button type="button" class="mh-btn mh-btn-sm" id="mh-void-pow">✦ 2 Power</button><button type="button" class="mh-btn mh-btn-sm" id="mh-void-storm">🌌 3 Storm</button><button type="button" class="mh-btn mh-btn-sm" id="mh-void-cutscene" hidden>🎬 4 Cutscene</button>
+   <button type="button" class="mh-btn mh-btn-sm" id="mh-void-atk">⚔ 1 Attack</button><button type="button" class="mh-btn mh-btn-sm" id="mh-void-pow">✦ 2 Power</button><button type="button" class="mh-btn mh-btn-sm" id="mh-void-storm">🌌 3 Storm</button>   <button type="button" class="mh-btn mh-btn-sm" id="mh-void-cutscene" hidden>🎬 4 Cutscene</button>
   </div>
+  </div>
+  ${mhRenderChatPanel(save)}
  </div>
  ${mhRenderHuntDeck(save,wi,morphs)}
  <p class="mh-progress">Zone: <b>${found}/${morphs.length}</b> &nbsp;•&nbsp; Total: <b>${save.collected.length}/${MH_TOTAL_COUNT}</b> &nbsp;•&nbsp; 🕳 Void: <b>${save.collected.filter(id=>mhMorph(id)?.rarity==='voidfallen').length}/${MH_VOID_COUNT}</b></p>`;
@@ -4662,6 +5023,7 @@ function mhBind(root){
   codeGo.onclick=()=>mhRedeemCode(codeIn.value);
   codeIn.onkeydown=e=>{ if(e.key==='Enter') mhRedeemCode(codeIn.value); };
  }
+ mhBindChat(root);
 }
 
 function mhRender(){
@@ -4731,7 +5093,7 @@ function playMorphHunt(){
  mhClose();
  mhEnsureOverlayModals();
  if(typeof lithosCloseGameOverlays==='function'){ try{lithosCloseGameOverlays();}catch(_){} }
- mhState={save:mhLoadSave(),world:0,tab:'hunt',page:0,huntPage:0,filter:'',indexKind:'all',walkPos:{},enemyHp:{},enemyAggro:{},enemyRespawnAt:{},enemyLastHit:{},enemyHitFlash:{}};
+ mhState={save:mhLoadSave(),world:0,tab:'hunt',page:0,huntPage:0,filter:'',indexKind:'all',walkPos:{},enemyHp:{},enemyAggro:{},enemyRespawnAt:{},enemyLastHit:{},enemyHitFlash:{},chatChannel:'global',chatSince:{global:0,server:0,friend:0},chatBubbles:[],chatNpcLine:{}};
  const wrap=document.createElement('div');
  wrap.id='morphhunt';
  document.body.appendChild(wrap);
