@@ -4026,7 +4026,7 @@ function mhWalkNearMorph(save,wi,pos,st){
  return best.m;
 }
 function mhWalkActive(){
- return !!(mhState&&mhState.tab==='hunt'&&document.getElementById('morphhunt')&&!mhState.minigameMorph);
+ return !!(mhState&&mhState.tab==='hunt'&&document.getElementById('morphhunt')&&!mhState.minigameMorph&&!mhState.kingCutscene);
 }
 function mhWalkApplyKey(e,down){
  if(!mhWalkActive()) return false;
