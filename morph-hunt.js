@@ -3,9 +3,9 @@
 'use strict';
 
 const MH_STORE_KEY='lithos_morph_hunt_v9';
-const MH_BUILD='void-2d-v47';
-const MH_SCENERY_STAMP='VOID_ABYSS_FIX_v47';
-const MH_SCRIPT_FILE='morph-hunt.void-2d-v47.js';
+const MH_BUILD='void-2d-v48';
+const MH_SCENERY_STAMP='VOID_ALL_MAPS_v48';
+const MH_SCRIPT_FILE='morph-hunt.void-2d-v48.js';
 const MH_KING_STAMP='RED_BLACK_KING_v31';
 const MH_MEGA_W=7;
 const MH_MEGA_H=6;
@@ -475,7 +475,14 @@ function mhGenWorldMap(wi){
   else tiles[y*w+x]=0;
  }
  if(wi===MH_VOID_WORLD){
-  return {w,h,tiles,spawnTx:cx,spawnTy:cy+2,wi,throneTx:cx,throneTy:cy};
+  for(let x=2;x<w-2;x++)for(let y=2;y<h-2;y++){
+   const hv=mhHashStr('abyss'+x+y);
+   if(Math.abs(x-cx)<=2&&Math.abs(y-cy)<=2) tiles[y*w+x]=12;
+   else if(hv%17===0) tiles[y*w+x]=10;
+   else if(hv%13===0) tiles[y*w+x]=11;
+   else tiles[y*w+x]=9;
+  }
+  return {w,h,tiles,spawnTx:cx,spawnTy:cy+3,wi,throneTx:cx,throneTy:cy,abyssStamp:'v48'};
  }
  if(wi===MH_EXOTIC_WORLD){
   for(let x=2;x<w-2;x++)for(let y=2;y<h-2;y++){
@@ -548,6 +555,31 @@ function mhPaintWorldGroundTile(ctx,x,y,v,world,wi){
   ctx.fillStyle='#ff6040'; ctx.fillRect(x+8,y+10,6,4);
   return;
  }
+ if(wi===MH_VOID_WORLD){
+  if(v===12){
+   ctx.fillStyle='#280808'; ctx.fillRect(x,y,MH_TILE,MH_TILE);
+   ctx.fillStyle='#ff3030'; ctx.fillRect(x+4,y+4,MH_TILE-8,MH_TILE-8);
+   ctx.fillStyle='#0a0a0a'; ctx.fillRect(x+10,y+10,MH_TILE-20,MH_TILE-20);
+   return;
+  }
+  if(v===10){
+   ctx.fillStyle='#180610'; ctx.fillRect(x,y,MH_TILE,MH_TILE);
+   ctx.fillStyle='#ff2040'; ctx.fillRect(x+6,y+MH_TILE/2-1,MH_TILE-12,3);
+   ctx.fillStyle='rgba(255,40,80,.25)'; ctx.fillRect(x,y,MH_TILE,MH_TILE);
+   return;
+  }
+  if(v===11){
+   ctx.fillStyle='#0c0818'; ctx.fillRect(x,y,MH_TILE,MH_TILE);
+   ctx.fillStyle='#9040ff'; ctx.fillRect(x+8,y+12,4,4); ctx.fillRect(x+20,y+22,3,3);
+   return;
+  }
+  if(v===9||v===0){
+   const dark=((x/MH_TILE+y/MH_TILE)&1)?'#06040c':'#0e0a14';
+   ctx.fillStyle=dark; ctx.fillRect(x,y,MH_TILE,MH_TILE);
+   ctx.fillStyle='rgba(80,0,40,.12)'; ctx.fillRect(x,y+MH_TILE-4,MH_TILE,4);
+   return;
+  }
+ }
  const pair=mhFlatGroundPair(world.ground);
  ctx.fillStyle=((x/MH_TILE+y/MH_TILE)&1)?mhShade(world.ground,18):world.ground;
  ctx.fillRect(x,y,MH_TILE,MH_TILE);
@@ -565,7 +597,20 @@ function mhPickDecorKind(themes,wi,i){
  }
  return themes.find(k=>!MH_MEGA_BUILDING_KINDS.has(k))||'fountain';
 }
+function mhGenVoidAbyssLandmarks(map){
+ map.playerSpawnTx=map.spawnTx;
+ map.playerSpawnTy=map.spawnTy;
+ const kinds=['void_fallen_building','void_cathedral','ruined_house','void_fallen_building'];
+ const slots=[
+  {tx:3,ty:3},{tx:map.w-MH_MEGA_W-3,ty:3},
+  {tx:3,ty:map.h-MH_MEGA_H-3},{tx:map.w-MH_MEGA_W-3,ty:map.h-MH_MEGA_H-3}
+ ];
+ return slots.map((s,i)=>({
+  tx:s.tx, ty:s.ty, kind:kinds[i], mega:true, footW:MH_MEGA_W, footH:MH_MEGA_H, id:'void-abyss-'+i
+ })).filter(p=>mhMegaFits(map,p.tx,p.ty,p.footW,p.footH));
+}
 function mhGenLandmarks(wi,map){
+ if(wi===MH_VOID_WORLD) return mhGenVoidAbyssLandmarks(map);
  const enter=mhEnterableKinds(wi);
  const sp=mhMapSpawnPos(map);
  const sx=Math.floor(sp.px/MH_TILE), sy=Math.floor(sp.py/MH_TILE);
@@ -763,7 +808,10 @@ function mhScatterHiddenHideouts(){
   const map=MH_WORLD_MAPS[wi];
   const morphs=MH_MORPHS.filter(m=>mhHuntWorld(m)===wi&&!m.codeOnly);
   const centers=mhPickGroveCenters(map,wi,mhGroveCount(wi));
-  map.hideouts=centers.map(c=>({...c,label:'🕵 Hidden grove '+(c.g+1)}));
+  map.hideouts=centers.map(c=>({
+   ...c,
+   label:wi===MH_VOID_WORLD?('🕳 Abyss grove '+(c.g+1)):('🕵 Hidden grove '+(c.g+1))
+  }));
   const set=new Set();
   if(wi===MH_VOID_WORLD&&map.throneTx!=null){
    const king=morphs.find(m=>m.voidKing);
@@ -822,14 +870,22 @@ function mhSpawnCivilians(map,wi){
   map.mayorShrine=wi===0?mhGenMayorShrine(map):null;
   map.parks=mhGenParks(wi,map);
   map.statues=mhGenParkStatues(map,wi);
+  if(wi===MH_VOID_WORLD){
+   map.parks=[];
+   map.statues=[];
+   map.court=null;
+   map.worldFeature=null;
+   map.mayorShrine=null;
+  }
   const decors=[];
   const used=new Set();
+  const decorCount=wi===MH_VOID_WORLD?8:(14+wi);
   if(map.court){
    for(let dy=0;dy<map.court.h;dy++)for(let dx=0;dx<map.court.w;dx++) used.add((map.court.tx+dx)+','+(map.court.ty+dy));
   }
   map.landmarks.forEach(l=>{ for(let dy=0;dy<(l.footH||1);dy++)for(let dx=0;dx<(l.footW||1);dx++) used.add((l.tx+dx)+','+(l.ty+dy)); });
   (map.parks||[]).forEach(p=>{ for(let dy=0;dy<p.h;dy++)for(let dx=0;dx<p.w;dx++) used.add((p.tx+dx)+','+(p.ty+dy)); });
-  for(let i=0;i<14+wi;i++){
+  for(let i=0;i<decorCount;i++){
    const tx=2+mhHashStr('decx'+wi+i)%(map.w-4);
    const ty=2+mhHashStr('decy'+wi+i)%(map.h-4);
    const k=tx+','+ty;
@@ -2409,11 +2465,37 @@ function mhPaintVoidFallenStormAura(ctx,x,y,t,alpha,silhouette,m){
  }
  ctx.restore();
 }
-function mhVoidCombatMorph(save,st){
+function mhVoidCombatMorph(save){
  const wear=mhMorph(save?.wearing);
  if(wear&&(wear.rarity==='voidfallen'||wear.voidFallen)) return wear;
- if(st?.walkNearVoidId) return mhMorph(st.walkNearVoidId);
  return null;
+}
+function mhRefreshVoidCombatHud(save){
+ const vm=mhVoidCombatMorph(save);
+ const atkN=vm?.voidAttack?.name||'—';
+ const powN=vm?.voidPower?.name||'—';
+ const bar=document.getElementById('mh-void-combat-readout');
+ if(bar){
+  bar.innerHTML=vm
+   ?`<b>⚔ 1</b> ${atkN} · <b>✦ 2</b> ${powN} — works on <b>every map</b>${vm.voidKing?' · 👑 storm':''}`
+   :'🎭 Morph a <b>Void Fallen</b> in Morph tab — then <b>1</b> attack · <b>2</b> power on any map';
+ }
+ const btnA=document.getElementById('mh-void-atk');
+ const btnP=document.getElementById('mh-void-pow');
+ if(btnA) btnA.textContent=vm?('⚔ 1 '+atkN):'⚔ 1 Attack';
+ if(btnP) btnP.textContent=vm?('✦ 2 '+powN):'✦ 2 Power';
+}
+function mhDrawVoidAbyssMist(ctx,map,t){
+ for(let i=0;i<10;i++){
+  const tx=2+mhHashStr('vfm'+i)%(map.w-4);
+  const ty=2+mhHashStr('vfmy'+i)%(map.h-4);
+  const x=tx*MH_TILE+MH_TILE/2, y=ty*MH_TILE+MH_TILE/2;
+  const r=24+Math.sin(t*0.8+i)*6;
+  ctx.fillStyle='rgba(120,20,80,.07)';
+  ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='rgba(0,0,0,.06)';
+  ctx.beginPath(); ctx.arc(x,y,r*0.55,0,Math.PI*2); ctx.fill();
+ }
 }
 function mhSpawnVoidFx(st,fx){
  if(!st.voidFx) st.voidFx=[];
@@ -2485,8 +2567,7 @@ function mhVoidCooldown(st,slot,sec){
  return true;
 }
 function mhUseVoidAttack(st,save,pos){
- if(st.world!==MH_VOID_WORLD){ mhToast('Attacks work on 🕳 Void map!'); return; }
- const m=mhVoidCombatMorph(save,st);
+ const m=mhVoidCombatMorph(save);
  if(!m){ mhToast('Morph into a Void Fallen noobie first (Morph tab)!'); return; }
  const atk=m.voidAttack||MH_VOID_ATTACKS[0];
  const dir=mhFacingDir(st);
@@ -2501,8 +2582,7 @@ function mhUseVoidAttack(st,save,pos){
  try{if(typeof SFX!=='undefined'&&SFX.hit)SFX.hit();}catch(_){}
 }
 function mhUseVoidPower(st,save,pos,map){
- if(st.world!==MH_VOID_WORLD){ mhToast('Powers work on 🕳 Void map!'); return; }
- const m=mhVoidCombatMorph(save,st);
+ const m=mhVoidCombatMorph(save);
  if(!m){ mhToast('Morph into a Void Fallen noobie first!'); return; }
  const pow=m.voidPower||MH_VOID_POWERS[0];
  const cd=pow.cooldown||2;
@@ -2823,7 +2903,7 @@ function mhVoidFlatScreenOverlay(ctx,W,H){
  ctx.fillStyle='rgba(0,0,0,.08)';
  for(let y=0;y<H;y+=4) ctx.fillRect(0,y,W,1);
  ctx.fillStyle='#d0a8ff'; ctx.font='bold 11px monospace,sans-serif'; ctx.textAlign='center';
- ctx.fillText('FLAT SCREEN · '+MH_VOID_DIM_LABEL, W/2, b-4);
+ ctx.fillText(MH_VOID_ABYSS_LABEL+' · '+MH_VOID_DIM_LABEL, W/2, b-4);
 }
 function mhPaintNoobWorld(ctx,m,x,y,sc,alpha,silhouette,t,walkPhase,flat,running){
  const off=flat
@@ -2921,22 +3001,25 @@ function mhNpcWander(st,map,m,npc,dt,save){
  npc.walking=false;
  npc.phase+=dt*(mhHasMorph(save,m.id)?2:1.3);
 }
-function mhDrawHideoutGroves(ctx,map,pos){
+function mhDrawHideoutGroves(ctx,map,pos,wi){
+ const abyss=wi===MH_VOID_WORLD||map.abyssStamp;
  (map.hideouts||[]).forEach(g=>{
   const x=g.tx*MH_TILE,y=g.ty*MH_TILE,w=g.w*MH_TILE,h=g.h*MH_TILE;
   const cx=x+w/2,cy=y+h/2;
   const dist=Math.hypot(cx-pos.px,cy-pos.py);
   if(dist>520) return;
   ctx.save();
-  ctx.strokeStyle=dist<MH_HIDDEN_REVEAL_R+40?'rgba(255,232,160,.9)':'rgba(200,220,255,.35)';
+  ctx.strokeStyle=abyss
+   ?(dist<MH_HIDDEN_REVEAL_R+40?'rgba(255,80,120,.95)':'rgba(120,40,160,.45)')
+   :(dist<MH_HIDDEN_REVEAL_R+40?'rgba(255,232,160,.9)':'rgba(200,220,255,.35)');
   ctx.lineWidth=dist<180?3:2;
   ctx.setLineDash([8,6]);
   ctx.strokeRect(x+2,y+2,w-4,h-4);
   ctx.setLineDash([]);
   if(dist<280){
    ctx.fillStyle='rgba(0,0,0,.55)'; ctx.fillRect(cx-72,y-18,144,16);
-   ctx.fillStyle='#ffe8a0'; ctx.font='bold 11px system-ui'; ctx.textAlign='center';
-   ctx.fillText(g.label||'Hidden grove',cx,y-6);
+   ctx.fillStyle=abyss?'#ffb0d0':'#ffe8a0'; ctx.font='bold 11px system-ui'; ctx.textAlign='center';
+   ctx.fillText(g.label||(abyss?'Abyss grove':'Hidden grove'),cx,y-6);
   }
   ctx.restore();
  });
@@ -3145,7 +3228,8 @@ function mhWalkDrawFrame(){
   ctx.strokeStyle='rgba(0,0,0,.06)'; ctx.strokeRect(x+.5,y+.5,MH_TILE-1,MH_TILE-1);
  }
  mhDrawMapDecors(ctx,map,wi,t);
- mhDrawHideoutGroves(ctx,map,pos);
+ if(wi===MH_VOID_WORLD) mhDrawVoidAbyssMist(ctx,map,t);
+ mhDrawHideoutGroves(ctx,map,pos,wi);
  if(wi===MH_VOID_WORLD) mhDrawVoidThrone(ctx,map);
  mhDrawCivilians(ctx,st,wi,map);
  morphs.sort((a,b)=>mhGetNpcPos(st,wi,a).py-mhGetNpcPos(st,wi,b).py);
@@ -3222,24 +3306,12 @@ function mhWalkDrawFrame(){
   }
  }
  if(flatMap&&wi!==MH_VOID_WORLD) mhPaperFlatOverlay(ctx,W,H);
+ mhRefreshVoidCombatHud(save);
  if(wi===MH_VOID_WORLD){
   mhVoidFlatScreenOverlay(ctx,W,H);
-  ctx.fillStyle='rgba(0,0,0,.75)'; ctx.fillRect(W/2-160,22,320,22);
+  ctx.fillStyle='rgba(0,0,0,.78)'; ctx.fillRect(W/2-175,22,350,24);
   ctx.fillStyle='#ff6060'; ctx.font='bold 13px system-ui,sans-serif'; ctx.textAlign='center';
-  ctx.fillText('🕳 '+MH_VOID_ABYSS_LABEL+' · 👑 King on throne · groves hide Fallen',W/2,38);
-  const vm=mhVoidCombatMorph(save,st);
-  const atkN=vm?.voidAttack?.name||'—';
-  const powN=vm?.voidPower?.name||'—';
-  const bar=document.getElementById('mh-void-combat-readout');
-  if(bar){
-   bar.innerHTML=vm
-    ?`<b>🕳 ${MH_VOID_ABYSS_LABEL}</b> · <b>⚔ 1</b> ${atkN} · <b>✦ 2</b> ${powN}${vm.voidKing?' · 👑 storm':''}`
-    :`<b>🕳 ${MH_VOID_ABYSS_LABEL}</b> — Morph a Void Fallen in 🎭 tab, then <b>1</b> / <b>2</b>`;
-  }
-  const btnA=document.getElementById('mh-void-atk');
-  const btnP=document.getElementById('mh-void-pow');
-  if(btnA) btnA.textContent=vm?('⚔ 1 '+atkN):'⚔ 1 Attack';
-  if(btnP) btnP.textContent=vm?('✦ 2 '+powN):'✦ 2 Power';
+  ctx.fillText('🕳 '+MH_VOID_ABYSS_LABEL+' v48 · dark rifts · 👑 King · 🕳 Abyss groves',W/2,40);
   if(map.throneTx!=null){
    const tx=map.throneTx*MH_TILE+MH_TILE/2, ty=map.throneTy*MH_TILE+MH_TILE/2;
    const ang=Math.atan2(ty-pos.py,tx-pos.px);
@@ -3438,6 +3510,7 @@ function mhRenderHuntDeck(save,wi,morphs){
 }
 function mhRenderHunt(save, wi){
  const world=MH_WORLDS[wi];
+ const voidCombat=mhVoidCombatMorph(save);
  const morphs=mhWorldMorphs(wi);
  const found=morphs.filter(m=>mhHasMorph(save,m.id)).length;
  const worldTabs=MH_WORLDS.map((w,i)=>{
@@ -3458,13 +3531,13 @@ function mhRenderHunt(save, wi){
   <ol>
    <li><b>Maps 0–7</b> (Buddy, Fair, Beach…): only <b>Common · Uncommon · Rare</b>. They stay inside <b>🕵 hidden groves</b> (dashed boxes) — not scattered on the whole map.</li>
    <li><b>💎 Epic+ Realm</b> (teleport tab or button): <b>Epic · Legendary · Secret · Exotic · Exclusive</b> — also in groves on that map.</li>
-   <li><b>🕳 Void map</b>: morph a <b>Void Fallen</b> or <b>👑 King</b> in 🎭 Morph tab → <b>1</b> = attack · <b>2</b> = power (King = red-black storm!).</li>
+   <li><b>Void Fallen morph</b>: 🎭 Morph tab → <b>1</b> attack · <b>2</b> power on <b>every map</b> (King = red-black storm!). 🕳 Abyss = King + groves.</li>
    <li>Walk into a dashed grove → press <b>E</b> or <b>🎮 Minigame</b> (10 minigame types!). <b>F</b> = big homes.</li>
    <li><b>🏀 Court plaza</b> stays at spawn · <b>4 parks</b> around the map · <b>Mayor statue</b> on court: <b>J/L</b> crank, <b>R</b> flash light at all 4 mirrors → <b>Mayor Noobie</b>!</li>
   </ol>
  </div>
  <div class="mh-walk-wrap">
-  ${wi===MH_VOID_WORLD?`<div id="mh-void-combat-readout" class="mh-void-combat-readout"><b>🕳 ${MH_VOID_ABYSS_LABEL}</b> — walk dashed groves · 👑 King at center</div>`:''}
+  <div id="mh-void-combat-readout" class="mh-void-combat-readout">${voidCombat?('⚔ '+voidCombat.voidAttack?.name+' · ✦ '+voidCombat.voidPower?.name):'🎭 Morph a Void Fallen → <b>1</b> / <b>2</b> on any map'}${wi===MH_VOID_WORLD?' · <b>'+MH_VOID_ABYSS_LABEL+'</b>':''}</div>
   <canvas id="mh-walk-canvas" class="mh-walk-canvas" width="960" height="520" tabindex="0"></canvas>
   <div id="mh-walk-hud" class="mh-walk-hud mh-walk-hud-clean">
    <span class="mh-walk-zone">${world.emoji} ${world.name} · ${found}/${morphs.length}</span>
@@ -3472,7 +3545,7 @@ function mhRenderHunt(save, wi){
    <button type="button" class="mh-btn primary mh-btn-sm" id="mh-walk-interact">🎮 Minigame (E)</button>
    <button type="button" class="mh-btn mh-btn-sm" id="mh-walk-enter">F House</button>
    <button type="button" class="mh-btn mh-btn-sm" id="mh-walk-run">Run</button>
-   ${wi===MH_VOID_WORLD?'<button type="button" class="mh-btn mh-btn-sm" id="mh-void-atk">1 Attack</button><button type="button" class="mh-btn mh-btn-sm" id="mh-void-pow">2 Power</button>':''}
+   <button type="button" class="mh-btn mh-btn-sm" id="mh-void-atk">⚔ 1 Attack</button><button type="button" class="mh-btn mh-btn-sm" id="mh-void-pow">✦ 2 Power</button>
   </div>
  </div>
  ${mhRenderHuntDeck(save,wi,morphs)}
@@ -3530,7 +3603,7 @@ function mhRenderMorph(save){
  return `<div class="mh-morph-tab">
   <h3>🎭 Morph &amp; Roleplay</h3>
   <p class="mh-scene-hint">Turn into any noobie you own — your morph also shows on the Rock Teacher!</p>
-  <div class="mh-morph-preview large">${wear?`<svg viewBox="0 0 100 130">${mhClassicNoobSvg(wear)}</svg><b>${wear.name}</b>${(wear.rarity==='voidfallen'||wear.voidFallen)?`<p class="mh-scene-hint" style="color:${wear.voidKing?'#ff6060':'#c898ff'}">🕳 Void map only · <b>1</b> ⚔ ${wear.voidAttack?.name||'Attack'} · <b>2</b> ✦ ${wear.voidPower?.name||'Power'}${wear.voidKing?' · 👑 red-black storm aura':' · 🕳 purple-black void storm aura'}</p>`:''}<button type="button" class="mh-btn primary" data-mh-wear="${wear.id}">Stay morphed</button>`:'<span>Pick a noobie below</span>'}</div>
+  <div class="mh-morph-preview large">${wear?`<svg viewBox="0 0 100 130">${mhClassicNoobSvg(wear)}</svg><b>${wear.name}</b>${(wear.rarity==='voidfallen'||wear.voidFallen)?`<p class="mh-scene-hint" style="color:${wear.voidKing?'#ff6060':'#c898ff'}">Any map · <b>1</b> ⚔ ${wear.voidAttack?.name||'Attack'} · <b>2</b> ✦ ${wear.voidPower?.name||'Power'}${wear.voidKing?' · 👑 red-black storm aura':' · 🕳 purple-black void storm aura'}</p>`:''}<button type="button" class="mh-btn primary" data-mh-wear="${wear.id}">Stay morphed</button>`:'<span>Pick a noobie below</span>'}</div>
   <input type="search" id="mh-search" placeholder="Search your morphs…" value="${q.replace(/"/g,'&quot;')}"/>
   <div class="mh-morph-grid">${cards}</div>
   <div class="mh-pager">${pg.page>0?'<button type="button" class="mh-btn" data-mh-page="'+(pg.page-1)+'">←</button>':''}<span>${pg.page+1}/${pg.pages}</span>${pg.page+1<pg.pages?'<button type="button" class="mh-btn" data-mh-page="'+(pg.page+1)+'">→</button>':''}</div>
