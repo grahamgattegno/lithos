@@ -5,9 +5,10 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v57';
-const MH_SCENERY_STAMP='VOID_NO_RECHARGE_v57';
-const MH_SCRIPT_FILE='morph-hunt.void-2d-v57.js';
+const MH_BUILD='void-2d-v58';
+const MH_SCENERY_STAMP='VOID_UNIVERSE_STORM_v58';
+const MH_SCRIPT_FILE='morph-hunt.void-2d-v58.js';
+const MH_VOID_STORM_NAME='Void Storm';
 const MH_KING_STAMP='RED_BLACK_KING_v31';
 const MH_MEGA_W=7;
 const MH_MEGA_H=6;
@@ -249,7 +250,7 @@ function mhAssignVoidCombat(m){
  if(m.rarity!=='voidfallen'&&!m.voidFallen) return;
  if(m.voidKing){
   m.voidAttack={id:'king_cleave',name:'Greataxe Cleave',color:'#ff3030',kind:'arc',speed:9,range:130};
-  m.voidPower={id:'forbidden_storm',name:'Forbidden Stone Storm',color:'#ff2020',kind:'storm',range:170,cooldown:3};
+  m.voidPower={id:'forbidden_storm',name:'Forbidden Rift Storm',color:'#ff2020',kind:'storm',range:190,cooldown:0};
   return;
  }
  const h=mhHashStr(m.id+'vfc');
@@ -2484,7 +2485,7 @@ function mhRefreshVoidCombatHud(save){
  const bar=document.getElementById('mh-void-combat-readout');
  if(bar){
   bar.innerHTML=vm
-   ?`<b>⚔ 1</b> ${atkN} · <b>✦ 2</b> ${powN} — <span style="color:#80ffb0">instant</span>${vm.voidKing?' · 👑 storm':''}`
+   ?`<b>⚔ 1</b> ${atkN} · <b>✦ 2</b> ${powN} · <b>🌌 3</b> ${MH_VOID_STORM_NAME} — <span style="color:#80ffb0">instant</span>${vm.voidKing?' · 👑 rift king':''}`
    :'🎭 Morph a <b>Void Fallen</b> in Morph tab — then <b>1</b> / <b>2</b> on any map';
  }
  const btnA=document.getElementById('mh-void-atk');
@@ -2605,18 +2606,37 @@ function mhSpawnPowerVfx(st,m,pow,dir,pos,map){
   for(let i=0;i<6;i++) mhSpawnVoidFx(st,{kind:'spark',x:px,y:py-20,vx:(Math.random()-0.5)*4,vy:-2-Math.random()*4,color:'#80ffb0',life:0.6});
   return;
  }
- const kind=pow.kind==='storm'?'storm':'nova';
- mhSpawnVoidFx(st,{kind,x:px,y:py,vx:0,vy:0,color:col,r:18,dr:pow.range||110,life:0.75,spin:kind==='storm'?0:undefined});
+ if(pow.kind==='storm'||pow.id==='forbidden_storm'){
+  mhSpawnVoidUniverseStorm(st,m,dir,pos,pow.range||160);
+  return;
+ }
+ const kind='nova';
+ mhSpawnVoidFx(st,{kind,x:px,y:py,vx:0,vy:0,color:col,r:18,dr:pow.range||110,life:0.75});
  mhSpawnVoidFx(st,{kind:'shock',x:px,y:py,vx:0,vy:0,color:'#fff',r:10,dr:130,life:0.45});
  mhSpawnVoidFx(st,{kind:'ring',x:px,y:py,vx:0,vy:0,color:col,r:14,dr:140,life:0.55});
- if(m.voidKing&&kind==='storm'){
-  mhSpawnVoidFx(st,{kind:'storm',x:px,y:py,vx:0,vy:0,color:'#0a0a0a',r:12,dr:(pow.range||110)*0.9,life:0.8,spin:0.45});
-  for(let i=0;i<10;i++){
-   const a=i*Math.PI*2/10;
-   mhSpawnVoidFx(st,{kind:'spark',x:px,y:py,vx:Math.cos(a)*8,vy:Math.sin(a)*8,color:'#ff4040',life:0.55});
-  }
-  mhVoidShake(st,160,9);
- }else mhVoidShake(st,100,6);
+ mhVoidShake(st,100,6);
+}
+const MH_FORBIDDEN_SPELLS=['Null Sigil','Abyss Hex','Rift Curse','Shadow Bind','Depth Wail','King\'s Edict','Stone Eclipse','Void Lament'];
+function mhSpawnVoidUniverseStorm(st,m,dir,pos,range){
+ const reach=range||160;
+ const hx=pos.px+dir.dx*reach, hy=pos.py+dir.dy*reach;
+ const stormLife=m.voidKing?5.2:4.2;
+ const holeR=m.voidKing?78:62;
+ mhSpawnVoidFx(st,{kind:'blackhole',x:hx,y:hy,vx:0,vy:0,color:'#ff2020',r:holeR,life:stormLife,spin:0,dr:0});
+ mhSpawnVoidFx(st,{kind:'blackhole_core',x:hx,y:hy,vx:0,vy:0,color:'#050505',r:holeR*0.42,life:stormLife,spin:0.6});
+ mhSpawnVoidFx(st,{kind:'universe_rift',x:hx,y:hy-200,vx:0,vy:0,color:'#ff3030',r:48,life:stormLife,spin:0,tx:hx,ty:hy});
+ mhSpawnVoidFx(st,{kind:'storm',x:hx,y:hy,vx:0,vy:0,color:'#ff2020',r:28,dr:holeR+40,life:stormLife*0.85,spin:0});
+ mhSpawnVoidFx(st,{kind:'storm',x:hx,y:hy,vx:0,vy:0,color:'#0a0a0a',r:18,dr:holeR+28,life:stormLife*0.9,spin:0.35});
+ for(let i=0;i<14;i++){
+  const spell=MH_FORBIDDEN_SPELLS[i%MH_FORBIDDEN_SPELLS.length];
+  const delay=i*0.08;
+  mhSpawnVoidFx(st,{kind:'forbidden_spell',x:hx+(Math.random()-0.5)*36,y:hy-190-Math.random()*40,vx:0,vy:0,color:i%2?'#ff4040':'#1a1a1a',life:stormLife-0.15-delay,spell,tx:hx,ty:hy,delay,phase:i*0.7});
+ }
+ for(let i=0;i<10;i++){
+  const a=i*Math.PI*2/10+performance.now()/800;
+  mhSpawnVoidFx(st,{kind:'spark',x:hx+Math.cos(a)*holeR*0.6,y:hy+Math.sin(a)*holeR*0.35,vx:-Math.cos(a)*6,vy:-Math.sin(a)*6,color:'#ff6060',life:0.75});
+ }
+ mhVoidShake(st,m.voidKing?220:180,m.voidKing?12:9);
 }
 function mhUpdateVoidFx(st,dt){
  if(!st.voidFx) return;
@@ -2624,6 +2644,21 @@ function mhUpdateVoidFx(st,dt){
   f.life-=dt;
   f.age=(f.age||0)+dt;
   f.x+=(f.vx||0)*dt*60; f.y+=(f.vy||0)*dt*60;
+  if(f.kind==='forbidden_spell'){
+   f.delay=(f.delay||0)-dt;
+   if(f.delay<=0){
+    const dx=(f.tx||f.x)-(f.x), dy=(f.ty||f.y)-(f.y);
+    const dist=Math.hypot(dx,dy)||1;
+    const pull=8+Math.sin((f.phase||0)+f.age*9)*2;
+    f.vx=(dx/dist)*pull; f.vy=(dy/dist)*pull;
+    if(dist<24&&Math.random()<0.35){
+     mhSpawnVoidFx(st,{kind:'spark',x:f.x,y:f.y,vx:(Math.random()-0.5)*8,vy:(Math.random()-0.5)*8,color:'#ff8080',life:0.35});
+    }
+   }
+  }
+  if(f.kind==='blackhole'||f.kind==='blackhole_core'||f.kind==='universe_rift'){
+   f.spin=(f.spin||0)+dt*(f.kind==='blackhole_core'?2.4:1.1);
+  }
   if(f.kind==='nova'||f.kind==='storm'||f.kind==='shock'||f.kind==='ring'){
    const dr=f.drNeg?-(f.dr||80): (f.dr||80);
    f.r=(f.r||20)+dr*dt;
@@ -2684,6 +2719,80 @@ function mhDrawVoidFx(ctx,st){
    ctx.beginPath(); ctx.arc(f.x,f.y,r,0,Math.PI*2); ctx.stroke();
    ctx.strokeStyle='rgba(255,255,255,.5)'; ctx.lineWidth=2;
    ctx.beginPath(); ctx.arc(f.x,f.y,r*0.7,0,Math.PI*2); ctx.stroke();
+  }else if(f.kind==='blackhole'){
+   const r=f.r||50;
+   const spin=f.spin||0;
+   const g=ctx.createRadialGradient(f.x,f.y,r*0.15,f.x,f.y,r*1.05);
+   g.addColorStop(0,'rgba(0,0,0,.95)');
+   g.addColorStop(0.35,'rgba(20,0,0,.85)');
+   g.addColorStop(0.62,'rgba(180,20,20,.55)');
+   g.addColorStop(0.88,'rgba(255,40,40,.22)');
+   g.addColorStop(1,'rgba(255,80,80,0)');
+   ctx.fillStyle=g;
+   ctx.beginPath(); ctx.arc(f.x,f.y,r,0,Math.PI*2); ctx.fill();
+   ctx.strokeStyle='rgba(255,60,60,.75)'; ctx.lineWidth=5;
+   for(let i=0;i<6;i++){
+    const ang=spin+i*Math.PI/3;
+    ctx.beginPath();
+    ctx.ellipse(f.x,f.y,r*0.92,r*0.38,ang,0,Math.PI*2);
+    ctx.stroke();
+   }
+   ctx.strokeStyle='rgba(0,0,0,.9)'; ctx.lineWidth=3;
+   ctx.beginPath(); ctx.arc(f.x,f.y,r*0.22,0,Math.PI*2); ctx.stroke();
+  }else if(f.kind==='blackhole_core'){
+   const r=f.r||24;
+   ctx.fillStyle='#000';
+   ctx.shadowColor='#ff2020'; ctx.shadowBlur=22;
+   ctx.beginPath(); ctx.arc(f.x,f.y,r,0,Math.PI*2); ctx.fill();
+   ctx.shadowBlur=0;
+   ctx.strokeStyle='rgba(255,40,40,.65)'; ctx.lineWidth=2;
+   ctx.beginPath(); ctx.arc(f.x,f.y,r*1.15,0,Math.PI*2); ctx.stroke();
+  }else if(f.kind==='universe_rift'){
+   const r=f.r||40;
+   const wobble=Math.sin((f.age||0)*7)*6;
+   ctx.save();
+   ctx.translate(f.x+wobble,f.y);
+   const g=ctx.createLinearGradient(0,-r*2.2,0,r*0.4);
+   g.addColorStop(0,'rgba(255,60,60,0)');
+   g.addColorStop(0.35,'rgba(255,30,30,.35)');
+   g.addColorStop(0.5,'rgba(0,0,0,.92)');
+   g.addColorStop(0.65,'rgba(255,30,30,.35)');
+   g.addColorStop(1,'rgba(255,60,60,0)');
+   ctx.fillStyle=g;
+   ctx.beginPath();
+   ctx.moveTo(-r*0.35,-r*2);
+   ctx.bezierCurveTo(-r*1.1,-r*0.6,-r*0.9,r*0.5,-r*0.25,r*0.35);
+   ctx.lineTo(r*0.25,r*0.35);
+   ctx.bezierCurveTo(r*0.9,r*0.5,r*1.1,-r*0.6,r*0.35,-r*2);
+   ctx.closePath();
+   ctx.fill();
+   ctx.strokeStyle='rgba(255,120,120,.85)'; ctx.lineWidth=2;
+   ctx.stroke();
+   ctx.strokeStyle='rgba(0,0,0,.95)'; ctx.lineWidth=4;
+   ctx.beginPath(); ctx.moveTo(0,-r*1.7); ctx.lineTo(0,r*0.2); ctx.stroke();
+   ctx.fillStyle='rgba(255,200,200,.9)'; ctx.font='bold 10px system-ui,sans-serif';
+   ctx.textAlign='center';
+   ctx.fillText('RIFT',0,-r*1.45);
+   ctx.restore();
+  }else if(f.kind==='forbidden_spell'){
+   if((f.delay||0)>0){ ctx.restore(); return; }
+   const tailX=f.x-(f.vx||0)*4, tailY=f.y-(f.vy||0)*4;
+   ctx.strokeStyle=col==='#1a1a1a'?'#ff5050':col;
+   ctx.lineWidth=4; ctx.shadowColor='#ff3030'; ctx.shadowBlur=12;
+   ctx.beginPath(); ctx.moveTo(tailX,tailY); ctx.lineTo(f.x,f.y); ctx.stroke();
+   ctx.shadowBlur=0;
+   ctx.fillStyle='rgba(0,0,0,.88)'; ctx.strokeStyle='#ff4040'; ctx.lineWidth=2;
+   ctx.beginPath();
+   for(let i=0;i<5;i++){
+    const ang=(f.phase||0)+i*Math.PI*2/5;
+    const rr=9+(i%2)*2;
+    const sx=f.x+Math.cos(ang)*rr, sy=f.y+Math.sin(ang)*rr;
+    if(i===0) ctx.moveTo(sx,sy); else ctx.lineTo(sx,sy);
+   }
+   ctx.closePath(); ctx.fill(); ctx.stroke();
+   ctx.fillStyle='#ffe0e0'; ctx.font='9px system-ui,sans-serif'; ctx.textAlign='center';
+   const sn=(f.spell||'Spell').split(' ')[0];
+   ctx.fillText(sn,f.x,f.y+3);
   }else if(f.kind==='storm'){
    const r=f.r||30;
    ctx.strokeStyle=col; ctx.lineWidth=4;
@@ -2733,6 +2842,15 @@ function mhUseVoidAttack(st,save,pos){
  mhSpawnAttackVfx(st,m,atk,dir,pos,rage);
  mhToast('⚔ '+atk.name+'!');
  try{if(typeof SFX!=='undefined'&&SFX.hit)SFX.hit();}catch(_){}
+}
+function mhUseVoidStorm(st,save,pos){
+ const m=mhVoidCombatMorph(save);
+ if(!m){ mhToast('Morph into a Void Fallen noobie first (Morph tab)!'); return; }
+ const dir=mhFacingDir(st);
+ const range=m.voidKing?210:175;
+ mhSpawnVoidUniverseStorm(st,m,dir,pos,range);
+ mhToast('🌌 '+MH_VOID_STORM_NAME+'! Red-black hole · forbidden spells from the universe rift!');
+ try{if(typeof SFX!=='undefined'&&SFX.ui)SFX.ui();}catch(_){}
 }
 function mhUseVoidPower(st,save,pos,map){
  const m=mhVoidCombatMorph(save);
@@ -3270,6 +3388,10 @@ function mhWalkApplyKey(e,down){
   const pos=mhWalkEnsurePos(mhState,mhState.world);
   mhUseVoidPower(mhState,mhState.save,pos,map); hit=true;
  }
+ if(down&&!e.repeat&&(c==='Digit3'||c==='Numpad3'||k==='3')){
+  const pos=mhWalkEnsurePos(mhState,mhState.world);
+  mhUseVoidStorm(mhState,mhState.save,pos); hit=true;
+ }
  if(hit){
   e.preventDefault();
   e.stopPropagation();
@@ -3629,6 +3751,13 @@ function mhWalkStart(){
   const pos=mhWalkEnsurePos(mhState,mhState.world);
   mhUseVoidPower(mhState,mhState.save,pos,map);
  };
+ const voidStorm=root?.querySelector('#mh-void-storm');
+ if(voidStorm) voidStorm.onclick=()=>{
+  if(!mhState?.save) return;
+  root.querySelector('#mh-walk-canvas')?.focus();
+  const pos=mhWalkEnsurePos(mhState,mhState.world);
+  mhUseVoidStorm(mhState,mhState.save,pos);
+ };
  const canvas=root?.querySelector('#mh-walk-canvas');
  if(canvas) canvas.onclick=mhWalkCanvasClick;
 }
@@ -3681,7 +3810,7 @@ function mhRenderHunt(save, wi){
   </ol>
  </div>
  <div class="mh-walk-wrap">
-  <div id="mh-void-combat-readout" class="mh-void-combat-readout">${voidCombat?('⚔ '+voidCombat.voidAttack?.name+' · ✦ '+voidCombat.voidPower?.name):'🎭 Morph a Void Fallen → <b>1</b> / <b>2</b> on any map'}${wi===MH_VOID_WORLD?' · <b>'+MH_VOID_ABYSS_LABEL+'</b>':''}</div>
+  <div id="mh-void-combat-readout" class="mh-void-combat-readout">${voidCombat?('⚔ '+voidCombat.voidAttack?.name+' · ✦ '+voidCombat.voidPower?.name+' · 🌌 '+MH_VOID_STORM_NAME):'🎭 Morph a Void Fallen → <b>1</b> / <b>2</b> / <b>3</b> on any map'}${wi===MH_VOID_WORLD?' · <b>'+MH_VOID_ABYSS_LABEL+'</b>':''}</div>
   <canvas id="mh-walk-canvas" class="mh-walk-canvas" width="960" height="520" tabindex="0"></canvas>
   <div id="mh-walk-hud" class="mh-walk-hud mh-walk-hud-clean">
    <span class="mh-walk-zone">${world.emoji} ${world.name} · ${found}/${morphs.length}</span>
@@ -3689,7 +3818,7 @@ function mhRenderHunt(save, wi){
    <button type="button" class="mh-btn primary mh-btn-sm" id="mh-walk-interact">🎮 Minigame (E)</button>
    <button type="button" class="mh-btn mh-btn-sm" id="mh-walk-enter">F House</button>
    <button type="button" class="mh-btn mh-btn-sm" id="mh-walk-run">Run</button>
-   <button type="button" class="mh-btn mh-btn-sm" id="mh-void-atk">⚔ 1 Attack</button><button type="button" class="mh-btn mh-btn-sm" id="mh-void-pow">✦ 2 Power</button>
+   <button type="button" class="mh-btn mh-btn-sm" id="mh-void-atk">⚔ 1 Attack</button><button type="button" class="mh-btn mh-btn-sm" id="mh-void-pow">✦ 2 Power</button><button type="button" class="mh-btn mh-btn-sm" id="mh-void-storm">🌌 3 Storm</button>
   </div>
  </div>
  ${mhRenderHuntDeck(save,wi,morphs)}
@@ -3747,7 +3876,7 @@ function mhRenderMorph(save){
  return `<div class="mh-morph-tab">
   <h3>🎭 Morph &amp; Roleplay</h3>
   <p class="mh-scene-hint">Turn into any noobie you own — your morph also shows on the Rock Teacher!</p>
-  <div class="mh-morph-preview large">${wear?`<svg viewBox="0 0 100 130">${mhClassicNoobSvg(wear)}</svg><b>${wear.name}</b>${(wear.rarity==='voidfallen'||wear.voidFallen)?`<p class="mh-scene-hint" style="color:${wear.voidKing?'#ff6060':'#c898ff'}">Any map · <b>1</b> ⚔ ${wear.voidAttack?.name||'Attack'} · <b>2</b> ✦ ${wear.voidPower?.name||'Power'}${wear.voidKing?' · 👑 red-black storm aura':' · 🕳 purple-black void storm aura'}</p>`:''}<button type="button" class="mh-btn primary" data-mh-wear="${wear.id}">Stay morphed</button>`:'<span>Pick a noobie below</span>'}</div>
+  <div class="mh-morph-preview large">${wear?`<svg viewBox="0 0 100 130">${mhClassicNoobSvg(wear)}</svg><b>${wear.name}</b>${(wear.rarity==='voidfallen'||wear.voidFallen)?`<p class="mh-scene-hint" style="color:${wear.voidKing?'#ff6060':'#c898ff'}">Any map · <b>1</b> ⚔ ${wear.voidAttack?.name||'Attack'} · <b>2</b> ✦ ${wear.voidPower?.name||'Power'} · <b>3</b> 🌌 ${MH_VOID_STORM_NAME}${wear.voidKing?' · 👑 universe rift king':' · 🕳 void storm aura'}</p>`:''}<button type="button" class="mh-btn primary" data-mh-wear="${wear.id}">Stay morphed</button>`:'<span>Pick a noobie below</span>'}</div>
   <input type="search" id="mh-search" placeholder="Search your morphs…" value="${q.replace(/"/g,'&quot;')}"/>
   <div class="mh-morph-grid">${cards}</div>
   <div class="mh-pager">${pg.page>0?'<button type="button" class="mh-btn" data-mh-page="'+(pg.page-1)+'">←</button>':''}<span>${pg.page+1}/${pg.pages}</span>${pg.page+1<pg.pages?'<button type="button" class="mh-btn" data-mh-page="'+(pg.page+1)+'">→</button>':''}</div>
