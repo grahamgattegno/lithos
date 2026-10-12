@@ -5,10 +5,9 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v51';
-const MH_SCENERY_STAMP='VOID_COOL_COMBAT_v51';
-const MH_SCRIPT_FILE='morph-hunt.void-2d-v51.js';
-const MH_VOID_ATK_CD=0.38;
+const MH_BUILD='void-2d-v52';
+const MH_SCENERY_STAMP='VOID_NO_RECHARGE_v52';
+const MH_SCRIPT_FILE='morph-hunt.void-2d-v52.js';
 const MH_KING_STAMP='RED_BLACK_KING_v31';
 const MH_MEGA_W=7;
 const MH_MEGA_H=6;
@@ -2482,33 +2481,27 @@ function mhVoidPowLeft(st){
  if(!st?.voidCd?.pow) return 0;
  return Math.max(0,(st.voidCd.pow-performance.now())/1000);
 }
-function mhRefreshVoidCombatHud(save,st){
+function mhRefreshVoidCombatHud(save){
  const vm=mhVoidCombatMorph(save);
  const atkN=vm?.voidAttack?.name||'—';
  const powN=vm?.voidPower?.name||'—';
- const powLeft=st?mhVoidPowLeft(st):0;
- const atkLeft=st?mhVoidAtkLeft(st):0;
- const powReady=!powLeft;
- const atkReady=!atkLeft;
  const bar=document.getElementById('mh-void-combat-readout');
  if(bar){
   bar.innerHTML=vm
-   ?`<b>⚔ 1</b> ${atkN}${atkReady?'':(' <b>'+atkLeft.toFixed(1)+'s</b>')} · <b>✦ 2</b> ${powN}${powReady?' · <span style="color:#80ffb0">POWER READY</span>':(' · <b>'+powLeft.toFixed(1)+'s</b>')}${vm.voidKing?' · 👑 storm':''}`
+   ?`<b>⚔ 1</b> ${atkN} · <b>✦ 2</b> ${powN} — <span style="color:#80ffb0">no recharge · spam away</span>${vm.voidKing?' · 👑 storm':''}`
    :'🎭 Morph a <b>Void Fallen</b> in Morph tab — then <b>1</b> attack · <b>2</b> power on any map';
  }
  const btnA=document.getElementById('mh-void-atk');
  const btnP=document.getElementById('mh-void-pow');
  if(btnA){
-  btnA.textContent=vm?(atkReady?('⚔ 1 '+atkN):('⚔ '+atkLeft.toFixed(1)+'s')):'⚔ 1 Attack';
-  btnA.disabled=!!vm&&!atkReady;
-  btnA.style.opacity=vm&&!atkReady?'0.55':'1';
+  btnA.textContent=vm?('⚔ 1 '+atkN):'⚔ 1 Attack';
+  btnA.disabled=false;
+  btnA.style.opacity='1';
  }
  if(btnP){
-  btnP.textContent=vm
-   ?(powReady?('✦ 2 '+powN):('✦ '+powLeft.toFixed(1)+'s'))
-   :'✦ 2 Power';
-  btnP.disabled=!!vm&&!powReady;
-  btnP.style.opacity=vm&&!powReady?'0.55':'1';
+  btnP.textContent=vm?('✦ 2 '+powN):'✦ 2 Power';
+  btnP.disabled=false;
+  btnP.style.opacity='1';
  }
 }
 function mhDrawVoidAbyssMist(ctx,map,t){
@@ -2750,10 +2743,6 @@ function mhVoidCooldown(st,slot,sec){
 function mhUseVoidAttack(st,save,pos){
  const m=mhVoidCombatMorph(save);
  if(!m){ mhToast('Morph into a Void Fallen noobie first (Morph tab)!'); return; }
- if(!mhVoidCooldown(st,'atk',MH_VOID_ATK_CD)){
-  mhToast('Attack… '+mhVoidAtkLeft(st).toFixed(1)+'s');
-  return;
- }
  const atk=m.voidAttack||MH_VOID_ATTACKS[0];
  const dir=mhFacingDir(st);
  const rage=st.voidRageUntil&&performance.now()<st.voidRageUntil;
@@ -2765,12 +2754,6 @@ function mhUseVoidPower(st,save,pos,map){
  const m=mhVoidCombatMorph(save);
  if(!m){ mhToast('Morph into a Void Fallen noobie first!'); return; }
  const pow=m.voidPower||MH_VOID_POWERS[0];
- const cd=pow.cooldown||2;
- if(!mhVoidCooldown(st,'pow',cd)){
-  const left=mhVoidPowLeft(st);
-  mhToast('Power recharging… '+left.toFixed(1)+'s');
-  return;
- }
  const dir=mhFacingDir(st);
  if(pow.kind==='dash'){
   pos.px+=dir.dx*(pow.dist||80); pos.py+=dir.dy*(pow.dist||80);
@@ -3483,7 +3466,7 @@ function mhWalkDrawFrame(){
   }
  }
  if(flatMap&&wi!==MH_VOID_WORLD) mhPaperFlatOverlay(ctx,W,H);
- mhRefreshVoidCombatHud(save,st);
+ mhRefreshVoidCombatHud(save);
  if(wi===MH_VOID_WORLD){
   mhVoidFlatScreenOverlay(ctx,W,H);
   ctx.fillStyle='rgba(0,0,0,.78)'; ctx.fillRect(W/2-185,22,370,24);
