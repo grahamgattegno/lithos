@@ -5,8 +5,8 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v71';
-const MH_SCENERY_STAMP='CHARACTER_CHAT_v71';
+const MH_BUILD='void-2d-v72';
+const MH_SCENERY_STAMP='FIX_SPACE_STRATUM_v72';
 const MH_CHAT_LOG_KEY='lithos_mh_chat_log_v1';
 const MH_CHAT_POLL_MS=3500;
 const MH_CHAT_BROADCAST='lithos-mh-chat';
@@ -1939,9 +1939,42 @@ function mhRefreshTeacherNoob(){
 let mhState=null;
 let mhPendingFound=null;
 
+function mhMorphHuntIsOpen(){
+ return !!(mhState&&document.getElementById('morphhunt'));
+}
+function mhMorphHuntTypingTarget(el){
+ if(!el) return false;
+ if(el.id==='mh-chat-input'||el.id==='mh-chat-friend-code') return true;
+ return !!(el.closest&&el.closest('input,textarea,select,[contenteditable="true"]'));
+}
+function mhMorphHuntSpaceGuard(e){
+ if(!document.getElementById('morphhunt')) return;
+ if(mhMorphHuntTypingTarget(e.target)) return;
+ if(isSpaceKey(e)){
+  e.preventDefault();
+  e.stopPropagation();
+ }
+}
+function mhMorphHuntSpaceGuardUp(e){
+ if(!document.getElementById('morphhunt')) return;
+ if(mhMorphHuntTypingTarget(e.target)) return;
+ if(isSpaceKey(e)){
+  e.preventDefault();
+  e.stopPropagation();
+ }
+}
+function mhMorphHuntBindSpaceGuard(){
+ document.addEventListener('keydown',mhMorphHuntSpaceGuard,true);
+ document.addEventListener('keyup',mhMorphHuntSpaceGuardUp,true);
+}
+function mhMorphHuntUnbindSpaceGuard(){
+ document.removeEventListener('keydown',mhMorphHuntSpaceGuard,true);
+ document.removeEventListener('keyup',mhMorphHuntSpaceGuardUp,true);
+}
 function mhClose(){
  mhWalkStop();
  mhPreviewStop();
+ mhMorphHuntUnbindSpaceGuard();
  const el=document.getElementById('morphhunt');
  if(el)el.remove();
  mhState=null;
@@ -4366,9 +4399,18 @@ function mhWalkActive(){
  return !!(mhState&&mhState.tab==='hunt'&&document.getElementById('morphhunt')&&!mhState.minigameMorph&&!mhState.kingCutscene);
 }
 function mhWalkApplyKey(e,down){
+ if(!mhMorphHuntIsOpen()) return false;
+ if(mhState.minigameMorph||mhState.kingCutscene){
+  if(down&&isSpaceKey(e)&&!mhMorphHuntTypingTarget(e.target)){
+   e.preventDefault();
+   e.stopPropagation();
+   return true;
+  }
+  return false;
+ }
  if(!mhWalkActive()) return false;
  const ae=document.activeElement;
- const typing=ae&&(ae.id==='mh-chat-input'||ae.id==='mh-chat-friend-code');
+ const typing=mhMorphHuntTypingTarget(ae);
  if(typing&&e.code!=='Enter'&&e.code!=='Escape') return false;
  if(!mhState.walkKeys) mhState.walkKeys={};
  const c=e.code,k=e.key;
@@ -4383,8 +4425,11 @@ function mhWalkApplyKey(e,down){
  if(c==='KeyW'||c==='ArrowUp'||k==='w'||k==='W') touch('up',down);
  if(c==='KeyS'||c==='ArrowDown'||k==='s'||k==='S') touch('down',down);
  if(c==='ShiftLeft'||c==='ShiftRight'||k==='Shift') touch('run',down);
- if(down&&(c==='KeyE'||k==='e'||k==='E'||c==='Space'||isSpaceKey(e))){
+ if(down&&(c==='KeyE'||k==='e'||k==='E')){
   mhTryStartMinigame();
+  hit=true;
+ }
+ if(down&&isSpaceKey(e)){
   hit=true;
  }
  if(down&&(c==='KeyF'||k==='f'||k==='F')){
@@ -4393,7 +4438,7 @@ function mhWalkApplyKey(e,down){
  }
  if(down&&(c==='KeyJ'||k==='j'||k==='J')){ mhMayorCrank(-14); hit=true; }
  if(down&&(c==='KeyL'||k==='k'||k==='K')){ mhMayorCrank(14); hit=true; }
- if(down&&(c==='KeyR'||k==='r'||k==='R')&&!keys.run){
+ if(down&&(c==='KeyR'||k==='r'||k==='R')&&!mhState.walkKeys?.run){
   const map=MH_WORLD_MAPS[mhState.world];
   const pos=mhWalkEnsurePos(mhState,mhState.world);
   if(mhNearMayorShrine(pos,map)){ mhMayorFlashBeam(); hit=true; }
@@ -5091,6 +5136,7 @@ function mhSyncMorphHuntUrl(){
 function playMorphHunt(){
  mhSyncMorphHuntUrl();
  mhClose();
+ mhMorphHuntBindSpaceGuard();
  mhEnsureOverlayModals();
  if(typeof lithosCloseGameOverlays==='function'){ try{lithosCloseGameOverlays();}catch(_){} }
  mhState={save:mhLoadSave(),world:0,tab:'hunt',page:0,huntPage:0,filter:'',indexKind:'all',walkPos:{},enemyHp:{},enemyAggro:{},enemyRespawnAt:{},enemyLastHit:{},enemyHitFlash:{},chatChannel:'global',chatSince:{global:0,server:0,friend:0},chatBubbles:[],chatNpcLine:{}};

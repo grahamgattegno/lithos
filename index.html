@@ -5511,7 +5511,7 @@
 <script src="gemcopter.js?v=deploy-85"></script>
 <script>
 (function lithosLoadMorphHunt(){
- var MH_NEED='void-2d-v71';
+ var MH_NEED='void-2d-v72';
  var MH_SCRIPT='morph-hunt.js';
  window.__LITHOS_MH_LATEST=MH_NEED;
  window.__LITHOS_MH_NEED=MH_NEED;
@@ -5549,7 +5549,7 @@
 </script>
 <script>
 window.lithosPlayMorphHunt=function lithosPlayMorphHunt(){
- var NEED=window.__LITHOS_MH_LATEST||window.__LITHOS_MH_NEED||'void-2d-v71';
+ var NEED=window.__LITHOS_MH_LATEST||window.__LITHOS_MH_NEED||'void-2d-v72';
  var tries=0;
  function mhBuildNum(tag){
   var m=String(tag||'').match(/void-2d-v(\d+)/);
@@ -14027,7 +14027,10 @@ function isSpaceKey(e){return!!e&&(e.code==='Space'||e.key===' '||e.key==='Space
 function isTypingTarget(el){return!!(el&&el.closest&&el.closest('input,textarea,select,[contenteditable="true"]'));}
 // Night Shift keyboard controls (works while the spooky game is open)
 document.addEventListener('keydown',e=>{
- if(document.getElementById('morphhunt'))return;
+ if(document.getElementById('morphhunt')){
+  if(isSpaceKey(e)&&!isTypingTarget(e.target)){e.preventDefault();e.stopPropagation();}
+  return;
+ }
  if(!nsGame)return;
  if(isTypingTarget(e.target))return;
  if(nsGame.market){ if(e.key==='Escape'){ nsCloseMarket(); e.preventDefault(); } return; }
@@ -14042,7 +14045,10 @@ document.addEventListener('keydown',e=>{
 });
 // arrow keys + space controls
 document.addEventListener('keydown',e=>{
- if(document.getElementById('morphhunt'))return;
+ if(document.getElementById('morphhunt')){
+  if(isSpaceKey(e)&&!isTypingTarget(e.target)){e.preventDefault();e.stopPropagation();}
+  return;
+ }
  if(isTypingTarget(e.target))return;
  if(gmState&&gmState.running&&!views.gemmotion.hidden){
   if(e.key==='l'||e.key==='L'){stopGemMotion();buildGemMotion();e.preventDefault();return;}
