@@ -5,8 +5,8 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v77';
-const MH_SCENERY_STAMP='OPAQUE_HUNT_SHELL_v77';
+const MH_BUILD='void-2d-v78';
+const MH_SCENERY_STAMP='NO_BLUE_TAB_RING_v78';
 const MH_CHAT_LOG_KEY='lithos_mh_chat_log_v1';
 const MH_CHAT_POLL_MS=3500;
 const MH_CHAT_BROADCAST='lithos-mh-chat';
@@ -2766,6 +2766,15 @@ function mhSetTab(tab){
  mhState.tab=tab;
  mhState.page=0;
  mhRender();
+ mhMorphHuntBlurPageFocus();
+}
+function mhTabNoFocusRing(btn,onPick){
+ btn.addEventListener('mousedown',e=>{ e.preventDefault(); });
+ btn.addEventListener('click',()=>{
+  onPick();
+  try{ btn.blur(); }catch(_){}
+  mhMorphHuntBlurPageFocus();
+ });
 }
 
 function mhFilterList(list,q){
@@ -5144,7 +5153,7 @@ function mhBind(root){
  root.querySelectorAll('[data-mh-world]').forEach(btn=>btn.addEventListener('click',()=>{ mhState.huntPage=0; mhSetWorld(+btn.dataset.mhWorld); }));
  root.querySelectorAll('[data-mh-challenge]').forEach(btn=>btn.addEventListener('click',()=>mhDeckUnlock(mhMorph(btn.dataset.mhChallenge),mhState.save)));
  root.querySelectorAll('[data-mh-hunt-page]').forEach(btn=>btn.addEventListener('click',()=>{ mhState.huntPage=+btn.dataset.mhHuntPage; mhRender(); }));
- root.querySelectorAll('[data-mh-tab]').forEach(btn=>btn.addEventListener('click',()=>mhSetTab(btn.dataset.mhTab)));
+ root.querySelectorAll('[data-mh-tab]').forEach(btn=>mhTabNoFocusRing(btn,()=>mhSetTab(btn.dataset.mhTab)));
  root.querySelectorAll('[data-mh-prev-mode]').forEach(btn=>btn.addEventListener('click',()=>{
   mhState.previewRun=btn.dataset.mhPrevMode==='run';
   mhRender();
