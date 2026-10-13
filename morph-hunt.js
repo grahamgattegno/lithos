@@ -5,8 +5,8 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v79';
-const MH_SCENERY_STAMP='CURSOR_RING_HELP_v79';
+const MH_BUILD='void-2d-v80';
+const MH_SCENERY_STAMP='PLAY_OUTSIDE_CURSOR_v80';
 const MH_CHAT_LOG_KEY='lithos_mh_chat_log_v1';
 const MH_CHAT_POLL_MS=3500;
 const MH_CHAT_BROADCAST='lithos-mh-chat';
@@ -2021,16 +2021,29 @@ function mhLikelyIdePreview(){
  }catch(_){}
  return false;
 }
+function mhIdeHintDismissed(){
+ try{ return localStorage.getItem('lithos_mh_hide_ide_hint')==='1'; }catch(_){ return false; }
+}
 function mhIdePreviewHintHtml(){
- if(!mhLikelyIdePreview()) return '';
- const url=location.href;
+ if(mhIdeHintDismissed()) return '';
+ const url=location.href.split('#')[0]+'#morphhunt';
+ const safe=url.replace(/"/g,'&quot;');
+ const inIde=mhLikelyIdePreview();
  return `<aside class="mh-ide-preview-hint" role="note">
-  <b>Blue blur ring around the whole panel?</b> That is <em>Cursor’s preview</em> or Mac keyboard focus — not Lithos. We cannot remove it from inside the game.
+  <button type="button" class="mh-ide-hint-x" id="mh-ide-hint-dismiss" title="Hide this tip">×</button>
+  <b>Blue ring outside the game?</b> Lithos cannot fix that — it is the <em>Cursor preview window</em> or Mac <em>Full Keyboard Access</em>.${inIde?' <em>(Detected embedded preview.)</em>':''}
   <span class="mh-ide-preview-actions">
-   <a class="mh-ide-open-ext" href="${url.replace(/"/g,'&quot;')}" target="_blank" rel="noopener noreferrer">Open in Safari/Chrome ↗</a>
-   <span class="mh-ide-preview-mac">Mac: System Settings → Accessibility → Keyboard → turn <b>Full Keyboard Access</b> off · ⌘F5 toggles VoiceOver</span>
+   <a class="mh-ide-open-ext" href="${safe}" target="_blank" rel="noopener noreferrer">Open in Safari/Chrome ↗</a>
+   <span class="mh-ide-preview-mac">Best on Mac: double-click <b>Play-Morph-Hunt-in-Safari.command</b> in your Lithos folder (opens real Safari). Or Terminal: <code>open -a Safari "${safe.replace(/&quot;/g,'"')}"</code></span>
+   <span class="mh-ide-preview-mac">Mac settings: Accessibility → Keyboard → <b>Full Keyboard Access</b> OFF · Cursor: ⌘⇧P → <b>Developer: Reload Window</b></span>
   </span>
  </aside>`;
+}
+function mhBindIdeHint(root){
+ root?.querySelector('#mh-ide-hint-dismiss')?.addEventListener('click',()=>{
+  try{ localStorage.setItem('lithos_mh_hide_ide_hint','1'); }catch(_){}
+  root.querySelector('.mh-ide-preview-hint')?.remove();
+ });
 }
 function mhMorphHuntInertBackground(on){
  if(!mhState) return;
@@ -5168,6 +5181,7 @@ function mhRenderGacha(save){
 }
 
 function mhBind(root){
+ mhBindIdeHint(root);
  root.querySelector('#mh-leave')?.addEventListener('click',mhClose);
  root.querySelectorAll('[data-mh-id]').forEach(btn=>btn.addEventListener('click',()=>mhCollect(btn.dataset.mhId)));
  root.querySelectorAll('[data-mh-world]').forEach(btn=>btn.addEventListener('click',()=>{ mhState.huntPage=0; mhSetWorld(+btn.dataset.mhWorld); }));
