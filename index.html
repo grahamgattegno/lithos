@@ -1505,7 +1505,10 @@
   .gr-btn{background:linear-gradient(135deg,#3a8ac0,#7ad0f0);color:#08131a;border:none;border-radius:11px;padding:11px 20px;font-weight:800;font-size:14.5px;cursor:pointer}
   .gr-btn.ghost{background:transparent;border:1px solid #4a4058;color:#b0a8c0}
   /* Morph Hunt — find unique morphs across worlds */
-  #morphhunt{position:fixed;inset:0;z-index:9999;background:rgba(4,6,14,.94);display:flex;align-items:stretch;justify-content:center;padding:10px;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));overflow:auto}
+  #morphhunt{position:fixed;inset:0;z-index:9999;background:rgba(4,6,14,.94);display:flex;align-items:stretch;justify-content:center;padding:10px;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));overflow:auto;isolation:isolate}
+  #morphhunt .mh-walk-canvas:focus{outline:2px solid #ffe8a0;outline-offset:3px}
+  #morphhunt .mh-walk-canvas:focus-visible{outline:2px solid #ffe8a0;outline-offset:3px}
+  #morphhunt:focus{outline:none}
   .mh-panel{width:min(1100px,100%);margin:auto;display:flex;flex-direction:column;gap:10px;font-family:var(--font,system-ui,sans-serif);color:var(--text,#e8e4f0)}
   .mh-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;align-items:flex-start;border-bottom:1px solid rgba(201,169,79,.25);padding-bottom:10px}
   .mh-title{margin:0;font-family:var(--display,serif);font-size:clamp(22px,4vw,28px);color:var(--gold,#c9a94f)}
@@ -5511,7 +5514,7 @@
 <script src="gemcopter.js?v=deploy-85"></script>
 <script>
 (function lithosLoadMorphHunt(){
- var MH_NEED='void-2d-v72';
+ var MH_NEED='void-2d-v73';
  var MH_SCRIPT='morph-hunt.js';
  window.__LITHOS_MH_LATEST=MH_NEED;
  window.__LITHOS_MH_NEED=MH_NEED;
@@ -5549,7 +5552,8 @@
 </script>
 <script>
 window.lithosPlayMorphHunt=function lithosPlayMorphHunt(){
- var NEED=window.__LITHOS_MH_LATEST||window.__LITHOS_MH_NEED||'void-2d-v72';
+ try{if(typeof closeGamesHub==='function')closeGamesHub({skipHash:true});}catch(_){}
+ var NEED=window.__LITHOS_MH_LATEST||window.__LITHOS_MH_NEED||'void-2d-v73';
  var tries=0;
  function mhBuildNum(tag){
   var m=String(tag||'').match(/void-2d-v(\d+)/);
@@ -14028,7 +14032,11 @@ function isTypingTarget(el){return!!(el&&el.closest&&el.closest('input,textarea,
 // Night Shift keyboard controls (works while the spooky game is open)
 document.addEventListener('keydown',e=>{
  if(document.getElementById('morphhunt')){
-  if(isSpaceKey(e)&&!isTypingTarget(e.target)){e.preventDefault();e.stopPropagation();}
+  if(isTypingTarget(e.target)) return;
+  const inMh=e.target&&e.target.closest&&e.target.closest('#morphhunt');
+  const act=isSpaceKey(e)||e.key==='Enter'||e.code==='Enter';
+  if(!inMh&&act){e.preventDefault();e.stopImmediatePropagation();}
+  else if(inMh&&act&&(e.target.id==='mh-walk-canvas'||e.target.classList?.contains('mh-walk-canvas'))){e.preventDefault();e.stopImmediatePropagation();}
   return;
  }
  if(!nsGame)return;
@@ -14046,7 +14054,11 @@ document.addEventListener('keydown',e=>{
 // arrow keys + space controls
 document.addEventListener('keydown',e=>{
  if(document.getElementById('morphhunt')){
-  if(isSpaceKey(e)&&!isTypingTarget(e.target)){e.preventDefault();e.stopPropagation();}
+  if(isTypingTarget(e.target)) return;
+  const inMh=e.target&&e.target.closest&&e.target.closest('#morphhunt');
+  const act=isSpaceKey(e)||e.key==='Enter'||e.code==='Enter';
+  if(!inMh&&act){e.preventDefault();e.stopImmediatePropagation();}
+  else if(inMh&&act&&(e.target.id==='mh-walk-canvas'||e.target.classList?.contains('mh-walk-canvas'))){e.preventDefault();e.stopImmediatePropagation();}
   return;
  }
  if(isTypingTarget(e.target))return;
@@ -18638,6 +18650,7 @@ function playPoppyChapter(n){
  lithos8bitSync();
 }
 function poppyHubOnKey(e){
+ if(document.getElementById('morphhunt'))return;
  if(!poppyHubActive())return;
  if(e.target.closest('input,textarea,select,[contenteditable]'))return;
  const unlock=poppyUnlockLevel();

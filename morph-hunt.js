@@ -5,8 +5,8 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v72';
-const MH_SCENERY_STAMP='FIX_SPACE_STRATUM_v72';
+const MH_BUILD='void-2d-v73';
+const MH_SCENERY_STAMP='FOCUS_TRAP_NO_STRATUM_v73';
 const MH_CHAT_LOG_KEY='lithos_mh_chat_log_v1';
 const MH_CHAT_POLL_MS=3500;
 const MH_CHAT_BROADCAST='lithos-mh-chat';
@@ -1947,34 +1947,79 @@ function mhMorphHuntTypingTarget(el){
  if(el.id==='mh-chat-input'||el.id==='mh-chat-friend-code') return true;
  return !!(el.closest&&el.closest('input,textarea,select,[contenteditable="true"]'));
 }
-function mhMorphHuntSpaceGuard(e){
+function mhMorphHuntActivationKey(e){
+ if(!e) return false;
+ if(isSpaceKey(e)) return true;
+ if(e.key==='Enter'||e.code==='Enter'||e.code==='NumpadEnter') return true;
+ return false;
+}
+function mhMorphHuntKeyGuard(e){
  if(!document.getElementById('morphhunt')) return;
- if(mhMorphHuntTypingTarget(e.target)) return;
- if(isSpaceKey(e)){
+ const t=e.target;
+ if(mhMorphHuntTypingTarget(t)) return;
+ const inside=t&&t.closest&&t.closest('#morphhunt');
+ if(!inside){
+  if(mhMorphHuntActivationKey(e)){
+   e.preventDefault();
+   e.stopImmediatePropagation();
+  }
+  return;
+ }
+ if(t&&(t.tagName==='BUTTON'||t.tagName==='A'||t.tagName==='SUMMARY'||t.tagName==='INPUT')) return;
+ if(t&&(t.id==='mh-walk-canvas'||t.classList?.contains('mh-walk-canvas'))&&mhMorphHuntActivationKey(e)){
   e.preventDefault();
-  e.stopPropagation();
+  e.stopImmediatePropagation();
  }
 }
-function mhMorphHuntSpaceGuardUp(e){
+function mhMorphHuntFocusTrap(e){
  if(!document.getElementById('morphhunt')) return;
- if(mhMorphHuntTypingTarget(e.target)) return;
- if(isSpaceKey(e)){
-  e.preventDefault();
-  e.stopPropagation();
+ if(e.target&&e.target.closest&&e.target.closest('#morphhunt')) return;
+ const root=document.getElementById('morphhunt');
+ const focusEl=root?.querySelector('#mh-walk-canvas')||root?.querySelector('button,[tabindex]');
+ if(focusEl){
+  try{ focusEl.focus({preventScroll:true}); }catch(_){ focusEl.focus(); }
  }
 }
-function mhMorphHuntBindSpaceGuard(){
- document.addEventListener('keydown',mhMorphHuntSpaceGuard,true);
- document.addEventListener('keyup',mhMorphHuntSpaceGuardUp,true);
+function mhMorphHuntInertBackground(on){
+ if(!mhState) return;
+ if(on){
+  mhState.inertEls=[];
+  for(const el of document.body.children){
+   if(el.id==='morphhunt') continue;
+   mhState.inertEls.push(el);
+   try{ el.inert=true; }catch(_){}
+   try{ el.setAttribute('aria-hidden','true'); }catch(_){}
+  }
+ }else{
+  (mhState.inertEls||[]).forEach(el=>{
+   try{ el.inert=false; }catch(_){}
+   try{ el.removeAttribute('aria-hidden'); }catch(_){}
+  });
+  mhState.inertEls=[];
+ }
 }
-function mhMorphHuntUnbindSpaceGuard(){
- document.removeEventListener('keydown',mhMorphHuntSpaceGuard,true);
- document.removeEventListener('keyup',mhMorphHuntSpaceGuardUp,true);
+function mhMorphHuntFocusGame(){
+ const c=document.getElementById('mh-walk-canvas');
+ if(c){
+  c.setAttribute('tabindex','0');
+  try{ c.focus({preventScroll:true}); }catch(_){ c.focus(); }
+ }
+}
+function mhMorphHuntBindModal(){
+ document.addEventListener('keydown',mhMorphHuntKeyGuard,true);
+ document.addEventListener('keyup',mhMorphHuntKeyGuard,true);
+ document.addEventListener('focusin',mhMorphHuntFocusTrap,true);
+}
+function mhMorphHuntUnbindModal(){
+ document.removeEventListener('keydown',mhMorphHuntKeyGuard,true);
+ document.removeEventListener('keyup',mhMorphHuntKeyGuard,true);
+ document.removeEventListener('focusin',mhMorphHuntFocusTrap,true);
 }
 function mhClose(){
  mhWalkStop();
  mhPreviewStop();
- mhMorphHuntUnbindSpaceGuard();
+ mhMorphHuntInertBackground(false);
+ mhMorphHuntUnbindModal();
  const el=document.getElementById('morphhunt');
  if(el)el.remove();
  mhState=null;
@@ -5118,7 +5163,7 @@ function mhRender(){
  mhPreviewStop();
  if(tab==='hunt'){
   mhWalkStart();
-  root.querySelector('#mh-walk-canvas')?.focus();
+  mhMorphHuntFocusGame();
  }else if(tab==='preview'){
   mhPreviewStart();
  }
@@ -5136,13 +5181,18 @@ function mhSyncMorphHuntUrl(){
 function playMorphHunt(){
  mhSyncMorphHuntUrl();
  mhClose();
- mhMorphHuntBindSpaceGuard();
+ mhMorphHuntBindModal();
  mhEnsureOverlayModals();
  if(typeof lithosCloseGameOverlays==='function'){ try{lithosCloseGameOverlays();}catch(_){} }
+ if(typeof closeGamesHub==='function'){ try{ closeGamesHub({skipHash:true}); }catch(_){} }
  mhState={save:mhLoadSave(),world:0,tab:'hunt',page:0,huntPage:0,filter:'',indexKind:'all',walkPos:{},enemyHp:{},enemyAggro:{},enemyRespawnAt:{},enemyLastHit:{},enemyHitFlash:{},chatChannel:'global',chatSince:{global:0,server:0,friend:0},chatBubbles:[],chatNpcLine:{}};
  const wrap=document.createElement('div');
  wrap.id='morphhunt';
+ wrap.setAttribute('role','dialog');
+ wrap.setAttribute('aria-modal','true');
+ wrap.setAttribute('aria-label','Find The Noobies Morph Hunt');
  document.body.appendChild(wrap);
+ mhMorphHuntInertBackground(true);
  try{ mhRender(); }
  catch(err){
   console.error('[Morph Hunt render]',err);
@@ -5168,6 +5218,7 @@ function playMorphHunt(){
   return;
  }
  if(typeof syncBodyScrollLock==='function')syncBodyScrollLock();
+ mhMorphHuntFocusGame();
  mhToast('⚔ Press E near a noobie — duel, obby, or jump-fight to unlock! · '+MH_BUILD);
 }
 
