@@ -5,8 +5,8 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v73';
-const MH_SCENERY_STAMP='FOCUS_TRAP_NO_STRATUM_v73';
+const MH_BUILD='void-2d-v74';
+const MH_SCENERY_STAMP='NO_BLUE_FOCUS_RING_v74';
 const MH_CHAT_LOG_KEY='lithos_mh_chat_log_v1';
 const MH_CHAT_POLL_MS=3500;
 const MH_CHAT_BROADCAST='lithos-mh-chat';
@@ -1975,7 +1975,7 @@ function mhMorphHuntFocusTrap(e){
  if(!document.getElementById('morphhunt')) return;
  if(e.target&&e.target.closest&&e.target.closest('#morphhunt')) return;
  const root=document.getElementById('morphhunt');
- const focusEl=root?.querySelector('#mh-walk-canvas')||root?.querySelector('button,[tabindex]');
+ const focusEl=root?.querySelector('#mh-focus-anchor')||root?.querySelector('#mh-walk-canvas');
  if(focusEl){
   try{ focusEl.focus({preventScroll:true}); }catch(_){ focusEl.focus(); }
  }
@@ -1999,11 +1999,19 @@ function mhMorphHuntInertBackground(on){
  }
 }
 function mhMorphHuntFocusGame(){
- const c=document.getElementById('mh-walk-canvas');
- if(c){
-  c.setAttribute('tabindex','0');
-  try{ c.focus({preventScroll:true}); }catch(_){ c.focus(); }
+ const a=document.getElementById('mh-focus-anchor');
+ if(a){
+  try{ a.focus({preventScroll:true}); }catch(_){ a.focus(); }
+  return;
  }
+ const c=document.getElementById('mh-walk-canvas');
+ if(c) c.blur();
+}
+function mhMorphHuntBodyLock(on){
+ try{
+  if(on) document.body.classList.add('mh-hunt-open');
+  else document.body.classList.remove('mh-hunt-open');
+ }catch(_){}
 }
 function mhMorphHuntBindModal(){
  document.addEventListener('keydown',mhMorphHuntKeyGuard,true);
@@ -2020,6 +2028,7 @@ function mhClose(){
  mhPreviewStop();
  mhMorphHuntInertBackground(false);
  mhMorphHuntUnbindModal();
+ mhMorphHuntBodyLock(false);
  const el=document.getElementById('morphhunt');
  if(el)el.remove();
  mhState=null;
@@ -4909,13 +4918,13 @@ function mhWalkStart(){
  const voidPow=root?.querySelector('#mh-void-pow');
  if(voidAtk) voidAtk.onclick=()=>{
   if(!mhState?.save) return;
-  root.querySelector('#mh-walk-canvas')?.focus();
+  mhMorphHuntFocusGame();
   const pos=mhWalkEnsurePos(mhState,mhState.world);
   mhUseFightAttack(mhState,mhState.save,pos,mhState.world);
  };
  if(voidPow) voidPow.onclick=()=>{
   if(!mhState?.save) return;
-  root.querySelector('#mh-walk-canvas')?.focus();
+  mhMorphHuntFocusGame();
   const map=MH_WORLD_MAPS[mhState.world];
   const pos=mhWalkEnsurePos(mhState,mhState.world);
   mhUseFightPower(mhState,mhState.save,pos,map,mhState.world);
@@ -4924,18 +4933,24 @@ function mhWalkStart(){
  const voidCut=root?.querySelector('#mh-void-cutscene');
  if(voidCut) voidCut.onclick=()=>{
   if(!mhState?.save) return;
-  root.querySelector('#mh-walk-canvas')?.focus();
+  mhMorphHuntFocusGame();
   const pos=mhWalkEnsurePos(mhState,mhState.world);
   mhUseKingAction4Cutscene(mhState,mhState.save,pos,mhState.world);
  };
  if(voidStorm) voidStorm.onclick=()=>{
   if(!mhState?.save) return;
-  root.querySelector('#mh-walk-canvas')?.focus();
+  mhMorphHuntFocusGame();
   const pos=mhWalkEnsurePos(mhState,mhState.world);
   mhUseFightStorm(mhState,mhState.save,pos,mhState.world);
  };
  const canvas=root?.querySelector('#mh-walk-canvas');
- if(canvas) canvas.onclick=mhWalkCanvasClick;
+ if(canvas){
+  canvas.onclick=mhWalkCanvasClick;
+  canvas.addEventListener('pointerdown',()=>{
+   canvas.blur();
+   mhMorphHuntFocusGame();
+  });
+ }
 }
 
 function mhRenderHuntDeck(save,wi,morphs){
@@ -4989,7 +5004,7 @@ function mhRenderHunt(save, wi){
  <div class="mh-walk-wrap mh-walk-with-chat">
   <div class="mh-walk-game">
   <div id="mh-void-combat-readout" class="mh-void-combat-readout">${voidCombat?('⚔ FIGHT · '+voidCombat.voidAttack?.name+' · ✦ '+voidCombat.voidPower?.name+' · 🌌 '+MH_VOID_STORM_NAME):'⚔ FIGHT · <b>1</b> punch · <b>2</b> blast · <b>3</b> slam (Void morph = stronger)'}${wi===MH_VOID_WORLD?' · <b>'+MH_VOID_ABYSS_LABEL+'</b>':''}</div>
-  <canvas id="mh-walk-canvas" class="mh-walk-canvas" width="960" height="520" tabindex="0"></canvas>
+  <canvas id="mh-walk-canvas" class="mh-walk-canvas" width="960" height="520" tabindex="-1"></canvas>
   <div id="mh-walk-hud" class="mh-walk-hud mh-walk-hud-clean">
    <span class="mh-walk-zone">${world.emoji} ${world.name} · ${found}/${morphs.length}</span>
    <span class="mh-walk-prompt" hidden>Walk closer</span>
@@ -5133,6 +5148,7 @@ function mhRender(){
  else if(tab==='preview') body=mhRenderPreview();
 
  root.innerHTML=`<div class="mh-panel mh-ftn">
+  <div id="mh-focus-anchor" class="mh-focus-anchor" tabindex="0" aria-hidden="true"></div>
   <header class="mh-ftn-banner">
    <div class="mh-ftn-banner-text">
     <h2 class="mh-title">Find The Noobies Morphs</h2>
@@ -5193,6 +5209,7 @@ function playMorphHunt(){
  wrap.setAttribute('aria-label','Find The Noobies Morph Hunt');
  document.body.appendChild(wrap);
  mhMorphHuntInertBackground(true);
+ mhMorphHuntBodyLock(true);
  try{ mhRender(); }
  catch(err){
   console.error('[Morph Hunt render]',err);
