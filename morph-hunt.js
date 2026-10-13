@@ -5,8 +5,8 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v78';
-const MH_SCENERY_STAMP='NO_BLUE_TAB_RING_v78';
+const MH_BUILD='void-2d-v79';
+const MH_SCENERY_STAMP='CURSOR_RING_HELP_v79';
 const MH_CHAT_LOG_KEY='lithos_mh_chat_log_v1';
 const MH_CHAT_POLL_MS=3500;
 const MH_CHAT_BROADCAST='lithos-mh-chat';
@@ -2011,6 +2011,26 @@ function mhMorphHuntBlurPageFocus(){
   const ae=document.activeElement;
   if(ae&&ae!==document.body&&typeof ae.blur==='function') ae.blur();
  }catch(_){}
+}
+function mhLikelyIdePreview(){
+ try{
+  if(window.self!==window.top) return true;
+  const ua=(navigator.userAgent||'').toLowerCase();
+  if(ua.includes('electron')) return true;
+  if(location.protocol==='vscode-webview:'||location.protocol==='cursor-webview:') return true;
+ }catch(_){}
+ return false;
+}
+function mhIdePreviewHintHtml(){
+ if(!mhLikelyIdePreview()) return '';
+ const url=location.href;
+ return `<aside class="mh-ide-preview-hint" role="note">
+  <b>Blue blur ring around the whole panel?</b> That is <em>Cursor’s preview</em> or Mac keyboard focus — not Lithos. We cannot remove it from inside the game.
+  <span class="mh-ide-preview-actions">
+   <a class="mh-ide-open-ext" href="${url.replace(/"/g,'&quot;')}" target="_blank" rel="noopener noreferrer">Open in Safari/Chrome ↗</a>
+   <span class="mh-ide-preview-mac">Mac: System Settings → Accessibility → Keyboard → turn <b>Full Keyboard Access</b> off · ⌘F5 toggles VoiceOver</span>
+  </span>
+ </aside>`;
 }
 function mhMorphHuntInertBackground(on){
  if(!mhState) return;
@@ -5182,6 +5202,10 @@ function mhBind(root){
   codeIn.onkeydown=e=>{ if(e.key==='Enter') mhRedeemCode(codeIn.value); };
  }
  mhBindChat(root);
+ root.querySelectorAll('button').forEach(btn=>{
+  if(btn.id==='mh-chat-input') return;
+  btn.addEventListener('mousedown',e=>{ if(e.button===0) e.preventDefault(); });
+ });
 }
 
 function mhRender(){
@@ -5201,6 +5225,7 @@ function mhRender(){
  else if(tab==='preview') body=mhRenderPreview();
 
  root.innerHTML=`<div class="mh-panel mh-ftn">
+  ${mhIdePreviewHintHtml()}
   <header class="mh-ftn-banner">
    <div class="mh-ftn-banner-text">
     <h2 class="mh-title">Find The Noobies Morphs</h2>
@@ -5290,7 +5315,11 @@ function playMorphHunt(){
  }
  if(typeof syncBodyScrollLock==='function')syncBodyScrollLock();
  mhMorphHuntBlurPageFocus();
- mhToast('⚔ WASD move · E fight · Space won\'t leave the hunt anymore · Build '+MH_BUILD);
+ if(mhLikelyIdePreview()){
+  mhToast('💡 Big blue ring outside the game? Open “Safari/Chrome ↗” in the yellow box — Cursor preview focus, not Lithos · '+MH_BUILD);
+ }else{
+  mhToast('⚔ WASD move · E fight · Build '+MH_BUILD);
+ }
 }
 
 function mhGetWearingMorph(){ return mhMorph(mhLoadWearId()||window.LITHOS_NOOBIE_WEAR); }
