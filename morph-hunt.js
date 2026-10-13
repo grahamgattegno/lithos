@@ -5,8 +5,8 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v74';
-const MH_SCENERY_STAMP='NO_BLUE_FOCUS_RING_v74';
+const MH_BUILD='void-2d-v75';
+const MH_SCENERY_STAMP='KILL_BLUE_FOCUS_v75';
 const MH_CHAT_LOG_KEY='lithos_mh_chat_log_v1';
 const MH_CHAT_POLL_MS=3500;
 const MH_CHAT_BROADCAST='lithos-mh-chat';
@@ -1971,14 +1971,21 @@ function mhMorphHuntKeyGuard(e){
   e.stopImmediatePropagation();
  }
 }
-function mhMorphHuntFocusTrap(e){
- if(!document.getElementById('morphhunt')) return;
- if(e.target&&e.target.closest&&e.target.closest('#morphhunt')) return;
- const root=document.getElementById('morphhunt');
- const focusEl=root?.querySelector('#mh-focus-anchor')||root?.querySelector('#mh-walk-canvas');
- if(focusEl){
-  try{ focusEl.focus({preventScroll:true}); }catch(_){ focusEl.focus(); }
- }
+function mhMorphHuntHideSiteChrome(){
+ ['lithos-games-hub','lithos-adventure-preview','lithos-device-picker'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(!el) return;
+  el.hidden=true;
+  el.setAttribute('hidden','');
+ });
+ try{ if(typeof closeGamesHub==='function') closeGamesHub({skipHash:true}); }catch(_){}
+ try{ if(typeof closeAdventurePreview==='function') closeAdventurePreview(); }catch(_){}
+}
+function mhMorphHuntBlurPageFocus(){
+ try{
+  const ae=document.activeElement;
+  if(ae&&ae!==document.body&&typeof ae.blur==='function') ae.blur();
+ }catch(_){}
 }
 function mhMorphHuntInertBackground(on){
  if(!mhState) return;
@@ -1999,13 +2006,7 @@ function mhMorphHuntInertBackground(on){
  }
 }
 function mhMorphHuntFocusGame(){
- const a=document.getElementById('mh-focus-anchor');
- if(a){
-  try{ a.focus({preventScroll:true}); }catch(_){ a.focus(); }
-  return;
- }
- const c=document.getElementById('mh-walk-canvas');
- if(c) c.blur();
+ mhMorphHuntBlurPageFocus();
 }
 function mhMorphHuntBodyLock(on){
  try{
@@ -2013,15 +2014,23 @@ function mhMorphHuntBodyLock(on){
   else document.body.classList.remove('mh-hunt-open');
  }catch(_){}
 }
+function mhMorphHuntFocusOut(e){
+ if(!document.getElementById('morphhunt')) return;
+ const t=e.target;
+ if(!t||t===document.body) return;
+ if(t.closest&&t.closest('#morphhunt')) return;
+ if(mhMorphHuntTypingTarget(t)) return;
+ try{ t.blur(); }catch(_){}
+}
 function mhMorphHuntBindModal(){
  document.addEventListener('keydown',mhMorphHuntKeyGuard,true);
  document.addEventListener('keyup',mhMorphHuntKeyGuard,true);
- document.addEventListener('focusin',mhMorphHuntFocusTrap,true);
+ document.addEventListener('focusin',mhMorphHuntFocusOut,true);
 }
 function mhMorphHuntUnbindModal(){
  document.removeEventListener('keydown',mhMorphHuntKeyGuard,true);
  document.removeEventListener('keyup',mhMorphHuntKeyGuard,true);
- document.removeEventListener('focusin',mhMorphHuntFocusTrap,true);
+ document.removeEventListener('focusin',mhMorphHuntFocusOut,true);
 }
 function mhClose(){
  mhWalkStop();
@@ -4946,10 +4955,7 @@ function mhWalkStart(){
  const canvas=root?.querySelector('#mh-walk-canvas');
  if(canvas){
   canvas.onclick=mhWalkCanvasClick;
-  canvas.addEventListener('pointerdown',()=>{
-   canvas.blur();
-   mhMorphHuntFocusGame();
-  });
+  canvas.addEventListener('pointerdown',()=>{ canvas.blur(); mhMorphHuntBlurPageFocus(); });
  }
 }
 
@@ -4966,7 +4972,7 @@ function mhRenderHuntDeck(save,wi,morphs){
    <em class="mh-hunt-card-btn">${btn}</em>
   </button>`;
  }).join('');
- return `<details class="mh-hunt-deck-fold" open>
+ return `<details class="mh-hunt-deck-fold">
   <summary>⚔ Unlock deck — duel / obby / jump-fight (tap a card)</summary>
   <div class="mh-hunt-cards">${cards}</div>
   <div class="mh-pager">${pg.page>0?'<button type="button" class="mh-btn" data-mh-hunt-page="'+(pg.page-1)+'">← Prev</button>':''}<span>Page ${pg.page+1} / ${pg.pages}</span>${pg.page+1<pg.pages?'<button type="button" class="mh-btn" data-mh-hunt-page="'+(pg.page+1)+'">Next →</button>':''}</div>
@@ -5148,7 +5154,6 @@ function mhRender(){
  else if(tab==='preview') body=mhRenderPreview();
 
  root.innerHTML=`<div class="mh-panel mh-ftn">
-  <div id="mh-focus-anchor" class="mh-focus-anchor" tabindex="0" aria-hidden="true"></div>
   <header class="mh-ftn-banner">
    <div class="mh-ftn-banner-text">
     <h2 class="mh-title">Find The Noobies Morphs</h2>
@@ -5174,6 +5179,7 @@ function mhRender(){
   <div id="mh-toast" class="mh-toast"></div>
  </div>`;
  mhBind(root);
+ mhMorphHuntBlurPageFocus();
  if(save.wearing) mhSaveWearId(save.wearing);
  mhWalkStop();
  mhPreviewStop();
@@ -5201,12 +5207,14 @@ function playMorphHunt(){
  mhEnsureOverlayModals();
  if(typeof lithosCloseGameOverlays==='function'){ try{lithosCloseGameOverlays();}catch(_){} }
  if(typeof closeGamesHub==='function'){ try{ closeGamesHub({skipHash:true}); }catch(_){} }
+ mhMorphHuntHideSiteChrome();
  mhState={save:mhLoadSave(),world:0,tab:'hunt',page:0,huntPage:0,filter:'',indexKind:'all',walkPos:{},enemyHp:{},enemyAggro:{},enemyRespawnAt:{},enemyLastHit:{},enemyHitFlash:{},chatChannel:'global',chatSince:{global:0,server:0,friend:0},chatBubbles:[],chatNpcLine:{}};
  const wrap=document.createElement('div');
  wrap.id='morphhunt';
  wrap.setAttribute('role','dialog');
  wrap.setAttribute('aria-modal','true');
  wrap.setAttribute('aria-label','Find The Noobies Morph Hunt');
+ wrap.setAttribute('tabindex','-1');
  document.body.appendChild(wrap);
  mhMorphHuntInertBackground(true);
  mhMorphHuntBodyLock(true);
@@ -5235,8 +5243,8 @@ function playMorphHunt(){
   return;
  }
  if(typeof syncBodyScrollLock==='function')syncBodyScrollLock();
- mhMorphHuntFocusGame();
- mhToast('⚔ Press E near a noobie — duel, obby, or jump-fight to unlock! · '+MH_BUILD);
+ mhMorphHuntBlurPageFocus();
+ mhToast('⚔ WASD move · E fight · If a blue box covers the screen: use Safari/Chrome (not Cursor preview) or press ⌘F5 to toggle VoiceOver off · '+MH_BUILD);
 }
 
 function mhGetWearingMorph(){ return mhMorph(mhLoadWearId()||window.LITHOS_NOOBIE_WEAR); }
