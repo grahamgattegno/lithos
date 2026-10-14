@@ -1,10 +1,21 @@
 <!DOCTYPE html>
-<!-- lithos-v:morph-hunt-v113-chat-compose-v2 -->
+<!-- lithos-v:morph-hunt-v113-hardrefresh-v3 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<script>
+(function lithosHardRefreshBootstrap(){
+ if(!/[?&](?:hard|fresh)=1(?:&|$)/.test(location.search)) return;
+ try{
+  Object.keys(sessionStorage).forEach(function(k){
+   if(k.indexOf('lithos_mh_')===0) sessionStorage.removeItem(k);
+  });
+ }catch(_){}
+ window.__LITHOS_HARD_REFRESH=true;
+})();
+</script>
 <script>
 (function(){
  // Stratum only from URL (?site=stratum or /stratum/) — never sticky session alone,
@@ -5617,23 +5628,43 @@
   var m=String(tag||'').match(/void-2d-v(\d+)/);
   return m?parseInt(m[1],10):0;
  }
- function mhMorphHuntUrl(){
+ function mhMorphHuntUrl(extra){
   var u=new URL(location.href);
   u.searchParams.set('mh',MH_NEED);
   u.searchParams.set('t',String(Date.now()));
+  u.searchParams.set('hard','1');
   if(!u.hash||u.hash==='#') u.hash='morphhunt';
+  if(extra){ Object.keys(extra).forEach(function(k){ u.searchParams.set(k,extra[k]); }); }
   return u.toString();
  }
+ window.lithosHardRefresh=function(opts){
+  opts=opts||{};
+  var u=new URL(location.pathname||'/index.html',location.origin);
+  u.searchParams.set('hard','1');
+  u.searchParams.set('t',String(Date.now()));
+  if(opts.morphHunt!==false){
+   u.searchParams.set('mh',MH_NEED);
+   u.searchParams.set('fresh','1');
+   u.hash=opts.hash||'morphhunt';
+  }else if(opts.hash){ u.hash=opts.hash; }
+  location.replace(u.toString());
+ };
+ window.lithosHardRefreshMorphHunt=function(){ lithosHardRefresh({morphHunt:true}); };
  try{
+  var hard=window.__LITHOS_HARD_REFRESH||/[?&](?:hard|fresh)=1(?:&|$)/.test(location.search);
   var qMh=(location.search.match(/[?&]mh=(void-2d-v\d+)/)||[])[1];
   var onPages=/github\.io|githubusercontent\.com/i.test(location.hostname||'');
   var needNum=mhBuildNum(MH_NEED);
   var qNum=mhBuildNum(qMh);
+  if(hard&&!qMh){
+   location.replace(mhMorphHuntUrl());
+   return;
+  }
   if(!qMh||qNum<needNum){
    location.replace(mhMorphHuntUrl());
    return;
   }
-  if(onPages&&qNum===needNum&&(location.hash||'').indexOf('morphhunt')>=0){
+  if(onPages&&qNum===needNum&&(location.hash||'').indexOf('morphhunt')>=0&&!hard){
    var bustKey='lithos_mh_js_bust_'+MH_NEED;
    if(sessionStorage.getItem(bustKey)!=='1'){
     sessionStorage.setItem(bustKey,'1');
@@ -5651,9 +5682,9 @@
   document.head.appendChild(s);
   return s;
  }
- var bust=MH_NEED+'-'+Date.now();
- function loadMorphHuntScript(path){
-  var s=injectMorphHuntScript(path+'?build='+encodeURIComponent(bust));
+ function mhScriptBust(salt){ return MH_NEED+'-'+Date.now()+'-'+(salt||0); }
+ function loadMorphHuntScript(path,salt){
+  var s=injectMorphHuntScript(path+'?build='+encodeURIComponent(mhScriptBust(salt)));
   s.onload=function(){
    try{
     var have=(window.LITHOS_MH_BUILD||'').match(/void-2d-v(\d+)/);
@@ -5672,11 +5703,11 @@
   };
   return s;
  }
- var primary=loadMorphHuntScript(MH_SCRIPT);
+ var primary=loadMorphHuntScript(MH_SCRIPT,0);
  var mhScriptTry=0;
  primary.onerror=function(){
   if(++mhScriptTry<4){
-   loadMorphHuntScript(MH_SCRIPT+'?retry='+mhScriptTry);
+   loadMorphHuntScript(MH_SCRIPT,mhScriptTry);
    return;
   }
   console.error('[Morph Hunt] could not load',MH_SCRIPT,'— hard refresh (Cmd+Shift+R)');

@@ -3881,8 +3881,10 @@ function mhForceReloadNewestMorphHunt(){
  u.searchParams.set('mh',MH_BUILD);
  u.searchParams.set('t',String(Date.now()));
  u.searchParams.set('fresh','1');
+ u.searchParams.set('hard','1');
  u.hash='morphhunt';
- location.replace(u.toString());
+ if(typeof window.lithosHardRefreshMorphHunt==='function') window.lithosHardRefreshMorphHunt();
+ else location.replace(u.toString());
 }
 function mhEnsureModernChatUi(root){
  document.getElementById('mh-cache-fix-banner')?.remove();
