@@ -5,8 +5,10 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v105';
-const MH_SCENERY_STAMP='OPEN_PLAY_v105';
+const MH_BUILD='void-2d-v107';
+const MH_SCENERY_STAMP='TEST_BUDDY_v107';
+const MH_TEST_BUDDY_ID='lithos-test-buddy';
+const MH_TEST_BUDDY_NAME='Test Buddy';
 const MH_OPEN_PLAY=true;
 const MH_FEATURE_SHOWCASE=true;
 const MH_UPDATE100_CODE='update100';
@@ -3185,9 +3187,14 @@ function mhChatIngest(msg,silent){
  if(msg.fromId===me) return;
  const wi=mhState.world;
  const pos=mhWalkEnsurePos(mhState,wi);
- if(msg.channel==='server'&&msg.world===wi){
-  const nx=pos.px+((mhHashStr(msg.fromId)%160)-80);
-  const ny=pos.py-30-((mhHashStr(msg.fromId+'y')%50));
+ if((msg.channel==='global'||msg.channel==='server')&&(msg.channel!=='server'||msg.world===wi)){
+  let nx=pos.px+((mhHashStr(msg.fromId)%160)-80);
+  let ny=pos.py-30-((mhHashStr(msg.fromId+'y')%50));
+  if(msg.fromId===MH_TEST_BUDDY_ID&&mhState.testBuddy?.on){
+   mhTestBuddyUpdatePos(mhState,wi);
+   nx=mhState.testBuddy.px;
+   ny=mhState.testBuddy.py-28;
+  }
   if(!msg.blocked){
    mhChatSpawnBubble(mhState,nx,ny,(msg.fromName||'Noobie')+': '+msg.text,'remote');
    if(!mhState.chatNpcLine) mhState.chatNpcLine={};
@@ -3195,6 +3202,100 @@ function mhChatIngest(msg,silent){
   }
  }
  if(!silent) mhChatRefreshLog();
+}
+function mhTestBuddyDefault(){
+ return {on:true,id:MH_TEST_BUDDY_ID,name:MH_TEST_BUDDY_NAME,morphId:'ex-welcome',phase:0,px:0,py:0};
+}
+function mhTestBuddyUpdatePos(st,wi){
+ if(!st?.testBuddy?.on) return;
+ const pos=mhWalkEnsurePos(st,wi);
+ const b=st.testBuddy;
+ b.phase=(b.phase||0)+0.035;
+ b.px=pos.px+Math.cos(b.phase)*88+36;
+ b.py=pos.py+Math.sin(b.phase*0.85)*42-24;
+}
+function mhTestBuddyPickReply(playerText){
+ const fold=mhChatFold(playerText);
+ if(/\b(hello|hi|hey|sup|yo)\b/.test(fold)) return 'Hey! I\'m Test Buddy 🤖 — press / or ↑ to chat anytime!';
+ if(/\b(fight|duel|battle|obby)\b/.test(fold)) return 'Walk to a dashed grove and press E to fight! ⚔';
+ if(/\b(follow|come|this way)\b/.test(fold)) return 'On my way! (I orbit you — I\'m your practice pal.) 🏃';
+ if(/\b(morph|noobie|skin)\b/.test(fold)) return 'Try ⭐ Stars or 🎭 Morph — open play has every morph! ✨';
+ if(/\b(quest|plague|doctor|bug)\b/.test(fold)) return 'Catch striped bugs in parks · Buddy Plaza ☣ PLAGUE LAB · E ×5! 🐛';
+ if(/\b(discord)\b/.test(fold)) return 'Discord is OK in chat rules — stay kind & game-safe! 💬';
+ if(/\b(thank|thanks|ty|gg)\b/.test(fold)) return 'You got it! Happy hunting! 🎉';
+ if(/\b(update100|100|party|birthday)\b/.test(fold)) return 'Redeem UPDATE100 in 🎲 Gacha for party confetti! 🎂';
+ const generic=[
+  'Cool message! I\'m here to test chat with you. 🎮',
+  'I heard you! Real friends can add your friend code too. 💬',
+  'Nice! Try Server tab to see bubbles on this map. 🗺️',
+  'Want friend chat? Add code lithos-test-buddy in Friends. 🤖'
+ ];
+ return generic[mhHashStr(fold+String(Date.now()))%generic.length];
+}
+function mhTestBuddyEnsureFriend(save){
+ if(!save) return;
+ if(!save.chatFriends) save.chatFriends=[];
+ if(!save.chatFriends.includes(MH_TEST_BUDDY_ID)) save.chatFriends.unshift(MH_TEST_BUDDY_ID);
+}
+function mhTestBuddySetOn(st,save,on,silent){
+ if(!st) return;
+ if(!st.testBuddy) st.testBuddy=mhTestBuddyDefault();
+ st.testBuddy.on=!!on;
+ if(on&&save){
+  mhTestBuddyEnsureFriend(save);
+  mhSaveSave(save);
+  if(!st.chatFriendPeer) st.chatFriendPeer=MH_TEST_BUDDY_ID;
+ }
+ if(!silent) mhToast(on?'🤖 Test Buddy joined — chat on Global or Friends!':'Test Buddy left.');
+}
+function mhTestBuddyMaybeReply(st,save,playerText,channel,toId,myId){
+ if(!st?.testBuddy?.on) return;
+ if(channel==='friend'&&toId!==MH_TEST_BUDDY_ID) return;
+ const delay=550+Math.floor(Math.random()*450);
+ setTimeout(()=>{
+  if(!mhState?.testBuddy?.on) return;
+  const wi=st.world;
+  const reply=mhTestBuddyPickReply(playerText);
+  const msg={
+   id:'buddy-'+Date.now()+'-'+Math.random().toString(36).slice(2,6),
+   channel,
+   world:channel==='server'?wi:undefined,
+   fromId:MH_TEST_BUDDY_ID,
+   fromName:MH_TEST_BUDDY_NAME,
+   morphId:st.testBuddy.morphId||'ex-welcome',
+   toId:channel==='friend'?myId:undefined,
+   text:reply.slice(0,160),
+   t:Date.now()
+  };
+  mhTestBuddyUpdatePos(st,wi);
+  mhChatIngest(msg);
+  try{ mhPlaySfx('ui'); }catch(_){}
+ },delay);
+}
+function mhDrawTestBuddy(ctx,st,wi,t){
+ if(!st?.testBuddy?.on) return;
+ mhTestBuddyUpdatePos(st,wi);
+ const b=st.testBuddy;
+ const m=mhMorph(b.morphId)||mhMorph('ex-welcome');
+ if(!m) return;
+ mhPaintNoobWorld(ctx,m,b.px,b.py,0.9,1,false,t,b.phase||0,true,false);
+ ctx.fillStyle='rgba(0,0,0,.75)'; ctx.fillRect(b.px-52,b.py-98,104,16);
+ ctx.fillStyle='#80e8ff'; ctx.font='bold 9px system-ui,sans-serif'; ctx.textAlign='center';
+ ctx.fillText('🤖 '+MH_TEST_BUDDY_NAME,b.px,b.py-86);
+ if(!st.chatNpcLine) st.chatNpcLine={};
+ const line=st.chatNpcLine['_remote_'+MH_TEST_BUDDY_ID];
+ if(line&&line.until>performance.now()){
+  mhDrawChatBubble(ctx,b.px,b.py-56,line.text,false);
+ }
+}
+function mhChatFocusInput(opts){
+ opts=opts||{};
+ const inp=document.getElementById('mh-chat-input');
+ if(!inp) return false;
+ try{ inp.focus(); }catch(_){}
+ if(mhState) mhState.chatTyping=true;
+ if(opts.slash&&!String(inp.value||'').trim()) inp.value='/';
+ return true;
 }
 function mhChatSend(st,save,text){
  const raw=String(text||'').trim();
@@ -3238,7 +3339,8 @@ function mhChatSend(st,save,text){
  const inp=document.getElementById('mh-chat-input');
  if(inp) inp.value='';
  if(st) st.chatDraft='';
- if(!mhChatRelayOn()&&channel!=='friend') mhToast(channel==='global'?'💬 Global (device + tabs). Set LITHOS_CHAT_CONFIG.relay for real server!':'💬 Server chat on this map (device + tabs).');
+ mhTestBuddyMaybeReply(st,save,raw,channel,toId,prof.id);
+ if(!mhChatRelayOn()&&channel!=='friend'&&!st.testBuddy?.on) mhToast(channel==='global'?'💬 Global (device + tabs). Set LITHOS_CHAT_CONFIG.relay for real server!':'💬 Server chat on this map (device + tabs).');
 }
 function mhChatRefreshLog(){
  const log=document.getElementById('mh-chat-log');
@@ -3263,7 +3365,7 @@ function mhChatRefreshLog(){
   const tag=channel==='server'?(' · map '+m.world):'';
   const body=m.blocked?'<span class="mh-chat-blocked">[Hidden — chat rules]</span>':mhChatPublicText(m.text).html;
   return `<div class="mh-chat-line${mine?' mine':''}"><b>${mine?'You':(m.fromName||'Noobie')}</b>${tag}: ${body}</div>`;
- }).join(''):'<div class="mh-chat-line dim">Click the box or press <b>T</b>, type your message, <b>Enter</b> to send. Quick buttons are optional — you can type anything that follows the rules!</div>';
+ }).join(''):'<div class="mh-chat-line dim"><b>↑</b> or <b>/</b> or <b>T</b> → chat · type your message · <b>Enter</b> to send · <b>Esc</b> back to game</div>';
  log.scrollTop=log.scrollHeight;
 }
 async function mhChatPoll(st){
@@ -3364,6 +3466,10 @@ function mhRenderChatPanel(save){
  const relay=mhChatRelayOn();
  return `<aside class="mh-chat-panel" aria-label="Character chat">
   <div class="mh-chat-head"><span>💬 Talk</span><small>${relay?'🌐 Server live':'📱 Device + tabs'} · <code>${prof.id}</code></small></div>
+  <div class="mh-chat-buddy-row">
+   <button type="button" class="mh-btn mh-btn-sm${mhState?.testBuddy?.on?' primary':''}" id="mh-test-buddy-toggle">${mhState?.testBuddy?.on?'🤖 Test Buddy ON':'🤖 Test Buddy OFF'}</button>
+   <span class="mh-chat-buddy-code">Friend code: <code>${MH_TEST_BUDDY_ID}</code></span>
+  </div>
   <div class="mh-chat-tabs">
    <button type="button" class="mh-chat-tab${ch==='global'?' on':''}" data-mh-chat-ch="global">Global</button>
    <button type="button" class="mh-chat-tab${ch==='server'?' on':''}" data-mh-chat-ch="server">Server</button>
@@ -3372,7 +3478,7 @@ function mhRenderChatPanel(save){
   <div id="mh-chat-log" class="mh-chat-log"></div>
   <div class="mh-chat-friends${ch==='friend'?'':' hidden'}" id="mh-chat-friends-ui">
    <div class="mh-chat-friend-add"><input type="text" id="mh-chat-friend-code" placeholder="Friend code…" autocomplete="off"/><button type="button" class="mh-btn mh-btn-sm" id="mh-chat-friend-add">Add</button></div>
-   <select id="mh-chat-friend-pick" class="mh-chat-friend-pick"><option value="">— message friend —</option>${friends.map(f=>`<option value="${f.replace(/"/g,'&quot;')}"${mhState?.chatFriendPeer===f?' selected':''}>${f}</option>`).join('')}</select>
+   <select id="mh-chat-friend-pick" class="mh-chat-friend-pick"><option value="">— message friend —</option>${friends.map(f=>{const label=f===MH_TEST_BUDDY_ID?'🤖 Test Buddy':f;return `<option value="${f.replace(/"/g,'&quot;')}"${mhState?.chatFriendPeer===f?' selected':''}>${label}</option>`;}).join('')}</select>
   </div>
   <p class="mh-chat-type-hint"><b>Type your own message</b> in the box — quick buttons are optional. Rules still apply to everything you send.</p>
   <div class="mh-chat-chips" aria-label="Quick safe phrases (optional)">
@@ -3390,14 +3496,18 @@ function mhRenderChatPanel(save){
    <p class="mh-chat-rules-foot">Breaking rules blocks your message. Be kind &amp; stay in-game — no IRL meetups or personal info.</p>
   </details>
   <div class="mh-chat-row">
-   <input id="mh-chat-input" type="text" maxlength="160" placeholder="Kind &amp; safe chat · Enter · T to focus" autocomplete="off"/>
+   <input id="mh-chat-input" type="text" maxlength="160" placeholder="↑ / T to talk · Enter to send · Esc = game" autocomplete="off"/>
    <button type="button" class="mh-btn primary mh-btn-sm" id="mh-chat-send">Send</button>
   </div>
-  <p class="mh-chat-hint">Your morphed noobie speaks in bubbles. <b>Server</b> = this map zone. Messages are filtered for all ages. Optional: <code>LITHOS_CHAT_CONFIG.relay</code> for online chat.</p>
+  <p class="mh-chat-hint"><b>Test Buddy</b> walks with you &amp; replies in chat (practice before real friends). <b>Server</b> = bubbles on this map. Rules filter all messages.</p>
  </aside>`;
 }
 function mhBindChat(root){
  if(!root||!mhState) return;
+ root.querySelector('#mh-test-buddy-toggle')?.addEventListener('click',()=>{
+  mhTestBuddySetOn(mhState,mhState.save,!mhState.testBuddy?.on);
+  mhRender();
+ });
  root.querySelectorAll('[data-mh-chat-ch]').forEach(btn=>{
   btn.onclick=()=>{
    const v=btn.dataset.mhChatCh;
@@ -5821,7 +5931,10 @@ function mhWalkApplyKey(e,down){
  };
  if(c==='KeyA'||c==='ArrowLeft'||k==='a'||k==='A') touch('left',down);
  if(c==='KeyD'||c==='ArrowRight'||k==='d'||k==='D') touch('right',down);
- if(c==='KeyW'||c==='ArrowUp'||k==='w'||k==='W') touch('up',down);
+ if(down&&(c==='ArrowUp'||k==='ArrowUp')){
+  mhChatFocusInput();
+  hit=true;
+ }else if(c==='KeyW'||k==='w'||k==='W') touch('up',down);
  if(c==='KeyS'||c==='ArrowDown'||k==='s'||k==='S') touch('down',down);
  if(c==='ShiftLeft'||c==='ShiftRight'||k==='Shift') touch('run',down);
  if(down&&(c==='KeyE'||k==='e'||k==='E')){
@@ -5863,9 +5976,21 @@ function mhWalkApplyKey(e,down){
  if(down&&(c==='KeyT'||k==='t'||k==='T')){
   const ae=document.activeElement;
   if(ae?.id!=='mh-chat-input'&&ae?.id!=='mh-chat-friend-code'){
-   document.getElementById('mh-chat-input')?.focus();
+   mhChatFocusInput();
    hit=true;
   }
+ }
+ if(down&&(c==='Slash'||k==='/'||c==='NumpadDivide')){
+  const ae=document.activeElement;
+  if(ae?.id!=='mh-chat-input'&&ae?.id!=='mh-chat-friend-code'){
+   mhChatFocusInput({slash:true});
+   hit=true;
+  }
+ }
+ if(down&&(c==='Escape'||k==='Escape')&&mhMorphHuntTypingTarget(ae)){
+  try{ ae.blur(); }catch(_){}
+  if(mhState) mhState.chatTyping=false;
+  hit=true;
  }
  if(mhState.kingCutscene&&down&&(c==='Escape'||k==='Escape')){
   mhFinishKingAction4Cutscene(mhState,mhState.save); hit=true;
@@ -6047,6 +6172,7 @@ function mhWalkDrawFrame(){
  mhDrawMapStatues(ctx,map,t,st);
  const wear=mhMorph(save.wearing);
  mhDrawRedBlackPlayerStorm(ctx,st,pos,t);
+ mhDrawTestBuddy(ctx,st,wi,t);
  mhDrawYouInWorld(ctx,wear,pos,map,t,st.walkPhase||0,wi,st.playerRunning);
  mhDrawChatBubbles(ctx,st,camX,camY);
  mhDrawNpcChatLines(ctx,st,wi,morphs,camX,camY);
@@ -6399,7 +6525,7 @@ function mhRenderHunt(save, wi){
    <li><b>💎 Epic+ Realm</b> (teleport tab or button): <b>Epic · Legendary · Secret · Exotic · Exclusive</b> — also in groves on that map.</li>
    <li><b>Void Fallen morph</b>: 🎭 Morph tab → <b>1</b> attack · <b>2</b> power on <b>every map</b> (King = red-black storm!). 🕳 Abyss = King + groves.</li>
    <li>Walk into a dashed grove → press <b>E</b> — <b>duel</b> the noobie, run an <b>obby</b>, or <b>counter-fight</b> to unlock. <b>F</b> = big homes.</li>
-   <li><b>💬 Chat</b> — click the text box or press <b>T</b>, type your words, <b>Enter</b> to send (rules apply). Quick buttons are optional. <b>Global</b> · <b>Server</b> · <b>Friends</b>.</li>
+   <li><b>💬 Chat</b> — press <b>↑</b> or <b>/</b> or <b>T</b> to talk, <b>Enter</b> to send, <b>Esc</b> back to walking (rules apply). <b>Global</b> · <b>Server</b> · <b>Friends</b>.</li>
    <li><b>🏀 Court plaza</b> stays at spawn · <b>4 parks</b> around the map · <b>Mayor statue</b> on court: <b>J/L</b> crank, <b>R</b> flash light at all 4 mirrors → <b>Mayor Noobie</b>!</li>
    <li><b>☣ Plague Doctor</b> — catch striped <b>🐛 bugs</b> (yellow/black or red/black) at <b>every park on every map</b> · <b>E</b> near bug · then <b>Buddy Plaza ☣ PLAGUE LAB</b> (by court): <b>F</b> enter · <b>E</b> ×5 (toxic → airlock → jar → syringe → inject) → <b>Plague Badge</b> + doctor morph with floating cures &amp; ☠!</li>
   </ol>
@@ -6779,7 +6905,8 @@ function playMorphHunt(){
  if(typeof closeGamesHub==='function'){ try{ closeGamesHub({skipHash:true}); }catch(_){} }
  mhMorphHuntHideSiteChrome();
  const openTab=mhMorphHuntOpenTab();
- mhState={save:mhLoadSave(),world:0,tab:openTab,page:0,huntPage:0,filter:'',indexKind:'all',walkPos:{},enemyHp:{},enemyAggro:{},enemyRespawnAt:{},enemyLastHit:{},enemyHitFlash:{},chatChannel:'global',chatSince:{global:0,server:0,friend:0},chatBubbles:[],chatNpcLine:{}};
+ mhState={save:mhLoadSave(),world:0,tab:openTab,page:0,huntPage:0,filter:'',indexKind:'all',walkPos:{},enemyHp:{},enemyAggro:{},enemyRespawnAt:{},enemyLastHit:{},enemyHitFlash:{},chatChannel:'global',chatSince:{global:0,server:0,friend:0},chatBubbles:[],chatNpcLine:{},testBuddy:mhTestBuddyDefault()};
+ mhTestBuddyEnsureFriend(mhState.save);
  const wrap=document.createElement('div');
  wrap.id='morphhunt';
  wrap.setAttribute('role','application');
@@ -6818,6 +6945,8 @@ function playMorphHunt(){
   mhToast('💡 Big blue ring outside the game? Open “Safari/Chrome ↗” in the yellow box — Cursor preview focus, not Lithos · '+MH_BUILD);
  }else if(mhMorphHuntStaleHostHint()){
   /* toast from hint */
+ }else if(openTab==='hunt'){
+  mhToast('🤖 Test Buddy ON · / or ↑ to chat · WASD move · '+MH_BUILD);
  }else if(openTab==='stars'){
   mhToast('⭐ '+MH_BUILD+' · 🎂 Redeem UPDATE100 in Gacha for party confetti!');
   try{
