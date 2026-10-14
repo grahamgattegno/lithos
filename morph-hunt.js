@@ -5,8 +5,10 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v110';
-const MH_SCENERY_STAMP='CHAT_COMPOSE_v110';
+const MH_BUILD='void-2d-v111';
+const MH_SCENERY_STAMP='AI_BUDDY_v111';
+const MH_GEMINI_BASE='https://generativelanguage.googleapis.com/v1beta';
+const MH_GEMINI_MODEL='gemini-flash-latest';
 const MH_CHAT_COMPOSE_UI=true;
 const MH_TEST_BUDDY_ID='lithos-test-buddy';
 const MH_TEST_BUDDY_NAME='Test Buddy';
@@ -3261,6 +3263,10 @@ function mhChatIngest(msg,silent){
    mhTestBuddyUpdatePos(mhState,wi);
    nx=mhState.testBuddy.px;
    ny=mhState.testBuddy.py-28;
+  }else if(msg.fromId===MH_TEST_PLAYER_ID&&mhState.testAccountAiOn!==false&&!mhIsTestProfile()){
+   mhTestAccountUpdatePos(mhState,wi);
+   nx=mhState.testAccountNpc.px;
+   ny=mhState.testAccountNpc.py-28;
   }
   if(!msg.blocked){
    mhChatSpawnBubble(mhState,nx,ny,(msg.fromName||'Noobie')+': '+msg.text,'remote');
@@ -3281,7 +3287,152 @@ function mhTestBuddyUpdatePos(st,wi){
  b.px=pos.px+Math.cos(b.phase)*88+36;
  b.py=pos.py+Math.sin(b.phase*0.85)*42-24;
 }
-function mhTestBuddyPickReply(playerText){
+function mhAiChatCfg(){
+ try{
+  if(typeof getAiConfig==='function'){
+   const c=getAiConfig();
+   if(c&&c.key) return c;
+  }
+  const s=typeof window!=='undefined'&&window.LITHOS_AI_CONFIG;
+  if(s&&s.key){
+   return{
+    key:String(s.key).trim(),
+    base:(s.base||MH_GEMINI_BASE).replace(/\/$/,''),
+    model:(s.model||MH_GEMINI_MODEL).replace(/^models\//,''),
+    resolved:'gemini'
+   };
+  }
+ }catch(_){}
+ return null;
+}
+function mhAiHasBrain(){ return !!mhAiChatCfg()?.key; }
+function mhAiHistKey(agent){ return agent==='account'?'account':'buddy'; }
+function mhAiEnsureHist(st){
+ if(!st.aiHist) st.aiHist={buddy:[],account:[]};
+ return st.aiHist;
+}
+function mhAiSystemPrompt(agent){
+ const rules='Kid-safe Lithos Morph Hunt chat: be kind, no bullying, dating, flirting, IRL meetups, personal info, hate, sexual topics, drugs. Discord OK. Max 160 characters. Game tips: WASD, E fight, groves, Plague Doctor quest, UPDATE100 code, open play morphs.';
+ if(agent==='account'){
+  return 'You are Test Account, a friendly co-op player in Morph Hunt (second human-like tester). Chatty, supportive, short replies (1-2 sentences). Encourage teamwork and duels. '+rules;
+ }
+ return 'You are Test Buddy, a cheerful robot pal on the map in Morph Hunt. Helpful game guide, warm tone, 1-2 short sentences, light emoji ok. '+rules;
+}
+async function mhAiGeminiReply(cfg,system,history,userText){
+ const preferred=(cfg.model||MH_GEMINI_MODEL).replace(/^models\//,'');
+ let base=(cfg.base||MH_GEMINI_BASE).replace(/\/$/,'');
+ if(!/\/v1beta$/i.test(base)&&!/generativelanguage\.googleapis\.com/i.test(base)) base=MH_GEMINI_BASE;
+ if(/generativelanguage\.googleapis\.com/i.test(base)&&!/\/v1beta$/i.test(base)){
+  base=base.replace(/\/v1(\/.*)?$/i,'').replace(/\/$/,'')+'/v1beta';
+ }
+ const contents=[];
+ history.slice(-10).forEach(m=>{
+  contents.push({role:m.role==='assistant'?'model':'user',parts:[{text:m.content}]});
+ });
+ contents.push({role:'user',parts:[{text:userText}]});
+ const body={
+  systemInstruction:{parts:[{text:system}]},
+  contents,
+  generationConfig:{temperature:0.85,maxOutputTokens:180,topP:0.92}
+ };
+ const url=base+'/models/'+encodeURIComponent(preferred)+':generateContent';
+ const res=await fetch(url,{
+  method:'POST',
+  headers:{'Content-Type':'application/json','x-goog-api-key':cfg.key},
+  body:JSON.stringify(body)
+ });
+ if(!res.ok) throw new Error('AI '+res.status);
+ const data=await res.json();
+ const parts=data.candidates&&data.candidates[0]&&data.candidates[0].content&&data.candidates[0].content.parts;
+ let text=parts&&parts.map(p=>p.text||'').join('').trim();
+ if(!text) throw new Error('Empty AI');
+ return text.slice(0,160);
+}
+async function mhAiAgentText(st,agent,playerText){
+ const cfg=mhAiChatCfg();
+ if(!cfg?.key) return null;
+ const hist=mhAiEnsureHist(st)[mhAiHistKey(agent)];
+ hist.push({role:'user',content:playerText.slice(0,160)});
+ try{
+  const reply=await mhAiGeminiReply(cfg,mhAiSystemPrompt(agent),hist,playerText);
+  const mod=mhChatModerate(reply);
+  const safe=mod.ok?reply:'Nice! Let\'s keep exploring the map together! 🎮';
+  hist.push({role:'assistant',content:safe});
+  if(hist.length>24) hist.splice(0,hist.length-24);
+  return safe;
+ }catch(_){
+  return null;
+ }
+}
+function mhAgentPostChat(st,save,agentId,agentName,morphId,reply,channel,toId,myId){
+ if(!st||!reply) return;
+ const wi=st.world;
+ const msg={
+  id:'ai-'+agentId+'-'+Date.now()+'-'+Math.random().toString(36).slice(2,6),
+  channel,
+  world:channel==='server'?wi:undefined,
+  fromId:agentId,
+  fromName:agentName,
+  morphId:morphId||'ex-welcome',
+  toId:channel==='friend'?myId:undefined,
+  text:reply.slice(0,160),
+  t:Date.now()
+ };
+ if(agentId===MH_TEST_BUDDY_ID) mhTestBuddyUpdatePos(st,wi);
+ else mhTestAccountUpdatePos(st,wi);
+ mhChatIngest(msg);
+ try{ mhPlaySfx('ui'); }catch(_){}
+}
+function mhAgentMaybeReply(st,save,agent,playerText,channel,toId,myId){
+ if(!st||!save) return;
+ const isBuddy=agent==='buddy';
+ if(isBuddy){
+  if(!st.testBuddy?.on||st.buddyAiOn===false) return;
+  if(channel==='friend'&&toId!==MH_TEST_BUDDY_ID) return;
+ }else{
+  if(mhIsTestProfile()||st.testAccountAiOn===false) return;
+  if(channel==='friend'&&toId&&toId!==MH_TEST_PLAYER_ID) return;
+ }
+ const delay=isBuddy?(500+Math.floor(Math.random()*400)):(900+Math.floor(Math.random()*500));
+ const agentId=isBuddy?MH_TEST_BUDDY_ID:MH_TEST_PLAYER_ID;
+ const agentName=isBuddy?MH_TEST_BUDDY_NAME:'Test Account';
+ const morphId=isBuddy?(st.testBuddy?.morphId||'ex-welcome'):(st.testAccountNpc?.morphId||'ex-welcome');
+ setTimeout(async()=>{
+  if(!mhState) return;
+  if(isBuddy&&(!mhState.testBuddy?.on||mhState.buddyAiOn===false)) return;
+  if(!isBuddy&&(mhIsTestProfile()||mhState.testAccountAiOn===false)) return;
+  let reply=null;
+  if(mhAiHasBrain()) reply=await mhAiAgentText(mhState,agent,playerText);
+  if(!reply) reply=mhTestBuddyPickReply(playerText,isBuddy?'buddy':'account');
+  mhAgentPostChat(mhState,mhState.save,agentId,agentName,morphId,reply,channel,toId,myId);
+ },delay);
+}
+function mhTestAccountUpdatePos(st,wi){
+ if(!st) return;
+ if(!st.testAccountNpc) st.testAccountNpc={phase:2.2,morphId:'ex-welcome',px:0,py:0};
+ const pos=mhWalkEnsurePos(st,wi);
+ const b=st.testAccountNpc;
+ b.phase=(b.phase||0)+0.032;
+ b.px=pos.px+Math.cos(b.phase)*105-48;
+ b.py=pos.py+Math.sin(b.phase*0.9)*44+18;
+}
+function mhDrawTestAccountNpc(ctx,st,wi,t){
+ if(mhIsTestProfile()||st.testAccountAiOn===false) return;
+ mhTestAccountUpdatePos(st,wi);
+ const b=st.testAccountNpc;
+ const m=mhMorph(b.morphId)||mhMorph('ex-welcome');
+ if(!m) return;
+ mhPaintNoobWorld(ctx,m,b.px,b.py,0.88,1,false,t,b.phase||0,true,false);
+ ctx.fillStyle='rgba(0,0,0,.75)'; ctx.fillRect(b.px-56,b.py-98,112,16);
+ ctx.fillStyle='#ffd080'; ctx.font='bold 9px system-ui,sans-serif'; ctx.textAlign='center';
+ ctx.fillText('🧪 Test Account',b.px,b.py-86);
+ if(!st.chatNpcLine) st.chatNpcLine={};
+ const line=st.chatNpcLine['_remote_'+MH_TEST_PLAYER_ID];
+ if(line&&line.until>performance.now()){
+  mhDrawChatBubble(ctx,b.px,b.py-56,line.text,false);
+ }
+}
+function mhTestBuddyPickReply(playerText,agent){
  const fold=mhChatFold(playerText);
  if(/\b(hello|hi|hey|sup|yo)\b/.test(fold)) return 'Hey! I\'m Test Buddy 🤖 — press / or ↑ to chat anytime!';
  if(/\b(fight|duel|battle|obby)\b/.test(fold)) return 'Walk to a dashed grove and press E to fight! ⚔';
@@ -3291,7 +3442,12 @@ function mhTestBuddyPickReply(playerText){
  if(/\b(discord)\b/.test(fold)) return 'Discord is OK in chat rules — stay kind & game-safe! 💬';
  if(/\b(thank|thanks|ty|gg)\b/.test(fold)) return 'You got it! Happy hunting! 🎉';
  if(/\b(update100|100|party|birthday)\b/.test(fold)) return 'Redeem UPDATE100 in 🎲 Gacha for party confetti! 🎂';
- const generic=[
+ const generic=agent==='account'?[
+  'Copy that! Want to race to a grove? 🏃',
+  'I\'m Test Account — your co-op pal for trying chat! 💬',
+  'Nice one! Press E when you see a dashed grove. ⚔',
+  'Global chat is how real friends find you too! 🌐'
+ ]:[
   'Cool message! I\'m here to test chat with you. 🎮',
   'I heard you! Real friends can add your friend code too. 💬',
   'Nice! Try Server tab to see bubbles on this map. 🗺️',
@@ -3316,28 +3472,10 @@ function mhTestBuddySetOn(st,save,on,silent){
  if(!silent) mhToast(on?'🤖 Test Buddy joined — chat on Global or Friends!':'Test Buddy left.');
 }
 function mhTestBuddyMaybeReply(st,save,playerText,channel,toId,myId){
- if(!st?.testBuddy?.on) return;
- if(channel==='friend'&&toId!==MH_TEST_BUDDY_ID) return;
- const delay=550+Math.floor(Math.random()*450);
- setTimeout(()=>{
-  if(!mhState?.testBuddy?.on) return;
-  const wi=st.world;
-  const reply=mhTestBuddyPickReply(playerText);
-  const msg={
-   id:'buddy-'+Date.now()+'-'+Math.random().toString(36).slice(2,6),
-   channel,
-   world:channel==='server'?wi:undefined,
-   fromId:MH_TEST_BUDDY_ID,
-   fromName:MH_TEST_BUDDY_NAME,
-   morphId:st.testBuddy.morphId||'ex-welcome',
-   toId:channel==='friend'?myId:undefined,
-   text:reply.slice(0,160),
-   t:Date.now()
-  };
-  mhTestBuddyUpdatePos(st,wi);
-  mhChatIngest(msg);
-  try{ mhPlaySfx('ui'); }catch(_){}
- },delay);
+ mhAgentMaybeReply(st,save,'buddy',playerText,channel,toId,myId);
+}
+function mhTestAccountMaybeReply(st,save,playerText,channel,toId,myId){
+ mhAgentMaybeReply(st,save,'account',playerText,channel,toId,myId);
 }
 function mhDrawTestBuddy(ctx,st,wi,t){
  if(!st?.testBuddy?.on) return;
@@ -3407,6 +3545,7 @@ function mhChatSend(st,save,text){
  if(inp) inp.value='';
  if(st) st.chatDraft='';
  mhTestBuddyMaybeReply(st,save,raw,channel,toId,prof.id);
+ mhTestAccountMaybeReply(st,save,raw,channel,toId,prof.id);
  if(!mhChatRelayOn()&&channel!=='friend'&&!st.testBuddy?.on) mhToast(channel==='global'?'💬 Global (device + tabs). Set LITHOS_CHAT_CONFIG.relay for real server!':'💬 Server chat on this map (device + tabs).');
 }
 function mhChatRefreshLog(){
@@ -3532,12 +3671,14 @@ function mhRenderChatPanel(save){
  const friends=Array.isArray(save.chatFriends)?save.chatFriends:[];
  const relay=mhChatRelayOn();
  return `<aside class="mh-chat-panel" aria-label="Character chat">
-  <div class="mh-chat-head"><span>💬 Talk</span><small>${relay?'🌐 Server live':'📱 Device + tabs'} · <code>${prof.id}</code></small></div>
+  <div class="mh-chat-head"><span>💬 Talk</span><small>${relay?'🌐 Server live':'📱 Device + tabs'} · ${mhAiHasBrain()?'<b style="color:#80ffb0">🧠 AI brains ON</b> · ':'<span style="color:#a0a0b0">🧠 AI off (no key)</span> · '}<code>${prof.id}</code></small></div>
   <div class="mh-chat-buddy-row">
    <button type="button" class="mh-btn mh-btn-sm${mhState?.testBuddy?.on?' primary':''}" id="mh-test-buddy-toggle">${mhState?.testBuddy?.on?'🤖 Buddy ON':'🤖 Buddy OFF'}</button>
+   <button type="button" class="mh-btn mh-btn-sm${mhState?.buddyAiOn!==false?' primary':''}" id="mh-buddy-ai-toggle">${mhState?.buddyAiOn!==false?'🧠 Buddy AI':'Buddy scripts'}</button>
+   <button type="button" class="mh-btn mh-btn-sm${mhState?.testAccountAiOn!==false?' primary':''}" id="mh-account-ai-toggle">${mhState?.testAccountAiOn!==false?'🧠 Account AI':'Account scripts'}</button>
    <button type="button" class="mh-btn mh-btn-sm" id="mh-open-test-tab">🧪 2nd tab</button>
   </div>
-  <p class="mh-chat-buddy-code">Codes: <code>${MH_TEST_BUDDY_ID}</code> (robot) · <code>${MH_TEST_PLAYER_ID}</code> (test account)</p>
+  <p class="mh-chat-buddy-code">AI pals: <code>${MH_TEST_BUDDY_ID}</code> · <code>${MH_TEST_PLAYER_ID}</code> · rules still apply</p>
   <div class="mh-chat-tabs">
    <button type="button" class="mh-chat-tab${ch==='global'?' on':''}" data-mh-chat-ch="global">Global</button>
    <button type="button" class="mh-chat-tab${ch==='server'?' on':''}" data-mh-chat-ch="server">Server</button>
@@ -3606,6 +3747,12 @@ function mhBindChat(root){
   mhRender();
  });
  root.querySelector('#mh-open-test-tab')?.addEventListener('click',()=>mhOpenTestAccountTab());
+ root.querySelector('#mh-buddy-ai-toggle')?.addEventListener('click',()=>{
+  if(mhState){ mhState.buddyAiOn=mhState.buddyAiOn===false; mhToast(mhState.buddyAiOn?'🧠 Test Buddy uses AI':'Test Buddy uses script lines'); mhRender(); }
+ });
+ root.querySelector('#mh-account-ai-toggle')?.addEventListener('click',()=>{
+  if(mhState){ mhState.testAccountAiOn=mhState.testAccountAiOn===false; mhToast(mhState.testAccountAiOn?'🧠 Test Account uses AI':'Test Account uses script lines'); mhRender(); }
+ });
  root.querySelectorAll('[data-mh-chat-ch]').forEach(btn=>{
   btn.onclick=()=>{
    const v=btn.dataset.mhChatCh;
@@ -6271,6 +6418,7 @@ function mhWalkDrawFrame(){
  const wear=mhMorph(save.wearing);
  mhDrawRedBlackPlayerStorm(ctx,st,pos,t);
  mhDrawTestBuddy(ctx,st,wi,t);
+ mhDrawTestAccountNpc(ctx,st,wi,t);
  mhDrawYouInWorld(ctx,wear,pos,map,t,st.walkPhase||0,wi,st.playerRunning);
  mhDrawChatBubbles(ctx,st,camX,camY);
  mhDrawNpcChatLines(ctx,st,wi,morphs,camX,camY);
@@ -7012,7 +7160,7 @@ function playMorphHunt(){
  if(typeof closeGamesHub==='function'){ try{ closeGamesHub({skipHash:true}); }catch(_){} }
  mhMorphHuntHideSiteChrome();
  const openTab=mhMorphHuntOpenTab();
- mhState={save:mhLoadSave(),world:0,tab:openTab,page:0,huntPage:0,filter:'',indexKind:'all',walkPos:{},enemyHp:{},enemyAggro:{},enemyRespawnAt:{},enemyLastHit:{},enemyHitFlash:{},chatChannel:'global',chatSince:{global:0,server:0,friend:0},chatBubbles:[],chatNpcLine:{},testBuddy:mhTestBuddyDefault()};
+ mhState={save:mhLoadSave(),world:0,tab:openTab,page:0,huntPage:0,filter:'',indexKind:'all',walkPos:{},enemyHp:{},enemyAggro:{},enemyRespawnAt:{},enemyLastHit:{},enemyHitFlash:{},chatChannel:'global',chatSince:{global:0,server:0,friend:0},chatBubbles:[],chatNpcLine:{},testBuddy:mhTestBuddyDefault(),buddyAiOn:true,testAccountAiOn:true,testAccountNpc:{phase:2.2,morphId:'ex-welcome'},aiHist:{buddy:[],account:[]}};
  mhTestBuddyEnsureFriend(mhState.save);
  const wrap=document.createElement('div');
  wrap.id='morphhunt';
@@ -7053,7 +7201,7 @@ function playMorphHunt(){
  }else if(mhMorphHuntStaleHostHint()){
   /* toast from hint */
  }else if(openTab==='hunt'){
-  mhToast('🤖 Test Buddy ON · / or ↑ to chat · WASD move · '+MH_BUILD);
+  mhToast((mhAiHasBrain()?'🧠 AI Buddy + Test Account · ':'🤖 Script pals · ')+'/ or ↑ to chat · '+MH_BUILD);
  }else if(openTab==='stars'){
   mhToast('⭐ '+MH_BUILD+' · 🎂 Redeem UPDATE100 in Gacha for party confetti!');
   try{
