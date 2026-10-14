@@ -1714,8 +1714,21 @@
   .mh-walk-zone{font-weight:900;color:#ffe8a0;font-size:12px;text-shadow:none}
   .mh-walk-prompt{flex:1;text-align:center;font-size:12px;font-weight:800;color:#80e8ff}
   .mh-walk-run{font-size:11px;font-weight:800;color:#80ffb0;text-shadow:0 1px 2px #000}
-  .mh-minigame-modal{z-index:100010!important}
-  #mh-minigame-modal,#mh-found-modal{z-index:100010!important}
+  .mh-minigame-modal{z-index:100095!important}
+  #mh-minigame-modal,#mh-found-modal{z-index:100095!important}
+  .mh-walk-game{position:relative}
+  .mh-player-roster{position:absolute;top:8px;left:8px;z-index:12;min-width:168px;max-width:220px;background:rgba(6,10,18,.92);border:1px solid rgba(128,200,255,.45);border-radius:12px;padding:8px 10px;pointer-events:auto;box-shadow:0 8px 24px rgba(0,0,0,.45)}
+  .mh-roster-head{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:6px;font-size:11px;color:#ffe8a0}
+  .mh-player-list{margin:0;padding:0;list-style:none;max-height:120px;overflow-y:auto}
+  .mh-roster-row{font-size:10px;color:#c0c8d8;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.06);display:flex;flex-wrap:wrap;align-items:center;gap:4px}
+  .mh-roster-row.here{color:#e8f0ff}
+  .mh-roster-row.dim{color:#788898;font-style:italic;border:none}
+  .mh-roster-title{font-size:9px;font-weight:900;text-transform:uppercase;padding:1px 5px;border-radius:999px;border:1px solid rgba(201,169,79,.45);color:#ffd060}
+  .mh-roster-ban{font-size:9px!important;padding:2px 6px!important;background:#802030!important;border-color:#ff6080!important}
+  .mh-touch-controls{position:absolute;left:8px;bottom:8px;z-index:11;width:148px;height:148px;pointer-events:none}
+  .mh-dpad-btn{position:absolute;pointer-events:auto;width:44px;height:44px;border-radius:12px;border:2px solid rgba(201,169,79,.45);background:rgba(12,16,28,.88);color:#ffe8a0;font-weight:900;font-size:16px;touch-action:none;-webkit-user-select:none;user-select:none}
+  .mh-dpad-up{left:52px;top:0}.mh-dpad-down{left:52px;bottom:0}.mh-dpad-left{left:0;top:52px}.mh-dpad-right{right:0;top:52px}
+  .mh-dpad-fight{left:52px;top:52px;width:44px;height:44px;font-size:18px;background:rgba(128,32,48,.9);border-color:rgba(255,96,128,.55)}
   .mh-minigame-card{background:linear-gradient(180deg,#1a1838,#0c1018);border:3px solid var(--mh-rarity,#b060e8);border-radius:18px;padding:20px;max-width:360px;width:100%;text-align:center}
   .mh-minigame-card-action{max-width:400px}
   .mh-mini-desc{color:#b8c0d8;font-size:13px;margin:8px 0 12px}

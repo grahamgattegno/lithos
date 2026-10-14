@@ -5,9 +5,13 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v122';
-const MH_SCENERY_STAMP='STABLE_v122';
-const MH_SCRIPT_CANON='morph-hunt.void-2d-v122.js';
+const MH_BUILD='void-2d-v123';
+const MH_SCENERY_STAMP='STABLE_v123';
+const MH_SCRIPT_CANON='morph-hunt.void-2d-v123.js';
+const MH_PRESENCE_KEY='lithos_mh_presence_v1';
+const MH_PRESENCE_BROADCAST='lithos-mh-presence';
+const MH_PRESENCE_TTL=28000;
+const MH_PRESENCE_HEARTBEAT_MS=3200;
 const MH_MEGA_PARTY_MS=50*60*1000;
 const MH_CHAT_UI_STAMP='compose-under-log-v2';
 const MH_AGENT_IDLE_MS_MIN=12000;
@@ -3514,9 +3518,11 @@ function mhMorphHuntObbySpaceOk(e){
 }
 function mhMorphHuntKeyGuard(e){
  if(!document.getElementById('morphhunt')) return;
+ if(mhState?.minigameMorph) return;
  const t=e.target;
  if(mhMorphHuntTypingTarget(t)) return;
  if(mhMorphHuntObbySpaceOk(e)) return;
+ if(t?.closest?.('#mh-minigame-modal')) return;
  if(mhMorphHuntActivationKey(e)){
   e.preventDefault();
   e.stopImmediatePropagation();
@@ -3839,9 +3845,155 @@ function mhChatMergeMessages(incoming){
  if(added) mhChatSaveStore(store);
  return added;
 }
+let mhPresenceBroadcast=null;
+function mhPresenceStoreRead(){
+ try{
+  const raw=JSON.parse(localStorage.getItem(MH_PRESENCE_KEY)||'{}');
+  return raw&&typeof raw==='object'?raw:{};
+ }catch(_){ return {}; }
+}
+function mhPresenceStoreWrite(all){
+ try{ localStorage.setItem(MH_PRESENCE_KEY,JSON.stringify(all)); }catch(_){}
+}
+function mhPresenceFromPacket(m){
+ if(!m?.fromId) return null;
+ let data={};
+ try{ data=JSON.parse(m.text||'{}'); }catch(_){}
+ return{
+  id:m.fromId,
+  name:m.fromName||m.fromId,
+  title:m.fromTitle||'',
+  morphId:data.morphId||m.morphId||'ex-welcome',
+  world:typeof data.world==='number'?data.world:0,
+  px:+(data.px||0),
+  py:+(data.py||0),
+  t:+(m.t||Date.now()),
+  human:true
+ };
+}
+function mhPresenceUpsert(p){
+ if(!p?.id) return;
+ const all=mhPresenceStoreRead();
+ const now=Date.now();
+ Object.keys(all).forEach(id=>{ if(now-(all[id]?.t||0)>MH_PRESENCE_TTL) delete all[id]; });
+ const prev=all[p.id];
+ const isNew=!prev;
+ all[p.id]={...prev,...p,t:p.t||now,human:true};
+ mhPresenceStoreWrite(all);
+ return isNew;
+}
+function mhPresenceBroadcastInit(){
+ if(mhPresenceBroadcast||typeof BroadcastChannel==='undefined') return;
+ mhPresenceBroadcast=new BroadcastChannel(MH_PRESENCE_BROADCAST);
+ mhPresenceBroadcast.onmessage=(e)=>{
+  const p=mhPresenceFromPacket(e?.data);
+  if(!p) return;
+  const joined=mhPresenceUpsert(p);
+  if(joined&&mhState) mhPresenceOnJoin(mhState,p);
+ };
+}
+function mhPresenceOnJoin(st,p){
+ if(!st||!p?.id) return;
+ if(!st.presenceSeen) st.presenceSeen={};
+ if(st.presenceSeen[p.id]) return;
+ st.presenceSeen[p.id]=1;
+ const me=mhEnsureChatProfile(st.save).id;
+ if(p.id===me) return;
+ mhToast('🧑 Real human joined: '+ (p.name||p.id));
+ try{ mhPlaySfx('ui'); }catch(_){}
+}
+function mhPresenceHeartbeat(st,save){
+ if(!st||!save||st.tab!=='hunt') return;
+ const now=Date.now();
+ if(st.presenceLastBeat&&now-st.presenceLastBeat<MH_PRESENCE_HEARTBEAT_MS) return;
+ st.presenceLastBeat=now;
+ const prof=mhEnsureChatProfile(save);
+ const pos=mhWalkEnsurePos(st,st.world);
+ const msg={
+  id:'presence-'+prof.id,
+  channel:'presence',
+  fromId:prof.id,
+  fromName:prof.name,
+  fromTitle:prof.title||'',
+  morphId:prof.morphId,
+  text:JSON.stringify({world:st.world,px:pos.px,py:pos.py,morphId:prof.morphId}),
+  t:now
+ };
+ mhPresenceUpsert(mhPresenceFromPacket(msg));
+ mhChatPostRemote(msg);
+ try{ mhPresenceBroadcast?.postMessage(msg); }catch(_){}
+}
+async function mhPresencePoll(st){
+ if(!st) return;
+ if(!st.presenceSince) st.presenceSince=Date.now()-MH_PRESENCE_TTL;
+ const remote=await mhChatFetchRemote('presence',st.presenceSince);
+ const batch=(remote||[]).sort((a,b)=>a.t-b.t);
+ let maxT=st.presenceSince;
+ batch.forEach(m=>{
+  if(m.t<=st.presenceSince) return;
+  const p=mhPresenceFromPacket(m);
+  if(!p) return;
+  const joined=mhPresenceUpsert(p);
+  if(joined) mhPresenceOnJoin(st,p);
+  if(m.t>maxT) maxT=m.t;
+ });
+ st.presenceSince=maxT;
+}
+function mhPresenceOnline(st,save){
+ const me=mhEnsureChatProfile(save).id;
+ const now=Date.now();
+ const all=mhPresenceStoreRead();
+ return Object.values(all).filter(p=>p&&p.id&&p.id!==me&&now-(p.t||0)<MH_PRESENCE_TTL);
+}
+function mhPresenceSameWorld(st,save){
+ return mhPresenceOnline(st,save).filter(p=>p.world===(st?.world??0));
+}
+function mhDrawOnlineHumans(ctx,st,save,t){
+ const list=mhPresenceSameWorld(st,save);
+ list.forEach((p,i)=>{
+  const m=mhMorph(p.morphId)||mhMorph('ex-welcome');
+  const phase=(t*2.2+i)*0.7;
+  mhPaintNoobWorld(ctx,m,p.px,p.py,0.82,1,false,t,phase,false,false);
+  ctx.fillStyle='rgba(0,32,48,.88)'; ctx.fillRect(p.px-52,p.py-108,104,16);
+  ctx.fillStyle='#80ffb0'; ctx.font='bold 9px system-ui'; ctx.textAlign='center';
+  ctx.fillText('🧑 '+String(p.name||'Player').slice(0,14),p.px,p.py-96);
+  if(p.title){
+   ctx.fillStyle='rgba(0,0,0,.7)'; ctx.fillRect(p.px-40,p.py-122,80,12);
+   ctx.fillStyle=p.title==='Owner'?'#ffd060':(p.title==='Admin'?'#a0d8ff':'#c0c8d8');
+   ctx.font='bold 8px system-ui'; ctx.fillText(p.title,p.px,p.py-112);
+  }
+ });
+}
+function mhRenderPlayerRoster(st,save){
+ const el=document.getElementById('mh-player-list');
+ if(!el||!st||!save) return;
+ const me=mhEnsureChatProfile(save);
+ const wi=st.world;
+ const online=mhPresenceOnline(st,save).sort((a,b)=>String(a.name).localeCompare(String(b.name)));
+ const rows=[{id:me.id,name:me.name,title:me.title,world:wi,you:true}].concat(online);
+ el.innerHTML=rows.map(p=>{
+  const here=p.you||p.world===wi;
+  const banBtn=(st.banModeOn&&mhIsLithosAdmin()&&!p.you)?`<button type="button" class="mh-btn mh-btn-sm mh-roster-ban" data-mh-ban-id="${String(p.id).replace(/"/g,'&quot;')}" data-mh-ban-name="${String(p.name||'').replace(/"/g,'&quot;')}">Banned</button>`:'';
+  return `<li class="mh-roster-row${here?' here':''}">${p.you?'<b>You</b>':('🧑 '+String(p.name||p.id).slice(0,18))}${p.title?` <span class="mh-roster-title">${p.title}</span>`:''}${!p.you&&p.world!==wi?` <small>map ${p.world}</small>`:''}${banBtn}</li>`;
+ }).join('')||'<li class="mh-roster-row dim">No other humans yet — share Lithos link!</li>';
+ el.querySelectorAll('[data-mh-ban-id]').forEach(btn=>{
+  btn.onclick=()=>{
+   const id=btn.getAttribute('data-mh-ban-id');
+   const nm=btn.getAttribute('data-mh-ban-name')||id;
+   mhAdminBanPlayer(save,nm||id);
+   mhRenderPlayerRoster(st,save);
+  };
+ });
+ const modeBtn=document.getElementById('mh-ban-mode');
+ if(modeBtn){
+  modeBtn.textContent='Ban mode: '+(st.banModeOn?'ON':'OFF');
+  modeBtn.classList.toggle('primary',!!st.banModeOn);
+ }
+}
 function mhChatBroadcastInit(){
  mhBanBroadcastInit();
  mhDiscoBroadcastInit();
+ mhPresenceBroadcastInit();
  if(mhChatBroadcast||typeof BroadcastChannel==='undefined') return;
  mhChatBroadcast=new BroadcastChannel(MH_CHAT_BROADCAST);
  mhChatBroadcast.onmessage=(e)=>{ if(e?.data?.id) mhChatIngest(e.data,true); };
@@ -4476,6 +4628,7 @@ async function mhChatPoll(st){
   if(m.t>maxT) maxT=m.t;
  });
  st.chatSince[channel]=maxT;
+ mhPresencePoll(st);
  mhChatRefreshLog();
 }
 function mhChatStartPoll(st){
@@ -4919,7 +5072,8 @@ function mhOpenMinigame(m){
  if(!modal) return;
  const r=mhRarityInfo(m);
  modal.hidden=false;
- modal.style.zIndex='100020';
+ modal.style.zIndex='100095';
+ modal.style.pointerEvents='auto';
  modal.innerHTML=`<div class="mh-minigame-card mh-minigame-card-action" style="--mh-rarity:${r.color}">
   <div class="mh-found-badge">Unlock ${mhRarityLabel(m)} · ${m.name}</div>
   <p class="mh-mini-desc">${MH_MINI_DESC[kind]||'Win the action challenge!'}</p>
@@ -4997,18 +5151,23 @@ function mhRunMinigame(kind,m){
    },520);
   };
   mhState.minigameIv=setInterval(enemyAtk,1900);
-  btns.querySelector('[data-a="punch"]').onclick=()=>{
+  const bindTap=(el,fn)=>{
+   if(!el) return;
+   el.addEventListener('click',(e)=>{ e.preventDefault(); fn(); });
+   el.addEventListener('pointerdown',(e)=>{ if(e.pointerType==='mouse') return; e.preventDefault(); fn(); });
+  };
+  bindTap(btns.querySelector('[data-a="punch"]'),()=>{
    if(enemyHp<=0||playerHp<=0) return;
    const dmg=10+(mhHashStr(String(Date.now()))%9);
    enemyHp-=dmg; flash=0.6;
    status.textContent='Punch! -'+dmg+' HP';
    mhPlaySfx('hit');
    if(enemyHp<=0){ clearInterval(mhState.minigameIv); mhWinMinigame(m); }
-  };
-  btns.querySelector('[data-a="block"]').onclick=()=>{
+  });
+  bindTap(btns.querySelector('[data-a="block"]'),()=>{
    blocking=true; status.textContent='Blocking…';
    setTimeout(()=>{ blocking=false; },650);
-  };
+  });
   return;
  }
  if(kind==='obbyrun'){
@@ -5021,6 +5180,7 @@ function mhRunMinigame(kind,m){
   const ctx=canvas.getContext('2d');
   const jump=()=>{ if(onGround&&!dead&&!won){ vy=-11.5; onGround=false; } };
   canvas.onclick=jump;
+  canvas.onpointerdown=(e)=>{ e.preventDefault(); jump(); };
   const onKey=(e)=>{
    if(e.code==='Space'||e.code==='ArrowUp'){ e.preventDefault(); jump(); }
   };
@@ -5105,7 +5265,7 @@ function mhRunMinigame(kind,m){
    },wait);
   };
   schedule();
-  btn.onclick=()=>{
+  const fightTap=()=>{
    if(phase==='lunge'){
     phase='idle'; score++; status.textContent='Counter! '+score+'/'+need;
     mhPlaySfx('hit');
@@ -5113,6 +5273,8 @@ function mhRunMinigame(kind,m){
     else schedule();
    }else{ misses++; status.textContent='Not yet! '+misses+'/'+maxMiss; if(misses>=maxMiss) mhMiniFail(m,'Wrong timing!','jumpfight'); }
   };
+  btn.onclick=fightTap;
+  btn.onpointerdown=(e)=>{ e.preventDefault(); fightTap(); };
   return;
  }
 }
@@ -7417,19 +7579,25 @@ function mhWalkDrawFrame(){
  mhDrawRedBlackPlayerStorm(ctx,st,pos,t);
  mhDrawTestBuddy(ctx,st,wi,t);
  mhDrawTestAccountNpc(ctx,st,wi,t);
+ mhPresenceHeartbeat(st,save);
+ mhDrawOnlineHumans(ctx,st,save,t);
  mhDrawYouInWorld(ctx,wear,pos,map,t,st.walkPhase||0,wi,st.playerRunning);
  mhDrawChatBubbles(ctx,st,camX,camY);
  mhDrawNpcChatLines(ctx,st,wi,morphs,camX,camY);
  mhDrawPlagueRaid(ctx,st,t);
  mhDrawVoidFx(ctx,st);
  ctx.restore();
- ctx.fillStyle='rgba(0,0,0,.78)'; ctx.fillRect(8,8,420,78);
+ if(!st.rosterUiLast||performance.now()-st.rosterUiLast>900){
+  st.rosterUiLast=performance.now();
+  mhRenderPlayerRoster(st,save);
+ }
+ ctx.fillStyle='rgba(0,0,0,.78)'; ctx.fillRect(8,118,420,78);
  ctx.fillStyle='#ffe8a0'; ctx.font='bold 12px system-ui,sans-serif'; ctx.textAlign='left';
- ctx.fillText('This map: '+mhWorldRarityHint(wi),16,24);
+ ctx.fillText('This map: '+mhWorldRarityHint(wi),16,134);
  ctx.fillStyle='#80ffb0'; ctx.font='bold 11px system-ui,sans-serif';
- ctx.fillText('Search dashed groves · noobies appear when you walk in · E unlock',16,42);
+ ctx.fillText('Search dashed groves · noobies appear when you walk in · E unlock',16,152);
  ctx.fillStyle='#a0c8ff'; ctx.font='bold 11px system-ui,sans-serif';
- ctx.fillText('Epic+ → teleport 💎 · Void → teleport 🕳 (tabs above)',16,56);
+ ctx.fillText('Epic+ → teleport 💎 · Void → teleport 🕳 (tabs above)',16,166);
  if(st.testBuddy?.on){
   ctx.fillStyle='rgba(0,40,60,.88)'; ctx.fillRect(W/2-150,56,300,22);
   ctx.fillStyle='#80e8ff'; ctx.font='bold 11px system-ui'; ctx.textAlign='center';
@@ -7444,7 +7612,7 @@ function mhWalkDrawFrame(){
  ctx.textAlign='left';
  ctx.fillStyle='#ffb0b0'; ctx.font='bold 10px system-ui';
  const vk=mhVoidCombatMorph(save);
- ctx.fillText(vk?.voidKing?'⚔ 1–3 fight · 🎬 4 king cutscene (axe→sword · void judgment)':'⚔ FIGHT: 1 attack · 2 power · 3 storm — face foes & press keys',16,72);
+ ctx.fillText(vk?.voidKing?'⚔ 1–3 fight · 🎬 4 king cutscene (axe→sword · void judgment)':'⚔ FIGHT: 1 attack · 2 power · 3 storm — face foes & press keys',16,182);
  if(mhVoidCombatMorph(save)){
   ctx.fillStyle='rgba(20,0,40,.88)'; ctx.fillRect(W/2-190,H-52,380,36);
   ctx.fillStyle='#ffe8a0'; ctx.font='bold 12px system-ui,sans-serif'; ctx.textAlign='center';
@@ -7671,6 +7839,13 @@ function mhWalkStart(){
   btn.addEventListener('pointerleave',up);
  });
  root?.querySelector('#mh-walk-interact')?.addEventListener('click',()=> mhTryStartMinigame());
+ root?.querySelector('#mh-touch-fight')?.addEventListener('pointerdown',(e)=>{ e.preventDefault(); mhTryStartMinigame(); });
+ root?.querySelector('#mh-ban-mode')?.addEventListener('click',()=>{
+  if(!mhState) return;
+  mhState.banModeOn=!mhState.banModeOn;
+  mhToast(mhState.banModeOn?'🚫 Ban mode ON — tap Banned on a player':'Ban mode off');
+  mhRenderPlayerRoster(mhState,mhState.save);
+ });
  root?.querySelector('#mh-walk-enter')?.addEventListener('click',()=>{
   if(mhState?.insideBuilding) mhExitBuilding();
   else if(mhState?.walkNearBuilding) mhEnterBuilding(mhState.walkNearBuilding,mhState.world);
@@ -7804,8 +7979,19 @@ function mhRenderHunt(save, wi){
  </div>
  <div class="mh-walk-wrap mh-walk-with-chat">
   <div class="mh-walk-game">
+  <div class="mh-player-roster" id="mh-player-roster">
+   <div class="mh-roster-head"><strong>👥 Players</strong>${mhIsLithosAdmin()?'<button type="button" class="mh-btn mh-btn-sm" id="mh-ban-mode">Ban mode: OFF</button>':''}</div>
+   <ul id="mh-player-list" class="mh-player-list"><li class="mh-roster-row dim">Looking for humans…</li></ul>
+  </div>
   <div id="mh-void-combat-readout" class="mh-void-combat-readout">${voidCombat?('⚔ FIGHT · '+voidCombat.voidAttack?.name+' · ✦ '+voidCombat.voidPower?.name+' · 🌌 '+MH_VOID_STORM_NAME):'⚔ FIGHT · <b>1</b> punch · <b>2</b> blast · <b>3</b> slam (Void morph = stronger)'}${wi===MH_VOID_WORLD?' · <b>'+MH_VOID_ABYSS_LABEL+'</b>':''}</div>
   <canvas id="mh-walk-canvas" class="mh-walk-canvas" width="960" height="520" tabindex="-1"></canvas>
+  <div class="mh-touch-controls" aria-label="Touch move">
+   <button type="button" class="mh-dpad-btn mh-dpad-up" data-mh-dpad="up" aria-label="Up">▲</button>
+   <button type="button" class="mh-dpad-btn mh-dpad-left" data-mh-dpad="left" aria-label="Left">◀</button>
+   <button type="button" class="mh-dpad-btn mh-dpad-down" data-mh-dpad="down" aria-label="Down">▼</button>
+   <button type="button" class="mh-dpad-btn mh-dpad-right" data-mh-dpad="right" aria-label="Right">▶</button>
+   <button type="button" class="mh-dpad-btn mh-dpad-fight" id="mh-touch-fight" aria-label="Fight">⚔</button>
+  </div>
   <div id="mh-walk-hud" class="mh-walk-hud mh-walk-hud-clean">
    <span class="mh-walk-zone">${world.emoji} ${world.name} · ${found}/${morphs.length}</span>
    <span class="mh-walk-prompt" hidden>Walk closer</span>
@@ -8183,7 +8369,7 @@ function playMorphHunt(){
  if(typeof closeGamesHub==='function'){ try{ closeGamesHub({skipHash:true}); }catch(_){} }
  mhMorphHuntHideSiteChrome();
  const openTab=mhMorphHuntOpenTab();
- mhState={save:mhLoadSave(),world:0,tab:openTab,page:0,huntPage:0,filter:'',indexKind:'all',walkPos:{},enemyHp:{},enemyAggro:{},enemyRespawnAt:{},enemyLastHit:{},enemyHitFlash:{},chatChannel:'global',chatSince:{global:0,server:0,friend:0},chatBubbles:[],chatNpcLine:{},npcReactCd:{},prevNearMorphId:null,testBuddy:mhTestBuddyDefault(),buddyAiOn:true,testAccountAiOn:true,testAccountNpc:{phase:2.2,morphId:'ex-welcome'},aiHist:{buddy:[],account:[]}};
+ mhState={save:mhLoadSave(),world:0,tab:openTab,page:0,huntPage:0,filter:'',indexKind:'all',walkPos:{},enemyHp:{},enemyAggro:{},enemyRespawnAt:{},enemyLastHit:{},enemyHitFlash:{},chatChannel:'global',chatSince:{global:0,server:0,friend:0},presenceSince:Date.now()-MH_PRESENCE_TTL,presenceSeen:{},banModeOn:false,chatBubbles:[],chatNpcLine:{},npcReactCd:{},prevNearMorphId:null,testBuddy:mhTestBuddyDefault(),buddyAiOn:true,testAccountAiOn:true,testAccountNpc:{phase:2.2,morphId:'ex-welcome'},aiHist:{buddy:[],account:[]}};
  mhTestBuddyEnsureFriend(mhState.save);
  const wrap=document.createElement('div');
  wrap.id='morphhunt';
