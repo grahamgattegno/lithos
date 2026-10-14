@@ -5,9 +5,9 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v117';
-const MH_SCENERY_STAMP='STABLE_v117';
-const MH_SCRIPT_CANON='morph-hunt.void-2d-v117.js';
+const MH_BUILD='void-2d-v118';
+const MH_SCENERY_STAMP='STABLE_v118';
+const MH_SCRIPT_CANON='morph-hunt.void-2d-v118.js';
 const MH_CHAT_UI_STAMP='compose-under-log-v2';
 const MH_AGENT_IDLE_MS_MIN=12000;
 const MH_AGENT_IDLE_MS_MAX=22000;
@@ -820,6 +820,24 @@ function mhBuildMorphs(){
   stripe:true, glasses:true, accent:'#ffd060'
  });
  list.push({
+  id:'ex-disco-mirror', name:'Mirror Ball Noobie', exclusive:true, discoOnly:true, world:0,
+  head:'#e8f0ff', torso:'#404860', legs:'#283040', arms:'#c0d0e8', body:'chibi',
+  anim:'spin', face:'grin', rarity:'secret', hat:'gem', prop:'sparkler', accent:'#ffffff',
+  sigBadge:'🪩', sigTag:'Owner disco party only — not in gacha, codes, or groves.'
+ });
+ list.push({
+  id:'ex-disco-laser', name:'Laser Grid Noobie', exclusive:true, discoOnly:true, world:1,
+  head:'#ff48e8', torso:'#0a1830', legs:'#081020', arms:'#40ffff', body:'tall',
+  anim:'pulse', face:'w', rarity:'secret', hat:'voidhalo', prop:'gemstick', accent:'#40ffff',
+  sigBadge:'🪩', sigTag:'Impossible drop — Lithos disco abuse event exclusive.'
+ });
+ list.push({
+  id:'ex-disco-strobe', name:'Impossible Strobe Noobie', exclusive:true, discoOnly:true, world:MH_EXOTIC_WORLD,
+  head:'#ffd060', torso:'#8020ff', legs:'#401080', arms:'#ffe080', body:'classic',
+  anim:'glitch', face:'grin', rarity:'exclusive', hat:'party', prop:'trophy', accent:'#ff4080',
+  sigBadge:'🪩', sigTag:'Ultra-rare disco reward — cannot roll from any machine.'
+ });
+ list.push({
   id:'ex-plague-doctor', name:'Void Fallen Plague Doctor Noobie', exclusive:true, plagueOnly:true, world:MH_VOID_WORLD,
   head:'#0a0a0a', torso:'#580808', legs:'#141014', arms:'#1a1018', body:'tall',
   anim:'sway', face:'flat', rarity:'voidfallen', hat:'plague', prop:'book',
@@ -844,7 +862,7 @@ const MH_VOID_FALLEN=MH_MORPHS.filter(m=>m.rarity==='voidfallen');
 const MH_VOID_COUNT=MH_VOID_FALLEN.length;
 
 function mhHuntWorld(m){
- if(!m||m.codeOnly||m.mayorOnly||m.plagueOnly||m.signatureOnly) return -1;
+ if(!m||m.codeOnly||m.mayorOnly||m.plagueOnly||m.discoOnly||m.signatureOnly) return -1;
  if(m.voidKing||m.voidFallen||m.rarity==='voidfallen') return MH_VOID_WORLD;
  if(MH_HIGH_RARITY.has(m.rarity)) return MH_EXOTIC_WORLD;
  const w=typeof m.world==='number'?m.world:0;
@@ -1322,6 +1340,74 @@ function mhIsOwner(){
  return MH_OPEN_PLAY||mhIsRealOwner();
 }
 const MH_ADMIN_GIFT_KEY='lithos_mh_admin_gifts_v1';
+const MH_DISCO_WORLD_KEY='lithos_mh_disco_world_v1';
+const MH_DISCO_BROADCAST='lithos-mh-disco';
+const MH_DISCO_COINS=1000;
+const MH_DISCO_MORPH_IDS=['ex-disco-mirror','ex-disco-laser','ex-disco-strobe'];
+let mhDiscoBroadcast=null;
+function mhMorphNeverInGacha(m){
+ return !!(m&&(m.codeOnly||m.mayorOnly||m.plagueOnly||m.discoOnly||m.signatureOnly));
+}
+function mhDiscoWorldRead(){
+ try{ return JSON.parse(localStorage.getItem(MH_DISCO_WORLD_KEY)||'null'); }catch(_){ return null; }
+}
+function mhDiscoWorldWrite(ev){
+ try{ localStorage.setItem(MH_DISCO_WORLD_KEY,JSON.stringify(ev)); }catch(_){}
+}
+function mhApplyDiscoEvent(save,ev,silent){
+ if(!save||!ev?.id||save.discoClaimed===ev.id) return false;
+ save.discoClaimed=ev.id;
+ save.coins=Math.max(0,+(save.coins||0))+(ev.coins??MH_DISCO_COINS);
+ let n=0;
+ (ev.morphIds||MH_DISCO_MORPH_IDS).forEach(id=>{ if(mhAdminGrantMorph(save,id,true)) n++; });
+ if(!silent){
+  mhCelebrationBurst('🪩 DISCO! +'+ (ev.coins??MH_DISCO_COINS)+'💰 · '+n+' impossible noobie'+(n===1?'':'s')+'!');
+ }
+ return true;
+}
+function mhDiscoApplyPending(save,silent){
+ const ev=mhDiscoWorldRead();
+ if(!ev?.id||!save) return;
+ if(save.discoClaimed===ev.id) return;
+ mhApplyDiscoEvent(save,ev,!!silent);
+}
+function mhDiscoBroadcastInit(){
+ if(mhDiscoBroadcast||typeof BroadcastChannel==='undefined') return;
+ mhDiscoBroadcast=new BroadcastChannel(MH_DISCO_BROADCAST);
+ mhDiscoBroadcast.onmessage=(e)=>{
+  const ev=e?.data;
+  if(!ev?.id||!mhState?.save) return;
+  mhDiscoWorldWrite(ev);
+  if(mhApplyDiscoEvent(mhState.save,ev,false)){
+   mhSaveSave(mhState.save);
+   mhRender();
+  }
+ };
+}
+function mhOwnerDiscoParty(st,save){
+ const eventId='disco-'+Date.now();
+ const ev={id:eventId,coins:MH_DISCO_COINS,morphIds:MH_DISCO_MORPH_IDS.slice(),at:Date.now()};
+ mhDiscoWorldWrite(ev);
+ mhDiscoBroadcastInit();
+ mhApplyDiscoEvent(save,ev,false);
+ mhSaveSave(save);
+ mhRender();
+ try{ mhDiscoBroadcast?.postMessage(ev); }catch(_){}
+ const msg={
+  id:'msg-'+eventId,
+  channel:'global',
+  fromId:'lithos-disco',
+  fromName:'🪩 Disco Server',
+  morphId:'ex-disco-mirror',
+  text:'DISCO PARTY! +1000 coins & 3 impossible exclusives for everyone — open Morph Hunt or switch tabs to claim! 🪩',
+  t:Date.now()
+ };
+ mhChatMergeMessages([msg]);
+ try{ mhChatBroadcast?.postMessage(msg); }catch(_){}
+ mhChatRefreshLog();
+ mhToast('🪩 Worldwide disco — everyone gets 1000💰 + Mirror Ball, Laser Grid, Impossible Strobe!');
+ return true;
+}
 function mhIsLithosStaff(){
  try{
   if(typeof isStaff!=='undefined'&&isStaff) return true;
@@ -1386,7 +1472,7 @@ function mhChatAdminHelp(owner){
   '/give &lt;morph&gt; — free noobie for you',
   '/gift &lt;friendCode&gt; &lt;morph&gt; — queue gift on their device',
   '/admin help — staff list · /admin abuse — owner powers',
-  '/admin abuse storm · kingstorm · coins · allmorphs · heal · world · plague · raid'
+  '/admin abuse storm · kingstorm · disco · coins · allmorphs · heal · world · plague · raid'
  ]:[
   '/give &lt;morph&gt; — free noobie (Lithos crew)',
   '/gift &lt;friendCode&gt; &lt;morph&gt; — give away a morph',
@@ -1395,7 +1481,7 @@ function mhChatAdminHelp(owner){
  mhToast('🛡️ Lithos admin: '+lines.join(' · '));
 }
 function mhOwnerAbuseHelp(){
- mhToast('👑 Owner /admin abuse: storm · kingstorm · coins [N] · allmorphs · heal · world [N] · plague · raid · unlock');
+ mhToast('👑 Owner /admin abuse: storm · kingstorm · disco · coins [N] · allmorphs · heal · world [N] · plague · raid · unlock');
 }
 function mhRunOwnerAbuse(st,save,pos,args){
  if(!mhIsLithosOwnerAbuse()){ mhToast('🔒 Owner only — ?owner=1 or Lithos owner code'); return true; }
@@ -1413,6 +1499,10 @@ function mhRunOwnerAbuse(st,save,pos,args){
   const king=mhMorph('vf-king')||{voidKing:true,voidFallen:true};
   mhSpawnVoidUniverseStorm(st,king,0,pos,240);
   mhToast('👑 FORBIDDEN void universe storm!');
+  return true;
+ }
+ if(sub==='disco'||sub==='party'){
+  mhOwnerDiscoParty(st,save);
   return true;
  }
  if(sub==='coins'){
@@ -1532,6 +1622,7 @@ function mhOpenPlaySave(){
   base.chatPlayerId='noob-'+Math.random().toString(36).slice(2,11);
  }
  mhCrossLinkPlayFriends(base);
+ mhDiscoApplyPending(base,true);
  return base;
 }
 function mhCrossLinkPlayFriends(save){
@@ -2879,6 +2970,7 @@ function mhLoadSave(){
    plagueQuest:mhNormalizePlagueQuest(raw.plagueQuest)
   };
   mhAdminApplyPendingGifts(out);
+  mhDiscoApplyPending(out,true);
   return out;
  }catch(_){return {...mhDefaultSave(),wearing:wear};}
 }
@@ -2962,7 +3054,8 @@ function mhSaveSave(data){
     chatDisplayName:data.chatDisplayName,
     chatFriends:data.chatFriends,
     plagueQuest:data.plagueQuest,
-    worldsUnlocked:data.worldsUnlocked
+    worldsUnlocked:data.worldsUnlocked,
+    discoClaimed:data.discoClaimed||''
    };
    localStorage.setItem(mhProfileStoreKey(),JSON.stringify(slim));
   }catch(_){}
@@ -3466,6 +3559,7 @@ function mhChatMergeMessages(incoming){
  return added;
 }
 function mhChatBroadcastInit(){
+ mhDiscoBroadcastInit();
  if(mhChatBroadcast||typeof BroadcastChannel==='undefined') return;
  mhChatBroadcast=new BroadcastChannel(MH_CHAT_BROADCAST);
  mhChatBroadcast.onmessage=(e)=>{ if(e?.data?.id) mhChatIngest(e.data,true); };
@@ -4772,7 +4866,7 @@ function mhGacha(exclusive){
  const cost=exclusive?MH_GACHA_EX_COST:MH_GACHA_COST;
  if(save.coins<cost){ mhToast('Need '+cost+' coins!'); return; }
  const pool=MH_MORPHS.filter(m=>
-  (exclusive?m.exclusive:!m.exclusive)&&!mhHasMorph(save,m.id)
+  (exclusive?m.exclusive:!m.exclusive)&&!mhMorphNeverInGacha(m)&&!mhHasMorph(save,m.id)
  );
  if(!pool.length){ mhToast('No '+ (exclusive?'exclusive ':'')+'noobies left in gacha!'); return; }
  save.coins-=cost;
@@ -7355,7 +7449,7 @@ function mhRenderPlagueQuestPanel(save){
  </div>`;
 }
 function mhCodexArtHtml(m,got){
- if(got||m.plagueOnly||m.mayorOnly) return `<svg viewBox="0 0 100 130">${mhClassicNoobSvg(m)}</svg>`;
+ if(got||m.plagueOnly||m.mayorOnly||m.discoOnly) return `<svg viewBox="0 0 100 130">${mhClassicNoobSvg(m)}</svg>`;
  return '<div class="mh-silhouette">?</div>';
 }
 function mhRenderHuntDeck(save,wi,morphs){
@@ -7507,6 +7601,7 @@ function mhSigPanelHtml(m,canWear){
  let blurb=m.sigTag||'';
  if(m.plagueDoctor) blurb='☣ Buddy Plaza quest · 3 = '+MH_PLAGUE_GRAVEYARD_NAME+' + '+MH_PLAGUE_STORM_NAME;
  else if(m.mayorOnly) blurb='Mayor shrine on Buddy Plaza · J/L crank · R beam';
+ else if(m.discoOnly) blurb='🪩 Owner disco event only — not in gacha, codes, or groves';
  const combat=(m.voidFallen&&m.voidAttack&&!m.plagueDoctor)?`<span class="mh-sig-combat">⚔ ${m.voidAttack.name} · ✦ ${m.voidPower?.name||'?'}</span>`:'';
  if(m.plagueDoctor&&m.voidAttack) blurb+=' · ⚔ '+m.voidAttack.name+' · ✦ '+m.voidPower.name;
  return `<article class="mh-sig-panel-full" style="--mh-rarity:${r.color}">
