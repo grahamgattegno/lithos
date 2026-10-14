@@ -5,9 +5,9 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v119';
-const MH_SCENERY_STAMP='STABLE_v119';
-const MH_SCRIPT_CANON='morph-hunt.void-2d-v119.js';
+const MH_BUILD='void-2d-v120';
+const MH_SCENERY_STAMP='STABLE_v120';
+const MH_SCRIPT_CANON='morph-hunt.void-2d-v120.js';
 const MH_CHAT_UI_STAMP='compose-under-log-v2';
 const MH_AGENT_IDLE_MS_MIN=12000;
 const MH_AGENT_IDLE_MS_MAX=22000;
@@ -1384,14 +1384,16 @@ function mhDiscoBroadcastInit(){
   }
  };
 }
-function mhOwnerDiscoParty(st,save){
+function mhOwnerDiscoParty(st,save,opts){
+ opts=opts||{};
  const eventId='disco-'+Date.now();
  const ev={id:eventId,coins:MH_DISCO_COINS,morphIds:MH_DISCO_MORPH_IDS.slice(),at:Date.now()};
  mhDiscoWorldWrite(ev);
  mhDiscoBroadcastInit();
- mhApplyDiscoEvent(save,ev,false);
+ mhApplyDiscoEvent(save,ev,true);
+ if(!opts.silentFx) mhCelebrationBurst('🪩 DISCO! +1000💰 · 3 impossible exclusives!',{coinRain:true,morphRain:true});
  mhSaveSave(save);
- mhRender();
+ if(!opts.skipRender) mhRender();
  try{ mhDiscoBroadcast?.postMessage(ev); }catch(_){}
  const msg={
   id:'msg-'+eventId,
@@ -1405,7 +1407,7 @@ function mhOwnerDiscoParty(st,save){
  mhChatMergeMessages([msg]);
  try{ mhChatBroadcast?.postMessage(msg); }catch(_){}
  mhChatRefreshLog();
- mhToast('🪩 Worldwide disco — everyone gets 1000💰 + Mirror Ball, Laser Grid, Impossible Strobe!');
+ if(!opts.silentToast) mhToast('🪩 Worldwide disco — everyone gets 1000💰 + Mirror Ball, Laser Grid, Impossible Strobe!');
  return true;
 }
 function mhIsLithosStaff(){
@@ -1481,13 +1483,100 @@ function mhChatAdminHelp(owner){
  mhToast('🛡️ Lithos admin: '+lines.join(' · '));
 }
 function mhOwnerAbuseHelp(){
- mhToast('👑 Add a power after abuse — e.g. /admin abuse disco · storm · kingstorm · coins · allmorphs · heal · plague · raid · unlock');
+ mhToast('👑 /admin abuse = MEGA party · or add one: disco · storm · kingstorm · coins · allmorphs · heal · plague · raid');
+}
+function mhPlayAbuseYay(){
+ try{
+  mhUnlockSfx();
+  mhPlaySfx('win');
+  if(typeof SFX!=='undefined'){
+   if(SFX.win) setTimeout(()=>{ try{ SFX.win(); }catch(_){} },220);
+   if(SFX.code) setTimeout(()=>{ try{ SFX.code(); }catch(_){} },420);
+  }
+  if(typeof speechSynthesis!=='undefined'){
+   speechSynthesis.cancel();
+   const u=new SpeechSynthesisUtterance('Yay!');
+   u.rate=1.08; u.pitch=1.42; u.volume=1;
+   speechSynthesis.speak(u);
+  }
+ }catch(_){}
+}
+function mhEnsureMegaFxLayer(){
+ let layer=document.getElementById('mh-mega-fx-layer');
+ if(!layer){
+  layer=document.createElement('div');
+  layer.id='mh-mega-fx-layer';
+  layer.className='mh-mega-fx-layer';
+  layer.setAttribute('aria-hidden','true');
+  document.body.appendChild(layer);
+ }
+ return layer;
+}
+function mhSpawnRainBits(layer,cls,glyphs,count,durMin,durMax){
+ for(let i=0;i<count;i++){
+  const s=document.createElement('span');
+  s.className=cls;
+  s.textContent=glyphs[i%glyphs.length];
+  s.style.left=(Math.random()*100)+'%';
+  s.style.animationDuration=(durMin+Math.random()*(durMax-durMin))+'s';
+  s.style.animationDelay=(Math.random()*1.2)+'s';
+  s.style.fontSize=(cls==='mh-coin-rain-bit'?(16+Math.random()*22):(14+Math.random()*20))+'px';
+  layer.appendChild(s);
+ }
+}
+function mhOwnerMegaFx(ms){
+ const layer=mhEnsureMegaFxLayer();
+ layer.innerHTML='';
+ const confetti=['🎉','🪩','🎊','✨','🎈','💯','⭐','🥳','🎁','💎','🌈','🔥'];
+ const coins=['💰','🪙','💵','💴','💶','🪙','💰'];
+ const morphs=['🎭','👾','🪩','💎','⭐','🌟','🦸','🧿','☄️','Exclusive','Void','Fallen'];
+ mhSpawnRainBits(layer,'mh-confetti-bit',confetti,72,2,4.2);
+ mhSpawnRainBits(layer,'mh-coin-rain-bit',coins,88,2.4,5);
+ mhSpawnRainBits(layer,'mh-morph-rain-bit',morphs,56,2.8,5.5);
+ let bursts=0;
+ clearInterval(layer._coinIv);
+ layer._coinIv=setInterval(()=>{
+  if(bursts++>5||!layer.parentNode) return clearInterval(layer._coinIv);
+  mhSpawnRainBits(layer,'mh-coin-rain-bit',coins,18,2.2,4.6);
+  mhSpawnRainBits(layer,'mh-confetti-bit',confetti,12,2,3.8);
+ },650);
+ clearTimeout(layer._tm);
+ layer._tm=setTimeout(()=>{
+  clearInterval(layer._coinIv);
+  layer.innerHTML='';
+ },ms||9000);
+}
+function mhOwnerAbuseMega(st,save,pos){
+ const wi=st?.world??0;
+ mhPlayAbuseYay();
+ mhOwnerMegaFx(10000);
+ mhCelebrationBurst('👑 MEGA ABUSE — YAY!',{quietSfx:true,coinRain:true,morphRain:true});
+ save.collected=MH_MORPHS.map(m=>m.id);
+ save.worldsUnlocked=MH_WORLDS.length;
+ save.coins=Math.max(+(save.coins||0),99999)+MH_DISCO_COINS;
+ if(!save.plagueQuest) save.plagueQuest=mhDefaultPlagueQuest();
+ save.plagueQuest.badge=true;
+ save.plagueQuest.labStep=5;
+ MH_DISCO_MORPH_IDS.forEach(id=>mhAdminGrantMorph(save,id,true));
+ st.fightHp=st.fightMaxHp||140;
+ const wear=mhVoidCombatMorph(save)||mhMorph(save.wearing)||{};
+ mhWrapPlayerRedBlackStorm(st,wear,pos,9);
+ const king=mhMorph('vf-king')||{voidKing:true,voidFallen:true};
+ mhSpawnVoidUniverseStorm(st,king,0,pos,280);
+ mhAdminGrantMorph(save,'ex-plague-doctor',true);
+ mhOwnerDiscoParty(st,save,{silentFx:true,silentToast:true,skipRender:true});
+ try{ mhUsePlagueGraveyard(st,save,pos,wi); }catch(_){}
+ mhSaveSave(save);
+ mhRender();
+ mhToast('👑 YAY! All abuse powers · coin rain · every exclusive & void fallen · disco +1000 for everyone!');
+ return true;
 }
 function mhRunOwnerAbuse(st,save,pos,args){
  if(!mhIsLithosOwnerAbuse()){ mhToast('🔒 Owner only — redeem owner code in Secret Codes, or open with ?owner=1'); return true; }
  const wi=st?.world??0;
  const sub=(args[0]||'').toLowerCase();
- if(!sub||sub==='help'||sub==='list'){ mhOwnerAbuseHelp(); return true; }
+ if(!sub||sub==='mega'||sub==='all'||sub==='everything'||sub==='yay') return mhOwnerAbuseMega(st,save,pos);
+ if(sub==='help'||sub==='list'){ mhOwnerAbuseHelp(); return true; }
  if(sub==='storm'||sub==='redstorm'){
   const wear=mhVoidCombatMorph(save)||mhMorph(save.wearing)||{};
   mhWrapPlayerRedBlackStorm(st,wear,pos,7);
@@ -4302,7 +4391,7 @@ function mhRenderChatPanel(save){
    <ul>${MH_CHAT_RULES.map(r=>`<li>${r}</li>`).join('')}</ul>
    <p class="mh-chat-rules-foot">Breaking rules blocks your message. Be kind &amp; stay in-game — no IRL meetups or personal info.</p>
   </details>
-  <p class="mh-chat-hint"><b>Test Buddy</b> walks the map · <b>Server</b> = grove noobies react to what you say · <b>Global</b> = nearby NPCs sometimes chime in. <b>🧪 2nd tab</b> = Test Account.${mhIsLithosAdmin()?(' · <code>/admin help</code>'+(mhIsLithosOwnerAbuse()?' · owner <code>/admin abuse disco</code> or <code>/disco</code>':'')):''}</p>
+  <p class="mh-chat-hint"><b>Test Buddy</b> walks the map · <b>Server</b> = grove noobies react to what you say · <b>Global</b> = nearby NPCs sometimes chime in. <b>🧪 2nd tab</b> = Test Account.${mhIsLithosAdmin()?(' · <code>/admin help</code>'+(mhIsLithosOwnerAbuse()?' · owner <code>/admin abuse</code> = MEGA yay party':'')):''}</p>
  </aside>`;
 }
 function mhBindChatComposeHandlers(root){
@@ -4804,33 +4893,18 @@ function mhRunMinigame(kind,m){
  }
 }
 
-function mhCelebrationBurst(msg){
- mhToast(msg||'🎉 Party time!');
- try{ mhPlaySfx('win'); }catch(_){}
- const root=document.getElementById('morphhunt');
- if(!root) return;
- let layer=document.getElementById('mh-confetti-layer');
- if(!layer){
-  layer=document.createElement('div');
-  layer.id='mh-confetti-layer';
-  layer.className='mh-confetti-layer';
-  layer.setAttribute('aria-hidden','true');
-  root.appendChild(layer);
- }
- const emojis=['🎉','🎂','✨','🎈','💯','⭐','🎊','🥳','🎁','💎'];
- layer.innerHTML='';
- for(let i=0;i<48;i++){
-  const s=document.createElement('span');
-  s.className='mh-confetti-bit';
-  s.textContent=emojis[i%emojis.length];
-  s.style.left=(Math.random()*100)+'%';
-  s.style.animationDuration=(1.8+Math.random()*1.4)+'s';
-  s.style.animationDelay=(Math.random()*0.7)+'s';
-  s.style.fontSize=(12+Math.random()*16)+'px';
-  layer.appendChild(s);
- }
- clearTimeout(layer._tm);
- layer._tm=setTimeout(()=>{ layer.innerHTML=''; },3600);
+function mhCelebrationBurst(msg,opts){
+ opts=opts||{};
+ if(msg) mhToast(msg);
+ if(!opts.quietSfx) try{ mhPlaySfx('win'); }catch(_){}
+ const layer=mhEnsureMegaFxLayer();
+ if(!opts.append) layer.innerHTML='';
+ const emojis=['🎉','🎂','✨','🎈','💯','⭐','🎊','🥳','🎁','💎','🪩'];
+ mhSpawnRainBits(layer,'mh-confetti-bit',emojis,opts.append?36:56,1.8,3.6);
+ if(opts.coinRain) mhSpawnRainBits(layer,'mh-coin-rain-bit',['💰','🪙','💵','🪙'],opts.append?24:48,2.2,4.8);
+ if(opts.morphRain) mhSpawnRainBits(layer,'mh-morph-rain-bit',['🎭','Exclusive','Void Fallen','🪩','💎','👾'],opts.append?16:32,2.6,5.2);
+ clearTimeout(layer._celebrateTm);
+ layer._celebrateTm=setTimeout(()=>{ if(!layer._coinIv) layer.innerHTML=''; },opts.append?5000:4200);
 }
 function mhRedeemCode(raw){
  let key=String(raw||'').trim().toLowerCase().replace(/\s+/g,'');
