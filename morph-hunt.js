@@ -5,9 +5,12 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v123';
-const MH_SCENERY_STAMP='STABLE_v123';
-const MH_SCRIPT_CANON='morph-hunt.void-2d-v123.js';
+const MH_BUILD='void-2d-v124';
+const MH_SCENERY_STAMP='STABLE_v124';
+const MH_SCRIPT_CANON='morph-hunt.void-2d-v124.js';
+const MH_TIME_TRAVEL_COST=2000;
+const MH_TIME_TRAVELER_ID='ex-time-traveler';
+const MH_MATRIX_MORPH_ID='ex-matrix-noobie';
 const MH_PRESENCE_KEY='lithos_mh_presence_v1';
 const MH_PRESENCE_BROADCAST='lithos-mh-presence';
 const MH_PRESENCE_TTL=28000;
@@ -143,7 +146,7 @@ const MH_WORLD_PARK_NAMES=[
  ['Neon Park','Vault Green','Exotic Rest','Prism Lawn'],
  ['Fallen Rest','Void Garden','Abyss Green','King Memorial']
 ];
-const MH_TOTAL_COUNT=1128;
+const MH_TOTAL_COUNT=1130;
 const MH_VOID_KING_DEPTH=100;
 const MH_VOID_KING_DIM='5th Dimensional';
 const MH_1000D=false;
@@ -837,6 +840,18 @@ function mhBuildMorphs(){
   sigBadge:'🪩', sigTag:'Impossible drop — Lithos disco abuse event exclusive.'
  });
  list.push({
+  id:MH_TIME_TRAVELER_ID, name:'Time Traveler Noobie', exclusive:true, timeTravelerOnly:true, world:0,
+  head:'#c0e8ff', torso:'#304878', legs:'#203050', arms:'#ffe8a0', body:'tall',
+  anim:'float', face:'grin', rarity:'legendary', hat:'voidhalo', prop:'book', accent:'#80e0ff',
+  sigBadge:'⏳', sigTag:'Buddy Plaza — chat: go back in time (2000💰) · ancient mine · Matrix reward'
+ });
+ list.push({
+  id:MH_MATRIX_MORPH_ID, name:'Matrix Noobie', exclusive:true, matrixOnly:true, world:MH_EXOTIC_WORLD,
+  head:'#39ff14', torso:'#0a1808', legs:'#081008', arms:'#39ff14', body:'robot',
+  anim:'glitch', face:'w', rarity:'secret', hat:null, prop:'sparkler', accent:'#39ff14',
+  voidEyes:'#39ff14', sigBadge:'🌐', sigTag:'Time Traveler quest — assemble stones · watch Earth collapse'
+ });
+ list.push({
   id:'ex-disco-strobe', name:'Impossible Strobe Noobie', exclusive:true, discoOnly:true, world:MH_EXOTIC_WORLD,
   head:'#ffd060', torso:'#8020ff', legs:'#401080', arms:'#ffe080', body:'classic',
   anim:'glitch', face:'grin', rarity:'exclusive', hat:'party', prop:'trophy', accent:'#ff4080',
@@ -867,7 +882,7 @@ const MH_VOID_FALLEN=MH_MORPHS.filter(m=>m.rarity==='voidfallen');
 const MH_VOID_COUNT=MH_VOID_FALLEN.length;
 
 function mhHuntWorld(m){
- if(!m||m.codeOnly||m.mayorOnly||m.plagueOnly||m.discoOnly||m.signatureOnly) return -1;
+ if(!m||m.codeOnly||m.mayorOnly||m.plagueOnly||m.discoOnly||m.timeTravelerOnly||m.matrixOnly||m.signatureOnly) return -1;
  if(m.voidKing||m.voidFallen||m.rarity==='voidfallen') return MH_VOID_WORLD;
  if(MH_HIGH_RARITY.has(m.rarity)) return MH_EXOTIC_WORLD;
  const w=typeof m.world==='number'?m.world:0;
@@ -1232,7 +1247,7 @@ function mhPlaceMorphInGrove(map,set,m,grove,slot){
 function mhScatterHiddenHideouts(){
  MH_WORLDS.forEach((_,wi)=>{
   const map=MH_WORLD_MAPS[wi];
-  const morphs=MH_MORPHS.filter(m=>mhHuntWorld(m)===wi&&!m.codeOnly);
+  const morphs=MH_MORPHS.filter(m=>mhHuntWorld(m)===wi&&!m.codeOnly&&!m.timeTravelerOnly&&!m.matrixOnly);
   const centers=mhPickGroveCenters(map,wi,mhGroveCount(wi));
   map.hideouts=centers.map(c=>({
    ...c,
@@ -1331,6 +1346,20 @@ function mhSpawnCivilians(map,wi){
  });
 })();
 mhScatterHiddenHideouts();
+(function mhPlaceTimeTravelerNpc(){
+ const m=MH_MORPHS.find(x=>x.id===MH_TIME_TRAVELER_ID);
+ const map=MH_WORLD_MAPS[0];
+ if(!m||!map?.court) return;
+ for(let a=0;a<40;a++){
+  const tx=map.court.tx+map.court.w+1+(a%3);
+  const ty=map.court.ty+1+(Math.floor(a/3)%Math.max(1,map.court.h-1));
+  if(mhTileWalkable(map,tx,ty)&&!mhTileInCourt(map,tx,ty)){
+   m.tileX=tx; m.tileY=ty;
+   map.timeTraveler={tx,ty,label:'⏳ Time Traveler'};
+   break;
+  }
+ }
+})();
 
 function mhIsRealOwner(){
  if(typeof isOwner!=='undefined'&&isOwner)return true;
@@ -1467,7 +1496,7 @@ const MH_DISCO_COINS=1000;
 const MH_DISCO_MORPH_IDS=['ex-disco-mirror','ex-disco-laser','ex-disco-strobe'];
 let mhDiscoBroadcast=null;
 function mhMorphNeverInGacha(m){
- return !!(m&&(m.codeOnly||m.mayorOnly||m.plagueOnly||m.discoOnly||m.signatureOnly));
+ return !!(m&&(m.codeOnly||m.mayorOnly||m.plagueOnly||m.discoOnly||m.timeTravelerOnly||m.matrixOnly||m.signatureOnly));
 }
 function mhDiscoWorldRead(){
  try{ return JSON.parse(localStorage.getItem(MH_DISCO_WORLD_KEY)||'null'); }catch(_){ return null; }
@@ -1771,6 +1800,10 @@ function mhChatAdminCommand(st,save,raw){
  if(cmd==='name'||cmd==='username'||cmd==='nick'||cmd==='user'){
   return mhChatSetDisplayName(save,parts.slice(1).join(' '));
  }
+ if(cmd==='timetravel'||cmd==='timeline'||cmd==='time'){
+  mhTimeTravelMaybeChat(st,save,'go back in time');
+  return true;
+ }
  const adminSub=(parts[1]||'').toLowerCase();
  const adminAbuse=cmd==='admin'&&adminSub==='abuse';
  const staffOnly=/^(give|gift|grant|admin|ban|unban)$/.test(cmd)||cmd==='help'&&adminSub==='admin';
@@ -1953,7 +1986,7 @@ function mhNormalizePlagueQuest(raw){
  };
 }
 function mhDefaultSave(){
- return{collected:['ex-welcome'],worldsUnlocked:1,coins:100,wearing:'ex-welcome',title:'',codesUsed:[],minigameWon:[],chatPlayerId:'',chatDisplayName:'',chatFriends:[],plagueQuest:mhDefaultPlagueQuest()};
+ return{collected:['ex-welcome'],worldsUnlocked:1,coins:100,wearing:'ex-welcome',title:'',codesUsed:[],minigameWon:[],chatPlayerId:'',chatDisplayName:'',chatFriends:[],plagueQuest:mhDefaultPlagueQuest(),timeQuest:mhDefaultTimeQuest()};
 }
 function mhStarterMorph(){
  return mhMorph('ex-welcome')||{head:'#F5CD30',torso:'#0085DB',legs:'#A4BD47',body:'classic',name:'Your Noobie',id:'you'};
@@ -2463,6 +2496,10 @@ function mhDrawInteriorScreen(ctx,W,H,st,t){
  if(!ib) return;
  if(ib.kind==='plague_lab'){
   mhDrawPlagueLabInterior(ctx,W,H,st,st.save,t);
+  return;
+ }
+ if(ib.kind==='time_mine'){
+  mhDrawTimeMineInterior(ctx,W,H,st,st.save,t);
   return;
  }
  const sec=ib.secret||mhBuildingSecret(ib,ib.wi||0);
@@ -3187,7 +3224,8 @@ function mhLoadSave(){
    chatPlayerId:'owner',
    chatDisplayName:ownerName,
    chatFriends:[],
-   plagueQuest:mhDefaultPlagueQuest()
+   plagueQuest:mhDefaultPlagueQuest(),
+   timeQuest:mhDefaultTimeQuest()
   };
  }
  try{
@@ -3206,7 +3244,8 @@ function mhLoadSave(){
    chatPlayerId:typeof raw.chatPlayerId==='string'?raw.chatPlayerId:'',
    chatDisplayName:typeof raw.chatDisplayName==='string'?raw.chatDisplayName:'',
    chatFriends:Array.isArray(raw.chatFriends)?raw.chatFriends.filter(x=>typeof x==='string'):[],
-   plagueQuest:mhNormalizePlagueQuest(raw.plagueQuest)
+   plagueQuest:mhNormalizePlagueQuest(raw.plagueQuest),
+   timeQuest:mhNormalizeTimeQuest(raw.timeQuest)
   };
   mhAdminApplyPendingGifts(out);
   mhDiscoApplyPending(out,true);
@@ -3293,6 +3332,7 @@ function mhSaveSave(data){
     chatDisplayName:data.chatDisplayName,
     chatFriends:data.chatFriends,
     plagueQuest:data.plagueQuest,
+    timeQuest:data.timeQuest,
     worldsUnlocked:data.worldsUnlocked,
     discoClaimed:data.discoClaimed||''
    };
@@ -3307,7 +3347,171 @@ function mhSaveSave(data){
 
 function mhMorph(id){return MH_MORPHS.find(m=>m.id===id);}
 function mhWorldMorphs(wi){
- return MH_MORPHS.filter(m=>mhHuntWorld(m)===wi&&!m.codeOnly);
+ return MH_MORPHS.filter(m=>{
+  if(m.codeOnly) return false;
+  if(m.timeTravelerOnly) return wi===0;
+  return mhHuntWorld(m)===wi;
+ });
+}
+function mhDefaultTimeQuest(){
+ return{paid:false,shards:[false,false,false],done:false};
+}
+function mhNormalizeTimeQuest(raw){
+ const q=raw&&typeof raw==='object'?raw:{};
+ const shards=Array.isArray(q.shards)?q.shards.map(Boolean):[false,false,false];
+ while(shards.length<3) shards.push(false);
+ return{paid:!!q.paid,shards:shards.slice(0,3),done:!!q.done};
+}
+function mhTimeQuest(save){
+ if(!save.timeQuest) save.timeQuest=mhDefaultTimeQuest();
+ save.timeQuest=mhNormalizeTimeQuest(save.timeQuest);
+ return save.timeQuest;
+}
+function mhNearTimeTraveler(st,wi,pos){
+ const m=mhMorph(MH_TIME_TRAVELER_ID);
+ if(!m?.tileX||wi!==0) return false;
+ const p=mhGetNpcPos(st,wi,m);
+ return Math.hypot(p.px-pos.px,p.py-pos.py)<170;
+}
+function mhTimeTravelWants(text){
+ const fold=mhChatFold(text);
+ if(/^\/timetravel\b/.test(String(text||'').trim().toLowerCase())) return true;
+ return /\b(time travel|travel back|go back in time|back in time|time machine|take me back|past)\b/.test(fold);
+}
+function mhBeginTimeTravel(st,save){
+ const q=mhTimeQuest(save);
+ if(q.done||mhHasMorph(save,MH_MATRIX_MORPH_ID)){
+  mhToast('⏳ Timeline sealed — you already earned Matrix Noobie!');
+  return false;
+ }
+ if(save.coins<MH_TIME_TRAVEL_COST){
+  mhToast('Need '+MH_TIME_TRAVEL_COST+'💰 to ride the timeline (you have '+save.coins+')');
+  return false;
+ }
+ save.coins-=MH_TIME_TRAVEL_COST;
+ q.paid=true;
+ q.shards=[false,false,false];
+ mhSaveSave(save);
+ st.insideBuilding={kind:'time_mine',wi:st.world||0};
+ st.timeCollapse=0;
+ st.timeCollapseStart=0;
+ mhToast('⏳ -'+MH_TIME_TRAVEL_COST+'💰 · ancient mine · gather 3 stones · combine!');
+ try{ mhPlaySfx('ui'); }catch(_){}
+ return true;
+}
+function mhTimeTravelMaybeChat(st,save,text){
+ if(!st||!save||!mhTimeTravelWants(text)) return false;
+ const pos=mhWalkEnsurePos(st,st.world||0);
+ if(!mhNearTimeTraveler(st,st.world||0,pos)){
+  mhToast('⏳ Find Time Traveler Noobie on Buddy Plaza (near 🏀 court)!');
+  return false;
+ }
+ return mhBeginTimeTravel(st,save);
+}
+function mhTimeMineShardCount(q){
+ return (q.shards||[]).filter(Boolean).length;
+}
+function mhTimeMineClick(ev){
+ if(!mhState?.insideBuilding||mhState.insideBuilding.kind!=='time_mine') return;
+ const save=mhState.save;
+ const q=mhTimeQuest(save);
+ const canvas=ev.currentTarget;
+ const rect=canvas.getBoundingClientRect();
+ const x=(ev.clientX-rect.left)/rect.width*canvas.width;
+ const y=(ev.clientY-rect.top)/rect.height*canvas.height;
+ const W=canvas.width,H=canvas.height;
+ if(mhTimeMineShardCount(q)<3){
+  const slots=[{x:W*0.22,y:H*0.78},{x:W*0.5,y:H*0.82},{x:W*0.78,y:H*0.78}];
+  slots.forEach((s,i)=>{
+   if(q.shards[i]) return;
+   if(Math.hypot(x-s.x,y-s.y)<42){
+    q.shards[i]=true;
+    mhSaveSave(save);
+    mhToast('🪨 Stone shard '+(i+1)+'/3');
+    try{ mhPlaySfx('hit'); }catch(_){}
+   }
+  });
+  return;
+ }
+ if(mhTimeMineShardCount(q)>=3&&!mhState.timeCollapseStart){
+  const bx=W/2,by=H*0.55;
+  if(Math.hypot(x-bx,y-by)<70){
+   mhState.timeCollapseStart=performance.now();
+   mhState.timeCollapse=0;
+   mhToast('🌐 Stones align… Earth forms…');
+  }
+ }
+}
+function mhTimeMineFinish(st,save){
+ const q=mhTimeQuest(save);
+ q.done=true;
+ mhAdminGrantMorph(save,MH_MATRIX_MORPH_ID);
+ mhWear(MH_MATRIX_MORPH_ID,true);
+ mhSaveSave(save);
+ st.insideBuilding=null;
+ st.timeCollapseStart=0;
+ mhCelebrationBurst('🌐 Matrix Noobie unlocked — welcome to the real timeline!');
+ mhFinishCollect(mhMorph(MH_MATRIX_MORPH_ID));
+}
+function mhDrawTimeMineInterior(ctx,W,H,st,save,t){
+ const q=mhTimeQuest(save);
+ const g=ctx.createLinearGradient(0,0,0,H);
+ g.addColorStop(0,'#1a1410'); g.addColorStop(1,'#0a0808');
+ ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+ ctx.fillStyle='#3a3428';
+ for(let i=0;i<12;i++){
+  const x=(i*97)%W;
+  ctx.fillRect(x,H*0.15+(i%3)*8,60,H*0.85);
+ }
+ ctx.fillStyle='#2a2820'; ctx.fillRect(W*0.18,H*0.22,W*0.64,H*0.48);
+ ctx.strokeStyle='#605848'; ctx.lineWidth=4; ctx.strokeRect(W*0.18,H*0.22,W*0.64,H*0.48);
+ ctx.fillStyle='#504840'; ctx.font='bold 22px system-ui'; ctx.textAlign='center';
+ ctx.fillText('🪨 STONE',W/2,H*0.38);
+ ctx.fillStyle='#908878'; ctx.font='13px system-ui';
+ ctx.fillText('Tap the glowing shards · then combine at the stone',W/2,H*0.46);
+ const slots=[{x:W*0.22,y:H*0.78},{x:W*0.5,y:H*0.82},{x:W*0.78,y:H*0.78}];
+ slots.forEach((s,i)=>{
+  ctx.beginPath(); ctx.arc(s.x,s.y,28,0,Math.PI*2);
+  ctx.fillStyle=q.shards[i]?'#80e0ff':'#3a4038';
+  ctx.fill();
+  ctx.strokeStyle=q.shards[i]?'#ffe8a0':'#606870'; ctx.lineWidth=2; ctx.stroke();
+  ctx.fillStyle='#fff'; ctx.font='bold 11px system-ui';
+  ctx.fillText(q.shards[i]?'✓':'?',s.x,s.y+4);
+ });
+ if(mhTimeMineShardCount(q)>=3){
+  const pulse=0.85+Math.sin(t*4)*0.15;
+  ctx.fillStyle='rgba(128,255,176,'+(0.25+Math.sin(t*3)*0.1)+')';
+  ctx.beginPath(); ctx.arc(W/2,H*0.55,55*pulse,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#ffe8a0'; ctx.font='bold 14px system-ui';
+  ctx.fillText('TAP to combine shards',W/2,H*0.55);
+ }
+ if(st.timeCollapseStart){
+  const el=(performance.now()-st.timeCollapseStart)/1000;
+  st.timeCollapse=Math.min(1,el/3.2);
+  const cx=W/2,cy=H*0.42,r=40+st.timeCollapse*90;
+  ctx.fillStyle='#2040a0'; ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#39ff14'; ctx.font='bold 12px monospace'; ctx.textAlign='center';
+  for(let i=0;i<18;i++){
+   const a=i/18*Math.PI*2+t*2;
+   ctx.fillText('01',cx+Math.cos(a)*r*0.7,cy+Math.sin(a)*r*0.4);
+  }
+  ctx.fillStyle='#80ffb0'; ctx.font='bold 16px system-ui';
+  ctx.fillText('EARTH',cx,cy+6);
+  if(st.timeCollapse>0.55){
+   const shake=(st.timeCollapse-0.55)*18;
+   ctx.save(); ctx.translate((Math.random()-0.5)*shake,(Math.random()-0.5)*shake);
+   ctx.fillStyle='rgba(255,40,40,'+(st.timeCollapse-0.5)+')'; ctx.fillRect(0,0,W,H);
+   ctx.restore();
+  }
+  if(st.timeCollapse>=1&&!st.timeMineFinishing){
+   st.timeMineFinishing=true;
+   mhTimeMineFinish(st,save);
+   st.timeMineFinishing=false;
+  }
+}
+ ctx.fillStyle='rgba(0,0,0,.7)'; ctx.fillRect(8,H-36,W-16,28);
+ ctx.fillStyle='#c0d0e0'; ctx.font='bold 12px system-ui'; ctx.textAlign='left';
+ ctx.fillText('⏳ Ancient mine · F leave · '+mhTimeMineShardCount(q)+'/3 shards',16,H-16);
 }
 function mhHasMorph(save,id){return save.collected.includes(id);}
 function mhWorldComplete(save,wi){
@@ -4379,6 +4583,7 @@ function mhNpcPersonality(m){
  if(!m) return 'peppy';
  if(m.voidKing) return 'king';
  if(m.plagueDoctor) return 'plague';
+ if(m.timeTravelerOnly) return 'time';
  if(m.voidFallen||m.rarity==='voidfallen') return 'void';
  if(m.rarity==='exclusive'||m.rarity==='legendary') return 'legend';
  if(m.rarity==='secret'||m.rarity==='exotic') return 'mystery';
@@ -4391,6 +4596,21 @@ function mhNpcPickLine(list,seed){
 }
 function mhNpcReactLine(m,save,wi,trigger,ctx){
  if(!m) return '';
+ if(m.timeTravelerOnly){
+  const fold=mhChatFold(ctx?.text||'');
+  if(trigger==='spot') return '⏳ I am the Time Traveler — chat: “go back in time” (costs 2000💰).';
+  if(trigger==='chat'){
+   if(mhTimeTravelWants(ctx?.text||'')) return '⏳ Ready? I will take '+MH_TIME_TRAVEL_COST+' coins and send you to the ancient mine…';
+   if(/\b(matrix|earth|stone|mine)\b/.test(fold)) return '🪨 Three stones + the wall = Earth collapses → Matrix Noobie.';
+   if(/\b(price|cost|coins|money)\b/.test(fold)) return 'Time travel costs exactly '+MH_TIME_TRAVEL_COST+' coins. No refunds across timelines!';
+   return mhNpcPickLine([
+    'Every timeline needs a noobie like you.',
+    'The mine holds stones from before Lithos existed.',
+    'Ask me to go back in time when your pockets are heavy.',
+    'Matrix Noobie waits at the end of the collapse…'
+   ],m.id+'|'+trigger);
+  }
+ }
  const pers=mhNpcPersonality(m);
  const wear=mhMorph(save?.wearing);
  const wName=(wear?.name||'Your Noobie').replace(/ Noobie$/,'');
@@ -4407,7 +4627,8 @@ function mhNpcReactLine(m,save,wi,trigger,ctx){
   legend:['Bow before legend! …kidding.','You picked a fight with the best.','My aura is built different.','Worth the unlock, right?'],
   void:['The abyss whispers…','Red-black wind again?','Void marks don\'t lie.','Stay inside the ring or flee.'],
   plague:['☣ …sickness nearby.','Cures fail. Shields don\'t.','Bugs crawl at every park.','Mask on. Storm on.'],
-  king:['Kneel— …fine, just don\'t touch the throne.','Forbidden storm weather.','Greataxe hours.','The void obeys me.']
+  king:['Kneel— …fine, just don\'t touch the throne.','Forbidden storm weather.','Greataxe hours.','The void obeys me.'],
+  time:['Tick-tock…','The past is expensive.','I saw your future — you win fights.','⏳ Shh, the timeline is listening.']
  };
  if(trigger==='chat'){
   if(/\b(hello|hi|hey|yo|sup)\b/.test(fold)) return mhNpcPickLine([
@@ -4549,6 +4770,7 @@ function mhChatSend(st,save,text){
  if(mhIsChatBanned(profPre)){ mhToast('🚫 You are banned from Lithos chat.'); return; }
  const mod=mhChatModerate(raw);
  if(!mod.ok){ mhToast('🛡️ '+mod.reason); return; }
+ mhTimeTravelMaybeChat(st,save,raw);
  const prof=mhEnsureChatProfile(save);
  const channel=st.chatChannel||'global';
  const wi=st.world;
@@ -4755,6 +4977,7 @@ function mhRenderChatPanel(save){
    <button type="button" class="mh-chat-chip" data-mh-chat-quick="Nice morph!">Nice morph!</button>
    <button type="button" class="mh-chat-chip" data-mh-chat-quick="GG!">GG!</button>
    <button type="button" class="mh-chat-chip" data-mh-chat-quick="Need help with a quest?">Quest help?</button>
+   <button type="button" class="mh-chat-chip" data-mh-chat-quick="Go back in time">⏳ Time travel</button>
   </div>
   <details class="mh-chat-rules">
    <summary>🛡️ Chat rules (everyone)</summary>
@@ -7134,6 +7357,7 @@ function mhCanvasToWorld(canvas,camX,camY,clientX,clientY){
 }
 function mhWalkCanvasClick(ev){
  if(!mhState||mhState.tab!=='hunt') return;
+ if(mhState.insideBuilding?.kind==='time_mine'){ mhTimeMineClick(ev); return; }
  const canvas=ev.currentTarget;
  const wi=mhState.world, save=mhState.save;
  const pos=mhWalkEnsurePos(mhState,wi);
@@ -7235,6 +7459,7 @@ function mhTryStartMinigame(){
  const wi=mhState.world, save=mhState.save, map=MH_WORLD_MAPS[wi];
  const pos=mhWalkEnsurePos(mhState,wi);
  if(mhState.insideBuilding?.kind==='plague_lab'){ mhPlagueLabAdvance(save); return; }
+ if(mhState.insideBuilding?.kind==='time_mine'){ mhToast('Tap stone shards in the mine · F to leave'); return; }
  if(mhTryCollectPlagueBug(save,wi,map,pos)) return;
  if(mhState.walkNearId){
   const near=mhMorph(mhState.walkNearId);
@@ -7575,6 +7800,12 @@ function mhWalkDrawFrame(){
   }
  });
  mhDrawMapStatues(ctx,map,t,st);
+ if(wi===0&&map.timeTraveler){
+  const tx=map.timeTraveler.tx*MH_TILE+MH_TILE/2,ty=map.timeTraveler.ty*MH_TILE;
+  ctx.fillStyle='rgba(0,32,48,.82)'; ctx.fillRect(tx-64,ty-28,128,18);
+  ctx.fillStyle='#80e0ff'; ctx.font='bold 10px system-ui'; ctx.textAlign='center';
+  ctx.fillText('⏳ Time Traveler · chat',tx,ty-14);
+ }
  const wear=mhMorph(save.wearing);
  mhDrawRedBlackPlayerStorm(ctx,st,pos,t);
  mhDrawTestBuddy(ctx,st,wi,t);
@@ -7889,7 +8120,10 @@ function mhWalkStart(){
  const canvas=root?.querySelector('#mh-walk-canvas');
  if(canvas){
   canvas.onclick=mhWalkCanvasClick;
-  canvas.addEventListener('pointerdown',()=>{ mhUnlockSfx(); canvas.blur(); mhMorphHuntBlurPageFocus(); });
+  canvas.addEventListener('pointerdown',(e)=>{
+   mhUnlockSfx(); canvas.blur(); mhMorphHuntBlurPageFocus();
+   if(mhState?.insideBuilding?.kind==='time_mine') mhTimeMineClick(e);
+  });
  }
 }
 
@@ -7923,7 +8157,7 @@ function mhRenderPlagueQuestPanel(save){
  </div>`;
 }
 function mhCodexArtHtml(m,got){
- if(got||m.plagueOnly||m.mayorOnly||m.discoOnly) return `<svg viewBox="0 0 100 130">${mhClassicNoobSvg(m)}</svg>`;
+ if(got||m.plagueOnly||m.mayorOnly||m.discoOnly||m.timeTravelerOnly||m.matrixOnly) return `<svg viewBox="0 0 100 130">${mhClassicNoobSvg(m)}</svg>`;
  return '<div class="mh-silhouette">?</div>';
 }
 function mhRenderHuntDeck(save,wi,morphs){
@@ -7975,6 +8209,7 @@ function mhRenderHunt(save, wi){
    <li><b>💬 Chat</b> — press <b>↑</b> or <b>/</b> or <b>T</b> to talk, <b>Enter</b> to send, <b>Esc</b> back to walking (rules apply). <b>Global</b> · <b>Server</b> · <b>Friends</b>.</li>
    <li><b>🏀 Court plaza</b> stays at spawn · <b>4 parks</b> around the map · <b>Mayor statue</b> on court: <b>J/L</b> crank, <b>R</b> flash light at all 4 mirrors → <b>Mayor Noobie</b>!</li>
    <li><b>☣ Void Fallen Plague Doctor</b> — quest on Buddy Plaza · <b>voidfallen</b> morph with 🛡 shields + <b>${MH_PLAGUE_STORM_NAME}</b> · bugs at every park · ☣ Lab <b>E</b>×5</li>
+   <li><b>⏳ Time Traveler</b> — near 🏀 court on Buddy Plaza · chat <b>go back in time</b> (2000💰) · mine stones → <b>Matrix Noobie</b></li>
   </ol>
  </div>
  <div class="mh-walk-wrap mh-walk-with-chat">
@@ -8087,6 +8322,8 @@ function mhSigPanelHtml(m,canWear){
  if(m.plagueDoctor) blurb='☣ Buddy Plaza quest · 3 = '+MH_PLAGUE_GRAVEYARD_NAME+' + '+MH_PLAGUE_STORM_NAME;
  else if(m.mayorOnly) blurb='Mayor shrine on Buddy Plaza · J/L crank · R beam';
  else if(m.discoOnly) blurb='🪩 Owner disco event only — not in gacha, codes, or groves';
+ else if(m.timeTravelerOnly) blurb='⏳ Buddy Plaza · chat “go back in time” · 2000💰 · Matrix quest';
+ else if(m.matrixOnly) blurb='🌐 Time Traveler mine reward — not in gacha';
  const combat=(m.voidFallen&&m.voidAttack&&!m.plagueDoctor)?`<span class="mh-sig-combat">⚔ ${m.voidAttack.name} · ✦ ${m.voidPower?.name||'?'}</span>`:'';
  if(m.plagueDoctor&&m.voidAttack) blurb+=' · ⚔ '+m.voidAttack.name+' · ✦ '+m.voidPower.name;
  return `<article class="mh-sig-panel-full" style="--mh-rarity:${r.color}">
