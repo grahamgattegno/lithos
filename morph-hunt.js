@@ -5,8 +5,8 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v80';
-const MH_SCENERY_STAMP='PLAY_OUTSIDE_CURSOR_v80';
+const MH_BUILD='void-2d-v81';
+const MH_SCENERY_STAMP='RESTORE_LAUNCHER_v81';
 const MH_CHAT_LOG_KEY='lithos_mh_chat_log_v1';
 const MH_CHAT_POLL_MS=3500;
 const MH_CHAT_BROADCAST='lithos-mh-chat';
@@ -2044,6 +2044,14 @@ function mhBindIdeHint(root){
   try{ localStorage.setItem('lithos_mh_hide_ide_hint','1'); }catch(_){}
   root.querySelector('.mh-ide-preview-hint')?.remove();
  });
+ root?.querySelector('#mh-ide-hint-restore')?.addEventListener('click',()=>{
+  try{ localStorage.removeItem('lithos_mh_hide_ide_hint'); }catch(_){}
+  mhRender();
+ });
+}
+function mhIdeHintRestoreLink(){
+ if(!mhIdeHintDismissed()) return '';
+ return `<p class="mh-ide-restore-row"><button type="button" class="mh-btn ghost mh-btn-sm" id="mh-ide-hint-restore">Show Safari / blue-ring help again</button></p>`;
 }
 function mhMorphHuntInertBackground(on){
  if(!mhState) return;
@@ -5262,6 +5270,7 @@ function mhRender(){
    </div>
   </div>
   <div class="mh-main ftn">${body}</div>
+  ${mhIdeHintRestoreLink()}
   <div id="mh-toast" class="mh-toast"></div>
  </div>`;
  mhBind(root);

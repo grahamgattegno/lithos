@@ -1574,7 +1574,10 @@
   .mh-ftn-banner{background:linear-gradient(135deg,#141820 0%,#0c1018 100%);border-radius:14px;padding:14px 18px;border:1px solid rgba(201,169,79,.35);box-shadow:0 8px 24px rgba(0,0,0,.45)}
   .mh-ftn-banner .mh-title{color:var(--gold,#c9a94f);text-shadow:none;font-size:clamp(20px,4.5vw,26px)}
   .mh-ftn-tag{margin:6px 0 0;font-size:12px;color:var(--text-faint,#a0a8b8);line-height:1.45}
-  .mh-ide-preview-hint{margin:0 0 8px;padding:10px 12px;border-radius:12px;border:1px solid rgba(248,208,48,.45);background:rgba(40,32,8,.55);color:#e8e0c8;font-size:12px;line-height:1.45}
+  .mh-ide-preview-hint{position:relative;margin:0 0 8px;padding:10px 36px 10px 12px;border-radius:12px;border:1px solid rgba(248,208,48,.45);background:rgba(40,32,8,.55);color:#e8e0c8;font-size:12px;line-height:1.45}
+  .mh-ide-hint-x{position:absolute;top:6px;right:8px;width:28px;height:28px;border:none;border-radius:8px;background:rgba(0,0,0,.35);color:#ffe8a0;font-size:20px;line-height:1;cursor:pointer;font-weight:700}
+  .mh-ide-preview-mac code{font-size:10px;word-break:break-all;color:#c0c8d8}
+  .mh-ide-restore-row{margin:0;text-align:center}
   .mh-ide-preview-hint b{color:#ffe8a0}
   .mh-ide-preview-actions{display:flex;flex-direction:column;gap:6px;margin-top:8px}
   .mh-ide-open-ext{display:inline-block;width:fit-content;padding:6px 12px;border-radius:8px;background:rgba(201,169,79,.2);border:1px solid var(--gold,#c9a94f);color:#ffe8a0;font-weight:800;text-decoration:none;font-size:12px}
@@ -5530,7 +5533,7 @@
 <script src="gemcopter.js?v=deploy-85"></script>
 <script>
 (function lithosLoadMorphHunt(){
- var MH_NEED='void-2d-v79';
+ var MH_NEED='void-2d-v81';
  var MH_SCRIPT='morph-hunt.js';
  window.__LITHOS_MH_LATEST=MH_NEED;
  window.__LITHOS_MH_NEED=MH_NEED;
@@ -5569,7 +5572,7 @@
 <script>
 window.lithosPlayMorphHunt=function lithosPlayMorphHunt(){
  try{if(typeof closeGamesHub==='function')closeGamesHub({skipHash:true});}catch(_){}
-  var NEED=window.__LITHOS_MH_LATEST||window.__LITHOS_MH_NEED||'void-2d-v79';
+  var NEED=window.__LITHOS_MH_LATEST||window.__LITHOS_MH_NEED||'void-2d-v81';
  var tries=0;
  function mhBuildNum(tag){
   var m=String(tag||'').match(/void-2d-v(\d+)/);
