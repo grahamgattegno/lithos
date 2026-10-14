@@ -5,9 +5,10 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v126';
-const MH_SCENERY_STAMP='STABLE_v124';
-const MH_SCRIPT_CANON='morph-hunt.void-2d-v126.js';
+const MH_BUILD='void-2d-v127';
+const MH_SCENERY_STAMP='STABLE_v127';
+const MH_SCRIPT_CANON='morph-hunt.void-2d-v127.js';
+const MH_QUEST_STUB_COST=800;
 const MH_TIME_TRAVEL_COST=2000;
 const MH_TIME_TRAVELER_ID='ex-time-traveler';
 const MH_MATRIX_MORPH_ID='ex-matrix-noobie';
@@ -146,7 +147,7 @@ const MH_WORLD_PARK_NAMES=[
  ['Neon Park','Vault Green','Exotic Rest','Prism Lawn'],
  ['Fallen Rest','Void Garden','Abyss Green','King Memorial']
 ];
-const MH_TOTAL_COUNT=1130;
+const MH_TOTAL_COUNT=1146;
 const MH_VOID_KING_DEPTH=100;
 const MH_VOID_KING_DIM='5th Dimensional';
 const MH_1000D=false;
@@ -176,7 +177,7 @@ const MH_VOID_FALLEN_COUNT=100;
 const MH_BODIES=['classic','tall','chibi','robot','ghost','builder','wide'];
 const MH_WEAR_KEY='lithos_noobie_wear';
 const MH_NORMAL_COUNT=820;
-const MH_EXCLUSIVE_COUNT=180;
+const MH_EXCLUSIVE_COUNT=196;
 const MH_NORMAL_WORLDS=8;
 const MH_EXOTIC_WORLD=8;
 const MH_VOID_WORLD=9;
@@ -699,6 +700,42 @@ const MH_SIG_GROUPS=[
  {id:'silly',title:'😂 Silly squad'}
 ];
 
+function mhQuestMorphEntries(){
+ const mk=(id,name,world,anim,questAura,rarity,cols,extra)=>{
+  const e=extra||{};
+  return{
+   id,name:name+' Noobie',exclusive:true,questOnly:true,world,
+   head:cols[0],torso:cols[1],legs:cols[2],arms:cols[3]||cols[0],
+   body:cols[4]||'classic',anim,face:e.face||'grin',rarity,
+   hat:e.hat||null,prop:e.prop||'book',accent:e.accent||'#80e0ff',
+   questAura,questKey:e.key||id.replace(/^ex-/,'').replace(/-noobie$/,''),
+   questLabel:e.label||'✨ Quest NPC',questGuide:e.guide||name,
+   sigBadge:e.badge||'✨',sigDeco:e.sigDeco||'',sigTag:e.tag||'Quest exclusive — aura + animation',
+   questStubCost:e.stubCost==null?MH_QUEST_STUB_COST:e.stubCost,
+   stripe:!!e.stripe,glasses:!!e.glasses,
+   voidFallen:!!e.voidFallen
+  };
+ };
+ return[
+  mk('ex-fossil-noobie','Fossil',3,'float','fossil','legendary',['#d8c8a0','#a08050','#705838','#e8dcc0','builder'],{guide:'Archaeologist',badge:'🦴',prop:'gemstick',tag:'🦴 Crystal map · Archaeologist · chat “dig” ×3 · E to fossilize',sigDeco:'<text x="8" y="20" font-size="10">🦴</text><text x="72" y="22" font-size="10">⛏</text>'}),
+  mk('ex-pen-pal-noobie','Pen Pal',0,'sway','mail','epic',['#ffe8c0','#6080c0','#405080','#ffe8c0'],{guide:'Mail Carrier',badge:'✉',prop:'book',tag:'📬 Buddy Plaza · Mail Carrier · 600💰 stamp or E',sigDeco:'<text x="6" y="18" font-size="11">✉</text><text x="70" y="16" font-size="10">💌</text>'}),
+  mk('ex-rainbow-noobie','Rainbow',2,'float','rainbow','legendary',['#ffe0ff','#ff8080','#80c0ff','#ffffa0','chibi'],{guide:'Weather Witch',badge:'🌈',prop:'umbrella',tag:'🌦 Beach map · Weather Witch · collect 3 cloud orbs · E',sigDeco:'<text x="50" y="8" text-anchor="middle" font-size="9">🌈</text>'}),
+  mk('ex-storybook-noobie','Storybook',0,'pulse','story','epic',['#f0e0c0','#804030','#503020','#ffe8a0'],{guide:'Librarian',badge:'📖',prop:'book',tag:'📚 Buddy Plaza · Librarian · E opens storybook · 3 pages',sigDeco:'<text x="12" y="14" font-size="10">📖</text><text x="68" y="12" font-size="9">✨</text>'}),
+  mk('ex-armor-noobie','Armor',1,'pulse','forge','legendary',['#c0c8d0','#506080','#384858','#d0d8e0','tall'],{guide:'Blacksmith',badge:'🛡',prop:'sword',tag:'⚒ Fair map · Blacksmith · 500💰 forge · E',sigDeco:'<text x="8" y="24" font-size="10">🛡</text><text x="74" y="20" font-size="10">⚒</text>'}),
+  mk('ex-mirror-grove-noobie','Mirror Grove',8,'spin','mirror','secret',['#e8f0ff','#404860','#283040','#ffffff','chibi'],{guide:'Mirror Spirit',badge:'🪞',prop:'sparkler',tag:'💎 Epic map · mirrored grove · stub 800💰',sigDeco:'<text x="50" y="10" text-anchor="middle" font-size="10">🪞</text>'}),
+  mk('ex-sleepy-campfire-noobie','Sleepy Campfire',6,'sway','ember','rare',['#ffb080','#803020','#502018','#ffd0a0'],{guide:'Camp Counselor',badge:'🔥',prop:'sparkler',tag:'🔥 Lava map · ember quest · stub 800💰',sigDeco:'<text x="40" y="12" font-size="11">🔥</text><text x="62" y="14" font-size="9">💤</text>'}),
+  mk('ex-subway-token-noobie','Subway Token',4,'hop','metro','rare',['#ffd060','#283848','#182028','#ffe080'],{guide:'Token Clerk',badge:'🎫',prop:'gemstick',tag:'🚇 Backrooms map · metro stub · 800💰',sigDeco:'<text x="50" y="9" text-anchor="middle" font-size="9">🎫</text>'}),
+  mk('ex-rift-whisper-noobie','Rift Whisper',9,'glitch','whisper','secret',['#9040ff','#180828','#100018','#c898ff','ghost'],{guide:'Whisper Priest',badge:'👁',face:'w',tag:'🕳 Void map · rift whispers · stub 800💰',sigDeco:'<text x="50" y="11" text-anchor="middle" font-size="9">👁</text>'}),
+  mk('ex-shield-bearer-noobie','Shield Bearer',1,'sway','shield','epic',['#a0c0ff','#2040a0','#183060','#c0e0ff','tall'],{guide:'Squire',badge:'🛡',prop:'sword',tag:'⚔ Fair map · shield bearer · stub 800💰',sigDeco:'<text x="50" y="10" text-anchor="middle" font-size="10">🛡</text>'}),
+  mk('ex-twin-void-noobie','Twin Void',9,'glitch','twinvoid','exclusive',['#ff4080','#280818','#180010','#ff80c0','tall'],{guide:'Twin Seer',badge:'👥',face:'w',voidFallen:true,tag:'🕳 Void · twin glitch · stub 800💰',sigDeco:'<text x="22" y="14" font-size="9">👤</text><text x="62" y="14" font-size="9">👤</text>'}),
+  mk('ex-handshake-noobie','Handshake',0,'bounce','handshake','legendary',['#ffe8a0','#0085DB','#A4BD47','#ffe8a0'],{guide:'Greeter',badge:'🤝',prop:'trophy',tag:'🤝 Buddy Plaza · chat “high five” near Greeter · E with buddy',sigDeco:'<text x="50" y="8" text-anchor="middle" font-size="11">🤝</text>'}),
+  mk('ex-party-host-noobie','Party Host',0,'bounce','partyhost','exclusive',['#ff48e8','#8020ff','#401080','#ffe080'],{guide:'Host',badge:'🎉',hat:'party',prop:'sparkler',tag:'🎉 Plaza · party host · stub 800💰',sigDeco:'<text x="6" y="12" font-size="10">🎉</text><text x="72" y="14" font-size="10">🎊</text>'}),
+  mk('ex-glitch-cat-noobie','Glitch Cat',8,'glitch','glitchcat','secret',['#39ff14','#283040','#1a2030','#39ff14','chibi'],{guide:'Stray Pixel',badge:'🐱',face:'w',prop:'sparkler',tag:'💎 Epic · glitch cat · stub 800💰',sigDeco:'<text x="50" y="10" text-anchor="middle" font-size="10">🐱</text>'}),
+  mk('ex-pizza-delivery-noobie','Pizza Delivery',1,'hop','pizza','uncommon',['#ff6040','#ffe8a0','#0085DB','#ff8060'],{guide:'Delivery Driver',badge:'🍕',prop:'rocket',tag:'🍕 Fair map · pizza run · stub 800💰',sigDeco:'<text x="50" y="9" text-anchor="middle" font-size="10">🍕</text>'}),
+  mk('ex-developer-noobie','Developer',0,'glitch','code','secret',['#80e0ff','#283040','#1a2030','#39ff14','robot'],{guide:'Hidden Dev',badge:'⌨',face:'w',prop:'sparkler',tag:'👾 Easter egg · chat “sudo lithos” near court alley',sigDeco:'<text x="50" y="10" text-anchor="middle" font-size="8" font-family="monospace">&lt;/&gt;</text>',stubCost:0})
+ ];
+}
+
 function mhBuildMorphs(){
  const list=[];
  const perWorld=Math.ceil(MH_NORMAL_COUNT/MH_NORMAL_WORLDS);
@@ -868,6 +905,7 @@ function mhBuildMorphs(){
   voidPower:{id:'death_sigil',name:'Death Sigil',color:'#303038',kind:'nova',speed:4,range:95},
   plagueLines:['I am the cure.','Oh my, the sickness…','Then I can fix you.']
  });
+ mhQuestMorphEntries().forEach(m=>list.push(m));
  mhSignatureNoobieList().forEach(m=>list.push(m));
  return list;
 }
@@ -882,7 +920,7 @@ const MH_VOID_FALLEN=MH_MORPHS.filter(m=>m.rarity==='voidfallen');
 const MH_VOID_COUNT=MH_VOID_FALLEN.length;
 
 function mhHuntWorld(m){
- if(!m||m.codeOnly||m.mayorOnly||m.plagueOnly||m.discoOnly||m.timeTravelerOnly||m.matrixOnly||m.signatureOnly) return -1;
+ if(!m||m.codeOnly||m.mayorOnly||m.plagueOnly||m.discoOnly||m.timeTravelerOnly||m.matrixOnly||m.signatureOnly||m.questOnly) return -1;
  if(m.voidKing||m.voidFallen||m.rarity==='voidfallen') return MH_VOID_WORLD;
  if(MH_HIGH_RARITY.has(m.rarity)) return MH_EXOTIC_WORLD;
  const w=typeof m.world==='number'?m.world:0;
@@ -1198,6 +1236,7 @@ function mhTileInPark(map,tx,ty){
 }
 function mhShouldDrawMapMorph(m,save,dist,nearId){
  if(m.voidKing) return dist<320;
+ if(m.questOnly&&!mhHasMorph(save,m.id)) return dist<300;
  if(nearId&&m.id===nearId) return true;
  if(mhHasMorph(save,m.id)) return dist<220;
  return dist<MH_HIDDEN_REVEAL_R;
@@ -1344,6 +1383,40 @@ function mhSpawnCivilians(map,wi){
   }
   mhSpawnCivilians(map,wi);
  });
+ })();
+(function mhPlaceQuestMorphNpcs(){
+ const placed=[];
+ MH_MORPHS.filter(m=>m.questOnly).forEach(m=>{
+  const map=MH_WORLD_MAPS[m.world];
+  if(!map) return;
+  const seed=(mhHashStr(m.id)>>>0)%9973;
+  let startA=0;
+  if(m.world===0&&map.court&&m.questKey==='handshake') startA=12;
+  if(m.world===0&&map.court&&m.questKey==='developer') startA=24;
+  for(let a=startA;a<startA+90;a++){
+   const tx=3+(seed+a*11)%(map.w-6);
+   const ty=3+(seed+a*17)%(map.h-6);
+   if(!mhTileWalkable(map,tx,ty)) continue;
+   if(mhTileInPark(map,tx,ty)||mhTileInCourt(map,tx,ty)) continue;
+   let ok=true;
+   for(const p of placed) if(p.wi===m.world&&Math.hypot(tx-p.tx,ty-p.ty)<5){ ok=false; break; }
+   if(!ok) continue;
+   m.tileX=tx; m.tileY=ty;
+   placed.push({wi:m.world,tx,ty});
+   if(!map.questPins) map.questPins=[];
+   map.questPins.push({tx,ty,label:(m.questLabel||'✨ Quest')+' · '+m.questGuide});
+   break;
+  }
+ });
+ const map2=MH_WORLD_MAPS[2];
+ if(map2){
+  map2.rainbowOrbs=[];
+  for(let i=0;i<3;i++){
+   const tx=6+mhHashStr('rbowx'+i)%(map2.w-12);
+   const ty=6+mhHashStr('rbowy'+i)%(map2.h-12);
+   if(mhTileWalkable(map2,tx,ty)) map2.rainbowOrbs.push({tx,ty});
+  }
+ }
 })();
 mhScatterHiddenHideouts();
 (function mhPlaceTimeTravelerNpc(){
@@ -1496,7 +1569,7 @@ const MH_DISCO_COINS=1000;
 const MH_DISCO_MORPH_IDS=['ex-disco-mirror','ex-disco-laser','ex-disco-strobe'];
 let mhDiscoBroadcast=null;
 function mhMorphNeverInGacha(m){
- return !!(m&&(m.codeOnly||m.mayorOnly||m.plagueOnly||m.discoOnly||m.timeTravelerOnly||m.matrixOnly||m.signatureOnly));
+ return !!(m&&(m.codeOnly||m.mayorOnly||m.plagueOnly||m.discoOnly||m.timeTravelerOnly||m.matrixOnly||m.signatureOnly||m.questOnly));
 }
 function mhDiscoWorldRead(){
  try{ return JSON.parse(localStorage.getItem(MH_DISCO_WORLD_KEY)||'null'); }catch(_){ return null; }
@@ -1853,7 +1926,7 @@ function mhOpenPlaySave(){
  const wear=mhLoadWearId();
  const test=mhIsTestProfile();
  const base={
-  collected:MH_MORPHS.map(m=>m.id),
+  collected:MH_MORPHS.filter(m=>!m.questOnly).map(m=>m.id),
   worldsUnlocked:MH_WORLDS.length,
   coins:99999,
   wearing:wear||(test?'ex-welcome':'ex-welcome'),
@@ -1863,7 +1936,8 @@ function mhOpenPlaySave(){
   chatPlayerId:test?MH_TEST_PLAYER_ID:'',
   chatDisplayName:test?'Test Account':'',
   chatFriends:[],
-  plagueQuest:mhDefaultPlagueQuest()
+  plagueQuest:mhDefaultPlagueQuest(),
+  questPack:mhDefaultQuestPack()
  };
  try{
   const raw=JSON.parse(localStorage.getItem(mhProfileStoreKey())||'null');
@@ -1875,6 +1949,7 @@ function mhOpenPlaySave(){
   if(typeof raw.chatDisplayName==='string'&&raw.chatDisplayName&&!test) base.chatDisplayName=raw.chatDisplayName;
   if(Array.isArray(raw.chatFriends)) base.chatFriends=raw.chatFriends.filter(x=>typeof x==='string');
   base.plagueQuest=mhNormalizePlagueQuest(raw.plagueQuest);
+  base.questPack=mhNormalizeQuestPack(raw.questPack);
   if(raw.wearing&&MH_MORPHS.some(m=>m.id===raw.wearing)) base.wearing=raw.wearing;
   else if(wear) base.wearing=wear;
   const c=Math.max(0,+(raw.coins||0));
@@ -1986,7 +2061,7 @@ function mhNormalizePlagueQuest(raw){
  };
 }
 function mhDefaultSave(){
- return{collected:['ex-welcome'],worldsUnlocked:1,coins:100,wearing:'ex-welcome',title:'',codesUsed:[],minigameWon:[],chatPlayerId:'',chatDisplayName:'',chatFriends:[],plagueQuest:mhDefaultPlagueQuest(),timeQuest:mhDefaultTimeQuest()};
+ return{collected:['ex-welcome'],worldsUnlocked:1,coins:100,wearing:'ex-welcome',title:'',codesUsed:[],minigameWon:[],chatPlayerId:'',chatDisplayName:'',chatFriends:[],plagueQuest:mhDefaultPlagueQuest(),timeQuest:mhDefaultTimeQuest(),questPack:mhDefaultQuestPack()};
 }
 function mhStarterMorph(){
  return mhMorph('ex-welcome')||{head:'#F5CD30',torso:'#0085DB',legs:'#A4BD47',body:'classic',name:'Your Noobie',id:'you'};
@@ -2500,6 +2575,10 @@ function mhDrawInteriorScreen(ctx,W,H,st,t){
  }
  if(ib.kind==='time_mine'){
   mhDrawTimeMineInterior(ctx,W,H,st,st.save,t);
+  return;
+ }
+ if(ib.kind==='storybook'){
+  mhDrawStorybookInterior(ctx,W,H,st,st.save,t);
   return;
  }
  const sec=ib.secret||mhBuildingSecret(ib,ib.wi||0);
@@ -3172,7 +3251,8 @@ function mhDrawYouInWorld(ctx,wear,pos,map,t,walkPhase,wi,running){
  if(m.plagueDoctor){
   mhPaintVoidFallenStormAura(ctx,pos.px,pos.py-18,t,0.62,false,m);
   mhDrawPlagueDoctorAura(ctx,pos.px,pos.py-18,t,0.88);
- }else if(m.signatureOnly||m.mayorOnly||(m.signatureReal&&m.sigLook)) mhDrawSignatureNoobAura(ctx,m,pos.px,pos.py,t,0.88);
+ }else if(m.questOnly) mhDrawQuestMorphAura(ctx,m,pos.px,pos.py-18,t,0.9);
+ else if(m.signatureOnly||m.mayorOnly||(m.signatureReal&&m.sigLook)) mhDrawSignatureNoobAura(ctx,m,pos.px,pos.py,t,0.88);
  mhPaintNoobWorld(ctx,m,pos.px,pos.py,sc,1,false,t,walkPhase||0,flat,!!running);
  if(m.plagueDoctor) mhDrawPassiveAncientShieldsOnCharacter(ctx,pos.px,pos.py-8,t,m,1);
  if(m.plagueDoctor){
@@ -3214,7 +3294,7 @@ function mhLoadSave(){
    if(slim&&typeof slim.chatDisplayName==='string'&&slim.chatDisplayName.trim()) ownerName=slim.chatDisplayName.trim();
   }catch(_){}
   return{
-   collected:MH_MORPHS.map(m=>m.id),
+   collected:MH_MORPHS.filter(m=>!m.questOnly).map(m=>m.id),
    worldsUnlocked:MH_WORLDS.length,
    coins:99999,
    wearing:wear||'ex-welcome',
@@ -3225,7 +3305,8 @@ function mhLoadSave(){
    chatDisplayName:ownerName,
    chatFriends:[],
    plagueQuest:mhDefaultPlagueQuest(),
-   timeQuest:mhDefaultTimeQuest()
+   timeQuest:mhDefaultTimeQuest(),
+   questPack:mhDefaultQuestPack()
   };
  }
  try{
@@ -3245,7 +3326,8 @@ function mhLoadSave(){
    chatDisplayName:typeof raw.chatDisplayName==='string'?raw.chatDisplayName:'',
    chatFriends:Array.isArray(raw.chatFriends)?raw.chatFriends.filter(x=>typeof x==='string'):[],
    plagueQuest:mhNormalizePlagueQuest(raw.plagueQuest),
-   timeQuest:mhNormalizeTimeQuest(raw.timeQuest)
+   timeQuest:mhNormalizeTimeQuest(raw.timeQuest),
+   questPack:mhNormalizeQuestPack(raw.questPack)
   };
   mhAdminApplyPendingGifts(out);
   mhDiscoApplyPending(out,true);
@@ -3274,7 +3356,7 @@ function mhPickFightMorph(save,wi,pos){
  const posPx=pos||mhWalkEnsurePos(mhState,wi);
  let best=null,bd=1e9;
  mhWorldMorphs(wi).forEach(m=>{
-  if(m.voidKing||m.tileX==null) return;
+  if(m.voidKing||m.tileX==null||m.questOnly) return;
   const p=mhGetNpcPos(mhState,wi,m);
   const d=Math.hypot(p.px-posPx.px,p.py-posPx.py);
   if(d<bd){ bd=d; best=m; }
@@ -3333,6 +3415,7 @@ function mhSaveSave(data){
     chatFriends:data.chatFriends,
     plagueQuest:data.plagueQuest,
     timeQuest:data.timeQuest,
+    questPack:data.questPack,
     worldsUnlocked:data.worldsUnlocked,
     discoClaimed:data.discoClaimed||''
    };
@@ -3349,6 +3432,7 @@ function mhMorph(id){return MH_MORPHS.find(m=>m.id===id);}
 function mhWorldMorphs(wi){
  return MH_MORPHS.filter(m=>{
   if(m.codeOnly) return false;
+  if(m.questOnly) return m.world===wi;
   if(m.timeTravelerOnly) return wi===0;
   return mhHuntWorld(m)===wi;
  });
@@ -3366,6 +3450,385 @@ function mhTimeQuest(save){
  if(!save.timeQuest) save.timeQuest=mhDefaultTimeQuest();
  save.timeQuest=mhNormalizeTimeQuest(save.timeQuest);
  return save.timeQuest;
+}
+function mhDefaultQuestPack(){
+ return{
+  fossil:{digs:0,done:false},
+  rainbow:{orbs:[false,false,false],done:false},
+  handshake:{highFive:false,done:false},
+  storybook:{pages:0,done:false},
+  armor:{paid:false,done:false},
+  stubs:{}
+ };
+}
+function mhNormalizeQuestPack(raw){
+ const d=mhDefaultQuestPack();
+ const q=raw&&typeof raw==='object'?raw:{};
+ const pick=(k)=>Object.assign(d[k],q[k]&&typeof q[k]==='object'?q[k]:{});
+ pick('fossil'); pick('handshake'); pick('storybook'); pick('armor');
+ const rb=q.rainbow&&typeof q.rainbow==='object'?q.rainbow:{};
+ d.rainbow.orbs=Array.isArray(rb.orbs)?rb.orbs.map(Boolean):[false,false,false];
+ while(d.rainbow.orbs.length<3) d.rainbow.orbs.push(false);
+ d.rainbow.orbs=d.rainbow.orbs.slice(0,3);
+ d.rainbow.done=!!rb.done;
+ d.stubs=q.stubs&&typeof q.stubs==='object'?q.stubs:{};
+ return d;
+}
+function mhQuestPack(save){
+ if(!save.questPack) save.questPack=mhDefaultQuestPack();
+ save.questPack=mhNormalizeQuestPack(save.questPack);
+ return save.questPack;
+}
+function mhQuestMorphByKey(key){
+ return MH_MORPHS.find(m=>m.questOnly&&m.questKey===key)||null;
+}
+function mhQuestGrant(save,m,silent){
+ if(!save||!m) return false;
+ if(mhHasMorph(save,m.id)) return false;
+ save.collected.push(m.id);
+ mhSaveSave(save);
+ if(!silent){
+  mhCelebrationBurst('✨ '+m.name+' unlocked — aura online!');
+  mhFinishCollect(m);
+ }
+ return true;
+}
+function mhNearQuestMorph(st,wi,pos,m,maxD){
+ if(!m?.tileX||m.world!==wi) return false;
+ const p=mhGetNpcPos(st,wi,m);
+ return Math.hypot(p.px-pos.px,p.py-pos.py)<(maxD||170);
+}
+function mhQuestStubUnlock(save,m){
+ if(!m?.questOnly||mhHasMorph(save,m.id)) return false;
+ const cost=m.questStubCost==null?MH_QUEST_STUB_COST:m.questStubCost;
+ if(cost>0&&save.coins<cost){
+  mhToast('Need '+cost+'💰 for '+m.questGuide+' (you have '+save.coins+')');
+  return false;
+ }
+ if(cost>0) save.coins-=cost;
+ const qp=mhQuestPack(save);
+ qp.stubs[m.id]=true;
+ mhQuestGrant(save,m);
+ return true;
+}
+function mhQuestTryInteract(st,save,m){
+ if(!st||!save||!m?.questOnly||mhHasMorph(save,m.id)) return false;
+ const qp=mhQuestPack(save);
+ const key=m.questKey;
+ const pos=mhWalkEnsurePos(st,st.world||0);
+ if(!mhNearQuestMorph(st,st.world||0,pos,m,175)){
+  mhToast('Step closer to '+m.questGuide+'!');
+  return true;
+ }
+ if(key==='fossil'){
+  if(qp.fossil.done||qp.fossil.digs>=3){
+   mhQuestGrant(save,m);
+   qp.fossil.done=true;
+   mhSaveSave(save);
+   return true;
+  }
+  mhToast('🦴 Archaeologist: chat “dig” three times while nearby, then press E again!');
+  return true;
+ }
+ if(key==='rainbow'){
+  const got=(qp.rainbow.orbs||[]).filter(Boolean).length;
+  if(got<3){ mhToast('🌦 Weather Witch: find 3 glowing cloud orbs on this map · E on each ('+got+'/3)'); return true; }
+  qp.rainbow.done=true;
+  mhQuestGrant(save,m);
+  mhSaveSave(save);
+  return true;
+ }
+ if(key==='handshake'){
+  if(!qp.handshake.highFive){
+   mhToast('🤝 Greeter: say “high five” or “handshake” in chat while nearby — or press E with Test Buddy close!');
+   return true;
+  }
+  qp.handshake.done=true;
+  mhQuestGrant(save,m);
+  mhSaveSave(save);
+  return true;
+ }
+ if(key==='storybook'){
+  st.insideBuilding={kind:'storybook',wi:st.world||0,morphId:m.id};
+  mhToast('📖 Storybook opens — tap 3 glowing pages · F to leave');
+  return true;
+ }
+ if(key==='armor'){
+  if(!qp.armor.paid){
+   if(save.coins<500){ mhToast('Blacksmith needs 500💰 to forge armor (you have '+save.coins+')'); return true; }
+   save.coins-=500;
+   qp.armor.paid=true;
+   mhToast('⚒ Hammering… press E once more!');
+   mhSaveSave(save);
+   return true;
+  }
+  qp.armor.done=true;
+  mhQuestGrant(save,m);
+  mhSaveSave(save);
+  return true;
+ }
+ if(key==='developer'){
+  mhToast('👾 Psst… chat “sudo lithos” while you can see the alley dev glyph.');
+  return true;
+ }
+ if(mhQuestStubUnlock(save,m)) return true;
+ mhToast('More story soon — you unlocked '+m.name+'!');
+ return true;
+}
+function mhQuestChatHook(st,save,text){
+ if(!st||!save||!text) return;
+ const fold=mhChatFold(text);
+ const pos=mhWalkEnsurePos(st,st.world||0);
+ const wi=st.world||0;
+ const qp=mhQuestPack(save);
+ if(/\b(dig|excavate|shovel)\b/.test(fold)){
+  const fossil=mhQuestMorphByKey('fossil');
+  if(fossil&&!mhHasMorph(save,fossil.id)&&mhNearQuestMorph(st,wi,pos,fossil,190)){
+   qp.fossil.digs=Math.min(3,(qp.fossil.digs||0)+1);
+   mhSaveSave(save);
+   mhToast('⛏ Dig '+qp.fossil.digs+'/3 — dirt flies!');
+   if(qp.fossil.digs>=3) mhToast('🦴 Bones exposed! Press E on Archaeologist.');
+  }
+ }
+ if(/\b(high five|highfive|handshake|fist bump|fistbump)\b/.test(fold)){
+  const hs=mhQuestMorphByKey('handshake');
+  if(hs&&!mhHasMorph(save,hs.id)&&mhNearQuestMorph(st,wi,pos,hs,200)){
+   qp.handshake.highFive=true;
+   mhSaveSave(save);
+   mhToast('🤝 SLAP! Greeter felt that — press E to claim Handshake Noobie!');
+  }
+ }
+ if(/\b(sudo lithos|hello cursor|hello dev|npm run morph)\b/.test(fold)){
+  const dev=mhQuestMorphByKey('developer');
+  if(dev&&!mhHasMorph(save,dev.id)&&mhNearQuestMorph(st,wi,pos,dev,220)){
+   mhQuestGrant(save,dev);
+   mhSaveSave(save);
+  }
+ }
+ if(/\b(stamp|pen pal|penpal|send letter)\b/.test(fold)){
+  const pen=mhQuestMorphByKey('pen-pal');
+  if(pen&&!mhHasMorph(save,pen.id)&&mhNearQuestMorph(st,wi,pos,pen,190)){
+   if(save.coins>=600){
+    save.coins-=600;
+    mhQuestGrant(save,pen);
+    mhSaveSave(save);
+   }else mhToast('Mail Carrier needs 600💰 for international stamp!');
+  }
+ }
+}
+function mhQuestBuddyHandshake(st,save){
+ const hs=mhQuestMorphByKey('handshake');
+ if(!hs||mhHasMorph(save,hs.id)) return false;
+ const pos=mhWalkEnsurePos(st,st.world||0);
+ if(!mhNearQuestMorph(st,st.world||0,pos,hs,175)) return false;
+ if(!st.testBuddy?.on) return false;
+ const bp=st.testBuddy;
+ if(Math.hypot(bp.px-pos.px,bp.py-pos.py)>120) return false;
+ const qp=mhQuestPack(save);
+ qp.handshake.highFive=true;
+ mhSaveSave(save);
+ mhToast('🤝 Test Buddy high-five! Press E on Greeter!');
+ return true;
+}
+function mhDrawQuestMorphAura(ctx,m,x,y,t,alpha){
+ if(!m?.questAura) return;
+ const a=alpha==null?1:alpha;
+ const col=m.accent||'#80e0ff';
+ const cx=x, cy=y-18;
+ ctx.save(); ctx.globalAlpha=a;
+ const pulse=1+Math.sin(t*2.6+(mhHashStr(m.id)%9))*0.12;
+ const drawRing=(r,colA,w)=>{
+  ctx.strokeStyle=mhHex(col,colA); ctx.lineWidth=w||2;
+  ctx.beginPath(); ctx.arc(cx,cy,r*pulse,0,Math.PI*2); ctx.stroke();
+ };
+ const orbit=(items,r,spd,font)=>{
+  items.forEach((em,i)=>{
+   const ang=t*spd+i*Math.PI*2/items.length;
+   const rr=r+Math.sin(t*3+i)*5;
+   ctx.font=(font||'14px')+' system-ui'; ctx.textAlign='center';
+   ctx.fillStyle=mhHex(col,0.95);
+   ctx.fillText(em,cx+Math.cos(ang)*rr,cy+Math.sin(ang)*rr*0.52);
+  });
+ };
+ const glow=(rad,c)=>{
+  const g=ctx.createRadialGradient(cx,cy,4,cx,cy,rad);
+  g.addColorStop(0,mhHex(c,0.38)); g.addColorStop(1,mhHex(c,0));
+  ctx.fillStyle=g; ctx.beginPath(); ctx.arc(cx,cy,rad,0,Math.PI*2); ctx.fill();
+ };
+ switch(m.questAura){
+  case 'fossil':
+   glow(52,'#d8a860'); drawRing(36,0.55,2);
+   orbit(['🦴','⛏','🪨','💎','🦴','⛏'],34,0.95,'13px');
+   break;
+  case 'mail':
+   glow(48,'#80a0ff'); drawRing(32,0.5,2);
+   orbit(['✉','💌','📬','✉','💌'],30,1.1);
+   break;
+  case 'rainbow':
+   for(let i=0;i<7;i++){
+    const hue=['#ff4040','#ff8040','#ffe040','#80ff60','#40c0ff','#8040ff','#ff40c0'][i];
+    ctx.strokeStyle=mhHex(hue,0.55+Math.sin(t*3+i)*0.15); ctx.lineWidth=2.5;
+    ctx.beginPath(); ctx.arc(cx,cy,(28+i*4)*pulse,0,Math.PI*2); ctx.stroke();
+   }
+   orbit(['☁','🌈','☀','💧'],32,-1.05);
+   break;
+  case 'story':
+   glow(50,'#ffd080'); drawRing(34,0.45,2);
+   orbit(['📖','✨','📜','⭐','📖'],32,0.85,'13px');
+   break;
+  case 'forge':
+   glow(54,'#ff8040');
+   for(let i=0;i<6;i++){
+    const ang=t*2.5+i;
+    ctx.fillStyle=mhHex(i%2?'#ff6040':'#ffd060',0.75);
+    ctx.beginPath(); ctx.arc(cx+Math.cos(ang)*38,cy+Math.sin(ang)*20,3,0,Math.PI*2); ctx.fill();
+   }
+   orbit(['⚒','🛡','🔥','⚒'],30,1.2);
+   break;
+  case 'mirror':
+   glow(48,'#ffffff'); drawRing(40,0.35,1.5);
+   ctx.strokeStyle='rgba(255,255,255,.65)'; ctx.lineWidth=1;
+   for(let i=0;i<4;i++){ ctx.beginPath(); ctx.moveTo(cx-40+i*26,cy-30); ctx.lineTo(cx+40-i*26,cy+30); ctx.stroke(); }
+   orbit(['🪞','✨','🪞','💫'],34,0.7);
+   break;
+  case 'ember':
+   glow(46,'#ff9040');
+   orbit(['🔥','💤','🔥','✨','🌙'],28,0.9);
+   break;
+  case 'metro':
+   glow(44,'#ffd060'); drawRing(30,0.5,2);
+   orbit(['🎫','🚇','💳','🎫'],28,1.35,'12px');
+   break;
+  case 'whisper':
+   glow(58,'#9040ff');
+   for(let i=0;i<8;i++){
+    const ang=t*1.4+i*0.9;
+    ctx.fillStyle=mhHex('#c898ff',0.35+Math.sin(t*4+i)*0.2);
+    ctx.fillText('…',cx+Math.cos(ang)*42,cy+Math.sin(ang)*22);
+   }
+   orbit(['👁','🕳','⌬','👁'],36,1.05,'13px');
+   break;
+  case 'shield':
+   glow(50,'#4080ff'); drawRing(36,0.55,2.5);
+   orbit(['🛡','⚔','🛡','✦'],32,0.75);
+   break;
+  case 'twinvoid':
+   glow(56,'#ff4080');
+   ctx.globalAlpha=a*0.45; mhPaintNoobWorld(ctx,m,cx-14,cy+10,0.35,0.5,true,t,0,false,false);
+   ctx.globalAlpha=a;
+   orbit(['👥','🕳','👥','💫'],34,1.15);
+   break;
+  case 'handshake':
+   glow(48,'#ffe8a0'); drawRing(34,0.6,2);
+   orbit(['🤝','✋','🤝','⭐'],30,1.0);
+   break;
+  case 'partyhost':
+   glow(52,'#ff48e8');
+   orbit(['🎉','🎊','🪩','🎈','🎉'],34,-1.25);
+   break;
+  case 'glitchcat':
+   glow(50,'#39ff14');
+   if(Math.random()<0.08) ctx.translate((Math.random()-0.5)*8,(Math.random()-0.5)*6);
+   orbit(['🐱','01','🐱','//'],30,1.4,'13px');
+   break;
+  case 'pizza':
+   glow(46,'#ff6040');
+   orbit(['🍕','🛵','🍕','⭐'],28,1.05);
+   break;
+  case 'code':
+   glow(54,'#39ff14'); drawRing(38,0.45,1.5);
+   ctx.font='10px monospace'; ctx.fillStyle='#80ffb0'; ctx.textAlign='center';
+   for(let i=0;i<6;i++) ctx.fillText('01',cx+Math.cos(t*2+i)*30,cy+Math.sin(t*2.2+i)*16);
+   orbit(['⌨','</>','💻','✨'],32,0.85,'12px');
+   break;
+  default:
+   glow(44,col); drawRing(30,0.4,2);
+   orbit([m.sigBadge||'✨'],28,0.9);
+ }
+ ctx.restore();
+}
+function mhDrawStorybookInterior(ctx,W,H,st,save,t){
+ const qp=mhQuestPack(save);
+ ctx.fillStyle='#2a1810'; ctx.fillRect(0,0,W,H);
+ ctx.fillStyle='#f0e0c0'; ctx.fillRect(W*0.12,H*0.18,W*0.76,H*0.62);
+ ctx.strokeStyle='#804030'; ctx.lineWidth=4; ctx.strokeRect(W*0.12,H*0.18,W*0.76,H*0.62);
+ ctx.fillStyle='#503020'; ctx.font='bold 20px system-ui'; ctx.textAlign='center';
+ ctx.fillText('📖 STORYBOOK',W/2,H*0.28);
+ const pages=[{x:W*0.28,y:H*0.55,l:'🌙'},{x:W*0.5,y:H*0.58,l:'🐉'},{x:W*0.72,y:H*0.55,l:'🏰'}];
+ pages.forEach((p,i)=>{
+  const lit=i<(qp.storybook.pages||0);
+  ctx.beginPath(); ctx.arc(p.x,p.y,32,0,Math.PI*2);
+  ctx.fillStyle=lit?'#ffd080':'#806050';
+  ctx.fill();
+  ctx.strokeStyle='#ffe8a0'; ctx.lineWidth=2; ctx.stroke();
+  ctx.fillStyle='#fff'; ctx.font='22px system-ui';
+  ctx.fillText(p.l,p.x,p.y+8);
+ });
+ ctx.fillStyle='#c0a890'; ctx.font='13px system-ui';
+ ctx.fillText('Tap glowing pages · '+Math.min(3,qp.storybook.pages||0)+'/3',W/2,H*0.72);
+ ctx.fillStyle='rgba(0,0,0,.7)'; ctx.fillRect(8,H-36,W-16,28);
+ ctx.fillStyle='#ffe8a0'; ctx.font='bold 12px system-ui'; ctx.textAlign='left';
+ ctx.fillText('📚 Librarian quest · F leave',16,H-16);
+}
+function mhStorybookClick(ev){
+ if(!mhState?.insideBuilding||mhState.insideBuilding.kind!=='storybook') return;
+ const save=mhState.save;
+ const qp=mhQuestPack(save);
+ const canvas=ev.currentTarget;
+ const rect=canvas.getBoundingClientRect();
+ const x=(ev.clientX-rect.left)/rect.width*canvas.width;
+ const y=(ev.clientY-rect.top)/rect.height*canvas.height;
+ const W=canvas.width,H=canvas.height;
+ const pages=[{x:W*0.28,y:H*0.55},{x:W*0.5,y:H*0.58},{x:W*0.72,y:H*0.55}];
+ pages.forEach((p,i)=>{
+  if(i>=qp.storybook.pages&&Math.hypot(x-p.x,y-p.y)<38){
+   qp.storybook.pages=i+1;
+   mhSaveSave(save);
+   mhToast('📖 Page '+(i+1)+'/3!');
+   try{ mhPlaySfx('ui'); }catch(_){}
+  }
+ });
+ if(qp.storybook.pages>=3&&!qp.storybook.done){
+  qp.storybook.done=true;
+  const m=mhMorph(mhState.insideBuilding.morphId)||mhQuestMorphByKey('storybook');
+  mhQuestGrant(save,m);
+  mhState.insideBuilding=null;
+  mhToast('📚 The story closes — Storybook Noobie is yours!');
+ }
+}
+function mhTryCollectRainbowOrb(st,save,wi,map,pos){
+ const qp=mhQuestPack(save);
+ const m=mhQuestMorphByKey('rainbow');
+ if(!m||mhHasMorph(save,m.id)||wi!==2) return false;
+ (map.rainbowOrbs||[]).forEach((o,i)=>{
+  if(qp.rainbow.orbs[i]) return;
+  const px=o.tx*MH_TILE+MH_TILE/2, py=o.ty*MH_TILE+MH_TILE/2;
+  if(Math.hypot(px-pos.px,py-pos.py)<MH_INTERACT_R){
+   qp.rainbow.orbs[i]=true;
+   mhSaveSave(save);
+   mhToast('☁ Cloud orb '+(i+1)+'/3 captured!');
+   try{ mhPlaySfx('hit'); }catch(_){}
+  }
+ });
+ return false;
+}
+function mhDrawQuestWorldMarkers(ctx,map,wi,t,save){
+ if(wi===2&&(map.rainbowOrbs||[]).length){
+  const qp=mhQuestPack(save);
+  map.rainbowOrbs.forEach((o,i)=>{
+   if(qp.rainbow.orbs[i]) return;
+   const x=o.tx*MH_TILE+MH_TILE/2,y=o.ty*MH_TILE+MH_TILE/2;
+   const bob=Math.sin(t*2+i)*4;
+   ctx.fillStyle='rgba(255,255,255,.25)'; ctx.beginPath(); ctx.arc(x,y+bob,22+Math.sin(t*3)*3,0,Math.PI*2); ctx.fill();
+   ctx.font='20px system-ui'; ctx.textAlign='center'; ctx.fillText('☁',x,y+bob+6);
+  });
+ }
+ (map.questPins||[]).forEach(pin=>{
+  const x=pin.tx*MH_TILE+MH_TILE/2,y=pin.ty*MH_TILE;
+  ctx.fillStyle='rgba(0,0,0,.55)'; ctx.fillRect(x-56,y-22,112,16);
+  ctx.fillStyle='#ffe8a0'; ctx.font='bold 9px system-ui'; ctx.textAlign='center';
+  ctx.fillText(pin.label||'✨ Quest',x,y-10);
+ });
 }
 function mhNearTimeTraveler(st,wi,pos){
  const m=mhMorph(MH_TIME_TRAVELER_ID);
@@ -3675,7 +4138,9 @@ function mhClassicNoobSvg(m){
   <circle cx="42" cy="22" r="3" fill="#1a1a20"/><circle cx="58" cy="22" r="3" fill="#1a1a20"/>
   <circle cx="43" cy="21" r="1" fill="#fff" opacity=".5"/><circle cx="59" cy="21" r="1" fill="#fff" opacity=".5"/>`;
  const sigDeco=m.sigDeco||'';
+ const questRing=m.questOnly?`<ellipse cx="50" cy="72" rx="42" ry="54" fill="none" stroke="${m.accent||'#80e0ff'}" stroke-width="2.2" opacity=".5"/><ellipse cx="50" cy="72" rx="34" ry="44" fill="none" stroke="${m.accent||'#80e0ff'}" stroke-width="1" opacity=".28" stroke-dasharray="4 3"/>`:'';
  return `<g>
+  ${questRing}
   ${mhBodyShape(m)}
   ${stripe}
   ${headShine}
@@ -4636,6 +5101,7 @@ function mhNpcPersonality(m){
  if(m.voidKing) return 'king';
  if(m.plagueDoctor) return 'plague';
  if(m.timeTravelerOnly) return 'time';
+ if(m.questOnly) return 'legend';
  if(m.voidFallen||m.rarity==='voidfallen') return 'void';
  if(m.rarity==='exclusive'||m.rarity==='legendary') return 'legend';
  if(m.rarity==='secret'||m.rarity==='exotic') return 'mystery';
@@ -4648,6 +5114,20 @@ function mhNpcPickLine(list,seed){
 }
 function mhNpcReactLine(m,save,wi,trigger,ctx){
  if(!m) return '';
+ if(m.questOnly){
+  if(trigger==='spot') return '✨ '+m.questGuide+' — '+((m.sigTag||'').split('·')[0]||'Press E for quest!');
+  if(trigger==='chat'){
+   const fold=mhChatFold(ctx?.text||'');
+   if(m.questKey==='fossil'&&/\b(dig|fossil|bone)\b/.test(fold)) return '⛏ Keep digging — chat “dig” while nearby!';
+   if(m.questKey==='handshake'&&/\b(high five|handshake)\b/.test(fold)) return '🤝 Nice slap! Press E to claim your morph!';
+   if(m.questKey==='developer'&&/\b(sudo|dev|cursor)\b/.test(fold)) return '👾 …access granted…';
+   return mhNpcPickLine([
+    'My aura is quest-only — so sparkly!',
+    'Check ⭐ Stars tab for my codex blurb.',
+    'No gacha — you earn this the fun way.'
+   ],m.id+'|'+trigger);
+  }
+ }
  if(m.timeTravelerOnly){
   const fold=mhChatFold(ctx?.text||'');
   if(trigger==='spot') return '⏳ I am the Time Traveler — chat: “go back in time” (costs 2000💰).';
@@ -4823,6 +5303,7 @@ function mhChatSend(st,save,text){
  const mod=mhChatModerate(raw);
  if(!mod.ok){ mhToast('🛡️ '+mod.reason); return; }
  mhTimeTravelMaybeChat(st,save,raw);
+ mhQuestChatHook(st,save,raw);
  const prof=mhEnsureChatProfile(save);
  const channel=st.chatChannel||'global';
  const wi=st.world;
@@ -5209,6 +5690,7 @@ function mhDrawMorphShowcasePanel(ctx,W,H,m,t,phase){
  ctx.restore();
  ctx.save();
  if(m.plagueDoctor) mhDrawPlagueDoctorAura(ctx,W*0.74,H*0.46,t,0.85+pulse*0.12);
+ else if(m.questOnly) mhDrawQuestMorphAura(ctx,m,W*0.74,H*0.46,t,0.88+pulse*0.1);
  else if(m.signatureOnly||m.mayorOnly||(m.signatureReal&&m.sigLook)) mhDrawSignatureNoobAura(ctx,m,W*0.74,H*0.46,t,0.82+pulse*0.15);
  else if(m.voidFallen||m.rarity==='voidfallen') mhPaintVoidFallenStormAura(ctx,W*0.74,H*0.46,t,0.75,false,m);
  const sc=1.02+morphT*0.12;
@@ -7364,6 +7846,15 @@ function mhPaintNoobWorld(ctx,m,x,y,sc,alpha,silhouette,t,walkPhase,flat,running
   ctx.restore();
   return;
  }
+ if(m.questOnly){
+  mhDrawQuestMorphAura(ctx,m,0,-8,t,(alpha==null?1:alpha)*0.92);
+  if(m.voidFallen||m.rarity==='voidfallen') mhPaintVoidFallenStormAura(ctx,0,-8,t,alpha*0.55,silhouette,m);
+  if(!flat) ctx.rotate(off.rot);
+  if(flat) mhPaintNoobFlat(ctx,m,0,-8,sc*off.sc,alpha,silhouette,walkPhase,running,t);
+  else mhPaintNoob3D(ctx,m,0,-8,sc*off.sc,alpha,silhouette,walkPhase,running);
+  ctx.restore();
+  return;
+ }
  if((m.signatureOnly||m.mayorOnly||(m.signatureReal&&m.sigLook))&&m.sigLook){
   if(m.voidFallen){
    mhDrawPassiveAncientShieldsOnCharacter(ctx,0,-8,t,m,alpha);
@@ -7412,6 +7903,7 @@ function mhCanvasToWorld(canvas,camX,camY,clientX,clientY){
 function mhWalkCanvasClick(ev){
  if(!mhState||mhState.tab!=='hunt') return;
  if(mhState.insideBuilding?.kind==='time_mine'){ mhTimeMineClick(ev); return; }
+ if(mhState.insideBuilding?.kind==='storybook'){ mhStorybookClick(ev); return; }
  const canvas=ev.currentTarget;
  const wi=mhState.world, save=mhState.save;
  const pos=mhWalkEnsurePos(mhState,wi);
@@ -7504,7 +7996,7 @@ function mhGroveAt(map,px,py){
 }
 function mhMorphsInGrove(save,wi,grove){
  return mhWorldMorphs(wi).filter(m=>{
-  if(m.tileX==null||m.voidKing||mhHasMorph(save,m.id)) return false;
+  if(m.tileX==null||m.voidKing||m.questOnly||mhHasMorph(save,m.id)) return false;
   return m.tileX>=grove.tx&&m.tileX<grove.tx+grove.w&&m.tileY>=grove.ty&&m.tileY<grove.ty+grove.h;
  });
 }
@@ -7514,9 +8006,16 @@ function mhTryStartMinigame(){
  const pos=mhWalkEnsurePos(mhState,wi);
  if(mhState.insideBuilding?.kind==='plague_lab'){ mhPlagueLabAdvance(save); return; }
  if(mhState.insideBuilding?.kind==='time_mine'){ mhToast('Tap stone shards in the mine · F to leave'); return; }
+ if(mhState.insideBuilding?.kind==='storybook'){ mhToast('Tap the glowing story pages · F to leave'); return; }
  if(mhTryCollectPlagueBug(save,wi,map,pos)) return;
+ if(mhTryCollectRainbowOrb(mhState,save,wi,map,pos)) return;
+ if(mhQuestBuddyHandshake(mhState,save)) return;
  if(mhState.walkNearId){
   const near=mhMorph(mhState.walkNearId);
+  if(near?.questOnly&&!mhHasMorph(save,near.id)){
+   mhQuestTryInteract(mhState,save,near);
+   return;
+  }
   if(near) mhStartFight(near,mhHasMorph(save,near.id));
   return;
  }
@@ -7536,14 +8035,14 @@ function mhTryStartMinigame(){
  }
  let best=null,bd=MH_FIGHT_ANYTIME?900:380;
  mhWorldMorphs(wi).forEach(m=>{
-  if(m.tileX==null||m.voidKing) return;
+  if(m.tileX==null||m.voidKing||m.questOnly) return;
   if(!MH_FIGHT_ANYTIME&&mhHasMorph(save,m.id)) return;
   const p=mhGetNpcPos(mhState,wi,m);
   const d=Math.hypot(p.px-pos.px,p.py-pos.py);
   if(d<bd){ bd=d; best=m; }
  });
  if(best){ mhStartFight(best,mhHasMorph(save,best.id)); return; }
- const next=mhWorldMorphs(wi).find(m=>!mhHasMorph(save,m.id)&&!m.voidKing);
+ const next=mhWorldMorphs(wi).find(m=>!mhHasMorph(save,m.id)&&!m.voidKing&&!m.questOnly);
  if(next){ mhStartFight(next,false); return; }
  if(MH_FIGHT_ANYTIME){
   const pick=mhPickFightMorph(save,wi,pos);
@@ -7793,6 +8292,7 @@ function mhWalkDrawFrame(){
   ctx.strokeStyle='rgba(0,0,0,.06)'; ctx.strokeRect(x+.5,y+.5,MH_TILE-1,MH_TILE-1);
  }
  mhDrawMapDecors(ctx,map,wi,t,st.save);
+ mhDrawQuestWorldMarkers(ctx,map,wi,t,save);
  if(wi===MH_VOID_WORLD) mhDrawVoidAbyssMist(ctx,map,t);
  mhDrawHideoutGroves(ctx,map,pos,wi);
  if(wi===MH_VOID_WORLD) mhDrawVoidThrone(ctx,map);
@@ -7840,9 +8340,9 @@ function mhWalkDrawFrame(){
   }
   if(dist<MH_INTERACT_R&&!got){
    if(!got){
-    ctx.fillStyle='rgba(120,60,200,.85)'; ctx.fillRect(mx-52,my-92,104,12);
-    ctx.fillStyle='#e8d0ff'; ctx.font='bold 9px system-ui'; ctx.textAlign='center';
-    ctx.fillText('⚔ FIGHT',mx,my-84);
+    ctx.fillStyle=m.questOnly?'rgba(40,80,120,.88)':'rgba(120,60,200,.85)'; ctx.fillRect(mx-52,my-92,104,12);
+    ctx.fillStyle=m.questOnly?'#a8e8ff':'#e8d0ff'; ctx.font='bold 9px system-ui'; ctx.textAlign='center';
+    ctx.fillText(m.questOnly?'✨ QUEST · E':'⚔ FIGHT',mx,my-84);
    }
    ctx.fillStyle='rgba(0,0,0,.65)'; ctx.fillRect(mx-42,my-78,84,14);
    ctx.fillStyle='#ffe8a0'; ctx.font='bold 10px system-ui'; ctx.textAlign='center';
@@ -8182,6 +8682,7 @@ function mhWalkStart(){
   canvas.addEventListener('pointerdown',(e)=>{
    mhUnlockSfx(); canvas.blur(); mhMorphHuntBlurPageFocus();
    if(mhState?.insideBuilding?.kind==='time_mine') mhTimeMineClick(e);
+   if(mhState?.insideBuilding?.kind==='storybook') mhStorybookClick(e);
   });
  }
 }
@@ -8216,7 +8717,7 @@ function mhRenderPlagueQuestPanel(save){
  </div>`;
 }
 function mhCodexArtHtml(m,got){
- if(got||m.plagueOnly||m.mayorOnly||m.discoOnly||m.timeTravelerOnly||m.matrixOnly) return `<svg viewBox="0 0 100 130">${mhClassicNoobSvg(m)}</svg>`;
+ if(got||m.plagueOnly||m.mayorOnly||m.discoOnly||m.timeTravelerOnly||m.matrixOnly||m.questOnly) return `<svg viewBox="0 0 100 130">${mhClassicNoobSvg(m)}</svg>`;
  return '<div class="mh-silhouette">?</div>';
 }
 function mhRenderHuntDeck(save,wi,morphs){
@@ -8407,6 +8908,7 @@ function mhSigPanelHtml(m,canWear){
  else if(m.discoOnly) blurb='🪩 Owner disco event only — not in gacha, codes, or groves';
  else if(m.timeTravelerOnly) blurb='⏳ Buddy Plaza · chat “go back in time” · 2000💰 · Matrix quest';
  else if(m.matrixOnly) blurb='🌐 Time Traveler mine reward — not in gacha';
+ else if(m.questOnly) blurb=m.sigTag||'✨ Quest exclusive — find the glowing NPC on the map';
  const combat=(m.voidFallen&&m.voidAttack&&!m.plagueDoctor)?`<span class="mh-sig-combat">⚔ ${m.voidAttack.name} · ✦ ${m.voidPower?.name||'?'}</span>`:'';
  if(m.plagueDoctor&&m.voidAttack) blurb+=' · ⚔ '+m.voidAttack.name+' · ✦ '+m.voidPower.name;
  return `<article class="mh-sig-panel-full" style="--mh-rarity:${r.color}">
