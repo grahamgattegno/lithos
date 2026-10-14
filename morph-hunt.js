@@ -5,12 +5,12 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v113';
-const MH_SCENERY_STAMP='STABLE_v113';
-const MH_SCRIPT_CANON='morph-hunt.void-2d-v113.js';
+const MH_BUILD='void-2d-v117';
+const MH_SCENERY_STAMP='STABLE_v117';
+const MH_SCRIPT_CANON='morph-hunt.void-2d-v117.js';
 const MH_CHAT_UI_STAMP='compose-under-log-v2';
-const MH_AGENT_IDLE_MS_MIN=16000;
-const MH_AGENT_IDLE_MS_MAX=28000;
+const MH_AGENT_IDLE_MS_MIN=12000;
+const MH_AGENT_IDLE_MS_MAX=22000;
 const MH_FREEZE_NPC_WALK=true;
 const MH_FIGHT_ANYTIME=true;
 const MH_GEMINI_BASE='https://generativelanguage.googleapis.com/v1beta';
@@ -108,6 +108,7 @@ const MH_ANCIENT_GLYPHS=['⌬','☵','⛧','◈','☒'];
 const MH_ANCIENT_NAMES=['Void Seal','Rift Mark','Depth Eye','Abyss Gate','King Ward'];
 const MH_VOID_STORM_NAME='Void Storm';
 const MH_PLAGUE_GRAVEYARD_NAME='Graveyard Legion';
+const MH_PLAGUE_STORM_NAME='Black-Red Storm';
 const MH_VOID_STORM_POWER={id:'void_storm',name:'Void Storm',color:'#ff2020',kind:'storm',range:200};
 const MH_KING_STAMP='RED_BLACK_KING_v31';
 const MH_MEGA_W=7;
@@ -219,6 +220,7 @@ const MH_CODES={
  thanksforverified:{coins:100},
  bubblebuddy:{title:'Bubble Buddy'},
  lithosgem:{morph:'ex-gemcrown'},
+ lithosstaff:{title:'Lithos Crew',coins:500,staff:true},
  happyanniversaryftn1:{morph:'ex-party'},
  glitchhouse:{morph:'code-glitch',coins:120,title:'Glitch Hunter'},
  mythinside:{morph:'code-myth',coins:120,title:'Myth Seeker'},
@@ -350,6 +352,7 @@ const MH_VOID_POWERS=[
 ];
 function mhAssignVoidCombat(m){
  if(m.rarity!=='voidfallen'&&!m.voidFallen) return;
+ if(m.plagueDoctor) return;
  if(m.voidKing){
   m.voidAttack={id:'king_cleave',name:'Greataxe Cleave',color:'#ff3030',kind:'arc',speed:9,range:130};
   m.voidPower={...MH_VOID_STORM_POWER,id:'forbidden_storm',name:'Forbidden Void Storm',range:240};
@@ -817,12 +820,12 @@ function mhBuildMorphs(){
   stripe:true, glasses:true, accent:'#ffd060'
  });
  list.push({
-  id:'ex-plague-doctor', name:'Plague Doctor Noobie', exclusive:true, plagueOnly:true, world:0,
-  head:'#0a0a0a', torso:'#580808', legs:'#141414', arms:'#1a1a1a', body:'tall',
-  anim:'sway', face:'flat', rarity:'exclusive', hat:'plague', prop:'book',
+  id:'ex-plague-doctor', name:'Void Fallen Plague Doctor Noobie', exclusive:true, plagueOnly:true, world:MH_VOID_WORLD,
+  head:'#0a0a0a', torso:'#580808', legs:'#141014', arms:'#1a1018', body:'tall',
+  anim:'sway', face:'flat', rarity:'voidfallen', hat:'plague', prop:'book',
   stripe:false, glasses:false, accent:'#80ffb0', plagueDoctor:true,
-  voidMale:true, voidMark:7, voidEyes:'#ff2020', voidAccent:'#cc0000',
-  scale:1.02,
+  voidFallen:true, voidMale:true, fallen:true, voidMark:7, voidDepth:4, voidEyes:'#ff2020', voidAccent:'#cc0000',
+  scale:1.06,
   voidAttack:{id:'foul_cure',name:'Foul Cure',color:'#80ffb0',kind:'orbs',speed:5,range:70},
   voidPower:{id:'death_sigil',name:'Death Sigil',color:'#303038',kind:'nova',speed:4,range:95},
   plagueLines:['I am the cure.','Oh my, the sickness…','Then I can fix you.']
@@ -1317,6 +1320,178 @@ function mhIsRealOwner(){
 }
 function mhIsOwner(){
  return MH_OPEN_PLAY||mhIsRealOwner();
+}
+const MH_ADMIN_GIFT_KEY='lithos_mh_admin_gifts_v1';
+function mhIsLithosStaff(){
+ try{
+  if(typeof isStaff!=='undefined'&&isStaff) return true;
+  if(typeof document!=='undefined'&&document.body&&document.body.classList.contains('is-staff')) return true;
+  if(localStorage.getItem('lithos_staff')==='1') return true;
+ }catch(_){}
+ return false;
+}
+function mhIsLithosAdmin(){ return mhIsLithosStaff()||mhIsRealOwner(); }
+function mhIsLithosOwnerAbuse(){ return mhIsRealOwner(); }
+function mhAdminFindMorph(q){
+ q=String(q||'').trim().toLowerCase();
+ if(!q) return null;
+ const exact=mhMorph(q);
+ if(exact) return exact;
+ const hits=MH_MORPHS.filter(m=>m.id.toLowerCase().includes(q)||m.name.toLowerCase().includes(q));
+ hits.sort((a,b)=>(a.id.length-b.id.length));
+ return hits[0]||null;
+}
+function mhAdminGrantMorph(save,morphId,silent){
+ if(!save||!morphId||!MH_MORPHS.some(m=>m.id===morphId)) return false;
+ if(!save.collected.includes(morphId)) save.collected.push(morphId);
+ if(morphId==='ex-plague-doctor'&&save.plagueQuest){
+  save.plagueQuest.badge=true;
+  save.plagueQuest.labStep=5;
+ }
+ mhSaveSave(save);
+ if(!silent){
+  const nm=mhMorph(morphId)?.name||morphId;
+  mhToast('🎁 Free noobie: '+nm);
+ }
+ return true;
+}
+function mhAdminQueueGift(friendId,morphId){
+ if(!friendId||!morphId) return false;
+ try{
+  const raw=JSON.parse(localStorage.getItem(MH_ADMIN_GIFT_KEY)||'{}');
+  if(!raw[friendId]) raw[friendId]=[];
+  if(!raw[friendId].includes(morphId)) raw[friendId].push(morphId);
+  localStorage.setItem(MH_ADMIN_GIFT_KEY,JSON.stringify(raw));
+  return true;
+ }catch(_){ return false; }
+}
+function mhAdminApplyPendingGifts(save){
+ const pid=String(save?.chatPlayerId||'').trim();
+ if(!pid) return;
+ try{
+  const raw=JSON.parse(localStorage.getItem(MH_ADMIN_GIFT_KEY)||'{}');
+  const list=raw[pid];
+  if(!list?.length) return;
+  let n=0;
+  list.forEach(id=>{ if(mhAdminGrantMorph(save,id,true)) n++; });
+  delete raw[pid];
+  localStorage.setItem(MH_ADMIN_GIFT_KEY,JSON.stringify(raw));
+  if(n) mhToast('🎁 Lithos gift arrived — '+n+' noobie'+(n>1?'s':'')+' added!');
+  mhSaveSave(save);
+  mhRender();
+ }catch(_){}
+}
+function mhChatAdminHelp(owner){
+ const lines=owner?[
+  '/give &lt;morph&gt; — free noobie for you',
+  '/gift &lt;friendCode&gt; &lt;morph&gt; — queue gift on their device',
+  '/admin help — staff list · /admin abuse — owner powers',
+  '/admin abuse storm · kingstorm · coins · allmorphs · heal · world · plague · raid'
+ ]:[
+  '/give &lt;morph&gt; — free noobie (Lithos crew)',
+  '/gift &lt;friendCode&gt; &lt;morph&gt; — give away a morph',
+  '/admin help — staff commands'
+ ];
+ mhToast('🛡️ Lithos admin: '+lines.join(' · '));
+}
+function mhOwnerAbuseHelp(){
+ mhToast('👑 Owner /admin abuse: storm · kingstorm · coins [N] · allmorphs · heal · world [N] · plague · raid · unlock');
+}
+function mhRunOwnerAbuse(st,save,pos,args){
+ if(!mhIsLithosOwnerAbuse()){ mhToast('🔒 Owner only — ?owner=1 or Lithos owner code'); return true; }
+ const wi=st?.world??0;
+ const sub=(args[0]||'').toLowerCase();
+ if(!sub){ mhOwnerAbuseHelp(); return true; }
+ if(sub==='help'||sub==='list'){ mhOwnerAbuseHelp(); return true; }
+ if(sub==='storm'||sub==='redstorm'){
+  const wear=mhVoidCombatMorph(save)||mhMorph(save.wearing)||{};
+  mhWrapPlayerRedBlackStorm(st,wear,pos,7);
+  mhToast('👑 black-red storm!');
+  return true;
+ }
+ if(sub==='kingstorm'||sub==='void'){
+  const king=mhMorph('vf-king')||{voidKing:true,voidFallen:true};
+  mhSpawnVoidUniverseStorm(st,king,0,pos,240);
+  mhToast('👑 FORBIDDEN void universe storm!');
+  return true;
+ }
+ if(sub==='coins'){
+  save.coins=Math.max(0,+(args[1]||99999));
+  mhSaveSave(save); mhRender();
+  mhToast('👑 coins → '+save.coins);
+  return true;
+ }
+ if(sub==='all'||sub==='allmorphs'){
+  save.collected=MH_MORPHS.map(m=>m.id);
+  save.worldsUnlocked=MH_WORLDS.length;
+  mhSaveSave(save); mhRender();
+  mhToast('👑 every noobie unlocked');
+  return true;
+ }
+ if(sub==='heal'){
+  st.fightHp=st.fightMaxHp||140;
+  mhToast('👑 full HP');
+  return true;
+ }
+ if(sub==='world'){
+  const n=Math.max(0,Math.min(MH_WORLDS.length-1,+(args[1]||0)));
+  mhSetWorld(n);
+  return true;
+ }
+ if(sub==='plague'||sub==='doctor'){
+  mhAdminGrantMorph(save,'ex-plague-doctor');
+  mhWear('ex-plague-doctor',true);
+  mhRender();
+  return true;
+ }
+ if(sub==='raid'){
+  mhUsePlagueGraveyard(st,save,pos,wi);
+  return true;
+ }
+ if(sub==='unlock'){
+  save.worldsUnlocked=MH_WORLDS.length;
+  mhSaveSave(save); mhRender();
+  mhToast('👑 all maps unlocked');
+  return true;
+ }
+ mhOwnerAbuseHelp();
+ return true;
+}
+function mhChatAdminCommand(st,save,raw){
+ if(!String(raw||'').trim().startsWith('/')) return false;
+ const parts=String(raw).slice(1).trim().split(/\s+/);
+ const cmd=(parts[0]||'').toLowerCase();
+ const adminAbuse=cmd==='admin'&&(parts[1]||'').toLowerCase()==='abuse';
+ const staffOnly=/^(give|gift|grant|admin)$/.test(cmd)||cmd==='help'&&parts[1]==='admin';
+ const ownerOnly=cmd==='abuse'||adminAbuse;
+ if(staffOnly||ownerOnly||cmd==='help'){
+  if(ownerOnly&&!mhIsLithosOwnerAbuse()){ mhToast('🔒 Owner-only Lithos command'); return true; }
+  if(staffOnly&&!adminAbuse&&!mhIsLithosAdmin()){ mhToast('🔒 Lithos staff or owner only — redeem LITHOSSTAFF in 🎲 Gacha'); return true; }
+ }
+ if(cmd==='help'&&parts[1]==='admin'){ mhChatAdminHelp(mhIsLithosOwnerAbuse()); return true; }
+ if(cmd==='admin'&&parts[1]==='abuse') return mhRunOwnerAbuse(st,save,mhWalkEnsurePos(st,st?.world??0),parts.slice(2));
+ if(cmd==='admin'&&(parts[1]==='help'||!parts[1])){ mhChatAdminHelp(mhIsLithosOwnerAbuse()); return true; }
+ if(cmd==='abuse') return mhRunOwnerAbuse(st,save,mhWalkEnsurePos(st,st?.world??0),parts.slice(1));
+ if(!mhIsLithosAdmin()) return false;
+ const wi=st?.world??0;
+ const pos=mhWalkEnsurePos(st,wi);
+ if(cmd==='give'||cmd==='grant'){
+  const m=mhAdminFindMorph(parts.slice(1).join(' '));
+  if(!m){ mhToast('No morph match — try ex-plague-doctor or ruby'); return true; }
+  mhAdminGrantMorph(save,m.id);
+  mhRender();
+  return true;
+ }
+ if(cmd==='gift'){
+  const friendId=parts[1];
+  const m=mhAdminFindMorph(parts.slice(2).join(' '));
+  if(!friendId||!m){ mhToast('Usage: /gift friendCode morphName'); return true; }
+  if(friendId===save.chatPlayerId) mhAdminGrantMorph(save,m.id);
+  else if(mhAdminQueueGift(friendId,m.id)) mhToast('🎁 Gift queued for '+friendId+' → '+m.name);
+  else mhToast('Could not queue gift');
+  return true;
+ }
+ return false;
 }
 function mhOpenPlaySave(){
  const wear=mhLoadWearId();
@@ -2352,6 +2527,14 @@ function mhPaintPlagueDoctorNoob(ctx,x,y,sc,alpha,silhouette,walkPhase,running,t
  ctx.globalAlpha=alpha==null?1:alpha;
  const wa=mhWalkLegAnim(walkPhase,running);
  ctx.translate(0,-wa.bob);
+ if(!silhouette){
+  ctx.fillStyle='rgba(80,20,120,.55)';
+  ctx.beginPath(); ctx.moveTo(-14,-8); ctx.lineTo(-22,18); ctx.lineTo(-6,12); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(14,-8); ctx.lineTo(22,18); ctx.lineTo(6,12); ctx.fill();
+  ctx.strokeStyle='rgba(180,100,255,.6)'; ctx.lineWidth=1.2;
+  ctx.beginPath(); ctx.moveTo(-18,6); ctx.quadraticCurveTo(-28,20,-12,28); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(18,6); ctx.quadraticCurveTo(28,20,12,28); ctx.stroke();
+ }
  const legs='#141414', torso='#580808', arms='#1a1a1a', acc='#cc0000', cloak='#0c1014';
  ctx.fillStyle='rgba(0,0,0,.32)';
  ctx.beginPath();
@@ -2625,16 +2808,21 @@ function mhDrawYouInWorld(ctx,wear,pos,map,t,walkPhase,wi,running){
   ctx.beginPath(); ctx.ellipse(pos.px,pos.py+26,34,11,0,0,Math.PI*2); ctx.stroke();
   ctx.setLineDash([]);
  }
- if(m.plagueDoctor) mhDrawPlagueDoctorAura(ctx,pos.px,pos.py-18,t,0.88);
- else if(m.signatureOnly||m.mayorOnly||(m.signatureReal&&m.sigLook)) mhDrawSignatureNoobAura(ctx,m,pos.px,pos.py,t,0.88);
+ if(m.plagueDoctor){
+  mhPaintVoidFallenStormAura(ctx,pos.px,pos.py-18,t,0.62,false,m);
+  mhDrawPlagueDoctorAura(ctx,pos.px,pos.py-18,t,0.88);
+ }else if(m.signatureOnly||m.mayorOnly||(m.signatureReal&&m.sigLook)) mhDrawSignatureNoobAura(ctx,m,pos.px,pos.py,t,0.88);
  mhPaintNoobWorld(ctx,m,pos.px,pos.py,sc,1,false,t,walkPhase||0,flat,!!running);
+ if(m.plagueDoctor) mhDrawPassiveAncientShieldsOnCharacter(ctx,pos.px,pos.py-8,t,m,1);
  if(m.plagueDoctor){
   const atk=m.voidAttack?.name||'Foul Cure';
   const pow=m.voidPower?.name||'Death Sigil';
   ctx.fillStyle='rgba(10,20,14,.92)'; ctx.fillRect(pos.px-78,pos.py+66,156,22);
   ctx.strokeStyle='#80ffb0'; ctx.lineWidth=1.5; ctx.strokeRect(pos.px-78,pos.py+66,156,22);
   ctx.fillStyle='#c8ffd8'; ctx.font='bold 9px system-ui'; ctx.textAlign='center';
-  ctx.fillText('⚔ '+atk+' · ✦ '+pow+' · 3 '+MH_PLAGUE_GRAVEYARD_NAME+' · ☠💊 orbit',pos.px,pos.py+80);
+  ctx.fillText('⚔ '+atk+' · ✦ '+pow+' · 3 '+MH_PLAGUE_GRAVEYARD_NAME+' + '+MH_PLAGUE_STORM_NAME,pos.px,pos.py+80);
+  ctx.fillStyle='#ff8080'; ctx.font='bold 8px system-ui';
+  ctx.fillText('🛡 '+MH_ANCIENT_GLYPHS.join(' ')+' · always on · '+MH_BUILD,pos.px,pos.py+92);
  }
  ctx.fillStyle='rgba(0,0,0,.82)';
  ctx.fillRect(pos.px-28,pos.py+50,56,16);
@@ -2677,7 +2865,7 @@ function mhLoadSave(){
   if(!raw||!Array.isArray(raw.collected))return {...mhDefaultSave(),wearing:wear||'ex-welcome'};
   let collected=raw.collected.filter(id=>MH_MORPHS.some(m=>m.id===id));
   if(!collected.length) collected=['ex-welcome'];
-  return{
+  const out={
    collected,
    worldsUnlocked:Math.max(1,Math.min(MH_WORLDS.length,+(raw.worldsUnlocked||1))),
    coins:Math.max(0,+(raw.coins||100)),
@@ -2690,6 +2878,8 @@ function mhLoadSave(){
    chatFriends:Array.isArray(raw.chatFriends)?raw.chatFriends.filter(x=>typeof x==='string'):[],
    plagueQuest:mhNormalizePlagueQuest(raw.plagueQuest)
   };
+  mhAdminApplyPendingGifts(out);
+  return out;
  }catch(_){return {...mhDefaultSave(),wearing:wear};}
 }
 function mhRarityInfo(m){
@@ -3298,11 +3488,9 @@ function mhChatIngest(msg,silent){
   let nx=pos.px+((mhHashStr(msg.fromId)%160)-80);
   let ny=pos.py-30-((mhHashStr(msg.fromId+'y')%50));
   if(msg.fromId===MH_TEST_BUDDY_ID&&mhState.testBuddy?.on){
-   mhTestBuddyUpdatePos(mhState,wi);
    nx=mhState.testBuddy.px;
    ny=mhState.testBuddy.py-28;
   }else if(msg.fromId===MH_TEST_PLAYER_ID&&mhState.testAccountAiOn!==false&&!mhIsTestProfile()){
-   mhTestAccountUpdatePos(mhState,wi);
    nx=mhState.testAccountNpc.px;
    ny=mhState.testAccountNpc.py-28;
   }
@@ -3335,14 +3523,71 @@ function mhAgentMaybeReplyToIngest(msg){
  }
 }
 function mhTestBuddyDefault(){
- return {on:true,id:MH_TEST_BUDDY_ID,name:MH_TEST_BUDDY_NAME,morphId:'ex-welcome',phase:0,px:0,py:0};
+ return {on:true,id:MH_TEST_BUDDY_ID,name:MH_TEST_BUDDY_NAME,morphId:'ex-welcome',phase:0,px:0,py:0,dir:0,wait:0,walkPhase:0,moving:false,worldInit:-1};
 }
-function mhTestBuddyUpdatePos(st,wi){
- if(!st?.testBuddy?.on) return;
+function mhTestAgentMorphName(save){
+ const m=mhMorph(save?.wearing);
+ return m?m.name.replace(/ Noobie$/,''):'Welcome';
+}
+function mhTestAgentSpawnNearPlayer(st,wi,b,offX){
+ const map=MH_WORLD_MAPS[wi];
  const pos=mhWalkEnsurePos(st,wi);
+ b.px=pos.px+offX;
+ b.py=pos.py+(offX>0?-12:12);
+ mhClampWalkPos(map,b);
+ for(let i=0;i<8&&mhWalkCollide(map,b.px,b.py,8);i++){
+  b.px=pos.px+((i%2)?-offX:offX)*0.6;
+  b.py=pos.py+((i%3)-1)*28;
+  mhClampWalkPos(map,b);
+ }
+ b.dir=Math.random()*Math.PI*2;
+ b.wait=0.2+Math.random()*0.8;
+ b.walkPhase=b.walkPhase||0;
+ b.moving=false;
+ b.worldInit=wi;
+}
+function mhTestAgentWander(st,map,b,playerPos,dt){
+ if(!b||!map||!playerPos) return;
+ const step=Math.max(0.008,Math.min(0.05,dt||0.016));
+ b.phase=(b.phase||0)+step*3;
+ b.wait=(b.wait||0)-step;
+ if(b.wait<=0){
+  const park=mhParkCenter(map);
+  if(Math.random()<0.24&&park){
+   b.dir=Math.atan2(park.py-b.py,park.px-b.px)+(Math.random()-0.5)*0.55;
+  }else if(map.hideouts?.length&&Math.random()<0.2){
+   const g=map.hideouts[mhHashStr(String(b.phase)+String(playerPos.px))%map.hideouts.length];
+   const gx=(g.tx+g.w/2)*MH_TILE, gy=(g.ty+g.h/2)*MH_TILE;
+   b.dir=Math.atan2(gy-b.py,gx-b.px)+(Math.random()-0.5)*0.5;
+  }else{
+   b.dir=(b.dir||0)+(Math.random()-0.5)*1.4;
+  }
+  b.wait=0.35+Math.random()*2.2;
+ }
+ const dist=Math.hypot(b.px-playerPos.px,b.py-playerPos.py);
+ if(dist>300) b.dir=Math.atan2(playerPos.py-b.py,playerPos.px-b.px)+(Math.random()-0.5)*0.35;
+ else if(dist<44&&Math.random()<0.03) b.dir=Math.atan2(b.py-playerPos.py,b.px-playerPos.px)+Math.random()*0.4;
+ const spd=dist>140?0.58:0.46;
+ let npx=b.px+Math.cos(b.dir)*spd, npy=b.py+Math.sin(b.dir)*spd;
+ if(mhWalkCollide(map,npx,b.py,7)||mhWalkCollide(map,b.px,npy,7)){
+  b.dir+=Math.PI*0.55+Math.random()*0.5;
+  npx=b.px+Math.cos(b.dir)*spd*0.5;
+  npy=b.py+Math.sin(b.dir)*spd*0.5;
+ }
+ if(!mhWalkCollide(map,npx,npy,7)){
+  b.moving=Math.hypot(npx-b.px,npy-b.py)>0.05;
+  b.px=npx; b.py=npy;
+  if(b.moving) b.walkPhase=(b.walkPhase||0)+0.26;
+ }else b.moving=false;
+ mhClampWalkPos(map,b);
+}
+function mhTestBuddyUpdatePos(st,wi,dt){
+ if(!st?.testBuddy?.on) return;
  const b=st.testBuddy;
- b.px=pos.px+72;
- b.py=pos.py-18;
+ const map=MH_WORLD_MAPS[wi];
+ const pos=mhWalkEnsurePos(st,wi);
+ if(b.worldInit!==wi||!b.px) mhTestAgentSpawnNearPlayer(st,wi,b,76);
+ mhTestAgentWander(st,map,b,pos,dt);
 }
 function mhAiChatCfg(){
  try{
@@ -3368,12 +3613,13 @@ function mhAiEnsureHist(st){
  if(!st.aiHist) st.aiHist={buddy:[],account:[]};
  return st.aiHist;
 }
-function mhAiSystemPrompt(agent){
- const rules='Kid-safe Lithos Morph Hunt: kind only, no bullying, dating, flirting, IRL meetups, personal info, hate, sexual topics, drugs. Discord OK. Stay under 160 characters total. Game: WASD, E fight anytime, groves, Plague Doctor bugs, UPDATE100 gacha, open play morphs, friend codes, Global/Server/Friends chat.';
+function mhAiSystemPrompt(agent,save){
+ const morph=mhTestAgentMorphName(save);
+ const rules='Kid-safe Lithos Morph Hunt: kind only, no bullying, dating, flirting, IRL meetups, personal info, hate, sexual topics, drugs. Discord OK. Max 180 characters. Never say you are AI/bot/a language model. Game: WASD, E fight, groves, Plague bugs, gacha, chat tabs Global/Server/Friends.';
  if(agent==='account'){
-  return 'You are Test Account, a super chatty co-op tester in Morph Hunt. Sound like an excited teammate: 2-3 short sentences, light emoji, often ask a friendly follow-up question. React to what they said; suggest duels, morphs, or exploring. '+rules;
+  return 'You are "Test Account", a real player testing co-op chat in Morph Hunt. Talk like a friendly kid on Discord: casual, react to THEIR exact message, use "yeah", "oh nice", "wait", "lol" sometimes. Mention duels, morphs, 2nd tab, or exploring. Player morph: '+morph+'. One emoji max. '+rules;
  }
- return 'You are Test Buddy, a bubbly robot guide on the map in Morph Hunt. Talk a lot (2-3 short sentences), teach tricks, celebrate wins, ask what they want to try next. Warm, playful, light emoji. '+rules;
+ return 'You are "Test Buddy", a friend walking the map in Morph Hunt (not a tour guide robot). Sound human: short, warm, react to what they said, ask one natural question. You wander parks/groves on your own. Player morph: '+morph+'. One emoji max. '+rules;
 }
 async function mhAiGeminiReply(cfg,system,history,userText){
  const preferred=(cfg.model||MH_GEMINI_MODEL).replace(/^models\//,'');
@@ -3390,7 +3636,7 @@ async function mhAiGeminiReply(cfg,system,history,userText){
  const body={
   systemInstruction:{parts:[{text:system}]},
   contents,
-  generationConfig:{temperature:0.95,maxOutputTokens:220,topP:0.94}
+  generationConfig:{temperature:1.02,maxOutputTokens:256,topP:0.92}
  };
  const url=base+'/models/'+encodeURIComponent(preferred)+':generateContent';
  const res=await fetch(url,{
@@ -3403,7 +3649,7 @@ async function mhAiGeminiReply(cfg,system,history,userText){
  const parts=data.candidates&&data.candidates[0]&&data.candidates[0].content&&data.candidates[0].content.parts;
  let text=parts&&parts.map(p=>p.text||'').join('').trim();
  if(!text) throw new Error('Empty AI');
- return text.slice(0,160);
+ return text.slice(0,180);
 }
 async function mhAiAgentText(st,agent,playerText){
  const cfg=mhAiChatCfg();
@@ -3411,7 +3657,7 @@ async function mhAiAgentText(st,agent,playerText){
  const hist=mhAiEnsureHist(st)[mhAiHistKey(agent)];
  hist.push({role:'user',content:playerText.slice(0,160)});
  try{
-  const reply=await mhAiGeminiReply(cfg,mhAiSystemPrompt(agent),hist,playerText);
+  const reply=await mhAiGeminiReply(cfg,mhAiSystemPrompt(agent,st.save),hist,playerText);
   const mod=mhChatModerate(reply);
   const safe=mod.ok?reply:'Nice! Let\'s keep exploring the map together! 🎮';
   hist.push({role:'assistant',content:safe});
@@ -3435,8 +3681,8 @@ function mhAgentPostChat(st,save,agentId,agentName,morphId,reply,channel,toId,my
   text:reply.slice(0,160),
   t:Date.now()
  };
- if(agentId===MH_TEST_BUDDY_ID) mhTestBuddyUpdatePos(st,wi);
- else mhTestAccountUpdatePos(st,wi);
+ if(agentId===MH_TEST_BUDDY_ID) mhTestBuddyUpdatePos(st,wi,0.016);
+ else mhTestAccountUpdatePos(st,wi,0.016);
  mhChatIngest(msg);
  try{ mhPlaySfx('ui'); }catch(_){}
 }
@@ -3450,7 +3696,8 @@ function mhAgentMaybeReply(st,save,agent,playerText,channel,toId,myId){
   if(mhIsTestProfile()||st.testAccountAiOn===false) return;
   if(channel==='friend'&&toId&&toId!==MH_TEST_PLAYER_ID) return;
  }
- const delay=isBuddy?(280+Math.floor(Math.random()*520)):(450+Math.floor(Math.random()*650));
+ const typing=700+Math.min(1600,String(playerText||'').length*32)+Math.floor(Math.random()*500);
+ const delay=isBuddy?typing:(typing+180);
  const agentId=isBuddy?MH_TEST_BUDDY_ID:MH_TEST_PLAYER_ID;
  const agentName=isBuddy?MH_TEST_BUDDY_NAME:'Test Account';
  const morphId=isBuddy?(st.testBuddy?.morphId||'ex-welcome'):(st.testAccountNpc?.morphId||'ex-welcome');
@@ -3460,25 +3707,26 @@ function mhAgentMaybeReply(st,save,agent,playerText,channel,toId,myId){
   if(!isBuddy&&(mhIsTestProfile()||mhState.testAccountAiOn===false)) return;
   let reply=null;
   if(mhAiHasBrain()) reply=await mhAiAgentText(mhState,agent,playerText);
-  if(!reply) reply=mhTestBuddyPickReply(playerText,isBuddy?'buddy':'account');
+  if(!reply) reply=mhTestBuddyPickReply(playerText,isBuddy?'buddy':'account',mhState.save);
   mhAgentPostChat(mhState,mhState.save,agentId,agentName,morphId,reply,channel,toId,myId);
  },delay);
 }
-function mhTestAccountUpdatePos(st,wi){
+function mhTestAccountUpdatePos(st,wi,dt){
  if(!st) return;
- if(!st.testAccountNpc) st.testAccountNpc={phase:0,morphId:'ex-welcome',px:0,py:0};
- const pos=mhWalkEnsurePos(st,wi);
+ if(!st.testAccountNpc) st.testAccountNpc={phase:2.2,morphId:'ex-welcome',px:0,py:0,dir:0,wait:0,walkPhase:0,moving:false,worldInit:-1};
+ if(mhIsTestProfile()||st.testAccountAiOn===false) return;
  const b=st.testAccountNpc;
- b.px=pos.px-68;
- b.py=pos.py-14;
+ const map=MH_WORLD_MAPS[wi];
+ const pos=mhWalkEnsurePos(st,wi);
+ if(b.worldInit!==wi||!b.px) mhTestAgentSpawnNearPlayer(st,wi,b,-82);
+ mhTestAgentWander(st,map,b,pos,dt);
 }
 function mhDrawTestAccountNpc(ctx,st,wi,t){
  if(mhIsTestProfile()||st.testAccountAiOn===false) return;
- mhTestAccountUpdatePos(st,wi);
  const b=st.testAccountNpc;
  const m=mhMorph(b.morphId)||mhMorph('ex-welcome');
  if(!m) return;
- mhPaintNoobWorld(ctx,m,b.px,b.py,0.88,1,false,t,0,true,false);
+ mhPaintNoobWorld(ctx,m,b.px,b.py,0.88,1,false,t,b.walkPhase||0,false,!!b.moving);
  ctx.fillStyle='rgba(0,0,0,.75)'; ctx.fillRect(b.px-56,b.py-98,112,16);
  ctx.fillStyle='#ffd080'; ctx.font='bold 9px system-ui,sans-serif'; ctx.textAlign='center';
  ctx.fillText('🧪 Test Account',b.px,b.py-86);
@@ -3488,17 +3736,20 @@ function mhDrawTestAccountNpc(ctx,st,wi,t){
   mhDrawChatBubble(ctx,b.px,b.py-56,line.text,false);
  }
 }
-function mhTestBuddyPickReply(playerText,agent){
+function mhTestBuddyPickReply(playerText,agent,save){
  const fold=mhChatFold(playerText);
+ const morph=mhTestAgentMorphName(save);
+ const snippet=String(playerText||'').trim().replace(/\s+/g,' ').slice(0,36);
+ const echo=snippet.length>2?(' "'+snippet+(snippet.length>=36?'…':'')+'" — '):'';
  if(/\b(idle|quiet|waiting)\b/.test(fold)||/\[idle\]/.test(fold)){
   return agent==='account'
-   ? 'Still here! Type anything — I\'ll answer. Want to open a 2nd tab as Test Account? 🧪'
-   : 'I\'m still orbiting you! Press / to chat or E at a grove. What should we do next? 🤖';
+   ? 'Still wandering the map… you good? I\'ll reply to anything — wanna hit a grove together?'
+   : 'I\'m poking around parks on my own lol — you find any cool morphs yet?';
  }
- if(/\b(hello|hi|hey|sup|yo)\b/.test(fold)){
+ if(/\b(hello|hi|hey|sup|yo|wassup)\b/.test(fold)){
   return agent==='account'
-   ? 'Hey hey! 🧪 Test Account here — I love testing Global chat with you. What morph are you wearing?'
-   : 'Hey! I\'m Test Buddy 🤖 — I\'m super chatty today! Press / or ↑ anytime. Want a duel tip?';
+   ? 'hey! yeah I\'m here 🧪'+echo+'what\'s up? I\'m on '+morph+' vibes today.'
+   : 'oh hey! 👋'+echo+'I was just walking the plaza — you fighting or hunting morphs?';
  }
  if(/\b(fight|duel|battle|obby)\b/.test(fold)) return 'Dashed grove + E = fight time! ⚔ I\'ll cheer from right beside you — rematch?';
  if(/\b(follow|come|this way)\b/.test(fold)) return 'On my way! I stick near you on the map. Lead the way — grove or park? 🏃';
@@ -3526,8 +3777,8 @@ function mhTestBuddyPickReply(playerText,agent){
 }
 function mhAgentIdlePrompt(agent){
  return agent==='account'
-  ? '[idle] Player is exploring quietly. Say something upbeat as Test Account — invite chat, duels, or 2nd-tab co-op. Ask one question.'
-  : '[idle] Player is quiet on the map. As Test Buddy, say something friendly and helpful — tip about E fight, morphs, or chat tabs. Ask one question.';
+  ? '[idle] You are wandering the map alone. Say something casual like a real player — noticed a grove, bored, want company. One question.'
+  : '[idle] You are walking parks solo. Say something human and short — comment on the map, morphs, or invite them to chat. One question.';
 }
 function mhAgentScheduleIdle(st){
  if(!st) return;
@@ -3580,11 +3831,10 @@ function mhTestAccountMaybeReply(st,save,playerText,channel,toId,myId){
 }
 function mhDrawTestBuddy(ctx,st,wi,t){
  if(!st?.testBuddy?.on) return;
- mhTestBuddyUpdatePos(st,wi);
  const b=st.testBuddy;
  const m=mhMorph(b.morphId)||mhMorph('ex-welcome');
  if(!m) return;
- mhPaintNoobWorld(ctx,m,b.px,b.py,0.9,1,false,t,0,true,false);
+ mhPaintNoobWorld(ctx,m,b.px,b.py,0.9,1,false,t,b.walkPhase||0,false,!!b.moving);
  ctx.fillStyle='rgba(0,0,0,.75)'; ctx.fillRect(b.px-52,b.py-98,104,16);
  ctx.fillStyle='#80e8ff'; ctx.font='bold 9px system-ui,sans-serif'; ctx.textAlign='center';
  ctx.fillText('🤖 '+MH_TEST_BUDDY_NAME,b.px,b.py-86);
@@ -3593,6 +3843,149 @@ function mhDrawTestBuddy(ctx,st,wi,t){
  if(line&&line.until>performance.now()){
   mhDrawChatBubble(ctx,b.px,b.py-56,line.text,false);
  }
+}
+function mhNpcPersonality(m){
+ if(!m) return 'peppy';
+ if(m.voidKing) return 'king';
+ if(m.plagueDoctor) return 'plague';
+ if(m.voidFallen||m.rarity==='voidfallen') return 'void';
+ if(m.rarity==='exclusive'||m.rarity==='legendary') return 'legend';
+ if(m.rarity==='secret'||m.rarity==='exotic') return 'mystery';
+ if(m.rarity==='epic') return 'cool';
+ return 'peppy';
+}
+function mhNpcPickLine(list,seed){
+ if(!list?.length) return '…';
+ return list[(mhHashStr(seed)>>>0)%list.length];
+}
+function mhNpcReactLine(m,save,wi,trigger,ctx){
+ if(!m) return '';
+ const pers=mhNpcPersonality(m);
+ const wear=mhMorph(save?.wearing);
+ const wName=(wear?.name||'Your Noobie').replace(/ Noobie$/,'');
+ const nName=m.name.replace(/ Noobie$/,'');
+ const fold=mhChatFold(ctx?.text||'');
+ const snippet=String(ctx?.text||'').trim().replace(/\s+/g,' ').slice(0,28);
+ const seed=m.id+'|'+trigger+'|'+(ctx?.text||'')+'|'+(ctx?.tick||0)+'|'+pers;
+ const echo=snippet.length>2?(' "'+snippet+(snippet.length>=28?'…':'')+'"') : '';
+ const voidMap=wi===MH_VOID_WORLD;
+ const generic={
+  peppy:['Nice day on the map!','I could use a rematch.','Your '+wName+' look is solid!','Grove weather is perfect.'],
+  cool:['Hmm. Interesting.','Not bad, traveler.','Keep your guard up.','Epic energy today.'],
+  mystery:['…did you hear that?','Secrets hide in the dashed box.','Shh. The grove is listening.','Rare vibes only.'],
+  legend:['Bow before legend! …kidding.','You picked a fight with the best.','My aura is built different.','Worth the unlock, right?'],
+  void:['The abyss whispers…','Red-black wind again?','Void marks don\'t lie.','Stay inside the ring or flee.'],
+  plague:['☣ …sickness nearby.','Cures fail. Shields don\'t.','Bugs crawl at every park.','Mask on. Storm on.'],
+  king:['Kneel— …fine, just don\'t touch the throne.','Forbidden storm weather.','Greataxe hours.','The void obeys me.']
+ };
+ if(trigger==='chat'){
+  if(/\b(hello|hi|hey|yo|sup)\b/.test(fold)) return mhNpcPickLine([
+   'Hey! I\'m '+nName+'. You rolling '+wName+'?',
+   'Oh hi — heard you on Server chat'+echo+'.',
+   'Heya! Want a duel or just vibing?'
+  ], seed);
+  if(/\b(fight|duel|battle|war|attack)\b/.test(fold)) return mhNpcPickLine([
+   'You want a fight? Press E — I\'m '+nName+'!',
+   'Duel me! Dashed grove rules still count.',
+   '⚔ I\'m ready if your '+wName+' is.'
+  ], seed);
+  if(/\b(morph|noobie|skin|wear)\b/.test(fold)) return mhNpcPickLine([
+   'That '+wName+' morph? Flashy!',
+   'I\'m stuck as '+nName+' but I respect the fit.',
+   'Morph tab energy — show me yours anytime.'
+  ], seed);
+  if(/\b(thank|thanks|ty|gg|nice|cool|awesome)\b/.test(fold)) return mhNpcPickLine([
+   'Anytime! GG — rematch?',
+   'Heh, thanks'+echo+'. You\'re alright.',
+   'GG! Catch you at the next grove.'
+  ], seed);
+  if(/\b(storm|void|plague|doctor|bug)\b/.test(fold)) return mhNpcPickLine([
+   voidMap?'Void storm day — stay close!':'Storms are scarier in the 🕳 abyss.',
+   'Black-red ring? I felt that rumble.',
+   'Plague bugs at parks — E to catch, lab on plaza.'
+  ], seed);
+  if(/\b(help|how|quest|where)\b/.test(fold)) return mhNpcPickLine([
+   'Hidden grove = dashed box. Walk in, press E.',
+   'Need coins? Win fights or gacha.',
+   'Park arrow on screen — bugs for plague quest.'
+  ], seed);
+  if(/\b(follow|come|wait)\b/.test(fold)) return mhNpcPickLine([
+   'I\'m anchored to my grove tile — you come here!',
+   'Lead the way — I\'ll yell from my spot.',
+   'Can\'t follow, but Server chat reaches me.'
+  ], seed);
+  return mhNpcPickLine([
+   'Heard you'+echo+' — I\'m '+nName+'.',
+   'Say that again? I was counting tiles.',
+   'Mood.'+(wear?.plagueDoctor?' Doctor vibes.':wear?.voidFallen?' Void vibes.':'')
+  ], seed);
+ }
+ if(trigger==='spot') return mhNpcPickLine([
+  'Oh — you found me in the grove!',
+  nName+' here. E to unlock or fight.',
+  'Careful, '+wName+'. I bite (sometimes).',
+  voidMap?'Abyss air… you feel that?':'Fresh park air!'
+ ], seed);
+ if(trigger==='defeat') return mhNpcPickLine([
+  'Okay okay, you win this round!',
+  '…I\'ll respawn. GG!',
+  'Rematch when my HP comes back.',
+  pers==='king'?'Impossible… fine.':'Worth the coins, huh?'
+ ], seed);
+ if(trigger==='hit') return mhNpcPickLine([
+  'Hey! That actually hurt!',
+  'Watch it — I aggro now!',
+  '⚔ You want smoke? Take this!',
+  pers==='void'?'The void bites back.':'Not cool!'
+ ], seed);
+ if(trigger==='player_hurt') return mhNpcPickLine([
+  'Got you! Stay out of my range.',
+  'One more hit and you\'re toast.',
+  'Learn the dodge pattern!',
+  'My turn 😈'
+ ], seed);
+ if(trigger==='idle') return mhNpcPickLine(generic[pers], seed);
+ return mhNpcPickLine(generic[pers], seed).slice(0,90);
+}
+function mhNpcCanReact(st,wi,m,coolMs){
+ if(!st||!m) return false;
+ if(!st.npcReactCd) st.npcReactCd={};
+ if(!st.npcReactCd[wi]) st.npcReactCd[wi]={};
+ const until=st.npcReactCd[wi][m.id]||0;
+ if(performance.now()<until) return false;
+ st.npcReactCd[wi][m.id]=performance.now()+(coolMs==null?3200:coolMs);
+ return true;
+}
+function mhNpcShowReaction(st,wi,m,text,ms){
+ if(!st||!m||!text) return;
+ if(!st.chatNpcLine) st.chatNpcLine={};
+ st.chatNpcLine[m.id]={text:String(text).slice(0,90),until:performance.now()+(ms||5000)};
+}
+function mhNpcReactToPlayerChat(st,save,wi,pos,channel,text){
+ if(!st||!save||channel==='friend') return;
+ let targets=[];
+ if(channel==='server'){
+  const near=mhWalkNearMorph(save,wi,pos,st);
+  if(near) targets=[near];
+ }else if(channel==='global'){
+  mhWorldMorphs(wi).forEach(m=>{
+   if(m.tileX==null) return;
+   const np=mhGetNpcPos(st,wi,m);
+   if(Math.hypot(np.px-pos.px,np.py-pos.py)<150) targets.push(m);
+  });
+  targets.sort((a,b)=>{
+   const da=Math.hypot(mhGetNpcPos(st,wi,a).px-pos.px,mhGetNpcPos(st,wi,a).py-pos.py);
+   const db=Math.hypot(mhGetNpcPos(st,wi,b).px-pos.px,mhGetNpcPos(st,wi,b).py-pos.py);
+   return da-db;
+  });
+  if(targets.length>2) targets=targets.slice(0,2);
+  if(channel==='global'&&Math.random()>0.55) targets=targets.slice(0,1);
+ }
+ targets.forEach((m,i)=>{
+  if(!mhNpcCanReact(st,wi,m,channel==='server'?1800:4500)) return;
+  const line=mhNpcReactLine(m,save,wi,'chat',{text,tick:Date.now()+i});
+  mhNpcShowReaction(st,wi,m,line);
+ });
 }
 function mhChatFocusInput(opts){
  opts=opts||{};
@@ -3607,6 +4000,12 @@ function mhChatFocusInput(opts){
 function mhChatSend(st,save,text){
  const raw=String(text||'').trim();
  if(!raw||!st||!save) return;
+ if(mhChatAdminCommand(st,save,raw)){
+  const inp=document.getElementById('mh-chat-input');
+  if(inp) inp.value='';
+  if(st) st.chatDraft='';
+  return;
+ }
  const mod=mhChatModerate(raw);
  if(!mod.ok){ mhToast('🛡️ '+mod.reason); return; }
  const prof=mhEnsureChatProfile(save);
@@ -3634,14 +4033,7 @@ function mhChatSend(st,save,text){
  try{ mhChatBroadcast?.postMessage(msg); }catch(_){}
  const pos=mhWalkEnsurePos(st,wi);
  mhChatSpawnBubble(st,pos.px,pos.py-28,raw,'you',5500);
- if(channel==='server'){
-  const near=mhWalkNearMorph(save,wi,pos,st);
-  if(near){
-   const replies=['Hey!','Want a duel?','Cool noobie!','I was gonna say that!','See you in the grove!'];
-   if(!st.chatNpcLine) st.chatNpcLine={};
-   st.chatNpcLine[near.id]={text:replies[mhHashStr(raw+near.id)%replies.length],until:performance.now()+5200};
-  }
- }
+ mhNpcReactToPlayerChat(st,save,wi,pos,channel,raw);
  mhChatRefreshLog();
  const inp=document.getElementById('mh-chat-input');
  if(inp) inp.value='';
@@ -3815,7 +4207,7 @@ function mhRenderChatPanel(save){
    <ul>${MH_CHAT_RULES.map(r=>`<li>${r}</li>`).join('')}</ul>
    <p class="mh-chat-rules-foot">Breaking rules blocks your message. Be kind &amp; stay in-game — no IRL meetups or personal info.</p>
   </details>
-  <p class="mh-chat-hint"><b>Test Buddy</b> on the map · <b>Server</b> = speech bubbles here. <b>🧪 2nd tab</b> = play with Test Account.</p>
+  <p class="mh-chat-hint"><b>Test Buddy</b> walks the map · <b>Server</b> = grove noobies react to what you say · <b>Global</b> = nearby NPCs sometimes chime in. <b>🧪 2nd tab</b> = Test Account.${mhIsLithosAdmin()?(' · <code>/admin help</code>'+(mhIsLithosOwnerAbuse()?' · owner <code>/admin abuse</code>':'')):''}</p>
  </aside>`;
 }
 function mhBindChatComposeHandlers(root){
@@ -4360,6 +4752,14 @@ function mhRedeemCode(raw){
   if(!mhHasMorph(save,pack.morph)) save.collected.push(pack.morph);
   mhWear(pack.morph,true);
  }
+ if(pack.staff){
+  try{
+   localStorage.setItem('lithos_staff','1');
+   if(typeof isStaff!=='undefined') isStaff=true;
+   if(typeof updateOwnerNav==='function') updateOwnerNav();
+  }catch(_){}
+  mhToast('🛡️ Lithos staff tools unlocked — chat: /admin help');
+ }
  mhSaveSave(save);
  if(pack.celebrate) mhCelebrationBurst(pack.toast||'🎂 Happy 100th UPDATE!');
  else mhToast('Code redeemed!');
@@ -4623,7 +5023,7 @@ function mhRefreshVoidCombatHud(save){
  const bar=document.getElementById('mh-void-combat-readout');
  if(bar){
   bar.innerHTML=vm
-   ?`<b>⚔ 1</b> ${atkN} · <b>✦ 2</b> ${powN} · <b>🌌 3</b> ${vm.plagueDoctor?MH_PLAGUE_GRAVEYARD_NAME:MH_VOID_STORM_NAME}${vm.voidKing?' · <b>🎬 4</b> '+MH_KING_CUTSCENE_TITLE:''} — <span style="color:#ff9090">FIGHT</span> · <span style="color:#80ffb0">instant</span>${vm.voidKing?' · 👑 boss dmg':''}${vm.plagueDoctor?' · ⚰ skeletons':''}`
+   ?`<b>⚔ 1</b> ${atkN} · <b>✦ 2</b> ${powN} · <b>🌌 3</b> ${vm.plagueDoctor?(MH_PLAGUE_GRAVEYARD_NAME+' + '+MH_PLAGUE_STORM_NAME):MH_VOID_STORM_NAME}${vm.voidKing?' · <b>🎬 4</b> '+MH_KING_CUTSCENE_TITLE:''} — <span style="color:#ff9090">FIGHT</span> · <span style="color:#80ffb0">instant</span>${vm.voidKing?' · 👑 boss dmg':''}${vm.plagueDoctor?' · ⚰ skeletons · 🌑🔴 ring':''}`
    :'⚔ <b>1</b> punch · <b>2</b> blast · <b>3</b> slam — fight map noobies! (Void morph = stronger)';
  }
  const btnA=document.getElementById('mh-void-atk');
@@ -4640,7 +5040,7 @@ function mhRefreshVoidCombatHud(save){
  }
  const btnS=document.getElementById('mh-void-storm');
  if(btnS){
-  btnS.textContent=vm?(vm.plagueDoctor?'⚰ 3 '+MH_PLAGUE_GRAVEYARD_NAME:'🌌 3 '+MH_VOID_STORM_NAME):'🌌 3 Storm';
+  btnS.textContent=vm?(vm.plagueDoctor?'🌑 3 '+MH_PLAGUE_STORM_NAME:'🌌 3 '+MH_VOID_STORM_NAME):'🌌 3 Storm';
  }
  const btn4=document.getElementById('mh-void-cutscene');
  if(btn4){
@@ -4834,9 +5234,14 @@ function mhPaintOneAncientShield(ctx,x,y,glyph,king,wobbleT){
  ctx.beginPath(); ctx.moveTo(0,-h*0.15); ctx.lineTo(0,h*0.28); ctx.stroke();
  ctx.restore();
 }
+function mhMorphHasPassiveAncientShields(m){
+ if(!m) return false;
+ if(m.plagueDoctor||m.voidKing) return true;
+ return m.rarity==='voidfallen'||!!m.voidFallen;
+}
 function mhDrawPassiveAncientShieldsOnCharacter(ctx,cx,cy,t,m,alpha){
- if(!m||!(m.rarity==='voidfallen'||m.voidFallen)) return;
- const king=!!m.voidKing;
+ if(!mhMorphHasPassiveAncientShields(m)) return;
+ const king=!!(m.voidKing||m.plagueDoctor);
  const a=(alpha==null?1:alpha)*0.92;
  const orbitRad=king?52:44;
  const oy=cy-(king?18:14);
@@ -4856,11 +5261,13 @@ function mhDrawPassiveAncientShieldsOnCharacter(ctx,cx,cy,t,m,alpha){
  ctx.restore();
 }
 function mhWrapPlayerRedBlackStorm(st,m,pos,duration){
- const dur=duration||(m?.voidKing?7:5.8);
+ const plague=!!m?.plagueDoctor;
+ const dur=duration||(m?.voidKing?7:plague?5.5:5.8);
  st.playerStormUntil=performance.now()+dur*1000;
- st.playerStormKing=!!m?.voidKing;
+ st.playerStormKing=!!m?.voidKing&&!plague;
+ st.playerStormPlague=plague;
  const px=pos.px, py=pos.py-10;
- const holeR=m?.voidKing?78:62;
+ const holeR=m?.voidKing?78:plague?70:62;
  const tag={followPlayer:true,foy:-10};
  mhSpawnVoidFx(st,{kind:'blackhole',x:px,y:py,vx:0,vy:0,color:'#ff2020',r:holeR,life:dur,spin:0,dr:0,...tag});
  mhSpawnVoidFx(st,{kind:'blackhole_core',x:px,y:py,vx:0,vy:0,color:'#050505',r:holeR*0.45,life:dur,spin:0.7,...tag});
@@ -4874,13 +5281,19 @@ function mhWrapPlayerRedBlackStorm(st,m,pos,duration){
  for(let i=0;i<14;i++){
   mhSpawnVoidFx(st,{kind:'spark',x:px,y:py,vx:Math.cos(i)*8,vy:Math.sin(i)*6,color:i%2?'#ff5050':'#1a1a1a',life:0.55+Math.random()*0.35,...tag,ox:Math.cos(i*0.9)*30,oy:Math.sin(i*0.9)*22});
  }
+ if(plague){
+  for(let i=0;i<8;i++){
+   mhSpawnVoidFx(st,{kind:'spark',x:px,y:py,vx:Math.cos(i*0.8)*6,vy:Math.sin(i*0.8)*5,color:i%2?'#80ffb0':'#cc0000',life:0.65,...tag,ox:Math.cos(i)*22,oy:Math.sin(i)*18});
+  }
+ }
 }
 function mhDrawRedBlackPlayerStorm(ctx,st,pos,t){
  if(!st.playerStormUntil||performance.now()>st.playerStormUntil) return;
  const king=!!st.playerStormKing;
- const cx=pos.px, cy=pos.py-(king?14:10);
+ const plague=!!st.playerStormPlague;
+ const cx=pos.px, cy=pos.py-(king?14:plague?12:10);
  const pulse=0.85+Math.sin(t*5.2)*0.15;
- const R=(king?92:76)*pulse;
+ const R=(king?92:plague?84:76)*pulse;
  const a=Math.min(1,(st.playerStormUntil-performance.now())/900);
  ctx.save();
  ctx.globalAlpha=0.55*a;
@@ -5209,6 +5622,7 @@ function mhDamageEnemy(st,wi,m,dmg,save){
   save.coins+=coins;
   mhSaveSave(save);
   mhToast('💥 '+m.name+' defeated! +'+coins+' coins');
+  if(mhNpcCanReact(st,wi,m,1200)) mhNpcShowReaction(st,wi,m,mhNpcReactLine(m,save,wi,'defeat',{tick:Date.now()}));
   mhSpawnVoidFx(st,{kind:'nova',x:0,y:0,vx:0,vy:0,color:'#ffe060',r:8,dr:70,life:0.45});
  }else{
   st.enemyHp[k]=hp;
@@ -5255,6 +5669,12 @@ function mhPlayerDamage(st,dmg,from){
  st.fightHitFlash=performance.now()+280;
  mhVoidShake(st,80,5);
  mhToast('🩸 '+(from||'Enemy')+' hits you! -'+Math.round(dmg));
+ if(st?.world!=null&&from){
+  const wi=st.world;
+  const morphs=mhWorldMorphs(wi);
+  const hit=morphs.find(x=>x.id===from||x.name===from);
+  if(hit&&mhNpcCanReact(st,wi,hit,900)) mhNpcShowReaction(st,wi,hit,mhNpcReactLine(hit,st.save,wi,'player_hurt',{tick:Date.now()}),4200);
+ }
  if(st.fightHp<=0){
   st.fightHp=st.fightMaxHp||100;
   mhToast('😵 Knocked out — HP restored! Keep fighting!');
@@ -5277,7 +5697,7 @@ function mhUpdateFight(st,save,wi,pos){
   if(m.voidKing) dmg=22;
   else if(m.rarity==='voidfallen') dmg=10;
   else if(m.rarity==='exotic') dmg=8;
-  mhPlayerDamage(st,dmg,m.name);
+  mhPlayerDamage(st,dmg,m.id);
  });
  Object.keys(st.enemyRespawnAt).forEach(k=>{
   if(st.enemyRespawnAt[k]&&now>=st.enemyRespawnAt[k]&&st.enemyHp[k]<=0){
@@ -5650,8 +6070,11 @@ function mhDrawPlagueSkeleton(ctx,x,y,phase){
 }
 function mhUsePlagueGraveyard(st,save,pos,wi){
  mhEnsureFight(st,save);
+ const m=mhVoidCombatMorph(save)||mhMorph('ex-plague-doctor');
  const dir=mhFacingDir(st);
  const base=Math.atan2(dir.dy,dir.dx);
+ mhWrapPlayerRedBlackStorm(st,m,pos,5.8);
+ if(wi!=null) mhFightAoe(st,save,wi,pos.px,pos.py-10,92,40);
  const tombs=[];
  for(let i=0;i<5;i++){
   const ang=base+((i-2)*0.42);
@@ -5669,7 +6092,7 @@ function mhUsePlagueGraveyard(st,save,pos,wi){
  }
  mhPlagueDoctorSay(save,2);
  mhVoidShake(st,140,8);
- mhToast('⚰ 3 · '+MH_PLAGUE_GRAVEYARD_NAME+'! Five tombstones — skeletons defeat your enemies!');
+ mhToast('⚰ 3 · '+MH_PLAGUE_GRAVEYARD_NAME+' + '+MH_PLAGUE_STORM_NAME+'! Tombstone legion inside a black-red void ring!');
  mhPlaySfx('ui');
 }
 function mhUpdatePlagueRaid(st,save,dt){
@@ -6102,9 +6525,10 @@ function mhPaintNoobWorld(ctx,m,x,y,sc,alpha,silhouette,t,walkPhase,flat,running
   return;
  }
  if(m.plagueDoctor){
-  mhDrawPassiveAncientShieldsOnCharacter(ctx,0,-8,t,m,alpha);
+  mhPaintVoidFallenStormAura(ctx,0,-8,t,alpha*0.75,silhouette,m);
   if(!flat) ctx.rotate(off.rot);
   mhPaintPlagueDoctorNoob(ctx,0,-8,sc*off.sc*1.06,alpha,silhouette,walkPhase,running,t);
+  mhDrawPassiveAncientShieldsOnCharacter(ctx,0,-8,t,m,alpha);
   ctx.restore();
   return;
  }
@@ -6430,12 +6854,14 @@ function mhWalkDrawFrame(){
  const canvas=document.getElementById('mh-walk-canvas');
  if(!canvas){ st.walkRaf=requestAnimationFrame(mhWalkDrawFrame); return; }
  let ctx;
+ let t=performance.now()/1000;
  try{
   ctx=canvas.getContext('2d');
   if(!ctx) throw new Error('no ctx');
  const W=canvas.width,H=canvas.height;
  const nowMs=performance.now();
  const tCut=nowMs/1000;
+ t=tCut;
  const dtCut=Math.min(0.05,(nowMs-(st.lastWalkMs||nowMs))/1000||0.016);
  st.lastWalkMs=nowMs;
  if(st.kingCutscene){
@@ -6457,7 +6883,6 @@ function mhWalkDrawFrame(){
  const pos=mhWalkEnsurePos(st,wi);
  if(mhMorphHuntTypingTarget(document.activeElement)) mhWalkClearKeys();
  const keys=st.walkKeys||{};
- const t=tCut;
  const dt=dtCut;
  let vx=0,vy=0;
  if(keys.left) vx-=1;
@@ -6489,7 +6914,20 @@ function mhWalkDrawFrame(){
  mhUpdateVoidFx(st,dt);
  mhUpdatePlagueRaid(st,save,dt);
  mhUpdateFight(st,save,wi,pos);
+ mhTestBuddyUpdatePos(st,wi,dt);
+ mhTestAccountUpdatePos(st,wi,dt);
  st.walkNearId=near?near.id:null;
+ if(near&&near.id!==st.prevNearMorphId){
+  st.prevNearMorphId=near.id;
+  if(mhNpcCanReact(st,wi,near,6000)) mhNpcShowReaction(st,wi,near,mhNpcReactLine(near,save,wi,'spot',{tick:Date.now()}));
+ }else if(!near) st.prevNearMorphId=null;
+ if(!near&&Math.random()<0.0022){
+  const morphs=mhWorldMorphs(wi).filter(m=>m.tileX!=null&&mhEnemyAlive(st,wi,m));
+  const pick=morphs[mhHashStr(String(st.walkPhase)+wi+Date.now())%Math.max(1,morphs.length)];
+  if(pick&&mhNpcCanReact(st,wi,pick,12000)){
+   mhNpcShowReaction(st,wi,pick,mhNpcReactLine(pick,save,wi,'idle',{tick:Date.now()}),4500);
+  }
+ }
  st.walkNearBuilding=mhWalkNearBuilding(pos,map);
  if(wi===MH_VOID_WORLD){
   let bv=null,bd=220;
@@ -6602,7 +7040,7 @@ function mhWalkDrawFrame(){
  if(st.testBuddy?.on){
   ctx.fillStyle='rgba(0,40,60,.88)'; ctx.fillRect(W/2-150,56,300,22);
   ctx.fillStyle='#80e8ff'; ctx.font='bold 11px system-ui'; ctx.textAlign='center';
-  ctx.fillText('🤖 Test Buddy nearby · / or ↑ to chat',W/2,72);
+  ctx.fillText('🤖 Test Buddy walks the map · / or ↑ to chat',W/2,72);
   ctx.textAlign='left';
  }
  mhEnsureFight(st,save);
@@ -6683,7 +7121,26 @@ function mhWalkDrawFrame(){
  }catch(err){
   console.error('[Morph Hunt walk]',err);
  }
+ mhDrawPlagueLivePreviewCanvas(t);
  st.walkRaf=requestAnimationFrame(mhWalkDrawFrame);
+}
+function mhDrawPlagueLivePreviewCanvas(t){
+ const cv=document.querySelector('.mh-plague-live-canvas');
+ if(!cv||!mhState||mhState.tab!=='hunt') return;
+ const doc=mhMorph('ex-plague-doctor');
+ if(!doc) return;
+ const ctx=cv.getContext('2d');
+ if(!ctx) return;
+ const W=cv.width,H=cv.height;
+ ctx.fillStyle='#0a1018';
+ ctx.fillRect(0,0,W,H);
+ ctx.strokeStyle='#304838';
+ ctx.lineWidth=1;
+ ctx.strokeRect(0.5,0.5,W-1,H-1);
+ const cx=W/2,cy=H*0.58;
+ mhDrawPlagueDoctorAura(ctx,cx,cy-10,t,0.9);
+ mhPaintPlagueDoctorNoob(ctx,cx,cy,0.7,1,false,t*0.35,false,t);
+ mhDrawPassiveAncientShieldsOnCharacter(ctx,cx,cy,t,doc,1);
 }
 function mhDemoMorph(anim,extra){
  return Object.assign({
@@ -6776,14 +7233,14 @@ function mhPreviewDrawFrame(){
   ctx.fillStyle='rgba(10,24,16,.75)'; ctx.fillRect(24,H-318,W-48,148);
   ctx.strokeStyle='#80ffb0'; ctx.lineWidth=2; ctx.strokeRect(24.5,H-318.5,W-49,147);
   ctx.fillStyle='#80ffb0'; ctx.font='bold 13px system-ui'; ctx.textAlign='left';
-  ctx.fillText('☣ PLAGUE DOCTOR — cures that fail · death symbols orbit',36,H-296);
+  ctx.fillText('☣ PLAGUE DOCTOR — same 🛡 ancient shields as Void Fallen · 💊☠ orbit',36,H-296);
   mhDrawPlagueDoctorAura(ctx,200,H-230,t,0.95);
   mhPaintNoobWorld(ctx,plague,200,H-218,1.05,1,false,t,phase,false,false);
   mhDrawPlagueDoctorAura(ctx,520,H-230,t,0.85);
   mhPaintNoobWorld(ctx,plague,520,H-218,1.05,1,false,t,phase,true,false);
   ctx.fillStyle='#c8ffd8'; ctx.font='bold 11px system-ui'; ctx.textAlign='center';
-  ctx.fillText('3D + orbiting 💊☠',200,H-178);
-  ctx.fillText('FLAT 2D',520,H-178);
+  ctx.fillText('3D · 🛡 '+MH_ANCIENT_GLYPHS.join(' '),200,H-178);
+  ctx.fillText('FLAT 2D · shields orbit',520,H-178);
   ctx.fillStyle='#a0c8b0'; ctx.font='10px system-ui'; ctx.textAlign='left';
   ctx.fillText('Unlock: park bugs on every map → Buddy Plaza ☣ Lab (5× E steps)',36,H-188);
  }
@@ -6882,12 +7339,12 @@ function mhRenderPlagueQuestPanel(save){
  else if(step<MH_PLAGUE_LAB_STEPS.length) status='All bugs caught! Go to 🏠 Buddy Plaza → green ☣ PLAGUE LAB (by court). F enter · E for lab step '+(step+1)+'/5.';
  else status='Complete the last lab step with E inside the lab.';
  return `<div class="mh-plague-preview-panel" role="region" aria-label="Plague Doctor preview">
-  <div class="mh-plague-preview-art" title="Plague Doctor preview">
-   <svg viewBox="0 0 100 130" aria-hidden="true">${mhClassicNoobSvg(doc)}</svg>
-   <span class="mh-plague-orbit">💊 ☠ 🧪 💀</span>
+  <div class="mh-plague-preview-art" title="Plague Doctor live preview — 🛡 shields + orbit">
+   <canvas class="mh-plague-live-canvas" width="100" height="130" aria-label="Plague Doctor live preview with ancient shields"></canvas>
+   <span class="mh-plague-orbit">🛡 ${MH_ANCIENT_GLYPHS.join(' ')} · 💊 ☠</span>
   </div>
   <div class="mh-plague-preview-body">
-   <h3>☣ Plague Doctor Noobie ${got?'✅':''}</h3>
+   <h3>☣ Void Fallen Plague Doctor ${got?'✅':''}</h3>
    <p class="mh-plague-status">${status}</p>
    <p class="mh-plague-quote">Voices: “I am the cure.” · “Oh my, the sickness…” · “Then I can fix you.”</p>
    <div class="mh-plague-preview-btns">
@@ -6949,7 +7406,7 @@ function mhRenderHunt(save, wi){
    <li><b>E</b> or <b>⚔ Fight</b> — fight <b>anytime</b> (practice if you already own the noobie). Groves still have unlock challenges. <b>F</b> = big homes.</li>
    <li><b>💬 Chat</b> — press <b>↑</b> or <b>/</b> or <b>T</b> to talk, <b>Enter</b> to send, <b>Esc</b> back to walking (rules apply). <b>Global</b> · <b>Server</b> · <b>Friends</b>.</li>
    <li><b>🏀 Court plaza</b> stays at spawn · <b>4 parks</b> around the map · <b>Mayor statue</b> on court: <b>J/L</b> crank, <b>R</b> flash light at all 4 mirrors → <b>Mayor Noobie</b>!</li>
-   <li><b>☣ Plague Doctor</b> — catch striped <b>🐛 bugs</b> (yellow/black or red/black) at <b>every park on every map</b> · <b>E</b> near bug · then <b>Buddy Plaza ☣ PLAGUE LAB</b> (by court): <b>F</b> enter · <b>E</b> ×5 (toxic → airlock → jar → syringe → inject) → <b>Plague Badge</b> + doctor morph with floating cures &amp; ☠!</li>
+   <li><b>☣ Void Fallen Plague Doctor</b> — quest on Buddy Plaza · <b>voidfallen</b> morph with 🛡 shields + <b>${MH_PLAGUE_STORM_NAME}</b> · bugs at every park · ☣ Lab <b>E</b>×5</li>
   </ol>
  </div>
  <div class="mh-walk-wrap mh-walk-with-chat">
@@ -7048,7 +7505,7 @@ function mhSigPanelHtml(m,canWear){
  const r=MH_RARITY[m.rarity]||MH_RARITY.common;
  const w=MH_WORLDS[m.world];
  let blurb=m.sigTag||'';
- if(m.plagueDoctor) blurb='☣ Full quest on Buddy Plaza · '+MH_PLAGUE_GRAVEYARD_NAME+' power 3';
+ if(m.plagueDoctor) blurb='☣ Buddy Plaza quest · 3 = '+MH_PLAGUE_GRAVEYARD_NAME+' + '+MH_PLAGUE_STORM_NAME;
  else if(m.mayorOnly) blurb='Mayor shrine on Buddy Plaza · J/L crank · R beam';
  const combat=(m.voidFallen&&m.voidAttack&&!m.plagueDoctor)?`<span class="mh-sig-combat">⚔ ${m.voidAttack.name} · ✦ ${m.voidPower?.name||'?'}</span>`:'';
  if(m.plagueDoctor&&m.voidAttack) blurb+=' · ⚔ '+m.voidAttack.name+' · ✦ '+m.voidPower.name;
@@ -7102,6 +7559,7 @@ function mhStarsDrawFrame(){
   ctx.lineWidth=1.5; ctx.strokeRect(cx-boxW/2+0.5,cy-boxH/2+0.5,boxW-1,boxH-1);
   ctx.save();
   if(m.plagueDoctor){
+   mhDrawPassiveAncientShieldsOnCharacter(ctx,cx,cy+8,t,m,1);
    mhDrawPlagueDoctorAura(ctx,cx,cy-4,t,0.9);
    mhPaintPlagueDoctorNoob(ctx,cx,cy+8,0.58,1,false,phase,false,t);
   }else if(m.voidKing){
@@ -7258,6 +7716,7 @@ function mhRender(){
     <span>${MH_TOTAL_COUNT} · 🕳 <b>${save.collected.filter(id=>mhMorph(id)?.rarity==='voidfallen').length}</b>/${MH_VOID_COUNT} Void Fallen</span>
     <span class="mh-live-build" id="mh-live-build" title="If this number is old, you are not on the latest file">✓ ${MH_BUILD}</span>
     ${owner?'<span class="mh-owner-tag">Owner</span>':''}
+    ${mhIsLithosStaff()&&!owner?'<span class="mh-owner-tag" style="border-color:rgba(128,200,255,.45);color:#a0d8ff">Lithos staff</span>':''}
     ${MH_OPEN_PLAY?'<span class="mh-owner-tag" style="border-color:rgba(128,255,176,.45);color:#80ffb0">Open play · all morphs</span>':''}
     ${mhIsTestProfile()?'<span class="mh-owner-tag" style="border-color:rgba(128,200,255,.5);color:#80d8ff">🧪 Test Account</span>':'<button type="button" class="mh-btn mh-btn-sm" id="mh-switch-test">🧪 Test Account</button>'}
     ${mhIsTestProfile()?'<button type="button" class="mh-btn mh-btn-sm ghost" id="mh-switch-main">👤 You</button>':''}
@@ -7329,7 +7788,7 @@ function playMorphHunt(){
  if(typeof closeGamesHub==='function'){ try{ closeGamesHub({skipHash:true}); }catch(_){} }
  mhMorphHuntHideSiteChrome();
  const openTab=mhMorphHuntOpenTab();
- mhState={save:mhLoadSave(),world:0,tab:openTab,page:0,huntPage:0,filter:'',indexKind:'all',walkPos:{},enemyHp:{},enemyAggro:{},enemyRespawnAt:{},enemyLastHit:{},enemyHitFlash:{},chatChannel:'global',chatSince:{global:0,server:0,friend:0},chatBubbles:[],chatNpcLine:{},testBuddy:mhTestBuddyDefault(),buddyAiOn:true,testAccountAiOn:true,testAccountNpc:{phase:2.2,morphId:'ex-welcome'},aiHist:{buddy:[],account:[]}};
+ mhState={save:mhLoadSave(),world:0,tab:openTab,page:0,huntPage:0,filter:'',indexKind:'all',walkPos:{},enemyHp:{},enemyAggro:{},enemyRespawnAt:{},enemyLastHit:{},enemyHitFlash:{},chatChannel:'global',chatSince:{global:0,server:0,friend:0},chatBubbles:[],chatNpcLine:{},npcReactCd:{},prevNearMorphId:null,testBuddy:mhTestBuddyDefault(),buddyAiOn:true,testAccountAiOn:true,testAccountNpc:{phase:2.2,morphId:'ex-welcome'},aiHist:{buddy:[],account:[]}};
  mhTestBuddyEnsureFriend(mhState.save);
  const wrap=document.createElement('div');
  wrap.id='morphhunt';

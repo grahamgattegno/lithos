@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- lithos-v:morph-hunt-v113-hardrefresh-v3 -->
+<!-- lithos-v:morph-hunt-v117-hardrefresh-v1 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1592,7 +1592,7 @@
   .mh-ide-restore-row{margin:0;text-align:center}
   .mh-plague-preview-panel{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin:0 0 10px;padding:12px 14px;border:2px solid rgba(128,255,176,.45);border-radius:14px;background:linear-gradient(135deg,rgba(10,28,18,.92),rgba(8,12,16,.95))}
   .mh-plague-preview-art{position:relative;width:100px;flex-shrink:0;background:#0a1018;border-radius:12px;border:1px solid #304838;padding:6px}
-  .mh-plague-preview-art svg{width:100%;height:auto;display:block}
+  .mh-plague-preview-art svg,.mh-plague-preview-art canvas{width:100%;height:auto;display:block}
   .mh-plague-orbit{display:block;margin-top:4px;font-size:11px;text-align:center;letter-spacing:.12em;color:#80ffb0}
   .mh-plague-preview-body{flex:1;min-width:200px}
   .mh-plague-preview-body h3{margin:0 0 6px;font-size:15px;color:#80ffb0}
@@ -5618,7 +5618,7 @@
 <script src="gemcopter.js?v=deploy-85"></script>
 <script>
 (function lithosLoadMorphHunt(){
- var MH_NEED='void-2d-v113';
+ var MH_NEED='void-2d-v117';
  var MH_CHAT_UI='compose-under-log-v2';
  var MH_SCRIPT='morph-hunt.'+MH_NEED+'.js';
  window.__LITHOS_MH_LATEST=MH_NEED;
@@ -5717,7 +5717,7 @@
 <script>
 window.lithosPlayMorphHunt=function lithosPlayMorphHunt(){
  try{if(typeof closeGamesHub==='function')closeGamesHub({skipHash:true});}catch(_){}
-  var NEED=window.__LITHOS_MH_LATEST||window.__LITHOS_MH_NEED||'void-2d-v113';
+  var NEED=window.__LITHOS_MH_LATEST||window.__LITHOS_MH_NEED||'void-2d-v117';
  var tries=0;
  function mhBuildNum(tag){
   var m=String(tag||'').match(/void-2d-v(\d+)/);
