@@ -5,8 +5,8 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v108';
-const MH_SCENERY_STAMP='TEST_ACCOUNT_v108';
+const MH_BUILD='void-2d-v109';
+const MH_SCENERY_STAMP='CHAT_COMPOSE_v109';
 const MH_TEST_BUDDY_ID='lithos-test-buddy';
 const MH_TEST_BUDDY_NAME='Test Buddy';
 const MH_TEST_PLAYER_ID='lithos-test-account';
@@ -3431,7 +3431,7 @@ function mhChatRefreshLog(){
   const tag=channel==='server'?(' · map '+m.world):'';
   const body=m.blocked?'<span class="mh-chat-blocked">[Hidden — chat rules]</span>':mhChatPublicText(m.text).html;
   return `<div class="mh-chat-line${mine?' mine':''}"><b>${mine?'You':(m.fromName||'Noobie')}</b>${tag}: ${body}</div>`;
- }).join(''):'<div class="mh-chat-line dim"><b>↑</b> or <b>/</b> or <b>T</b> → chat · type your message · <b>Enter</b> to send · <b>Esc</b> back to game</div>';
+ }).join(''):'<div class="mh-chat-line dim">Messages appear here. Type in <b>Your message</b> right below ↑ / / / T · <b>Enter</b> to send.</div>';
  log.scrollTop=log.scrollHeight;
 }
 async function mhChatPoll(st){
@@ -3542,12 +3542,19 @@ function mhRenderChatPanel(save){
    <button type="button" class="mh-chat-tab${ch==='server'?' on':''}" data-mh-chat-ch="server">Server</button>
    <button type="button" class="mh-chat-tab${ch==='friend'?' on':''}" data-mh-chat-ch="friends">Friends</button>
   </div>
-  <div id="mh-chat-log" class="mh-chat-log"></div>
+  <div id="mh-chat-log" class="mh-chat-log" aria-live="polite"></div>
   <div class="mh-chat-friends${ch==='friend'?'':' hidden'}" id="mh-chat-friends-ui">
    <div class="mh-chat-friend-add"><input type="text" id="mh-chat-friend-code" placeholder="Friend code…" autocomplete="off"/><button type="button" class="mh-btn mh-btn-sm" id="mh-chat-friend-add">Add</button></div>
    <select id="mh-chat-friend-pick" class="mh-chat-friend-pick"><option value="">— message friend —</option>${friends.map(f=>{const label=f===MH_TEST_BUDDY_ID?'🤖 Test Buddy':f===MH_TEST_PLAYER_ID?'🧪 Test Account':f;return `<option value="${f.replace(/"/g,'&quot;')}"${mhState?.chatFriendPeer===f?' selected':''}>${label}</option>`;}).join('')}</select>
   </div>
-  <p class="mh-chat-type-hint"><b>Type your own message</b> in the box — quick buttons are optional. Rules still apply to everything you send.</p>
+  <section class="mh-chat-compose" aria-label="Type your message">
+   <div class="mh-chat-compose-head"><span class="mh-chat-compose-label">✏️ Your message</span><span class="mh-chat-compose-keys">↑ · / · T</span></div>
+   <div class="mh-chat-row">
+    <input id="mh-chat-input" type="text" maxlength="160" placeholder="Type here… Enter to send · Esc = back to game" autocomplete="off"/>
+    <button type="button" class="mh-btn primary mh-btn-sm" id="mh-chat-send">Send</button>
+   </div>
+   <p class="mh-chat-type-hint">Messages show above · rules apply · quick say optional below</p>
+  </section>
   <div class="mh-chat-chips" aria-label="Quick safe phrases (optional)">
    <span class="mh-chat-chips-label">Quick say:</span>
    <button type="button" class="mh-chat-chip" data-mh-chat-quick="Hello!">Hello!</button>
@@ -3557,16 +3564,12 @@ function mhRenderChatPanel(save){
    <button type="button" class="mh-chat-chip" data-mh-chat-quick="GG!">GG!</button>
    <button type="button" class="mh-chat-chip" data-mh-chat-quick="Need help with a quest?">Quest help?</button>
   </div>
-  <details class="mh-chat-rules" open>
+  <details class="mh-chat-rules">
    <summary>🛡️ Chat rules (everyone)</summary>
    <ul>${MH_CHAT_RULES.map(r=>`<li>${r}</li>`).join('')}</ul>
    <p class="mh-chat-rules-foot">Breaking rules blocks your message. Be kind &amp; stay in-game — no IRL meetups or personal info.</p>
   </details>
-  <div class="mh-chat-row">
-   <input id="mh-chat-input" type="text" maxlength="160" placeholder="↑ / T to talk · Enter to send · Esc = game" autocomplete="off"/>
-   <button type="button" class="mh-btn primary mh-btn-sm" id="mh-chat-send">Send</button>
-  </div>
-  <p class="mh-chat-hint"><b>Test Buddy</b> walks with you &amp; replies in chat (practice before real friends). <b>Server</b> = bubbles on this map. Rules filter all messages.</p>
+  <p class="mh-chat-hint"><b>Test Buddy</b> on the map · <b>Server</b> = speech bubbles here. <b>🧪 2nd tab</b> = play with Test Account.</p>
  </aside>`;
 }
 function mhBindChat(root){

@@ -1723,7 +1723,13 @@
   .mh-chat-tabs{display:flex;gap:4px}
   .mh-chat-tab{flex:1;border:1px solid #3a4050;background:#1a2030;color:#a8b0c0;border-radius:8px;padding:6px 4px;font-size:10px;font-weight:800;cursor:pointer}
   .mh-chat-tab.on{border-color:var(--gold,#c9a94f);color:#f8e8c8;background:rgba(201,169,79,.12)}
-  .mh-chat-log{flex:1;min-height:120px;max-height:220px;overflow-y:auto;background:rgba(0,0,0,.35);border-radius:8px;padding:8px;border:1px solid #2a3040}
+  .mh-chat-log{flex:0 1 auto;min-height:100px;max-height:200px;overflow-y:auto;background:rgba(0,0,0,.35);border-radius:8px;padding:8px;border:1px solid #2a3040}
+  .mh-chat-compose{margin:0;padding:10px 10px 8px;border-radius:10px;border:2px solid rgba(201,169,79,.45);background:rgba(12,16,28,.92);box-shadow:0 4px 14px rgba(0,0,0,.35)}
+  .mh-chat-compose-head{display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:6px}
+  .mh-chat-compose-label{font-size:11px;font-weight:800;color:#ffe8a0}
+  .mh-chat-compose-keys{font-size:9px;color:#8090a8;font-weight:700}
+  .mh-chat-compose .mh-chat-type-hint{margin:6px 0 0;font-size:9px;color:#9098a8}
+  .mh-chat-compose .mh-chat-row input{font-size:13px;padding:10px 12px;border-color:rgba(201,169,79,.35)}
   .mh-chat-line{margin-bottom:6px;line-height:1.35;word-break:break-word}
   .mh-chat-line.mine{color:#ffe8a0}
   .mh-chat-line.dim{color:#808898;font-size:11px}
@@ -5598,7 +5604,7 @@
 <script src="gemcopter.js?v=deploy-85"></script>
 <script>
 (function lithosLoadMorphHunt(){
- var MH_NEED='void-2d-v108';
+ var MH_NEED='void-2d-v109';
  var MH_SCRIPT='morph-hunt.js';
  window.__LITHOS_MH_LATEST=MH_NEED;
  window.__LITHOS_MH_NEED=MH_NEED;
@@ -5646,7 +5652,7 @@
 <script>
 window.lithosPlayMorphHunt=function lithosPlayMorphHunt(){
  try{if(typeof closeGamesHub==='function')closeGamesHub({skipHash:true});}catch(_){}
-  var NEED=window.__LITHOS_MH_LATEST||window.__LITHOS_MH_NEED||'void-2d-v108';
+  var NEED=window.__LITHOS_MH_LATEST||window.__LITHOS_MH_NEED||'void-2d-v109';
  var tries=0;
  function mhBuildNum(tag){
   var m=String(tag||'').match(/void-2d-v(\d+)/);
