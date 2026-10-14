@@ -1588,6 +1588,48 @@
   .mh-plague-status{margin:0 0 6px;font-size:12px;font-weight:700;color:#e8f0e8;line-height:1.45}
   .mh-plague-quote{margin:0 0 8px;font-size:11px;color:#90a898;line-height:1.4}
   .mh-plague-preview-btns{display:flex;flex-wrap:wrap;gap:6px}
+  .mh-stars-tab{padding:4px 0 16px}
+  .mh-stars-tab h3{margin:0 0 6px;color:#ffe8a0;font-size:16px}
+  .mh-sig-hero{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin:12px 0 16px;padding:14px;border:2px solid var(--mh-rarity,#c9a94f);border-radius:16px;background:linear-gradient(135deg,rgba(16,20,28,.95),rgba(8,12,18,.98))}
+  .mh-sig-hero-art{width:120px;flex-shrink:0;background:#0a1018;border-radius:14px;border:1px solid #304050;padding:8px}
+  .mh-sig-hero-art svg{width:100%;height:auto;display:block}
+  .mh-sig-hero-body{flex:1;min-width:220px}
+  .mh-sig-hero-body h3{margin:0 0 6px;font-size:17px;color:var(--mh-rarity,#f0e8ff)}
+  .mh-sig-tag{margin:0 0 6px;font-size:12px;color:#c0c8d8;line-height:1.45}
+  .mh-sig-world{margin:0 0 10px;font-size:11px;color:#788898}
+  .mh-sig-hero-btns{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .mh-sig-section{margin:0 0 14px}
+  .mh-sig-section h4{margin:0 0 8px;font-size:13px;color:var(--gold,#c9a94f)}
+  .mh-sig-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:8px}
+  .mh-sig-card{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 6px;border:2px solid #2a3040;border-left:3px solid var(--mh-rarity,#666);border-radius:12px;background:#0a0e14;cursor:pointer;color:#e8e4f0;font-size:10px;text-align:center;outline:none!important}
+  .mh-sig-card svg{width:100%;max-width:72px;height:auto;display:block}
+  .mh-sig-card b{font-size:10px;line-height:1.2;color:#f0ecf8}
+  .mh-sig-card small{font-size:9px;color:var(--mh-rarity,#aaa);font-weight:800;text-transform:uppercase}
+  .mh-sig-card.on{border-color:var(--gold,#c9a94f);background:rgba(201,169,79,.1);box-shadow:0 0 0 1px rgba(201,169,79,.25)}
+  .mh-sig-one-page .mh-sig-all-canvas{display:block;width:100%;max-width:960px;margin:10px auto 16px;border-radius:14px;border:2px solid #304050;background:#060810;box-shadow:0 8px 32px rgba(0,0,0,.45)}
+  .mh-sig-all-scroll{max-height:min(62vh,720px);overflow:auto;padding:4px 2px 20px;border-top:1px solid #2a3040;margin-top:4px}
+  .mh-sig-all-list{display:flex;flex-direction:column;gap:10px}
+  .mh-sig-panel-full{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start;padding:12px;border:1px solid #2a3040;border-left:4px solid var(--mh-rarity,#888);border-radius:12px;background:#0a0e14}
+  .mh-sig-panel-art{width:88px;flex-shrink:0;background:#101820;border-radius:10px;border:1px solid #283040;padding:6px}
+  .mh-sig-panel-art svg{width:100%;height:auto;display:block}
+  .mh-sig-panel-meta{flex:1;min-width:180px}
+  .mh-sig-panel-meta h4{margin:0 0 4px;font-size:14px;color:var(--mh-rarity,#f0e8ff)}
+  .mh-sig-panel-showcase,.mh-morph-showcase-hero{width:100%;max-width:340px;flex-shrink:0}
+  .mh-morph-showcase-canvas{display:block;width:100%;max-width:340px;height:auto;border-radius:12px;border:2px solid #304050;background:#060810;box-shadow:0 6px 24px rgba(0,0,0,.4)}
+  .mh-morph-showcase-hero{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-start;margin:0 0 14px;padding:12px;border:2px solid var(--mh-rarity,#c9a94f);border-radius:14px;background:linear-gradient(135deg,rgba(16,20,28,.95),rgba(8,12,18,.98))}
+  .mh-morph-showcase-actions{flex:1;min-width:180px;display:flex;flex-direction:column;gap:8px}
+  .mh-morph-showcase-actions b{font-size:15px;color:var(--mh-rarity,#f0e8ff)}
+  .mh-sig-panel-btns{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+  .mh-morph-wear.pick{border-color:var(--gold,#c9a94f);box-shadow:0 0 0 2px rgba(201,169,79,.35)}
+  .mh-found-card-showcase{max-width:min(420px,94vw)}
+  .mh-found-showcase{width:100%;max-width:340px;margin:8px auto;display:block}
+  .mh-live-build{display:inline-block;margin-left:8px;padding:2px 8px;border-radius:6px;background:rgba(128,255,176,.15);border:1px solid rgba(128,255,176,.45);color:#80ffb0;font-size:10px;font-weight:800}
+  .mh-confetti-layer{position:fixed;inset:0;pointer-events:none;z-index:10050;overflow:hidden}
+  #morphhunt .mh-confetti-layer{position:absolute;z-index:200}
+  .mh-confetti-bit{position:absolute;top:-8%;animation:mhConfettiFall 2.8s ease-in forwards;opacity:.95;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+  @keyframes mhConfettiFall{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
+  .mh-update100-party{border:2px solid rgba(255,208,96,.45);border-radius:14px;padding:8px 10px 12px;margin-bottom:12px;background:linear-gradient(135deg,rgba(255,72,232,.08),rgba(255,208,96,.06))}
+  .mh-sig-combat{display:block;margin-top:4px;font-size:10px;color:#c898ff;font-weight:800}
   .mh-ide-preview-hint b{color:#ffe8a0}
   .mh-ide-preview-actions{display:flex;flex-direction:column;gap:6px;margin-top:8px}
   .mh-ide-open-ext{display:inline-block;width:fit-content;padding:6px 12px;border-radius:8px;background:rgba(201,169,79,.2);border:1px solid var(--gold,#c9a94f);color:#ffe8a0;font-weight:800;text-decoration:none;font-size:12px}
@@ -1683,13 +1725,22 @@
   .mh-chat-line.dim{color:#808898;font-size:11px}
   .mh-chat-row{display:flex;gap:6px}
   .mh-chat-row input{flex:1;min-width:0;padding:8px 10px;border-radius:8px;border:1px solid #4a5060;background:#0a0e14;color:#fff;font-size:12px}
-  .mh-chat-chips{display:flex;flex-wrap:wrap;gap:4px}
+  .mh-chat-type-hint{margin:0;font-size:10px;line-height:1.4;color:#c8d8ff}
+  .mh-chat-chips{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+  .mh-chat-chips-label{font-size:9px;font-weight:800;color:#8090a8;width:100%;margin-bottom:2px}
   .mh-chat-chip{border:1px solid #4a5060;background:#1a2030;color:#c0c8ff;border-radius:999px;padding:4px 8px;font-size:10px;cursor:pointer}
   .mh-chat-friend-add{display:flex;gap:4px;margin-bottom:4px}
   .mh-chat-friend-add input{flex:1;padding:6px 8px;border-radius:6px;border:1px solid #4a5060;background:#0a0e14;color:#fff;font-size:11px}
   .mh-chat-friend-pick{width:100%;padding:6px;border-radius:6px;border:1px solid #4a5060;background:#0a0e14;color:#fff;font-size:11px}
   .mh-chat-friends.hidden{display:none}
   .mh-chat-hint{margin:0;font-size:10px;line-height:1.4;color:#808898}
+  .mh-chat-rules{margin:0;padding:8px 10px;border-radius:10px;border:1px solid rgba(128,255,176,.35);background:rgba(8,20,16,.55);font-size:10px;line-height:1.45;color:#a8c0b0}
+  .mh-chat-rules summary{cursor:pointer;font-weight:800;color:#80ffb0;list-style:none}
+  .mh-chat-rules summary::-webkit-details-marker{display:none}
+  .mh-chat-rules ul{margin:8px 0 0;padding-left:16px}
+  .mh-chat-rules li{margin-bottom:4px}
+  .mh-chat-rules-foot{margin:8px 0 0;font-size:9px;color:#708878}
+  .mh-chat-blocked{color:#8090a0;font-style:italic}
   .mh-mini-status{font-weight:800;color:#ffe8a0;margin:0 0 8px;font-size:13px}
   .mh-mini-gembox{position:relative;height:120px;background:#0a0e14;border-radius:12px;border:1px solid #3a4050;overflow:hidden}
   .mh-mini-gem{position:absolute;width:36px;height:36px;border:none;border-radius:8px;cursor:pointer;background:linear-gradient(135deg,#ff6090,#ffd060);transform:rotate(45deg);box-shadow:0 2px 8px rgba(0,0,0,.4)}
@@ -5543,7 +5594,7 @@
 <script src="gemcopter.js?v=deploy-85"></script>
 <script>
 (function lithosLoadMorphHunt(){
- var MH_NEED='void-2d-v84';
+ var MH_NEED='void-2d-v105';
  var MH_SCRIPT='morph-hunt.js';
  window.__LITHOS_MH_LATEST=MH_NEED;
  window.__LITHOS_MH_NEED=MH_NEED;
@@ -5582,7 +5633,7 @@
 <script>
 window.lithosPlayMorphHunt=function lithosPlayMorphHunt(){
  try{if(typeof closeGamesHub==='function')closeGamesHub({skipHash:true});}catch(_){}
-  var NEED=window.__LITHOS_MH_LATEST||window.__LITHOS_MH_NEED||'void-2d-v84';
+  var NEED=window.__LITHOS_MH_LATEST||window.__LITHOS_MH_NEED||'void-2d-v105';
  var tries=0;
  function mhBuildNum(tag){
   var m=String(tag||'').match(/void-2d-v(\d+)/);
@@ -9555,6 +9606,13 @@ const WARRIORS=[
 ];
 const EMERALD_GUARDIAN_INDEX=3;
 const BOSSES_DEFEATED_KEY='lithos_bosses_defeated';
+function lithosIsLocalDevHost(){
+ try{
+  const h=location.hostname;
+  return h==='localhost'||h==='127.0.0.1'||h==='[::1]';
+ }catch(_){return false;}
+}
+window.lithosIsLocalDevHost=lithosIsLocalDevHost;
 const OWNER_FLAG_KEY='lithos_owner';
 const STAFF_FLAG_KEY='lithos_staff';
 const GLITCH_PACK_KEY='lithos_glitch_pack';
@@ -9595,6 +9653,11 @@ function loadGameProgress(){
  }
  }
  }catch(e){ bossesDefeated=0; isOwner=false; isStaff=false; }
+ if(/[?&]owner=1(?:&|$)/.test(location.search)){
+  isOwner=true;
+  bossesDefeated=BOSSES.length;
+  try{ localStorage.setItem(OWNER_FLAG_KEY,'1'); }catch(e){}
+ }
  restoreOwnerUnlocks();
 }
 function saveGameProgress(){
@@ -16364,6 +16427,20 @@ const SFX=(()=>{
    if(!ready('ui',70))return;
    noise(.08,.05,200,3500);
    tone('square',280,.04,.04);
+  },
+  hit(){
+   if(!ready('ui',55))return;
+   tone('square',420,.07,.09);
+   noise(.05,.06,350,2800);
+   tone('sine',160,.05,.06,80);
+  },
+  ui(){
+   if(!ready('ui',40))return;
+   tone('triangle',640,.07,.06);
+   tone('square',880,.04,.04);
+  },
+  resume(){
+   ac();
   },
   office(){
    if(!ready('ui',300))return;
