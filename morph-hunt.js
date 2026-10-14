@@ -5,9 +5,10 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v120';
-const MH_SCENERY_STAMP='STABLE_v120';
-const MH_SCRIPT_CANON='morph-hunt.void-2d-v120.js';
+const MH_BUILD='void-2d-v121';
+const MH_SCENERY_STAMP='STABLE_v121';
+const MH_SCRIPT_CANON='morph-hunt.void-2d-v121.js';
+const MH_MEGA_PARTY_MS=50*60*1000;
 const MH_CHAT_UI_STAMP='compose-under-log-v2';
 const MH_AGENT_IDLE_MS_MIN=12000;
 const MH_AGENT_IDLE_MS_MAX=22000;
@@ -1340,6 +1341,122 @@ function mhIsOwner(){
  return MH_OPEN_PLAY||mhIsRealOwner();
 }
 const MH_ADMIN_GIFT_KEY='lithos_mh_admin_gifts_v1';
+const MH_BAN_KEY='lithos_mh_chat_bans_v1';
+const MH_BAN_BROADCAST='lithos-mh-ban';
+let mhBanBroadcast=null;
+function mhBanDataRead(){
+ try{
+  const raw=JSON.parse(localStorage.getItem(MH_BAN_KEY)||'null');
+  if(raw&&typeof raw==='object') return {ids:raw.ids||{},names:raw.names||{}};
+ }catch(_){}
+ return {ids:{},names:{}};
+}
+function mhBanDataWrite(data){
+ try{ localStorage.setItem(MH_BAN_KEY,JSON.stringify({ids:data.ids||{},names:data.names||{}})); }catch(_){}
+}
+function mhBanBroadcastInit(){
+ if(mhBanBroadcast||typeof BroadcastChannel==='undefined') return;
+ mhBanBroadcast=new BroadcastChannel(MH_BAN_BROADCAST);
+ mhBanBroadcast.onmessage=(e)=>{ mhBanApplyRemote(e?.data); };
+}
+function mhBanApplyRemote(payload){
+ if(!payload?.id) return;
+ const data=mhBanDataRead();
+ if(payload.type==='unban'){
+  delete data.ids[payload.id];
+  if(payload.name) delete data.names[String(payload.name).trim().toLowerCase()];
+ }else{
+  data.ids[payload.id]={name:payload.name||payload.id,at:payload.at||Date.now(),by:payload.by||''};
+  if(payload.name) data.names[String(payload.name).trim().toLowerCase()]=payload.id;
+ }
+ mhBanDataWrite(data);
+}
+function mhBanPost(payload){
+ mhBanBroadcastInit();
+ try{ mhBanBroadcast?.postMessage(payload); }catch(_){}
+}
+function mhIsPlayerIdBanned(fromId,fromName){
+ const data=mhBanDataRead();
+ if(fromId&&data.ids[fromId]) return true;
+ const nm=String(fromName||'').trim().toLowerCase();
+ if(nm&&data.names[nm]) return true;
+ return false;
+}
+function mhIsChatBanned(profile){
+ if(!profile) return false;
+ return mhIsPlayerIdBanned(profile.id,profile.name);
+}
+function mhChatKnownPlayers(){
+ const map=new Map();
+ const add=(id,name)=>{
+  if(!id) return;
+  const prev=map.get(id);
+  map.set(id,{id,name:name||prev?.name||id});
+ };
+ add(MH_TEST_BUDDY_ID,MH_TEST_BUDDY_NAME);
+ add(MH_TEST_PLAYER_ID,'Test Account');
+ mhChatLoadStore().forEach(m=>{ if(m?.fromId) add(m.fromId,m.fromName); });
+ if(mhState?.save){
+  const me=mhEnsureChatProfile(mhState.save);
+  add(me.id,me.name);
+ }
+ return map;
+}
+function mhChatResolvePlayer(q){
+ q=String(q||'').trim();
+ if(!q) return null;
+ const fold=q.toLowerCase();
+ const players=mhChatKnownPlayers();
+ if(players.has(q)) return players.get(q);
+ for(const p of players.values()){
+  if(p.id===q||p.id.toLowerCase()===fold) return p;
+ }
+ let best=null;
+ for(const p of players.values()){
+  const nm=String(p.name||'').toLowerCase();
+  if(nm===fold||p.id.toLowerCase().includes(fold)||nm.includes(fold)){
+   if(!best||nm.length<String(best.name||'').length) best=p;
+  }
+ }
+ return best;
+}
+function mhAdminBanPlayer(save,targetQ){
+ const target=mhChatResolvePlayer(targetQ);
+ if(!target){ mhToast('🚫 No player match — use their friend code or name from chat'); return true; }
+ const me=mhEnsureChatProfile(save);
+ if(target.id===me.id){ mhToast('🚫 You cannot ban yourself'); return true; }
+ if(target.id===MH_TEST_BUDDY_ID){ mhToast('🚫 Test Buddy cannot be banned'); return true; }
+ const data=mhBanDataRead();
+ data.ids[target.id]={name:target.name||target.id,at:Date.now(),by:me.id};
+ if(target.name) data.names[String(target.name).trim().toLowerCase()]=target.id;
+ mhBanDataWrite(data);
+ mhBanPost({type:'ban',id:target.id,name:target.name,at:Date.now(),by:me.id});
+ mhToast('🚫 Banned '+ (target.name||target.id)+' · '+target.id);
+ return true;
+}
+function mhAdminUnbanPlayer(targetQ){
+ const data=mhBanDataRead();
+ let id='';
+ const q=String(targetQ||'').trim();
+ if(!q){ mhToast('Usage: /unban friendCode or display name'); return true; }
+ if(data.ids[q]) id=q;
+ else{
+  const p=mhChatResolvePlayer(q);
+  if(p) id=p.id;
+  else{
+   const nm=q.toLowerCase();
+   if(data.names[nm]) id=data.names[nm];
+  }
+ }
+ if(!id||!data.ids[id]){ mhToast('No ban found for “'+q+'”'); return true; }
+ const name=data.ids[id]?.name||id;
+ delete data.ids[id];
+ Object.keys(data.names).forEach(k=>{ if(data.names[k]===id) delete data.names[k]; });
+ mhBanDataWrite(data);
+ mhBanPost({type:'unban',id,name});
+ mhToast('✅ Unbanned '+name);
+ return true;
+}
 const MH_DISCO_WORLD_KEY='lithos_mh_disco_world_v1';
 const MH_DISCO_BROADCAST='lithos-mh-disco';
 const MH_DISCO_COINS=1000;
@@ -1474,10 +1591,12 @@ function mhChatAdminHelp(owner){
   '/give &lt;morph&gt; — free noobie for you',
   '/gift &lt;friendCode&gt; &lt;morph&gt; — queue gift on their device',
   '/admin help — staff list · /admin abuse — owner powers',
-  '/admin abuse storm · kingstorm · disco · coins · allmorphs · heal · world · plague · raid'
+  '/admin abuse storm · kingstorm · disco · coins · allmorphs · heal · world · plague · raid',
+  '/ban &lt;name or friend code&gt; · /unban &lt;name&gt;'
  ]:[
   '/give &lt;morph&gt; — free noobie (Lithos crew)',
   '/gift &lt;friendCode&gt; &lt;morph&gt; — give away a morph',
+  '/ban &lt;name or friend code&gt; · /unban &lt;name&gt;',
   '/admin help — staff commands'
  ];
  mhToast('🛡️ Lithos admin: '+lines.join(' · '));
@@ -1525,31 +1644,37 @@ function mhSpawnRainBits(layer,cls,glyphs,count,durMin,durMax){
  }
 }
 function mhOwnerMegaFx(ms){
+ ms=ms||MH_MEGA_PARTY_MS;
  const layer=mhEnsureMegaFxLayer();
  layer.innerHTML='';
+ layer._partyUntil=Date.now()+ms;
  const confetti=['🎉','🪩','🎊','✨','🎈','💯','⭐','🥳','🎁','💎','🌈','🔥'];
  const coins=['💰','🪙','💵','💴','💶','🪙','💰'];
  const morphs=['🎭','👾','🪩','💎','⭐','🌟','🦸','🧿','☄️','Exclusive','Void','Fallen'];
- mhSpawnRainBits(layer,'mh-confetti-bit',confetti,72,2,4.2);
- mhSpawnRainBits(layer,'mh-coin-rain-bit',coins,88,2.4,5);
- mhSpawnRainBits(layer,'mh-morph-rain-bit',morphs,56,2.8,5.5);
- let bursts=0;
+ const trimFx=()=>{ while(layer.childElementCount>380) layer.firstElementChild?.remove(); };
+ const burst=()=>{
+  if(Date.now()>layer._partyUntil||!layer.parentNode) return;
+  trimFx();
+  mhSpawnRainBits(layer,'mh-coin-rain-bit',coins,22,2.4,5.2);
+  mhSpawnRainBits(layer,'mh-confetti-bit',confetti,14,2,4);
+  mhSpawnRainBits(layer,'mh-morph-rain-bit',morphs,10,2.8,5.5);
+ };
+ burst();
+ burst();
  clearInterval(layer._coinIv);
- layer._coinIv=setInterval(()=>{
-  if(bursts++>5||!layer.parentNode) return clearInterval(layer._coinIv);
-  mhSpawnRainBits(layer,'mh-coin-rain-bit',coins,18,2.2,4.6);
-  mhSpawnRainBits(layer,'mh-confetti-bit',confetti,12,2,3.8);
- },650);
+ layer._coinIv=setInterval(burst,2800);
  clearTimeout(layer._tm);
  layer._tm=setTimeout(()=>{
   clearInterval(layer._coinIv);
+  layer._coinIv=null;
   layer.innerHTML='';
- },ms||9000);
+  mhToast('🪩 50-minute party ended — run /admin abuse again anytime!');
+ },ms);
 }
 function mhOwnerAbuseMega(st,save,pos){
  const wi=st?.world??0;
  mhPlayAbuseYay();
- mhOwnerMegaFx(10000);
+ mhOwnerMegaFx(MH_MEGA_PARTY_MS);
  mhCelebrationBurst('👑 MEGA ABUSE — YAY!',{quietSfx:true,coinRain:true,morphRain:true});
  save.collected=MH_MORPHS.map(m=>m.id);
  save.worldsUnlocked=MH_WORLDS.length;
@@ -1568,7 +1693,7 @@ function mhOwnerAbuseMega(st,save,pos){
  try{ mhUsePlagueGraveyard(st,save,pos,wi); }catch(_){}
  mhSaveSave(save);
  mhRender();
- mhToast('👑 YAY! All abuse powers · coin rain · every exclusive & void fallen · disco +1000 for everyone!');
+ mhToast('👑 YAY! 50-min coin rain · all abuse powers · disco +1000 for everyone!');
  return true;
 }
 function mhRunOwnerAbuse(st,save,pos,args){
@@ -1641,7 +1766,7 @@ function mhChatAdminCommand(st,save,raw){
  const cmd=(parts[0]||'').toLowerCase();
  const adminSub=(parts[1]||'').toLowerCase();
  const adminAbuse=cmd==='admin'&&adminSub==='abuse';
- const staffOnly=/^(give|gift|grant|admin)$/.test(cmd)||cmd==='help'&&adminSub==='admin';
+ const staffOnly=/^(give|gift|grant|admin|ban|unban)$/.test(cmd)||cmd==='help'&&adminSub==='admin';
  const ownerOnly=cmd==='abuse'||adminAbuse||cmd==='disco'||cmd==='party';
  if(staffOnly||ownerOnly||cmd==='help'){
   if(ownerOnly&&!mhIsLithosOwnerAbuse()){ mhToast('🔒 Owner-only — Secret Codes owner unlock or ?owner=1 (staff /give still works)'); return true; }
@@ -1655,6 +1780,17 @@ function mhChatAdminCommand(st,save,raw){
  if(cmd==='abuse') return mhRunOwnerAbuse(st,save,pos,parts.slice(1));
  if(!mhIsLithosAdmin()) return false;
  const wi=st?.world??0;
+ if(cmd==='ban'){
+  const who=parts.slice(1).join(' ').trim();
+  if(!who){
+   st.chatBanAwait=true;
+   mhToast('🚫 Ban — type that player’s friend code or name in your next message');
+   return true;
+  }
+  st.chatBanAwait=false;
+  return mhAdminBanPlayer(save,who);
+ }
+ if(cmd==='unban') return mhAdminUnbanPlayer(parts.slice(1).join(' ').trim());
  if(cmd==='give'||cmd==='grant'){
   const m=mhAdminFindMorph(parts.slice(1).join(' '));
   if(!m){ mhToast('No morph match — try ex-plague-doctor or ruby'); return true; }
@@ -3649,6 +3785,7 @@ function mhChatMergeMessages(incoming){
  return added;
 }
 function mhChatBroadcastInit(){
+ mhBanBroadcastInit();
  mhDiscoBroadcastInit();
  if(mhChatBroadcast||typeof BroadcastChannel==='undefined') return;
  mhChatBroadcast=new BroadcastChannel(MH_CHAT_BROADCAST);
@@ -3661,6 +3798,9 @@ function mhChatSpawnBubble(st,wx,wy,text,who,ms){
 }
 function mhChatIngest(msg,silent){
  if(!msg?.id||!mhState) return;
+ if(mhIsPlayerIdBanned(msg.fromId,msg.fromName)){
+  msg={...msg,blocked:true,text:'[Banned from Lithos chat]'};
+ }
  msg=mhChatWrapMessage(msg);
  const added=mhChatMergeMessages([msg]);
  if(!added) return;
@@ -4190,6 +4330,8 @@ function mhChatSend(st,save,text){
   if(st) st.chatDraft='';
   return;
  }
+ const profPre=mhEnsureChatProfile(save);
+ if(mhIsChatBanned(profPre)){ mhToast('🚫 You are banned from Lithos chat.'); return; }
  const mod=mhChatModerate(raw);
  if(!mod.ok){ mhToast('🛡️ '+mod.reason); return; }
  const prof=mhEnsureChatProfile(save);
