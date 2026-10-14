@@ -5,9 +5,9 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v118';
-const MH_SCENERY_STAMP='STABLE_v118';
-const MH_SCRIPT_CANON='morph-hunt.void-2d-v118.js';
+const MH_BUILD='void-2d-v119';
+const MH_SCENERY_STAMP='STABLE_v119';
+const MH_SCRIPT_CANON='morph-hunt.void-2d-v119.js';
 const MH_CHAT_UI_STAMP='compose-under-log-v2';
 const MH_AGENT_IDLE_MS_MIN=12000;
 const MH_AGENT_IDLE_MS_MAX=22000;
@@ -1481,14 +1481,13 @@ function mhChatAdminHelp(owner){
  mhToast('🛡️ Lithos admin: '+lines.join(' · '));
 }
 function mhOwnerAbuseHelp(){
- mhToast('👑 Owner /admin abuse: storm · kingstorm · disco · coins [N] · allmorphs · heal · world [N] · plague · raid · unlock');
+ mhToast('👑 Add a power after abuse — e.g. /admin abuse disco · storm · kingstorm · coins · allmorphs · heal · plague · raid · unlock');
 }
 function mhRunOwnerAbuse(st,save,pos,args){
- if(!mhIsLithosOwnerAbuse()){ mhToast('🔒 Owner only — ?owner=1 or Lithos owner code'); return true; }
+ if(!mhIsLithosOwnerAbuse()){ mhToast('🔒 Owner only — redeem owner code in Secret Codes, or open with ?owner=1'); return true; }
  const wi=st?.world??0;
  const sub=(args[0]||'').toLowerCase();
- if(!sub){ mhOwnerAbuseHelp(); return true; }
- if(sub==='help'||sub==='list'){ mhOwnerAbuseHelp(); return true; }
+ if(!sub||sub==='help'||sub==='list'){ mhOwnerAbuseHelp(); return true; }
  if(sub==='storm'||sub==='redstorm'){
   const wear=mhVoidCombatMorph(save)||mhMorph(save.wearing)||{};
   mhWrapPlayerRedBlackStorm(st,wear,pos,7);
@@ -1544,27 +1543,29 @@ function mhRunOwnerAbuse(st,save,pos,args){
   mhToast('👑 all maps unlocked');
   return true;
  }
- mhOwnerAbuseHelp();
+ mhToast('👑 Unknown abuse power “'+sub+'”. Try: disco · storm · kingstorm · coins · allmorphs · heal · world · plague · raid · unlock');
  return true;
 }
 function mhChatAdminCommand(st,save,raw){
  if(!String(raw||'').trim().startsWith('/')) return false;
  const parts=String(raw).slice(1).trim().split(/\s+/);
  const cmd=(parts[0]||'').toLowerCase();
- const adminAbuse=cmd==='admin'&&(parts[1]||'').toLowerCase()==='abuse';
- const staffOnly=/^(give|gift|grant|admin)$/.test(cmd)||cmd==='help'&&parts[1]==='admin';
- const ownerOnly=cmd==='abuse'||adminAbuse;
+ const adminSub=(parts[1]||'').toLowerCase();
+ const adminAbuse=cmd==='admin'&&adminSub==='abuse';
+ const staffOnly=/^(give|gift|grant|admin)$/.test(cmd)||cmd==='help'&&adminSub==='admin';
+ const ownerOnly=cmd==='abuse'||adminAbuse||cmd==='disco'||cmd==='party';
  if(staffOnly||ownerOnly||cmd==='help'){
-  if(ownerOnly&&!mhIsLithosOwnerAbuse()){ mhToast('🔒 Owner-only Lithos command'); return true; }
+  if(ownerOnly&&!mhIsLithosOwnerAbuse()){ mhToast('🔒 Owner-only — Secret Codes owner unlock or ?owner=1 (staff /give still works)'); return true; }
   if(staffOnly&&!adminAbuse&&!mhIsLithosAdmin()){ mhToast('🔒 Lithos staff or owner only — redeem LITHOSSTAFF in 🎲 Gacha'); return true; }
  }
- if(cmd==='help'&&parts[1]==='admin'){ mhChatAdminHelp(mhIsLithosOwnerAbuse()); return true; }
- if(cmd==='admin'&&parts[1]==='abuse') return mhRunOwnerAbuse(st,save,mhWalkEnsurePos(st,st?.world??0),parts.slice(2));
- if(cmd==='admin'&&(parts[1]==='help'||!parts[1])){ mhChatAdminHelp(mhIsLithosOwnerAbuse()); return true; }
- if(cmd==='abuse') return mhRunOwnerAbuse(st,save,mhWalkEnsurePos(st,st?.world??0),parts.slice(1));
+ const pos=mhWalkEnsurePos(st,st?.world??0);
+ if(cmd==='disco'||cmd==='party') return mhRunOwnerAbuse(st,save,pos,['disco']);
+ if(cmd==='help'&&adminSub==='admin'){ mhChatAdminHelp(mhIsLithosOwnerAbuse()); return true; }
+ if(cmd==='admin'&&adminSub==='abuse') return mhRunOwnerAbuse(st,save,pos,parts.slice(2));
+ if(cmd==='admin'&&(adminSub==='help'||!parts[1])){ mhChatAdminHelp(mhIsLithosOwnerAbuse()); return true; }
+ if(cmd==='abuse') return mhRunOwnerAbuse(st,save,pos,parts.slice(1));
  if(!mhIsLithosAdmin()) return false;
  const wi=st?.world??0;
- const pos=mhWalkEnsurePos(st,wi);
  if(cmd==='give'||cmd==='grant'){
   const m=mhAdminFindMorph(parts.slice(1).join(' '));
   if(!m){ mhToast('No morph match — try ex-plague-doctor or ruby'); return true; }
@@ -4301,7 +4302,7 @@ function mhRenderChatPanel(save){
    <ul>${MH_CHAT_RULES.map(r=>`<li>${r}</li>`).join('')}</ul>
    <p class="mh-chat-rules-foot">Breaking rules blocks your message. Be kind &amp; stay in-game — no IRL meetups or personal info.</p>
   </details>
-  <p class="mh-chat-hint"><b>Test Buddy</b> walks the map · <b>Server</b> = grove noobies react to what you say · <b>Global</b> = nearby NPCs sometimes chime in. <b>🧪 2nd tab</b> = Test Account.${mhIsLithosAdmin()?(' · <code>/admin help</code>'+(mhIsLithosOwnerAbuse()?' · owner <code>/admin abuse</code>':'')):''}</p>
+  <p class="mh-chat-hint"><b>Test Buddy</b> walks the map · <b>Server</b> = grove noobies react to what you say · <b>Global</b> = nearby NPCs sometimes chime in. <b>🧪 2nd tab</b> = Test Account.${mhIsLithosAdmin()?(' · <code>/admin help</code>'+(mhIsLithosOwnerAbuse()?' · owner <code>/admin abuse disco</code> or <code>/disco</code>':'')):''}</p>
  </aside>`;
 }
 function mhBindChatComposeHandlers(root){
