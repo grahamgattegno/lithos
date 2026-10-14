@@ -5,8 +5,9 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v111';
-const MH_SCENERY_STAMP='AI_BUDDY_v111';
+const MH_BUILD='void-2d-v112';
+const MH_SCENERY_STAMP='NO_AUTO_WALK_v112';
+const MH_FREEZE_NPC_WALK=true;
 const MH_GEMINI_BASE='https://generativelanguage.googleapis.com/v1beta';
 const MH_GEMINI_MODEL='gemini-flash-latest';
 const MH_CHAT_COMPOSE_UI=true;
@@ -2552,6 +2553,10 @@ function mhUpdateCivilians(st,map,wi,dt){
  if(!map.civilians) return;
  map.civilians.forEach(c=>{
   const s=mhCivState(st,wi,c);
+  if(MH_FREEZE_NPC_WALK){
+   s.px=c.px; s.py=c.py;
+   return;
+  }
   s.phase+=dt*3;
   if(!c.wander) return;
   s.wait-=dt;
@@ -3283,9 +3288,8 @@ function mhTestBuddyUpdatePos(st,wi){
  if(!st?.testBuddy?.on) return;
  const pos=mhWalkEnsurePos(st,wi);
  const b=st.testBuddy;
- b.phase=(b.phase||0)+0.035;
- b.px=pos.px+Math.cos(b.phase)*88+36;
- b.py=pos.py+Math.sin(b.phase*0.85)*42-24;
+ b.px=pos.px+72;
+ b.py=pos.py-18;
 }
 function mhAiChatCfg(){
  try{
@@ -3409,12 +3413,11 @@ function mhAgentMaybeReply(st,save,agent,playerText,channel,toId,myId){
 }
 function mhTestAccountUpdatePos(st,wi){
  if(!st) return;
- if(!st.testAccountNpc) st.testAccountNpc={phase:2.2,morphId:'ex-welcome',px:0,py:0};
+ if(!st.testAccountNpc) st.testAccountNpc={phase:0,morphId:'ex-welcome',px:0,py:0};
  const pos=mhWalkEnsurePos(st,wi);
  const b=st.testAccountNpc;
- b.phase=(b.phase||0)+0.032;
- b.px=pos.px+Math.cos(b.phase)*105-48;
- b.py=pos.py+Math.sin(b.phase*0.9)*44+18;
+ b.px=pos.px-68;
+ b.py=pos.py-14;
 }
 function mhDrawTestAccountNpc(ctx,st,wi,t){
  if(mhIsTestProfile()||st.testAccountAiOn===false) return;
@@ -3422,7 +3425,7 @@ function mhDrawTestAccountNpc(ctx,st,wi,t){
  const b=st.testAccountNpc;
  const m=mhMorph(b.morphId)||mhMorph('ex-welcome');
  if(!m) return;
- mhPaintNoobWorld(ctx,m,b.px,b.py,0.88,1,false,t,b.phase||0,true,false);
+ mhPaintNoobWorld(ctx,m,b.px,b.py,0.88,1,false,t,0,true,false);
  ctx.fillStyle='rgba(0,0,0,.75)'; ctx.fillRect(b.px-56,b.py-98,112,16);
  ctx.fillStyle='#ffd080'; ctx.font='bold 9px system-ui,sans-serif'; ctx.textAlign='center';
  ctx.fillText('🧪 Test Account',b.px,b.py-86);
@@ -3483,7 +3486,7 @@ function mhDrawTestBuddy(ctx,st,wi,t){
  const b=st.testBuddy;
  const m=mhMorph(b.morphId)||mhMorph('ex-welcome');
  if(!m) return;
- mhPaintNoobWorld(ctx,m,b.px,b.py,0.9,1,false,t,b.phase||0,true,false);
+ mhPaintNoobWorld(ctx,m,b.px,b.py,0.9,1,false,t,0,true,false);
  ctx.fillStyle='rgba(0,0,0,.75)'; ctx.fillRect(b.px-52,b.py-98,104,16);
  ctx.fillStyle='#80e8ff'; ctx.font='bold 9px system-ui,sans-serif'; ctx.textAlign='center';
  ctx.fillText('🤖 '+MH_TEST_BUDDY_NAME,b.px,b.py-86);
@@ -3499,6 +3502,7 @@ function mhChatFocusInput(opts){
  if(!inp) return false;
  try{ inp.focus(); }catch(_){}
  if(mhState) mhState.chatTyping=true;
+ mhWalkClearKeys();
  if(opts.slash&&!String(inp.value||'').trim()) inp.value='/';
  return true;
 }
@@ -6057,7 +6061,13 @@ function mhNpcWander(st,map,m,npc,dt,save){
  npc.px=m.tileX*MH_TILE+MH_TILE/2;
  npc.py=m.tileY*MH_TILE+MH_TILE/2;
  npc.walking=false;
- npc.phase+=dt*(mhHasMorph(save,m.id)?2:1.3);
+ if(!MH_FREEZE_NPC_WALK) npc.phase+=dt*(mhHasMorph(save,m.id)?2:1.3);
+}
+function mhWalkClearKeys(){
+ if(mhState) mhState.walkKeys={};
+}
+function mhWalkVisClear(){
+ if(document.hidden) mhWalkClearKeys();
 }
 function mhDrawHideoutGroves(ctx,map,pos,wi){
  const abyss=wi===MH_VOID_WORLD||map.abyssStamp;
@@ -6254,6 +6264,8 @@ function mhWalkStop(){
  if(mhState) mhState.walkRaf=0;
  document.removeEventListener('keydown',mhWalkKeysDown,true);
  document.removeEventListener('keyup',mhWalkKeysUp,true);
+ window.removeEventListener('blur',mhWalkClearKeys);
+ mhWalkClearKeys();
 }
 function mhWalkKeysDown(e){ mhWalkApplyKey(e,true); }
 function mhWalkKeysUp(e){ mhWalkApplyKey(e,false); }
@@ -6289,6 +6301,7 @@ function mhWalkDrawFrame(){
  const map=MH_WORLD_MAPS[wi];
  const world=MH_WORLDS[wi];
  const pos=mhWalkEnsurePos(st,wi);
+ if(mhMorphHuntTypingTarget(document.activeElement)) mhWalkClearKeys();
  const keys=st.walkKeys||{};
  const t=tCut;
  const dt=dtCut;
@@ -6374,7 +6387,7 @@ function mhWalkDrawFrame(){
    sc*=depth;
   }
   const sil=!got&&dist>MH_INTERACT_R&&m.rarity!=='voidfallen';
-  mhPaintNoobWorld(ctx,m,mx,my,sc,got?0.55:1,sil,t,npc.phase,flatMap,!!npc.walking);
+  mhPaintNoobWorld(ctx,m,mx,my,sc,got?0.55:1,sil,t,MH_FREEZE_NPC_WALK?0:npc.phase,flatMap,!MH_FREEZE_NPC_WALK&&!!npc.walking);
   const ehp=mhGetEnemyHp(st,wi,m), emax=mhEnemyMaxHp(m);
   if(ehp<emax||st.enemyAggro[mhEnemyFightKey(wi,m)]>performance.now()){
    mhDrawFightHpBar(ctx,mx,my-92,Math.min(90,14+m.name.length*3),ehp,emax,m.voidKing?'#ff4040':'#c898ff');
@@ -6638,6 +6651,8 @@ function mhWalkStart(){
  mhState.walkKeys={};
  document.addEventListener('keydown',mhWalkKeysDown,true);
  document.addEventListener('keyup',mhWalkKeysUp,true);
+ window.addEventListener('blur',mhWalkClearKeys);
+ document.addEventListener('visibilitychange',mhWalkVisClear);
  mhChatStartPoll(mhState);
  mhWalkDrawFrame();
  const root=document.getElementById('morphhunt');
