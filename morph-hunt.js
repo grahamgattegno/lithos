@@ -5,7 +5,7 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v124';
+const MH_BUILD='void-2d-v125';
 const MH_SCENERY_STAMP='STABLE_v124';
 const MH_SCRIPT_CANON='morph-hunt.void-2d-v124.js';
 const MH_TIME_TRAVEL_COST=2000;
@@ -3816,6 +3816,23 @@ function mhIdeHintRestoreLink(){
  if(!mhIdeHintDismissed()) return '';
  return `<p class="mh-ide-restore-row"><button type="button" class="mh-btn ghost mh-btn-sm" id="mh-ide-hint-restore">Show Safari / blue-ring help again</button></p>`;
 }
+function mhHuntUiCompact(){
+ try{ return localStorage.getItem('lithos_mh_compact_ui')!=='0'; }catch(_){ return true; }
+}
+function mhSetHuntUiCompact(on){
+ try{ localStorage.setItem('lithos_mh_compact_ui',on?'1':'0'); }catch(_){}
+}
+function mhHuntCompactToggleLabel(){
+ return mhHuntUiCompact()?'📋 Show all tips':'🎮 Clean view';
+}
+function mhBindHuntUiCompact(root){
+ root?.querySelector('#mh-ui-compact-toggle')?.addEventListener('click',()=>{
+  const compact=!mhHuntUiCompact();
+  mhSetHuntUiCompact(compact);
+  mhToast(compact?'🎮 Clean view — bottom tips tucked away':'📋 Full tips & controls shown');
+  mhRender();
+ });
+}
 function mhMorphHuntInertBackground(on){
  if(!mhState) return;
  if(on){
@@ -4967,18 +4984,20 @@ function mhRenderChatPanel(save){
     <input id="mh-chat-input" type="text" maxlength="160" placeholder="Type here… Enter to send · Esc = back to game" autocomplete="off"/>
     <button type="button" class="mh-btn primary mh-btn-sm" id="mh-chat-send">Send</button>
    </div>
-   <p class="mh-chat-type-hint">Messages show above · rules apply · quick say optional below</p>
+   ${mhHuntUiCompact()?'':'<p class="mh-chat-type-hint">Messages show above · rules apply · quick say optional below</p>'}
   </section>
-  <div class="mh-chat-chips" aria-label="Quick safe phrases (optional)">
-   <span class="mh-chat-chips-label">Quick say:</span>
-   <button type="button" class="mh-chat-chip" data-mh-chat-quick="Hello!">Hello!</button>
-   <button type="button" class="mh-chat-chip" data-mh-chat-quick="Want to fight?">Want to fight?</button>
-   <button type="button" class="mh-chat-chip" data-mh-chat-quick="Follow me!">Follow me!</button>
-   <button type="button" class="mh-chat-chip" data-mh-chat-quick="Nice morph!">Nice morph!</button>
-   <button type="button" class="mh-chat-chip" data-mh-chat-quick="GG!">GG!</button>
-   <button type="button" class="mh-chat-chip" data-mh-chat-quick="Need help with a quest?">Quest help?</button>
-   <button type="button" class="mh-chat-chip" data-mh-chat-quick="Go back in time">⏳ Time travel</button>
-  </div>
+  <details class="mh-chat-chips-fold"${mhHuntUiCompact()?'':' open'}>
+   <summary>Quick say (optional)</summary>
+   <div class="mh-chat-chips" aria-label="Quick safe phrases (optional)">
+    <button type="button" class="mh-chat-chip" data-mh-chat-quick="Hello!">Hello!</button>
+    <button type="button" class="mh-chat-chip" data-mh-chat-quick="Want to fight?">Want to fight?</button>
+    <button type="button" class="mh-chat-chip" data-mh-chat-quick="Follow me!">Follow me!</button>
+    <button type="button" class="mh-chat-chip" data-mh-chat-quick="Nice morph!">Nice morph!</button>
+    <button type="button" class="mh-chat-chip" data-mh-chat-quick="GG!">GG!</button>
+    <button type="button" class="mh-chat-chip" data-mh-chat-quick="Need help with a quest?">Quest help?</button>
+    <button type="button" class="mh-chat-chip" data-mh-chat-quick="Go back in time">⏳ Time travel</button>
+   </div>
+  </details>
   <details class="mh-chat-rules">
    <summary>🛡️ Chat rules (everyone)</summary>
    <ul>${MH_CHAT_RULES.map(r=>`<li>${r}</li>`).join('')}</ul>
@@ -7822,13 +7841,16 @@ function mhWalkDrawFrame(){
   st.rosterUiLast=performance.now();
   mhRenderPlayerRoster(st,save);
  }
- ctx.fillStyle='rgba(0,0,0,.78)'; ctx.fillRect(8,118,420,78);
- ctx.fillStyle='#ffe8a0'; ctx.font='bold 12px system-ui,sans-serif'; ctx.textAlign='left';
- ctx.fillText('This map: '+mhWorldRarityHint(wi),16,134);
- ctx.fillStyle='#80ffb0'; ctx.font='bold 11px system-ui,sans-serif';
- ctx.fillText('Search dashed groves · noobies appear when you walk in · E unlock',16,152);
- ctx.fillStyle='#a0c8ff'; ctx.font='bold 11px system-ui,sans-serif';
- ctx.fillText('Epic+ → teleport 💎 · Void → teleport 🕳 (tabs above)',16,166);
+ const mapHints=!mhHuntUiCompact()&&!st.insideBuilding;
+ if(mapHints){
+  ctx.fillStyle='rgba(0,0,0,.78)'; ctx.fillRect(8,118,420,78);
+  ctx.fillStyle='#ffe8a0'; ctx.font='bold 12px system-ui,sans-serif'; ctx.textAlign='left';
+  ctx.fillText('This map: '+mhWorldRarityHint(wi),16,134);
+  ctx.fillStyle='#80ffb0'; ctx.font='bold 11px system-ui,sans-serif';
+  ctx.fillText('Search dashed groves · noobies appear when you walk in · E unlock',16,152);
+  ctx.fillStyle='#a0c8ff'; ctx.font='bold 11px system-ui,sans-serif';
+  ctx.fillText('Epic+ → teleport 💎 · Void → teleport 🕳 (tabs above)',16,166);
+ }
  if(st.testBuddy?.on){
   ctx.fillStyle='rgba(0,40,60,.88)'; ctx.fillRect(W/2-150,56,300,22);
   ctx.fillStyle='#80e8ff'; ctx.font='bold 11px system-ui'; ctx.textAlign='center';
@@ -7841,9 +7863,11 @@ function mhWalkDrawFrame(){
  ctx.fillStyle='#ffe8a0'; ctx.font='bold 10px system-ui'; ctx.textAlign='center';
  ctx.fillText('❤ HP '+Math.ceil(php)+'/'+pmax,W-90,32);
  ctx.textAlign='left';
- ctx.fillStyle='#ffb0b0'; ctx.font='bold 10px system-ui';
- const vk=mhVoidCombatMorph(save);
- ctx.fillText(vk?.voidKing?'⚔ 1–3 fight · 🎬 4 king cutscene (axe→sword · void judgment)':'⚔ FIGHT: 1 attack · 2 power · 3 storm — face foes & press keys',16,182);
+ if(mapHints){
+  ctx.fillStyle='#ffb0b0'; ctx.font='bold 10px system-ui';
+  const vk=mhVoidCombatMorph(save);
+  ctx.fillText(vk?.voidKing?'⚔ 1–3 fight · 🎬 4 king cutscene (axe→sword · void judgment)':'⚔ FIGHT: 1 attack · 2 power · 3 storm — face foes & press keys',16,182);
+ }
  if(mhVoidCombatMorph(save)){
   ctx.fillStyle='rgba(20,0,40,.88)'; ctx.fillRect(W/2-190,H-52,380,36);
   ctx.fillStyle='#ffe8a0'; ctx.font='bold 12px system-ui,sans-serif'; ctx.textAlign='center';
@@ -8192,6 +8216,11 @@ function mhRenderHunt(save, wi){
  }).join('');
  const tpEpic=wi!==MH_EXOTIC_WORLD?`<button type="button" class="mh-btn primary mh-btn-sm" data-mh-world="${MH_EXOTIC_WORLD}">💎 Teleport Epic+ Map</button>`:'';
  const tpVoid=wi!==MH_VOID_WORLD?`<button type="button" class="mh-btn mh-btn-sm" data-mh-world="${MH_VOID_WORLD}">🕳 Teleport Void Map</button>`:'';
+ const fightKeyBtns=`<button type="button" class="mh-btn mh-btn-sm" id="mh-void-atk">⚔ 1 Attack</button><button type="button" class="mh-btn mh-btn-sm" id="mh-void-pow">✦ 2 Power</button><button type="button" class="mh-btn mh-btn-sm" id="mh-void-storm">🌌 3 Storm</button><button type="button" class="mh-btn mh-btn-sm" id="mh-void-cutscene" hidden>🎬 4 Cutscene</button>`;
+ const fightKeysUi=mhHuntUiCompact()
+  ?`<details class="mh-walk-hud-extra"><summary>⚔ Keys 1–3</summary><div class="mh-walk-hud-extra-btns">${fightKeyBtns}</div></details>`
+  :fightKeyBtns;
+ const voidReadout=mhHuntUiCompact()?'':`<div id="mh-void-combat-readout" class="mh-void-combat-readout">${voidCombat?('⚔ FIGHT · '+voidCombat.voidAttack?.name+' · ✦ '+voidCombat.voidPower?.name+' · 🌌 '+MH_VOID_STORM_NAME):'⚔ FIGHT · <b>1</b> punch · <b>2</b> blast · <b>3</b> slam (Void morph = stronger)'}${wi===MH_VOID_WORLD?' · <b>'+MH_VOID_ABYSS_LABEL+'</b>':''}</div>`;
  return `<div class="mh-test-play-banner">${mhIsTestProfile()?'<b>🧪 Test Account</b> — chat with 👤 You in another tab (Global).':'<b>👤 Your account</b> — tap <b>🧪 Test Account</b> above or open <b>🧪 2nd tab</b> in chat to play together.'} Build <b>${MH_BUILD}</b></div>
  <div class="mh-teleport-bar">
   <span><b>${world.emoji} ${world.name}</b> — ${mhWorldRarityHint(wi)} · ${found}/${morphs.length} here</span>
@@ -8199,26 +8228,29 @@ function mhRenderHunt(save, wi){
  </div>
  <div class="mh-world-tabs mh-world-tabs-compact">${worldTabs}</div>
  ${mhRenderPlagueQuestPanel(save)}
- <div class="mh-hunt-guide">
-  <b>Rarity rules</b>
-  <ol>
-   <li><b>Maps 0–7</b> (Buddy, Fair, Beach…): only <b>Common · Uncommon · Rare</b>. They stay inside <b>🕵 hidden groves</b> (dashed boxes) — not scattered on the whole map.</li>
-   <li><b>💎 Epic+ Realm</b> (teleport tab or button): <b>Epic · Legendary · Secret · Exotic · Exclusive</b> — also in groves on that map.</li>
-   <li><b>Void Fallen morph</b>: 🎭 Morph tab → <b>1</b> attack · <b>2</b> power on <b>every map</b> (King = red-black storm!). 🕳 Abyss = King + groves.</li>
-   <li><b>E</b> or <b>⚔ Fight</b> — fight <b>anytime</b> (practice if you already own the noobie). Groves still have unlock challenges. <b>F</b> = big homes.</li>
-   <li><b>💬 Chat</b> — press <b>↑</b> or <b>/</b> or <b>T</b> to talk, <b>Enter</b> to send, <b>Esc</b> back to walking (rules apply). <b>Global</b> · <b>Server</b> · <b>Friends</b>.</li>
-   <li><b>🏀 Court plaza</b> stays at spawn · <b>4 parks</b> around the map · <b>Mayor statue</b> on court: <b>J/L</b> crank, <b>R</b> flash light at all 4 mirrors → <b>Mayor Noobie</b>!</li>
-   <li><b>☣ Void Fallen Plague Doctor</b> — quest on Buddy Plaza · <b>voidfallen</b> morph with 🛡 shields + <b>${MH_PLAGUE_STORM_NAME}</b> · bugs at every park · ☣ Lab <b>E</b>×5</li>
-   <li><b>⏳ Time Traveler</b> — near 🏀 court on Buddy Plaza · chat <b>go back in time</b> (2000💰) · mine stones → <b>Matrix Noobie</b></li>
-  </ol>
- </div>
+ <details class="mh-hunt-guide-fold"${mhHuntUiCompact()?'':' open'}>
+  <summary>📖 Rules &amp; quests</summary>
+  <div class="mh-hunt-guide">
+   <b>Rarity rules</b>
+   <ol>
+    <li><b>Maps 0–7</b> (Buddy, Fair, Beach…): only <b>Common · Uncommon · Rare</b>. They stay inside <b>🕵 hidden groves</b> (dashed boxes) — not scattered on the whole map.</li>
+    <li><b>💎 Epic+ Realm</b> (teleport tab or button): <b>Epic · Legendary · Secret · Exotic · Exclusive</b> — also in groves on that map.</li>
+    <li><b>Void Fallen morph</b>: 🎭 Morph tab → <b>1</b> attack · <b>2</b> power on <b>every map</b> (King = red-black storm!). 🕳 Abyss = King + groves.</li>
+    <li><b>E</b> or <b>⚔ Fight</b> — fight <b>anytime</b> (practice if you already own the noobie). Groves still have unlock challenges. <b>F</b> = big homes.</li>
+    <li><b>💬 Chat</b> — press <b>↑</b> or <b>/</b> or <b>T</b> to talk, <b>Enter</b> to send, <b>Esc</b> back to walking (rules apply). <b>Global</b> · <b>Server</b> · <b>Friends</b>.</li>
+    <li><b>🏀 Court plaza</b> stays at spawn · <b>4 parks</b> around the map · <b>Mayor statue</b> on court: <b>J/L</b> crank, <b>R</b> flash light at all 4 mirrors → <b>Mayor Noobie</b>!</li>
+    <li><b>☣ Void Fallen Plague Doctor</b> — quest on Buddy Plaza · <b>voidfallen</b> morph with 🛡 shields + <b>${MH_PLAGUE_STORM_NAME}</b> · bugs at every park · ☣ Lab <b>E</b>×5</li>
+    <li><b>⏳ Time Traveler</b> — near 🏀 court on Buddy Plaza · chat <b>go back in time</b> (2000💰) · mine stones → <b>Matrix Noobie</b></li>
+   </ol>
+  </div>
+ </details>
  <div class="mh-walk-wrap mh-walk-with-chat">
   <div class="mh-walk-game">
   <div class="mh-player-roster" id="mh-player-roster">
    <div class="mh-roster-head"><strong>👥 Players</strong>${mhIsLithosAdmin()?'<button type="button" class="mh-btn mh-btn-sm" id="mh-ban-mode">Ban mode: OFF</button>':''}</div>
    <ul id="mh-player-list" class="mh-player-list"><li class="mh-roster-row dim">Looking for humans…</li></ul>
   </div>
-  <div id="mh-void-combat-readout" class="mh-void-combat-readout">${voidCombat?('⚔ FIGHT · '+voidCombat.voidAttack?.name+' · ✦ '+voidCombat.voidPower?.name+' · 🌌 '+MH_VOID_STORM_NAME):'⚔ FIGHT · <b>1</b> punch · <b>2</b> blast · <b>3</b> slam (Void morph = stronger)'}${wi===MH_VOID_WORLD?' · <b>'+MH_VOID_ABYSS_LABEL+'</b>':''}</div>
+  ${voidReadout}
   <canvas id="mh-walk-canvas" class="mh-walk-canvas" width="960" height="520" tabindex="-1"></canvas>
   <div class="mh-touch-controls" aria-label="Touch move">
    <button type="button" class="mh-dpad-btn mh-dpad-up" data-mh-dpad="up" aria-label="Up">▲</button>
@@ -8227,13 +8259,13 @@ function mhRenderHunt(save, wi){
    <button type="button" class="mh-dpad-btn mh-dpad-right" data-mh-dpad="right" aria-label="Right">▶</button>
    <button type="button" class="mh-dpad-btn mh-dpad-fight" id="mh-touch-fight" aria-label="Fight">⚔</button>
   </div>
-  <div id="mh-walk-hud" class="mh-walk-hud mh-walk-hud-clean">
+  <div id="mh-walk-hud" class="mh-walk-hud mh-walk-hud-clean${mhHuntUiCompact()?' is-compact':''}">
    <span class="mh-walk-zone">${world.emoji} ${world.name} · ${found}/${morphs.length}</span>
    <span class="mh-walk-prompt" hidden>Walk closer</span>
-   <button type="button" class="mh-btn primary mh-btn-sm" id="mh-walk-interact">⚔ Fight anytime (E)</button>
+   <button type="button" class="mh-btn primary mh-btn-sm" id="mh-walk-interact">⚔ Fight (E)</button>
    <button type="button" class="mh-btn mh-btn-sm" id="mh-walk-enter">F House</button>
    <button type="button" class="mh-btn mh-btn-sm" id="mh-walk-run">Run</button>
-   <button type="button" class="mh-btn mh-btn-sm" id="mh-void-atk">⚔ 1 Attack</button><button type="button" class="mh-btn mh-btn-sm" id="mh-void-pow">✦ 2 Power</button><button type="button" class="mh-btn mh-btn-sm" id="mh-void-storm">🌌 3 Storm</button>   <button type="button" class="mh-btn mh-btn-sm" id="mh-void-cutscene" hidden>🎬 4 Cutscene</button>
+   ${fightKeysUi}
   </div>
   </div>
   ${mhRenderChatPanel(save)}
@@ -8438,6 +8470,7 @@ function mhRenderGacha(save){
 
 function mhBind(root){
  mhBindIdeHint(root);
+ mhBindHuntUiCompact(root);
  root.querySelector('#mh-leave')?.addEventListener('click',mhClose);
  root.querySelectorAll('[data-mh-id]').forEach(btn=>btn.addEventListener('click',()=>mhCollect(btn.dataset.mhId)));
  root.querySelectorAll('[data-mh-world]').forEach(btn=>btn.addEventListener('click',()=>{ mhState.huntPage=0; mhSetWorld(+btn.dataset.mhWorld); }));
@@ -8511,7 +8544,7 @@ function mhRender(){
  else if(tab==='preview') body=mhRenderPreview();
  else if(tab==='stars') body=mhRenderStars(save);
 
- root.innerHTML=`<div class="mh-panel mh-ftn">
+ root.innerHTML=`<div class="mh-panel mh-ftn${mhHuntUiCompact()?' mh-ui-compact':''}">
   ${mhIdePreviewHintHtml()}
   <header class="mh-ftn-banner">
    <div class="mh-ftn-banner-text">
@@ -8538,6 +8571,7 @@ function mhRender(){
     ${MH_OPEN_PLAY?'<span class="mh-owner-tag" style="border-color:rgba(128,255,176,.45);color:#80ffb0">Open play · all morphs</span>':''}
     ${mhIsTestProfile()?'<span class="mh-owner-tag" style="border-color:rgba(128,200,255,.5);color:#80d8ff">🧪 Test Account</span>':'<button type="button" class="mh-btn mh-btn-sm" id="mh-switch-test">🧪 Test Account</button>'}
     ${mhIsTestProfile()?'<button type="button" class="mh-btn mh-btn-sm ghost" id="mh-switch-main">👤 You</button>':''}
+    <button type="button" class="mh-btn mh-btn-sm ghost" id="mh-ui-compact-toggle" title="Hide map tips and tuck extra buttons">${mhHuntCompactToggleLabel()}</button>
     <button type="button" class="mh-btn ghost" id="mh-leave">Leave</button>
    </div>
   </div>

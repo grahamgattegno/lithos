@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- lithos-v:morph-hunt-v124-hardrefresh-v1 -->
+<!-- lithos-v:morph-hunt-v125-hardrefresh-v1 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1677,10 +1677,22 @@
   .mh-hunt-deck-fold[open] summary{margin-bottom:8px;color:#ffe8a0}
   .mh-hunt-deck h3{margin:0 0 6px;font-size:15px;color:#ffe8a0}
   .mh-hunt-tip{margin:0 0 8px;font-size:12px;font-weight:700;color:#90a8b8;line-height:1.45}
-  .mh-hunt-guide{margin:0 0 10px;padding:10px 12px;border:2px solid #3a6840;border-radius:12px;background:#0a1410;color:#c8e0c8;font-size:12px;line-height:1.5}
+  .mh-hunt-guide-fold{margin:0 0 10px;border:2px solid #3a6840;border-radius:12px;padding:6px 10px 8px;background:#0a1410;color:#c8e0c8;font-size:12px;line-height:1.5}
+  .mh-hunt-guide-fold summary{cursor:pointer;font-weight:800;color:#ffe8a0;font-size:12px;list-style:none;user-select:none}
+  .mh-hunt-guide-fold summary::-webkit-details-marker{display:none}
+  .mh-hunt-guide{margin:0;padding:8px 4px 4px;border:none;background:transparent}
   .mh-hunt-guide b{color:#ffe8a0}
   .mh-hunt-guide ol{margin:6px 0 0;padding-left:18px}
   .mh-hunt-guide li{margin:4px 0}
+  .mh-walk-hud-extra{flex:1 1 100%;min-width:0;margin:0}
+  .mh-walk-hud-extra summary{font-size:10px;font-weight:800;color:#80e8ff;cursor:pointer;list-style:none;user-select:none}
+  .mh-walk-hud-extra summary::-webkit-details-marker{display:none}
+  .mh-walk-hud-extra-btns{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+  .mh-walk-hud.is-compact{padding:6px 8px;gap:4px}
+  .mh-chat-chips-fold{margin-top:6px}
+  .mh-chat-chips-fold summary{font-size:10px;font-weight:800;color:#8090a8;cursor:pointer;list-style:none;user-select:none}
+  .mh-chat-chips-fold summary::-webkit-details-marker{display:none}
+  .mh-chat-chips-fold .mh-chat-chips{margin-top:6px}
   .mh-teleport-bar{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between;margin:0 0 8px;padding:10px 12px;border:2px solid #5040a0;border-radius:12px;background:#141028;color:#e0d8ff;font-size:12px}
   .mh-teleport-bar b{color:#ffe8a0}
   .mh-teleport-btns{display:flex;flex-wrap:wrap;gap:6px}
@@ -1725,7 +1737,8 @@
   .mh-roster-row.dim{color:#788898;font-style:italic;border:none}
   .mh-roster-title{font-size:9px;font-weight:900;text-transform:uppercase;padding:1px 5px;border-radius:999px;border:1px solid rgba(201,169,79,.45);color:#ffd060}
   .mh-roster-ban{font-size:9px!important;padding:2px 6px!important;background:#802030!important;border-color:#ff6080!important}
-  .mh-touch-controls{position:absolute;left:8px;bottom:8px;z-index:11;width:148px;height:148px;pointer-events:none}
+  .mh-touch-controls{position:absolute;left:8px;bottom:8px;z-index:11;width:148px;height:148px;pointer-events:none;display:none}
+  @media (pointer:coarse){#morphhunt .mh-touch-controls{display:block}}
   .mh-dpad-btn{position:absolute;pointer-events:auto;width:44px;height:44px;border-radius:12px;border:2px solid rgba(201,169,79,.45);background:rgba(12,16,28,.88);color:#ffe8a0;font-weight:900;font-size:16px;touch-action:none;-webkit-user-select:none;user-select:none}
   .mh-dpad-up{left:52px;top:0}.mh-dpad-down{left:52px;bottom:0}.mh-dpad-left{left:0;top:52px}.mh-dpad-right{right:0;top:52px}
   .mh-dpad-fight{left:52px;top:52px;width:44px;height:44px;font-size:18px;background:rgba(128,32,48,.9);border-color:rgba(255,96,128,.55)}
@@ -5651,7 +5664,7 @@
 <script src="gemcopter.js?v=deploy-85"></script>
 <script>
 (function lithosLoadMorphHunt(){
- var MH_NEED='void-2d-v123';
+ var MH_NEED='void-2d-v125';
  var MH_CHAT_UI='compose-under-log-v2';
  var MH_SCRIPT='morph-hunt.'+MH_NEED+'.js';
  window.__LITHOS_MH_LATEST=MH_NEED;
@@ -5750,7 +5763,7 @@
 <script>
 window.lithosPlayMorphHunt=function lithosPlayMorphHunt(){
  try{if(typeof closeGamesHub==='function')closeGamesHub({skipHash:true});}catch(_){}
-  var NEED=window.__LITHOS_MH_LATEST||window.__LITHOS_MH_NEED||'void-2d-v123';
+  var NEED=window.__LITHOS_MH_LATEST||window.__LITHOS_MH_NEED||'void-2d-v125';
  var tries=0;
  function mhBuildNum(tag){
   var m=String(tag||'').match(/void-2d-v(\d+)/);
