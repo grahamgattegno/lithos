@@ -5,8 +5,8 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v82';
-const MH_SCENERY_STAMP='PLAGUE_DOCTOR_v82';
+const MH_BUILD='void-2d-v83';
+const MH_SCENERY_STAMP='PLAGUE_PREVIEW_v83';
 const MH_CHAT_LOG_KEY='lithos_mh_chat_log_v1';
 const MH_CHAT_POLL_MS=3500;
 const MH_CHAT_BROADCAST='lithos-mh-chat';
@@ -5125,7 +5125,13 @@ function mhWalkDrawFrame(){
   const found=morphs.filter(m=>mhHasMorph(save,m.id)).length;
   hud.querySelector('.mh-walk-zone').textContent=world.emoji+' '+world.name+' · '+found+'/'+morphs.length;
   const prompt=hud.querySelector('.mh-walk-prompt');
-  if(st.walkNearBuilding){
+  if(st.walkNearBuilding?.kind==='plague_lab'){
+   prompt.textContent='☣ Plague Lab — F enter · E for each step (need all park bugs first)';
+   prompt.hidden=false;
+  }else if(mhNearPlagueBug(pos,map,save)){
+   prompt.textContent='🐛 Plague bug! Press E to catch (every park on every map)';
+   prompt.hidden=false;
+  }else if(st.walkNearBuilding){
    prompt.textContent='Step 2: Press F to enter house (secret code inside)';
    prompt.hidden=false;
   }else if(near){
@@ -5169,8 +5175,9 @@ function mhRenderPreview(){
    <button type="button" class="mh-btn${flat?' primary':''}" data-mh-prev-flat="1">📄 Flat 2D</button>
    <button type="button" class="mh-btn${!flat?' primary':''}" data-mh-prev-flat="0">🧊 Depth / 3D</button>
    <button type="button" class="mh-btn" data-mh-prev-minigame="noobduel">Preview fight / obby</button>
+   <button type="button" class="mh-btn primary" data-mh-prev-plague="1">☣ Plague Doctor preview</button>
   </div>
-  <canvas id="mh-preview-canvas" class="mh-preview-canvas" width="960" height="560" aria-label="Animation preview"></canvas>
+  <canvas id="mh-preview-canvas" class="mh-preview-canvas" width="960" height="640" aria-label="Animation preview"></canvas>
   <p class="mh-preview-legend">${MH_ANIMS.map(a=>'<span>'+a+'</span>').join('')} · NPC wander · Hunt unlock = <b>duel</b>, <b>obby</b>, or <b>jump fight</b> (not puzzles)</p>
  </div>`;
 }
@@ -5227,6 +5234,22 @@ function mhPreviewDrawFrame(){
  const flatDemo=mhDemoMorph('sway',{torso:'#0085DB'});
  mhPaintNoobWorld(ctx,flatDemo,860,H-78,0.88,1,false,t,phase,flat,false);
  ctx.fillStyle='#c0d0e0'; ctx.fillText(flat?'FLAT 2D':'3D',860,H-28);
+ const plague=mhMorph('ex-plague-doctor');
+ if(plague){
+  ctx.fillStyle='rgba(10,24,16,.75)'; ctx.fillRect(24,H-318,W-48,148);
+  ctx.strokeStyle='#80ffb0'; ctx.lineWidth=2; ctx.strokeRect(24.5,H-318.5,W-49,147);
+  ctx.fillStyle='#80ffb0'; ctx.font='bold 13px system-ui'; ctx.textAlign='left';
+  ctx.fillText('☣ PLAGUE DOCTOR — cures that fail · death symbols orbit',36,H-296);
+  mhDrawPlagueDoctorAura(ctx,200,H-230,t,0.95);
+  mhPaintNoobWorld(ctx,plague,200,H-218,1.05,1,false,t,phase,false,false);
+  mhDrawPlagueDoctorAura(ctx,520,H-230,t,0.85);
+  mhPaintNoobWorld(ctx,plague,520,H-218,1.05,1,false,t,phase,true,false);
+  ctx.fillStyle='#c8ffd8'; ctx.font='bold 11px system-ui'; ctx.textAlign='center';
+  ctx.fillText('3D + orbiting 💊☠',200,H-178);
+  ctx.fillText('FLAT 2D',520,H-178);
+  ctx.fillStyle='#a0c8b0'; ctx.font='10px system-ui'; ctx.textAlign='left';
+  ctx.fillText('Unlock: park bugs on every map → Buddy Plaza ☣ Lab (5× E steps)',36,H-188);
+ }
  ctx.fillStyle='rgba(255,232,120,.85)'; ctx.font='bold 12px system-ui'; ctx.textAlign='center';
  ctx.fillText('Build '+MH_BUILD+' · tab updates live',W/2,14);
  st.previewRaf=requestAnimationFrame(mhPreviewDrawFrame);
@@ -5306,6 +5329,39 @@ function mhWalkStart(){
  }
 }
 
+function mhRenderPlagueQuestPanel(save){
+ const doc=mhMorph('ex-plague-doctor');
+ if(!doc) return '';
+ const got=mhHasMorph(save,'ex-plague-doctor');
+ const bugs=mhPlagueBugsCollected(save);
+ const total=mhPlagueBugTotal();
+ const q=mhPlagueQuest(save);
+ const step=q.labStep||0;
+ let status;
+ if(got) status='Unlocked! Open 🎭 Morph tab to wear the doctor.';
+ else if(bugs<total) status='Quest: catch striped 🐛 at every park on every map ('+bugs+'/'+total+'). Press E near a bug.';
+ else if(step<MH_PLAGUE_LAB_STEPS.length) status='All bugs caught! Go to 🏠 Buddy Plaza → green ☣ PLAGUE LAB (by court). F enter · E for lab step '+(step+1)+'/5.';
+ else status='Complete the last lab step with E inside the lab.';
+ return `<div class="mh-plague-preview-panel" role="region" aria-label="Plague Doctor preview">
+  <div class="mh-plague-preview-art" title="Plague Doctor preview">
+   <svg viewBox="0 0 100 130" aria-hidden="true">${mhClassicNoobSvg(doc)}</svg>
+   <span class="mh-plague-orbit">💊 ☠ 🧪 💀</span>
+  </div>
+  <div class="mh-plague-preview-body">
+   <h3>☣ Plague Doctor Noobie ${got?'✅':''}</h3>
+   <p class="mh-plague-status">${status}</p>
+   <p class="mh-plague-quote">Voices: “I am the cure.” · “Oh my, the sickness…” · “Then I can fix you.”</p>
+   <div class="mh-plague-preview-btns">
+    <button type="button" class="mh-btn primary mh-btn-sm" data-mh-tab="preview">🎬 Animation preview</button>
+    ${got?'':'<button type="button" class="mh-btn ghost mh-btn-sm" data-mh-world="0">🏠 Go Buddy Plaza (lab)</button>'}
+   </div>
+  </div>
+ </div>`;
+}
+function mhCodexArtHtml(m,got){
+ if(got||m.plagueOnly||m.mayorOnly) return `<svg viewBox="0 0 100 130">${mhClassicNoobSvg(m)}</svg>`;
+ return '<div class="mh-silhouette">?</div>';
+}
 function mhRenderHuntDeck(save,wi,morphs){
  const pg=mhPaginate(morphs,mhState.huntPage||0,16);
  const cards=pg.slice.map(m=>{
@@ -5343,6 +5399,7 @@ function mhRenderHunt(save, wi){
   <span class="mh-teleport-btns">${tpEpic}${tpVoid}</span>
  </div>
  <div class="mh-world-tabs mh-world-tabs-compact">${worldTabs}</div>
+ ${mhRenderPlagueQuestPanel(save)}
  <div class="mh-hunt-guide">
   <b>Rarity rules</b>
   <ol>
@@ -5389,7 +5446,7 @@ function mhRenderIndex(save){
   const got=mhHasMorph(save,m.id);
   const r=mhRarityInfo(m);
   return `<div class="mh-codex-card${got?' got':''}" style="--mh-rarity:${r.color}">
-   <div class="mh-codex-art">${got?`<svg viewBox="0 0 100 130">${mhClassicNoobSvg(m)}</svg>`:'<div class="mh-silhouette">?</div>'}</div>
+   <div class="mh-codex-art">${mhCodexArtHtml(m,got)}</div>
    <div class="mh-codex-meta"><b class="mh-noob-name">${got?m.name:'???'}</b><span class="mh-codex-rarity">${mhRarityLabel(m)}${got?'':' · ⚔ fight/obby unlock'}</span></div>
   </div>`;
  }).join('');
@@ -5467,6 +5524,10 @@ function mhBind(root){
  root.querySelector('[data-mh-prev-minigame]')?.addEventListener('click',()=>{
   const demo=mhMorph('vf-king')||mhDemoMorph('pulse');
   mhOpenMinigame(demo);
+ });
+ root.querySelector('[data-mh-prev-plague]')?.addEventListener('click',()=>{
+  mhSetTab('preview');
+  mhToast('☣ Scroll down on the preview canvas for Plague Doctor!');
  });
  root.querySelectorAll('[data-mh-wear]').forEach(btn=>btn.addEventListener('click',()=>mhWear(btn.dataset.mhWear)));
  root.querySelector('#mh-gacha-roll')?.addEventListener('click',()=>mhGacha(false));
