@@ -4330,6 +4330,14 @@ function mhChatSend(st,save,text){
   if(st) st.chatDraft='';
   return;
  }
+ if(st?.chatBanAwait&&mhIsLithosAdmin()){
+  st.chatBanAwait=false;
+  const inp=document.getElementById('mh-chat-input');
+  if(inp) inp.value='';
+  if(st) st.chatDraft='';
+  mhAdminBanPlayer(save,raw);
+  return;
+ }
  const profPre=mhEnsureChatProfile(save);
  if(mhIsChatBanned(profPre)){ mhToast('🚫 You are banned from Lithos chat.'); return; }
  const mod=mhChatModerate(raw);
