@@ -5,8 +5,8 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v81';
-const MH_SCENERY_STAMP='RESTORE_LAUNCHER_v81';
+const MH_BUILD='void-2d-v82';
+const MH_SCENERY_STAMP='PLAGUE_DOCTOR_v82';
 const MH_CHAT_LOG_KEY='lithos_mh_chat_log_v1';
 const MH_CHAT_POLL_MS=3500;
 const MH_CHAT_BROADCAST='lithos-mh-chat';
@@ -44,7 +44,7 @@ const MH_WORLD_PARK_NAMES=[
  ['Neon Park','Vault Green','Exotic Rest','Prism Lawn'],
  ['Fallen Rest','Void Garden','Abyss Green','King Memorial']
 ];
-const MH_TOTAL_COUNT=1105;
+const MH_TOTAL_COUNT=1106;
 const MH_VOID_KING_DEPTH=100;
 const MH_VOID_KING_DIM='5th Dimensional';
 const MH_1000D=false;
@@ -439,6 +439,15 @@ function mhBuildMorphs(){
   anim:'sway', face:'grin', rarity:'legendary', hat:'crown', prop:'trophy',
   stripe:true, glasses:true, accent:'#ffd060'
  });
+ list.push({
+  id:'ex-plague-doctor', name:'Plague Doctor Noobie', exclusive:true, plagueOnly:true, world:0,
+  head:'#2a3038', torso:'#1a2830', legs:'#141820', arms:'#2a3038', body:'tall',
+  anim:'sway', face:'flat', rarity:'exclusive', hat:'plague', prop:'book',
+  stripe:false, glasses:false, accent:'#80ffb0', plagueDoctor:true,
+  voidAttack:{id:'foul_cure',name:'Foul Cure',color:'#80ffb0',kind:'orbs',speed:5,range:70},
+  voidPower:{id:'death_sigil',name:'Death Sigil',color:'#303038',kind:'nova',speed:4,range:95},
+  plagueLines:['I am the cure.','Oh my, the sickness…','Then I can fix you.']
+ });
  return list;
 }
 const MH_MORPHS=mhBuildMorphs();
@@ -451,7 +460,7 @@ const MH_VOID_FALLEN=MH_MORPHS.filter(m=>m.rarity==='voidfallen');
 const MH_VOID_COUNT=MH_VOID_FALLEN.length;
 
 function mhHuntWorld(m){
- if(!m||m.codeOnly||m.mayorOnly) return -1;
+ if(!m||m.codeOnly||m.mayorOnly||m.plagueOnly) return -1;
  if(m.voidKing||m.voidFallen||m.rarity==='voidfallen') return MH_VOID_WORLD;
  if(MH_HIGH_RARITY.has(m.rarity)) return MH_EXOTIC_WORLD;
  const w=typeof m.world==='number'?m.world:0;
@@ -879,8 +888,10 @@ function mhSpawnCivilians(map,wi){
   map.worldFeature=mhGenWorldFeature(wi,map);
   map.mayorShrine=wi===0?mhGenMayorShrine(map):null;
   map.parks=mhGenParks(wi,map);
+  map.plagueBugs=mhGenPlagueBugs(wi,map);
   map.statues=mhGenParkStatues(map,wi);
   if(wi===MH_VOID_WORLD){
+   map.plagueBugs=[];
    map.parks=[];
    map.statues=[];
    map.court=null;
@@ -905,6 +916,10 @@ function mhSpawnCivilians(map,wi){
    decors.push({tx,ty,kind:mhPickDecorKind(themes,wi,i),scale:2.1+((mhHashStr('ds'+i)%4)*0.2)});
   }
   map.decors=decors;
+  if(wi===0){
+   const lab=mhPlagueLabLandmark(map,wi);
+   if(lab){ map.plagueLab=lab; map.landmarks.push(lab); }
+  }
   mhSpawnCivilians(map,wi);
  });
 })();
@@ -935,8 +950,19 @@ function mhSaveWearId(id){
  mhRefreshTeacherNoob();
 }
 
+function mhDefaultPlagueQuest(){
+ return{bugs:[],labStep:0,badge:false};
+}
+function mhNormalizePlagueQuest(raw){
+ const q=raw&&typeof raw==='object'?raw:{};
+ return{
+  bugs:Array.isArray(q.bugs)?q.bugs.filter(id=>typeof id==='string'):[],
+  labStep:Math.max(0,Math.min(5,+(q.labStep||0))),
+  badge:!!q.badge
+ };
+}
 function mhDefaultSave(){
- return{collected:['ex-welcome'],worldsUnlocked:1,coins:100,wearing:'ex-welcome',title:'',codesUsed:[],minigameWon:[],chatPlayerId:'',chatDisplayName:'',chatFriends:[]};
+ return{collected:['ex-welcome'],worldsUnlocked:1,coins:100,wearing:'ex-welcome',title:'',codesUsed:[],minigameWon:[],chatPlayerId:'',chatDisplayName:'',chatFriends:[],plagueQuest:mhDefaultPlagueQuest()};
 }
 function mhStarterMorph(){
  return mhMorph('ex-welcome')||{head:'#F5CD30',torso:'#0085DB',legs:'#A4BD47',body:'classic',name:'Your Noobie',id:'you'};
@@ -1273,6 +1299,17 @@ function mhDrawMegaBuilding(ctx,d,wi,t){
   mhPaintHuman(ctx,x+W*0.82,y+H+6,9,t*0.9,0.7);
   return;
  }
+ if(kind==='plague_lab'){
+  ctx.fillStyle='#1a2820'; ctx.fillRect(x,y+8,W,H-8);
+  ctx.fillStyle='#304838'; ctx.fillRect(x+6,y+14,W-12,H-18);
+  ctx.strokeStyle='#80ffb0'; ctx.lineWidth=2; ctx.strokeRect(x+4,y+10,W-8,H-14);
+  ctx.fillStyle='rgba(120,255,160,.35)'; ctx.fillRect(x+W/2-20,y+H-28,40,16);
+  ctx.fillStyle='#ffe8a0'; ctx.font='bold 11px system-ui'; ctx.textAlign='center';
+  ctx.fillText('☣ LAB',x+W/2,y+H-16);
+  ctx.fillStyle='#80ffb0'; ctx.font='bold 9px system-ui';
+  ctx.fillText('F enter · E steps',x+W/2,y+22);
+  return;
+ }
  if(kind==='fluoro_hall'||kind==='liminal_door'){
   ctx.fillStyle='#d8d4b0'; ctx.fillRect(x+2,y+10,W-4,H-12);
   ctx.fillStyle='#ffffa0'; ctx.fillRect(x+6,y+14,W-12,6);
@@ -1400,6 +1437,11 @@ function mhWalkNearBuilding(pos,map){
 }
 function mhEnterBuilding(d,wi){
  if(!mhState) return;
+ if(d.kind==='plague_lab'){
+  mhState.insideBuilding={...d,wi,kind:'plague_lab'};
+  mhToast('☣ Plague Lab — press E for each step · F to leave');
+  return;
+ }
  mhState.insideBuilding={...d,wi,secret:mhBuildingSecret(d,wi)};
  mhToast('🏠 Inside! Read the big wall sign · Press F to leave');
 }
@@ -1428,6 +1470,10 @@ function mhDrawInteriorProp(ctx,x,y,type,sc){
 function mhDrawInteriorScreen(ctx,W,H,st,t){
  const ib=st.insideBuilding;
  if(!ib) return;
+ if(ib.kind==='plague_lab'){
+  mhDrawPlagueLabInterior(ctx,W,H,st,st.save,t);
+  return;
+ }
  const sec=ib.secret||mhBuildingSecret(ib,ib.wi||0);
  const g=ctx.createLinearGradient(0,0,0,H);
  g.addColorStop(0,'#2a2420'); g.addColorStop(0.45,'#4a4038'); g.addColorStop(1,'#3a3028');
@@ -1553,6 +1599,183 @@ function mhMayorFlashBeam(){
   }
  }else mhToast('Light hit '+sh.reflectors.filter(r=>r.lit).length+'/'+sh.reflectors.length+' mirrors');
 }
+const MH_PLAGUE_LAB_STEPS=[
+ {key:'toxic',label:'Mix bugs into toxic chemicals',hint:'Drop every park bug into the cauldron.'},
+ {key:'airlock',label:'Seal the airlock',hint:'Lock the fumes inside the chamber.'},
+ {key:'jar',label:'Decant into a jar',hint:'The brew glows sickly green…'},
+ {key:'syringe',label:'Load the syringe',hint:'Draw the unstable serum.'},
+ {key:'inject',label:'Inject yourself',hint:'Unlock the Plague Badge — become the doctor.'}
+];
+function mhPlagueQuest(save){
+ if(!save.plagueQuest) save.plagueQuest=mhDefaultPlagueQuest();
+ return save.plagueQuest;
+}
+function mhPlagueBugTotal(){
+ let n=0;
+ for(let wi=0;wi<MH_WORLDS.length;wi++){
+  if(wi===MH_VOID_WORLD) continue;
+  n+=(MH_WORLD_MAPS[wi].plagueBugs||[]).length;
+ }
+ return n;
+}
+function mhPlagueBugsCollected(save){
+ return mhPlagueQuest(save).bugs.length;
+}
+function mhPlagueBugsComplete(save){
+ return mhPlagueBugsCollected(save)>=mhPlagueBugTotal();
+}
+function mhGenPlagueBugs(wi,map){
+ const bugs=[];
+ (map.parks||[]).forEach((p,pi)=>{
+  const type=(mhHashStr('pbug'+wi+'-'+pi)%2)===0?'yellowBlack':'redBlack';
+  bugs.push({
+   id:'pbug-'+wi+'-'+pi,
+   wi,pi,type,
+   px:p.tx*MH_TILE+p.w*MH_TILE/2+((mhHashStr('px'+wi+pi)%16)-8),
+   py:p.ty*MH_TILE+p.h*MH_TILE/2+((mhHashStr('py'+wi+pi)%10)-5)
+  });
+ });
+ return bugs;
+}
+function mhPlagueLabLandmark(map,wi){
+ if(wi!==0||!map.court) return null;
+ const tx=Math.min(map.w-10, map.court.tx+map.court.w+2);
+ const ty=map.court.ty;
+ return{
+  tx,ty,w:6,h:5,kind:'plague_lab',mega:true,footW:6,footH:5,id:'plague-lab-w0',
+  label:'☣ PLAGUE LAB'
+ };
+}
+function mhDrawPlagueBug(ctx,bug,t,save){
+ if(!bug||mhPlagueQuest(save).bugs.includes(bug.id)) return;
+ const pulse=0.85+Math.sin(t*4+bug.px*0.01)*0.15;
+ ctx.save();
+ ctx.translate(bug.px,bug.py-4+Math.sin(t*3)*2);
+ ctx.scale(pulse,pulse);
+ if(bug.type==='yellowBlack'){
+  for(let i=0;i<6;i++){ ctx.fillStyle=i%2?'#f8d030':'#101010'; ctx.fillRect(-10+i*3.2,-6,3.2,12); }
+ }else{
+  for(let i=0;i<6;i++){ ctx.fillStyle=i%2?'#e03030':'#101010'; ctx.fillRect(-10+i*3.2,-6,3.2,12); }
+ }
+ ctx.strokeStyle='#fff'; ctx.lineWidth=1; ctx.strokeRect(-10,-6,19,12);
+ ctx.fillStyle='#fff'; ctx.font='bold 8px system-ui'; ctx.textAlign='center';
+ ctx.fillText('🐛',0,3);
+ ctx.restore();
+}
+function mhDrawPlagueBugs(ctx,map,wi,t,save){
+ (map.plagueBugs||[]).forEach(b=>mhDrawPlagueBug(ctx,b,t,save));
+}
+function mhNearPlagueBug(pos,map,save){
+ let best=null,bd=48;
+ (map.plagueBugs||[]).forEach(b=>{
+  if(mhPlagueQuest(save).bugs.includes(b.id)) return;
+  const d=Math.hypot(b.px-pos.px,b.py-pos.py);
+  if(d<bd){ bd=d; best=b; }
+ });
+ return best;
+}
+function mhTryCollectPlagueBug(save,wi,map,pos){
+ if(mhHasMorph(save,'ex-plague-doctor')) return false;
+ const bug=mhNearPlagueBug(pos,map,save);
+ if(!bug) return false;
+ const q=mhPlagueQuest(save);
+ if(q.bugs.includes(bug.id)) return false;
+ q.bugs.push(bug.id);
+ mhSaveSave(save);
+ const left=mhPlagueBugTotal()-q.bugs.length;
+ mhToast('🐛 Park bug caught ('+(bug.type==='yellowBlack'?'yellow-black':'red-black')+')! '+left+' left · then ☣ Plague Lab on Buddy Plaza');
+ if(mhPlagueBugsComplete(save)) mhToast('☣ All park bugs collected! Buddy Plaza → ☣ PLAGUE LAB · press F to enter · E for each step');
+ return true;
+}
+function mhPlagueDoctorSay(save,which){
+ const m=mhMorph('ex-plague-doctor');
+ const lines=m?.plagueLines||['I am the cure.','Oh my, the sickness…','Then I can fix you.'];
+ const line=lines[which!=null?which%lines.length:Math.floor(Math.random()*lines.length)];
+ mhToast('🩺 Plague Doctor: “'+line+'”');
+ if(mhState?.save&&mhHasMorph(save,'ex-plague-doctor')){
+  const pos=mhWalkEnsurePos(mhState,mhState.world);
+  mhChatSpawnBubble(mhState,pos.px,pos.py-20,'🩺 '+line,'Plague Doctor',5200);
+ }
+}
+function mhPlagueLabAdvance(save){
+ const q=mhPlagueQuest(save);
+ if(mhHasMorph(save,'ex-plague-doctor')){ mhToast('You already are the Plague Doctor Noobie!'); return; }
+ if(!mhPlagueBugsComplete(save)){
+  mhToast('Collect striped bugs at every park first (yellow/black or red/black) · press E near 🐛');
+  return;
+ }
+ const step=q.labStep||0;
+ if(step>=MH_PLAGUE_LAB_STEPS.length){
+  mhToast('Lab sequence complete — morph unlocked!');
+  return;
+ }
+ const s=MH_PLAGUE_LAB_STEPS[step];
+ q.labStep=step+1;
+ mhSaveSave(save);
+ mhToast('☣ Step '+(step+1)+'/5: '+s.label+' — '+s.hint);
+ if(step+1>=MH_PLAGUE_LAB_STEPS.length){
+  q.badge=true;
+  mhSaveSave(save);
+  const doc=mhMorph('ex-plague-doctor');
+  if(doc){
+   mhFinishCollect(doc);
+   mhWear(doc.id,true);
+   mhPlagueDoctorSay(save,0);
+   setTimeout(()=>mhPlagueDoctorSay(save,1),2200);
+   setTimeout(()=>mhPlagueDoctorSay(save,2),4400);
+  }
+  if(mhState) mhState.insideBuilding=null;
+ }
+}
+function mhDrawPlagueLabInterior(ctx,W,H,st,save,t){
+ const q=mhPlagueQuest(save);
+ const g=ctx.createLinearGradient(0,0,0,H);
+ g.addColorStop(0,'#0a1810'); g.addColorStop(1,'#1a2820');
+ ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+ ctx.fillStyle='#203828'; ctx.fillRect(W*0.15,H*0.35,W*0.7,H*0.45);
+ ctx.strokeStyle='#80ffb0'; ctx.lineWidth=3; ctx.strokeRect(W*0.15,H*0.35,W*0.7,H*0.45);
+ ctx.fillStyle='rgba(120,255,160,.25)'; ctx.fillRect(W*0.2,H*0.42,W*0.6,H*0.28);
+ for(let i=0;i<5;i++){
+  const bx=W*0.22+i*W*0.12, by=H*0.48+Math.sin(t*2+i)*4;
+  ctx.fillStyle=i%2?'#f8d030':'#101010'; ctx.fillRect(bx,by,14,8);
+ }
+ ctx.fillStyle='#404850'; ctx.fillRect(W*0.72,H*0.28,40,90);
+ ctx.strokeStyle='#a0b0c0'; ctx.strokeRect(W*0.72,H*0.28,40,90);
+ ctx.fillStyle='#ffe8a0'; ctx.font='bold 22px system-ui'; ctx.textAlign='center';
+ ctx.fillText('☣ PLAGUE LAB',W/2,56);
+ ctx.font='14px system-ui'; ctx.fillStyle='#c0d8c8';
+ ctx.fillText('Bugs: '+mhPlagueBugsCollected(save)+' / '+mhPlagueBugTotal(),W/2,82);
+ const step=Math.min(q.labStep||0,MH_PLAGUE_LAB_STEPS.length);
+ ctx.fillStyle='#80ffb0'; ctx.font='bold 16px system-ui';
+ if(step<MH_PLAGUE_LAB_STEPS.length){
+  ctx.fillText('Step '+(step+1)+': '+MH_PLAGUE_LAB_STEPS[step].label,W/2,H*0.32);
+  ctx.fillStyle='#a0b8a8'; ctx.font='13px system-ui';
+  ctx.fillText(MH_PLAGUE_LAB_STEPS[step].hint,W/2,H*0.32+22);
+  ctx.fillStyle='#ffe8a0'; ctx.font='bold 15px system-ui';
+  ctx.fillText('Press E — next lab step',W/2,H-48);
+ }else{
+  ctx.fillText('Serum complete — Plague Doctor unlocked!',W/2,H*0.32);
+ }
+ ctx.fillStyle='#a0a8b8'; ctx.font='12px system-ui';
+ ctx.fillText('F — leave lab',W/2,H-24);
+ mhDrawPlagueDoctorAura(ctx,W/2,H*0.62,t,0.9);
+}
+function mhDrawPlagueDoctorAura(ctx,cx,cy,t,alpha){
+ const a=alpha==null?1:alpha;
+ ctx.save(); ctx.globalAlpha=a;
+ const orbit=['💊','🧪','☠','💀','✚','⚰'];
+ for(let i=0;i<orbit.length;i++){
+  const ang=t*0.9+i*Math.PI*2/orbit.length;
+  const r=38+Math.sin(t*2+i)*6;
+  const sx=cx+Math.cos(ang)*r, sy=cy+Math.sin(ang)*r*0.55;
+  ctx.font=(i%2?'16px':'14px')+' system-ui';
+  ctx.textAlign='center'; ctx.fillText(orbit[i],sx,sy);
+  if(i%3===0){
+   ctx.fillStyle='rgba(128,255,176,.35)'; ctx.beginPath(); ctx.arc(sx,sy,10,0,Math.PI*2); ctx.fill();
+  }
+ }
+ ctx.restore();
+}
 function mhParkColors(wi){
  if(wi===4) return {fill:'#c8c4a0',edge:'#808070',tree:'#909080',label:'#303028'};
  if(wi===2) return {fill:'#e8d878',edge:'#c0a858',tree:'#40a0c0',label:'#604818'};
@@ -1597,10 +1820,11 @@ function mhDrawNoobieStatue(ctx,d,t){
  ctx.fillStyle='#ffe8a0'; ctx.font='bold 10px system-ui'; ctx.textAlign='center';
  ctx.fillText(m?(m.name.slice(0,14).toUpperCase()):('NOOBIE'),x+T/2,y+T*1.84);
 }
-function mhDrawMapDecors(ctx,map,wi,t){
+function mhDrawMapDecors(ctx,map,wi,t,save){
  mhDrawCourtZone(ctx,map,wi);
  mhDrawWorldFeature(ctx,map,wi);
  mhDrawParkZones(ctx,map,wi);
+ if(save) mhDrawPlagueBugs(ctx,map,wi,t,save);
  (map.landmarks||[]).forEach(d=>mhDrawSceneryPiece(ctx,d,wi,t));
  (map.decors||[]).forEach(d=>mhDrawSceneryPiece(ctx,d,wi,t));
 }
@@ -1681,7 +1905,16 @@ function mhDrawYouInWorld(ctx,wear,pos,map,t,walkPhase,wi,running){
   ctx.beginPath(); ctx.ellipse(pos.px,pos.py+26,34,11,0,0,Math.PI*2); ctx.stroke();
   ctx.setLineDash([]);
  }
+ if(m.plagueDoctor) mhDrawPlagueDoctorAura(ctx,pos.px,pos.py-18,t,0.85);
  mhPaintNoobWorld(ctx,m,pos.px,pos.py,sc,1,false,t,walkPhase||0,flat,!!running);
+ if(m.plagueDoctor){
+  const atk=m.voidAttack?.name||'Foul Cure';
+  const pow=m.voidPower?.name||'Death Sigil';
+  ctx.fillStyle='rgba(10,20,14,.92)'; ctx.fillRect(pos.px-78,pos.py+66,156,22);
+  ctx.strokeStyle='#80ffb0'; ctx.lineWidth=1.5; ctx.strokeRect(pos.px-78,pos.py+66,156,22);
+  ctx.fillStyle='#c8ffd8'; ctx.font='bold 9px system-ui'; ctx.textAlign='center';
+  ctx.fillText('⚔ '+atk+' · ✦ '+pow+' · cures & ☠ orbit',pos.px,pos.py+80);
+ }
  ctx.fillStyle='rgba(0,0,0,.82)';
  ctx.fillRect(pos.px-28,pos.py+50,56,16);
  ctx.fillStyle='#ffe8a0';
@@ -1732,7 +1965,8 @@ function mhLoadSave(){
    minigameWon:Array.isArray(raw.minigameWon)?raw.minigameWon:[],
    chatPlayerId:typeof raw.chatPlayerId==='string'?raw.chatPlayerId:'',
    chatDisplayName:typeof raw.chatDisplayName==='string'?raw.chatDisplayName:'',
-   chatFriends:Array.isArray(raw.chatFriends)?raw.chatFriends.filter(x=>typeof x==='string'):[]
+   chatFriends:Array.isArray(raw.chatFriends)?raw.chatFriends.filter(x=>typeof x==='string'):[],
+   plagueQuest:mhNormalizePlagueQuest(raw.plagueQuest)
   };
  }catch(_){return {...mhDefaultSave(),wearing:wear};}
 }
@@ -1909,6 +2143,13 @@ function mhClassicNoobSvg(m){
  if(m.hat==='voidhorn') hat='<polygon points="50,2 56,16 44,16" fill="#402060" stroke="#c080ff" stroke-width="1"/>';
  if(m.hat==='voidhalo') hat='<path d="M36 12 A14 14 0 0 1 64 12" fill="none" stroke="#c898ff" stroke-width="3"/><path d="M40 10 A10 10 0 0 1 60 10" fill="none" stroke="#fff" stroke-width="1" opacity=".4"/>';
  if(m.hat==='riftshard') hat='<polygon points="62,6 70,18 62,24 54,18" fill="#80e0ff" stroke="#fff" stroke-width="1"/>';
+ if(m.hat==='plague') hat=`<ellipse cx="50" cy="12" rx="24" ry="11" fill="#1a2830" stroke="#506060" stroke-width="1.5"/>
+  <ellipse cx="50" cy="14" rx="20" ry="8" fill="#2a3840"/>
+  <path d="M50 14 L62 28 L58 32 L50 26 L42 32 L38 28 Z" fill="#303840" stroke="#809090" stroke-width="1"/>
+  <circle cx="44" cy="10" r="3" fill="#101820"/><circle cx="56" cy="10" r="3" fill="#101820"/>`;
+ if(m.plagueDoctor){
+  hat+=`<text x="18" y="24" font-size="11">☠</text><text x="72" y="26" font-size="10">💊</text><text x="14" y="48" font-size="9">💀</text><text x="78" y="44" font-size="10">🧪</text>`;
+ }
  const stripe=m.stripe&&m.body!=='ghost'?`<rect x="30" y="48" width="40" height="7" fill="rgba(255,255,255,.28)"/><rect x="30" y="58" width="40" height="5" fill="rgba(0,0,0,.12)"/>`:'';
  const glasses=m.glasses&&m.body!=='robot'?'<rect x="36" y="18" width="11" height="9" rx="2" fill="rgba(200,230,255,.35)" stroke="#1a1a20" stroke-width="1.2"/><rect x="53" y="18" width="11" height="9" rx="2" fill="rgba(200,230,255,.35)" stroke="#1a1a20" stroke-width="1.2"/><line x1="47" y1="22" x2="53" y2="22" stroke="#1a1a20" stroke-width="1.2"/>':'';
  const face=m.body==='robot'?'':mhFacePath(m.face||'smile');
@@ -2490,7 +2731,10 @@ function mhWear(id,silent){
  mhState.save.wearing=id;
  mhSaveSave(mhState.save);
  mhSaveWearId(id);
- if(!silent) mhToast('You morphed into '+mhMorph(id).name+'!');
+ if(!silent){
+  mhToast('You morphed into '+mhMorph(id).name+'!');
+  if(mhMorph(id)?.plagueDoctor) mhPlagueDoctorSay(mhState?.save,0);
+ }
  mhRender();
 }
 
@@ -3008,8 +3252,15 @@ function mhEnsureVoidCombat(m){
  if(!m.voidAttack||!m.voidPower) mhAssignVoidCombat(m);
  return m;
 }
+function mhEnsurePlagueCombat(m){
+ if(!m||!m.plagueDoctor) return null;
+ if(!m.voidAttack) m.voidAttack={id:'foul_cure',name:'Foul Cure',color:'#80ffb0',kind:'orbs',speed:5,range:70};
+ if(!m.voidPower) m.voidPower={id:'death_sigil',name:'Death Sigil',color:'#303038',kind:'nova',speed:4,range:95};
+ return m;
+}
 function mhVoidCombatMorph(save){
  const wear=mhMorph(save?.wearing);
+ if(wear?.plagueDoctor) return mhEnsurePlagueCombat(wear);
  if(wear&&(wear.rarity==='voidfallen'||wear.voidFallen)) return mhEnsureVoidCombat(wear);
  return null;
 }
@@ -3993,6 +4244,7 @@ function mhUseFightStorm(st,save,pos,wi){
 function mhUseVoidAttack(st,save,pos,wi){
  const m=mhVoidCombatMorph(save);
  if(!m){ mhToast('Morph into a Void Fallen noobie first (Morph tab)!'); return; }
+ if(m.plagueDoctor) mhPlagueDoctorSay(save,0);
  const atk=m.voidAttack||MH_VOID_ATTACKS[0];
  const dir=mhFacingDir(st);
  const rage=st.voidRageUntil&&performance.now()<st.voidRageUntil;
@@ -4003,7 +4255,7 @@ function mhUseVoidAttack(st,save,pos,wi){
  if(atk.kind==='nova') dmg=32;
  if(m.voidKing) dmg+=12;
  if(wi!=null) mhFightHitscan(st,save,wi,pos,dir,dmg,range);
- mhToast('⚔ '+atk.name+'!');
+ mhToast(m.plagueDoctor?'⚔ '+atk.name+'… (it barely works!)':'⚔ '+atk.name+'!');
  try{if(typeof SFX!=='undefined'&&SFX.hit)SFX.hit();}catch(_){}
 }
 function mhUseVoidStorm(st,save,pos,wi){
@@ -4022,6 +4274,7 @@ function mhUseVoidStorm(st,save,pos,wi){
 function mhUseVoidPower(st,save,pos,map,wi){
  const m=mhVoidCombatMorph(save);
  if(!m){ mhToast('Morph into a Void Fallen noobie first!'); return; }
+ if(m.plagueDoctor) mhPlagueDoctorSay(save,1);
  const pow=m.voidPower||MH_VOID_POWERS[0];
  const dir=mhFacingDir(st);
  if(pow.kind==='dash'){
@@ -4249,6 +4502,10 @@ function mhPaintNoob3D(ctx,m,x,y,sc,alpha,silhouette,walkPhase,running){
   ctx.beginPath(); ctx.arc(0,-52,14,Math.PI,0); ctx.stroke();
   ctx.strokeStyle='rgba(255,255,255,.35)'; ctx.lineWidth=1;
   ctx.beginPath(); ctx.arc(0,-52,10,Math.PI,0); ctx.stroke();
+ }
+ if(m.hat==='plague'&&!silhouette){
+  ctx.fillStyle='#1a2830'; ctx.beginPath(); ctx.ellipse(0,-48,20,9,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#303840'; ctx.beginPath(); ctx.moveTo(0,-44); ctx.lineTo(12,-28); ctx.lineTo(-12,-28); ctx.fill();
  }
  if(m.hat==='riftshard'&&!silhouette){
   const ac=m.voidAccent||'#80e0ff';
@@ -4497,6 +4754,8 @@ function mhTryStartMinigame(){
  if(!mhState?.save) return;
  const wi=mhState.world, save=mhState.save, map=MH_WORLD_MAPS[wi];
  const pos=mhWalkEnsurePos(mhState,wi);
+ if(mhState.insideBuilding?.kind==='plague_lab'){ mhPlagueLabAdvance(save); return; }
+ if(mhTryCollectPlagueBug(save,wi,map,pos)) return;
  if(mhState.walkNearId){
   mhDeckUnlock(mhMorph(mhState.walkNearId),save);
   return;
@@ -4733,7 +4992,7 @@ function mhWalkDrawFrame(){
   mhPaintWorldGroundTile(ctx,x,y,v,world,wi);
   ctx.strokeStyle='rgba(0,0,0,.06)'; ctx.strokeRect(x+.5,y+.5,MH_TILE-1,MH_TILE-1);
  }
- mhDrawMapDecors(ctx,map,wi,t);
+ mhDrawMapDecors(ctx,map,wi,t,st.save);
  if(wi===MH_VOID_WORLD) mhDrawVoidAbyssMist(ctx,map,t);
  mhDrawHideoutGroves(ctx,map,pos,wi);
  if(wi===MH_VOID_WORLD) mhDrawVoidThrone(ctx,map);
@@ -5093,6 +5352,7 @@ function mhRenderHunt(save, wi){
    <li>Walk into a dashed grove → press <b>E</b> — <b>duel</b> the noobie, run an <b>obby</b>, or <b>counter-fight</b> to unlock. <b>F</b> = big homes.</li>
    <li><b>💬 Chat</b> panel on Hunt: <b>Global</b> · <b>Server</b> (this map) · <b>Friends</b> (share your code). Press <b>T</b> — your noobie talks in speech bubbles!</li>
    <li><b>🏀 Court plaza</b> stays at spawn · <b>4 parks</b> around the map · <b>Mayor statue</b> on court: <b>J/L</b> crank, <b>R</b> flash light at all 4 mirrors → <b>Mayor Noobie</b>!</li>
+   <li><b>☣ Plague Doctor</b> — catch striped <b>🐛 bugs</b> (yellow/black or red/black) at <b>every park on every map</b> · <b>E</b> near bug · then <b>Buddy Plaza ☣ PLAGUE LAB</b> (by court): <b>F</b> enter · <b>E</b> ×5 (toxic → airlock → jar → syringe → inject) → <b>Plague Badge</b> + doctor morph with floating cures &amp; ☠!</li>
   </ol>
  </div>
  <div class="mh-walk-wrap mh-walk-with-chat">
