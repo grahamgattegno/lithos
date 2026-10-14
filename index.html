@@ -1523,7 +1523,7 @@
   #morphhunt button,#morphhunt .mh-tab,#morphhunt .mh-world-tab,#morphhunt .mh-btn,#morphhunt .mh-filter,#morphhunt .mh-chat-tab{outline:none!important;box-shadow:none!important;-webkit-appearance:none;appearance:none}
   #morphhunt button:focus,#morphhunt button:focus-visible,#morphhunt .mh-tab:focus,#morphhunt .mh-tab:focus-visible{outline:none!important;box-shadow:none!important}
   #morphhunt .mh-walk-canvas{outline:none!important}
-  body.mh-hunt-open nav.top,body.mh-hunt-open .mobile-bar,body.mh-hunt-open header.site-head{pointer-events:none!important;visibility:hidden!important}
+  body.mh-hunt-open nav.top,body.mh-hunt-open .mobile-bar,body.mh-hunt-open header.site-head{display:none!important;visibility:hidden!important;pointer-events:none!important}
   body.mh-hunt-open #lithos-games-hub,body.mh-hunt-open #lithos-adventure-preview,body.mh-hunt-open #lithos-device-picker{display:none!important;visibility:hidden!important;pointer-events:none!important}
   body.mh-hunt-open *:focus{outline:none!important}
   body.mh-hunt-open::before,body.mh-hunt-open::after{display:none!important}
@@ -1699,6 +1699,24 @@
   .mh-world-tabs-compact .mh-world-tab{padding:6px 10px;font-size:11px}
   .mh-walk-hud-clean{flex-wrap:nowrap;gap:6px;padding:8px 10px}
   .mh-walk-hud-clean .mh-walk-zone{flex:1;min-width:0;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mh-ui-compact .mh-progress,.mh-ui-compact .mh-hunt-deck-fold,.mh-ui-compact .mh-test-play-banner{display:none!important}
+  .mh-ui-compact .mh-chat-chips-fold{display:none!important}
+  .mh-ui-compact .mh-chat-compose.is-slim{border-width:1px;padding:6px 8px;box-shadow:none}
+  .mh-ui-compact .mh-chat-compose.is-slim .mh-chat-compose-head{display:none!important}
+  .mh-ui-compact .mh-chat-panel .mh-chat-head,.mh-ui-compact .mh-chat-panel .mh-chat-profile,.mh-ui-compact .mh-chat-panel .mh-chat-buddy-row,.mh-ui-compact .mh-chat-panel .mh-chat-buddy-code,.mh-ui-compact .mh-chat-panel .mh-chat-tabs,.mh-ui-compact .mh-chat-panel .mh-chat-log,.mh-ui-compact .mh-chat-panel .mh-chat-friends,.mh-ui-compact .mh-chat-panel .mh-chat-rules,.mh-ui-compact .mh-chat-panel .mh-chat-hint{display:none!important}
+  .mh-ui-compact .mh-chat-panel{padding:8px;max-height:none;gap:6px}
+  .mh-walk-hud-minimal{left:50%;right:auto;width:min(420px,calc(100% - 20px));bottom:10px;padding:0;background:transparent;border:none;flex-direction:column;align-items:stretch;gap:6px;transform:translateX(-50%) translateY(calc(100% + 4px));opacity:0;pointer-events:none;transition:transform .22s ease,opacity .22s;z-index:9}
+  .mh-walk-hud-minimal.is-revealed,.mh-walk-game.mh-hud-hotzone .mh-walk-hud-minimal{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:auto}
+  .mh-walk-hud-pill{display:flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;background:rgba(16,20,28,.94);border:2px solid rgba(201,169,79,.42);box-shadow:0 4px 18px rgba(0,0,0,.45)}
+  .mh-walk-hud-minimal .mh-walk-zone{flex:1;min-width:0;font-size:11px}
+  .mh-walk-hud-minimal .mh-walk-pill-fight{flex-shrink:0;min-width:44px;padding:7px 11px;font-size:14px}
+  .mh-walk-hud-more summary{font-size:16px;font-weight:900;color:#80e8ff;cursor:pointer;list-style:none;text-align:center;padding:4px;background:rgba(16,20,28,.85);border-radius:8px;border:1px solid #2a3040}
+  .mh-walk-hud-more summary::-webkit-details-marker{display:none}
+  .mh-walk-hud-more-body{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:8px 10px;margin-top:4px;border-radius:12px;background:rgba(16,20,28,.92);border:1px solid #1a1e24}
+  .mh-walk-hud-more-body .mh-walk-prompt{flex:1 1 100%;font-size:11px;text-align:center;margin:0 0 4px}
+  .mh-walk-game:has(.mh-walk-hud-minimal:not(.is-revealed))::after{content:'';position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:72px;height:4px;border-radius:4px 4px 0 0;background:rgba(201,169,79,.5);z-index:7;pointer-events:none}
+  .mh-walk-game.mh-hud-hotzone:has(.mh-walk-hud-minimal.is-revealed)::after{opacity:0}
+  .mh-ui-compact .mh-touch-controls{bottom:56px}
   .mh-btn-sm{padding:6px 10px;font-size:11px}
   .mh-hunt-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:8px;margin:10px 0}
   .mh-hunt-card{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 6px;border:2px solid var(--mh-rarity,#666);border-radius:12px;background:#121820;color:#e8e4f0;cursor:pointer;font:inherit;text-align:center}
@@ -5664,7 +5682,7 @@
 <script src="gemcopter.js?v=deploy-85"></script>
 <script>
 (function lithosLoadMorphHunt(){
- var MH_NEED='void-2d-v125';
+ var MH_NEED='void-2d-v126';
  var MH_CHAT_UI='compose-under-log-v2';
  var MH_SCRIPT='morph-hunt.'+MH_NEED+'.js';
  window.__LITHOS_MH_LATEST=MH_NEED;
@@ -5763,7 +5781,7 @@
 <script>
 window.lithosPlayMorphHunt=function lithosPlayMorphHunt(){
  try{if(typeof closeGamesHub==='function')closeGamesHub({skipHash:true});}catch(_){}
-  var NEED=window.__LITHOS_MH_LATEST||window.__LITHOS_MH_NEED||'void-2d-v125';
+  var NEED=window.__LITHOS_MH_LATEST||window.__LITHOS_MH_NEED||'void-2d-v126';
  var tries=0;
  function mhBuildNum(tag){
   var m=String(tag||'').match(/void-2d-v(\d+)/);

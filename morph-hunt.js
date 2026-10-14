@@ -5,9 +5,9 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v125';
+const MH_BUILD='void-2d-v126';
 const MH_SCENERY_STAMP='STABLE_v124';
-const MH_SCRIPT_CANON='morph-hunt.void-2d-v124.js';
+const MH_SCRIPT_CANON='morph-hunt.void-2d-v126.js';
 const MH_TIME_TRAVEL_COST=2000;
 const MH_TIME_TRAVELER_ID='ex-time-traveler';
 const MH_MATRIX_MORPH_ID='ex-matrix-noobie';
@@ -3829,9 +3829,44 @@ function mhBindHuntUiCompact(root){
  root?.querySelector('#mh-ui-compact-toggle')?.addEventListener('click',()=>{
   const compact=!mhHuntUiCompact();
   mhSetHuntUiCompact(compact);
-  mhToast(compact?'🎮 Clean view — bottom tips tucked away':'📋 Full tips & controls shown');
+  mhToast(compact?'🎮 Clean view — slim pill HUD · hover bottom or H':'📋 Full tips & controls shown');
   mhRender();
  });
+}
+function mhBindWalkHudAutohide(root){
+ if(!mhHuntUiCompact()) return;
+ const game=root?.querySelector('.mh-walk-game');
+ const hud=root?.querySelector('#mh-walk-hud.mh-walk-hud-minimal');
+ if(!game||!hud) return;
+ const reveal=()=>{ hud.classList.add('is-revealed'); game.classList.add('mh-hud-hotzone'); };
+ const maybeHide=()=>{
+  if(hud.querySelector('.mh-walk-hud-more[open]')) return;
+  if(hud.matches(':focus-within')) return;
+  hud.classList.remove('is-revealed');
+  game.classList.remove('mh-hud-hotzone');
+ };
+ const onMove=e=>{
+  const r=game.getBoundingClientRect();
+  if(e.clientY>=r.bottom-76) reveal();
+  else if(e.clientY<r.bottom-130) maybeHide();
+ };
+ game.addEventListener('mousemove',onMove);
+ game.addEventListener('touchstart',e=>{
+  const t=e.touches[0];
+  if(!t) return;
+  const r=game.getBoundingClientRect();
+  if(t.clientY>=r.bottom-90) reveal();
+ },{passive:true});
+ hud.addEventListener('focusin',reveal);
+ hud.addEventListener('focusout',()=>{ setTimeout(maybeHide,80); });
+ document.addEventListener('keydown',e=>{
+  if(mhState?.tab!=='hunt') return;
+  if(e.key==='h'&&!e.metaKey&&!e.ctrlKey&&!e.altKey){
+   const on=hud.classList.toggle('is-revealed');
+   game.classList.toggle('mh-hud-hotzone',on);
+   if(on) mhToast('Controls shown · H again to tuck away');
+  }
+ },true);
 }
 function mhMorphHuntInertBackground(on){
  if(!mhState) return;
@@ -4978,15 +5013,15 @@ function mhRenderChatPanel(save){
    <div class="mh-chat-friend-add"><input type="text" id="mh-chat-friend-code" placeholder="Friend code…" autocomplete="off"/><button type="button" class="mh-btn mh-btn-sm" id="mh-chat-friend-add">Add</button></div>
    <select id="mh-chat-friend-pick" class="mh-chat-friend-pick"><option value="">— message friend —</option>${friends.map(f=>{const label=f===MH_TEST_BUDDY_ID?'🤖 Test Buddy':f===MH_TEST_PLAYER_ID?'🧪 Test Account':f;return `<option value="${f.replace(/"/g,'&quot;')}"${mhState?.chatFriendPeer===f?' selected':''}>${label}</option>`;}).join('')}</select>
   </div>
-  <section class="mh-chat-compose" aria-label="Type your message">
-   <div class="mh-chat-compose-head"><span class="mh-chat-compose-label">✏️ Your message</span><span class="mh-chat-compose-keys">↑ · / · T</span></div>
+  <section class="mh-chat-compose${mhHuntUiCompact()?' is-slim':''}" aria-label="Type your message">
+   ${mhHuntUiCompact()?'':`<div class="mh-chat-compose-head"><span class="mh-chat-compose-label">✏️ Your message</span><span class="mh-chat-compose-keys">↑ · / · T</span></div>`}
    <div class="mh-chat-row">
-    <input id="mh-chat-input" type="text" maxlength="160" placeholder="Type here… Enter to send · Esc = back to game" autocomplete="off"/>
+    <input id="mh-chat-input" type="text" maxlength="160" placeholder="${mhHuntUiCompact()?'Chat… ↑ / T · Enter send':'Type here… Enter to send · Esc = back to game'}" autocomplete="off"/>
     <button type="button" class="mh-btn primary mh-btn-sm" id="mh-chat-send">Send</button>
    </div>
    ${mhHuntUiCompact()?'':'<p class="mh-chat-type-hint">Messages show above · rules apply · quick say optional below</p>'}
   </section>
-  <details class="mh-chat-chips-fold"${mhHuntUiCompact()?'':' open'}>
+  ${mhHuntUiCompact()?'':`<details class="mh-chat-chips-fold" open>
    <summary>Quick say (optional)</summary>
    <div class="mh-chat-chips" aria-label="Quick safe phrases (optional)">
     <button type="button" class="mh-chat-chip" data-mh-chat-quick="Hello!">Hello!</button>
@@ -4997,7 +5032,7 @@ function mhRenderChatPanel(save){
     <button type="button" class="mh-chat-chip" data-mh-chat-quick="Need help with a quest?">Quest help?</button>
     <button type="button" class="mh-chat-chip" data-mh-chat-quick="Go back in time">⏳ Time travel</button>
    </div>
-  </details>
+  </details>`}
   <details class="mh-chat-rules">
    <summary>🛡️ Chat rules (everyone)</summary>
    <ul>${MH_CHAT_RULES.map(r=>`<li>${r}</li>`).join('')}</ul>
@@ -8259,14 +8294,30 @@ function mhRenderHunt(save, wi){
    <button type="button" class="mh-dpad-btn mh-dpad-right" data-mh-dpad="right" aria-label="Right">▶</button>
    <button type="button" class="mh-dpad-btn mh-dpad-fight" id="mh-touch-fight" aria-label="Fight">⚔</button>
   </div>
-  <div id="mh-walk-hud" class="mh-walk-hud mh-walk-hud-clean${mhHuntUiCompact()?' is-compact':''}">
+  ${mhHuntUiCompact()
+   ?`<div id="mh-walk-hud" class="mh-walk-hud mh-walk-hud-clean is-compact mh-walk-hud-minimal" aria-label="Map controls">
+   <div class="mh-walk-hud-pill">
+    <span class="mh-walk-zone">${world.emoji} ${world.name} · ${found}/${morphs.length}</span>
+    <button type="button" class="mh-btn primary mh-btn-sm mh-walk-pill-fight" id="mh-walk-interact" title="Fight (E)">⚔</button>
+   </div>
+   <details class="mh-walk-hud-more">
+    <summary aria-label="More map controls">⋯</summary>
+    <div class="mh-walk-hud-more-body">
+     <span class="mh-walk-prompt" hidden>Walk closer</span>
+     <button type="button" class="mh-btn mh-btn-sm" id="mh-walk-enter">F House</button>
+     <button type="button" class="mh-btn mh-btn-sm" id="mh-walk-run">Run</button>
+     ${fightKeysUi}
+    </div>
+   </details>
+  </div>`
+   :`<div id="mh-walk-hud" class="mh-walk-hud mh-walk-hud-clean">
    <span class="mh-walk-zone">${world.emoji} ${world.name} · ${found}/${morphs.length}</span>
    <span class="mh-walk-prompt" hidden>Walk closer</span>
    <button type="button" class="mh-btn primary mh-btn-sm" id="mh-walk-interact">⚔ Fight (E)</button>
    <button type="button" class="mh-btn mh-btn-sm" id="mh-walk-enter">F House</button>
    <button type="button" class="mh-btn mh-btn-sm" id="mh-walk-run">Run</button>
    ${fightKeysUi}
-  </div>
+  </div>`}
   </div>
   ${mhRenderChatPanel(save)}
  </div>
@@ -8471,6 +8522,7 @@ function mhRenderGacha(save){
 function mhBind(root){
  mhBindIdeHint(root);
  mhBindHuntUiCompact(root);
+ mhBindWalkHudAutohide(root);
  root.querySelector('#mh-leave')?.addEventListener('click',mhClose);
  root.querySelectorAll('[data-mh-id]').forEach(btn=>btn.addEventListener('click',()=>mhCollect(btn.dataset.mhId)));
  root.querySelectorAll('[data-mh-world]').forEach(btn=>btn.addEventListener('click',()=>{ mhState.huntPage=0; mhSetWorld(+btn.dataset.mhWorld); }));
