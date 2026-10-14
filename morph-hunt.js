@@ -5,10 +5,13 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v107';
-const MH_SCENERY_STAMP='TEST_BUDDY_v107';
+const MH_BUILD='void-2d-v108';
+const MH_SCENERY_STAMP='TEST_ACCOUNT_v108';
 const MH_TEST_BUDDY_ID='lithos-test-buddy';
 const MH_TEST_BUDDY_NAME='Test Buddy';
+const MH_TEST_PLAYER_ID='lithos-test-account';
+const MH_TEST_STORE_KEY='lithos_morph_hunt_test_v1';
+const MH_PROFILE_KEY='lithos_mh_profile_v1';
 const MH_OPEN_PLAY=true;
 const MH_FEATURE_SHOWCASE=true;
 const MH_UPDATE100_CODE='update100';
@@ -1308,27 +1311,28 @@ function mhIsOwner(){
 }
 function mhOpenPlaySave(){
  const wear=mhLoadWearId();
+ const test=mhIsTestProfile();
  const base={
   collected:MH_MORPHS.map(m=>m.id),
   worldsUnlocked:MH_WORLDS.length,
   coins:99999,
-  wearing:wear||'ex-welcome',
-  title:'',
+  wearing:wear||(test?'ex-welcome':'ex-welcome'),
+  title:test?'Test Player':'',
   codesUsed:[],
   minigameWon:[],
-  chatPlayerId:'',
-  chatDisplayName:'',
+  chatPlayerId:test?MH_TEST_PLAYER_ID:'',
+  chatDisplayName:test?'Test Account':'',
   chatFriends:[],
   plagueQuest:mhDefaultPlagueQuest()
  };
  try{
-  const raw=JSON.parse(localStorage.getItem(MH_STORE_KEY)||'null');
-  if(!raw||typeof raw!=='object') return base;
+  const raw=JSON.parse(localStorage.getItem(mhProfileStoreKey())||'null');
+  if(!raw||typeof raw!=='object'){ mhCrossLinkPlayFriends(base); return base; }
   if(typeof raw.title==='string') base.title=raw.title;
   if(Array.isArray(raw.codesUsed)) base.codesUsed=raw.codesUsed.filter(x=>typeof x==='string');
   if(Array.isArray(raw.minigameWon)) base.minigameWon=raw.minigameWon.filter(x=>typeof x==='string');
-  if(typeof raw.chatPlayerId==='string'&&raw.chatPlayerId) base.chatPlayerId=raw.chatPlayerId;
-  if(typeof raw.chatDisplayName==='string') base.chatDisplayName=raw.chatDisplayName;
+  if(typeof raw.chatPlayerId==='string'&&raw.chatPlayerId&&!test) base.chatPlayerId=raw.chatPlayerId;
+  if(typeof raw.chatDisplayName==='string'&&raw.chatDisplayName&&!test) base.chatDisplayName=raw.chatDisplayName;
   if(Array.isArray(raw.chatFriends)) base.chatFriends=raw.chatFriends.filter(x=>typeof x==='string');
   base.plagueQuest=mhNormalizePlagueQuest(raw.plagueQuest);
   if(raw.wearing&&MH_MORPHS.some(m=>m.id===raw.wearing)) base.wearing=raw.wearing;
@@ -1337,23 +1341,85 @@ function mhOpenPlaySave(){
   if(c>base.coins) base.coins=c;
   base.worldsUnlocked=MH_WORLDS.length;
  }catch(_){}
- if(!base.chatPlayerId){
+ if(test){
+  base.chatPlayerId=MH_TEST_PLAYER_ID;
+  base.chatDisplayName='Test Account';
+ }else if(!base.chatPlayerId){
   base.chatPlayerId='noob-'+Math.random().toString(36).slice(2,11);
  }
+ mhCrossLinkPlayFriends(base);
  return base;
 }
+function mhCrossLinkPlayFriends(save){
+ if(!save) return;
+ if(!save.chatFriends) save.chatFriends=[];
+ [MH_TEST_BUDDY_ID,MH_TEST_PLAYER_ID].forEach(id=>{
+  if(!save.chatFriends.includes(id)) save.chatFriends.unshift(id);
+ });
+}
+function mhSwitchProfile(mode){
+ if(!mhState) return;
+ mhSaveSave(mhState.save);
+ try{ localStorage.setItem(MH_PROFILE_KEY,mode==='test'?'test':'main'); }catch(_){}
+ mhState.save=mhLoadSave();
+ mhCrossLinkPlayFriends(mhState.save);
+ mhSaveSave(mhState.save);
+ mhTestBuddySetOn(mhState,mhState.save,true,true);
+ if(mode==='test'){
+  mhToast('🧪 Test Account · code '+MH_TEST_PLAYER_ID+' · open 2nd tab as 👤 You to chat!');
+ }else{
+  mhToast('👤 Your account · Global chat reaches Test Account in other tab!');
+ }
+ mhRender();
+}
+function mhOpenTestAccountTab(){
+ try{
+  const u=new URL(location.href);
+  u.searchParams.set('mh',MH_BUILD);
+  u.searchParams.set('profile','test');
+  u.searchParams.set('t',String(Date.now()));
+  u.hash='morphhunt';
+  window.open(u.toString(),'lithos_mh_test_tab');
+  mhToast('Opened 🧪 Test Account in a new tab!');
+ }catch(_){
+  mhToast('Allow pop-ups, or copy: ?profile=test#morphhunt');
+ }
+}
+function mhTestBuddyWelcome(st,save){
+ if(!st?.testBuddy?.on||st.tab!=='hunt') return;
+ const k='lithos_mh_buddy_hi_'+MH_BUILD;
+ try{ if(sessionStorage.getItem(k)) return; sessionStorage.setItem(k,'1'); }catch(_){}
+ setTimeout(()=>{
+  if(!mhState?.testBuddy?.on||mhState.tab!=='hunt') return;
+  const me=mhEnsureChatProfile(save).id;
+  mhTestBuddyMaybeReply(st,save,'Hello','global','',me);
+ },1400);
+}
 
+function mhActiveProfile(){
+ try{return localStorage.getItem(MH_PROFILE_KEY)==='test'?'test':'main';}catch(_){return 'main';}
+}
+function mhIsTestProfile(){ return mhActiveProfile()==='test'; }
+function mhProfileStoreKey(){ return mhIsTestProfile()?MH_TEST_STORE_KEY:MH_STORE_KEY; }
+function mhProfileWearKey(){ return mhIsTestProfile()?MH_WEAR_KEY+'_test':MH_WEAR_KEY; }
+function mhApplyProfileFromUrl(){
+ try{
+  if(/[?&]profile=test(?:&|$)/i.test(location.search)) localStorage.setItem(MH_PROFILE_KEY,'test');
+  if(/[?&]profile=main(?:&|$)/i.test(location.search)) localStorage.setItem(MH_PROFILE_KEY,'main');
+ }catch(_){}
+}
 function mhLoadWearId(){
  try{
-  const w=localStorage.getItem(MH_WEAR_KEY);
+  const w=localStorage.getItem(mhProfileWearKey());
   if(w&&MH_MORPHS.some(m=>m.id===w))return w;
  }catch(_){}
  return null;
 }
 function mhSaveWearId(id){
  try{
-  if(id) localStorage.setItem(MH_WEAR_KEY,id);
-  else localStorage.removeItem(MH_WEAR_KEY);
+  const k=mhProfileWearKey();
+  if(id) localStorage.setItem(k,id);
+  else localStorage.removeItem(k);
  }catch(_){}
  window.LITHOS_NOOBIE_WEAR=id||null;
  try{
@@ -2667,12 +2733,12 @@ function mhSaveSave(data){
     plagueQuest:data.plagueQuest,
     worldsUnlocked:data.worldsUnlocked
    };
-   localStorage.setItem(MH_STORE_KEY,JSON.stringify(slim));
+   localStorage.setItem(mhProfileStoreKey(),JSON.stringify(slim));
   }catch(_){}
   if(data.wearing) mhSaveWearId(data.wearing);
   return;
  }
- try{localStorage.setItem(MH_STORE_KEY,JSON.stringify(data));}catch(_){}
+ try{localStorage.setItem(mhProfileStoreKey(),JSON.stringify(data));}catch(_){}
  if(data.wearing) mhSaveWearId(data.wearing);
 }
 
@@ -3467,9 +3533,10 @@ function mhRenderChatPanel(save){
  return `<aside class="mh-chat-panel" aria-label="Character chat">
   <div class="mh-chat-head"><span>💬 Talk</span><small>${relay?'🌐 Server live':'📱 Device + tabs'} · <code>${prof.id}</code></small></div>
   <div class="mh-chat-buddy-row">
-   <button type="button" class="mh-btn mh-btn-sm${mhState?.testBuddy?.on?' primary':''}" id="mh-test-buddy-toggle">${mhState?.testBuddy?.on?'🤖 Test Buddy ON':'🤖 Test Buddy OFF'}</button>
-   <span class="mh-chat-buddy-code">Friend code: <code>${MH_TEST_BUDDY_ID}</code></span>
+   <button type="button" class="mh-btn mh-btn-sm${mhState?.testBuddy?.on?' primary':''}" id="mh-test-buddy-toggle">${mhState?.testBuddy?.on?'🤖 Buddy ON':'🤖 Buddy OFF'}</button>
+   <button type="button" class="mh-btn mh-btn-sm" id="mh-open-test-tab">🧪 2nd tab</button>
   </div>
+  <p class="mh-chat-buddy-code">Codes: <code>${MH_TEST_BUDDY_ID}</code> (robot) · <code>${MH_TEST_PLAYER_ID}</code> (test account)</p>
   <div class="mh-chat-tabs">
    <button type="button" class="mh-chat-tab${ch==='global'?' on':''}" data-mh-chat-ch="global">Global</button>
    <button type="button" class="mh-chat-tab${ch==='server'?' on':''}" data-mh-chat-ch="server">Server</button>
@@ -3478,7 +3545,7 @@ function mhRenderChatPanel(save){
   <div id="mh-chat-log" class="mh-chat-log"></div>
   <div class="mh-chat-friends${ch==='friend'?'':' hidden'}" id="mh-chat-friends-ui">
    <div class="mh-chat-friend-add"><input type="text" id="mh-chat-friend-code" placeholder="Friend code…" autocomplete="off"/><button type="button" class="mh-btn mh-btn-sm" id="mh-chat-friend-add">Add</button></div>
-   <select id="mh-chat-friend-pick" class="mh-chat-friend-pick"><option value="">— message friend —</option>${friends.map(f=>{const label=f===MH_TEST_BUDDY_ID?'🤖 Test Buddy':f;return `<option value="${f.replace(/"/g,'&quot;')}"${mhState?.chatFriendPeer===f?' selected':''}>${label}</option>`;}).join('')}</select>
+   <select id="mh-chat-friend-pick" class="mh-chat-friend-pick"><option value="">— message friend —</option>${friends.map(f=>{const label=f===MH_TEST_BUDDY_ID?'🤖 Test Buddy':f===MH_TEST_PLAYER_ID?'🧪 Test Account':f;return `<option value="${f.replace(/"/g,'&quot;')}"${mhState?.chatFriendPeer===f?' selected':''}>${label}</option>`;}).join('')}</select>
   </div>
   <p class="mh-chat-type-hint"><b>Type your own message</b> in the box — quick buttons are optional. Rules still apply to everything you send.</p>
   <div class="mh-chat-chips" aria-label="Quick safe phrases (optional)">
@@ -3508,6 +3575,7 @@ function mhBindChat(root){
   mhTestBuddySetOn(mhState,mhState.save,!mhState.testBuddy?.on);
   mhRender();
  });
+ root.querySelector('#mh-open-test-tab')?.addEventListener('click',()=>mhOpenTestAccountTab());
  root.querySelectorAll('[data-mh-chat-ch]').forEach(btn=>{
   btn.onclick=()=>{
    const v=btn.dataset.mhChatCh;
@@ -6186,6 +6254,12 @@ function mhWalkDrawFrame(){
  ctx.fillText('Search dashed groves · noobies appear when you walk in · E unlock',16,42);
  ctx.fillStyle='#a0c8ff'; ctx.font='bold 11px system-ui,sans-serif';
  ctx.fillText('Epic+ → teleport 💎 · Void → teleport 🕳 (tabs above)',16,56);
+ if(st.testBuddy?.on){
+  ctx.fillStyle='rgba(0,40,60,.88)'; ctx.fillRect(W/2-150,56,300,22);
+  ctx.fillStyle='#80e8ff'; ctx.font='bold 11px system-ui'; ctx.textAlign='center';
+  ctx.fillText('🤖 Test Buddy nearby · / or ↑ to chat',W/2,72);
+  ctx.textAlign='left';
+ }
  mhEnsureFight(st,save);
  const php=st.fightHp||100, pmax=st.fightMaxHp||100;
  mhDrawFightHpBar(ctx,W-90,18,120,php,pmax,st.fightHitFlash>performance.now()?'#ff8080':'#80ffb0');
@@ -6512,7 +6586,8 @@ function mhRenderHunt(save, wi){
  }).join('');
  const tpEpic=wi!==MH_EXOTIC_WORLD?`<button type="button" class="mh-btn primary mh-btn-sm" data-mh-world="${MH_EXOTIC_WORLD}">💎 Teleport Epic+ Map</button>`:'';
  const tpVoid=wi!==MH_VOID_WORLD?`<button type="button" class="mh-btn mh-btn-sm" data-mh-world="${MH_VOID_WORLD}">🕳 Teleport Void Map</button>`:'';
- return `<div class="mh-teleport-bar">
+ return `<div class="mh-test-play-banner">${mhIsTestProfile()?'<b>🧪 Test Account</b> — chat with 👤 You in another tab (Global).':'<b>👤 Your account</b> — tap <b>🧪 Test Account</b> above or open <b>🧪 2nd tab</b> in chat to play together.'} Build <b>${MH_BUILD}</b></div>
+ <div class="mh-teleport-bar">
   <span><b>${world.emoji} ${world.name}</b> — ${mhWorldRarityHint(wi)} · ${found}/${morphs.length} here</span>
   <span class="mh-teleport-btns">${tpEpic}${tpVoid}</span>
  </div>
@@ -6785,6 +6860,8 @@ function mhBind(root){
   codeIn.onkeydown=e=>{ if(e.key==='Enter') mhRedeemCode(codeIn.value); };
  }
  mhBindChat(root);
+ root.querySelector('#mh-switch-test')?.addEventListener('click',()=>mhSwitchProfile('test'));
+ root.querySelector('#mh-switch-main')?.addEventListener('click',()=>mhSwitchProfile('main'));
  root.querySelectorAll('button').forEach(btn=>{
   if(btn.id==='mh-chat-input') return;
   btn.addEventListener('mousedown',e=>{ if(e.button===0) e.preventDefault(); });
@@ -6835,6 +6912,8 @@ function mhRender(){
     <span class="mh-live-build" id="mh-live-build" title="If this number is old, you are not on the latest file">✓ ${MH_BUILD}</span>
     ${owner?'<span class="mh-owner-tag">Owner</span>':''}
     ${MH_OPEN_PLAY?'<span class="mh-owner-tag" style="border-color:rgba(128,255,176,.45);color:#80ffb0">Open play · all morphs</span>':''}
+    ${mhIsTestProfile()?'<span class="mh-owner-tag" style="border-color:rgba(128,200,255,.5);color:#80d8ff">🧪 Test Account</span>':'<button type="button" class="mh-btn mh-btn-sm" id="mh-switch-test">🧪 Test Account</button>'}
+    ${mhIsTestProfile()?'<button type="button" class="mh-btn mh-btn-sm ghost" id="mh-switch-main">👤 You</button>':''}
     <button type="button" class="mh-btn ghost" id="mh-leave">Leave</button>
    </div>
   </div>
@@ -6860,6 +6939,7 @@ function mhRender(){
  if(tab==='hunt'){
   mhWalkStart();
   if(!chatWasTyping) mhMorphHuntFocusGame();
+  mhTestBuddyWelcome(st,save);
  }else if(tab==='preview'){
   mhPreviewStart();
  }else if(tab==='stars'){
@@ -6880,10 +6960,6 @@ function mhSyncMorphHuntUrl(){
  }catch(_){}
 }
 function mhMorphHuntOpenTab(){
- try{
-  const k='lithos_mh_open_tab_'+MH_BUILD;
-  if(!sessionStorage.getItem(k)){ sessionStorage.setItem(k,'1'); return 'stars'; }
- }catch(_){}
  return 'hunt';
 }
 function mhMorphHuntStaleHostHint(){
@@ -6897,6 +6973,7 @@ function mhMorphHuntStaleHostHint(){
  return false;
 }
 function playMorphHunt(){
+ mhApplyProfileFromUrl();
  mhSyncMorphHuntUrl();
  mhClose();
  mhMorphHuntBindModal();
