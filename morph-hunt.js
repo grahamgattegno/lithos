@@ -5,9 +5,10 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v112';
-const MH_SCENERY_STAMP='NO_AUTO_WALK_v112';
+const MH_BUILD='void-2d-v113';
+const MH_SCENERY_STAMP='FIGHT_ANYTIME_v113';
 const MH_FREEZE_NPC_WALK=true;
+const MH_FIGHT_ANYTIME=true;
 const MH_GEMINI_BASE='https://generativelanguage.googleapis.com/v1beta';
 const MH_GEMINI_MODEL='gemini-flash-latest';
 const MH_CHAT_COMPOSE_UI=true;
@@ -2694,11 +2695,34 @@ function mhNeedsMinigame(m,save){
 function mhDeckUnlock(m,save){
  if(!m||!save) return;
  if(mhHasMorph(save,m.id)){
-  if(mhIsOwner()){ mhOpenMinigame(m); return; }
+  if(MH_FIGHT_ANYTIME||mhIsOwner()){ mhOpenMinigame(m); return; }
   mhWear(m.id);
   return;
  }
  mhOpenMinigame(m);
+}
+function mhPickFightMorph(save,wi,pos){
+ const posPx=pos||mhWalkEnsurePos(mhState,wi);
+ let best=null,bd=1e9;
+ mhWorldMorphs(wi).forEach(m=>{
+  if(m.voidKing||m.tileX==null) return;
+  const p=mhGetNpcPos(mhState,wi,m);
+  const d=Math.hypot(p.px-posPx.px,p.py-posPx.py);
+  if(d<bd){ bd=d; best=m; }
+ });
+ if(best) return best;
+ const pool=mhWorldMorphs(wi).filter(m=>!m.voidKing);
+ if(pool.length) return pool[mhHashStr(String(Date.now())+'f')%pool.length];
+ return mhMorph(save.wearing)||mhMorph('ex-welcome');
+}
+function mhStartFight(m,practice){
+ if(!m||!mhState) return;
+ if(practice||mhHasMorph(mhState.save,m.id)){
+  mhOpenMinigame(m);
+  mhToast(practice?'🎮 Practice fight!':'⚔ Duel / obby started!');
+  return;
+ }
+ mhDeckUnlock(m,mhState.save);
 }
 function mhMinigameCleared(save,id){
  return (save.minigameWon||[]).includes(id);
@@ -6112,7 +6136,8 @@ function mhTryStartMinigame(){
  if(mhState.insideBuilding?.kind==='plague_lab'){ mhPlagueLabAdvance(save); return; }
  if(mhTryCollectPlagueBug(save,wi,map,pos)) return;
  if(mhState.walkNearId){
-  mhDeckUnlock(mhMorph(mhState.walkNearId),save);
+  const near=mhMorph(mhState.walkNearId);
+  if(near) mhStartFight(near,mhHasMorph(save,near.id));
   return;
  }
  const grove=mhGroveAt(map,pos.px,pos.py);
@@ -6129,16 +6154,22 @@ function mhTryStartMinigame(){
    return;
   }
  }
- let best=null,bd=380;
+ let best=null,bd=MH_FIGHT_ANYTIME?900:380;
  mhWorldMorphs(wi).forEach(m=>{
-  if(m.tileX==null||m.voidKing||mhHasMorph(save,m.id)) return;
+  if(m.tileX==null||m.voidKing) return;
+  if(!MH_FIGHT_ANYTIME&&mhHasMorph(save,m.id)) return;
   const p=mhGetNpcPos(mhState,wi,m);
   const d=Math.hypot(p.px-pos.px,p.py-pos.py);
   if(d<bd){ bd=d; best=m; }
  });
- if(best){ mhOpenMinigame(best); mhToast('⚔ Duel / obby started!'); return; }
+ if(best){ mhStartFight(best,mhHasMorph(save,best.id)); return; }
  const next=mhWorldMorphs(wi).find(m=>!mhHasMorph(save,m.id)&&!m.voidKing);
- if(next){ mhOpenMinigame(next); mhToast('⚔ Fight challenge — deck noobie!'); return; }
+ if(next){ mhStartFight(next,false); return; }
+ if(MH_FIGHT_ANYTIME){
+  const pick=mhPickFightMorph(save,wi,pos);
+  mhStartFight(pick,true);
+  return;
+ }
  mhToast('All noobies on this map collected! Try 💎 Epic+ or 🕳 Void teleport.');
 }
 function mhWalkNearMorph(save,wi,pos,st){
@@ -6265,6 +6296,7 @@ function mhWalkStop(){
  document.removeEventListener('keydown',mhWalkKeysDown,true);
  document.removeEventListener('keyup',mhWalkKeysUp,true);
  window.removeEventListener('blur',mhWalkClearKeys);
+ document.removeEventListener('visibilitychange',mhWalkVisClear);
  mhWalkClearKeys();
 }
 function mhWalkKeysDown(e){ mhWalkApplyKey(e,true); }
@@ -6752,7 +6784,7 @@ function mhRenderHuntDeck(save,wi,morphs){
  const cards=pg.slice.map(m=>{
   const got=mhHasMorph(save,m.id);
   const r=mhRarityInfo(m);
-  const btn=got?(mhIsOwner()?'🎮 Practice fight':'✓ Owned'):'⚔ Fight / obby';
+  const btn=got?(MH_FIGHT_ANYTIME?'🎮 Practice fight':'✓ Owned'):'⚔ Fight / obby';
   return `<button type="button" class="mh-hunt-card${got?' got':''}" data-mh-challenge="${m.id}" style="--mh-rarity:${r.color}">
    <span class="mh-hunt-card-art">${got?`<svg viewBox="0 0 100 130">${mhClassicNoobSvg(m)}</svg>`:'?'}</span>
    <span class="mh-hunt-card-name">${got?m.name:'???'}</span>
@@ -6792,7 +6824,7 @@ function mhRenderHunt(save, wi){
    <li><b>Maps 0–7</b> (Buddy, Fair, Beach…): only <b>Common · Uncommon · Rare</b>. They stay inside <b>🕵 hidden groves</b> (dashed boxes) — not scattered on the whole map.</li>
    <li><b>💎 Epic+ Realm</b> (teleport tab or button): <b>Epic · Legendary · Secret · Exotic · Exclusive</b> — also in groves on that map.</li>
    <li><b>Void Fallen morph</b>: 🎭 Morph tab → <b>1</b> attack · <b>2</b> power on <b>every map</b> (King = red-black storm!). 🕳 Abyss = King + groves.</li>
-   <li>Walk into a dashed grove → press <b>E</b> — <b>duel</b> the noobie, run an <b>obby</b>, or <b>counter-fight</b> to unlock. <b>F</b> = big homes.</li>
+   <li><b>E</b> or <b>⚔ Fight</b> — fight <b>anytime</b> (practice if you already own the noobie). Groves still have unlock challenges. <b>F</b> = big homes.</li>
    <li><b>💬 Chat</b> — press <b>↑</b> or <b>/</b> or <b>T</b> to talk, <b>Enter</b> to send, <b>Esc</b> back to walking (rules apply). <b>Global</b> · <b>Server</b> · <b>Friends</b>.</li>
    <li><b>🏀 Court plaza</b> stays at spawn · <b>4 parks</b> around the map · <b>Mayor statue</b> on court: <b>J/L</b> crank, <b>R</b> flash light at all 4 mirrors → <b>Mayor Noobie</b>!</li>
    <li><b>☣ Plague Doctor</b> — catch striped <b>🐛 bugs</b> (yellow/black or red/black) at <b>every park on every map</b> · <b>E</b> near bug · then <b>Buddy Plaza ☣ PLAGUE LAB</b> (by court): <b>F</b> enter · <b>E</b> ×5 (toxic → airlock → jar → syringe → inject) → <b>Plague Badge</b> + doctor morph with floating cures &amp; ☠!</li>
@@ -6805,7 +6837,7 @@ function mhRenderHunt(save, wi){
   <div id="mh-walk-hud" class="mh-walk-hud mh-walk-hud-clean">
    <span class="mh-walk-zone">${world.emoji} ${world.name} · ${found}/${morphs.length}</span>
    <span class="mh-walk-prompt" hidden>Walk closer</span>
-   <button type="button" class="mh-btn primary mh-btn-sm" id="mh-walk-interact">⚔ Fight (E)</button>
+   <button type="button" class="mh-btn primary mh-btn-sm" id="mh-walk-interact">⚔ Fight anytime (E)</button>
    <button type="button" class="mh-btn mh-btn-sm" id="mh-walk-enter">F House</button>
    <button type="button" class="mh-btn mh-btn-sm" id="mh-walk-run">Run</button>
    <button type="button" class="mh-btn mh-btn-sm" id="mh-void-atk">⚔ 1 Attack</button><button type="button" class="mh-btn mh-btn-sm" id="mh-void-pow">✦ 2 Power</button><button type="button" class="mh-btn mh-btn-sm" id="mh-void-storm">🌌 3 Storm</button>   <button type="button" class="mh-btn mh-btn-sm" id="mh-void-cutscene" hidden>🎬 4 Cutscene</button>
