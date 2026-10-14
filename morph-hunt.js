@@ -5,8 +5,9 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v109';
-const MH_SCENERY_STAMP='CHAT_COMPOSE_v109';
+const MH_BUILD='void-2d-v110';
+const MH_SCENERY_STAMP='CHAT_COMPOSE_v110';
+const MH_CHAT_COMPOSE_UI=true;
 const MH_TEST_BUDDY_ID='lithos-test-buddy';
 const MH_TEST_BUDDY_NAME='Test Buddy';
 const MH_TEST_PLAYER_ID='lithos-test-account';
@@ -3572,8 +3573,34 @@ function mhRenderChatPanel(save){
   <p class="mh-chat-hint"><b>Test Buddy</b> on the map · <b>Server</b> = speech bubbles here. <b>🧪 2nd tab</b> = play with Test Account.</p>
  </aside>`;
 }
+function mhEnsureModernChatUi(){
+ if(document.querySelector('.mh-chat-compose')) return true;
+ const host=document.getElementById('morphhunt');
+ if(!host) return false;
+ let bar=document.getElementById('mh-cache-fix-banner');
+ if(!bar){
+  bar=document.createElement('div');
+  bar.id='mh-cache-fix-banner';
+  bar.className='mh-cache-fix-banner';
+  bar.innerHTML=`<div class="mh-cache-fix-inner"><p><b>Safari has an OLD chat screen cached.</b></p><p>Need build <b>${MH_BUILD}</b> (✏️ Your message under the chat log).</p><button type="button" class="mh-btn primary" id="mh-cache-fix-btn">Load newest Lithos</button></div>`;
+  host.prepend(bar);
+  bar.querySelector('#mh-cache-fix-btn')?.addEventListener('click',()=>{
+   try{
+    sessionStorage.removeItem('lithos_mh_pages_'+MH_BUILD);
+    Object.keys(sessionStorage).forEach(k=>{ if(/^lithos_mh_reload_/.test(k)) sessionStorage.removeItem(k); });
+   }catch(_){}
+   const u=new URL(location.href);
+   u.searchParams.set('mh',MH_BUILD);
+   u.searchParams.set('t',String(Date.now()));
+   u.hash='morphhunt';
+   location.replace(u.toString());
+  });
+ }
+ return false;
+}
 function mhBindChat(root){
  if(!root||!mhState) return;
+ mhEnsureModernChatUi();
  root.querySelector('#mh-test-buddy-toggle')?.addEventListener('click',()=>{
   mhTestBuddySetOn(mhState,mhState.save,!mhState.testBuddy?.on);
   mhRender();
@@ -7044,7 +7071,8 @@ function mhGetWearingMorph(){ return mhMorph(mhLoadWearId()||window.LITHOS_NOOBI
 
 window.playMorphHunt=playMorphHunt;
 window.LITHOS_MH_BUILD=MH_BUILD;
-window.LITHOS_MH_FEATURES={showcase:MH_FEATURE_SHOWCASE,stamp:MH_SCENERY_STAMP};
+window.LITHOS_MH_CHAT_COMPOSE=MH_CHAT_COMPOSE_UI;
+window.LITHOS_MH_FEATURES={showcase:MH_FEATURE_SHOWCASE,stamp:MH_SCENERY_STAMP,chatCompose:MH_CHAT_COMPOSE_UI};
 window.LITHOS_MH_KING_STAMP=MH_KING_STAMP;
 window.mhClose=mhClose;
 window.mhRedeemMorphCode=mhRedeemCode;

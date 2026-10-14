@@ -1751,6 +1751,9 @@
   .mh-chat-rules li{margin-bottom:4px}
   .mh-chat-rules-foot{margin:8px 0 0;font-size:9px;color:#708878}
   .mh-chat-blocked{color:#8090a0;font-style:italic}
+  .mh-cache-fix-banner{position:absolute;inset:0;z-index:100200;background:rgba(4,6,12,.92);display:flex;align-items:center;justify-content:center;padding:20px}
+  .mh-cache-fix-inner{max-width:340px;text-align:center;padding:20px;border-radius:16px;border:2px solid #ff8080;background:#1a1020;color:#e8e8f0;line-height:1.5}
+  .mh-cache-fix-inner .mh-btn{margin-top:14px}
   .mh-mini-status{font-weight:800;color:#ffe8a0;margin:0 0 8px;font-size:13px}
   .mh-mini-gembox{position:relative;height:120px;background:#0a0e14;border-radius:12px;border:1px solid #3a4050;overflow:hidden}
   .mh-mini-gem{position:absolute;width:36px;height:36px;border:none;border-radius:8px;cursor:pointer;background:linear-gradient(135deg,#ff6090,#ffd060);transform:rotate(45deg);box-shadow:0 2px 8px rgba(0,0,0,.4)}
@@ -5604,11 +5607,15 @@
 <script src="gemcopter.js?v=deploy-85"></script>
 <script>
 (function lithosLoadMorphHunt(){
- var MH_NEED='void-2d-v109';
+ var MH_NEED='void-2d-v110';
  var MH_SCRIPT='morph-hunt.js';
  window.__LITHOS_MH_LATEST=MH_NEED;
  window.__LITHOS_MH_NEED=MH_NEED;
  window.__LITHOS_MH_SCRIPT=MH_SCRIPT;
+ function mhBuildNum(tag){
+  var m=String(tag||'').match(/void-2d-v(\d+)/);
+  return m?parseInt(m[1],10):0;
+ }
  function mhMorphHuntUrl(){
   var u=new URL(location.href);
   u.searchParams.set('mh',MH_NEED);
@@ -5619,14 +5626,16 @@
  try{
   var qMh=(location.search.match(/[?&]mh=(void-2d-v\d+)/)||[])[1];
   var onPages=/github\.io|githubusercontent\.com/i.test(location.hostname||'');
-  if(qMh&&qMh!==MH_NEED){
+  var needNum=mhBuildNum(MH_NEED);
+  var qNum=mhBuildNum(qMh);
+  if(!qMh||qNum<needNum){
    location.replace(mhMorphHuntUrl());
    return;
   }
-  if(onPages&&(!qMh||location.hash==='#morphhunt'||location.hash==='morphhunt')){
-   var bumpKey='lithos_mh_pages_'+MH_NEED;
-   if(!sessionStorage.getItem(bumpKey)){
-    sessionStorage.setItem(bumpKey,'1');
+  if(onPages&&qNum===needNum&&(location.hash||'').indexOf('morphhunt')>=0){
+   var bustKey='lithos_mh_js_bust_'+MH_NEED;
+   if(sessionStorage.getItem(bustKey)!=='1'){
+    sessionStorage.setItem(bustKey,'1');
     location.replace(mhMorphHuntUrl());
     return;
    }
@@ -5652,7 +5661,7 @@
 <script>
 window.lithosPlayMorphHunt=function lithosPlayMorphHunt(){
  try{if(typeof closeGamesHub==='function')closeGamesHub({skipHash:true});}catch(_){}
-  var NEED=window.__LITHOS_MH_LATEST||window.__LITHOS_MH_NEED||'void-2d-v109';
+  var NEED=window.__LITHOS_MH_LATEST||window.__LITHOS_MH_NEED||'void-2d-v110';
  var tries=0;
  function mhBuildNum(tag){
   var m=String(tag||'').match(/void-2d-v(\d+)/);
@@ -5662,20 +5671,23 @@ window.lithosPlayMorphHunt=function lithosPlayMorphHunt(){
   if(typeof playMorphHunt==='function'){
    var have=mhBuildNum(window.LITHOS_MH_BUILD);
    var need=mhBuildNum(NEED);
-   if(have&&need&&have<need){
-    var fixKey='lithos_mh_reload_'+NEED;
-    try{
-     if(!sessionStorage.getItem(fixKey)){
-      sessionStorage.setItem(fixKey,'1');
-      var u=new URL(location.href);
-      u.searchParams.set('mh',NEED);
-      u.searchParams.set('t',String(Date.now()));
-      u.hash='morphhunt';
-      location.replace(u.toString());
-      return;
-     }
-    }catch(_){}
-    console.warn('[Morph Hunt] older build',window.LITHOS_MH_BUILD,'latest',NEED);
+   var staleBuild=have&&need&&have<need;
+   var staleChat=!window.LITHOS_MH_CHAT_COMPOSE;
+   if(staleBuild||staleChat){
+    var n=0;
+    try{n=+(sessionStorage.getItem('lithos_mh_reload_n')||0);}catch(_){}
+    if(n<6){
+     try{sessionStorage.setItem('lithos_mh_reload_n',String(n+1));}catch(_){}
+     var u=new URL(location.href);
+     u.searchParams.set('mh',NEED);
+     u.searchParams.set('t',String(Date.now()));
+     u.hash='morphhunt';
+     location.replace(u.toString());
+     return;
+    }
+    console.warn('[Morph Hunt] stale',window.LITHOS_MH_BUILD,'need',NEED,'chatCompose',window.LITHOS_MH_CHAT_COMPOSE);
+   }else{
+    try{sessionStorage.setItem('lithos_mh_reload_n','0');}catch(_){}
    }
    try{ return playMorphHunt(); }
    catch(e){
