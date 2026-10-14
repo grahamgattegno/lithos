@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- lithos-v:morph-hunt-v121-hardrefresh-v1 -->
+<!-- lithos-v:morph-hunt-v122-hardrefresh-v1 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1758,6 +1758,23 @@
   .mh-chat-friend-pick{width:100%;padding:6px;border-radius:6px;border:1px solid #4a5060;background:#0a0e14;color:#fff;font-size:11px}
   .mh-chat-friends.hidden{display:none}
   .mh-chat-hint{margin:0;font-size:10px;line-height:1.4;color:#808898}
+  .mh-chat-profile{margin:0 0 8px;padding:8px 10px;border-radius:10px;border:1px solid rgba(201,169,79,.35);background:rgba(12,16,28,.85)}
+  .mh-chat-profile-label{display:block;font-size:10px;font-weight:800;color:#ffe8a0;margin-bottom:4px}
+  .mh-chat-profile-row{display:flex;gap:6px;align-items:center}
+  .mh-chat-profile-row input{flex:1;min-width:0;padding:8px 10px;border-radius:8px;border:1px solid #4a5060;background:#0a0e14;color:#fff;font-size:12px}
+  .mh-chat-profile-meta{margin:6px 0 0;font-size:10px;color:#9098a8;line-height:1.4}
+  .mh-chat-profile-hint{color:#788898}
+  .mh-chat-title{display:inline-block;padding:1px 6px;border-radius:999px;font-size:9px;font-weight:900;letter-spacing:.04em;text-transform:uppercase;vertical-align:middle}
+  .mh-chat-title-owner{border:1px solid rgba(248,208,48,.55);color:#ffd060;background:rgba(248,208,48,.12)}
+  .mh-chat-title-admin{border:1px solid rgba(128,200,255,.5);color:#a0d8ff;background:rgba(64,128,200,.15)}
+  .mh-chat-title-player{border:1px solid rgba(160,160,192,.4);color:#c0c8e0;background:rgba(80,80,120,.12)}
+  .mh-chat-speaker b{font-weight:800;color:#f0ecf8}
+  .mh-chat-line.mine .mh-chat-speaker b{color:#ffe8a0}
+  .mh-player-title{display:inline-block;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:900;letter-spacing:.05em;text-transform:uppercase}
+  .mh-player-title-owner{border:1px solid rgba(248,208,48,.55);color:#ffd060}
+  .mh-player-title-admin{border:1px solid rgba(128,200,255,.5);color:#a0d8ff}
+  .mh-player-title-player{border:1px solid rgba(160,160,192,.35);color:#b8b0d0}
+  .mh-player-identity{font-size:12px;font-weight:700}
   .mh-chat-rules{margin:0;padding:8px 10px;border-radius:10px;border:1px solid rgba(128,255,176,.35);background:rgba(8,20,16,.55);font-size:10px;line-height:1.45;color:#a8c0b0}
   .mh-chat-rules summary{cursor:pointer;font-weight:800;color:#80ffb0;list-style:none}
   .mh-chat-rules summary::-webkit-details-marker{display:none}
@@ -5621,7 +5638,7 @@
 <script src="gemcopter.js?v=deploy-85"></script>
 <script>
 (function lithosLoadMorphHunt(){
- var MH_NEED='void-2d-v121';
+ var MH_NEED='void-2d-v122';
  var MH_CHAT_UI='compose-under-log-v2';
  var MH_SCRIPT='morph-hunt.'+MH_NEED+'.js';
  window.__LITHOS_MH_LATEST=MH_NEED;
@@ -5720,7 +5737,7 @@
 <script>
 window.lithosPlayMorphHunt=function lithosPlayMorphHunt(){
  try{if(typeof closeGamesHub==='function')closeGamesHub({skipHash:true});}catch(_){}
-  var NEED=window.__LITHOS_MH_LATEST||window.__LITHOS_MH_NEED||'void-2d-v121';
+  var NEED=window.__LITHOS_MH_LATEST||window.__LITHOS_MH_NEED||'void-2d-v122';
  var tries=0;
  function mhBuildNum(tag){
   var m=String(tag||'').match(/void-2d-v(\d+)/);

@@ -5,9 +5,9 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v121';
-const MH_SCENERY_STAMP='STABLE_v121';
-const MH_SCRIPT_CANON='morph-hunt.void-2d-v121.js';
+const MH_BUILD='void-2d-v122';
+const MH_SCENERY_STAMP='STABLE_v122';
+const MH_SCRIPT_CANON='morph-hunt.void-2d-v122.js';
 const MH_MEGA_PARTY_MS=50*60*1000;
 const MH_CHAT_UI_STAMP='compose-under-log-v2';
 const MH_AGENT_IDLE_MS_MIN=12000;
@@ -1764,6 +1764,9 @@ function mhChatAdminCommand(st,save,raw){
  if(!String(raw||'').trim().startsWith('/')) return false;
  const parts=String(raw).slice(1).trim().split(/\s+/);
  const cmd=(parts[0]||'').toLowerCase();
+ if(cmd==='name'||cmd==='username'||cmd==='nick'||cmd==='user'){
+  return mhChatSetDisplayName(save,parts.slice(1).join(' '));
+ }
  const adminSub=(parts[1]||'').toLowerCase();
  const adminAbuse=cmd==='admin'&&adminSub==='abuse';
  const staffOnly=/^(give|gift|grant|admin|ban|unban)$/.test(cmd)||cmd==='help'&&adminSub==='admin';
@@ -3164,6 +3167,11 @@ function mhLoadSave(){
  const wear=mhLoadWearId();
  if(MH_OPEN_PLAY) return mhOpenPlaySave();
  if(mhIsRealOwner()){
+  let ownerName='Owner';
+  try{
+   const slim=JSON.parse(localStorage.getItem(mhProfileStoreKey())||'null');
+   if(slim&&typeof slim.chatDisplayName==='string'&&slim.chatDisplayName.trim()) ownerName=slim.chatDisplayName.trim();
+  }catch(_){}
   return{
    collected:MH_MORPHS.map(m=>m.id),
    worldsUnlocked:MH_WORLDS.length,
@@ -3173,8 +3181,9 @@ function mhLoadSave(){
    codesUsed:[],
    minigameWon:[],
    chatPlayerId:'owner',
-   chatDisplayName:'Owner',
-   chatFriends:[]
+   chatDisplayName:ownerName,
+   chatFriends:[],
+   plagueQuest:mhDefaultPlagueQuest()
   };
  }
  try{
@@ -3709,18 +3718,64 @@ function mhChatRelayOn(){
  const c=mhChatConfig();
  return !!(c&&c.relay);
 }
+function mhChatRoleTitle(save){
+ if(mhIsRealOwner()) return 'Owner';
+ if(mhIsLithosStaff()) return 'Admin';
+ const t=String(save?.title||'').trim();
+ return t?t.slice(0,32):'';
+}
+function mhChatTitleClass(title){
+ const t=String(title||'').toLowerCase();
+ if(t==='owner') return 'owner';
+ if(t==='admin'||t.indexOf('lithos')>=0) return 'admin';
+ return 'player';
+}
+function mhChatSpeakerLabel(name,title){
+ const n=String(name||'Noobie').replace(/</g,'');
+ if(!title) return n;
+ const cls=mhChatTitleClass(title);
+ return `<span class="mh-chat-speaker"><span class="mh-chat-title mh-chat-title-${cls}">${String(title).replace(/</g,'')}</span> <b>${n}</b></span>`;
+}
+function mhChatSetDisplayName(save,raw){
+ if(!save) return true;
+ const name=String(raw||'').trim().slice(0,24);
+ if(name.length<2){ mhToast('Pick a username — 2 to 24 characters'); return true; }
+ const ok=mhChatModerateName(name);
+ if(!ok.ok){ mhToast('🛡️ '+ok.reason); return true; }
+ save.chatDisplayName=name;
+ mhSaveSave(save);
+ const role=mhChatRoleTitle(save);
+ mhToast('✓ Username: '+name+(role?' · title: '+role:''));
+ mhRender();
+ return true;
+}
+function mhChatMaybePromptName(st,save){
+ if(!st||!save||mhIsTestProfile()) return;
+ const has=(save.chatDisplayName||'').trim().length>=2;
+ try{
+  const k='lithos_mh_name_hint_'+MH_BUILD;
+  if(has||sessionStorage.getItem(k)) return;
+  sessionStorage.setItem(k,'1');
+ }catch(_){ if(has) return; }
+ setTimeout(()=>{
+  if(!mhState||mhState.tab!=='hunt') return;
+  mhToast('✏️ Pick your username in chat — or type /name YourName');
+ },1200);
+}
 function mhEnsureChatProfile(save){
- if(!save) return {id:'guest',name:'Noobie'};
+ if(!save) return {id:'guest',name:'Noobie',title:'',morphId:''};
  if(!save.chatPlayerId){
   save.chatPlayerId='noob-'+Math.random().toString(36).slice(2,11);
   mhSaveSave(save);
  }
  const morph=mhMorph(save.wearing);
- let name=(save.chatDisplayName||'').trim()||(morph?.name)||('Noobie '+save.chatPlayerId.slice(-4));
+ let name=(save.chatDisplayName||'').trim();
+ if(!name) name=(morph?.name?.replace(/ Noobie$/,''))||('Noobie '+save.chatPlayerId.slice(-4));
  name=name.slice(0,24);
  const nameOk=mhChatModerateName(name);
  if(!nameOk.ok) name='Noobie '+save.chatPlayerId.slice(-4);
- return {id:save.chatPlayerId,name,morphId:save.wearing||''};
+ const title=mhChatRoleTitle(save);
+ return {id:save.chatPlayerId,name,title,morphId:save.wearing||''};
 }
 function mhChatLoadStore(){
  try{
@@ -4357,6 +4412,7 @@ function mhChatSend(st,save,text){
   world:channel==='server'?wi:undefined,
   fromId:prof.id,
   fromName:prof.name,
+  fromTitle:prof.title||undefined,
   morphId:prof.morphId,
   toId:toId||undefined,
   text:raw.slice(0,160),
@@ -4398,7 +4454,8 @@ function mhChatRefreshLog(){
   const mine=m.fromId===me;
   const tag=channel==='server'?(' · map '+m.world):'';
   const body=m.blocked?'<span class="mh-chat-blocked">[Hidden — chat rules]</span>':mhChatPublicText(m.text).html;
-  return `<div class="mh-chat-line${mine?' mine':''}"><b>${mine?'You':(m.fromName||'Noobie')}</b>${tag}: ${body}</div>`;
+  const who=mine?mhChatSpeakerLabel('You',m.fromTitle||mhChatRoleTitle(mhState?.save)):mhChatSpeakerLabel(m.fromName,m.fromTitle);
+  return `<div class="mh-chat-line${mine?' mine':''}">${who}${tag}: ${body}</div>`;
  }).join(''):'<div class="mh-chat-line dim">Messages appear here. Type in <b>Your message</b> right below ↑ / / / T · <b>Enter</b> to send.</div>';
  log.scrollTop=log.scrollHeight;
 }
@@ -4422,6 +4479,7 @@ async function mhChatPoll(st){
  mhChatRefreshLog();
 }
 function mhChatStartPoll(st){
+ mhChatMaybePromptName(st,st?.save);
  mhChatBroadcastInit();
  mhChatStopPoll(st);
  st.chatPollIv=setInterval(()=>{ mhChatPoll(st); },MH_CHAT_POLL_MS);
@@ -4500,8 +4558,17 @@ function mhRenderChatPanel(save){
  const ch=mhState?.chatChannel||'global';
  const friends=Array.isArray(save.chatFriends)?save.chatFriends:[];
  const relay=mhChatRelayOn();
+ const roleTitle=prof.title||'';
  return `<aside class="mh-chat-panel" aria-label="Character chat">
   <div class="mh-chat-head"><span>💬 Talk</span><small>${relay?'🌐 Server live':'📱 Device + tabs'} · ${mhAiHasBrain()?'<b style="color:#80ffb0">🧠 AI brains ON</b> · ':'<span style="color:#a0a0b0">🧠 AI off (no key)</span> · '}<code>${prof.id}</code></small></div>
+  <div class="mh-chat-profile">
+   <label class="mh-chat-profile-label" for="mh-chat-display-name">Your username</label>
+   <div class="mh-chat-profile-row">
+    <input id="mh-chat-display-name" type="text" maxlength="24" value="${String(prof.name||'').replace(/"/g,'&quot;')}" placeholder="Pick a name…" autocomplete="off"/>
+    <button type="button" class="mh-btn mh-btn-sm primary" id="mh-chat-save-name">Save</button>
+   </div>
+   <p class="mh-chat-profile-meta">${roleTitle?`<span class="mh-player-title mh-player-title-${mhChatTitleClass(roleTitle)}">${roleTitle}</span> · `:''}<span class="mh-chat-profile-hint">Everyone sees this · <code>/name</code> works too</span></p>
+  </div>
   <div class="mh-chat-buddy-row">
    <button type="button" class="mh-btn mh-btn-sm${mhState?.testBuddy?.on?' primary':''}" id="mh-test-buddy-toggle">${mhState?.testBuddy?.on?'🤖 Buddy ON':'🤖 Buddy OFF'}</button>
    <button type="button" class="mh-btn mh-btn-sm${mhState?.buddyAiOn!==false?' primary':''}" id="mh-buddy-ai-toggle">${mhState?.buddyAiOn!==false?'🧠 Buddy AI':'Buddy scripts'}</button>
@@ -4653,6 +4720,13 @@ function mhBindChat(root){
   };
  });
  mhBindChatComposeHandlers(root);
+ root.querySelector('#mh-chat-save-name')?.addEventListener('click',()=>{
+  const v=(root.querySelector('#mh-chat-display-name')?.value||'').trim();
+  mhChatSetDisplayName(mhState.save,v);
+ });
+ root.querySelector('#mh-chat-display-name')?.addEventListener('keydown',(e)=>{
+  if(e.key==='Enter'){ e.preventDefault(); root.querySelector('#mh-chat-save-name')?.click(); }
+ });
  const inp=root.querySelector('#mh-chat-input');
  if(inp&&mhState?.chatTyping) inp.focus();
  root.querySelectorAll('[data-mh-chat-quick]').forEach(btn=>{
@@ -8032,6 +8106,7 @@ function mhRender(){
     <button type="button" class="mh-tab${tab==='preview'?' on':''}" data-mh-tab="preview">🎬 Animations</button>
    </div>
    <div class="mh-head-stats">
+    <span class="mh-player-identity">${mhChatSpeakerLabel(mhEnsureChatProfile(save).name,mhChatRoleTitle(save))}</span>
     <span class="mh-coins">💰 <b>${save.coins}</b></span>
     <span>${MH_TOTAL_COUNT} · 🕳 <b>${save.collected.filter(id=>mhMorph(id)?.rarity==='voidfallen').length}</b>/${MH_VOID_COUNT} Void Fallen</span>
     <span class="mh-live-build" id="mh-live-build" title="If this number is old, you are not on the latest file">✓ ${MH_BUILD}</span>
