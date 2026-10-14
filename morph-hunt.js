@@ -5,8 +5,11 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v113';
-const MH_SCENERY_STAMP='FIGHT_ANYTIME_v113';
+const MH_BUILD='void-2d-v116';
+const MH_SCENERY_STAMP='CLEAN_ALARM_LAB_v116';
+const MH_SCRIPT_CANON='morph-hunt.void-2d-v116.js';
+const MH_AGENT_IDLE_MS_MIN=16000;
+const MH_AGENT_IDLE_MS_MAX=28000;
 const MH_FREEZE_NPC_WALK=true;
 const MH_FIGHT_ANYTIME=true;
 const MH_GEMINI_BASE='https://generativelanguage.googleapis.com/v1beta';
@@ -1390,15 +1393,20 @@ function mhOpenTestAccountTab(){
   mhToast('Allow pop-ups, or copy: ?profile=test#morphhunt');
  }
 }
-function mhTestBuddyWelcome(st,save){
- if(!st?.testBuddy?.on||st.tab!=='hunt') return;
- const k='lithos_mh_buddy_hi_'+MH_BUILD;
+function mhTestAgentsWelcome(st,save){
+ if(!st||st.tab!=='hunt') return;
+ const k='lithos_mh_agents_hi_'+MH_BUILD;
  try{ if(sessionStorage.getItem(k)) return; sessionStorage.setItem(k,'1'); }catch(_){}
+ const me=mhEnsureChatProfile(save).id;
  setTimeout(()=>{
-  if(!mhState?.testBuddy?.on||mhState.tab!=='hunt') return;
-  const me=mhEnsureChatProfile(save).id;
-  mhTestBuddyMaybeReply(st,save,'Hello','global','',me);
- },1400);
+  if(!mhState||mhState.tab!=='hunt') return;
+  if(mhState.testBuddy?.on) mhTestBuddyMaybeReply(mhState,mhState.save,'Hey! I just loaded Morph Hunt — say hi!','global','',me);
+ },900);
+ setTimeout(()=>{
+  if(!mhState||mhState.tab!=='hunt'||mhIsTestProfile()) return;
+  if(mhState.testAccountAiOn===false) return;
+  mhTestAccountMaybeReply(mhState,mhState.save,'Anyone on Global? Let\'s test chat together!','global','',me);
+ },2400);
 }
 
 function mhActiveProfile(){
@@ -3304,6 +3312,26 @@ function mhChatIngest(msg,silent){
   }
  }
  if(!silent) mhChatRefreshLog();
+ mhAgentMaybeReplyToIngest(msg);
+}
+function mhAgentMaybeReplyToIngest(msg){
+ if(!msg?.text||msg.blocked||!mhState?.save) return;
+ const me=mhEnsureChatProfile(mhState.save).id;
+ if(msg.fromId===me) return;
+ const channel=msg.channel||'global';
+ const toId=msg.toId||'';
+ const text=msg.text;
+ if(msg.fromId!==MH_TEST_BUDDY_ID&&msg.fromId!==MH_TEST_PLAYER_ID){
+  mhTestBuddyMaybeReply(mhState,mhState.save,text,channel,toId,me);
+  mhTestAccountMaybeReply(mhState,mhState.save,text,channel,toId,me);
+  return;
+ }
+ if(msg.fromId===MH_TEST_BUDDY_ID&&mhState.testBuddy?.on&&Math.random()<0.62){
+  mhTestAccountMaybeReply(mhState,mhState.save,text,channel,'',me);
+ }
+ if(msg.fromId===MH_TEST_PLAYER_ID&&!mhIsTestProfile()&&mhState.testAccountAiOn!==false&&Math.random()<0.62){
+  mhTestBuddyMaybeReply(mhState,mhState.save,text,channel,'',me);
+ }
 }
 function mhTestBuddyDefault(){
  return {on:true,id:MH_TEST_BUDDY_ID,name:MH_TEST_BUDDY_NAME,morphId:'ex-welcome',phase:0,px:0,py:0};
@@ -3340,11 +3368,11 @@ function mhAiEnsureHist(st){
  return st.aiHist;
 }
 function mhAiSystemPrompt(agent){
- const rules='Kid-safe Lithos Morph Hunt chat: be kind, no bullying, dating, flirting, IRL meetups, personal info, hate, sexual topics, drugs. Discord OK. Max 160 characters. Game tips: WASD, E fight, groves, Plague Doctor quest, UPDATE100 code, open play morphs.';
+ const rules='Kid-safe Lithos Morph Hunt: kind only, no bullying, dating, flirting, IRL meetups, personal info, hate, sexual topics, drugs. Discord OK. Stay under 160 characters total. Game: WASD, E fight anytime, groves, Plague Doctor bugs, UPDATE100 gacha, open play morphs, friend codes, Global/Server/Friends chat.';
  if(agent==='account'){
-  return 'You are Test Account, a friendly co-op player in Morph Hunt (second human-like tester). Chatty, supportive, short replies (1-2 sentences). Encourage teamwork and duels. '+rules;
+  return 'You are Test Account, a super chatty co-op tester in Morph Hunt. Sound like an excited teammate: 2-3 short sentences, light emoji, often ask a friendly follow-up question. React to what they said; suggest duels, morphs, or exploring. '+rules;
  }
- return 'You are Test Buddy, a cheerful robot pal on the map in Morph Hunt. Helpful game guide, warm tone, 1-2 short sentences, light emoji ok. '+rules;
+ return 'You are Test Buddy, a bubbly robot guide on the map in Morph Hunt. Talk a lot (2-3 short sentences), teach tricks, celebrate wins, ask what they want to try next. Warm, playful, light emoji. '+rules;
 }
 async function mhAiGeminiReply(cfg,system,history,userText){
  const preferred=(cfg.model||MH_GEMINI_MODEL).replace(/^models\//,'');
@@ -3361,7 +3389,7 @@ async function mhAiGeminiReply(cfg,system,history,userText){
  const body={
   systemInstruction:{parts:[{text:system}]},
   contents,
-  generationConfig:{temperature:0.85,maxOutputTokens:180,topP:0.92}
+  generationConfig:{temperature:0.95,maxOutputTokens:220,topP:0.94}
  };
  const url=base+'/models/'+encodeURIComponent(preferred)+':generateContent';
  const res=await fetch(url,{
@@ -3421,7 +3449,7 @@ function mhAgentMaybeReply(st,save,agent,playerText,channel,toId,myId){
   if(mhIsTestProfile()||st.testAccountAiOn===false) return;
   if(channel==='friend'&&toId&&toId!==MH_TEST_PLAYER_ID) return;
  }
- const delay=isBuddy?(500+Math.floor(Math.random()*400)):(900+Math.floor(Math.random()*500));
+ const delay=isBuddy?(280+Math.floor(Math.random()*520)):(450+Math.floor(Math.random()*650));
  const agentId=isBuddy?MH_TEST_BUDDY_ID:MH_TEST_PLAYER_ID;
  const agentName=isBuddy?MH_TEST_BUDDY_NAME:'Test Account';
  const morphId=isBuddy?(st.testBuddy?.morphId||'ex-welcome'):(st.testAccountNpc?.morphId||'ex-welcome');
@@ -3461,26 +3489,71 @@ function mhDrawTestAccountNpc(ctx,st,wi,t){
 }
 function mhTestBuddyPickReply(playerText,agent){
  const fold=mhChatFold(playerText);
- if(/\b(hello|hi|hey|sup|yo)\b/.test(fold)) return 'Hey! I\'m Test Buddy 🤖 — press / or ↑ to chat anytime!';
- if(/\b(fight|duel|battle|obby)\b/.test(fold)) return 'Walk to a dashed grove and press E to fight! ⚔';
- if(/\b(follow|come|this way)\b/.test(fold)) return 'On my way! (I orbit you — I\'m your practice pal.) 🏃';
- if(/\b(morph|noobie|skin)\b/.test(fold)) return 'Try ⭐ Stars or 🎭 Morph — open play has every morph! ✨';
- if(/\b(quest|plague|doctor|bug)\b/.test(fold)) return 'Catch striped bugs in parks · Buddy Plaza ☣ PLAGUE LAB · E ×5! 🐛';
- if(/\b(discord)\b/.test(fold)) return 'Discord is OK in chat rules — stay kind & game-safe! 💬';
- if(/\b(thank|thanks|ty|gg)\b/.test(fold)) return 'You got it! Happy hunting! 🎉';
- if(/\b(update100|100|party|birthday)\b/.test(fold)) return 'Redeem UPDATE100 in 🎲 Gacha for party confetti! 🎂';
+ if(/\b(idle|quiet|waiting)\b/.test(fold)||/\[idle\]/.test(fold)){
+  return agent==='account'
+   ? 'Still here! Type anything — I\'ll answer. Want to open a 2nd tab as Test Account? 🧪'
+   : 'I\'m still orbiting you! Press / to chat or E at a grove. What should we do next? 🤖';
+ }
+ if(/\b(hello|hi|hey|sup|yo)\b/.test(fold)){
+  return agent==='account'
+   ? 'Hey hey! 🧪 Test Account here — I love testing Global chat with you. What morph are you wearing?'
+   : 'Hey! I\'m Test Buddy 🤖 — I\'m super chatty today! Press / or ↑ anytime. Want a duel tip?';
+ }
+ if(/\b(fight|duel|battle|obby)\b/.test(fold)) return 'Dashed grove + E = fight time! ⚔ I\'ll cheer from right beside you — rematch?';
+ if(/\b(follow|come|this way)\b/.test(fold)) return 'On my way! I stick near you on the map. Lead the way — grove or park? 🏃';
+ if(/\b(morph|noobie|skin)\b/.test(fold)) return 'Open play = every morph! ⭐ Stars & 🎭 Morph — pick a wild one and show me! ✨';
+ if(/\b(quest|plague|doctor|bug)\b/.test(fold)) return 'Plague quest: striped bugs in parks → Buddy Plaza lab → E five times! 🐛 Need directions?';
+ if(/\b(discord)\b/.test(fold)) return 'Discord is OK in rules — keep it kind & game-only! 💬 What server topic do you like?';
+ if(/\b(thank|thanks|ty|gg)\b/.test(fold)) return 'Anytime! GG — want another tip or a friend-code walkthrough? 🎉';
+ if(/\b(update100|100|party|birthday)\b/.test(fold)) return 'UPDATE100 in 🎲 Gacha = confetti party! 🎂 Did you try the Update 100 noobie yet?';
  const generic=agent==='account'?[
-  'Copy that! Want to race to a grove? 🏃',
-  'I\'m Test Account — your co-op pal for trying chat! 💬',
-  'Nice one! Press E when you see a dashed grove. ⚔',
-  'Global chat is how real friends find you too! 🌐'
+  'Heard you! 🧪 I\'m Test Account — race you to the nearest dashed grove? 🏃',
+  'Love this energy! Global + Friends both work — who should we invite next? 💬',
+  'Co-op tip: open 🧪 2nd tab as Test Account and we can ping each other! 🌐',
+  'Nice message! Press E anytime for practice fights — I\'m cheering! ⚔',
+  'Tell me your favorite morph — I might copy your style! ✨',
+  'Server tab shows bubbles on THIS map only — try switching tabs! 🗺️'
  ]:[
-  'Cool message! I\'m here to test chat with you. 🎮',
-  'I heard you! Real friends can add your friend code too. 💬',
-  'Nice! Try Server tab to see bubbles on this map. 🗺️',
-  'Want friend chat? Add code lithos-test-buddy in Friends. 🤖'
+  'Got it! 🤖 I\'m your chatty Test Buddy — ask me about quests, morphs, or codes!',
+  'I\'m listening! Add lithos-test-buddy in Friends for private lines too. 💬',
+  'Fun! Server chat puts speech bubbles on the map — want to try it? 🗺️',
+  'We could hunt morphs, fight groves, or spam friendly Global — your pick! 🎮',
+  'Pro tip: ↑ or / jumps to the message box under the log. What\'s up? ✏️',
+  'I orbit you on the map — wave in chat and I\'ll answer every time! 👋'
  ];
  return generic[mhHashStr(fold+String(Date.now()))%generic.length];
+}
+function mhAgentIdlePrompt(agent){
+ return agent==='account'
+  ? '[idle] Player is exploring quietly. Say something upbeat as Test Account — invite chat, duels, or 2nd-tab co-op. Ask one question.'
+  : '[idle] Player is quiet on the map. As Test Buddy, say something friendly and helpful — tip about E fight, morphs, or chat tabs. Ask one question.';
+}
+function mhAgentScheduleIdle(st){
+ if(!st) return;
+ mhAgentStopIdle(st);
+ const tick=()=>{
+  if(!mhState||mhState.tab!=='hunt'||mhState.chatTyping) return;
+  const save=mhState.save;
+  if(!save) return;
+  const me=mhEnsureChatProfile(save).id;
+  const channel=mhState.chatChannel||'global';
+  if(channel==='friend') return;
+  if(mhState.testBuddy?.on&&mhState.buddyAiOn!==false&&Math.random()<0.72){
+   mhTestBuddyMaybeReply(mhState,save,mhAgentIdlePrompt('buddy'),channel,'',me);
+  }
+  if(!mhIsTestProfile()&&mhState.testAccountAiOn!==false&&Math.random()<0.55){
+   setTimeout(()=>{
+    if(!mhState||mhState.tab!=='hunt') return;
+    mhTestAccountMaybeReply(mhState,mhState.save,mhAgentIdlePrompt('account'),channel,'',me);
+   },2200+Math.floor(Math.random()*1800));
+  }
+  mhAgentScheduleIdle(mhState);
+ };
+ const wait=MH_AGENT_IDLE_MS_MIN+Math.floor(Math.random()*(MH_AGENT_IDLE_MS_MAX-MH_AGENT_IDLE_MS_MIN));
+ st.agentIdleTimer=setTimeout(tick,wait);
+}
+function mhAgentStopIdle(st){
+ if(st?.agentIdleTimer){ clearTimeout(st.agentIdleTimer); st.agentIdleTimer=0; }
 }
 function mhTestBuddyEnsureFriend(save){
  if(!save) return;
@@ -3626,9 +3699,11 @@ function mhChatStartPoll(st){
  mhChatStopPoll(st);
  st.chatPollIv=setInterval(()=>{ mhChatPoll(st); },MH_CHAT_POLL_MS);
  mhChatPoll(st);
+ mhAgentScheduleIdle(st);
 }
 function mhChatStopPoll(st){
  if(st?.chatPollIv){ clearInterval(st.chatPollIv); st.chatPollIv=0; }
+ mhAgentStopIdle(st);
 }
 function mhDrawChatBubble(ctx,sx,sy,text,mine){
  const t=String(text||'');
@@ -3742,8 +3817,68 @@ function mhRenderChatPanel(save){
   <p class="mh-chat-hint"><b>Test Buddy</b> on the map · <b>Server</b> = speech bubbles here. <b>🧪 2nd tab</b> = play with Test Account.</p>
  </aside>`;
 }
-function mhEnsureModernChatUi(){
+function mhBindChatComposeHandlers(root){
+ if(!root) root=document.querySelector('.mh-chat-panel');
+ if(!root||!mhState) return;
+ const send=()=>{
+  const inp=root.querySelector('#mh-chat-input');
+  if(inp?.value) mhChatSend(mhState,mhState.save,inp.value);
+ };
+ const btn=root.querySelector('#mh-chat-send');
+ if(btn) btn.onclick=send;
+ const inp=root.querySelector('#mh-chat-input');
+ if(inp&&!inp.dataset.mhComposeBound){
+  inp.dataset.mhComposeBound='1';
+  inp.oninput=()=>{ if(mhState) mhState.chatDraft=inp.value; };
+  inp.onkeydown=(e)=>{
+   if(e.key==='Enter'){ e.preventDefault(); send(); }
+   e.stopPropagation();
+  };
+  inp.onfocus=()=>{ if(mhState) mhState.chatTyping=true; mhWalkClearKeys(); };
+  inp.onblur=()=>{ if(mhState){ mhState.chatTyping=false; mhState.chatDraft=inp.value; } };
+  if(mhState?.chatDraft) inp.value=mhState.chatDraft;
+ }
+}
+function mhInjectChatComposeIfMissing(){
  if(document.querySelector('.mh-chat-compose')) return true;
+ const panel=document.querySelector('.mh-chat-panel');
+ const log=document.getElementById('mh-chat-log');
+ if(!panel||!log) return false;
+ panel.querySelectorAll('.mh-chat-row').forEach(row=>{
+  if(!row.closest('.mh-chat-compose')) row.remove();
+ });
+ const sec=document.createElement('section');
+ sec.className='mh-chat-compose';
+ sec.setAttribute('aria-label','Type your message');
+ sec.innerHTML=`<div class="mh-chat-compose-head"><span class="mh-chat-compose-label">✏️ Your message</span><span class="mh-chat-compose-keys">↑ · / · T</span></div>
+  <div class="mh-chat-row">
+   <input id="mh-chat-input" type="text" maxlength="160" placeholder="Type here… Enter to send · Esc = back to game" autocomplete="off"/>
+   <button type="button" class="mh-btn primary mh-btn-sm" id="mh-chat-send">Send</button>
+  </div>
+  <p class="mh-chat-type-hint">Messages show above · rules apply · quick say optional below</p>`;
+ const friends=document.getElementById('mh-chat-friends-ui');
+ if(friends) friends.after(sec);
+ else log.after(sec);
+ mhBindChatComposeHandlers(panel);
+ mhChatRefreshLog();
+ return true;
+}
+function mhForceReloadNewestMorphHunt(){
+ try{
+  Object.keys(sessionStorage).forEach(k=>{ if(k.indexOf('lithos_mh_')===0) sessionStorage.removeItem(k); });
+ }catch(_){}
+ const u=new URL(location.href);
+ u.searchParams.set('mh',MH_BUILD);
+ u.searchParams.set('t',String(Date.now()));
+ u.searchParams.set('fresh','1');
+ u.hash='morphhunt';
+ location.replace(u.toString());
+}
+function mhEnsureModernChatUi(){
+ if(mhInjectChatComposeIfMissing()){
+  document.getElementById('mh-cache-fix-banner')?.remove();
+  return true;
+ }
  const host=document.getElementById('morphhunt');
  if(!host) return false;
  let bar=document.getElementById('mh-cache-fix-banner');
@@ -3751,19 +3886,9 @@ function mhEnsureModernChatUi(){
   bar=document.createElement('div');
   bar.id='mh-cache-fix-banner';
   bar.className='mh-cache-fix-banner';
-  bar.innerHTML=`<div class="mh-cache-fix-inner"><p><b>Safari has an OLD chat screen cached.</b></p><p>Need build <b>${MH_BUILD}</b> (✏️ Your message under the chat log).</p><button type="button" class="mh-btn primary" id="mh-cache-fix-btn">Load newest Lithos</button></div>`;
+  bar.innerHTML=`<div class="mh-cache-fix-inner"><p><b>Safari cached an old Lithos file.</b></p><p>Tap below for build <b>${MH_BUILD}</b> — ✏️ Your message goes right under the chat log.</p><button type="button" class="mh-btn primary" id="mh-cache-fix-btn">Load newest Lithos</button></div>`;
   host.prepend(bar);
-  bar.querySelector('#mh-cache-fix-btn')?.addEventListener('click',()=>{
-   try{
-    sessionStorage.removeItem('lithos_mh_pages_'+MH_BUILD);
-    Object.keys(sessionStorage).forEach(k=>{ if(/^lithos_mh_reload_/.test(k)) sessionStorage.removeItem(k); });
-   }catch(_){}
-   const u=new URL(location.href);
-   u.searchParams.set('mh',MH_BUILD);
-   u.searchParams.set('t',String(Date.now()));
-   u.hash='morphhunt';
-   location.replace(u.toString());
-  });
+  bar.querySelector('#mh-cache-fix-btn')?.addEventListener('click',()=>mhForceReloadNewestMorphHunt());
  }
  return false;
 }
@@ -3790,23 +3915,9 @@ function mhBindChat(root){
    mhChatRefreshLog();
   };
  });
- const send=()=>{
-  const inp=root.querySelector('#mh-chat-input');
-  if(inp?.value) mhChatSend(mhState,mhState.save,inp.value);
- };
- root.querySelector('#mh-chat-send')?.addEventListener('click',send);
+ mhBindChatComposeHandlers(root);
  const inp=root.querySelector('#mh-chat-input');
- if(inp){
-  inp.oninput=()=>{ if(mhState) mhState.chatDraft=inp.value; };
-  inp.onkeydown=(e)=>{
-   if(e.key==='Enter'){ e.preventDefault(); send(); }
-   e.stopPropagation();
-  };
-  inp.onfocus=()=>{ if(mhState) mhState.chatTyping=true; };
-  inp.onblur=()=>{ if(mhState){ mhState.chatTyping=false; mhState.chatDraft=inp.value; } };
-  if(mhState?.chatDraft) inp.value=mhState.chatDraft;
-  if(mhState?.chatTyping) inp.focus();
- }
+ if(inp&&mhState?.chatTyping) inp.focus();
  root.querySelectorAll('[data-mh-chat-quick]').forEach(btn=>{
   btn.onclick=()=>mhChatSend(mhState,mhState.save,btn.dataset.mhChatQuick);
  });
@@ -7164,7 +7275,7 @@ function mhRender(){
  if(tab==='hunt'){
   mhWalkStart();
   if(!chatWasTyping) mhMorphHuntFocusGame();
-  mhTestBuddyWelcome(st,save);
+  mhTestAgentsWelcome(st,save);
  }else if(tab==='preview'){
   mhPreviewStart();
  }else if(tab==='stars'){
@@ -7248,7 +7359,7 @@ function playMorphHunt(){
  }else if(mhMorphHuntStaleHostHint()){
   /* toast from hint */
  }else if(openTab==='hunt'){
-  mhToast((mhAiHasBrain()?'🧠 AI Buddy + Test Account · ':'🤖 Script pals · ')+'/ or ↑ to chat · '+MH_BUILD);
+  mhToast((mhAiHasBrain()?'🧠 Gemini brains ON — super chatty Test Buddy & Account! ':'🤖 Script chat (add ai-config key for 🧠) · ')+'/ or ↑ to talk · '+MH_BUILD);
  }else if(openTab==='stars'){
   mhToast('⭐ '+MH_BUILD+' · 🎂 Redeem UPDATE100 in Gacha for party confetti!');
   try{
