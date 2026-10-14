@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- lithos-v:site-live-100-morph-2d-v84-deploy2 -->
+<!-- lithos-v:morph-hunt-v113-chat-compose-v2 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -5608,8 +5608,8 @@
 <script>
 (function lithosLoadMorphHunt(){
  var MH_NEED='void-2d-v113';
+ var MH_CHAT_UI='compose-under-log-v2';
  var MH_SCRIPT='morph-hunt.'+MH_NEED+'.js';
- var MH_SCRIPT_FALLBACK='morph-hunt.js';
  window.__LITHOS_MH_LATEST=MH_NEED;
  window.__LITHOS_MH_NEED=MH_NEED;
  window.__LITHOS_MH_SCRIPT=MH_SCRIPT;
@@ -5660,6 +5660,10 @@
     var need=MH_NEED.match(/void-2d-v(\d+)/);
     if(have&&need&&parseInt(have[1],10)<parseInt(need[1],10)){
      location.replace(mhMorphHuntUrl());
+     return;
+    }
+    if(window.LITHOS_MH_CHAT_UI&&window.LITHOS_MH_CHAT_UI!==MH_CHAT_UI){
+     location.replace(mhMorphHuntUrl());
     }
    }catch(_){}
   };
@@ -5669,11 +5673,13 @@
   return s;
  }
  var primary=loadMorphHuntScript(MH_SCRIPT);
+ var mhScriptTry=0;
  primary.onerror=function(){
-  var fb=loadMorphHuntScript(MH_SCRIPT_FALLBACK);
-  fb.onerror=function(){
-   console.error('[Morph Hunt] could not load',MH_SCRIPT,'or',MH_SCRIPT_FALLBACK);
-  };
+  if(++mhScriptTry<4){
+   loadMorphHuntScript(MH_SCRIPT+'?retry='+mhScriptTry);
+   return;
+  }
+  console.error('[Morph Hunt] could not load',MH_SCRIPT,'— hard refresh (Cmd+Shift+R)');
  };
 })();
 </script>

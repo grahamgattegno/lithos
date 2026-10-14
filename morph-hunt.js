@@ -8,6 +8,7 @@ const MH_STORE_KEY='lithos_morph_hunt_v9';
 const MH_BUILD='void-2d-v113';
 const MH_SCENERY_STAMP='STABLE_v113';
 const MH_SCRIPT_CANON='morph-hunt.void-2d-v113.js';
+const MH_CHAT_UI_STAMP='compose-under-log-v2';
 const MH_AGENT_IDLE_MS_MIN=16000;
 const MH_AGENT_IDLE_MS_MAX=28000;
 const MH_FREEZE_NPC_WALK=true;
@@ -3839,10 +3840,19 @@ function mhBindChatComposeHandlers(root){
   if(mhState?.chatDraft) inp.value=mhState.chatDraft;
  }
 }
-function mhInjectChatComposeIfMissing(){
- if(document.querySelector('.mh-chat-compose')) return true;
- const panel=document.querySelector('.mh-chat-panel');
- const log=document.getElementById('mh-chat-log');
+function mhInjectChatComposeIfMissing(scope){
+ scope=scope||document;
+ if(scope.querySelector('.mh-chat-compose')) return true;
+ let panel=scope.querySelector('.mh-chat-panel');
+ let log=scope.querySelector('#mh-chat-log');
+ if(!panel&&!log){
+  const wrap=scope.querySelector('.mh-walk-with-chat')||scope.querySelector('.mh-main');
+  if(wrap&&!wrap.querySelector('.mh-chat-panel')){
+   wrap.insertAdjacentHTML('beforeend',`<aside class="mh-chat-panel" aria-label="Character chat"><div id="mh-chat-log" class="mh-chat-log" aria-live="polite"></div></aside>`);
+   panel=wrap.querySelector('.mh-chat-panel');
+   log=wrap.querySelector('#mh-chat-log');
+  }
+ }
  if(!panel||!log) return false;
  panel.querySelectorAll('.mh-chat-row').forEach(row=>{
   if(!row.closest('.mh-chat-compose')) row.remove();
@@ -3874,27 +3884,26 @@ function mhForceReloadNewestMorphHunt(){
  u.hash='morphhunt';
  location.replace(u.toString());
 }
-function mhEnsureModernChatUi(){
- if(mhInjectChatComposeIfMissing()){
-  document.getElementById('mh-cache-fix-banner')?.remove();
-  return true;
- }
- const host=document.getElementById('morphhunt');
- if(!host) return false;
- let bar=document.getElementById('mh-cache-fix-banner');
- if(!bar){
-  bar=document.createElement('div');
-  bar.id='mh-cache-fix-banner';
-  bar.className='mh-cache-fix-banner';
-  bar.innerHTML=`<div class="mh-cache-fix-inner"><p><b>Safari cached an old Lithos file.</b></p><p>Tap below for build <b>${MH_BUILD}</b> — ✏️ Your message goes right under the chat log.</p><button type="button" class="mh-btn primary" id="mh-cache-fix-btn">Load newest Lithos</button></div>`;
-  host.prepend(bar);
-  bar.querySelector('#mh-cache-fix-btn')?.addEventListener('click',()=>mhForceReloadNewestMorphHunt());
- }
+function mhEnsureModernChatUi(root){
+ document.getElementById('mh-cache-fix-banner')?.remove();
+ if(mhState?.tab!=='hunt') return true;
+ const scope=root||document.getElementById('morphhunt')||document;
+ if(mhInjectChatComposeIfMissing(scope)) return true;
+ try{
+  const k='lithos_mh_soft_reload_'+MH_CHAT_UI_STAMP;
+  if(!sessionStorage.getItem(k)){
+   sessionStorage.setItem(k,'1');
+   mhToast('Getting fresh chat UI…');
+   mhForceReloadNewestMorphHunt();
+   return false;
+  }
+ }catch(_){}
+ mhToast('Hard refresh (Cmd+Shift+R) then open Morph Hunt with ?mh='+MH_BUILD+'#morphhunt');
  return false;
 }
 function mhBindChat(root){
  if(!root||!mhState) return;
- mhEnsureModernChatUi();
+ if(mhState.tab==='hunt') mhEnsureModernChatUi(root);
  root.querySelector('#mh-test-buddy-toggle')?.addEventListener('click',()=>{
   mhTestBuddySetOn(mhState,mhState.save,!mhState.testBuddy?.on);
   mhRender();
@@ -7378,6 +7387,7 @@ function mhGetWearingMorph(){ return mhMorph(mhLoadWearId()||window.LITHOS_NOOBI
 window.playMorphHunt=playMorphHunt;
 window.LITHOS_MH_BUILD=MH_BUILD;
 window.LITHOS_MH_CHAT_COMPOSE=MH_CHAT_COMPOSE_UI;
+window.LITHOS_MH_CHAT_UI=MH_CHAT_UI_STAMP;
 window.LITHOS_MH_FEATURES={showcase:MH_FEATURE_SHOWCASE,stamp:MH_SCENERY_STAMP,chatCompose:MH_CHAT_COMPOSE_UI};
 window.LITHOS_MH_KING_STAMP=MH_KING_STAMP;
 window.mhClose=mhClose;
