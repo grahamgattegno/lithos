@@ -1,0 +1,25 @@
+{
+  "name": "lithos",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Lithos — field catalog and crystal games (iOS App Store shell)",
+  "scripts": {
+    "cap:www": "bash scripts/cap-sync-www.sh",
+    "cap:sync": "npm run cap:www && npx cap sync ios",
+    "cap:open": "npx cap open ios",
+    "ios:prepare": "npm run cap:sync && npx cap open ios"
+  },
+  "capacitor": {
+    "platforms": [
+      "ios"
+    ]
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.0.0",
+    "@capacitor/core": "^7.0.0",
+    "@capacitor/ios": "^7.0.0",
+    "@capacitor/app": "^7.0.0",
+    "@capacitor/splash-screen": "^7.0.0",
+    "@capacitor/status-bar": "^7.0.0"
+  }
+}

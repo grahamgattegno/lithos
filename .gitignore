@@ -2,6 +2,12 @@
 ai-config.js
 .DS_Store
 node_modules/
+www/
+ios/App/Pods/
+ios/App/App/public/
+ios/App/build/
+ios/DerivedData/
+**/*.xcuserdatad/
 assets/.ad-build-tmp/
 ads/*.mp4
 ads/.venv/

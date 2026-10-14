@@ -1,0 +1,23 @@
+{
+  "appId": "com.grahamgattegno.lithos",
+  "appName": "Lithos",
+  "webDir": "www",
+  "backgroundColor": "#0a0b0f",
+  "ios": {
+    "contentInset": "automatic",
+    "allowsLinkPreview": true,
+    "scrollEnabled": true
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchAutoHide": true,
+      "launchShowDuration": 1200,
+      "backgroundColor": "#0a0b0f",
+      "showSpinner": false
+    },
+    "StatusBar": {
+      "style": "DARK",
+      "backgroundColor": "#0a0b0f"
+    }
+  }
+}

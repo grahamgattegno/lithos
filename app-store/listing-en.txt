@@ -1,0 +1,22 @@
+App name: Lithos
+Subtitle: Gem catalog & crystal games
+Primary category: Education
+Secondary category: Games
+
+Description:
+Lithos is a field catalog of gemstones plus a whole arcade of crystal games — all in one expedition.
+
+• Browse hundreds of gems with photos, Mohs hardness, chemistry, and origins
+• Learn geology with lessons and the Rock Teacher
+• Play Morph Hunt, Gem Factory, Night Shift, Gem Arena, Battlefield, and more
+• Scavenger hunts, quizzes, and member classes
+
+Built for curious explorers and young geologists. Parent supervision recommended for chat features.
+
+Keywords: geology,gemstones,minerals,education,games,crystals,kids,learn,quiz,catalog
+
+Support URL: https://grahamgattegno.github.io/lithos/
+Marketing URL: https://grahamgattegno.github.io/lithos/
+Privacy Policy URL: https://grahamgattegno.github.io/lithos/privacy.html
+
+Copyright: Graham Gattegno
