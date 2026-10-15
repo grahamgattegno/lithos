@@ -1,0 +1,9386 @@
+/* Find The Noobies Morphs — Lithos (820+180+100 Male Void Fallen + King = 1101 · 5D Abyss) */
+(function(){
+'use strict';
+
+const MH_STORE_KEY='lithos_morph_hunt_v9';
+/* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
+/* loader bridge: MH_BUILD='void-2d-v50' */
+const MH_BUILD='void-2d-v129';
+const MH_SCENERY_STAMP='STABLE_v129';
+const MH_SCRIPT_CANON='morph-hunt.void-2d-v129.js';
+const MH_QUEST_STUB_COST=800;
+const MH_TIME_TRAVEL_COST=2000;
+const MH_TIME_TRAVELER_ID='ex-time-traveler';
+const MH_MATRIX_MORPH_ID='ex-matrix-noobie';
+const MH_PRESENCE_KEY='lithos_mh_presence_v1';
+const MH_PRESENCE_BROADCAST='lithos-mh-presence';
+const MH_PRESENCE_TTL=28000;
+const MH_PRESENCE_HEARTBEAT_MS=3200;
+const MH_MEGA_PARTY_MS=50*60*1000;
+const MH_CHAT_UI_STAMP='compose-under-log-v2';
+const MH_AGENT_IDLE_MS_MIN=12000;
+const MH_AGENT_IDLE_MS_MAX=22000;
+const MH_FREEZE_NPC_WALK=true;
+const MH_FIGHT_ANYTIME=true;
+const MH_GEMINI_BASE='https://generativelanguage.googleapis.com/v1beta';
+const MH_GEMINI_MODEL='gemini-flash-latest';
+const MH_CHAT_COMPOSE_UI=true;
+const MH_TEST_BUDDY_ID='lithos-test-buddy';
+const MH_TEST_BUDDY_NAME='Test Buddy';
+const MH_TEST_PLAYER_ID='lithos-test-account';
+const MH_TEST_STORE_KEY='lithos_morph_hunt_test_v1';
+const MH_PROFILE_KEY='lithos_mh_profile_v1';
+const MH_OPEN_PLAY=true;
+const MH_FEATURE_SHOWCASE=true;
+const MH_UPDATE100_CODE='update100';
+const MH_CHAT_LOG_KEY='lithos_mh_chat_log_v1';
+const MH_CHAT_POLL_MS=3500;
+const MH_CHAT_BROADCAST='lithos-mh-chat';
+const MH_CHAT_RULES=[
+ '🛡️ Be kind — no harassing, bullying, name-calling, or pile-ons.',
+ '💛 No dating, flirting, romance, or “crush” talk.',
+ '🏠 No asking to meet in real life (IRL) or sharing where you live.',
+ '🔒 No personal info: full name, phone, email, address, or school. <b>Discord</b> usernames / invites are OK!',
+ '🚫 No hate, slurs, threats, or scary / violent talk.',
+ '🎮 No sexual content, body talk, nudes, or adult topics.',
+ '🍺 No drugs, vaping, drinking, or smoking talk.',
+ '✨ Lithos chat is for everyone — kids, teens, adults & seniors. Keep it game-friendly!'
+];
+const MH_CHAT_MOD_RULES=[
+ {cat:'bullying',reason:'No bullying — please be kind to other players.',re:/\b(kys|kill yourself|kill urself|unalive yourself|go die|hope you die|you should die)\b/},
+ {cat:'bullying',reason:'No mean name-calling.',re:/\b(you are (so )?(stupid|dumb|idiot|pathetic|worthless|ugly|fat)|youre (so )?(stupid|dumb|idiot|pathetic|worthless|ugly|fat)|nobody likes you|everyone hates you)\b/},
+ {cat:'harass',reason:'No harassing or attacking people.',re:/\b(shut up|stfu|gtfo|get lost|hate you|i hate you|trash player|kys\b)/},
+ {cat:'dating',reason:'No dating or romance talk — keep it about the game!',re:/\b(date me|be my (gf|bf|girlfriend|boyfriend)|girlfriend|boyfriend|hook up|hookup|make out|marry me|will you marry|i love you|in love with|crush on you|kiss me|send nudes|nude pic|pic for pic|dtf|are you single|single\?|flirt with|dating you)\b/},
+ {cat:'meet',reason:'Do not ask to meet in real life — stay in the game.',re:/\b(meet (up )?(in )?(real|irl|person)|meet irl|lets meet up|come to my house|where do you live|whats your address|what school|which school|send me your location)\b/},
+ {cat:'groom',reason:'Do not ask personal age or “home alone” questions.',re:/\b(how old are you|how old r u|whats your age|what age are you|are you a kid|are you alone|home alone|parents home)\b/},
+ {cat:'contact',reason:'That contact is not allowed in chat — Discord is OK, not other private apps.',re:/\b(add me on snap|snapchat me|my snap|my insta|instagram me|whatsapp me|telegram me|facetime me)\b/},
+ {cat:'adult',reason:'That message is not allowed — keep chat safe for all ages.',re:/\b(porn|hentai|onlyfans|blowjob|handjob|nudes|send pics|send photos|sexy pic|nsfw|xxx)\b/},
+ {cat:'hate',reason:'No hate or slurs — everyone belongs here.',re:/\b(n[i1!]+gg+[ae3]+r|f[a4]+g+[o0]+t|r[e3]+t[a4]+rd|tr[a4]+nny)\b/},
+ {cat:'threat',reason:'No threats or violence talk.',re:/\b(i will kill|ill kill|gonna kill|shoot you|stab you|bomb you|hurt you|rape)\b/},
+ {cat:'substance',reason:'No drugs, vaping, or drinking talk.',re:/\b(cocaine|heroin|meth|fentanyl|sell weed|buy weed|get drunk|get wasted|vape pen|juul)\b/},
+ {cat:'scam',reason:'No scams or suspicious links.',re:/\b(free robux|click this link|http:\/\/|https:\/\/|www\.)\b/},
+ {cat:'personal',reason:'Do not share phone numbers in chat.',reRaw:/\b(\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b/},
+ {cat:'personal',reason:'Do not share email addresses in chat.',reRaw:/\b[\w.+-]+@[\w-]+\.[\w.]+\b/i}
+];
+function mhChatFold(s){
+ return String(s||'')
+  .toLowerCase()
+  .normalize('NFKD').replace(/[\u0300-\u036f]/g,'')
+  .replace(/[@]/g,'a')
+  .replace(/0/g,'o')
+  .replace(/1/g,'i')
+  .replace(/3/g,'e')
+  .replace(/4/g,'a')
+  .replace(/5/g,'s')
+  .replace(/\$/g,'s')
+  .replace(/7/g,'t')
+  .replace(/[^a-z0-9\s]/g,' ')
+  .replace(/(.)\1{2,}/g,'$1$1')
+  .replace(/\s+/g,' ')
+  .trim();
+}
+function mhChatModerate(raw){
+ const text=String(raw||'').trim();
+ if(!text) return {ok:false,reason:'Type a message first.'};
+ const fold=mhChatFold(text);
+ for(const rule of MH_CHAT_MOD_RULES){
+  if(rule.reRaw){
+   if(rule.reRaw.test(text)) return {ok:false,reason:rule.reason,category:rule.cat};
+  }else if(rule.re&&rule.re.test(fold)) return {ok:false,reason:rule.reason,category:rule.cat};
+ }
+ return {ok:true,text};
+}
+function mhChatModerateName(raw){
+ const text=String(raw||'').trim().slice(0,24);
+ if(!text) return {ok:true,name:''};
+ const mod=mhChatModerate(text);
+ if(!mod.ok) return {ok:false,reason:mod.reason};
+ return {ok:true,name:text};
+}
+function mhChatPublicText(raw){
+ const mod=mhChatModerate(raw);
+ if(!mod.ok) return {html:'<span class="mh-chat-blocked">[Hidden — chat rules]</span>',blocked:true};
+ return {html:String(raw).replace(/</g,'&lt;'),blocked:false};
+}
+function mhChatWrapMessage(msg){
+ if(!msg) return msg;
+ if(typeof msg.blocked==='boolean') return msg;
+ const text=mhChatPublicText(msg.text);
+ const nameRaw=String(msg.fromName||'Noobie').slice(0,24);
+ const nameMod=mhChatModerateName(nameRaw);
+ const fromName=nameMod.ok?nameRaw:'Player';
+ return {...msg,fromName,text:text.blocked?'[Hidden — chat rules]':String(msg.text||'').slice(0,160),blocked:text.blocked};
+}
+const MH_KING_CUTSCENE_TITLE='Axe → Sword · Void Judgment';
+const MH_SCRIPT_FILE='morph-hunt.js';
+const MH_ANCIENT_GLYPHS=['⌬','☵','⛧','◈','☒'];
+const MH_ANCIENT_NAMES=['Void Seal','Rift Mark','Depth Eye','Abyss Gate','King Ward'];
+const MH_VOID_STORM_NAME='Void Storm';
+const MH_PLAGUE_GRAVEYARD_NAME='Graveyard Legion';
+const MH_PLAGUE_STORM_NAME='Black-Red Storm';
+const MH_VOID_STORM_POWER={id:'void_storm',name:'Void Storm',color:'#ff2020',kind:'storm',range:200};
+const MH_KING_STAMP='VOID_FALLEN_GOD_v32';
+const MH_MEGA_W=7;
+const MH_MEGA_H=6;
+const MH_MEGA_BUILDING_KINDS=new Set(['house','shop','stall','booth','tent','cloud_house','sky_bridge','beach_hut','lifeguard','burned_house','ruined_house','void_fallen_building','void_cathedral','fluoro_hall','liminal_door','vault','expedition_tent','expedition_camp','crystal','nexus_ruins','neon_sign']);
+const MH_WORLD_MEGA_BUILDINGS=[
+ ['house','shop'],
+ ['stall','booth','tent'],
+ ['beach_hut','lifeguard'],
+ ['expedition_tent','crystal'],
+ ['fluoro_hall','liminal_door'],
+ ['cloud_house','sky_bridge'],
+ ['burned_house','expedition_camp'],
+ ['nexus_ruins','vault'],
+ ['vault','neon_sign'],
+ ['void_fallen_building','void_cathedral','ruined_house']
+];
+const MH_WORLD_PARK_NAMES=[
+ ['Buddy North','Buddy East','Buddy South','Buddy West'],
+ ['Midway Green','Tent Row','Fair South','Carousel Park'],
+ ['Dune Park','Pier Lawn','Surf Green','Shore Rest'],
+ ['Crystal Glade','Mine Rest','Gem Grove','Cavern Picnic'],
+ ['Liminal Lawn','Fluoro Picnic','Office Patch','Yellow Zone'],
+ ['Cloud Rest','Sky Garden','Nest Green','Bridge Park'],
+ ['Ash Rest','Lava View','Camp Green','Obsidian Park'],
+ ['Nexus Green','Portal Park','Legend Rest','Shrine Lawn'],
+ ['Neon Park','Vault Green','Exotic Rest','Prism Lawn'],
+ ['Fallen Rest','Void Garden','Abyss Green','King Memorial']
+];
+const MH_TOTAL_COUNT=1146;
+const MH_VOID_KING_DEPTH=100;
+const MH_VOID_KING_DIM='5th Dimensional';
+const MH_1000D=false;
+const MH_2D=true;
+const MH_DEPTH_LABEL='Abyss Depth';
+const MH_DIM_LABEL='2nd Dimensional';
+const MH_VOID_DIM_LABEL='2nd Dimensional';
+const MH_VOID_ABYSS_LABEL='Void Fallen Abyss';
+const MH_NPC_SPEED=1.25;
+const MH_TILE=34;
+const MH_MAP_W=46;
+const MH_MAP_H=34;
+const MH_WALK_SPEED=3.4;
+const MH_RUN_SPEED=6.6;
+const MH_INTERACT_R=52;
+const MH_MAP_NPC_DRAW_R=190;
+const MH_HIDDEN_REVEAL_R=108;
+const MH_GROVES_PER_NORMAL=10;
+const MH_GROVES_EPIC=12;
+const MH_GROVES_VOID=8;
+const MH_PARK_W=14;
+const MH_PARK_H=7;
+const MH_ANIMS=['bounce','sway','hop','pulse','float','wiggle','spin','glitch'];
+const MH_PROPS=['balloon','gemstick','sword','pet','skate','umbrella','sparkler','book','trophy','rocket'];
+const MH_HIGH_RARITY=new Set(['epic','legendary','secret','exclusive','exotic','voidfallen']);
+const MH_VOID_FALLEN_COUNT=100;
+const MH_BODIES=['classic','tall','chibi','robot','ghost','builder','wide'];
+const MH_WEAR_KEY='lithos_noobie_wear';
+const MH_NORMAL_COUNT=820;
+const MH_EXCLUSIVE_COUNT=196;
+const MH_NORMAL_WORLDS=8;
+const MH_EXOTIC_WORLD=8;
+const MH_VOID_WORLD=9;
+const MH_COINS_PER_FIND=15;
+const MH_GACHA_COST=50;
+const MH_GACHA_EX_COST=120;
+const MH_WORLDS_COUNT=10;
+
+const MH_RARITY={
+ common:{label:'Common',color:'#b8c0c8',glow:'rgba(184,192,200,.4)'},
+ uncommon:{label:'Uncommon',color:'#4caf7d',glow:'rgba(76,175,125,.45)'},
+ rare:{label:'Rare',color:'#4ea8ff',glow:'rgba(78,168,255,.5)'},
+ epic:{label:'Epic',color:'#b060e8',glow:'rgba(176,96,232,.55)'},
+ legendary:{label:'Legendary',color:'#f8d030',glow:'rgba(248,208,48,.6)'},
+ exclusive:{label:'Exclusive',color:'#ff6eb4',glow:'rgba(255,110,180,.6)'},
+ secret:{label:'Secret',color:'#39ff14',glow:'rgba(57,255,20,.5)'},
+ exotic:{label:'Exotic',color:'#ff48e8',glow:'rgba(255,72,232,.75)'},
+ voidfallen:{label:'Male Void Fallen',color:'#9040ff',glow:'rgba(120,40,255,.85)'}
+};
+
+const MH_WORLDS=[
+ {id:'w0',name:'Buddy Plaza',emoji:'🏠',tagline:'Common · Uncommon · Rare — hidden in groves only.',bg:'#87CEEB',ground:'#7ec850',wall:'#6a9850',prop:'#508040'},
+ {id:'w1',name:'Rainbow Fair',emoji:'🎡',tagline:'Flat fairground tiles.',bg:'#ffb8d0',ground:'#98d868',wall:'#c06090',prop:'#e04080'},
+ {id:'w2',name:'Blocky Beach',emoji:'🏖',tagline:'Flat sand & surf.',bg:'#70c8f0',ground:'#e8d878',wall:'#c0a858',prop:'#40a0c0'},
+ {id:'w3',name:'Crystal Cave',emoji:'💎',tagline:'Flat crystal floor — no fog.',bg:'#483868',ground:'#685888',wall:'#302848',prop:'#9080c0'},
+ {id:'w4',name:'Shadow Backrooms',emoji:'🚪',tagline:'Flat fluorescent halls.',bg:'#c8c4a8',ground:'#a8a890',wall:'#888878',prop:'#707060'},
+ {id:'w5',name:'Sky Islands',emoji:'☁',tagline:'Flat cloud platforms.',bg:'#a8d8ff',ground:'#88c8f0',wall:'#6090c0',prop:'#ffffff'},
+ {id:'w6',name:'Lava Park',emoji:'🌋',tagline:'Flat lava tiles.',bg:'#ff8860',ground:'#8a4030',wall:'#602818',prop:'#ff6040'},
+ {id:'w7',name:'Legend Nexus',emoji:'👑',tagline:'Flat nexus floor.',bg:'#6080c0',ground:'#506898',wall:'#384868',prop:'#ffd060'},
+ {id:'w8',name:'Epic+ Realm',emoji:'💎',tagline:'TELEPORT HERE — Epic · Legendary · Secret · Exotic · Exclusive.',bg:'#281040',ground:'#502868',wall:'#381838',prop:'#ff48e8'},
+ {id:'w9',name:'Void Fallen Abyss',emoji:'🕳',tagline:'TELEPORT HERE — Male Void Fallen + Fallen God boss.',bg:'#050008',ground:'#120818',wall:'#282038',prop:'#402060'}
+];
+const MH_WORLD_DECORS=[
+ ['house','shop','park','noobie_statue','fountain','playground'],
+ ['ferris','tent','booth','banner','stall','broken_ride'],
+ ['beach_hut','pier','palm','surf','lifeguard','wrecked_boat'],
+ ['crystal','expedition_tent','mine_cart','stalagmite','drill','crate'],
+ ['fluoro_hall','office_desk','carpet','broken_tile','chair','liminal_door'],
+ ['cloud_house','sky_bridge','balloon','nest','wreckage','expedition_flag'],
+ ['burned_house','lava_rock','expedition_camp','obsidian','broken_statue','ash_pile'],
+ ['nexus_ruins','portal','statue','camp','banner','crystal_shrine'],
+ ['vault','neon_sign','exotic_wreck','pillar','expedition_tent','gate'],
+ ['void_pillar','red_altar','broken_armor','expedition_bones','ruined_house','forbidden_stone','void_fallen_building','void_cathedral']
+];
+
+const MH_CODES={
+ welcomebuddy:{morph:'ex-welcome',coins:0,title:''},
+ coinplease:{coins:100},
+ thanksforverified:{coins:100},
+ bubblebuddy:{title:'Bubble Buddy'},
+ lithosgem:{morph:'ex-gemcrown'},
+ lithosstaff:{title:'Lithos Crew',coins:500,staff:true},
+ happyanniversaryftn1:{morph:'ex-party'},
+ glitchhouse:{morph:'code-glitch',coins:120,title:'Glitch Hunter'},
+ mythinside:{morph:'code-myth',coins:120,title:'Myth Seeker'},
+ minigamevault:{morph:'code-minigame',coins:120,title:'Minigame Master'},
+ enterhouse:{coins:60},
+ update100:{morph:'code-update100',coins:100,title:'Update 100',celebrate:true,toast:'Happy 100th UPDATE! 🎂💯'}
+};
+const MH_CODE_ALIASES={happy100thupdate:'update100',happy100:'update100',update100party:'update100'};
+
+const MH_RARITY_N=['common','common','uncommon','common','uncommon','rare','common','uncommon','rare','epic','uncommon','legendary'];
+
+const MH_ADJS=['Sunny','Blocky','Turbo','Chill','Neon','Lucky','Cosmic','Minty','Shadow','Golden','Pixel','Hyper','Jolly','Brave','Silly','Zappy','Frosty','Lava','Cloudy','Spark','Retro','Mega','Tiny','Giant','Wacky','Snappy','Bouncy','Glitch','Prism','Amber','Velvet','Coral','Indigo','Mossy','Candy','Storm','Dizzy','Royal','Rusty','Sonic','Bubble'];
+const MH_NOUNS=['Buddy','Bloxxer','Pal','Morph','Runner','Rider','Scout','Champ','Star','Builder','Skater','Surfer','Explorer','Guardian','Wizard','Knight','Pilot','DJ','Chef','Gamer','Hero','Ranger','Captain','Comet','Penguin','Fox','Panda','Tiger','Dragon','Phoenix','Robot','Alien','Ghost','Slime','Unicorn','Pirate','Ninja','Viking','Yeti','Yet'];
+const MH_ZONE_FLAVOR=[
+ ['Plaza','Starter','Town','Park','Green','Spawn','Hub','Square'],
+ ['Fair','Cotton','Ferris','Carousel','Rainbow','Ticket','Carnival','Treat'],
+ ['Beach','Sand','Wave','Tide','Shell','Surf','Palm','Boardwalk'],
+ ['Crystal','Cave','Gem','Shard','Glow','Mine','Prism','Stalactite'],
+ ['Backroom','Fluoro','Hall','Liminal','Tape','Buzz','Office','Yellow'],
+ ['Sky','Cloud','Island','Float','Breeze','Nest','Drift','Feather'],
+ ['Lava','Volcano','Magma','Ash','Ember','Heat','Basalt','Flame'],
+ ['Legend','Nexus','Crown','Throne','Myth','Epic','Final','Master']
+];
+const MH_EX_STEMS=['Vault','Neon','VIP','Turbo','Shadow','Prism','Apex','Glitch','Cosmic','Hyper','Lucky','Mint','Ruby','Bubble','Pixel','Ultra','Omega','Nova','Quantum','Stellar','Mythic','Radiant','Eclipse','Phantom','Crystal','Golden','Silver','Bronze','Diamond','Platinum','Inferno','Frost','Thunder','Solar','Lunar','Aurora','Vortex','Zenith','Nimbus','Pulse'];
+const MH_EX_TAGS=['Noobie','Morph','Legend','Star','Buddy','King','Queen','Rider','Scout','Phantom','VIP','Spark','Comet','Warden','Seeker','Champion','Oracle','Sprite','Titan','Sage'];
+
+const MH_ROBLOX_PALS=[
+ {head:'#F5CD30',torso:'#0085DB',legs:'#A4BD47',arms:'#F5CD30',label:'Classic Blue Noob'},
+ {head:'#F5CD30',torso:'#C4281C',legs:'#0085DB',arms:'#F5CD30',label:'Red Torso Noob'},
+ {head:'#F5CD30',torso:'#0085DB',legs:'#C4281C',arms:'#F5CD30',label:'Red Legs Noob'},
+ {head:'#D9BC00',torso:'#0D69AC',legs:'#A3A2A5',arms:'#D9BC00',label:'Stud Blue Noob'},
+ {head:'#F5CD30',torso:'#A3A2A5',legs:'#A3A2A5',arms:'#F5CD30',label:'Grey Team Noob'},
+ {head:'#F5CD30',torso:'#0085DB',legs:'#F5CD30',arms:'#F5CD30',label:'Yellow Legs Noob'},
+ {head:'#FF98DC',torso:'#0085DB',legs:'#A4BD47',arms:'#FF98DC',label:'Pink Head Noob'},
+ {head:'#F5CD30',torso:'#008000',legs:'#0085DB',arms:'#F5CD30',label:'Green Shirt Noob'},
+ {head:'#F5CD30',torso:'#800080',legs:'#A4BD47',arms:'#F5CD30',label:'Purple Shirt Noob'},
+ {head:'#F5CD30',torso:'#0085DB',legs:'#800080',arms:'#F5CD30',label:'Purple Pants Noob'},
+ {head:'#BFA029',torso:'#004080',legs:'#6B8E23',arms:'#BFA029',label:'Ocean Builder Noob'},
+ {head:'#E0AC00',torso:'#CC0000',legs:'#004080',arms:'#E0AC00',label:'Patriot Noob'}
+];
+
+function mhHsl(i,off,s,l){
+ const h=(i*137.508+off*40)%360;
+ return `hsl(${Math.round(h)},${s}%,${l}%)`;
+}
+function mhPal(i){
+ return{
+  head:mhHsl(i,0,72,62),
+  torso:mhHsl(i,1,68,48),
+  legs:mhHsl(i,2,58,40),
+  arms:mhHsl(i,3,65,52)
+ };
+}
+function mhMorphTraits(i){
+ const h=mhHashStr('trait'+i);
+ const body=MH_BODIES[h%MH_BODIES.length];
+ const hatPool=['star','crown','headphones','bow','gem','party','wave','voidhalo',null];
+ return{
+  body,
+  anim:MH_ANIMS[(h>>>3)%MH_ANIMS.length],
+  face:['smile','grin','o','flat','w'][(h>>>6)%5],
+  stripe:((h>>>4)&3)!==2,
+  sleeves:((h>>>8)&3)===0,
+  glasses:((h>>>5)&5)===0,
+  hat:hatPool[(h>>>7)%hatPool.length],
+  prop:MH_PROPS[(h>>>10)%MH_PROPS.length],
+  accent:mhHsl((h>>>11)%360,62,55),
+  shoe:mhHsl((h>>>13)%360,45,32)
+ };
+}
+function mhPick(arr,seed){ return arr[((seed%arr.length)+arr.length)%arr.length]; }
+function mhNormalName(i,wi){
+ const a=mhPick(MH_ADJS,i*5+wi*17);
+ const n=mhPick(MH_NOUNS,i*11+wi*3);
+ const z=mhPick(MH_ZONE_FLAVOR[wi],i*7+wi);
+ const p=i%5;
+ if(p===0) return a+' '+n;
+ if(p===1) return z+' '+n;
+ if(p===2) return a+' '+z+' '+n;
+ if(p===3) return n+' of '+z;
+ return a+' '+z;
+}
+function mhExclusiveName(i){
+ if(i===0) return 'Welcome Noobie';
+ if(i===1) return 'Party Noobie';
+ if(i===2) return 'Gem Crown Noobie';
+ return mhPick(MH_EX_STEMS,i*9+3)+' '+mhPick(MH_EX_TAGS,i*13+7);
+}
+function mhUniqueNames(count,fn){
+ const used=new Set();
+ const out=[];
+ for(let i=0;i<count;i++){
+  let name=fn(i);
+  let n=2;
+  while(used.has(name)){ name=fn(i)+' '+n; n++; }
+  used.add(name);
+  out.push(name);
+ }
+ return out;
+}
+const MH_NORMAL_NAMES=mhUniqueNames(MH_NORMAL_COUNT,(i)=>mhNormalName(i,Math.min(MH_NORMAL_WORLDS-1,Math.floor(i/Math.ceil(MH_NORMAL_COUNT/MH_NORMAL_WORLDS)))));
+const MH_EXCLUSIVE_NAMES=mhUniqueNames(MH_EXCLUSIVE_COUNT,mhExclusiveName);
+const MH_VOID_MALE_PRE=['Abyss','Fallen','Void','Null','Rift','Dark','Hollow','Fractal','Obsidian','Eclipse','Quantum','Silent','Nebula','Zero','Lost'];
+const MH_VOID_MALE_SUF=['King','Knight','Walker','Guardian','Reaper','Strider','Lord','Phantom','Exile','Drifter','Monarch','Oracle','Wraith','Nomad','Brother'];
+function mhVoidName(i){
+ return mhPick(MH_VOID_MALE_PRE,i*5+1)+' '+mhPick(MH_VOID_MALE_SUF,i*11+3);
+}
+const MH_VOID_MALE_BODIES=['classic','tall','builder','wide','robot','ghost'];
+const MH_VOID_HATS=['voidhorn','voidhalo','riftshard','gem','crown','headphones','bow','party','star',null,null];
+const MH_VOID_ATTACKS=[
+ {id:'rift_slash',name:'Rift Slash',color:'#c080ff',kind:'arc',speed:9,range:95},
+ {id:'abyss_bolt',name:'Abyss Bolt',color:'#9040ff',kind:'beam',speed:11,range:140},
+ {id:'shadow_lance',name:'Shadow Lance',color:'#6080c0',kind:'beam',speed:13,range:120},
+ {id:'void_orbs',name:'Void Orbs',color:'#ff48e8',kind:'orbs',speed:7,range:80},
+ {id:'maelstrom_cut',name:'Maelstrom Cut',color:'#80e0ff',kind:'arc',speed:10,range:100},
+ {id:'fallen_rend',name:'Fallen Rend',color:'#b010ff',kind:'arc',speed:8,range:110},
+ {id:'depth_spike',name:'Depth Spike',color:'#7040c0',kind:'beam',speed:12,range:130},
+ {id:'king_breaker',name:'King Breaker',color:'#ff4040',kind:'nova',speed:6,range:90}
+];
+const MH_VOID_POWERS=[
+ {id:'void_step',name:'Void Step',color:'#c898ff',kind:'dash',dist:90,cooldown:1.2},
+ {id:'shadow_shield',name:'Shadow Shield',color:'#5060a0',kind:'shield',time:2.8,cooldown:2.5},
+ {id:'abyss_surge',name:'Abyss Surge',color:'#9040ff',kind:'nova',range:100,cooldown:2},
+ {id:'rift_heal',name:'Rift Mend',color:'#80ffb0',kind:'heal',coins:8,cooldown:3},
+ {id:'fallen_rage',name:'Fallen Rage',color:'#ff6080',kind:'buff',time:4,cooldown:4},
+ {id:'mirror_clone',name:'Mirror Echo',color:'#80e8ff',kind:'echo',count:3,cooldown:2.2},
+ {id:'gravity_well',name:'Gravity Well',color:'#6040a0',kind:'pull',range:120,cooldown:2.8},
+ {id:'forbidden_storm',name:'Forbidden Storm',color:'#ff2020',kind:'storm',range:150,cooldown:3.5}
+];
+function mhAssignVoidCombat(m){
+ if(m.rarity!=='voidfallen'&&!m.voidFallen) return;
+ if(m.plagueDoctor) return;
+ if(m.voidKing){
+  m.voidAttack={id:'god_twin_axe',name:'Twin-Axe Cleave',color:'#ff3030',kind:'arc',speed:9,range:145};
+  m.voidPower={...MH_VOID_STORM_POWER,id:'forbidden_storm',name:'Forbidden Void Storm',range:240};
+  return;
+ }
+ const h=mhHashStr(m.id+'vfc');
+ m.voidAttack=MH_VOID_ATTACKS[h%MH_VOID_ATTACKS.length];
+ m.voidPower={...MH_VOID_STORM_POWER};
+}
+function mhVoidTraits(i){
+ const h=mhHashStr('vftrait'+i);
+ return{
+  body:MH_VOID_MALE_BODIES[(h>>>1)%MH_VOID_MALE_BODIES.length],
+  anim:MH_ANIMS[(h>>>3)%MH_ANIMS.length],
+  face:['flat','grin','w','smile','o'][(h>>>6)%5],
+  stripe:((h>>>4)&3)===0,
+  glasses:((h>>>5)&9)===0,
+  hat:MH_VOID_HATS[(h>>>7)%MH_VOID_HATS.length],
+  prop:MH_PROPS[(h>>>10)%MH_PROPS.length],
+  voidMark:(h>>>2)%19,
+  voidEyes:['#70e8ff','#ff58c8','#ffe048','#98ff88','#c898ff','#ff8860'][(h>>>12)%6],
+  voidPalette:(h>>>9)%6,
+  voidMale:true,
+  fallen:true
+ };
+}
+function mhVoidPal(i,kind){
+ const h=mhHashStr('vfpal'+i);
+ const schemes=[
+  {head:350,torso:0,legs:280,s:38},
+  {head:340,torso:350,legs:300,s:42},
+  {head:0,torso:320,legs:290,s:45},
+  {head:280,torso:10,legs:270,s:40},
+  {head:300,torso:340,legs:310,s:44},
+  {head:15,torso:280,legs:300,s:36}
+ ];
+ const ki=(((kind==null?i:kind)%schemes.length)+schemes.length)%schemes.length;
+ const s=schemes[ki];
+ const b=12+(i%28);
+ return{
+  head:`hsl(${s.head+(h%12)},${s.s}%,${Math.max(8,b+8)}%)`,
+  torso:`hsl(${s.torso+(h%16)},${Math.min(72,s.s+8)}%,${Math.max(12,b)}%)`,
+  legs:`hsl(${s.legs+(h%10)},${Math.max(22,s.s-8)}%,${Math.max(6,b-6)}%)`,
+  arms:`hsl(${s.head+(h%8)},${s.s}%,${Math.max(8,b+4)}%)`,
+  voidAccent:`hsl(${s.torso+20},78%,${52+(h%16)}%)`
+ };
+}
+const MH_VOID_NAMES=mhUniqueNames(MH_VOID_FALLEN_COUNT,mhVoidName);
+function mhSpotPos(idx,total){
+ const cols=11;
+ const row=Math.floor(idx/cols);
+ const col=idx%cols;
+ return{
+  x:6+col*(88/(cols-1)),
+  y:22+row*(58/Math.max(1,Math.ceil(total/cols)-1))
+ };
+}
+function mhHashStr(s){
+ let h=2166136261;
+ for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619); }
+ return h>>>0;
+}
+
+function mhSigNoob(o){
+ const id=o.id||'';
+ const autoLook=id.startsWith('sig-')?id.slice(4).replace(/-/g,'_'):null;
+ return {
+  exclusive:true, signatureOnly:true, signatureReal:true, anim:'sway', face:'grin', scale:1.02,
+  stripe:false, glasses:false, hat:null, prop:null,
+  ...o,
+  sigLook:o.sigLook||autoLook
+ };
+}
+function mhSigLookKey(m){
+ if(!m) return 'classic';
+ if(m.mayorOnly) return 'mayor';
+ return m.sigLook||((m.id||'').replace(/^sig-/,'').replace(/-/g,'_'))||'classic';
+}
+function mhSigPaintLimbs(ctx,m,wa,silhouette){
+ const h=m.head||'#F5CD30', t=m.torso||'#0085DB', l=m.legs||'#A4BD47', a=m.arms||h;
+ const tall=m.body==='tall'||m.body==='builder';
+ ctx.fillStyle='rgba(0,0,0,.32)';
+ ctx.beginPath(); ctx.ellipse(0,56,14,3.5,0,0,Math.PI*2); ctx.fill();
+ if(tall){
+  mhGradRect(ctx,-11+wa.lx,14+wa.ly,11,38,l,mhShade(l,-24));
+  mhGradRect(ctx,0+wa.rx,14+wa.ry,11,38,l,mhShade(l,-24));
+  mhGradRect(ctx,-14,-2,28,22,t,mhShade(t,-28));
+  mhGradRect(ctx,-19,0+wa.ax,9,22,a,mhShade(a,-20));
+  mhGradRect(ctx,10,0-wa.ax,9,22,a,mhShade(a,-20));
+  mhGradRect(ctx,-11,-48,22,24,h,mhShade(h,-22));
+ }else if(m.body==='chibi'){
+  mhGradRect(ctx,-9+wa.lx,20+wa.ly,9,28,l,mhShade(l,-24));
+  mhGradRect(ctx,0+wa.rx,20+wa.ry,9,28,l,mhShade(l,-24));
+  mhGradRect(ctx,-13,2,26,18,t,mhShade(t,-28));
+  mhGradRect(ctx,-17,4+wa.ax,8,16,a,mhShade(a,-20));
+  mhGradRect(ctx,9,4-wa.ax,8,16,a,mhShade(a,-20));
+  mhGradRect(ctx,-14,-42,28,28,h,mhShade(h,-22));
+ }else{
+  mhGradRect(ctx,-10+wa.lx,18+wa.ly,9,32,l,mhShade(l,-24));
+  mhGradRect(ctx,1+wa.rx,18+wa.ry,9,32,l,mhShade(l,-24));
+  mhGradRect(ctx,-15,0,30,22,t,mhShade(t,-28));
+  mhGradRect(ctx,-20,2+wa.ax,9,20,a,mhShade(a,-20));
+  mhGradRect(ctx,11,2-wa.ax,9,20,a,mhShade(a,-20));
+  mhGradRect(ctx,-12,-46,24,26,h,mhShade(h,-22));
+ }
+ if(!silhouette&&m.glasses){
+  ctx.strokeStyle='#101820'; ctx.lineWidth=1.1;
+  ctx.strokeRect(-9,-38,8,7); ctx.strokeRect(1,-38,8,7);
+ }
+ ctx.fillStyle='#1a1a20';
+ ctx.fillRect(-6,-36,4,4); ctx.fillRect(2,-36,4,4);
+}
+function mhSigPaintGear(ctx,look,m,wa,t,silhouette){
+ if(silhouette) return;
+ const acc=m.accent||'#ffd060';
+ const ve=m.voidEyes||'#ff3030';
+ ctx.save();
+ switch(look){
+  case 'mail_carrier':
+   ctx.fillStyle='#1a2840'; ctx.fillRect(-14,-54,28,8);
+   ctx.fillStyle=acc; ctx.fillRect(-10,-56,20,4);
+   ctx.fillStyle='#8a5030'; ctx.fillRect(14,8,10,14); ctx.strokeStyle=acc; ctx.strokeRect(14,8,10,14);
+   ctx.fillStyle='#fff'; ctx.fillRect(16,10,6,4);
+   break;
+  case 'park_ranger':
+   ctx.fillStyle='#2a4828'; ctx.fillRect(-16,-4,32,6);
+   ctx.fillStyle=acc; ctx.fillRect(-4,-3,8,4);
+   ctx.fillStyle='#3a3020'; ctx.beginPath(); ctx.ellipse(0,-52,16,5,0,0,Math.PI*2); ctx.fill();
+   ctx.fillStyle='#5a4030'; ctx.fillRect(-18,-50,36,4);
+   break;
+  case 'lifeguard':
+   ctx.fillStyle='#fff'; ctx.fillRect(-8,-2,16,5);
+   ctx.fillStyle='#e04040'; ctx.fillRect(-6,-1,12,3);
+   ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(0,-50,10,0,Math.PI*2); ctx.fill();
+   ctx.fillStyle='#e04040'; ctx.fillRect(-10,-52,20,4);
+   break;
+  case 'court_clerk':
+   ctx.fillStyle=acc; ctx.fillRect(-2,-8,4,10);
+   ctx.fillStyle='#303848'; ctx.fillRect(-12,-6,24,4);
+   ctx.fillStyle='#e8e0d0'; ctx.fillRect(12,4,8,12); ctx.fillStyle='#404868'; ctx.strokeRect(12,4,8,12);
+   break;
+  case 'ringmaster':
+   ctx.fillStyle='#802050'; ctx.fillRect(-18,18,8,22); ctx.fillRect(10,18,8,22);
+   ctx.fillStyle='#ffd060'; ctx.fillRect(-16,-56,32,10);
+   ctx.fillStyle='#ff48e8'; ctx.fillRect(-12,-58,24,4);
+   ctx.strokeStyle=acc; ctx.beginPath(); ctx.moveTo(16,-20); ctx.lineTo(24,-42); ctx.stroke();
+   break;
+  case 'surfer':
+   ctx.fillStyle='#70d8ff'; ctx.fillRect(-22,24,44,6);
+   ctx.fillStyle='#f5cd30'; ctx.fillRect(-14,-54,28,6);
+   break;
+  case 'prospector':
+   ctx.fillStyle='#f4c430'; ctx.beginPath(); ctx.moveTo(0,-58); ctx.lineTo(8,-48); ctx.lineTo(-8,-48); ctx.fill();
+   ctx.fillStyle='#ffd060'; ctx.fillRect(-8,-46,16,4);
+   ctx.fillStyle='#888'; ctx.fillRect(18,-8,4,22); ctx.fillStyle='#aaa'; ctx.fillRect(14,-12,12,4);
+   ctx.fillStyle=acc; ctx.fillRect(-16,6,10,8);
+   break;
+  case 'janitor':
+   ctx.fillStyle='#607080'; ctx.fillRect(-14,-6,28,8);
+   ctx.fillStyle='#a0c8ff'; ctx.fillRect(-16,-54,32,8);
+   ctx.strokeStyle='#888'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(-20,10); ctx.lineTo(-20,48); ctx.stroke();
+   ctx.fillStyle='#c0c0c0'; ctx.beginPath(); ctx.arc(-20,52,6,0,Math.PI*2); ctx.fill();
+   break;
+  case 'balloon_pilot':
+   ctx.fillStyle='#5080c0'; ctx.fillRect(-16,-6,32,10);
+   ctx.fillStyle='#4060a0'; ctx.fillRect(-10,-54,20,8);
+   ctx.fillStyle='rgba(120,180,255,.5)'; ctx.beginPath(); ctx.arc(0,-62,12,0,Math.PI*2); ctx.fill();
+   ctx.strokeStyle='#fff'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(0,-50); ctx.lineTo(0,-38); ctx.stroke();
+   break;
+  case 'volcano_scout':
+   ctx.fillStyle='#ff6040'; ctx.fillRect(-14,-6,28,8);
+   ctx.fillStyle='rgba(255,200,120,.6)'; ctx.fillRect(-12,-48,24,10);
+   ctx.fillStyle='#333'; ctx.fillRect(-10,-44,20,4);
+   ctx.fillStyle='#501810'; ctx.fillRect(-8,8,16,10);
+   break;
+  case 'portal_keeper':
+   ctx.strokeStyle=acc; ctx.lineWidth=2;
+   ctx.beginPath(); ctx.arc(0,-2,12,0,Math.PI*2); ctx.stroke();
+   ctx.fillStyle='rgba(80,200,255,.35)'; ctx.fill();
+   ctx.fillStyle='#384878'; ctx.fillRect(-14,-54,28,10);
+   break;
+  case 'gem_copter_pilot':
+   ctx.fillStyle='#204878'; ctx.fillRect(-16,-4,32,8);
+   ctx.fillStyle=acc; ctx.fillRect(-6,-56,12,8);
+   ctx.fillStyle='#888'; ctx.fillRect(-18,-18,8,3); ctx.fillRect(-22,-16,4,8);
+   break;
+  case 'night_shift_guard':
+   ctx.fillStyle='#283040'; ctx.fillRect(-14,-6,28,10);
+   ctx.fillStyle=acc; ctx.fillRect(-8,-54,16,8);
+   ctx.fillStyle='#ffe060'; ctx.beginPath(); ctx.arc(18,8,5,0,Math.PI*2); ctx.fill();
+   ctx.fillStyle='#fff'; ctx.fillRect(16,6,6,2);
+   break;
+  case 'archaeologist':
+   ctx.fillStyle='#806840'; ctx.fillRect(-14,-4,28,8);
+   ctx.fillStyle=acc; ctx.font='8px serif'; ctx.textAlign='center';
+   ctx.fillText(MH_ANCIENT_GLYPHS[(mhHashStr(m.id)%5)],0,2);
+   ctx.fillStyle='#8a6840'; ctx.fillRect(14,6,6,14);
+   break;
+  case 'claw_quest':
+   ctx.fillStyle='#ff48e8'; ctx.fillRect(-16,-4,32,6);
+   ctx.fillStyle='#c04030'; ctx.beginPath(); ctx.moveTo(16,8); ctx.lineTo(26,0); ctx.lineTo(26,16); ctx.fill();
+   break;
+  case 'void_surgeon':
+   ctx.fillStyle='#0a0a0a'; ctx.beginPath(); ctx.ellipse(0,-46,12,14,0,0,Math.PI*2); ctx.fill();
+   ctx.strokeStyle=acc; ctx.stroke();
+   ctx.fillStyle=ve; ctx.fillRect(-6,-48,3,2); ctx.fillRect(3,-48,3,2);
+   ctx.fillStyle=acc; ctx.fillRect(12,6,6,10);
+   break;
+  case 'red_black_herald':
+  case 'void_red_black_herald':
+   ctx.fillStyle='rgba(40,0,0,.85)'; ctx.beginPath(); ctx.moveTo(-16,-4); ctx.lineTo(-24,20); ctx.lineTo(-8,14); ctx.fill();
+   ctx.beginPath(); ctx.moveTo(16,-4); ctx.lineTo(24,20); ctx.lineTo(8,14); ctx.fill();
+   ctx.fillStyle='#cc0000'; ctx.fillRect(-4,-54,8,12);
+   break;
+  case 'cathedral_warden':
+  case 'void_cathedral_warden':
+   ctx.fillStyle='#403060'; ctx.fillRect(-16,-4,32,10);
+   ctx.strokeStyle=acc; ctx.lineWidth=2; ctx.strokeRect(-14,-6,28,14);
+   ctx.fillStyle=acc; ctx.fillRect(-8,-50,16,8);
+   break;
+  case 'noobie_noobie':
+   ctx.fillStyle='rgba(255,255,255,.28)'; ctx.fillRect(-14,8,28,6);
+   break;
+  case 'afk_noobie':
+   ctx.fillStyle='#888'; ctx.font='bold 10px system-ui'; ctx.textAlign='center'; ctx.fillText('zZz',8,-48);
+   break;
+  case 'bubble_buddy':
+   ctx.fillStyle='rgba(168,232,255,.45)'; ctx.beginPath(); ctx.arc(-14,-52,6,0,Math.PI*2); ctx.arc(12,-50,5,0,Math.PI*2); ctx.fill();
+   break;
+  case 'mayor':
+   ctx.fillStyle='#ffd700'; ctx.fillRect(-10,-56,20,8);
+   ctx.fillStyle='#2040a0'; ctx.fillRect(-14,-2,28,6);
+   ctx.fillStyle=acc; ctx.fillRect(14,0,8,12);
+   break;
+  case 'update_100':
+   ctx.fillStyle='#ffd060'; ctx.font='bold 9px system-ui'; ctx.textAlign='center'; ctx.fillText('100',0,-50);
+   ctx.fillStyle='#ff48e8'; ctx.beginPath(); ctx.arc(-14,-54,5,0,Math.PI*2); ctx.arc(14,-52,4,0,Math.PI*2); ctx.fill();
+   ctx.fillStyle='#ffe060'; ctx.fillRect(-18,-56,36,6);
+   ctx.fillStyle='#fff'; ctx.font='14px system-ui'; ctx.fillText('🎂',0,-38);
+   break;
+  default:
+   break;
+ }
+ ctx.restore();
+}
+function mhPaintSignatureNoob(ctx,x,y,sc,alpha,silhouette,walkPhase,running,t,m){
+ if(!m) return;
+ ctx.save();
+ ctx.translate(x,y);
+ ctx.scale(sc,sc);
+ ctx.globalAlpha=alpha==null?1:alpha;
+ if(silhouette){
+  m={...m,head:'#3a4050',torso:'#283040',legs:'#1e2430',arms:'#3a4050'};
+  ctx.globalAlpha=(alpha==null?0.72:alpha);
+ }
+ const wa=mhWalkLegAnim(walkPhase,running);
+ ctx.translate(0,-wa.bob);
+ if(m.voidFallen&&!m.plagueDoctor){
+  ctx.fillStyle=mhHex(m.voidAccent||'#ff3030',0.35);
+  ctx.fillRect(-14,4,28,5);
+  ctx.fillStyle='#101018'; ctx.fillRect(-8,-38,6,6); ctx.fillRect(2,-38,6,6);
+  ctx.fillStyle=m.voidEyes||'#ff3030'; ctx.fillRect(-7,-37,4,4); ctx.fillRect(3,-37,4,4);
+ }
+ mhSigPaintLimbs(ctx,m,wa,silhouette);
+ mhSigPaintGear(ctx,mhSigLookKey(m),m,wa,t,silhouette);
+ ctx.restore();
+}
+function mhSignatureNoobSvg(m){
+ const look=mhSigLookKey(m);
+ const h=m.head||'#F5CD30', t=m.torso||'#0085DB', l=m.legs||'#A4BD47', a=m.arms||h;
+ const acc=m.accent||'#ffd060';
+ const body=mhBodyShape(m);
+ let gear='';
+ if(look==='mail_carrier') gear=`<rect x="72" y="48" width="12" height="16" fill="#8a5030" stroke="${acc}"/><rect x="38" y="4" width="24" height="8" fill="#1a2840"/>`;
+ else if(look==='park_ranger') gear=`<ellipse cx="50" cy="8" rx="18" ry="6" fill="#5a4030"/><rect x="32" y="42" width="36" height="6" fill="#2a4828"/>`;
+ else if(look==='lifeguard') gear=`<rect x="40" y="4" width="20" height="8" fill="#fff" stroke="#e04040"/><rect x="42" y="46" width="16" height="5" fill="#fff"/>`;
+ else if(look==='mayor') gear=`<rect x="40" y="2" width="20" height="8" fill="#ffd700"/><rect x="72" y="44" width="10" height="14" fill="${acc}"/>`;
+ else if(look==='void_surgeon') gear=`<ellipse cx="50" cy="18" rx="12" ry="14" fill="#0a0a0a" stroke="${acc}"/><rect x="72" y="48" width="8" height="12" fill="${acc}"/>`;
+ else if(look==='prospector') gear=`<polygon points="50,0 58,12 42,12" fill="#f4c430"/><rect x="74" y="40" width="6" height="20" fill="#888"/>`;
+ else if(look==='janitor') gear=`<rect x="34" y="4" width="32" height="8" fill="#a0c8ff"/><line x1="18" y1="50" x2="18" y2="90" stroke="#888" stroke-width="3"/>`;
+ else if(look==='ringmaster') gear=`<rect x="34" y="2" width="32" height="10" fill="#ffd060"/><rect x="14" y="72" width="8" height="20" fill="#802050"/><rect x="78" y="72" width="8" height="20" fill="#802050"/>`;
+ else if(look==='bubble_buddy') gear=`<circle cx="28" cy="10" r="6" fill="rgba(168,232,255,.5)"/><circle cx="68" cy="12" r="5" fill="rgba(168,232,255,.5)"/>`;
+ else if(look==='gem_copter_pilot') gear=`<rect x="40" y="2" width="20" height="10" fill="${acc}"/><rect x="10" y="36" width="12" height="4" fill="#888"/>`;
+ else if(look==='night_shift_guard') gear=`<rect x="38" y="4" width="24" height="8" fill="${acc}"/><circle cx="78" cy="52" r="6" fill="#ffe060"/>`;
+ else if(look==='surfer') gear=`<rect x="22" y="88" width="56" height="8" fill="#70d8ff" rx="2"/>`;
+ else if(look==='volcano_scout') gear=`<rect x="36" y="6" width="28" height="12" fill="rgba(255,200,120,.7)"/><rect x="38" y="52" width="24" height="10" fill="#501810"/>`;
+ else if(look==='portal_keeper') gear=`<circle cx="50" cy="48" r="12" fill="rgba(80,200,255,.3)" stroke="${acc}" stroke-width="2"/>`;
+ else if(look==='balloon_pilot') gear=`<circle cx="50" cy="6" r="11" fill="rgba(120,180,255,.45)"/><line x1="50" y1="18" x2="50" y2="28" stroke="#fff"/>`;
+ else if(look==='claw_quest') gear=`<polygon points="78,48 88,40 88,56" fill="#c04030"/>`;
+ else if(look==='void_red_black_herald') gear=`<path d="M14 44 L6 68 L18 58 Z" fill="rgba(40,0,0,.85)"/><path d="M86 44 L94 68 L82 58 Z" fill="rgba(40,0,0,.85)"/>`;
+ else if(look==='void_cathedral_warden') gear=`<rect x="32" y="42" width="36" height="12" fill="#403060" stroke="${acc}"/>`;
+ else if(look==='archaeologist') gear=`<rect x="72" y="48" width="8" height="16" fill="#8a6840"/>`;
+ else if(look==='court_clerk') gear=`<rect x="48" y="38" width="4" height="12" fill="${acc}"/><rect x="72" y="46" width="10" height="14" fill="#e8e0d0" stroke="#404868"/>`;
+ else if(look==='lifeguard') gear=`<rect x="40" y="4" width="20" height="8" fill="#fff" stroke="#e04040"/>`;
+ else if(look==='afk_noobie') gear=`<text x="62" y="12" font-size="10" fill="#888">zZz</text>`;
+ else if(look==='noobie_noobie') gear=`<rect x="30" y="52" width="40" height="6" fill="rgba(255,255,255,.28)"/>`;
+ else if(look==='update_100') gear=`<rect x="32" y="2" width="36" height="8" fill="#ffd060"/><text x="50" y="10" text-anchor="middle" font-size="8" fill="#802050">100</text><text x="50" y="36" text-anchor="middle" font-size="14">🎂</text><circle cx="28" cy="8" r="5" fill="#ff48e8"/><circle cx="72" cy="10" r="4" fill="#80e0ff"/>`;
+ return `<g>${body}${gear}</g>`;
+}
+function mhSignatureNoobieList(){
+ const voidLord=(id,name,tag,acc,atk,pow,sigLook)=>mhSigNoob({
+  id,name,sigLook:sigLook||id.slice(4).replace(/-/g,'_'),sigGroup:'void',sigTag:tag,world:MH_VOID_WORLD,
+  head:'#0a0a0a',torso:'#280818',legs:'#141014',arms:'#1a1018',body:'tall',
+  rarity:'voidfallen',voidFallen:true,voidMale:true,voidMark:3,voidEyes:'#ff3030',voidAccent:acc,
+  voidAttack:atk, voidPower:pow, sigBadge:'⛧'
+ });
+ return [
+  mhSigNoob({id:'sig-mail-carrier',name:'Mail Carrier Noobie',sigGroup:'town',sigTag:'Quest: deliver letters to F buildings on every map.',world:0,head:'#f5cd30',torso:'#2040a0',legs:'#303850',arms:'#f5cd30',body:'classic',rarity:'legendary',hat:'bow',prop:'book',accent:'#ffd060',sigBadge:'📬',sigDeco:'<text x="6" y="18" font-size="13">📬</text><text x="70" y="20" font-size="11">✉️</text>'}),
+  mhSigNoob({id:'sig-park-ranger',name:'Park Ranger Noobie',sigGroup:'town',sigTag:'Quest: find hidden grove clues at every park.',world:0,head:'#ffe8a0',torso:'#2a6838',legs:'#384830',arms:'#ffe8a0',body:'tall',rarity:'epic',hat:'star',glasses:true,accent:'#80ff90',sigBadge:'🌲',sigDeco:'<text x="8" y="16" font-size="12">🌲</text><text x="68" y="18" font-size="11">📋</text>'}),
+  mhSigNoob({id:'sig-lifeguard',name:'Lifeguard Noobie',sigGroup:'town',sigTag:'Quest: rescue floats at Blocky Beach + survive Lava Park tiles.',world:2,head:'#ffe0c0',torso:'#e04040',legs:'#c03030',arms:'#ffe0c0',body:'classic',rarity:'epic',hat:'party',prop:'umbrella',accent:'#fff080',sigBadge:'🛟',sigDeco:'<text x="6" y="14" font-size="13">🛟</text><text x="72" y="16" font-size="11">☀️</text>'}),
+  mhSigNoob({id:'sig-court-clerk',name:'Court Clerk Noobie',sigGroup:'town',sigTag:'Quest: Mayor shrine papers + crank the beam.',world:0,head:'#e8dcc8',torso:'#404868',legs:'#303848',arms:'#e8dcc8',body:'tall',rarity:'rare',hat:'crown',prop:'trophy',glasses:true,sigBadge:'⚖️',sigDeco:'<text x="8" y="16" font-size="12">⚖️</text><text x="70" y="18" font-size="10">📜</text>'}),
+  mhSigNoob({id:'sig-ringmaster',name:'Ringmaster Noobie',sigGroup:'world',sigTag:'Rainbow Fair — win three fair minigames.',world:1,head:'#ffe8a0',torso:'#802050',legs:'#502040',arms:'#ffe8a0',body:'tall',rarity:'legendary',hat:'party',prop:'sparkler',accent:'#ff48e8',sigBadge:'🎪',sigDeco:'<text x="6" y="14" font-size="13">🎪</text><text x="68" y="16" font-size="11">🎟</text>'}),
+  mhSigNoob({id:'sig-surfer',name:'Surfer Noobie',sigGroup:'world',sigTag:'Blocky Beach — ride wave tiles without touching sand traps.',world:2,head:'#f5cd30',torso:'#0085db',legs:'#a4bd47',arms:'#f5cd30',body:'classic',rarity:'epic',prop:'skate',accent:'#70d8ff',sigBadge:'🏄',sigDeco:'<text x="6" y="16" font-size="12">🏄</text><text x="72" y="14" font-size="11">🌊</text>'}),
+  mhSigNoob({id:'sig-prospector',name:'Prospector Noobie',sigGroup:'world',sigTag:'Crystal Cave — match Lithos gem colors in the mine.',world:3,head:'#c8a878',torso:'#685040',legs:'#483830',arms:'#c8a878',body:'builder',rarity:'legendary',hat:'gem',prop:'gemstick',glasses:true,sigBadge:'⛏️',sigDeco:'<text x="6" y="16" font-size="12">⛏️</text><text x="68" y="18" font-size="11">💎</text>'}),
+  mhSigNoob({id:'sig-janitor',name:'Janitor Noobie',sigGroup:'world',sigTag:'Shadow Backrooms — mop fluorescent halls + liminal door.',world:4,head:'#d0d0c8',torso:'#607080',legs:'#404850',arms:'#d0d0c8',body:'classic',rarity:'rare',hat:'headphones',accent:'#a0c8ff',sigBadge:'🧹',sigDeco:'<text x="8" y="16" font-size="12">🧹</text><text x="70" y="18" font-size="10">🚪</text>'}),
+  mhSigNoob({id:'sig-balloon-pilot',name:'Balloon Pilot Noobie',sigGroup:'world',sigTag:'Sky Islands — repair bridges and land on cloud pads.',world:5,head:'#ffe0a0',torso:'#5080c0',legs:'#406898',arms:'#ffe0a0',body:'tall',rarity:'epic',prop:'balloon',hat:'bow',sigBadge:'🎈',sigDeco:'<text x="6" y="14" font-size="13">🎈</text><text x="72" y="16" font-size="11">☁️</text>'}),
+  mhSigNoob({id:'sig-volcano-scout',name:'Volcano Scout Noobie',sigGroup:'world',sigTag:'Lava Park — collect obsidian + ash samples.',world:6,head:'#ffc090',torso:'#802818',legs:'#501810',arms:'#ffc090',body:'builder',rarity:'legendary',hat:'star',prop:'rocket',accent:'#ff6040',sigBadge:'🌋',sigDeco:'<text x="6" y="16" font-size="12">🌋</text><text x="68" y="18" font-size="11">🥽</text>'}),
+  mhSigNoob({id:'sig-portal-keeper',name:'Portal Keeper Noobie',sigGroup:'world',sigTag:'Legend Nexus — guide portals (pairs with Myth code morph).',world:7,head:'#ffd060',torso:'#384878',legs:'#283858',arms:'#ffd060',body:'tall',rarity:'exclusive',hat:'voidhalo',prop:'gemstick',accent:'#80e0ff',sigBadge:'🌀',sigDeco:'<text x="6" y="14" font-size="13">🌀</text><text x="68" y="16" font-size="11">👑</text>'}),
+  mhSigNoob({id:'sig-gem-copter-pilot',name:'Gem Copter Pilot Noobie',sigGroup:'lithos',sigTag:'Fly Gem Copter — score goal unlocks sky landing pad.',world:5,head:'#ffe8a0',torso:'#204878',legs:'#303850',arms:'#ffe8a0',body:'classic',rarity:'legendary',hat:'gem',prop:'rocket',glasses:true,accent:'#7ec8ff',sigBadge:'🚁',sigDeco:'<text x="4" y="14" font-size="12">🚁</text><text x="68" y="16" font-size="11">💎</text>'}),
+  mhSigNoob({id:'sig-night-shift-guard',name:'Night Shift Guard Noobie',sigGroup:'lithos',sigTag:'Backrooms patrol — collect power cells (Night Shift vibes).',world:4,head:'#e8e0d0',torso:'#283040',legs:'#1a2030',arms:'#e8e0d0',body:'tall',rarity:'epic',hat:'headphones',prop:'sparkler',accent:'#ffd060',sigBadge:'🔦',sigDeco:'<text x="6" y="16" font-size="12">🔦</text><text x="70" y="18" font-size="10">🏭</text>'}),
+  mhSigNoob({id:'sig-archaeologist',name:'Archaeologist Noobie',sigGroup:'lithos',sigTag:'Dig Stratum sites — ancient glyphs on your satchel.',world:3,head:'#d8c8a0',torso:'#806840',legs:'#604830',arms:'#d8c8a0',body:'classic',rarity:'legendary',hat:'bow',prop:'book',glasses:true,sigBadge:'🪨',sigDeco:'<text x="6" y="16" font-size="12">🪨</text><text x="68" y="18" font-size="11">⌬</text>'}),
+  mhSigNoob({id:'sig-claw-quest',name:'Claw Quest Noobie',sigGroup:'lithos',sigTag:'Claw Quest fan — YouTube code or claw minigame chain.',world:1,head:'#ff48e8',torso:'#0085db',legs:'#a4bd47',arms:'#ff48e8',body:'chibi',rarity:'secret',hat:'party',prop:'pet',accent:'#ffd060',sigBadge:'🦞',sigDeco:'<text x="6" y="14" font-size="13">🦞</text><text x="68" y="16" font-size="11">▶️</text>'}),
+  voidLord('sig-void-surgeon','Void Surgeon Noobie','Void Abyss — heals self, hurts foes (mirror of Plague Doctor).','#80ffb0',{id:'vitae_cut',name:'Vitae Cut',color:'#80ffb0',kind:'beam',speed:6,range:85},{id:'blood_pact',name:'Blood Pact',color:'#304838',kind:'nova',speed:4,range:90},'void_surgeon'),
+  voidLord('sig-red-black-herald','Red-Black Herald Noobie','Void Abyss — calls red-black storms like the King.','#cc0000',{id:'herald_slash',name:'Herald Slash',color:'#ff4040',kind:'arc',speed:5,range:95},{id:'rift_chant',name:'Rift Chant',color:'#280008',kind:'orbs',speed:4,range:100},'void_red_black_herald'),
+  voidLord('sig-cathedral-warden','Cathedral Warden Noobie','Void cathedral — shield wall + slow AOE.','#9080ff',{id:'warden_smash',name:'Warden Smash',color:'#a090ff',kind:'shock',speed:4,range:80},{id:'sanctuary',name:'Sanctuary',color:'#403060',kind:'nova',speed:3,range:105},'void_cathedral_warden'),
+  mhSigNoob({id:'sig-noobie-noobie',name:'Noobie Noobie',sigGroup:'silly',sigTag:'Tutorial morph — teaches 1-2-3 fight on Hunt tab.',world:0,head:'#F5CD30',torso:'#0085DB',legs:'#A4BD47',arms:'#F5CD30',body:'classic',rarity:'common',face:'grin',anim:'bounce',sigBadge:'👶',sigDeco:'<text x="38" y="12" font-size="10">NOOB</text>'}),
+  mhSigNoob({id:'sig-afk-noobie',name:'AFK Noobie',sigGroup:'silly',sigTag:'Stand still 60 seconds on Hunt map (troll achievement).',world:0,head:'#b0b8c0',torso:'#687080',legs:'#505860',arms:'#b0b8c0',body:'classic',rarity:'uncommon',face:'flat',anim:'sway',sigBadge:'💤',sigDeco:'<text x="32" y="10" font-size="9">AFK</text><text x="68" y="18" font-size="12">💤</text>'}),
+  mhSigNoob({id:'sig-bubble-buddy',name:'Bubble Buddy Noobie',sigGroup:'silly',sigTag:'Bubble Buddy title morph — orbiting bubbles like Plague stars.',world:0,head:'#a8e8ff',torso:'#4080c0',legs:'#306898',arms:'#a8e8ff',body:'chibi',rarity:'epic',face:'o',anim:'float',accent:'#80e0ff',sigBadge:'🫧',sigDeco:'<text x="4" y="14" font-size="11">🫧</text><text x="72" y="16" font-size="11">🫧</text><text x="38" y="8" font-size="10">💬</text>'})
+ ];
+}
+const MH_SIG_GROUPS=[
+ {id:'town',title:'🏠 Town jobs (Buddy Plaza)'},
+ {id:'world',title:'🗺 World ambassadors'},
+ {id:'lithos',title:'💎 Lithos crossovers'},
+ {id:'void',title:'🕳 Void lords'},
+ {id:'silly',title:'😂 Silly squad'}
+];
+
+function mhQuestMorphEntries(){
+ const mk=(id,name,world,anim,questAura,rarity,cols,extra)=>{
+  const e=extra||{};
+  return{
+   id,name:name+' Noobie',exclusive:true,questOnly:true,world,
+   head:cols[0],torso:cols[1],legs:cols[2],arms:cols[3]||cols[0],
+   body:cols[4]||'classic',anim,face:e.face||'grin',rarity,
+   hat:e.hat||null,prop:e.prop||'book',accent:e.accent||'#80e0ff',
+   questAura,questKey:e.key||id.replace(/^ex-/,'').replace(/-noobie$/,''),
+   questLabel:e.label||'✨ Quest NPC',questGuide:e.guide||name,
+   sigBadge:e.badge||'✨',sigDeco:e.sigDeco||'',sigTag:e.tag||'Quest exclusive — aura + animation',
+   questStubCost:e.stubCost==null?MH_QUEST_STUB_COST:e.stubCost,
+   stripe:!!e.stripe,glasses:!!e.glasses,
+   voidFallen:!!e.voidFallen
+  };
+ };
+ return[
+  mk('ex-fossil-noobie','Fossil',3,'float','fossil','legendary',['#d8c8a0','#a08050','#705838','#e8dcc0','builder'],{guide:'Archaeologist',badge:'🦴',prop:'gemstick',tag:'🦴 Crystal map · Archaeologist · chat “dig” ×3 · E to fossilize',sigDeco:'<text x="8" y="20" font-size="10">🦴</text><text x="72" y="22" font-size="10">⛏</text>'}),
+  mk('ex-pen-pal-noobie','Pen Pal',0,'sway','mail','epic',['#ffe8c0','#6080c0','#405080','#ffe8c0'],{guide:'Mail Carrier',badge:'✉',prop:'book',tag:'📬 Buddy Plaza · Mail Carrier · 600💰 stamp or E',sigDeco:'<text x="6" y="18" font-size="11">✉</text><text x="70" y="16" font-size="10">💌</text>'}),
+  mk('ex-rainbow-noobie','Rainbow',2,'float','rainbow','legendary',['#ffe0ff','#ff8080','#80c0ff','#ffffa0','chibi'],{guide:'Weather Witch',badge:'🌈',prop:'umbrella',tag:'🌦 Beach map · Weather Witch · collect 3 cloud orbs · E',sigDeco:'<text x="50" y="8" text-anchor="middle" font-size="9">🌈</text>'}),
+  mk('ex-storybook-noobie','Storybook',0,'pulse','story','epic',['#f0e0c0','#804030','#503020','#ffe8a0'],{guide:'Librarian',badge:'📖',prop:'book',tag:'📚 Buddy Plaza · Librarian · E opens storybook · 3 pages',sigDeco:'<text x="12" y="14" font-size="10">📖</text><text x="68" y="12" font-size="9">✨</text>'}),
+  mk('ex-armor-noobie','Armor',1,'pulse','forge','legendary',['#c0c8d0','#506080','#384858','#d0d8e0','tall'],{guide:'Blacksmith',badge:'🛡',prop:'sword',tag:'⚒ Fair map · Blacksmith · 500💰 forge · E',sigDeco:'<text x="8" y="24" font-size="10">🛡</text><text x="74" y="20" font-size="10">⚒</text>'}),
+  mk('ex-mirror-grove-noobie','Mirror Grove',8,'spin','mirror','secret',['#e8f0ff','#404860','#283040','#ffffff','chibi'],{guide:'Mirror Spirit',badge:'🪞',prop:'sparkler',tag:'💎 Epic map · mirrored grove · stub 800💰',sigDeco:'<text x="50" y="10" text-anchor="middle" font-size="10">🪞</text>'}),
+  mk('ex-sleepy-campfire-noobie','Sleepy Campfire',6,'sway','ember','rare',['#ffb080','#803020','#502018','#ffd0a0'],{guide:'Camp Counselor',badge:'🔥',prop:'sparkler',tag:'🔥 Lava map · ember quest · stub 800💰',sigDeco:'<text x="40" y="12" font-size="11">🔥</text><text x="62" y="14" font-size="9">💤</text>'}),
+  mk('ex-subway-token-noobie','Subway Token',4,'hop','metro','rare',['#ffd060','#283848','#182028','#ffe080'],{guide:'Token Clerk',badge:'🎫',prop:'gemstick',tag:'🚇 Backrooms map · metro stub · 800💰',sigDeco:'<text x="50" y="9" text-anchor="middle" font-size="9">🎫</text>'}),
+  mk('ex-rift-whisper-noobie','Rift Whisper',9,'glitch','whisper','secret',['#9040ff','#180828','#100018','#c898ff','ghost'],{guide:'Whisper Priest',badge:'👁',face:'w',tag:'🕳 Void map · rift whispers · stub 800💰',sigDeco:'<text x="50" y="11" text-anchor="middle" font-size="9">👁</text>'}),
+  mk('ex-shield-bearer-noobie','Shield Bearer',1,'sway','shield','epic',['#a0c0ff','#2040a0','#183060','#c0e0ff','tall'],{guide:'Squire',badge:'🛡',prop:'sword',tag:'⚔ Fair map · shield bearer · stub 800💰',sigDeco:'<text x="50" y="10" text-anchor="middle" font-size="10">🛡</text>'}),
+  mk('ex-twin-void-noobie','Twin Void',9,'glitch','twinvoid','exclusive',['#ff4080','#280818','#180010','#ff80c0','tall'],{guide:'Twin Seer',badge:'👥',face:'w',voidFallen:true,tag:'🕳 Void · twin glitch · stub 800💰',sigDeco:'<text x="22" y="14" font-size="9">👤</text><text x="62" y="14" font-size="9">👤</text>'}),
+  mk('ex-handshake-noobie','Handshake',0,'bounce','handshake','legendary',['#ffe8a0','#0085DB','#A4BD47','#ffe8a0'],{guide:'Greeter',badge:'🤝',prop:'trophy',tag:'🤝 Buddy Plaza · chat “high five” near Greeter · E with buddy',sigDeco:'<text x="50" y="8" text-anchor="middle" font-size="11">🤝</text>'}),
+  mk('ex-party-host-noobie','Party Host',0,'bounce','partyhost','exclusive',['#ff48e8','#8020ff','#401080','#ffe080'],{guide:'Host',badge:'🎉',hat:'party',prop:'sparkler',tag:'🎉 Plaza · party host · stub 800💰',sigDeco:'<text x="6" y="12" font-size="10">🎉</text><text x="72" y="14" font-size="10">🎊</text>'}),
+  mk('ex-glitch-cat-noobie','Glitch Cat',8,'glitch','glitchcat','secret',['#39ff14','#283040','#1a2030','#39ff14','chibi'],{guide:'Stray Pixel',badge:'🐱',face:'w',prop:'sparkler',tag:'💎 Epic · glitch cat · stub 800💰',sigDeco:'<text x="50" y="10" text-anchor="middle" font-size="10">🐱</text>'}),
+  mk('ex-pizza-delivery-noobie','Pizza Delivery',1,'hop','pizza','uncommon',['#ff6040','#ffe8a0','#0085DB','#ff8060'],{guide:'Delivery Driver',badge:'🍕',prop:'rocket',tag:'🍕 Fair map · pizza run · stub 800💰',sigDeco:'<text x="50" y="9" text-anchor="middle" font-size="10">🍕</text>'}),
+  mk('ex-developer-noobie','Developer',0,'glitch','code','secret',['#80e0ff','#283040','#1a2030','#39ff14','robot'],{guide:'Hidden Dev',badge:'⌨',face:'w',prop:'sparkler',tag:'👾 Easter egg · chat “sudo lithos” near court alley',sigDeco:'<text x="50" y="10" text-anchor="middle" font-size="8" font-family="monospace">&lt;/&gt;</text>',stubCost:0})
+ ];
+}
+
+function mhBuildMorphs(){
+ const list=[];
+ const perWorld=Math.ceil(MH_NORMAL_COUNT/MH_NORMAL_WORLDS);
+ for(let i=0;i<MH_NORMAL_COUNT;i++){
+  let wi=Math.min(MH_NORMAL_WORLDS-1,Math.floor(i/perWorld));
+  const idx=i-wi*perWorld;
+  const pos=mhSpotPos(idx,perWorld);
+  const pal=i<MH_ROBLOX_PALS.length
+   ?{head:MH_ROBLOX_PALS[i].head,torso:MH_ROBLOX_PALS[i].torso,legs:MH_ROBLOX_PALS[i].legs,arms:MH_ROBLOX_PALS[i].arms}
+   :mhPal(i+17);
+  const name=i<MH_ROBLOX_PALS.length?MH_ROBLOX_PALS[i].label:MH_NORMAL_NAMES[i];
+  let rarity=MH_RARITY_N[i%MH_RARITY_N.length];
+  if(rarity==='legendary'&&(i%11===0||i%7===0||i%13===0)) rarity='exotic';
+  if(i%17===0) rarity='exotic';
+  if(rarity==='exotic') wi=MH_EXOTIC_WORLD;
+  const tr=mhMorphTraits(i);
+  list.push({
+   id:'n-'+i,
+   name,
+   exclusive:false,
+   world:wi,
+   x:pos.x,y:pos.y,
+   scale:0.92+(i%7)*0.03,
+   ...pal,
+   rarity,
+   ...tr
+  });
+ }
+ for(let i=0;i<MH_EXCLUSIVE_COUNT;i++){
+  const pal=mhPal(i+1000);
+  const tr=mhMorphTraits(i+5000);
+  list.push({
+   id:'ex-'+i,
+   name:MH_EXCLUSIVE_NAMES[i],
+   exclusive:true,
+   world:MH_EXOTIC_WORLD,
+   x:50,y:40,
+   scale:1.05+(i%5)*0.02,
+   head:pal.head||pal.torso,torso:pal.torso,legs:pal.legs,arms:pal.arms||pal.head,
+   rarity:i<12?'secret':i<40?'legendary':'exclusive',
+   ...tr,
+   hat:tr.hat|| (i%7===0?'gem':i%5===0?'party':null),
+   vaultOnly:i>=12&&i%9!==0
+  });
+  const ex=list[list.length-1];
+  if(i%9===0||i<6) ex.rarity='exotic';
+  if(ex.rarity==='exotic') ex.vaultOnly=false;
+ }
+ const welcome=list.find(m=>m.id==='ex-0');
+ if(welcome){ welcome.id='ex-welcome'; welcome.name='Welcome Noobie'; welcome.hat='wave'; }
+ const party=list.find(m=>m.id==='ex-1');
+ if(party){ party.id='ex-party'; party.name='Party Noobie'; party.hat='party'; }
+ const gem=list.find(m=>m.id==='ex-2');
+ if(gem){ gem.id='ex-gemcrown'; gem.name='Gem Crown Noobie'; gem.hat='gem'; }
+ for(let i=0;i<MH_VOID_FALLEN_COUNT;i++){
+  const tr=mhVoidTraits(i);
+  const pal=mhVoidPal(i,tr.voidPalette);
+  list.push({
+   id:'vf-'+i,
+   name:MH_VOID_NAMES[i],
+   exclusive:false,
+   voidFallen:true,
+   voidMale:true,
+   world:MH_VOID_WORLD,
+   x:50,y:40,
+   scale:0.96+(i%9)*0.045,
+   ...pal,
+   ...tr,
+   rarity:'voidfallen'
+  });
+ }
+ list.push({
+  id:'vf-king',
+  name:'Void Fallen God',
+  exclusive:false,
+  voidFallen:true,
+  voidMale:true,
+  voidKing:true,
+  voidFallenGod:true,
+  voidDepth:MH_VOID_KING_DEPTH,
+  void5D:false,
+  world:MH_VOID_WORLD,
+  x:50,y:40,
+  scale:1.72,
+  head:'#0a0a0a',
+  torso:'#580808',
+  legs:'#141414',
+  arms:'#1a1a1a',
+  body:'tall',
+  anim:'pulse',
+  face:'flat',
+  stripe:false,
+  glasses:false,
+  hat:null,
+  prop:null,
+  voidMark:0,
+  voidEyes:'#ff2020',
+  voidAccent:'#cc0000',
+  fallen:true,
+  rarity:'voidfallen'
+ });
+ list.push({
+  id:'code-glitch', name:'Glitch Noobie', exclusive:true, codeOnly:true, world:0,
+  head:'#39ff14', torso:'#283040', legs:'#1a2030', arms:'#39ff14', body:'robot',
+  anim:'glitch', face:'w', rarity:'secret', hat:null, prop:'sparkler'
+ });
+ list.push({
+  id:'code-myth', name:'Myth Noobie', exclusive:true, codeOnly:true, world:7,
+  head:'#ffd060', torso:'#506898', legs:'#384868', arms:'#ffd060', body:'tall',
+  anim:'float', face:'grin', rarity:'legendary', hat:'crown', prop:'trophy'
+ });
+ list.push({
+  id:'code-minigame', name:'Minigame Noobie', exclusive:true, codeOnly:true, world:1,
+  head:'#ff48e8', torso:'#0085DB', legs:'#A4BD47', arms:'#ff48e8', body:'classic',
+  anim:'bounce', face:'grin', rarity:'epic', hat:'party', prop:'gemstick'
+ });
+ list.push({
+  id:'code-update100', name:'Update 100 Noobie', exclusive:true, codeOnly:true, world:0,
+  head:'#ffe8a0', torso:'#ff48e8', legs:'#0085DB', arms:'#ffe8a0', body:'classic',
+  anim:'bounce', face:'grin', rarity:'exclusive', hat:'party', prop:'sparkler',
+  accent:'#ffd060', signatureReal:true, sigLook:'update_100', sigBadge:'💯',
+  sigTag:'🎂 Happy 100th Lithos Morph Hunt update — confetti party morph!'
+ });
+ list.push({
+  id:'ex-mayor', name:'Mayor Noobie', exclusive:true, mayorOnly:true, signatureReal:true, sigLook:'mayor', world:0,
+  head:'#ffe8a0', torso:'#2040a0', legs:'#303850', arms:'#ffe8a0', body:'tall',
+  anim:'sway', face:'grin', rarity:'legendary', hat:'crown', prop:'trophy',
+  stripe:true, glasses:true, accent:'#ffd060'
+ });
+ list.push({
+  id:'ex-disco-mirror', name:'Mirror Ball Noobie', exclusive:true, discoOnly:true, world:0,
+  head:'#e8f0ff', torso:'#404860', legs:'#283040', arms:'#c0d0e8', body:'chibi',
+  anim:'spin', face:'grin', rarity:'secret', hat:'gem', prop:'sparkler', accent:'#ffffff',
+  sigBadge:'🪩', sigTag:'Owner disco party only — not in gacha, codes, or groves.'
+ });
+ list.push({
+  id:'ex-disco-laser', name:'Laser Grid Noobie', exclusive:true, discoOnly:true, world:1,
+  head:'#ff48e8', torso:'#0a1830', legs:'#081020', arms:'#40ffff', body:'tall',
+  anim:'pulse', face:'w', rarity:'secret', hat:'voidhalo', prop:'gemstick', accent:'#40ffff',
+  sigBadge:'🪩', sigTag:'Impossible drop — Lithos disco abuse event exclusive.'
+ });
+ list.push({
+  id:MH_TIME_TRAVELER_ID, name:'Time Traveler Noobie', exclusive:true, timeTravelerOnly:true, world:0,
+  head:'#c0e8ff', torso:'#304878', legs:'#203050', arms:'#ffe8a0', body:'tall',
+  anim:'float', face:'grin', rarity:'legendary', hat:'voidhalo', prop:'book', accent:'#80e0ff',
+  sigBadge:'⏳', sigTag:'Buddy Plaza — chat: go back in time (2000💰) · ancient mine · Matrix reward'
+ });
+ list.push({
+  id:MH_MATRIX_MORPH_ID, name:'Matrix Noobie', exclusive:true, matrixOnly:true, world:MH_EXOTIC_WORLD,
+  head:'#39ff14', torso:'#0a1808', legs:'#081008', arms:'#39ff14', body:'robot',
+  anim:'glitch', face:'w', rarity:'secret', hat:null, prop:'sparkler', accent:'#39ff14',
+  voidEyes:'#39ff14', sigBadge:'🌐', sigTag:'Time Traveler quest — assemble stones · watch Earth collapse'
+ });
+ list.push({
+  id:'ex-disco-strobe', name:'Impossible Strobe Noobie', exclusive:true, discoOnly:true, world:MH_EXOTIC_WORLD,
+  head:'#ffd060', torso:'#8020ff', legs:'#401080', arms:'#ffe080', body:'classic',
+  anim:'glitch', face:'grin', rarity:'exclusive', hat:'party', prop:'trophy', accent:'#ff4080',
+  sigBadge:'🪩', sigTag:'Ultra-rare disco reward — cannot roll from any machine.'
+ });
+ list.push({
+  id:'ex-plague-doctor', name:'Void Fallen Plague Doctor Noobie', exclusive:true, plagueOnly:true, world:MH_VOID_WORLD,
+  head:'#0a0a0a', torso:'#580808', legs:'#141014', arms:'#1a1018', body:'tall',
+  anim:'sway', face:'flat', rarity:'voidfallen', hat:'plague', prop:'book',
+  stripe:false, glasses:false, accent:'#80ffb0', plagueDoctor:true,
+  voidFallen:true, voidMale:true, fallen:true, voidMark:7, voidDepth:4, voidEyes:'#ff2020', voidAccent:'#cc0000',
+  scale:1.06,
+  voidAttack:{id:'foul_cure',name:'Foul Cure',color:'#80ffb0',kind:'orbs',speed:5,range:70},
+  voidPower:{id:'death_sigil',name:'Death Sigil',color:'#303038',kind:'nova',speed:4,range:95},
+  plagueLines:['I am the cure.','Oh my, the sickness…','Then I can fix you.']
+ });
+ mhQuestMorphEntries().forEach(m=>list.push(m));
+ mhSignatureNoobieList().forEach(m=>list.push(m));
+ return list;
+}
+const MH_MORPHS=mhBuildMorphs();
+const MH_SIGNATURE_NOOBIES=MH_MORPHS.filter(m=>m.signatureOnly);
+MH_MORPHS.forEach(mhAssignVoidCombat);
+const MH_NORMALS=MH_MORPHS.filter(m=>!m.exclusive&&!m.voidFallen);
+const MH_EXCLUSIVES=MH_MORPHS.filter(m=>m.exclusive);
+const MH_EXOTICS=MH_MORPHS.filter(m=>m.rarity==='exotic');
+const MH_EXOTIC_COUNT=MH_EXOTICS.length;
+const MH_VOID_FALLEN=MH_MORPHS.filter(m=>m.rarity==='voidfallen');
+const MH_VOID_COUNT=MH_VOID_FALLEN.length;
+
+function mhHuntWorld(m){
+ if(!m||m.codeOnly||m.mayorOnly||m.plagueOnly||m.discoOnly||m.timeTravelerOnly||m.matrixOnly||m.signatureOnly||m.questOnly) return -1;
+ if(m.voidKing||m.voidFallen||m.rarity==='voidfallen') return MH_VOID_WORLD;
+ if(MH_HIGH_RARITY.has(m.rarity)) return MH_EXOTIC_WORLD;
+ const w=typeof m.world==='number'?m.world:0;
+ return w>=MH_EXOTIC_WORLD?0:w;
+}
+function mhWorldRarityHint(wi){
+ if(wi===MH_VOID_WORLD) return 'Void Fallen only';
+ if(wi===MH_EXOTIC_WORLD) return 'Epic · Legendary · Secret · Exotic · Exclusive';
+ return 'Common · Uncommon · Rare (hidden groves)';
+}
+function mhWorldTeleportUnlocked(save,wi){
+ if(wi===MH_EXOTIC_WORLD||wi===MH_VOID_WORLD) return true;
+ return wi<save.worldsUnlocked;
+}
+function mhGroveCount(wi){
+ if(wi===MH_VOID_WORLD) return MH_GROVES_VOID;
+ if(wi===MH_EXOTIC_WORLD) return MH_GROVES_EPIC;
+ return MH_GROVES_PER_NORMAL;
+}
+
+function mhTileWalkable(map,tx,ty){
+ if(tx<1||ty<1||tx>=map.w-1||ty>=map.h-1) return false;
+ return map.tiles[ty*map.w+tx]!==1;
+}
+function mhGenWorldMap(wi){
+ const w=MH_MAP_W,h=MH_MAP_H;
+ const tiles=new Uint8Array(w*h);
+ const cx=Math.floor(w/2), cy=Math.floor(h/2);
+ for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+  if(x<1||y<1||x>=w-1||y>=h-1) tiles[y*w+x]=1;
+  else tiles[y*w+x]=0;
+ }
+ if(wi===MH_VOID_WORLD){
+  for(let x=2;x<w-2;x++)for(let y=2;y<h-2;y++){
+   const hv=mhHashStr('abyss'+x+y);
+   if(Math.abs(x-cx)<=2&&Math.abs(y-cy)<=2) tiles[y*w+x]=12;
+   else if(hv%17===0) tiles[y*w+x]=10;
+   else if(hv%13===0) tiles[y*w+x]=11;
+   else tiles[y*w+x]=9;
+  }
+  return {w,h,tiles,spawnTx:cx,spawnTy:cy+3,wi,throneTx:cx,throneTy:cy,abyssStamp:'v48'};
+ }
+ if(wi===MH_EXOTIC_WORLD){
+  for(let x=2;x<w-2;x++)for(let y=2;y<h-2;y++){
+   if(mhHashStr('exf'+x+y)%11===0) tiles[y*w+x]=6;
+  }
+  return {w,h,tiles,spawnTx:cx,spawnTy:cy,wi};
+ }
+ if(wi===2){
+  for(let x=1;x<w-1;x++)for(let y=h-7;y<h-1;y++) tiles[y*w+x]=3;
+ }
+ if(wi===4){
+  for(let x=2;x<w-2;x++)for(let y=2;y<h-2;y++){
+   if(((x+y+wi)%4)===0) tiles[y*w+x]=4;
+  }
+ }
+ if(wi===3){
+  for(let i=0;i<28;i++){
+   const tx=2+mhHashStr('cavx'+wi+i)%(w-4), ty=2+mhHashStr('cavy'+wi+i)%(h-4);
+   if(tiles[ty*w+tx]===0) tiles[ty*w+tx]=5;
+  }
+ }
+ if(wi===5){
+  for(let i=0;i<18;i++){
+   const tx=2+mhHashStr('clx'+i)%(w-4), ty=2+mhHashStr('cly'+i)%(h-4);
+   if(tiles[ty*w+tx]===0) tiles[ty*w+tx]=7;
+  }
+ }
+ if(wi===6){
+  for(let x=2;x<w-2;x++)for(let y=2;y<h-2;y++){
+   if(mhHashStr('lav'+x+y)%9===0) tiles[y*w+x]=8;
+  }
+ }
+ const spx=3+mhHashStr('spx'+wi)%6, spy=3+mhHashStr('spy'+wi)%6;
+ return {w,h,tiles,spawnTx:spx,spawnTy:spy,wi};
+}
+function mhPaintWorldGroundTile(ctx,x,y,v,world,wi){
+ if(v===1){
+  ctx.fillStyle=world.wall||'#4a5058';
+  ctx.fillRect(x,y,MH_TILE,MH_TILE);
+  return;
+ }
+ if(v===3&&wi===2){
+  ctx.fillStyle='#4090c8'; ctx.fillRect(x,y,MH_TILE,MH_TILE);
+  ctx.fillStyle='rgba(255,255,255,.15)'; ctx.fillRect(x,y+MH_TILE-6,MH_TILE,6);
+  return;
+ }
+ if(v===4&&wi===4){
+  ctx.fillStyle=((x/MH_TILE+y/MH_TILE)&1)?'#d8d4b0':'#c8c4a0';
+  ctx.fillRect(x,y,MH_TILE,MH_TILE);
+  ctx.fillStyle='#ffffa0'; ctx.fillRect(x+4,y+4,MH_TILE-8,3);
+  return;
+ }
+ if(v===5&&wi===3){
+  ctx.fillStyle='#585088'; ctx.fillRect(x,y,MH_TILE,MH_TILE);
+  ctx.fillStyle='#9080c0'; ctx.beginPath(); ctx.moveTo(x+MH_TILE/2,y+4); ctx.lineTo(x+MH_TILE-4,y+MH_TILE-4); ctx.lineTo(x+4,y+MH_TILE-4); ctx.fill();
+  return;
+ }
+ if(v===6&&wi===MH_EXOTIC_WORLD){
+  ctx.fillStyle='#381848'; ctx.fillRect(x,y,MH_TILE,MH_TILE);
+  ctx.fillStyle='#ff48e8'; ctx.fillRect(x+6,y+MH_TILE/2, MH_TILE-12,3);
+  return;
+ }
+ if(v===7&&wi===5){
+  ctx.fillStyle='#a8d8ff'; ctx.fillRect(x,y,MH_TILE,MH_TILE);
+  ctx.fillStyle='rgba(255,255,255,.55)'; ctx.beginPath(); ctx.arc(x+MH_TILE/2,y+MH_TILE/2,10,0,Math.PI*2); ctx.fill();
+  return;
+ }
+ if(v===8&&wi===6){
+  ctx.fillStyle='#602818'; ctx.fillRect(x,y,MH_TILE,MH_TILE);
+  ctx.fillStyle='#ff6040'; ctx.fillRect(x+8,y+10,6,4);
+  return;
+ }
+ if(wi===MH_VOID_WORLD){
+  if(v===12){
+   ctx.fillStyle='#280808'; ctx.fillRect(x,y,MH_TILE,MH_TILE);
+   ctx.fillStyle='#ff3030'; ctx.fillRect(x+4,y+4,MH_TILE-8,MH_TILE-8);
+   ctx.fillStyle='#0a0a0a'; ctx.fillRect(x+10,y+10,MH_TILE-20,MH_TILE-20);
+   return;
+  }
+  if(v===10){
+   ctx.fillStyle='#180610'; ctx.fillRect(x,y,MH_TILE,MH_TILE);
+   ctx.fillStyle='#ff2040'; ctx.fillRect(x+6,y+MH_TILE/2-1,MH_TILE-12,3);
+   ctx.fillStyle='rgba(255,40,80,.25)'; ctx.fillRect(x,y,MH_TILE,MH_TILE);
+   return;
+  }
+  if(v===11){
+   ctx.fillStyle='#0c0818'; ctx.fillRect(x,y,MH_TILE,MH_TILE);
+   ctx.fillStyle='#9040ff'; ctx.fillRect(x+8,y+12,4,4); ctx.fillRect(x+20,y+22,3,3);
+   return;
+  }
+  if(v===9||v===0){
+   const dark=((x/MH_TILE+y/MH_TILE)&1)?'#06040c':'#0e0a14';
+   ctx.fillStyle=dark; ctx.fillRect(x,y,MH_TILE,MH_TILE);
+   ctx.fillStyle='rgba(80,0,40,.12)'; ctx.fillRect(x,y+MH_TILE-4,MH_TILE,4);
+   return;
+  }
+ }
+ const pair=mhFlatGroundPair(world.ground);
+ ctx.fillStyle=((x/MH_TILE+y/MH_TILE)&1)?mhShade(world.ground,18):world.ground;
+ ctx.fillRect(x,y,MH_TILE,MH_TILE);
+}
+const MH_WORLD_MAPS=MH_WORLDS.map((_,i)=>mhGenWorldMap(i));
+function mhEnterableKinds(wi){
+ return MH_WORLD_MEGA_BUILDINGS[wi]||MH_WORLD_MEGA_BUILDINGS[0];
+}
+function mhPickDecorKind(themes,wi,i){
+ for(let t=0;t<10;t++){
+  const kind=themes[mhHashStr('deck'+wi+i+t)%themes.length];
+  if(MH_MEGA_BUILDING_KINDS.has(kind)) continue;
+  if(kind==='noobie_statue'||kind==='park'||kind==='playground') continue;
+  return kind;
+ }
+ return themes.find(k=>!MH_MEGA_BUILDING_KINDS.has(k))||'fountain';
+}
+function mhGenVoidAbyssLandmarks(map){
+ map.playerSpawnTx=map.spawnTx;
+ map.playerSpawnTy=map.spawnTy;
+ const kinds=['void_fallen_building','void_cathedral','ruined_house','void_fallen_building'];
+ const slots=[
+  {tx:3,ty:3},{tx:map.w-MH_MEGA_W-3,ty:3},
+  {tx:3,ty:map.h-MH_MEGA_H-3},{tx:map.w-MH_MEGA_W-3,ty:map.h-MH_MEGA_H-3}
+ ];
+ return slots.map((s,i)=>({
+  tx:s.tx, ty:s.ty, kind:kinds[i], mega:true, footW:MH_MEGA_W, footH:MH_MEGA_H, id:'void-abyss-'+i
+ })).filter(p=>mhMegaFits(map,p.tx,p.ty,p.footW,p.footH));
+}
+function mhGenLandmarks(wi,map){
+ if(wi===MH_VOID_WORLD) return mhGenVoidAbyssLandmarks(map);
+ const enter=mhEnterableKinds(wi);
+ const sp=mhMapSpawnPos(map);
+ const sx=Math.floor(sp.px/MH_TILE), sy=Math.floor(sp.py/MH_TILE);
+ map.playerSpawnTx=sx; map.playerSpawnTy=sy;
+ const ring=[
+  {dx:4,dy:0,i:0},{dx:-4,dy:0,i:1},{dx:0,dy:4,i:2},{dx:0,dy:-4,i:3},
+  {dx:3,dy:3,i:4},{dx:-3,dy:3,i:5},{dx:3,dy:-3,i:6},{dx:-3,dy:-3,i:7}
+ ];
+ const spots=ring.map(r=>({
+  tx:sx+r.dx, ty:sy+r.dy,
+  kind:enter[(r.i+(wi*2))%enter.length],
+  mega:true, footW:MH_MEGA_W, footH:MH_MEGA_H,
+  id:'bld-'+wi+'-'+sx+'-'+sy+'-'+r.i
+ }));
+ for(let i=0;i<4;i++){
+  const tx=sx+((i%3)-1)*9, ty=sy+Math.floor(i/2)*8-4;
+  if(tx>2&&ty>2&&tx<map.w-MH_MEGA_W-1&&ty<map.h-MH_MEGA_H-1){
+   spots.push({tx,ty,kind:enter[i%enter.length],mega:true,footW:MH_MEGA_W,footH:MH_MEGA_H,id:'bld-'+wi+'-extra-'+i});
+  }
+ }
+ if(wi===MH_VOID_WORLD&&map.throneTx!=null){
+  spots.push({tx:map.throneTx-5,ty:map.throneTy-3,kind:'void_fallen_building',mega:true,footW:8,footH:6,id:'bld-void-tower'});
+  spots.push({tx:map.throneTx+4,ty:map.throneTy-1,kind:'void_cathedral',mega:true,footW:MH_MEGA_W,footH:MH_MEGA_H,id:'bld-void-cath'});
+ }
+ if(spots.filter(p=>mhMegaFits(map,p.tx,p.ty,p.footW,p.footH)).length<4){
+  for(let r=5;r<16;r++){
+   for(let a=0;a<12;a++){
+    const dx=Math.round(Math.cos(a*Math.PI/6)*r);
+    const dy=Math.round(Math.sin(a*Math.PI/6)*r);
+    spots.push({
+     tx:sx+dx, ty:sy+dy,
+     kind:enter[(spots.length+wi)%enter.length],
+     mega:true, footW:MH_MEGA_W, footH:MH_MEGA_H,
+     id:'bld-'+wi+'-scan-'+dx+'-'+dy
+    });
+   }
+  }
+ }
+ const seen=new Set();
+ return spots.filter(p=>{
+  const fw=p.footW||MH_MEGA_W, fh=p.footH||MH_MEGA_H;
+  if(!mhMegaFits(map,p.tx,p.ty,fw,fh)) return false;
+  const key=p.tx+','+p.ty;
+  if(seen.has(key)) return false;
+  seen.add(key);
+  return true;
+ }).slice(0,12);
+}
+function mhGenWorldFeature(wi,map){
+ if(wi!==4||map.playerSpawnTx==null) return null;
+ const sx=map.playerSpawnTx, sy=map.playerSpawnTy;
+ return {type:'backrooms_atrium',tx:sx-6,ty:sy-4,w:12,h:7,label:'LIMINAL ATRIUM · BACKROOMS'};
+}
+function mhGenCourt(map,wi){
+ const sx=map.playerSpawnTx, sy=map.playerSpawnTy;
+ if(sx==null||wi!==0) return null;
+ const w=12,h=8;
+ const tx=Math.max(2,sx-Math.floor(w/2)), ty=Math.max(2,sy-Math.floor(h/2));
+ if(tx+w>=map.w-2||ty+h>=map.h-2) return null;
+ return {tx,ty,w,h,id:'court-'+wi};
+}
+function mhTileInCourt(map,tx,ty){
+ const c=map.court;
+ if(!c) return false;
+ return tx>=c.tx&&tx<c.tx+c.w&&ty>=c.ty&&ty<c.ty+c.h;
+}
+function mhGenMayorShrine(map){
+ if(!map.court) return null;
+ const c=map.court;
+ const sx=c.tx+Math.floor(c.w/2), sy=c.ty+2;
+ const reflectors=[
+  {tx:c.tx+1,ty:c.ty+1,label:'Mirror A'},
+  {tx:c.tx+c.w-2,ty:c.ty+1,label:'Mirror B'},
+  {tx:c.tx+1,ty:c.ty+c.h-2,label:'Mirror C'},
+  {tx:c.tx+c.w-2,ty:c.ty+c.h-2,label:'Mirror D'}
+ ].map((r,i)=>({
+  ...r, px:r.tx*MH_TILE+MH_TILE/2, py:r.ty*MH_TILE+MH_TILE/2, lit:false, i
+ }));
+ return {
+  tx:sx, ty:sy,
+  px:sx*MH_TILE+MH_TILE/2, py:sy*MH_TILE+MH_TILE/2,
+  crankAngle:0, reflectors, solved:false
+ };
+}
+function mhParkFits(map,p){
+ if(p.tx<2||p.ty<2||p.tx+p.w>=map.w-2||p.ty+p.h>=map.h-2) return false;
+ for(let dy=0;dy<p.h;dy++)for(let dx=0;dx<p.w;dx++){
+  if(!mhTileWalkable(map,p.tx+dx,p.ty+dy)) return false;
+ }
+ return true;
+}
+function mhGenParks(wi,map){
+ if(wi===MH_VOID_WORLD) return [];
+ const sx=map.playerSpawnTx||10, sy=map.playerSpawnTy||10;
+ const names=MH_WORLD_PARK_NAMES[wi]||MH_WORLD_PARK_NAMES[0];
+ const w=10,h=5;
+ const slots=[
+  {dx:-15,dy:4,suffix:'North Green'},{dx:15,dy:4,suffix:'East Green'},
+  {dx:0,dy:13,suffix:'South Park'},{dx:0,dy:-11,suffix:'West Garden'}
+ ];
+ const out=[];
+ slots.forEach((s,i)=>{
+  const p={tx:sx+ s.dx-Math.floor(w/2), ty:sy+s.dy, w,h, name:names[i]||('Park '+(i+1)), parkIndex:i};
+  if(mhParkFits(map,p)&&!mhTileInCourt(map,p.tx,p.ty)) out.push(p);
+ });
+ for(let r=8;r<20&&out.length<4;r++){
+  for(let a=0;a<12&&out.length<4;a++){
+   const tx=Math.round(sx+Math.cos(a*Math.PI/6)*r)-Math.floor(w/2);
+   const ty=Math.round(sy+Math.sin(a*Math.PI/6)*r);
+   const p={tx,ty,w,h,name:names[out.length]||('Park '+(out.length+1)),parkIndex:out.length};
+   if(mhParkFits(map,p)&&!out.some(q=>q.tx===tx&&q.ty===ty)) out.push(p);
+  }
+ }
+ return out.slice(0,4);
+}
+function mhGenParkStatues(map,wi){
+ const out=[];
+ const morphs=mhWorldMorphs(wi).filter(m=>!m.voidKing).slice(0,16);
+ (map.parks||[]).forEach((park,pi)=>{
+  const chunk=morphs.slice(pi*3,pi*3+3);
+  chunk.forEach((m,i)=>{
+   out.push({
+    tx:park.tx+1+i*2, ty:park.ty+Math.floor(park.h/2),
+    kind:'noobie_statue', morphId:m.id, morph:m,
+    statue:true, scale:5.8
+   });
+  });
+ });
+ if(map.mayorShrine){
+  const mayor=mhMorph('ex-mayor');
+  out.push({
+   tx:map.mayorShrine.tx, ty:map.mayorShrine.ty-1,
+   kind:'mayor_statue', morphId:'ex-mayor', morph:mayor,
+   statue:true, scale:7.5, mayor:true
+  });
+ }
+ return out;
+}
+function mhTileInPark(map,tx,ty){
+ for(const p of map.parks||[]){
+  if(tx>=p.tx&&tx<p.tx+p.w&&ty>=p.ty&&ty<p.ty+p.h) return true;
+ }
+ return false;
+}
+function mhShouldDrawMapMorph(m,save,dist,nearId){
+ if(m.voidKing) return dist<320;
+ if(m.questOnly&&!mhHasMorph(save,m.id)) return dist<300;
+ if(nearId&&m.id===nearId) return true;
+ if(mhHasMorph(save,m.id)) return dist<220;
+ return dist<MH_HIDDEN_REVEAL_R;
+}
+function mhGroveCenterFree(map,tx,ty,used,minDist){
+ if(tx<3||ty<3||tx>=map.w-6||ty>=map.h-6) return false;
+ for(let dy=0;dy<4;dy++)for(let dx=0;dx<5;dx++){
+  if(!mhTileWalkable(map,tx+dx,ty+dy)) return false;
+ }
+ if(mhTileInPark(map,tx,ty)||mhTileInCourt(map,tx,ty)) return false;
+ for(const u of used){
+  if(Math.hypot(tx-u.tx,ty-u.ty)<minDist) return false;
+ }
+ return true;
+}
+function mhPickGroveCenters(map,wi,count){
+ const used=[];
+ const centers=[];
+ for(let g=0;g<count;g++){
+  let found=null;
+  for(let t=0;t<300;t++){
+   const tx=3+mhHashStr('gvx'+wi+g+t)%(map.w-10);
+   const ty=3+mhHashStr('gvy'+wi+g+t)%(map.h-10);
+   if(mhGroveCenterFree(map,tx,ty,used,6)){
+    found={tx,ty,w:5,h:4,g};
+    used.push(found);
+    break;
+   }
+  }
+  if(found) centers.push(found);
+ }
+ return centers;
+}
+function mhPlaceMorphInGrove(map,set,m,grove,slot){
+ for(let a=0;a<24;a++){
+  const tx=grove.tx+(slot%3)*2-1+(a%2);
+  const ty=grove.ty+Math.floor(slot/3)*2+Math.floor(a/6);
+  const k=tx+','+ty;
+  if(tx<2||ty<2||tx>=map.w-2||ty>=map.h-2) continue;
+  if(!mhTileWalkable(map,tx,ty)||set.has(k)||mhTileInPark(map,tx,ty)||mhTileInCourt(map,tx,ty)) continue;
+  set.add(k);
+  m.tileX=tx; m.tileY=ty; m.hideGrove=grove.g;
+  return true;
+ }
+ return false;
+}
+function mhScatterHiddenHideouts(){
+ MH_WORLDS.forEach((_,wi)=>{
+  const map=MH_WORLD_MAPS[wi];
+  const morphs=MH_MORPHS.filter(m=>mhHuntWorld(m)===wi&&!m.codeOnly&&!m.timeTravelerOnly&&!m.matrixOnly);
+  const centers=mhPickGroveCenters(map,wi,mhGroveCount(wi));
+  map.hideouts=centers.map(c=>({
+   ...c,
+   label:wi===MH_VOID_WORLD?('🕳 Abyss grove '+(c.g+1)):('🕵 Hidden grove '+(c.g+1))
+  }));
+  const set=new Set();
+  if(wi===MH_VOID_WORLD&&map.throneTx!=null){
+   const king=morphs.find(m=>m.voidKing);
+   if(king){
+    king.tileX=map.throneTx; king.tileY=map.throneTy;
+    set.add(map.throneTx+','+map.throneTy);
+   }
+  }
+  morphs.forEach((m,i)=>{
+   if(m.voidKing) return;
+   const grove=centers[i%centers.length];
+   if(!grove) return;
+   const slot=Math.floor(i/centers.length);
+   mhPlaceMorphInGrove(map,set,m,grove,slot);
+  });
+ });
+}
+function mhMegaFits(map,tx,ty,fw,fh){
+ if(tx<1||ty<1||tx+fw>=map.w-1||ty+fh>=map.h-1) return false;
+ for(let dy=0;dy<fh;dy++)for(let dx=0;dx<fw;dx++){
+  if(!mhTileWalkable(map,tx+dx,ty+dy)) return false;
+ }
+ return true;
+}
+function mhSpawnCivilians(map,wi){
+ const list=[];
+ (map.landmarks||[]).forEach(l=>{
+  if(!l.mega) return;
+  const x=l.tx*MH_TILE,y=l.ty*MH_TILE,w=(l.footW||3)*MH_TILE,h=(l.footH||2)*MH_TILE;
+  list.push({
+   id:'civ-'+l.tx+'-'+l.ty,
+   px:x+w/2, py:y+h+12,
+   variant:(mhHashStr('cv'+l.tx+l.ty+wi)>>>0)%14,
+   phase:0, wander:false, homePx:x+w/2, homePy:y+h+18
+  });
+ });
+ (map.parks||[]).forEach((p,pi)=>{
+  list.push({
+   id:'parkc-'+pi,
+   px:p.tx*MH_TILE+p.w*MH_TILE/2,
+   py:p.ty*MH_TILE+p.h*MH_TILE-10,
+   variant:(mhHashStr('pk'+pi+wi)>>>0)%14,
+   phase:0, wander:false,
+   homePx:p.tx*MH_TILE+p.w*MH_TILE/2, homePy:p.ty*MH_TILE+p.h*MH_TILE
+  });
+ });
+ map.civilians=list;
+}
+(function mhScatterWorldDecor(){
+ MH_WORLDS.forEach((_,wi)=>{
+  const map=MH_WORLD_MAPS[wi];
+  const themes=MH_WORLD_DECORS[wi]||MH_WORLD_DECORS[0];
+  map.landmarks=mhGenLandmarks(wi,map);
+  map.court=mhGenCourt(map,wi);
+  map.worldFeature=mhGenWorldFeature(wi,map);
+  map.mayorShrine=wi===0?mhGenMayorShrine(map):null;
+  map.parks=mhGenParks(wi,map);
+  map.plagueBugs=mhGenPlagueBugs(wi,map);
+  map.statues=mhGenParkStatues(map,wi);
+  if(wi===MH_VOID_WORLD){
+   map.plagueBugs=[];
+   map.parks=[];
+   map.statues=[];
+   map.court=null;
+   map.worldFeature=null;
+   map.mayorShrine=null;
+  }
+  const decors=[];
+  const used=new Set();
+  const decorCount=wi===MH_VOID_WORLD?8:(14+wi);
+  if(map.court){
+   for(let dy=0;dy<map.court.h;dy++)for(let dx=0;dx<map.court.w;dx++) used.add((map.court.tx+dx)+','+(map.court.ty+dy));
+  }
+  map.landmarks.forEach(l=>{ for(let dy=0;dy<(l.footH||1);dy++)for(let dx=0;dx<(l.footW||1);dx++) used.add((l.tx+dx)+','+(l.ty+dy)); });
+  (map.parks||[]).forEach(p=>{ for(let dy=0;dy<p.h;dy++)for(let dx=0;dx<p.w;dx++) used.add((p.tx+dx)+','+(p.ty+dy)); });
+  for(let i=0;i<decorCount;i++){
+   const tx=2+mhHashStr('decx'+wi+i)%(map.w-4);
+   const ty=2+mhHashStr('decy'+wi+i)%(map.h-4);
+   const k=tx+','+ty;
+   if(!mhTileWalkable(map,tx,ty)||map.tiles[ty*map.w+tx]!==0||used.has(k)) continue;
+   if(map.throneTx!=null&&Math.abs(tx-map.throneTx)<=3&&Math.abs(ty-map.throneTy)<=3) continue;
+   used.add(k);
+   decors.push({tx,ty,kind:mhPickDecorKind(themes,wi,i),scale:2.1+((mhHashStr('ds'+i)%4)*0.2)});
+  }
+  map.decors=decors;
+  if(wi===0){
+   const lab=mhPlagueLabLandmark(map,wi);
+   if(lab){ map.plagueLab=lab; map.landmarks.push(lab); }
+  }
+  mhSpawnCivilians(map,wi);
+ });
+ })();
+(function mhPlaceQuestMorphNpcs(){
+ const placed=[];
+ MH_MORPHS.filter(m=>m.questOnly).forEach(m=>{
+  const map=MH_WORLD_MAPS[m.world];
+  if(!map) return;
+  const seed=(mhHashStr(m.id)>>>0)%9973;
+  let startA=0;
+  if(m.world===0&&map.court&&m.questKey==='handshake') startA=12;
+  if(m.world===0&&map.court&&m.questKey==='developer') startA=24;
+  for(let a=startA;a<startA+90;a++){
+   const tx=3+(seed+a*11)%(map.w-6);
+   const ty=3+(seed+a*17)%(map.h-6);
+   if(!mhTileWalkable(map,tx,ty)) continue;
+   if(mhTileInPark(map,tx,ty)||mhTileInCourt(map,tx,ty)) continue;
+   let ok=true;
+   for(const p of placed) if(p.wi===m.world&&Math.hypot(tx-p.tx,ty-p.ty)<5){ ok=false; break; }
+   if(!ok) continue;
+   m.tileX=tx; m.tileY=ty;
+   placed.push({wi:m.world,tx,ty});
+   if(!map.questPins) map.questPins=[];
+   map.questPins.push({tx,ty,label:(m.questLabel||'✨ Quest')+' · '+m.questGuide});
+   break;
+  }
+ });
+ const map2=MH_WORLD_MAPS[2];
+ if(map2){
+  map2.rainbowOrbs=[];
+  for(let i=0;i<3;i++){
+   const tx=6+mhHashStr('rbowx'+i)%(map2.w-12);
+   const ty=6+mhHashStr('rbowy'+i)%(map2.h-12);
+   if(mhTileWalkable(map2,tx,ty)) map2.rainbowOrbs.push({tx,ty});
+  }
+ }
+})();
+mhScatterHiddenHideouts();
+(function mhPlaceTimeTravelerNpc(){
+ const m=MH_MORPHS.find(x=>x.id===MH_TIME_TRAVELER_ID);
+ const map=MH_WORLD_MAPS[0];
+ if(!m||!map?.court) return;
+ for(let a=0;a<40;a++){
+  const tx=map.court.tx+map.court.w+1+(a%3);
+  const ty=map.court.ty+1+(Math.floor(a/3)%Math.max(1,map.court.h-1));
+  if(mhTileWalkable(map,tx,ty)&&!mhTileInCourt(map,tx,ty)){
+   m.tileX=tx; m.tileY=ty;
+   map.timeTraveler={tx,ty,label:'⏳ Time Traveler'};
+   break;
+  }
+ }
+})();
+
+function mhIsRealOwner(){
+ if(typeof isOwner!=='undefined'&&isOwner)return true;
+ if(typeof document!=='undefined'&&document.body&&document.body.classList.contains('is-owner'))return true;
+ try{
+  if(localStorage.getItem('lithos_owner')==='1') return true;
+  if(/[?&]owner=1(?:&|$)/.test(location.search)) return true;
+ }catch(_){}
+ return false;
+}
+function mhIsOwner(){
+ return MH_OPEN_PLAY||mhIsRealOwner();
+}
+const MH_ADMIN_GIFT_KEY='lithos_mh_admin_gifts_v1';
+const MH_BAN_KEY='lithos_mh_chat_bans_v1';
+const MH_BAN_BROADCAST='lithos-mh-ban';
+let mhBanBroadcast=null;
+function mhBanDataRead(){
+ try{
+  const raw=JSON.parse(localStorage.getItem(MH_BAN_KEY)||'null');
+  if(raw&&typeof raw==='object') return {ids:raw.ids||{},names:raw.names||{}};
+ }catch(_){}
+ return {ids:{},names:{}};
+}
+function mhBanDataWrite(data){
+ try{ localStorage.setItem(MH_BAN_KEY,JSON.stringify({ids:data.ids||{},names:data.names||{}})); }catch(_){}
+}
+function mhBanBroadcastInit(){
+ if(mhBanBroadcast||typeof BroadcastChannel==='undefined') return;
+ mhBanBroadcast=new BroadcastChannel(MH_BAN_BROADCAST);
+ mhBanBroadcast.onmessage=(e)=>{ mhBanApplyRemote(e?.data); };
+}
+function mhBanApplyRemote(payload){
+ if(!payload?.id) return;
+ const data=mhBanDataRead();
+ if(payload.type==='unban'){
+  delete data.ids[payload.id];
+  if(payload.name) delete data.names[String(payload.name).trim().toLowerCase()];
+ }else{
+  data.ids[payload.id]={name:payload.name||payload.id,at:payload.at||Date.now(),by:payload.by||''};
+  if(payload.name) data.names[String(payload.name).trim().toLowerCase()]=payload.id;
+ }
+ mhBanDataWrite(data);
+}
+function mhBanPost(payload){
+ mhBanBroadcastInit();
+ try{ mhBanBroadcast?.postMessage(payload); }catch(_){}
+}
+function mhIsPlayerIdBanned(fromId,fromName){
+ const data=mhBanDataRead();
+ if(fromId&&data.ids[fromId]) return true;
+ const nm=String(fromName||'').trim().toLowerCase();
+ if(nm&&data.names[nm]) return true;
+ return false;
+}
+function mhIsChatBanned(profile){
+ if(!profile) return false;
+ return mhIsPlayerIdBanned(profile.id,profile.name);
+}
+function mhChatKnownPlayers(){
+ const map=new Map();
+ const add=(id,name)=>{
+  if(!id) return;
+  const prev=map.get(id);
+  map.set(id,{id,name:name||prev?.name||id});
+ };
+ add(MH_TEST_BUDDY_ID,MH_TEST_BUDDY_NAME);
+ add(MH_TEST_PLAYER_ID,'Test Account');
+ mhChatLoadStore().forEach(m=>{ if(m?.fromId) add(m.fromId,m.fromName); });
+ if(mhState?.save){
+  const me=mhEnsureChatProfile(mhState.save);
+  add(me.id,me.name);
+ }
+ return map;
+}
+function mhChatResolvePlayer(q){
+ q=String(q||'').trim();
+ if(!q) return null;
+ const fold=q.toLowerCase();
+ const players=mhChatKnownPlayers();
+ if(players.has(q)) return players.get(q);
+ for(const p of players.values()){
+  if(p.id===q||p.id.toLowerCase()===fold) return p;
+ }
+ let best=null;
+ for(const p of players.values()){
+  const nm=String(p.name||'').toLowerCase();
+  if(nm===fold||p.id.toLowerCase().includes(fold)||nm.includes(fold)){
+   if(!best||nm.length<String(best.name||'').length) best=p;
+  }
+ }
+ return best;
+}
+function mhAdminBanPlayer(save,targetQ){
+ const target=mhChatResolvePlayer(targetQ);
+ if(!target){ mhToast('🚫 No player match — use their friend code or name from chat'); return true; }
+ const me=mhEnsureChatProfile(save);
+ if(target.id===me.id){ mhToast('🚫 You cannot ban yourself'); return true; }
+ if(target.id===MH_TEST_BUDDY_ID){ mhToast('🚫 Test Buddy cannot be banned'); return true; }
+ const data=mhBanDataRead();
+ data.ids[target.id]={name:target.name||target.id,at:Date.now(),by:me.id};
+ if(target.name) data.names[String(target.name).trim().toLowerCase()]=target.id;
+ mhBanDataWrite(data);
+ mhBanPost({type:'ban',id:target.id,name:target.name,at:Date.now(),by:me.id});
+ mhToast('🚫 Banned '+ (target.name||target.id)+' · '+target.id);
+ return true;
+}
+function mhAdminUnbanPlayer(targetQ){
+ const data=mhBanDataRead();
+ let id='';
+ const q=String(targetQ||'').trim();
+ if(!q){ mhToast('Usage: /unban friendCode or display name'); return true; }
+ if(data.ids[q]) id=q;
+ else{
+  const p=mhChatResolvePlayer(q);
+  if(p) id=p.id;
+  else{
+   const nm=q.toLowerCase();
+   if(data.names[nm]) id=data.names[nm];
+  }
+ }
+ if(!id||!data.ids[id]){ mhToast('No ban found for “'+q+'”'); return true; }
+ const name=data.ids[id]?.name||id;
+ delete data.ids[id];
+ Object.keys(data.names).forEach(k=>{ if(data.names[k]===id) delete data.names[k]; });
+ mhBanDataWrite(data);
+ mhBanPost({type:'unban',id,name});
+ mhToast('✅ Unbanned '+name);
+ return true;
+}
+const MH_DISCO_WORLD_KEY='lithos_mh_disco_world_v1';
+const MH_DISCO_BROADCAST='lithos-mh-disco';
+const MH_DISCO_COINS=1000;
+const MH_DISCO_MORPH_IDS=['ex-disco-mirror','ex-disco-laser','ex-disco-strobe'];
+let mhDiscoBroadcast=null;
+function mhMorphNeverInGacha(m){
+ return !!(m&&(m.codeOnly||m.mayorOnly||m.plagueOnly||m.discoOnly||m.timeTravelerOnly||m.matrixOnly||m.signatureOnly||m.questOnly));
+}
+function mhDiscoWorldRead(){
+ try{ return JSON.parse(localStorage.getItem(MH_DISCO_WORLD_KEY)||'null'); }catch(_){ return null; }
+}
+function mhDiscoWorldWrite(ev){
+ try{ localStorage.setItem(MH_DISCO_WORLD_KEY,JSON.stringify(ev)); }catch(_){}
+}
+function mhApplyDiscoEvent(save,ev,silent){
+ if(!save||!ev?.id||save.discoClaimed===ev.id) return false;
+ save.discoClaimed=ev.id;
+ save.coins=Math.max(0,+(save.coins||0))+(ev.coins??MH_DISCO_COINS);
+ let n=0;
+ (ev.morphIds||MH_DISCO_MORPH_IDS).forEach(id=>{ if(mhAdminGrantMorph(save,id,true)) n++; });
+ if(!silent){
+  mhCelebrationBurst('🪩 DISCO! +'+ (ev.coins??MH_DISCO_COINS)+'💰 · '+n+' impossible noobie'+(n===1?'':'s')+'!');
+ }
+ return true;
+}
+function mhDiscoApplyPending(save,silent){
+ const ev=mhDiscoWorldRead();
+ if(!ev?.id||!save) return;
+ if(save.discoClaimed===ev.id) return;
+ mhApplyDiscoEvent(save,ev,!!silent);
+}
+function mhDiscoBroadcastInit(){
+ if(mhDiscoBroadcast||typeof BroadcastChannel==='undefined') return;
+ mhDiscoBroadcast=new BroadcastChannel(MH_DISCO_BROADCAST);
+ mhDiscoBroadcast.onmessage=(e)=>{
+  const ev=e?.data;
+  if(!ev?.id||!mhState?.save) return;
+  mhDiscoWorldWrite(ev);
+  if(mhApplyDiscoEvent(mhState.save,ev,false)){
+   mhSaveSave(mhState.save);
+   mhRender();
+  }
+ };
+}
+function mhOwnerDiscoParty(st,save,opts){
+ opts=opts||{};
+ const eventId='disco-'+Date.now();
+ const ev={id:eventId,coins:MH_DISCO_COINS,morphIds:MH_DISCO_MORPH_IDS.slice(),at:Date.now()};
+ mhDiscoWorldWrite(ev);
+ mhDiscoBroadcastInit();
+ mhApplyDiscoEvent(save,ev,true);
+ if(!opts.silentFx) mhCelebrationBurst('🪩 DISCO! +1000💰 · 3 impossible exclusives!',{coinRain:true,morphRain:true});
+ mhSaveSave(save);
+ if(!opts.skipRender) mhRender();
+ try{ mhDiscoBroadcast?.postMessage(ev); }catch(_){}
+ const msg={
+  id:'msg-'+eventId,
+  channel:'global',
+  fromId:'lithos-disco',
+  fromName:'🪩 Disco Server',
+  morphId:'ex-disco-mirror',
+  text:'DISCO PARTY! +1000 coins & 3 impossible exclusives for everyone — open Morph Hunt or switch tabs to claim! 🪩',
+  t:Date.now()
+ };
+ mhChatMergeMessages([msg]);
+ try{ mhChatBroadcast?.postMessage(msg); }catch(_){}
+ mhChatRefreshLog();
+ if(!opts.silentToast) mhToast('🪩 Worldwide disco — everyone gets 1000💰 + Mirror Ball, Laser Grid, Impossible Strobe!');
+ return true;
+}
+function mhIsLithosStaff(){
+ try{
+  if(typeof isStaff!=='undefined'&&isStaff) return true;
+  if(typeof document!=='undefined'&&document.body&&document.body.classList.contains('is-staff')) return true;
+  if(localStorage.getItem('lithos_staff')==='1') return true;
+ }catch(_){}
+ return false;
+}
+function mhIsLithosAdmin(){ return mhIsLithosStaff()||mhIsRealOwner(); }
+function mhIsLithosOwnerAbuse(){ return mhIsRealOwner(); }
+function mhAdminFindMorph(q){
+ q=String(q||'').trim().toLowerCase();
+ if(!q) return null;
+ const exact=mhMorph(q);
+ if(exact) return exact;
+ const hits=MH_MORPHS.filter(m=>m.id.toLowerCase().includes(q)||m.name.toLowerCase().includes(q));
+ hits.sort((a,b)=>(a.id.length-b.id.length));
+ return hits[0]||null;
+}
+function mhAdminGrantMorph(save,morphId,silent){
+ if(!save||!morphId||!MH_MORPHS.some(m=>m.id===morphId)) return false;
+ if(!save.collected.includes(morphId)) save.collected.push(morphId);
+ if(morphId==='ex-plague-doctor'&&save.plagueQuest){
+  save.plagueQuest.badge=true;
+  save.plagueQuest.labStep=5;
+ }
+ mhSaveSave(save);
+ if(!silent){
+  const nm=mhMorph(morphId)?.name||morphId;
+  mhToast('🎁 Free noobie: '+nm);
+ }
+ return true;
+}
+function mhAdminQueueGift(friendId,morphId){
+ if(!friendId||!morphId) return false;
+ try{
+  const raw=JSON.parse(localStorage.getItem(MH_ADMIN_GIFT_KEY)||'{}');
+  if(!raw[friendId]) raw[friendId]=[];
+  if(!raw[friendId].includes(morphId)) raw[friendId].push(morphId);
+  localStorage.setItem(MH_ADMIN_GIFT_KEY,JSON.stringify(raw));
+  return true;
+ }catch(_){ return false; }
+}
+function mhAdminApplyPendingGifts(save){
+ const pid=String(save?.chatPlayerId||'').trim();
+ if(!pid) return;
+ try{
+  const raw=JSON.parse(localStorage.getItem(MH_ADMIN_GIFT_KEY)||'{}');
+  const list=raw[pid];
+  if(!list?.length) return;
+  let n=0;
+  list.forEach(id=>{ if(mhAdminGrantMorph(save,id,true)) n++; });
+  delete raw[pid];
+  localStorage.setItem(MH_ADMIN_GIFT_KEY,JSON.stringify(raw));
+  if(n) mhToast('🎁 Lithos gift arrived — '+n+' noobie'+(n>1?'s':'')+' added!');
+  mhSaveSave(save);
+  mhRender();
+ }catch(_){}
+}
+function mhChatAdminHelp(owner){
+ const lines=owner?[
+  '/give &lt;morph&gt; — free noobie for you',
+  '/gift &lt;friendCode&gt; &lt;morph&gt; — queue gift on their device',
+  '/admin help — staff list · /admin abuse — owner powers',
+  '/admin abuse storm · kingstorm · disco · coins · allmorphs · heal · world · plague · raid',
+  '/ban &lt;name or friend code&gt; · /unban &lt;name&gt;'
+ ]:[
+  '/give &lt;morph&gt; — free noobie (Lithos crew)',
+  '/gift &lt;friendCode&gt; &lt;morph&gt; — give away a morph',
+  '/ban &lt;name or friend code&gt; · /unban &lt;name&gt;',
+  '/admin help — staff commands'
+ ];
+ mhToast('🛡️ Lithos admin: '+lines.join(' · '));
+}
+function mhOwnerAbuseHelp(){
+ mhToast('👑 /admin abuse = MEGA party · or add one: disco · storm · kingstorm · coins · allmorphs · heal · plague · raid');
+}
+function mhPlayAbuseYay(){
+ try{
+  mhUnlockSfx();
+  mhPlaySfx('win');
+  if(typeof SFX!=='undefined'){
+   if(SFX.win) setTimeout(()=>{ try{ SFX.win(); }catch(_){} },220);
+   if(SFX.code) setTimeout(()=>{ try{ SFX.code(); }catch(_){} },420);
+  }
+  if(typeof speechSynthesis!=='undefined'){
+   speechSynthesis.cancel();
+   const u=new SpeechSynthesisUtterance('Yay!');
+   u.rate=1.08; u.pitch=1.42; u.volume=1;
+   speechSynthesis.speak(u);
+  }
+ }catch(_){}
+}
+function mhEnsureMegaFxLayer(){
+ let layer=document.getElementById('mh-mega-fx-layer');
+ if(!layer){
+  layer=document.createElement('div');
+  layer.id='mh-mega-fx-layer';
+  layer.className='mh-mega-fx-layer';
+  layer.setAttribute('aria-hidden','true');
+  document.body.appendChild(layer);
+ }
+ return layer;
+}
+function mhSpawnRainBits(layer,cls,glyphs,count,durMin,durMax){
+ for(let i=0;i<count;i++){
+  const s=document.createElement('span');
+  s.className=cls;
+  s.textContent=glyphs[i%glyphs.length];
+  s.style.left=(Math.random()*100)+'%';
+  s.style.animationDuration=(durMin+Math.random()*(durMax-durMin))+'s';
+  s.style.animationDelay=(Math.random()*1.2)+'s';
+  s.style.fontSize=(cls==='mh-coin-rain-bit'?(16+Math.random()*22):(14+Math.random()*20))+'px';
+  layer.appendChild(s);
+ }
+}
+function mhOwnerMegaFx(ms){
+ ms=ms||MH_MEGA_PARTY_MS;
+ const layer=mhEnsureMegaFxLayer();
+ layer.innerHTML='';
+ layer._partyUntil=Date.now()+ms;
+ const confetti=['🎉','🪩','🎊','✨','🎈','💯','⭐','🥳','🎁','💎','🌈','🔥'];
+ const coins=['💰','🪙','💵','💴','💶','🪙','💰'];
+ const morphs=['🎭','👾','🪩','💎','⭐','🌟','🦸','🧿','☄️','Exclusive','Void','Fallen'];
+ const trimFx=()=>{ while(layer.childElementCount>380) layer.firstElementChild?.remove(); };
+ const burst=()=>{
+  if(Date.now()>layer._partyUntil||!layer.parentNode) return;
+  trimFx();
+  mhSpawnRainBits(layer,'mh-coin-rain-bit',coins,22,2.4,5.2);
+  mhSpawnRainBits(layer,'mh-confetti-bit',confetti,14,2,4);
+  mhSpawnRainBits(layer,'mh-morph-rain-bit',morphs,10,2.8,5.5);
+ };
+ burst();
+ burst();
+ clearInterval(layer._coinIv);
+ layer._coinIv=setInterval(burst,2800);
+ clearTimeout(layer._tm);
+ layer._tm=setTimeout(()=>{
+  clearInterval(layer._coinIv);
+  layer._coinIv=null;
+  layer.innerHTML='';
+  mhToast('🪩 50-minute party ended — run /admin abuse again anytime!');
+ },ms);
+}
+function mhOwnerAbuseMega(st,save,pos){
+ const wi=st?.world??0;
+ mhPlayAbuseYay();
+ mhOwnerMegaFx(MH_MEGA_PARTY_MS);
+ mhCelebrationBurst('👑 MEGA ABUSE — YAY!',{quietSfx:true,coinRain:true,morphRain:true});
+ save.collected=MH_MORPHS.map(m=>m.id);
+ save.worldsUnlocked=MH_WORLDS.length;
+ save.coins=Math.max(+(save.coins||0),99999)+MH_DISCO_COINS;
+ if(!save.plagueQuest) save.plagueQuest=mhDefaultPlagueQuest();
+ save.plagueQuest.badge=true;
+ save.plagueQuest.labStep=5;
+ MH_DISCO_MORPH_IDS.forEach(id=>mhAdminGrantMorph(save,id,true));
+ st.fightHp=st.fightMaxHp||140;
+ const wear=mhVoidCombatMorph(save)||mhMorph(save.wearing)||{};
+ mhWrapPlayerRedBlackStorm(st,wear,pos,9);
+ const king=mhMorph('vf-king')||{voidKing:true,voidFallen:true};
+ mhSpawnVoidUniverseStorm(st,king,0,pos,280);
+ mhAdminGrantMorph(save,'ex-plague-doctor',true);
+ mhOwnerDiscoParty(st,save,{silentFx:true,silentToast:true,skipRender:true});
+ try{ mhUsePlagueGraveyard(st,save,pos,wi); }catch(_){}
+ mhSaveSave(save);
+ mhRender();
+ mhToast('👑 YAY! 50-min coin rain · all abuse powers · disco +1000 for everyone!');
+ return true;
+}
+function mhRunOwnerAbuse(st,save,pos,args){
+ if(!mhIsLithosOwnerAbuse()){ mhToast('🔒 Owner only — redeem owner code in Secret Codes, or open with ?owner=1'); return true; }
+ const wi=st?.world??0;
+ const sub=(args[0]||'').toLowerCase();
+ if(!sub||sub==='mega'||sub==='all'||sub==='everything'||sub==='yay') return mhOwnerAbuseMega(st,save,pos);
+ if(sub==='help'||sub==='list'){ mhOwnerAbuseHelp(); return true; }
+ if(sub==='storm'||sub==='redstorm'){
+  const wear=mhVoidCombatMorph(save)||mhMorph(save.wearing)||{};
+  mhWrapPlayerRedBlackStorm(st,wear,pos,7);
+  mhToast('👑 black-red storm!');
+  return true;
+ }
+ if(sub==='kingstorm'||sub==='void'){
+  const king=mhMorph('vf-king')||{voidKing:true,voidFallen:true};
+  mhSpawnVoidUniverseStorm(st,king,0,pos,240);
+  mhToast('👑 FORBIDDEN void universe storm!');
+  return true;
+ }
+ if(sub==='disco'||sub==='party'){
+  mhOwnerDiscoParty(st,save);
+  return true;
+ }
+ if(sub==='coins'){
+  save.coins=Math.max(0,+(args[1]||99999));
+  mhSaveSave(save); mhRender();
+  mhToast('👑 coins → '+save.coins);
+  return true;
+ }
+ if(sub==='all'||sub==='allmorphs'){
+  save.collected=MH_MORPHS.map(m=>m.id);
+  save.worldsUnlocked=MH_WORLDS.length;
+  mhSaveSave(save); mhRender();
+  mhToast('👑 every noobie unlocked');
+  return true;
+ }
+ if(sub==='heal'){
+  st.fightHp=st.fightMaxHp||140;
+  mhToast('👑 full HP');
+  return true;
+ }
+ if(sub==='world'){
+  const n=Math.max(0,Math.min(MH_WORLDS.length-1,+(args[1]||0)));
+  mhSetWorld(n);
+  return true;
+ }
+ if(sub==='plague'||sub==='doctor'){
+  mhAdminGrantMorph(save,'ex-plague-doctor');
+  mhWear('ex-plague-doctor',true);
+  mhRender();
+  return true;
+ }
+ if(sub==='raid'){
+  mhUsePlagueGraveyard(st,save,pos,wi);
+  return true;
+ }
+ if(sub==='unlock'){
+  save.worldsUnlocked=MH_WORLDS.length;
+  mhSaveSave(save); mhRender();
+  mhToast('👑 all maps unlocked');
+  return true;
+ }
+ mhToast('👑 Unknown abuse power “'+sub+'”. Try: disco · storm · kingstorm · coins · allmorphs · heal · world · plague · raid · unlock');
+ return true;
+}
+function mhChatAdminCommand(st,save,raw){
+ if(!String(raw||'').trim().startsWith('/')) return false;
+ const parts=String(raw).slice(1).trim().split(/\s+/);
+ const cmd=(parts[0]||'').toLowerCase();
+ if(cmd==='name'||cmd==='username'||cmd==='nick'||cmd==='user'){
+  return mhChatSetDisplayName(save,parts.slice(1).join(' '));
+ }
+ if(cmd==='timetravel'||cmd==='timeline'||cmd==='time'){
+  mhTimeTravelMaybeChat(st,save,'go back in time');
+  return true;
+ }
+ const adminSub=(parts[1]||'').toLowerCase();
+ const adminAbuse=cmd==='admin'&&adminSub==='abuse';
+ const staffOnly=/^(give|gift|grant|admin|ban|unban)$/.test(cmd)||cmd==='help'&&adminSub==='admin';
+ const ownerOnly=cmd==='abuse'||adminAbuse||cmd==='disco'||cmd==='party';
+ if(staffOnly||ownerOnly||cmd==='help'){
+  if(ownerOnly&&!mhIsLithosOwnerAbuse()){ mhToast('🔒 Owner-only — Secret Codes owner unlock or ?owner=1 (staff /give still works)'); return true; }
+  if(staffOnly&&!adminAbuse&&!mhIsLithosAdmin()){ mhToast('🔒 Lithos staff or owner only — redeem LITHOSSTAFF in 🎲 Gacha'); return true; }
+ }
+ const pos=mhWalkEnsurePos(st,st?.world??0);
+ if(cmd==='disco'||cmd==='party') return mhRunOwnerAbuse(st,save,pos,['disco']);
+ if(cmd==='help'&&adminSub==='admin'){ mhChatAdminHelp(mhIsLithosOwnerAbuse()); return true; }
+ if(cmd==='admin'&&adminSub==='abuse') return mhRunOwnerAbuse(st,save,pos,parts.slice(2));
+ if(cmd==='admin'&&(adminSub==='help'||!parts[1])){ mhChatAdminHelp(mhIsLithosOwnerAbuse()); return true; }
+ if(cmd==='abuse') return mhRunOwnerAbuse(st,save,pos,parts.slice(1));
+ if(!mhIsLithosAdmin()) return false;
+ const wi=st?.world??0;
+ if(cmd==='ban'){
+  const who=parts.slice(1).join(' ').trim();
+  if(!who){
+   st.chatBanAwait=true;
+   mhToast('🚫 Ban — type that player’s friend code or name in your next message');
+   return true;
+  }
+  st.chatBanAwait=false;
+  return mhAdminBanPlayer(save,who);
+ }
+ if(cmd==='unban') return mhAdminUnbanPlayer(parts.slice(1).join(' ').trim());
+ if(cmd==='give'||cmd==='grant'){
+  const m=mhAdminFindMorph(parts.slice(1).join(' '));
+  if(!m){ mhToast('No morph match — try ex-plague-doctor or ruby'); return true; }
+  mhAdminGrantMorph(save,m.id);
+  mhRender();
+  return true;
+ }
+ if(cmd==='gift'){
+  const friendId=parts[1];
+  const m=mhAdminFindMorph(parts.slice(2).join(' '));
+  if(!friendId||!m){ mhToast('Usage: /gift friendCode morphName'); return true; }
+  if(friendId===save.chatPlayerId) mhAdminGrantMorph(save,m.id);
+  else if(mhAdminQueueGift(friendId,m.id)) mhToast('🎁 Gift queued for '+friendId+' → '+m.name);
+  else mhToast('Could not queue gift');
+  return true;
+ }
+ return false;
+}
+function mhOpenPlaySave(){
+ const wear=mhLoadWearId();
+ const test=mhIsTestProfile();
+ const base={
+  collected:MH_MORPHS.filter(m=>!m.questOnly).map(m=>m.id),
+  worldsUnlocked:MH_WORLDS.length,
+  coins:99999,
+  wearing:wear||(test?'ex-welcome':'ex-welcome'),
+  title:test?'Test Player':'',
+  codesUsed:[],
+  minigameWon:[],
+  chatPlayerId:test?MH_TEST_PLAYER_ID:'',
+  chatDisplayName:test?'Test Account':'',
+  chatFriends:[],
+  plagueQuest:mhDefaultPlagueQuest(),
+  questPack:mhDefaultQuestPack()
+ };
+ try{
+  const raw=JSON.parse(localStorage.getItem(mhProfileStoreKey())||'null');
+  if(!raw||typeof raw!=='object'){ mhCrossLinkPlayFriends(base); return base; }
+  if(typeof raw.title==='string') base.title=raw.title;
+  if(Array.isArray(raw.codesUsed)) base.codesUsed=raw.codesUsed.filter(x=>typeof x==='string');
+  if(Array.isArray(raw.minigameWon)) base.minigameWon=raw.minigameWon.filter(x=>typeof x==='string');
+  if(typeof raw.chatPlayerId==='string'&&raw.chatPlayerId&&!test) base.chatPlayerId=raw.chatPlayerId;
+  if(typeof raw.chatDisplayName==='string'&&raw.chatDisplayName&&!test) base.chatDisplayName=raw.chatDisplayName;
+  if(Array.isArray(raw.chatFriends)) base.chatFriends=raw.chatFriends.filter(x=>typeof x==='string');
+  base.plagueQuest=mhNormalizePlagueQuest(raw.plagueQuest);
+  base.questPack=mhNormalizeQuestPack(raw.questPack);
+  if(raw.wearing&&MH_MORPHS.some(m=>m.id===raw.wearing)) base.wearing=raw.wearing;
+  else if(wear) base.wearing=wear;
+  const c=Math.max(0,+(raw.coins||0));
+  if(c>base.coins) base.coins=c;
+  base.worldsUnlocked=MH_WORLDS.length;
+ }catch(_){}
+ if(test){
+  base.chatPlayerId=MH_TEST_PLAYER_ID;
+  base.chatDisplayName='Test Account';
+ }else if(!base.chatPlayerId){
+  base.chatPlayerId='noob-'+Math.random().toString(36).slice(2,11);
+ }
+ mhCrossLinkPlayFriends(base);
+ mhDiscoApplyPending(base,true);
+ return base;
+}
+function mhCrossLinkPlayFriends(save){
+ if(!save) return;
+ if(!save.chatFriends) save.chatFriends=[];
+ [MH_TEST_BUDDY_ID,MH_TEST_PLAYER_ID].forEach(id=>{
+  if(!save.chatFriends.includes(id)) save.chatFriends.unshift(id);
+ });
+}
+function mhSwitchProfile(mode){
+ if(!mhState) return;
+ mhSaveSave(mhState.save);
+ try{ localStorage.setItem(MH_PROFILE_KEY,mode==='test'?'test':'main'); }catch(_){}
+ mhState.save=mhLoadSave();
+ mhCrossLinkPlayFriends(mhState.save);
+ mhSaveSave(mhState.save);
+ mhTestBuddySetOn(mhState,mhState.save,true,true);
+ if(mode==='test'){
+  mhToast('🧪 Test Account · code '+MH_TEST_PLAYER_ID+' · open 2nd tab as 👤 You to chat!');
+ }else{
+  mhToast('👤 Your account · Global chat reaches Test Account in other tab!');
+ }
+ mhRender();
+}
+function mhOpenTestAccountTab(){
+ try{
+  const u=new URL(location.href);
+  u.searchParams.set('mh',MH_BUILD);
+  u.searchParams.set('profile','test');
+  u.searchParams.set('t',String(Date.now()));
+  u.hash='morphhunt';
+  window.open(u.toString(),'lithos_mh_test_tab');
+  mhToast('Opened 🧪 Test Account in a new tab!');
+ }catch(_){
+  mhToast('Allow pop-ups, or copy: ?profile=test#morphhunt');
+ }
+}
+function mhTestAgentsWelcome(st,save){
+ if(!st||st.tab!=='hunt') return;
+ const k='lithos_mh_agents_hi_'+MH_BUILD;
+ try{ if(sessionStorage.getItem(k)) return; sessionStorage.setItem(k,'1'); }catch(_){}
+ const me=mhEnsureChatProfile(save).id;
+ setTimeout(()=>{
+  if(!mhState||mhState.tab!=='hunt') return;
+  if(mhState.testBuddy?.on) mhTestBuddyMaybeReply(mhState,mhState.save,'Hey! I just loaded Morph Hunt — say hi!','global','',me);
+ },900);
+ setTimeout(()=>{
+  if(!mhState||mhState.tab!=='hunt'||mhIsTestProfile()) return;
+  if(mhState.testAccountAiOn===false) return;
+  mhTestAccountMaybeReply(mhState,mhState.save,'Anyone on Global? Let\'s test chat together!','global','',me);
+ },2400);
+}
+
+function mhActiveProfile(){
+ try{return localStorage.getItem(MH_PROFILE_KEY)==='test'?'test':'main';}catch(_){return 'main';}
+}
+function mhIsTestProfile(){ return mhActiveProfile()==='test'; }
+function mhProfileStoreKey(){ return mhIsTestProfile()?MH_TEST_STORE_KEY:MH_STORE_KEY; }
+function mhProfileWearKey(){ return mhIsTestProfile()?MH_WEAR_KEY+'_test':MH_WEAR_KEY; }
+function mhApplyProfileFromUrl(){
+ try{
+  if(/[?&]profile=test(?:&|$)/i.test(location.search)) localStorage.setItem(MH_PROFILE_KEY,'test');
+  if(/[?&]profile=main(?:&|$)/i.test(location.search)) localStorage.setItem(MH_PROFILE_KEY,'main');
+ }catch(_){}
+}
+function mhLoadWearId(){
+ try{
+  const w=localStorage.getItem(mhProfileWearKey());
+  if(w&&MH_MORPHS.some(m=>m.id===w))return w;
+ }catch(_){}
+ return null;
+}
+function mhSaveWearId(id){
+ try{
+  const k=mhProfileWearKey();
+  if(id) localStorage.setItem(k,id);
+  else localStorage.removeItem(k);
+ }catch(_){}
+ window.LITHOS_NOOBIE_WEAR=id||null;
+ try{
+  document.dispatchEvent(new CustomEvent('lithos-noobie-morph',{detail:mhMorph(id)}));
+ }catch(_){}
+ mhRefreshTeacherNoob();
+}
+
+function mhDefaultPlagueQuest(){
+ return{bugs:[],labStep:0,badge:false};
+}
+function mhNormalizePlagueQuest(raw){
+ const q=raw&&typeof raw==='object'?raw:{};
+ return{
+  bugs:Array.isArray(q.bugs)?q.bugs.filter(id=>typeof id==='string'):[],
+  labStep:Math.max(0,Math.min(5,+(q.labStep||0))),
+  badge:!!q.badge
+ };
+}
+function mhDefaultSave(){
+ return{collected:['ex-welcome'],worldsUnlocked:1,coins:100,wearing:'ex-welcome',title:'',codesUsed:[],minigameWon:[],chatPlayerId:'',chatDisplayName:'',chatFriends:[],plagueQuest:mhDefaultPlagueQuest(),timeQuest:mhDefaultTimeQuest(),questPack:mhDefaultQuestPack()};
+}
+function mhStarterMorph(){
+ return mhMorph('ex-welcome')||{head:'#F5CD30',torso:'#0085DB',legs:'#A4BD47',body:'classic',name:'Your Noobie',id:'you'};
+}
+function mhMapSpawnPos(map){
+ const cx=Math.floor(map.w/2), cy=Math.floor(map.h/2);
+ for(let r=0;r<Math.max(map.w,map.h);r++){
+  for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++){
+   const tx=cx+dx, ty=cy+dy;
+   if(tx<2||ty<2||tx>=map.w-2||ty>=map.h-2) continue;
+   if(!mhTileWalkable(map,tx,ty)) continue;
+   const px=tx*MH_TILE+MH_TILE/2, py=ty*MH_TILE+MH_TILE/2;
+   if(!mhWalkCollide(map,px,py,10)) return {px,py};
+  }
+ }
+ return {px:map.spawnTx*MH_TILE+MH_TILE/2, py:map.spawnTy*MH_TILE+MH_TILE/2};
+}
+function mhClampWalkPos(map,pos){
+ const pad=MH_TILE*1.5;
+ const maxX=map.w*MH_TILE-pad, maxY=map.h*MH_TILE-pad;
+ if(!Number.isFinite(pos.px)||!Number.isFinite(pos.py)||pos.px<pad||pos.py<pad||pos.px>maxX||pos.py>maxY){
+  const sp=mhMapSpawnPos(map);
+  pos.px=sp.px; pos.py=sp.py;
+ }
+}
+function mhMapFlat2D(wi){
+ return !!MH_2D;
+}
+function mhFlatGroundPair(ground){
+ return {a:ground,b:mhShade(ground,-14)};
+}
+function mhDrawDecorKind(ctx,x,y,kind,wi){
+ const T=MH_TILE;
+ ctx.save();
+ ctx.translate(x,y);
+ const wood='#6a5040', roof='#8a4030', stone='#5a5a62', dark='#2a2830';
+ switch(kind){
+  case 'house':
+   ctx.fillStyle=wood; ctx.fillRect(4,12,T-8,T-16);
+   ctx.fillStyle=roof; ctx.beginPath(); ctx.moveTo(2,12); ctx.lineTo(T/2,0); ctx.lineTo(T-2,12); ctx.fill();
+   ctx.fillStyle='#3a2818'; ctx.fillRect(T/2-5,20,10,14);
+   break;
+  case 'shop':
+   ctx.fillStyle='#5080a0'; ctx.fillRect(6,14,T-12,T-18);
+   ctx.fillStyle='#ffe060'; ctx.fillRect(8,18,T-16,8);
+   ctx.fillStyle='#303840'; ctx.fillRect(T/2-4,22,8,12);
+   break;
+  case 'tree':
+   ctx.fillStyle='#4a3018'; ctx.fillRect(T/2-3,22,6,12);
+   ctx.fillStyle='#3a8838'; ctx.beginPath(); ctx.arc(T/2,16,12,0,Math.PI*2); ctx.fill();
+   break;
+  case 'fountain':
+   ctx.fillStyle=stone; ctx.fillRect(10,24,T-20,8);
+   ctx.fillStyle='#60a8e0'; ctx.beginPath(); ctx.arc(T/2,22,8,0,Math.PI*2); ctx.fill();
+   break;
+  case 'park':
+   ctx.fillStyle='#5a9a48'; ctx.fillRect(2,20,T-4,T-22);
+   ctx.fillStyle='#3a7838'; ctx.beginPath(); ctx.arc(T/2,14,11,0,Math.PI*2); ctx.fill();
+   ctx.fillStyle='#6a5040'; ctx.fillRect(T/2-8,24,16,4);
+   break;
+  case 'playground':
+   ctx.strokeStyle='#8090a0'; ctx.lineWidth=2;
+   ctx.beginPath(); ctx.moveTo(8,28); ctx.lineTo(8,10); ctx.lineTo(T-8,10); ctx.lineTo(T-8,28); ctx.stroke();
+   ctx.fillStyle='#ff6080'; ctx.fillRect(T/2-12,14,24,4);
+   break;
+  case 'noobie_statue':
+   ctx.fillStyle='#9098a8'; ctx.fillRect(T/2-6,T-6,12,T-4);
+   mhPaintHuman(ctx,T/2,T-8,variant%14,0,0.95);
+   break;
+  case 'bench':
+   ctx.fillStyle=wood; ctx.fillRect(8,26,T-16,4); ctx.fillRect(10,22,4,8); ctx.fillRect(T-14,22,4,8);
+   break;
+  case 'plaza_ruins':
+   ctx.fillStyle=stone; ctx.fillRect(6,20,8,14); ctx.fillRect(T-14,18,6,16); ctx.fillStyle='rgba(0,0,0,.2)'; ctx.fillRect(8,28,T-16,4);
+   break;
+  case 'ferris':
+   ctx.strokeStyle='#8090a0'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(T/2,14,14,0,Math.PI*2); ctx.stroke();
+   ctx.fillStyle='#ff6080'; ctx.fillRect(T/2-2,0,4,28);
+   break;
+  case 'tent':
+   ctx.fillStyle='#e04080'; ctx.beginPath(); ctx.moveTo(T/2,6); ctx.lineTo(T-4,T-2); ctx.lineTo(4,T-2); ctx.fill();
+   ctx.fillStyle='#c03070'; ctx.fillRect(T/2-1,6,2,24);
+   break;
+  case 'booth':
+   ctx.fillStyle='#ffd060'; ctx.fillRect(8,16,T-16,16); ctx.fillStyle='#fff'; ctx.fillRect(10,18,T-20,6);
+   break;
+  case 'banner':
+   ctx.fillStyle='#c04090'; ctx.fillRect(T/2-1,4,2,26); ctx.fillStyle='#ff80c0'; ctx.fillRect(T/2,8,14,10);
+   break;
+  case 'stall':
+   ctx.fillStyle='#8040c0'; ctx.fillRect(6,18,T-12,14); ctx.fillStyle='#ffe080'; ctx.fillRect(8,20,T-16,4);
+   break;
+  case 'broken_ride':
+   ctx.fillStyle='#505860'; ctx.fillRect(8,22,T-16,6); ctx.fillStyle='#303840'; ctx.fillRect(12,14,6,10);
+   ctx.strokeStyle='#ff4040'; ctx.beginPath(); ctx.moveTo(6,18); ctx.lineTo(T-6,26); ctx.stroke();
+   break;
+  case 'beach_hut':
+   ctx.fillStyle='#e8c878'; ctx.fillRect(8,18,T-16,14); ctx.fillStyle='#40a0c0'; ctx.fillRect(6,12,T-12,8);
+   break;
+  case 'pier':
+   ctx.fillStyle=wood; ctx.fillRect(0,T-8,T,6); ctx.fillStyle='#5080a0'; ctx.fillRect(0,T-4,T,4);
+   break;
+  case 'palm':
+   ctx.fillStyle='#8a6030'; ctx.fillRect(T/2-2,18,4,14);
+   ctx.fillStyle='#2a8848'; ctx.beginPath(); ctx.ellipse(T/2,12,14,6,0,0,Math.PI*2); ctx.fill();
+   break;
+  case 'surf':
+   ctx.fillStyle='#ff8040'; ctx.fillRect(T/2-2,16,4,18); ctx.fillStyle='#fff'; ctx.fillRect(T/2-8,20,16,4);
+   break;
+  case 'lifeguard':
+   ctx.fillStyle='#e04040'; ctx.fillRect(T/2-6,14,12,18); ctx.fillStyle='#fff'; ctx.fillRect(T/2-4,16,8,6);
+   break;
+  case 'wrecked_boat':
+   ctx.fillStyle=wood; ctx.fillRect(6,24,T-12,6); ctx.fillStyle='#303840'; ctx.fillRect(10,20,8,6);
+   ctx.strokeStyle='#000'; ctx.beginPath(); ctx.moveTo(8,22); ctx.lineTo(T-8,28); ctx.stroke();
+   break;
+  case 'crystal':
+   ctx.fillStyle='#80e0ff'; ctx.beginPath(); ctx.moveTo(T/2,4); ctx.lineTo(T-6,28); ctx.lineTo(6,28); ctx.fill();
+   ctx.strokeStyle='#fff'; ctx.stroke();
+   break;
+  case 'expedition_tent':
+   ctx.fillStyle='#c8a860'; ctx.beginPath(); ctx.moveTo(T/2,8); ctx.lineTo(T-4,26); ctx.lineTo(4,26); ctx.fill();
+   ctx.fillStyle='#403820'; ctx.fillRect(T/2-1,8,2,18);
+   break;
+  case 'mine_cart':
+   ctx.fillStyle='#505860'; ctx.fillRect(8,22,T-16,8); ctx.fillStyle='#303840'; ctx.beginPath(); ctx.arc(12,T-2,3,0,Math.PI*2); ctx.arc(T-12,T-2,3,0,Math.PI*2); ctx.fill();
+   break;
+  case 'stalagmite':
+   ctx.fillStyle='#685898'; ctx.beginPath(); ctx.moveTo(T/2,6); ctx.lineTo(T-8,28); ctx.lineTo(T-8,28); ctx.lineTo(8,28); ctx.fill();
+   break;
+  case 'drill':
+   ctx.fillStyle='#404850'; ctx.fillRect(T/2-3,10,6,20); ctx.fillStyle='#808890'; ctx.fillRect(T/2-6,6,12,6);
+   break;
+  case 'crate':
+   ctx.fillStyle='#6a5038'; ctx.fillRect(10,18,T-20,T-22); ctx.strokeStyle='#3a2818'; ctx.strokeRect(10.5,18.5,T-21,T-23);
+   break;
+  case 'fluoro_hall':
+   ctx.fillStyle='#d8d4b0'; ctx.fillRect(4,4,T-8,T-8);
+   ctx.fillStyle='#ffffa0'; ctx.fillRect(6,6,T-12,4);
+   break;
+  case 'office_desk':
+   ctx.fillStyle='#909088'; ctx.fillRect(8,22,T-16,8); ctx.fillStyle='#707068'; ctx.fillRect(12,16,12,8);
+   break;
+  case 'carpet':
+   ctx.fillStyle='#806040'; ctx.fillRect(6,24,T-12,6); ctx.fillStyle='#604830'; ctx.fillRect(8,25,T-16,4);
+   break;
+  case 'broken_tile':
+   ctx.fillStyle='#a8a890'; ctx.fillRect(6,20,10,12); ctx.fillStyle='#888878'; ctx.fillRect(T-16,22,10,10);
+   ctx.strokeStyle='#606058'; ctx.beginPath(); ctx.moveTo(10,20); ctx.lineTo(18,32); ctx.stroke();
+   break;
+  case 'chair':
+   ctx.fillStyle='#707068'; ctx.fillRect(12,22,10,10); ctx.fillRect(14,14,6,10);
+   break;
+  case 'liminal_door':
+   ctx.fillStyle='#909088'; ctx.fillRect(T/2-8,8,16,26); ctx.fillStyle='#101018'; ctx.fillRect(T/2-5,12,10,20);
+   break;
+  case 'cloud_house':
+   ctx.fillStyle='#e8f4ff'; ctx.fillRect(10,18,T-20,12); ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(12,26,8,0,Math.PI*2); ctx.arc(T-12,26,8,0,Math.PI*2); ctx.fill();
+   break;
+  case 'sky_bridge':
+   ctx.fillStyle='#88b8e0'; ctx.fillRect(0,T/2,T,4); ctx.fillStyle=stone; ctx.fillRect(4,T/2-2,6,8); ctx.fillRect(T-10,T/2-2,6,8);
+   break;
+  case 'balloon':
+   ctx.fillStyle='#ff6080'; ctx.beginPath(); ctx.arc(T/2,12,10,0,Math.PI*2); ctx.fill();
+   ctx.strokeStyle='#333'; ctx.beginPath(); ctx.moveTo(T/2,22); ctx.lineTo(T/2,30); ctx.stroke();
+   break;
+  case 'nest':
+   ctx.fillStyle='#8a7040'; ctx.beginPath(); ctx.ellipse(T/2,26,14,6,0,0,Math.PI*2); ctx.fill();
+   break;
+  case 'wreckage':
+   ctx.fillStyle='#606878'; ctx.fillRect(8,20,12,10); ctx.fillRect(T-18,24,10,8);
+   ctx.strokeStyle='#404850'; ctx.beginPath(); ctx.moveTo(6,22); ctx.lineTo(T-6,30); ctx.stroke();
+   break;
+  case 'expedition_flag':
+   ctx.fillStyle='#403820'; ctx.fillRect(T/2-1,8,2,22);
+   ctx.fillStyle='#e04040'; ctx.fillRect(T/2,10,12,8);
+   break;
+  case 'burned_house':
+   ctx.fillStyle='#2a1810'; ctx.fillRect(8,16,T-16,T-18);
+   ctx.fillStyle='#1a1008'; ctx.beginPath(); ctx.moveTo(6,16); ctx.lineTo(T/2,6); ctx.lineTo(T-6,16); ctx.fill();
+   ctx.fillStyle='#ff6020'; ctx.fillRect(14,20,4,4); ctx.fillRect(T-18,22,3,3);
+   break;
+  case 'lava_rock':
+   ctx.fillStyle='#3a1810'; ctx.beginPath(); ctx.moveTo(T/2,8); ctx.lineTo(T-6,28); ctx.lineTo(6,28); ctx.fill();
+   ctx.fillStyle='#ff6020'; ctx.fillRect(T/2-2,20,4,4);
+   break;
+  case 'expedition_camp':
+   ctx.fillStyle='#c8a860'; ctx.fillRect(6,20,14,10); ctx.fillStyle='#403820'; ctx.fillRect(T-16,22,10,8);
+   ctx.fillStyle='#e04040'; ctx.fillRect(T/2,12,2,10);
+   break;
+  case 'obsidian':
+   ctx.fillStyle='#101018'; ctx.beginPath(); ctx.moveTo(T/2,6); ctx.lineTo(T-4,28); ctx.lineTo(4,28); ctx.fill();
+   ctx.strokeStyle='#8040ff'; ctx.stroke();
+   break;
+  case 'broken_statue':
+   ctx.fillStyle=stone; ctx.fillRect(T/2-6,14,12,16); ctx.fillStyle='#707078'; ctx.fillRect(T/2-4,6,8,10);
+   ctx.fillRect(T-10,24,6,6);
+   break;
+  case 'ash_pile':
+   ctx.fillStyle='#3a3028'; ctx.beginPath(); ctx.ellipse(T/2,28,16,6,0,0,Math.PI*2); ctx.fill();
+   break;
+  case 'nexus_ruins':
+   ctx.fillStyle='#384868'; ctx.fillRect(6,18,10,14); ctx.fillRect(T-16,20,10,12);
+   ctx.fillStyle='#ffd060'; ctx.fillRect(T/2-2,10,4,12);
+   break;
+  case 'portal':
+   ctx.strokeStyle='#80e0ff'; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(T/2,18,12,0,Math.PI*2); ctx.stroke();
+   ctx.fillStyle='rgba(80,224,255,.25)'; ctx.fill();
+   break;
+  case 'statue':
+   ctx.fillStyle='#9098a8'; ctx.fillRect(T/2-5,12,10,18); ctx.fillRect(T/2-8,8,16,6);
+   break;
+  case 'camp':
+   ctx.fillStyle='#806040'; ctx.fillRect(8,22,T-16,8); ctx.fillStyle='#ff8040'; ctx.beginPath(); ctx.arc(T/2,24,4,0,Math.PI*2); ctx.fill();
+   break;
+  case 'crystal_shrine':
+   ctx.fillStyle=stone; ctx.fillRect(8,20,T-16,10);
+   ctx.fillStyle='#80e0ff'; ctx.beginPath(); ctx.moveTo(T/2,6); ctx.lineTo(T-6,22); ctx.lineTo(6,22); ctx.fill();
+   break;
+  case 'vault':
+   ctx.fillStyle='#281838'; ctx.fillRect(8,14,T-16,T-16); ctx.fillStyle='#ff48e8'; ctx.fillRect(12,18,T-24,6);
+   break;
+  case 'neon_sign':
+   ctx.fillStyle='#101018'; ctx.fillRect(T/2-1,10,2,18);
+   ctx.fillStyle='#ff48e8'; ctx.shadowColor='#ff48e8'; ctx.shadowBlur=8;
+   ctx.fillRect(T/2,12,14,8); ctx.shadowBlur=0;
+   break;
+  case 'exotic_wreck':
+   ctx.fillStyle='#502868'; ctx.fillRect(6,22,T-12,6); ctx.strokeStyle='#ff48e8'; ctx.strokeRect(6.5,22.5,T-13,5);
+   break;
+  case 'pillar':
+   ctx.fillStyle='#685888'; ctx.fillRect(T/2-5,8,10,T-10);
+   ctx.fillStyle='#9080c0'; ctx.fillRect(T/2-6,6,12,4);
+   break;
+  case 'gate':
+   ctx.fillStyle='#381838'; ctx.fillRect(6,10,6,T-12); ctx.fillRect(T-12,10,6,T-12);
+   ctx.fillStyle='#ff48e8'; ctx.fillRect(6,10,T-12,4);
+   break;
+  case 'void_pillar':
+   ctx.fillStyle='#180818'; ctx.fillRect(T/2-6,6,12,T-8);
+   ctx.strokeStyle='#a01010'; ctx.strokeRect(T/2-6.5,5.5,13,T-7);
+   break;
+  case 'red_altar':
+   ctx.fillStyle='#280808'; ctx.fillRect(8,20,T-16,10);
+   ctx.fillStyle='#ff2020'; ctx.fillRect(T/2-4,14,8,8);
+   break;
+  case 'broken_armor':
+   ctx.fillStyle='#141414'; ctx.fillRect(10,18,8,12); ctx.fillRect(T-18,22,8,10);
+   ctx.fillStyle='#801010'; ctx.fillRect(12,20,4,4);
+   break;
+  case 'expedition_bones':
+   ctx.fillStyle='#c8c0b0'; ctx.fillRect(10,24,12,3); ctx.fillRect(T-16,26,10,2);
+   ctx.fillStyle='#908880'; ctx.beginPath(); ctx.arc(T/2,22,5,0,Math.PI*2); ctx.fill();
+   break;
+  case 'ruined_house':
+   ctx.fillStyle='#1a1018'; ctx.fillRect(8,16,T-16,T-18);
+   ctx.fillStyle='#401010'; ctx.beginPath(); ctx.moveTo(6,16); ctx.lineTo(T/2,8); ctx.lineTo(T-8,18); ctx.fill();
+   break;
+  case 'forbidden_stone':
+   ctx.fillStyle='#080808'; ctx.fillRect(T/2-8,14,16,16);
+   ctx.strokeStyle='#ff2020'; ctx.strokeRect(T/2-8.5,13.5,17,17);
+   mhDrawForbiddenSymbol(ctx,T/2,22,5,mhHashStr(String(kind)+wi)%4);
+   break;
+  case 'void_fallen_building':
+   ctx.fillStyle='#0a0a0a'; ctx.fillRect(T/2-14,0,28,T-2);
+   ctx.fillStyle='#280808'; ctx.fillRect(T/2-12,4,24,T-8);
+   ctx.strokeStyle='#ff3030'; ctx.lineWidth=2; ctx.strokeRect(T/2-14.5,-0.5,29,T-1);
+   ctx.fillStyle='#ff2020'; ctx.fillRect(T/2-6,10,12,4);
+   for(let r=0;r<3;r++){ ctx.fillStyle='#180818'; ctx.fillRect(T/2-10+r*8,18,5,8); }
+   ctx.fillStyle='#401010'; ctx.fillRect(T/2-16,T-6,32,6);
+   break;
+  case 'void_cathedral':
+   ctx.fillStyle='#101018'; ctx.fillRect(T/2-16,6,32,T-8);
+   ctx.fillStyle='#1a0818'; ctx.beginPath(); ctx.moveTo(T/2,0); ctx.lineTo(T/2+18,22); ctx.lineTo(T/2-18,22); ctx.fill();
+   ctx.strokeStyle='#a01010'; ctx.lineWidth=2; ctx.stroke();
+   ctx.fillStyle='#ff3030'; ctx.fillRect(T/2-4,14,8,12);
+   mhDrawForbiddenSymbol(ctx,T/2-10,24,4,1);
+   mhDrawForbiddenSymbol(ctx,T/2+10,24,4,2);
+   break;
+  default:
+   ctx.fillStyle=stone; ctx.fillRect(10,20,T-20,T-24);
+ }
+ ctx.restore();
+}
+function mhPaintHuman(ctx,x,y,variant,phase,sc){
+ sc=sc||0.72;
+ const pal=[
+  ['#F5CD30','#0085DB','#A4BD47'],['#FF98DC','#C4281C','#0085DB'],
+  ['#E0AC00','#008000','#6B8E23'],['#BFA029','#004080','#A4BD47'],
+  ['#D9BC00','#800080','#A3A2A5'],['#F5CD30','#800080','#A4BD47']
+ ][variant%6];
+ const h=pal[0],t=pal[1],l=pal[2];
+ const bob=Math.sin(phase||0)*3;
+ ctx.save();
+ ctx.translate(x,y+bob);
+ ctx.scale(sc,sc);
+ ctx.fillStyle='rgba(0,0,0,.35)'; ctx.beginPath(); ctx.ellipse(0,22,12,3,0,0,Math.PI*2); ctx.fill();
+ mhGradRect(ctx,-7,8,6,16,l,mhShade(l,-25));
+ mhGradRect(ctx,1,8,6,16,l,mhShade(l,-25));
+ mhGradRect(ctx,-9,-2,18,12,t,mhShade(t,-30));
+ ctx.fillStyle=h; ctx.fillRect(-8,-18,16,16);
+ ctx.fillStyle='#1a1a20'; ctx.fillRect(-5,-12,4,4); ctx.fillRect(1,-12,4,4);
+ ctx.fillStyle='rgba(255,255,255,.6)'; ctx.fillRect(-4,-11,2,2); ctx.fillRect(2,-11,2,2);
+ ctx.restore();
+}
+function mhDrawInteriorProps(ctx,ix,iy,w,h,seed){
+ ctx.fillStyle='#ffe890'; ctx.fillRect(ix,iy,w,h);
+ ctx.fillStyle='#604028'; ctx.fillRect(ix+3,iy+h-8,w-6,5);
+ ctx.fillStyle='#5080c0'; ctx.fillRect(ix+4,iy+4,10,6);
+ ctx.fillStyle='#804030'; ctx.fillRect(ix+w-14,iy+5,8,10);
+ if(seed%2===0){ ctx.fillStyle='#806040'; ctx.fillRect(ix+w/2-4,iy+8,8,6); }
+ if(seed%3===0){ ctx.fillStyle='#ffd060'; ctx.beginPath(); ctx.arc(ix+w-6,iy+6,3,0,Math.PI*2); ctx.fill(); }
+ mhPaintHuman(ctx,ix+w*0.55,iy+h-2,(seed+3)%14,seed*0.4,0.45);
+}
+function mhDrawMegaBuilding(ctx,d,wi,t){
+ const T=MH_TILE, x=d.tx*T, y=d.ty*T;
+ const fw=d.footW||MH_MEGA_W, fh=d.footH||MH_MEGA_H;
+ const W=fw*T, H=fh*T;
+ const roofLift=Math.min(18,fw*2);
+ const kind=d.kind;
+ ctx.fillStyle='rgba(0,0,0,.25)'; ctx.fillRect(x+4,y+H+2,W-8,10);
+ if(kind==='void_fallen_building'||kind==='void_cathedral'||kind==='ruined_house'){
+  ctx.fillStyle='#0a0a0a'; ctx.fillRect(x,y+8,W,H-8);
+  ctx.fillStyle='#280808'; ctx.fillRect(x+6,y+14,W-12,H-18);
+  ctx.strokeStyle='#ff3030'; ctx.lineWidth=2; ctx.strokeRect(x+4,y+10,W-8,H-14);
+  for(let wx=0;wx<2;wx++){
+   const ix=x+14+wx*(W/2-10);
+   mhDrawInteriorProps(ctx,ix,y+22,26,22,(d.tx+d.ty+wx+wi)%7);
+   ctx.fillStyle='#401010'; ctx.fillRect(ix+4,y+24,18,16);
+  }
+  ctx.fillStyle='#ff2020'; ctx.fillRect(x+W/2-14,y+H-22,28,18);
+  mhPaintHuman(ctx,x+W*0.2,y+H+8,8,t,0.75);
+  mhPaintHuman(ctx,x+W*0.55,y+H+10,11,t*1.1,0.78);
+  mhPaintHuman(ctx,x+W*0.82,y+H+6,9,t*0.9,0.7);
+  return;
+ }
+ if(kind==='plague_lab'){
+  ctx.fillStyle='#1a2820'; ctx.fillRect(x,y+8,W,H-8);
+  ctx.fillStyle='#304838'; ctx.fillRect(x+6,y+14,W-12,H-18);
+  ctx.strokeStyle='#80ffb0'; ctx.lineWidth=2; ctx.strokeRect(x+4,y+10,W-8,H-14);
+  ctx.fillStyle='rgba(120,255,160,.35)'; ctx.fillRect(x+W/2-20,y+H-28,40,16);
+  ctx.fillStyle='#ffe8a0'; ctx.font='bold 11px system-ui'; ctx.textAlign='center';
+  ctx.fillText('☣ LAB',x+W/2,y+H-16);
+  ctx.fillStyle='#80ffb0'; ctx.font='bold 9px system-ui';
+  ctx.fillText('F enter · E steps',x+W/2,y+22);
+  return;
+ }
+ if(kind==='fluoro_hall'||kind==='liminal_door'){
+  ctx.fillStyle='#d8d4b0'; ctx.fillRect(x+2,y+10,W-4,H-12);
+  ctx.fillStyle='#ffffa0'; ctx.fillRect(x+6,y+14,W-12,6);
+  ctx.fillStyle='#909088'; ctx.fillRect(x+W/2-14,y+H*0.35,28,H*0.55);
+  ctx.fillStyle='#101018'; ctx.fillRect(x+W/2-10,y+H*0.42,20,H*0.4);
+  ctx.fillStyle='rgba(0,0,0,.55)'; ctx.fillRect(x+W/2-42,y+H*0.28,84,22);
+  ctx.fillStyle='#303028'; ctx.font='bold 12px system-ui'; ctx.textAlign='center';
+  ctx.fillText('F ENTER · BACKROOMS',x+W/2,y+H*0.42);
+  mhPaintHuman(ctx,x+W*0.3,y+H+8,3,t,0.85);
+  return;
+ }
+ if(kind==='beach_hut'||kind==='lifeguard'){
+  ctx.fillStyle='#e8d878'; ctx.fillRect(x+4,y+H*0.32,W-8,H*0.68);
+  ctx.fillStyle='#40a0c0'; ctx.fillRect(x+6,y+8,W-12,H*0.22);
+  ctx.fillStyle='#604818'; ctx.fillRect(x+W/2-28,y+H*0.48,56,H*0.45);
+  ctx.fillStyle='#ffe8a0'; ctx.font='bold 12px system-ui'; ctx.textAlign='center';
+  ctx.fillText('F ENTER · BEACH',x+W/2,y+H*0.52);
+  return;
+ }
+ if(kind==='cloud_house'||kind==='sky_bridge'){
+  ctx.fillStyle='#e8f4ff'; ctx.fillRect(x+4,y+H*0.3,W-8,H*0.7);
+  ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(x+W*0.3,y+16,16,0,Math.PI*2); ctx.arc(x+W*0.7,y+18,14,0,Math.PI*2); ctx.fill();
+  if(kind==='sky_bridge'){
+   ctx.fillStyle='#c8e8ff'; ctx.fillRect(x+2,y+H*0.55,W-4,10);
+   ctx.strokeStyle='#8098b0'; ctx.strokeRect(x+2,y+H*0.55,W-4,10);
+  }
+  ctx.fillStyle='#ffe8a0'; ctx.font='bold 12px system-ui'; ctx.textAlign='center';
+  ctx.fillText('F ENTER · SKY',x+W/2,y+H*0.5);
+  return;
+ }
+ if(kind==='expedition_tent'||kind==='crystal'){
+  ctx.fillStyle=kind==='crystal'?'#685898':'#c8a860';
+  ctx.fillRect(x+4,y+H*0.25,W-8,H*0.75);
+  ctx.beginPath(); ctx.moveTo(x,y+H*0.25); ctx.lineTo(x+W/2,y+6); ctx.lineTo(x+W,y+H*0.25); ctx.fill();
+  ctx.fillStyle='#ffe8a0'; ctx.font='bold 12px system-ui'; ctx.textAlign='center';
+  ctx.fillText('F ENTER · CAVE',x+W/2,y+H*0.5);
+  return;
+ }
+ if(kind==='tent'){
+  ctx.fillStyle='#ff6080'; ctx.fillRect(x+8,y+H*0.3,W-16,H*0.65);
+  ctx.beginPath(); ctx.moveTo(x+4,y+H*0.3); ctx.lineTo(x+W/2,y+8); ctx.lineTo(x+W-4,y+H*0.3); ctx.fill();
+  ctx.fillStyle='#ffe8a0'; ctx.font='bold 12px system-ui'; ctx.textAlign='center';
+  ctx.fillText('F ENTER · FAIR',x+W/2,y+H*0.5);
+  return;
+ }
+ if(kind==='burned_house'||kind==='expedition_camp'){
+  ctx.fillStyle='#4a3028'; ctx.fillRect(x+4,y+H*0.28,W-8,H*0.72);
+  ctx.fillStyle='#ff6040'; ctx.fillRect(x+10,y+12,12,8);
+  ctx.fillStyle='#ffe8a0'; ctx.font='bold 12px system-ui'; ctx.textAlign='center';
+  ctx.fillText('F ENTER · LAVA',x+W/2,y+H*0.5);
+  return;
+ }
+ if(kind==='vault'||kind==='neon_sign'||kind==='nexus_ruins'){
+  ctx.fillStyle=wi===MH_EXOTIC_WORLD?'#281838':'#384868';
+  ctx.fillRect(x+4,y+12,W-8,H-14);
+  ctx.fillStyle=wi===MH_EXOTIC_WORLD?'#ff48e8':'#ffd060';
+  ctx.fillRect(x+8,y+20,W-16,8);
+  ctx.fillStyle='#ffe8a0'; ctx.font='bold 12px system-ui'; ctx.textAlign='center';
+  ctx.fillText('F ENTER · '+MH_WORLDS[wi].name.split(' ')[0].toUpperCase(),x+W/2,y+H*0.5);
+  return;
+ }
+ if(kind==='shop'||kind==='stall'||kind==='booth'){
+  ctx.fillStyle='#5080a0'; ctx.fillRect(x+4,y+H*0.35,W-8,H*0.65);
+  ctx.fillStyle='#ffd060'; ctx.fillRect(x+6,y+H*0.42,W-12,H*0.12);
+  ctx.fillStyle='#303840'; ctx.fillRect(x+W/2-16,y+H*0.58,32,H*0.42);
+  mhDrawInteriorProps(ctx,x+10,y+H*0.4,28,24,(d.tx+wi)%9);
+  mhDrawInteriorProps(ctx,x+W-38,y+H*0.4,28,24,(d.tx+1)%9);
+  ctx.fillStyle='#e04080'; ctx.fillRect(x+4,y+6,W-8,14);
+  mhPaintHuman(ctx,x+W*0.25,y+H+6,2,t,0.8);
+  mhPaintHuman(ctx,x+W*0.7,y+H+8,5,t,0.82);
+  return;
+ }
+ ctx.fillStyle='#8a6048'; ctx.fillRect(x+4,y+H*0.28,W-8,H*0.72);
+ ctx.fillStyle='#6a3028'; ctx.beginPath(); ctx.moveTo(x-8,y+H*0.28); ctx.lineTo(x+W/2,y-roofLift); ctx.lineTo(x+W+8,y+H*0.28); ctx.fill();
+ ctx.fillStyle='#505860'; ctx.fillRect(x+W-26,y+4,14,24);
+ mhDrawInteriorProps(ctx,x+12,y+H*0.34,34,28,(d.tx+wi)%11);
+ mhDrawInteriorProps(ctx,x+W-46,y+H*0.34,34,28,(d.ty+wi)%11);
+ ctx.fillStyle='#402818'; ctx.fillRect(x+W/2-32,y+H*0.48,64,H*0.52);
+ ctx.fillStyle='#ffe060'; ctx.fillRect(x+W/2-20,y+H*0.58,14,12);
+ ctx.fillStyle='rgba(0,0,0,.55)'; ctx.fillRect(x+W/2-38,y+H*0.34,76,24);
+ ctx.fillStyle='#ffe8a0'; ctx.font='bold 13px system-ui'; ctx.textAlign='center';
+ ctx.fillText('F ENTER',x+W/2,y+H*0.5);
+ mhPaintHuman(ctx,x+W*0.18,y+H+6,(d.tx+wi)%14,t,1.15);
+ mhPaintHuman(ctx,x+W*0.5,y+H+10,(d.ty+1)%14,t*1.05,1.0);
+ mhPaintHuman(ctx,x+W*0.78,y+H+6,(d.tx+d.ty)%14,t*0.95,0.92);
+}
+function mhDrawSceneryPiece(ctx,d,wi,t){
+ if(d.mega){ mhDrawMegaBuilding(ctx,d,wi,t||0); return; }
+ const T=MH_TILE;
+ const x=d.tx*MH_TILE,y=d.ty*MH_TILE;
+ const sc=d.scale||2.8;
+ ctx.save();
+ ctx.translate(x+MH_TILE/2,y+MH_TILE*0.92);
+ ctx.scale(sc,sc);
+ ctx.translate(-MH_TILE/2,-MH_TILE/2);
+ ctx.fillStyle='rgba(0,0,0,.35)';
+ ctx.beginPath(); ctx.ellipse(T/2,T-2,14,4,0,0,Math.PI*2); ctx.fill();
+ mhDrawDecorKind(ctx,0,0,d.kind,wi);
+ ctx.restore();
+}
+function mhDrawThemedPropTile(ctx,x,y,wi,tx,ty,t){
+ const themes=MH_WORLD_DECORS[wi]||MH_WORLD_DECORS[0];
+ const kind=themes[mhHashStr('pt'+tx+ty+wi)%themes.length];
+ mhDrawSceneryPiece(ctx,{tx,ty,kind,mega:true,footW:4,footH:3,id:'prop-'+tx+'-'+ty},wi,t);
+}
+function mhBuildingDoor(d){
+ const T=MH_TILE,fw=d.footW||MH_MEGA_W,fh=d.footH||MH_MEGA_H;
+ return {px:d.tx*T+fw*T/2, py:d.ty*T+fh*T-6};
+}
+function mhBuildingSecret(d,wi){
+ const slot=mhHashStr((d.id||d.tx)+'|'+d.ty+'|'+wi)%3;
+ if(slot===0) return {redeem:'glitchhouse', morph:'code-glitch', label:'GLITCH', color:'#39ff14'};
+ if(slot===1) return {redeem:'mythinside', morph:'code-myth', label:'MYTH', color:'#ffd060'};
+ return {redeem:'minigamevault', morph:'code-minigame', label:'MINIGAME', color:'#ff48e8'};
+}
+function mhWalkNearBuilding(pos,map){
+ let best=null,bd=120;
+ (map.landmarks||[]).forEach(d=>{
+  if(!d.mega) return;
+  const door=mhBuildingDoor(d);
+  const dist=Math.hypot(door.px-pos.px,door.py-pos.py);
+  if(dist<bd){ bd=dist; best=d; }
+ });
+ return best;
+}
+function mhEnterBuilding(d,wi){
+ if(!mhState) return;
+ if(d.kind==='plague_lab'){
+  mhState.insideBuilding={...d,wi,kind:'plague_lab'};
+  mhToast('☣ Plague Lab — press E for each step · F to leave');
+  return;
+ }
+ mhState.insideBuilding={...d,wi,secret:mhBuildingSecret(d,wi)};
+ mhToast('🏠 Inside! Read the big wall sign · Press F to leave');
+}
+function mhExitBuilding(){
+ if(mhState) mhState.insideBuilding=null;
+}
+function mhDrawInteriorProp(ctx,x,y,type,sc){
+ ctx.save(); ctx.translate(x,y); ctx.scale(sc,sc);
+ if(type==='bed'){
+  ctx.fillStyle='#5080c0'; ctx.fillRect(-40,0,80,28); ctx.fillStyle='#fff'; ctx.fillRect(-36,4,72,16);
+ }else if(type==='table'){
+  ctx.fillStyle='#604028'; ctx.fillRect(-35,-8,70,12); ctx.fillRect(-30,4,8,22); ctx.fillRect(22,4,8,22);
+  ctx.fillStyle='#ffd060'; ctx.fillRect(-8,-4,16,8);
+ }else if(type==='tv'){
+  ctx.fillStyle='#303840'; ctx.fillRect(-30,-20,60,40); ctx.fillStyle='#80e0ff'; ctx.fillRect(-24,-14,48,28);
+ }else if(type==='crate'){
+  ctx.fillStyle='#6a5038'; ctx.fillRect(-22,-18,44,36); ctx.strokeStyle='#3a2818'; ctx.strokeRect(-22.5,-18.5,45,37);
+ }else if(type==='glitch'){
+  ctx.fillStyle='#101818'; ctx.fillRect(-28,-22,56,44); ctx.fillStyle='#39ff14'; ctx.font='bold 10px monospace';
+  ctx.fillText('GLITCH',-20,-4); ctx.fillText('////',-16,10);
+ }else if(type==='trophy'){
+  ctx.fillStyle='#ffd060'; ctx.fillRect(-12,-24,24,20); ctx.fillRect(-18,-28,36,8);
+ }
+ ctx.restore();
+}
+function mhDrawInteriorScreen(ctx,W,H,st,t){
+ const ib=st.insideBuilding;
+ if(!ib) return;
+ if(ib.kind==='plague_lab'){
+  mhDrawPlagueLabInterior(ctx,W,H,st,st.save,t);
+  return;
+ }
+ if(ib.kind==='time_mine'){
+  mhDrawTimeMineInterior(ctx,W,H,st,st.save,t);
+  return;
+ }
+ if(ib.kind==='storybook'){
+  mhDrawStorybookInterior(ctx,W,H,st,st.save,t);
+  return;
+ }
+ const sec=ib.secret||mhBuildingSecret(ib,ib.wi||0);
+ const g=ctx.createLinearGradient(0,0,0,H);
+ g.addColorStop(0,'#2a2420'); g.addColorStop(0.45,'#4a4038'); g.addColorStop(1,'#3a3028');
+ ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+ ctx.fillStyle='#5a5048'; ctx.fillRect(0,H*0.72,W,H*0.28);
+ ctx.fillStyle='#6a6058'; ctx.fillRect(0,40,W,H*0.32);
+ ctx.fillStyle='#ffe890'; ctx.fillRect(40,70,120,90); ctx.fillRect(W-160,70,120,90);
+ ctx.fillStyle='#604028'; ctx.fillRect(W/2-50,H*0.72-8,100,14);
+ mhDrawInteriorProp(ctx,W*0.2,H*0.62,'bed',2.2);
+ mhDrawInteriorProp(ctx,W*0.5,H*0.58,'table',2.4);
+ mhDrawInteriorProp(ctx,W*0.78,H*0.6,'tv',2);
+ mhDrawInteriorProp(ctx,W*0.35,H*0.65,'crate',1.8);
+ mhDrawInteriorProp(ctx,W*0.62,H*0.64,'trophy',1.9);
+ mhDrawInteriorProp(ctx,W*0.12,H*0.55,'glitch',2);
+ mhPaintHuman(ctx,W*0.28,H*0.68,2,t,1.35);
+ mhPaintHuman(ctx,W*0.55,H*0.7,5,t*1.1,1.4);
+ mhPaintHuman(ctx,W*0.72,H*0.69,8,t*0.9,1.3);
+ ctx.fillStyle='rgba(0,0,0,.75)'; ctx.fillRect(W/2-220,100,440,130);
+ ctx.strokeStyle=sec.color; ctx.lineWidth=4; ctx.strokeRect(W/2-220,100,440,130);
+ ctx.fillStyle=sec.color; ctx.font='bold 28px system-ui,sans-serif'; ctx.textAlign='center';
+ ctx.fillText(sec.label+' SECRET',W/2,140);
+ ctx.fillStyle='#fff'; ctx.font='bold 22px monospace'; ctx.fillText('CODE: '+sec.redeem.toUpperCase(),W/2,178);
+ ctx.font='14px system-ui'; ctx.fillStyle='#c0d0e0';
+ ctx.fillText('Gacha tab → Redeem code → unlock '+sec.label+' Noobie',W/2,208);
+ ctx.fillStyle='#ffe8a0'; ctx.font='bold 16px system-ui'; ctx.fillText('Press F to leave the house',W/2,H-28);
+ ctx.fillStyle='rgba(0,0,0,.6)'; ctx.fillRect(8,8,300,36);
+ ctx.fillStyle='#80ff90'; ctx.font='bold 13px system-ui'; ctx.textAlign='left';
+ ctx.fillText(MH_BUILD+' · '+MH_SCENERY_STAMP+' · INDOOR',16,30);
+}
+function mhDrawWorldFeature(ctx,map,wi){
+ const f=map.worldFeature;
+ if(!f||f.type!=='backrooms_atrium') return;
+ const x=f.tx*MH_TILE,y=f.ty*MH_TILE,w=f.w*MH_TILE,h=f.h*MH_TILE;
+ ctx.fillStyle='#d8d4b0'; ctx.fillRect(x,y,w,h);
+ ctx.strokeStyle='#909080'; ctx.lineWidth=3; ctx.strokeRect(x+2,y+2,w-4,h-4);
+ for(let px=x+10;px<x+w-10;px+=28){
+  ctx.fillStyle='#ffffa0'; ctx.fillRect(px,y+8,MH_TILE-4,4);
+  ctx.fillStyle='#ffffa0'; ctx.fillRect(px,y+h-12,MH_TILE-4,4);
+ }
+ ctx.fillStyle='#303028'; ctx.font='bold 13px system-ui'; ctx.textAlign='center';
+ ctx.fillText('🚪 '+f.label,x+w/2,y+22);
+}
+function mhDrawCourtZone(ctx,map,wi){
+ const c=map.court;
+ if(!c) return;
+ const x=c.tx*MH_TILE,y=c.ty*MH_TILE,w=c.w*MH_TILE,h=c.h*MH_TILE;
+ ctx.fillStyle=wi===MH_VOID_WORLD?'#281830':'#c89860';
+ ctx.fillRect(x,y,w,h);
+ ctx.strokeStyle='#804020'; ctx.lineWidth=3; ctx.strokeRect(x+2,y+2,w-4,h-4);
+ ctx.strokeStyle='rgba(255,255,255,.45)'; ctx.lineWidth=2;
+ ctx.beginPath(); ctx.moveTo(x+w/2,y+6); ctx.lineTo(x+w/2,y+h-6); ctx.stroke();
+ ctx.beginPath(); ctx.arc(x+w/2,y+h/2,Math.min(w,h)*0.22,0,Math.PI*2); ctx.stroke();
+ ctx.fillStyle='rgba(0,0,0,.55)'; ctx.fillRect(x+w/2-70,y+8,140,18);
+ ctx.fillStyle='#ffe8a0'; ctx.font='bold 12px system-ui'; ctx.textAlign='center';
+ ctx.fillText('🏀 COURT PLAZA',x+w/2,y+22);
+}
+function mhDrawMayorShrine(ctx,map,t,st){
+ const sh=map.mayorShrine;
+ if(!sh||!map.court) return;
+ sh.reflectors.forEach(ref=>{
+  const rx=ref.tx*MH_TILE, ry=ref.ty*MH_TILE;
+  ctx.fillStyle=ref.lit?'#ffe060':'#a0b0c0';
+  ctx.fillRect(rx+6,ry+8,MH_TILE-12,MH_TILE-14);
+  ctx.strokeStyle=ref.lit?'#fff':'#607080'; ctx.lineWidth=2; ctx.strokeRect(rx+6.5,ry+8.5,MH_TILE-13,MH_TILE-15);
+  ctx.fillStyle='#203040'; ctx.font='bold 8px system-ui'; ctx.textAlign='center';
+  ctx.fillText(ref.lit?'✓':'↺',rx+MH_TILE/2,ry+MH_TILE/2+3);
+ });
+ const sx=sh.px, sy=sh.py;
+ const mayor=mhMorph('ex-mayor');
+ if(mayor) mhPaintNoobWorld(ctx,mayor,sx,sy-MH_TILE*0.5,1.1,1,false,t,0,false,false);
+ ctx.fillStyle='#505860'; ctx.fillRect(sx-34,sy+8,68,28);
+ ctx.fillStyle='#303840'; ctx.fillRect(sx-28,sy+14,56,16);
+ ctx.fillStyle='#ffe8a0'; ctx.font='bold 9px system-ui'; ctx.textAlign='center';
+ ctx.fillText('HAND CRANK',sx,sy+24);
+ const ang=(sh.crankAngle||0)*Math.PI/180;
+ ctx.save(); ctx.translate(sx,sy+18); ctx.rotate(ang);
+ ctx.fillStyle='#8090a0'; ctx.fillRect(-4,-14,8,28);
+ ctx.fillStyle='#606870'; ctx.beginPath(); ctx.arc(0,0,10,0,Math.PI*2); ctx.fill();
+ ctx.restore();
+ if(st.mayorBeamT&&performance.now()-st.mayorBeamT<800){
+  ctx.strokeStyle='rgba(255,240,120,.85)'; ctx.lineWidth=4;
+  ctx.beginPath(); ctx.moveTo(sx,sy);
+  sh.reflectors.forEach(ref=>{
+   ctx.lineTo(ref.px,ref.py);
+  });
+  ctx.stroke();
+ }
+ ctx.fillStyle='rgba(0,0,0,.7)'; ctx.fillRect(sx-90,sy+36,180,28);
+ ctx.fillStyle='#80ffb0'; ctx.font='bold 10px system-ui'; ctx.textAlign='center';
+ ctx.fillText('J/L crank · R flash light → all mirrors',sx,sy+54);
+}
+function mhNearMayorShrine(pos,map){
+ const sh=map.mayorShrine;
+ if(!sh) return false;
+ return Math.hypot(sh.px-pos.px,sh.py-pos.py)<110;
+}
+function mhMayorCrank(delta){
+ if(!mhState||mhState.world!==0) return;
+ const sh=MH_WORLD_MAPS[0].mayorShrine;
+ if(!sh||sh.solved) return;
+ sh.crankAngle=((sh.crankAngle||0)+delta+360)%360;
+}
+function mhMayorFlashBeam(){
+ if(!mhState?.save||mhState.world!==0) return;
+ const save=mhState.save;
+ if(mhHasMorph(save,'ex-mayor')) return;
+ const sh=MH_WORLD_MAPS[0].mayorShrine;
+ if(!sh||sh.solved) return;
+ const rad=(sh.crankAngle||0)*Math.PI/180;
+ const sx=sh.px, sy=sh.py;
+ sh.reflectors.forEach(ref=>{
+  const target=Math.atan2(ref.py-sy,ref.px-sx);
+  let diff=Math.atan2(Math.sin(rad-target),Math.cos(rad-target));
+  if(Math.abs(diff)<0.35) ref.lit=true;
+ });
+ mhState.mayorBeamT=performance.now();
+ if(sh.reflectors.every(r=>r.lit)){
+  sh.solved=true;
+  const mayor=mhMorph('ex-mayor');
+  if(mayor&&!mhHasMorph(save,'ex-mayor')){
+   mhFinishCollect(mayor);
+   mhToast('👑 MAYOR NOOBIE unlocked — light puzzle complete!');
+  }
+ }else mhToast('Light hit '+sh.reflectors.filter(r=>r.lit).length+'/'+sh.reflectors.length+' mirrors');
+}
+const MH_PLAGUE_LAB_STEPS=[
+ {key:'toxic',label:'Mix bugs into toxic chemicals',hint:'Drop every park bug into the cauldron.'},
+ {key:'airlock',label:'Seal the airlock',hint:'Lock the fumes inside the chamber.'},
+ {key:'jar',label:'Decant into a jar',hint:'The brew glows sickly green…'},
+ {key:'syringe',label:'Load the syringe',hint:'Draw the unstable serum.'},
+ {key:'inject',label:'Inject yourself',hint:'Unlock the Plague Badge — become the doctor.'}
+];
+function mhPlagueQuest(save){
+ if(!save.plagueQuest) save.plagueQuest=mhDefaultPlagueQuest();
+ return save.plagueQuest;
+}
+function mhPlagueBugTotal(){
+ let n=0;
+ for(let wi=0;wi<MH_WORLDS.length;wi++){
+  if(wi===MH_VOID_WORLD) continue;
+  n+=(MH_WORLD_MAPS[wi].plagueBugs||[]).length;
+ }
+ return n;
+}
+function mhPlagueBugsCollected(save){
+ return mhPlagueQuest(save).bugs.length;
+}
+function mhPlagueBugsComplete(save){
+ return mhPlagueBugsCollected(save)>=mhPlagueBugTotal();
+}
+function mhGenPlagueBugs(wi,map){
+ const bugs=[];
+ (map.parks||[]).forEach((p,pi)=>{
+  const type=(mhHashStr('pbug'+wi+'-'+pi)%2)===0?'yellowBlack':'redBlack';
+  bugs.push({
+   id:'pbug-'+wi+'-'+pi,
+   wi,pi,type,
+   px:p.tx*MH_TILE+p.w*MH_TILE/2+((mhHashStr('px'+wi+pi)%16)-8),
+   py:p.ty*MH_TILE+p.h*MH_TILE/2+((mhHashStr('py'+wi+pi)%10)-5)
+  });
+ });
+ return bugs;
+}
+function mhPlagueLabLandmark(map,wi){
+ if(wi!==0||!map.court) return null;
+ const tx=Math.min(map.w-10, map.court.tx+map.court.w+2);
+ const ty=map.court.ty;
+ return{
+  tx,ty,w:6,h:5,kind:'plague_lab',mega:true,footW:6,footH:5,id:'plague-lab-w0',
+  label:'☣ PLAGUE LAB'
+ };
+}
+function mhDrawPlagueBug(ctx,bug,t,save){
+ if(!bug||mhPlagueQuest(save).bugs.includes(bug.id)) return;
+ const stripeA=bug.type==='yellowBlack'?'#f8d030':'#e03030';
+ const acc=bug.type==='yellowBlack'?'#cc9000':'#cc0000';
+ const vm={id:bug.id||'pbug',voidFallen:true,voidMale:true,voidAccent:acc,voidEyes:'#ff2020'};
+ mhPaintVoidFallenStormAura(ctx,bug.px,bug.py-10,t,0.42,false,vm);
+ const pulse=0.88+Math.sin(t*4+bug.px*0.01)*0.12;
+ const bob=Math.sin(t*3+bug.px*0.02)*2;
+ ctx.save();
+ ctx.translate(bug.px,bug.py-6+bob);
+ ctx.scale(pulse*0.52,pulse*0.52);
+ ctx.strokeStyle='#0a0a0a'; ctx.lineWidth=4;
+ ctx.strokeRect(-14,-18,28,36);
+ ctx.strokeStyle=acc; ctx.lineWidth=2; ctx.strokeRect(-12,-16,24,32);
+ ctx.fillStyle='#580808'; ctx.fillRect(-10,-4,20,14);
+ ctx.fillStyle='#141414'; ctx.fillRect(-8,10,7,12); ctx.fillRect(1,10,7,12);
+ ctx.fillStyle='#0a0a0a'; ctx.fillRect(-9,-16,18,14);
+ for(let i=0;i<5;i++){
+  ctx.fillStyle=i%2?stripeA:'#101010';
+  ctx.fillRect(-10+i*4,2,4,8);
+ }
+ ctx.fillStyle=acc; ctx.fillRect(-8,4,16,2);
+ const sym=MH_ANCIENT_GLYPHS[(mhHashStr(bug.id)%5)];
+ ctx.fillStyle='#ffe0e0'; ctx.font='bold 9px serif'; ctx.textAlign='center';
+ ctx.fillText(sym,0,10);
+ ctx.fillStyle='#ff2020'; ctx.shadowColor='#ff2020'; ctx.shadowBlur=8;
+ ctx.fillRect(-7,-12,5,5); ctx.fillRect(2,-12,5,5);
+ ctx.shadowBlur=0;
+ ctx.strokeStyle='rgba(255,60,60,.75)'; ctx.lineWidth=2;
+ for(let i=0;i<4;i++){
+  const ang=t*2.4+i*Math.PI/2;
+  ctx.beginPath(); ctx.moveTo(Math.cos(ang)*6,Math.sin(ang)*4); ctx.lineTo(Math.cos(ang)*16,Math.sin(ang)*12); ctx.stroke();
+ }
+ ctx.restore();
+}
+function mhDrawPlagueBugs(ctx,map,wi,t,save){
+ (map.plagueBugs||[]).forEach(b=>mhDrawPlagueBug(ctx,b,t,save));
+}
+function mhNearPlagueBug(pos,map,save){
+ let best=null,bd=48;
+ (map.plagueBugs||[]).forEach(b=>{
+  if(mhPlagueQuest(save).bugs.includes(b.id)) return;
+  const d=Math.hypot(b.px-pos.px,b.py-pos.py);
+  if(d<bd){ bd=d; best=b; }
+ });
+ return best;
+}
+function mhTryCollectPlagueBug(save,wi,map,pos){
+ if(mhHasMorph(save,'ex-plague-doctor')) return false;
+ const bug=mhNearPlagueBug(pos,map,save);
+ if(!bug) return false;
+ const q=mhPlagueQuest(save);
+ if(q.bugs.includes(bug.id)) return false;
+ q.bugs.push(bug.id);
+ mhSaveSave(save);
+ const left=mhPlagueBugTotal()-q.bugs.length;
+ mhToast('🐛 Park bug caught ('+(bug.type==='yellowBlack'?'yellow-black':'red-black')+')! '+left+' left · then ☣ Plague Lab on Buddy Plaza');
+ if(mhPlagueBugsComplete(save)) mhToast('☣ All park bugs collected! Buddy Plaza → ☣ PLAGUE LAB · press F to enter · E for each step');
+ return true;
+}
+function mhPlagueDoctorSay(save,which){
+ const m=mhMorph('ex-plague-doctor');
+ const lines=m?.plagueLines||['I am the cure.','Oh my, the sickness…','Then I can fix you.'];
+ const line=lines[which!=null?which%lines.length:Math.floor(Math.random()*lines.length)];
+ const wearing=save?.wearing==='ex-plague-doctor';
+ if(!wearing&&!mhHasMorph(save,'ex-plague-doctor')) return;
+ mhToast('🩺 Plague Doctor: “'+line+'”');
+ mhPlagueDoctorVoice(line);
+ if(mhState&&mhState.tab==='hunt'&&(wearing||mhHasMorph(save,'ex-plague-doctor'))){
+  try{
+   const pos=mhWalkEnsurePos(mhState,mhState.world);
+   mhChatSpawnBubble(mhState,pos.px,pos.py-20,'🩺 '+line,'Plague Doctor',5200);
+  }catch(_){}
+ }
+}
+function mhPlagueLabAdvance(save){
+ const q=mhPlagueQuest(save);
+ if(mhHasMorph(save,'ex-plague-doctor')){ mhToast('You already are the Plague Doctor Noobie!'); return; }
+ if(!mhPlagueBugsComplete(save)){
+  mhToast('Collect striped bugs at every park first (yellow/black or red/black) · press E near 🐛');
+  return;
+ }
+ const step=q.labStep||0;
+ if(step>=MH_PLAGUE_LAB_STEPS.length){
+  mhToast('Lab sequence complete — morph unlocked!');
+  return;
+ }
+ const s=MH_PLAGUE_LAB_STEPS[step];
+ q.labStep=step+1;
+ mhSaveSave(save);
+ mhToast('☣ Step '+(step+1)+'/5: '+s.label+' — '+s.hint);
+ if(step+1>=MH_PLAGUE_LAB_STEPS.length){
+  q.badge=true;
+  mhSaveSave(save);
+  const doc=mhMorph('ex-plague-doctor');
+  if(doc){
+   mhFinishCollect(doc);
+   mhWear(doc.id,true);
+   mhPlagueDoctorSay(save,0);
+   setTimeout(()=>mhPlagueDoctorSay(save,1),2200);
+   setTimeout(()=>mhPlagueDoctorSay(save,2),4400);
+  }
+  if(mhState) mhState.insideBuilding=null;
+ }
+}
+function mhDrawPlagueLabInterior(ctx,W,H,st,save,t){
+ const q=mhPlagueQuest(save);
+ const g=ctx.createLinearGradient(0,0,0,H);
+ g.addColorStop(0,'#0a1810'); g.addColorStop(1,'#1a2820');
+ ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+ ctx.fillStyle='#203828'; ctx.fillRect(W*0.15,H*0.35,W*0.7,H*0.45);
+ ctx.strokeStyle='#80ffb0'; ctx.lineWidth=3; ctx.strokeRect(W*0.15,H*0.35,W*0.7,H*0.45);
+ ctx.fillStyle='rgba(120,255,160,.25)'; ctx.fillRect(W*0.2,H*0.42,W*0.6,H*0.28);
+ for(let i=0;i<5;i++){
+  const bx=W*0.22+i*W*0.12, by=H*0.48+Math.sin(t*2+i)*4;
+  mhDrawPlagueBug(ctx,{id:'lab-bug-'+i,type:i%2?'yellowBlack':'redBlack',px:bx,py:by+8},t,save);
+ }
+ ctx.fillStyle='#404850'; ctx.fillRect(W*0.72,H*0.28,40,90);
+ ctx.strokeStyle='#a0b0c0'; ctx.strokeRect(W*0.72,H*0.28,40,90);
+ ctx.fillStyle='#ffe8a0'; ctx.font='bold 22px system-ui'; ctx.textAlign='center';
+ ctx.fillText('☣ PLAGUE LAB',W/2,56);
+ ctx.font='14px system-ui'; ctx.fillStyle='#c0d8c8';
+ ctx.fillText('Bugs: '+mhPlagueBugsCollected(save)+' / '+mhPlagueBugTotal(),W/2,82);
+ const step=Math.min(q.labStep||0,MH_PLAGUE_LAB_STEPS.length);
+ ctx.fillStyle='#80ffb0'; ctx.font='bold 16px system-ui';
+ if(step<MH_PLAGUE_LAB_STEPS.length){
+  ctx.fillText('Step '+(step+1)+': '+MH_PLAGUE_LAB_STEPS[step].label,W/2,H*0.32);
+  ctx.fillStyle='#a0b8a8'; ctx.font='13px system-ui';
+  ctx.fillText(MH_PLAGUE_LAB_STEPS[step].hint,W/2,H*0.32+22);
+  ctx.fillStyle='#ffe8a0'; ctx.font='bold 15px system-ui';
+  ctx.fillText('Press E — next lab step',W/2,H-48);
+ }else{
+  ctx.fillText('Serum complete — Plague Doctor unlocked!',W/2,H*0.32);
+ }
+ ctx.fillStyle='#a0a8b8'; ctx.font='12px system-ui';
+ ctx.fillText('F — leave lab',W/2,H-24);
+ mhDrawPlagueDoctorAura(ctx,W/2,H*0.62,t,0.9);
+}
+function mhDrawPlagueMask3D(ctx,silhouette,t){
+ const acc=silhouette?'#505060':'#cc0000';
+ const ve=silhouette?'#888':'#ff2020';
+ const hoodHi=silhouette?'#404850':'#2a3438';
+ const hood='#0a0a0a';
+ const hoodLo='#040406';
+ const sway=Math.sin((t||0)*1.5)*0.035;
+ ctx.save();
+ ctx.rotate(sway);
+ const domeG=ctx.createRadialGradient(-4,-48,1,0,-44,18);
+ domeG.addColorStop(0,hoodHi);
+ domeG.addColorStop(0.55,hood);
+ domeG.addColorStop(1,hoodLo);
+ ctx.fillStyle=domeG;
+ ctx.beginPath();
+ ctx.ellipse(0,-45,14,16,0,0,Math.PI*2);
+ ctx.fill();
+ ctx.strokeStyle=acc;
+ ctx.lineWidth=1.6;
+ ctx.stroke();
+ ctx.fillStyle='#030305';
+ ctx.beginPath();
+ ctx.ellipse(-7,-47,5.5,4.2,0,0,Math.PI*2);
+ ctx.fill();
+ ctx.beginPath();
+ ctx.ellipse(7,-47,5.5,4.2,0,0,Math.PI*2);
+ ctx.fill();
+ ctx.fillStyle=ve;
+ ctx.shadowColor=ve;
+ ctx.shadowBlur=silhouette?0:6;
+ ctx.fillRect(-8,-48,3,2);
+ ctx.fillRect(5,-48,3,2);
+ ctx.shadowBlur=0;
+ const beakG=ctx.createLinearGradient(0,-36,0,-10);
+ beakG.addColorStop(0,'#060606');
+ beakG.addColorStop(0.45,silhouette?'#353535':'#3a4438');
+ beakG.addColorStop(1,'#181818');
+ ctx.fillStyle=beakG;
+ ctx.beginPath();
+ ctx.moveTo(-6,-34);
+ ctx.quadraticCurveTo(-2,-32,0,-31);
+ ctx.quadraticCurveTo(2,-32,6,-34);
+ ctx.quadraticCurveTo(7,-24,4,-16);
+ ctx.quadraticCurveTo(0,-10,0,-10);
+ ctx.quadraticCurveTo(-4,-16,-7,-24);
+ ctx.closePath();
+ ctx.fill();
+ ctx.fillStyle='#030303';
+ ctx.beginPath();
+ ctx.moveTo(-4,-32);
+ ctx.quadraticCurveTo(0,-28,4,-32);
+ ctx.quadraticCurveTo(3,-20,0,-12);
+ ctx.quadraticCurveTo(-3,-20,-4,-32);
+ ctx.closePath();
+ ctx.fill();
+ ctx.strokeStyle=silhouette?'#666':'#a0b0a0';
+ ctx.lineWidth=1.3;
+ ctx.beginPath();
+ ctx.moveTo(0,-35);
+ ctx.quadraticCurveTo(0,-26,0,-11);
+ ctx.stroke();
+ ctx.strokeStyle=acc;
+ ctx.lineWidth=0.8;
+ ctx.beginPath();
+ ctx.moveTo(-5,-33);
+ ctx.quadraticCurveTo(0,-30,5,-33);
+ ctx.stroke();
+ ctx.restore();
+}
+function mhPaintPlagueDoctorNoob(ctx,x,y,sc,alpha,silhouette,walkPhase,running,t){
+ ctx.save();
+ ctx.translate(x,y);
+ ctx.scale(sc,sc);
+ ctx.globalAlpha=alpha==null?1:alpha;
+ const wa=mhWalkLegAnim(walkPhase,running);
+ ctx.translate(0,-wa.bob);
+ if(!silhouette){
+  ctx.fillStyle='rgba(80,20,120,.55)';
+  ctx.beginPath(); ctx.moveTo(-14,-8); ctx.lineTo(-22,18); ctx.lineTo(-6,12); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(14,-8); ctx.lineTo(22,18); ctx.lineTo(6,12); ctx.fill();
+  ctx.strokeStyle='rgba(180,100,255,.6)'; ctx.lineWidth=1.2;
+  ctx.beginPath(); ctx.moveTo(-18,6); ctx.quadraticCurveTo(-28,20,-12,28); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(18,6); ctx.quadraticCurveTo(28,20,12,28); ctx.stroke();
+ }
+ const legs='#141414', torso='#580808', arms='#1a1a1a', acc='#cc0000', cloak='#0c1014';
+ ctx.fillStyle='rgba(0,0,0,.32)';
+ ctx.beginPath();
+ ctx.ellipse(0,56,14,3.5,0,0,Math.PI*2);
+ ctx.fill();
+ mhGradRect(ctx,-12+wa.lx,12+wa.ly,12,40,legs,mhShade(legs,-24));
+ mhGradRect(ctx,0+wa.rx,12+wa.ry,12,40,legs,mhShade(legs,-24));
+ ctx.fillStyle='#0a0a0a';
+ ctx.fillRect(-13+wa.lx,48+wa.ly,14,7);
+ ctx.fillRect(-1+wa.rx,48+wa.ry,14,7);
+ ctx.strokeStyle=acc; ctx.lineWidth=1;
+ ctx.strokeRect(-13+wa.lx,48+wa.ly,14,7);
+ ctx.strokeRect(-1+wa.rx,48+wa.ry,14,7);
+ mhGradRect(ctx,-12,-2,24,22,torso,mhShade(torso,-28));
+ ctx.strokeStyle='#0a0a0a';
+ ctx.lineWidth=2;
+ ctx.strokeRect(-13,-3,26,24);
+ ctx.strokeStyle=acc;
+ ctx.lineWidth=1;
+ ctx.strokeRect(-12,-2,24,22);
+ ctx.fillStyle='rgba(0,0,0,.8)';
+ ctx.fillRect(-10,8,20,4);
+ ctx.fillStyle=acc;
+ ctx.fillRect(-9,9,18,2);
+ ctx.fillStyle='#ffe0e0';
+ ctx.font='bold 8px serif';
+ ctx.textAlign='center';
+ ctx.fillText(MH_ANCIENT_GLYPHS[(mhHashStr('ex-plague-doctor')%5)],0,12);
+ mhGradRect(ctx,-20,0+wa.ax,10,24,arms,mhShade(arms,-16));
+ mhGradRect(ctx,10,0-wa.ax,10,24,arms,mhShade(arms,-16));
+ ctx.fillStyle=mhShade(arms,12);
+ ctx.fillRect(-22,22+wa.ax,7,7);
+ ctx.fillRect(15,22-wa.ax,7,7);
+ mhDrawPlagueMask3D(ctx,silhouette,t);
+ ctx.restore();
+}
+function mhDrawDemonicStar(ctx,x,y,size,rot,fill,stroke){
+ ctx.save();
+ ctx.translate(x,y);
+ ctx.rotate(rot);
+ ctx.fillStyle=fill;
+ ctx.strokeStyle=stroke||'#ff2020';
+ ctx.lineWidth=1.4;
+ ctx.beginPath();
+ for(let i=0;i<10;i++){
+  const a=i*Math.PI/5-Math.PI/2;
+  const rad=i%2?size*0.42:size;
+  const px=Math.cos(a)*rad, py=Math.sin(a)*rad;
+  if(i===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+ }
+ ctx.closePath();
+ ctx.fill();
+ ctx.stroke();
+ ctx.restore();
+}
+function mhDrawPlagueDoctorAura(ctx,cx,cy,t,alpha){
+ const a=alpha==null?1:alpha;
+ ctx.save(); ctx.globalAlpha=a;
+ for(let i=0;i<10;i++){
+  const ang=t*0.85+i*Math.PI*2/10;
+  const r=52+Math.sin(t*2.5+i)*7;
+  const sx=cx+Math.cos(ang)*r, sy=cy+Math.sin(ang)*r*0.55;
+  const spin=t*2.2+i*0.7;
+  mhDrawDemonicStar(ctx,sx,sy,9+((i%3)*1.5),spin,i%2?'rgba(120,0,0,.85)':'rgba(20,0,0,.9)','#ff3030');
+  ctx.fillStyle='#ff8080'; ctx.font='bold 9px serif'; ctx.textAlign='center';
+  ctx.fillText(MH_ANCIENT_GLYPHS[i%MH_ANCIENT_GLYPHS.length],sx,sy+3);
+ }
+ const orbit=['💊','☠','🧪','💀','✚','⚰','💉','☣','⚱','🧴','☠','💊'];
+ for(let i=0;i<orbit.length;i++){
+  const ang=-t*1.15+i*Math.PI*2/orbit.length;
+  const r=34+Math.sin(t*3+i)*5;
+  const sx=cx+Math.cos(ang)*r, sy=cy+Math.sin(ang)*r*0.5;
+  ctx.font=(i%2?'16px':'14px')+' system-ui';
+  ctx.textAlign='center';
+  ctx.fillStyle=/💊|🧪|💉|🧴/.test(orbit[i])?'#80ffb0':'#e8e0e8';
+  ctx.fillText(orbit[i],sx,sy);
+ }
+ ctx.restore();
+}
+function mhSignatureAuraColor(m){
+ if(!m) return '#80ffb0';
+ if(m.mayorOnly) return '#ffd060';
+ if(m.sigGroup==='world') return m.accent||'#ff48e8';
+ if(m.sigGroup==='lithos') return m.accent||'#7ec8ff';
+ if(m.sigGroup==='void') return m.voidAccent||'#9040ff';
+ if(m.sigGroup==='silly') return m.accent||'#80e0ff';
+ return m.accent||'#80ffb0';
+}
+function mhDrawSignatureNoobAura(ctx,m,x,y,t,alpha){
+ if(!m||m.voidKing) return;
+ if(m.plagueDoctor) return mhDrawPlagueDoctorAura(ctx,x,y-18,t,alpha);
+ if(!m.signatureOnly&&!m.mayorOnly&&!(m.signatureReal&&m.sigLook)) return;
+ const a=alpha==null?1:alpha;
+ const cx=x, cy=y-18;
+ const col=mhSignatureAuraColor(m);
+ const pulse=1+Math.sin(t*2.8+(mhHashStr(m.id)%7))*0.14;
+ const rad=(38+(m.rarity==='legendary'?8:0)+(m.rarity==='exclusive'?10:0))*pulse;
+ ctx.save(); ctx.globalAlpha=a;
+ const g=ctx.createRadialGradient(cx,cy,6,cx,cy,rad+36);
+ g.addColorStop(0,mhHex(col,0.42));
+ g.addColorStop(0.45,mhHex(col,0.14));
+ g.addColorStop(1,mhHex(col,0));
+ ctx.fillStyle=g;
+ ctx.beginPath(); ctx.arc(cx,cy,rad+36,0,Math.PI*2); ctx.fill();
+ ctx.strokeStyle=mhHex(col,0.55+Math.sin(t*4)*0.12);
+ ctx.lineWidth=2;
+ ctx.beginPath(); ctx.arc(cx,cy,rad,0,Math.PI*2); ctx.stroke();
+ if(m.mayorOnly){
+  const orbit=['🏛️','📜','⚖️','👑','📬','⭐'];
+  orbit.forEach((em,i)=>{
+   const ang=t*0.95+i*Math.PI*2/orbit.length;
+   const r=32+Math.sin(t*2.5+i)*4;
+   ctx.font='14px system-ui'; ctx.textAlign='center';
+   ctx.fillText(em,cx+Math.cos(ang)*r,cy+Math.sin(ang)*r*0.55);
+  });
+ }else if(m.sigGroup==='silly'){
+  for(let i=0;i<8;i++){
+   const ang=-t*1.3+i*Math.PI*2/8;
+   const r=30+Math.sin(t*3+i)*5;
+   ctx.font=(i%2?'15px':'12px')+' system-ui'; ctx.textAlign='center';
+   ctx.fillStyle=i%2?'#a8e8ff':'#fff';
+   ctx.fillText(m.sigBadge||'✨',cx+Math.cos(ang)*r,cy+Math.sin(ang)*r*0.5);
+  }
+ }else{
+  const orbitEm=m.sigBadge||'⭐';
+  const n=m.sigGroup==='void'?10:8;
+  for(let i=0;i<n;i++){
+   const ang=t*(m.sigGroup==='void'?1.25:0.9)+i*Math.PI*2/n;
+   const r=34+Math.sin(t*2.8+i)*5;
+   ctx.font=(m.sigGroup==='lithos'?'13px':'15px')+' system-ui'; ctx.textAlign='center';
+   ctx.fillStyle=mhHex(col,0.95);
+   ctx.fillText(orbitEm,cx+Math.cos(ang)*r,cy+Math.sin(ang)*r*0.52);
+  }
+  if(m.sigGroup==='lithos'){
+   ctx.fillStyle=mhHex('#ffd060',0.75); ctx.font='9px serif'; ctx.textAlign='center';
+   ctx.fillText(MH_ANCIENT_GLYPHS[(mhHashStr(m.id)%5)],cx,cy+Math.sin(t*5)*8);
+  }
+ }
+ ctx.restore();
+}
+function mhParkColors(wi){
+ if(wi===4) return {fill:'#c8c4a0',edge:'#808070',tree:'#909080',label:'#303028'};
+ if(wi===2) return {fill:'#e8d878',edge:'#c0a858',tree:'#40a0c0',label:'#604818'};
+ if(wi===3) return {fill:'#685898',edge:'#483868',tree:'#9080c0',label:'#e8e0ff'};
+ if(wi===6) return {fill:'#5a3028',edge:'#401818',tree:'#ff6040',label:'#ffd0c0'};
+ if(wi===MH_VOID_WORLD) return {fill:'#241028',edge:'#8040a0',tree:'#502868',label:'#e8d0ff'};
+ if(wi===MH_EXOTIC_WORLD) return {fill:'#381848',edge:'#ff48e8',tree:'#684888',label:'#ffe8ff'};
+ return {fill:'#62b852',edge:'#2a6830',tree:'#4a9848',label:'#ffe8a0'};
+}
+function mhDrawParkZones(ctx,map,wi){
+ const pal=mhParkColors(wi);
+ (map.parks||[]).forEach(p=>{
+  const x=p.tx*MH_TILE,y=p.ty*MH_TILE,w=p.w*MH_TILE,h=p.h*MH_TILE;
+  ctx.fillStyle=pal.fill;
+  ctx.fillRect(x,y,w,h);
+  ctx.strokeStyle=pal.edge;
+  ctx.lineWidth=4; ctx.strokeRect(x+2,y+2,w-4,h-4);
+  ctx.fillStyle=pal.tree;
+  for(let px=x+12;px<x+w-12;px+=28){
+   if(wi===4){ ctx.fillStyle='#ffffa0'; ctx.fillRect(px,y+10, MH_TILE-8,4); ctx.fillRect(px,y+h-16,MH_TILE-8,4); }
+   else if(wi===2){ ctx.fillStyle='#40a0c0'; ctx.fillRect(px,y+h-14,8,10); }
+   else{ ctx.beginPath(); ctx.arc(px,y+14,10,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(px,y+h-12,10,0,Math.PI*2); ctx.fill(); }
+  }
+  ctx.fillStyle='rgba(255,255,255,.92)'; ctx.font='bold 16px system-ui'; ctx.textAlign='center';
+  ctx.fillText((wi===4?'🚪':'🌳')+' '+p.name,x+w/2,y+22);
+  ctx.font='bold 11px system-ui'; ctx.fillStyle=pal.label;
+  ctx.fillText(wi===4?'Backrooms picnic zone · statues':'Noobie statues · collect in groves with E',x+w/2,y+38);
+ });
+}
+function mhDrawNoobieStatue(ctx,d,t){
+ const T=MH_TILE,x=d.tx*T,y=d.ty*T;
+ const m=d.morph||mhMorph(d.morphId);
+ const pw=T*1.35, ph=T*0.55;
+ ctx.fillStyle='rgba(0,0,0,.35)'; ctx.beginPath(); ctx.ellipse(x+T/2,y+T*1.95,22,5,0,0,Math.PI*2); ctx.fill();
+ ctx.fillStyle='#a8b0c0'; ctx.fillRect(x+T/2-pw/2,y+T*0.75,pw,ph);
+ ctx.fillStyle='#788090'; ctx.fillRect(x+T/2-pw/2+6,y+T*0.75,pw-12,8);
+ ctx.fillStyle='#c0c8d8'; ctx.fillRect(x+T/2-4,y+T*0.62,8,ph+6);
+ const sc=(d.scale||6)*0.32;
+ if(m) mhPaintNoobWorld(ctx,m,x+T/2,y+T*0.58,sc,1,false,t,0,false,false);
+ else mhPaintHuman(ctx,x+T/2,y+T*0.58,0,t,1.45);
+ ctx.fillStyle='rgba(0,0,0,.72)'; ctx.fillRect(x+T/2-52,y+T*1.72,104,16);
+ ctx.fillStyle='#ffe8a0'; ctx.font='bold 10px system-ui'; ctx.textAlign='center';
+ ctx.fillText(m?(m.name.slice(0,14).toUpperCase()):('NOOBIE'),x+T/2,y+T*1.84);
+}
+function mhDrawMapDecors(ctx,map,wi,t,save){
+ mhDrawCourtZone(ctx,map,wi);
+ mhDrawWorldFeature(ctx,map,wi);
+ mhDrawParkZones(ctx,map,wi);
+ if(save) mhDrawPlagueBugs(ctx,map,wi,t,save);
+ (map.landmarks||[]).forEach(d=>mhDrawSceneryPiece(ctx,d,wi,t));
+ (map.decors||[]).forEach(d=>mhDrawSceneryPiece(ctx,d,wi,t));
+}
+function mhDrawMapStatues(ctx,map,t,st){
+ (map.statues||[]).forEach(d=>{ if(!d.mayor) mhDrawNoobieStatue(ctx,d,t); });
+ mhDrawMayorShrine(ctx,map,t,st||{});
+}
+function mhParkCenter(map){
+ const p=map.parks&&map.parks[0];
+ if(!p) return null;
+ return {px:(p.tx+p.w/2)*MH_TILE, py:(p.ty+p.h/2)*MH_TILE};
+}
+function mhCivState(st,wi,c){
+ if(!st.civ) st.civ={};
+ if(!st.civ[wi]) st.civ[wi]={};
+ if(!st.civ[wi][c.id]) st.civ[wi][c.id]={px:c.px,py:c.py,phase:c.phase||0,dir:Math.random()*6.28,wait:0};
+ return st.civ[wi][c.id];
+}
+function mhUpdateCivilians(st,map,wi,dt){
+ if(!map.civilians) return;
+ map.civilians.forEach(c=>{
+  const s=mhCivState(st,wi,c);
+  if(MH_FREEZE_NPC_WALK){
+   s.px=c.px; s.py=c.py;
+   return;
+  }
+  s.phase+=dt*3;
+  if(!c.wander) return;
+  s.wait-=dt;
+  if(s.wait<=0){
+   s.dir+=(Math.random()-0.5)*1.2;
+   s.wait=0.6+Math.random()*2;
+  }
+  const spd=0.55;
+  const npx=s.px+Math.cos(s.dir)*spd, npy=s.py+Math.sin(s.dir)*spd;
+  if(!mhWalkCollide(map,npx,s.py,6)&&!mhWalkCollide(map,s.px,npy,6)){
+   s.px=npx; s.py=npy;
+  }else s.dir+=Math.PI*0.6;
+  const hx=c.homePx||s.px, hy=c.homePy||s.py;
+  if(Math.hypot(s.px-hx,s.py-hy)>90) s.dir=Math.atan2(hy-s.py,hx-s.px);
+ });
+}
+function mhDrawCivilians(ctx,st,wi,map){
+ if(!map.civilians) return;
+ const list=map.civilians.map(c=>{ const s=mhCivState(st,wi,c); return {s,c}; });
+ list.sort((a,b)=>a.s.py-b.s.py);
+ list.forEach(({s,c})=>mhPaintHuman(ctx,s.px,s.py,c.variant,s.phase,0.78));
+}
+function mhDrawFlatMapTiles(ctx,map,world,wi,t){
+ const voidRealm=wi===MH_VOID_WORLD;
+ const pair=mhFlatGroundPair(world.ground);
+ const wall=world.wall||(voidRealm?'#282038':'#4a5058');
+ const prop=world.prop||(voidRealm?'#402060':'#6a5848');
+ for(let ty=0;ty<map.h;ty++)for(let tx=0;tx<map.w;tx++){
+  const v=map.tiles[ty*map.w+tx];
+  const x=tx*MH_TILE,y=ty*MH_TILE;
+  mhPaintWorldGroundTile(ctx,x,y,v,world,wi);
+  ctx.strokeStyle=voidRealm?'#301848':'rgba(0,0,0,.12)';
+  ctx.strokeRect(x+.5,y+.5,MH_TILE-1,MH_TILE-1);
+ }
+}
+function mhPaperFlatOverlay(ctx,W,H){
+ ctx.fillStyle='rgba(255,252,240,.06)';
+ for(let y=0;y<H;y+=5) ctx.fillRect(0,y,W,1);
+ ctx.strokeStyle='rgba(0,0,0,.35)'; ctx.lineWidth=2;
+ ctx.strokeRect(1,1,W-2,H-2);
+ ctx.strokeStyle='rgba(255,255,255,.08)'; ctx.lineWidth=1;
+ ctx.strokeRect(3,3,W-6,H-6);
+}
+function mhDrawYouInWorld(ctx,wear,pos,map,t,walkPhase,wi,running){
+ const m=wear||mhStarterMorph();
+ const flat=mhMapFlat2D(wi);
+ let sc=flat?0.82:1.08;
+ if(!flat&&MH_1000D) sc*=0.92+(pos.py/(map.h*MH_TILE))*0.18;
+ ctx.save();
+ if(flat){
+  ctx.strokeStyle='rgba(255,232,120,.95)'; ctx.lineWidth=2;
+  ctx.strokeRect(pos.px-22,pos.py+18,44,4);
+ }else{
+  ctx.strokeStyle='rgba(255,232,120,.95)'; ctx.lineWidth=3;
+  ctx.setLineDash([6,4]);
+  ctx.beginPath(); ctx.ellipse(pos.px,pos.py+26,34,11,0,0,Math.PI*2); ctx.stroke();
+  ctx.setLineDash([]);
+ }
+ if(m.plagueDoctor){
+  mhPaintVoidFallenStormAura(ctx,pos.px,pos.py-18,t,0.62,false,m);
+  mhDrawPlagueDoctorAura(ctx,pos.px,pos.py-18,t,0.88);
+ }else if(m.questOnly) mhDrawQuestMorphAura(ctx,m,pos.px,pos.py-18,t,0.9);
+ else if(m.signatureOnly||m.mayorOnly||(m.signatureReal&&m.sigLook)) mhDrawSignatureNoobAura(ctx,m,pos.px,pos.py,t,0.88);
+ mhPaintNoobWorld(ctx,m,pos.px,pos.py,sc,1,false,t,walkPhase||0,flat,!!running);
+ if(m.plagueDoctor) mhDrawPassiveAncientShieldsOnCharacter(ctx,pos.px,pos.py-8,t,m,1);
+ if(m.plagueDoctor){
+  const atk=m.voidAttack?.name||'Foul Cure';
+  const pow=m.voidPower?.name||'Death Sigil';
+  ctx.fillStyle='rgba(10,20,14,.92)'; ctx.fillRect(pos.px-78,pos.py+66,156,22);
+  ctx.strokeStyle='#80ffb0'; ctx.lineWidth=1.5; ctx.strokeRect(pos.px-78,pos.py+66,156,22);
+  ctx.fillStyle='#c8ffd8'; ctx.font='bold 9px system-ui'; ctx.textAlign='center';
+  ctx.fillText('⚔ '+atk+' · ✦ '+pow+' · 3 '+MH_PLAGUE_GRAVEYARD_NAME+' + '+MH_PLAGUE_STORM_NAME,pos.px,pos.py+80);
+  ctx.fillStyle='#ff8080'; ctx.font='bold 8px system-ui';
+  ctx.fillText('🛡 '+MH_ANCIENT_GLYPHS.join(' ')+' · always on · '+MH_BUILD,pos.px,pos.py+92);
+ }
+ ctx.fillStyle='rgba(0,0,0,.82)';
+ ctx.fillRect(pos.px-28,pos.py+50,56,16);
+ ctx.fillStyle='#ffe8a0';
+ ctx.font='bold 12px system-ui,sans-serif';
+ ctx.textAlign='center';
+ ctx.fillText('YOU',pos.px,pos.py+62);
+ if(m&&(m.rarity==='voidfallen'||m.voidFallen)){
+  const atk=m.voidAttack?.name||'Attack';
+  const pow=m.voidPower?.name||'Power';
+  ctx.fillStyle='rgba(20,0,40,.9)'; ctx.fillRect(pos.px-72,pos.py+66,144,22);
+  ctx.strokeStyle=m.voidKing?'#ff4040':(m.voidAccent||'#9040ff'); ctx.lineWidth=1.5;
+  ctx.strokeRect(pos.px-72,pos.py+66,144,22);
+  ctx.fillStyle='#e8d0ff'; ctx.font='bold 9px system-ui'; ctx.textAlign='center';
+  ctx.fillText('⚔ '+atk+' · ✦ '+pow,pos.px,pos.py+80);
+  ctx.fillStyle='#ff8080'; ctx.font='bold 8px system-ui';
+  ctx.fillText('🛡 '+MH_ANCIENT_GLYPHS.join(' ')+' · always on · '+MH_BUILD,pos.px,pos.py+92);
+ }
+ ctx.restore();
+}
+function mhLoadSave(){
+ const wear=mhLoadWearId();
+ if(MH_OPEN_PLAY) return mhOpenPlaySave();
+ if(mhIsRealOwner()){
+  let ownerName='Owner';
+  try{
+   const slim=JSON.parse(localStorage.getItem(mhProfileStoreKey())||'null');
+   if(slim&&typeof slim.chatDisplayName==='string'&&slim.chatDisplayName.trim()) ownerName=slim.chatDisplayName.trim();
+  }catch(_){}
+  return{
+   collected:MH_MORPHS.filter(m=>!m.questOnly).map(m=>m.id),
+   worldsUnlocked:MH_WORLDS.length,
+   coins:99999,
+   wearing:wear||'ex-welcome',
+   title:'Collector',
+   codesUsed:[],
+   minigameWon:[],
+   chatPlayerId:'owner',
+   chatDisplayName:ownerName,
+   chatFriends:[],
+   plagueQuest:mhDefaultPlagueQuest(),
+   timeQuest:mhDefaultTimeQuest(),
+   questPack:mhDefaultQuestPack()
+  };
+ }
+ try{
+  const raw=JSON.parse(localStorage.getItem(MH_STORE_KEY)||'null');
+  if(!raw||!Array.isArray(raw.collected))return {...mhDefaultSave(),wearing:wear||'ex-welcome'};
+  let collected=raw.collected.filter(id=>MH_MORPHS.some(m=>m.id===id));
+  if(!collected.length) collected=['ex-welcome'];
+  const out={
+   collected,
+   worldsUnlocked:Math.max(1,Math.min(MH_WORLDS.length,+(raw.worldsUnlocked||1))),
+   coins:Math.max(0,+(raw.coins||100)),
+   wearing:(raw.wearing&&MH_MORPHS.some(m=>m.id===raw.wearing))?raw.wearing:(wear||collected[0]||'ex-welcome'),
+   title:typeof raw.title==='string'?raw.title:'',
+   codesUsed:Array.isArray(raw.codesUsed)?raw.codesUsed:[],
+   minigameWon:Array.isArray(raw.minigameWon)?raw.minigameWon:[],
+   chatPlayerId:typeof raw.chatPlayerId==='string'?raw.chatPlayerId:'',
+   chatDisplayName:typeof raw.chatDisplayName==='string'?raw.chatDisplayName:'',
+   chatFriends:Array.isArray(raw.chatFriends)?raw.chatFriends.filter(x=>typeof x==='string'):[],
+   plagueQuest:mhNormalizePlagueQuest(raw.plagueQuest),
+   timeQuest:mhNormalizeTimeQuest(raw.timeQuest),
+   questPack:mhNormalizeQuestPack(raw.questPack)
+  };
+  mhAdminApplyPendingGifts(out);
+  mhDiscoApplyPending(out,true);
+  return out;
+ }catch(_){return {...mhDefaultSave(),wearing:wear};}
+}
+function mhRarityInfo(m){
+ if(!m) return MH_RARITY.common;
+ return MH_RARITY[m.rarity]||MH_RARITY.common;
+}
+function mhNeedsMinigame(m,save){
+ if(!m||!save) return false;
+ if(mhHasMorph(save,m.id)) return false;
+ return true;
+}
+function mhDeckUnlock(m,save){
+ if(!m||!save) return;
+ if(mhHasMorph(save,m.id)){
+  if(MH_FIGHT_ANYTIME||mhIsOwner()){ mhOpenMinigame(m); return; }
+  mhWear(m.id);
+  return;
+ }
+ mhOpenMinigame(m);
+}
+function mhPickFightMorph(save,wi,pos){
+ const posPx=pos||mhWalkEnsurePos(mhState,wi);
+ let best=null,bd=1e9;
+ mhWorldMorphs(wi).forEach(m=>{
+  if(m.voidKing||m.tileX==null||m.questOnly) return;
+  const p=mhGetNpcPos(mhState,wi,m);
+  const d=Math.hypot(p.px-posPx.px,p.py-posPx.py);
+  if(d<bd){ bd=d; best=m; }
+ });
+ if(best) return best;
+ const pool=mhWorldMorphs(wi).filter(m=>!m.voidKing);
+ if(pool.length) return pool[mhHashStr(String(Date.now())+'f')%pool.length];
+ return mhMorph(save.wearing)||mhMorph('ex-welcome');
+}
+function mhStartFight(m,practice){
+ if(!m||!mhState) return;
+ if(practice||mhHasMorph(mhState.save,m.id)){
+  mhOpenMinigame(m);
+  mhToast(practice?'🎮 Practice fight!':'⚔ Duel / obby started!');
+  return;
+ }
+ mhDeckUnlock(m,mhState.save);
+}
+function mhMinigameCleared(save,id){
+ return (save.minigameWon||[]).includes(id);
+}
+function mhModalHost(){
+ return document.getElementById('morphhunt')||document.body;
+}
+function mhEnsureOverlayModals(){
+ const host=mhModalHost();
+ let mg=document.getElementById('mh-minigame-modal');
+ if(!mg){
+  mg=document.createElement('div');
+  mg.id='mh-minigame-modal';
+  mg.className='mh-found-modal mh-minigame-modal';
+  mg.hidden=true;
+  host.appendChild(mg);
+ }else if(mg.parentElement!==host) host.appendChild(mg);
+ let fd=document.getElementById('mh-found-modal');
+ if(!fd){
+  fd=document.createElement('div');
+  fd.id='mh-found-modal';
+  fd.className='mh-found-modal';
+  fd.hidden=true;
+  host.appendChild(fd);
+ }else if(fd.parentElement!==host) host.appendChild(fd);
+}
+function mhSaveSave(data){
+ if(!data) return;
+ if(MH_OPEN_PLAY||mhIsRealOwner()){
+  try{
+   const slim={
+    wearing:data.wearing,
+    title:data.title,
+    coins:data.coins,
+    codesUsed:data.codesUsed,
+    minigameWon:data.minigameWon,
+    chatPlayerId:data.chatPlayerId,
+    chatDisplayName:data.chatDisplayName,
+    chatFriends:data.chatFriends,
+    plagueQuest:data.plagueQuest,
+    timeQuest:data.timeQuest,
+    questPack:data.questPack,
+    worldsUnlocked:data.worldsUnlocked,
+    discoClaimed:data.discoClaimed||''
+   };
+   localStorage.setItem(mhProfileStoreKey(),JSON.stringify(slim));
+  }catch(_){}
+  if(data.wearing) mhSaveWearId(data.wearing);
+  return;
+ }
+ try{localStorage.setItem(mhProfileStoreKey(),JSON.stringify(data));}catch(_){}
+ if(data.wearing) mhSaveWearId(data.wearing);
+}
+
+function mhMorph(id){return MH_MORPHS.find(m=>m.id===id);}
+function mhWorldMorphs(wi){
+ return MH_MORPHS.filter(m=>{
+  if(m.codeOnly) return false;
+  if(m.questOnly) return m.world===wi;
+  if(m.timeTravelerOnly) return wi===0;
+  return mhHuntWorld(m)===wi;
+ });
+}
+function mhDefaultTimeQuest(){
+ return{paid:false,shards:[false,false,false],done:false};
+}
+function mhNormalizeTimeQuest(raw){
+ const q=raw&&typeof raw==='object'?raw:{};
+ const shards=Array.isArray(q.shards)?q.shards.map(Boolean):[false,false,false];
+ while(shards.length<3) shards.push(false);
+ return{paid:!!q.paid,shards:shards.slice(0,3),done:!!q.done};
+}
+function mhTimeQuest(save){
+ if(!save.timeQuest) save.timeQuest=mhDefaultTimeQuest();
+ save.timeQuest=mhNormalizeTimeQuest(save.timeQuest);
+ return save.timeQuest;
+}
+function mhDefaultQuestPack(){
+ return{
+  fossil:{digs:0,done:false},
+  rainbow:{orbs:[false,false,false],done:false},
+  handshake:{highFive:false,done:false},
+  storybook:{pages:0,done:false},
+  armor:{paid:false,done:false},
+  stubs:{}
+ };
+}
+function mhNormalizeQuestPack(raw){
+ const d=mhDefaultQuestPack();
+ const q=raw&&typeof raw==='object'?raw:{};
+ const pick=(k)=>Object.assign(d[k],q[k]&&typeof q[k]==='object'?q[k]:{});
+ pick('fossil'); pick('handshake'); pick('storybook'); pick('armor');
+ const rb=q.rainbow&&typeof q.rainbow==='object'?q.rainbow:{};
+ d.rainbow.orbs=Array.isArray(rb.orbs)?rb.orbs.map(Boolean):[false,false,false];
+ while(d.rainbow.orbs.length<3) d.rainbow.orbs.push(false);
+ d.rainbow.orbs=d.rainbow.orbs.slice(0,3);
+ d.rainbow.done=!!rb.done;
+ d.stubs=q.stubs&&typeof q.stubs==='object'?q.stubs:{};
+ return d;
+}
+function mhQuestPack(save){
+ if(!save.questPack) save.questPack=mhDefaultQuestPack();
+ save.questPack=mhNormalizeQuestPack(save.questPack);
+ return save.questPack;
+}
+function mhQuestMorphByKey(key){
+ return MH_MORPHS.find(m=>m.questOnly&&m.questKey===key)||null;
+}
+function mhQuestGrant(save,m,silent){
+ if(!save||!m) return false;
+ if(mhHasMorph(save,m.id)) return false;
+ save.collected.push(m.id);
+ mhSaveSave(save);
+ if(!silent){
+  mhCelebrationBurst('✨ '+m.name+' unlocked — aura online!');
+  mhFinishCollect(m);
+ }
+ return true;
+}
+function mhNearQuestMorph(st,wi,pos,m,maxD){
+ if(!m?.tileX||m.world!==wi) return false;
+ const p=mhGetNpcPos(st,wi,m);
+ return Math.hypot(p.px-pos.px,p.py-pos.py)<(maxD||170);
+}
+function mhQuestStubUnlock(save,m){
+ if(!m?.questOnly||mhHasMorph(save,m.id)) return false;
+ const cost=m.questStubCost==null?MH_QUEST_STUB_COST:m.questStubCost;
+ if(cost>0&&save.coins<cost){
+  mhToast('Need '+cost+'💰 for '+m.questGuide+' (you have '+save.coins+')');
+  return false;
+ }
+ if(cost>0) save.coins-=cost;
+ const qp=mhQuestPack(save);
+ qp.stubs[m.id]=true;
+ mhQuestGrant(save,m);
+ return true;
+}
+function mhQuestTryInteract(st,save,m){
+ if(!st||!save||!m?.questOnly||mhHasMorph(save,m.id)) return false;
+ const qp=mhQuestPack(save);
+ const key=m.questKey;
+ const pos=mhWalkEnsurePos(st,st.world||0);
+ if(!mhNearQuestMorph(st,st.world||0,pos,m,175)){
+  mhToast('Step closer to '+m.questGuide+'!');
+  return true;
+ }
+ if(key==='fossil'){
+  if(qp.fossil.done||qp.fossil.digs>=3){
+   mhQuestGrant(save,m);
+   qp.fossil.done=true;
+   mhSaveSave(save);
+   return true;
+  }
+  mhToast('🦴 Archaeologist: chat “dig” three times while nearby, then press E again!');
+  return true;
+ }
+ if(key==='rainbow'){
+  const got=(qp.rainbow.orbs||[]).filter(Boolean).length;
+  if(got<3){ mhToast('🌦 Weather Witch: find 3 glowing cloud orbs on this map · E on each ('+got+'/3)'); return true; }
+  qp.rainbow.done=true;
+  mhQuestGrant(save,m);
+  mhSaveSave(save);
+  return true;
+ }
+ if(key==='handshake'){
+  if(!qp.handshake.highFive){
+   mhToast('🤝 Greeter: say “high five” or “handshake” in chat while nearby — or press E with Test Buddy close!');
+   return true;
+  }
+  qp.handshake.done=true;
+  mhQuestGrant(save,m);
+  mhSaveSave(save);
+  return true;
+ }
+ if(key==='storybook'){
+  st.insideBuilding={kind:'storybook',wi:st.world||0,morphId:m.id};
+  mhToast('📖 Storybook opens — tap 3 glowing pages · F to leave');
+  return true;
+ }
+ if(key==='armor'){
+  if(!qp.armor.paid){
+   if(save.coins<500){ mhToast('Blacksmith needs 500💰 to forge armor (you have '+save.coins+')'); return true; }
+   save.coins-=500;
+   qp.armor.paid=true;
+   mhToast('⚒ Hammering… press E once more!');
+   mhSaveSave(save);
+   return true;
+  }
+  qp.armor.done=true;
+  mhQuestGrant(save,m);
+  mhSaveSave(save);
+  return true;
+ }
+ if(key==='developer'){
+  mhToast('👾 Psst… chat “sudo lithos” while you can see the alley dev glyph.');
+  return true;
+ }
+ if(mhQuestStubUnlock(save,m)) return true;
+ mhToast('More story soon — you unlocked '+m.name+'!');
+ return true;
+}
+function mhQuestChatHook(st,save,text){
+ if(!st||!save||!text) return;
+ const fold=mhChatFold(text);
+ const pos=mhWalkEnsurePos(st,st.world||0);
+ const wi=st.world||0;
+ const qp=mhQuestPack(save);
+ if(/\b(dig|excavate|shovel)\b/.test(fold)){
+  const fossil=mhQuestMorphByKey('fossil');
+  if(fossil&&!mhHasMorph(save,fossil.id)&&mhNearQuestMorph(st,wi,pos,fossil,190)){
+   qp.fossil.digs=Math.min(3,(qp.fossil.digs||0)+1);
+   mhSaveSave(save);
+   mhToast('⛏ Dig '+qp.fossil.digs+'/3 — dirt flies!');
+   if(qp.fossil.digs>=3) mhToast('🦴 Bones exposed! Press E on Archaeologist.');
+  }
+ }
+ if(/\b(high five|highfive|handshake|fist bump|fistbump)\b/.test(fold)){
+  const hs=mhQuestMorphByKey('handshake');
+  if(hs&&!mhHasMorph(save,hs.id)&&mhNearQuestMorph(st,wi,pos,hs,200)){
+   qp.handshake.highFive=true;
+   mhSaveSave(save);
+   mhToast('🤝 SLAP! Greeter felt that — press E to claim Handshake Noobie!');
+  }
+ }
+ if(/\b(sudo lithos|hello cursor|hello dev|npm run morph)\b/.test(fold)){
+  const dev=mhQuestMorphByKey('developer');
+  if(dev&&!mhHasMorph(save,dev.id)&&mhNearQuestMorph(st,wi,pos,dev,220)){
+   mhQuestGrant(save,dev);
+   mhSaveSave(save);
+  }
+ }
+ if(/\b(stamp|pen pal|penpal|send letter)\b/.test(fold)){
+  const pen=mhQuestMorphByKey('pen-pal');
+  if(pen&&!mhHasMorph(save,pen.id)&&mhNearQuestMorph(st,wi,pos,pen,190)){
+   if(save.coins>=600){
+    save.coins-=600;
+    mhQuestGrant(save,pen);
+    mhSaveSave(save);
+   }else mhToast('Mail Carrier needs 600💰 for international stamp!');
+  }
+ }
+}
+function mhQuestBuddyHandshake(st,save){
+ const hs=mhQuestMorphByKey('handshake');
+ if(!hs||mhHasMorph(save,hs.id)) return false;
+ const pos=mhWalkEnsurePos(st,st.world||0);
+ if(!mhNearQuestMorph(st,st.world||0,pos,hs,175)) return false;
+ if(!st.testBuddy?.on) return false;
+ const bp=st.testBuddy;
+ if(Math.hypot(bp.px-pos.px,bp.py-pos.py)>120) return false;
+ const qp=mhQuestPack(save);
+ qp.handshake.highFive=true;
+ mhSaveSave(save);
+ mhToast('🤝 Test Buddy high-five! Press E on Greeter!');
+ return true;
+}
+function mhDrawQuestMorphAura(ctx,m,x,y,t,alpha){
+ if(!m?.questAura) return;
+ const a=alpha==null?1:alpha;
+ const col=m.accent||'#80e0ff';
+ const cx=x, cy=y-18;
+ ctx.save(); ctx.globalAlpha=a;
+ const pulse=1+Math.sin(t*2.6+(mhHashStr(m.id)%9))*0.12;
+ const drawRing=(r,colA,w)=>{
+  ctx.strokeStyle=mhHex(col,colA); ctx.lineWidth=w||2;
+  ctx.beginPath(); ctx.arc(cx,cy,r*pulse,0,Math.PI*2); ctx.stroke();
+ };
+ const orbit=(items,r,spd,font)=>{
+  items.forEach((em,i)=>{
+   const ang=t*spd+i*Math.PI*2/items.length;
+   const rr=r+Math.sin(t*3+i)*5;
+   ctx.font=(font||'14px')+' system-ui'; ctx.textAlign='center';
+   ctx.fillStyle=mhHex(col,0.95);
+   ctx.fillText(em,cx+Math.cos(ang)*rr,cy+Math.sin(ang)*rr*0.52);
+  });
+ };
+ const glow=(rad,c)=>{
+  const g=ctx.createRadialGradient(cx,cy,4,cx,cy,rad);
+  g.addColorStop(0,mhHex(c,0.38)); g.addColorStop(1,mhHex(c,0));
+  ctx.fillStyle=g; ctx.beginPath(); ctx.arc(cx,cy,rad,0,Math.PI*2); ctx.fill();
+ };
+ switch(m.questAura){
+  case 'fossil':
+   glow(52,'#d8a860'); drawRing(36,0.55,2);
+   orbit(['🦴','⛏','🪨','💎','🦴','⛏'],34,0.95,'13px');
+   break;
+  case 'mail':
+   glow(48,'#80a0ff'); drawRing(32,0.5,2);
+   orbit(['✉','💌','📬','✉','💌'],30,1.1);
+   break;
+  case 'rainbow':
+   for(let i=0;i<7;i++){
+    const hue=['#ff4040','#ff8040','#ffe040','#80ff60','#40c0ff','#8040ff','#ff40c0'][i];
+    ctx.strokeStyle=mhHex(hue,0.55+Math.sin(t*3+i)*0.15); ctx.lineWidth=2.5;
+    ctx.beginPath(); ctx.arc(cx,cy,(28+i*4)*pulse,0,Math.PI*2); ctx.stroke();
+   }
+   orbit(['☁','🌈','☀','💧'],32,-1.05);
+   break;
+  case 'story':
+   glow(50,'#ffd080'); drawRing(34,0.45,2);
+   orbit(['📖','✨','📜','⭐','📖'],32,0.85,'13px');
+   break;
+  case 'forge':
+   glow(54,'#ff8040');
+   for(let i=0;i<6;i++){
+    const ang=t*2.5+i;
+    ctx.fillStyle=mhHex(i%2?'#ff6040':'#ffd060',0.75);
+    ctx.beginPath(); ctx.arc(cx+Math.cos(ang)*38,cy+Math.sin(ang)*20,3,0,Math.PI*2); ctx.fill();
+   }
+   orbit(['⚒','🛡','🔥','⚒'],30,1.2);
+   break;
+  case 'mirror':
+   glow(48,'#ffffff'); drawRing(40,0.35,1.5);
+   ctx.strokeStyle='rgba(255,255,255,.65)'; ctx.lineWidth=1;
+   for(let i=0;i<4;i++){ ctx.beginPath(); ctx.moveTo(cx-40+i*26,cy-30); ctx.lineTo(cx+40-i*26,cy+30); ctx.stroke(); }
+   orbit(['🪞','✨','🪞','💫'],34,0.7);
+   break;
+  case 'ember':
+   glow(46,'#ff9040');
+   orbit(['🔥','💤','🔥','✨','🌙'],28,0.9);
+   break;
+  case 'metro':
+   glow(44,'#ffd060'); drawRing(30,0.5,2);
+   orbit(['🎫','🚇','💳','🎫'],28,1.35,'12px');
+   break;
+  case 'whisper':
+   glow(58,'#9040ff');
+   for(let i=0;i<8;i++){
+    const ang=t*1.4+i*0.9;
+    ctx.fillStyle=mhHex('#c898ff',0.35+Math.sin(t*4+i)*0.2);
+    ctx.fillText('…',cx+Math.cos(ang)*42,cy+Math.sin(ang)*22);
+   }
+   orbit(['👁','🕳','⌬','👁'],36,1.05,'13px');
+   break;
+  case 'shield':
+   glow(50,'#4080ff'); drawRing(36,0.55,2.5);
+   orbit(['🛡','⚔','🛡','✦'],32,0.75);
+   break;
+  case 'twinvoid':
+   glow(56,'#ff4080');
+   ctx.globalAlpha=a*0.45; mhPaintNoobWorld(ctx,m,cx-14,cy+10,0.35,0.5,true,t,0,false,false);
+   ctx.globalAlpha=a;
+   orbit(['👥','🕳','👥','💫'],34,1.15);
+   break;
+  case 'handshake':
+   glow(48,'#ffe8a0'); drawRing(34,0.6,2);
+   orbit(['🤝','✋','🤝','⭐'],30,1.0);
+   break;
+  case 'partyhost':
+   glow(52,'#ff48e8');
+   orbit(['🎉','🎊','🪩','🎈','🎉'],34,-1.25);
+   break;
+  case 'glitchcat':
+   glow(50,'#39ff14');
+   if(Math.random()<0.08) ctx.translate((Math.random()-0.5)*8,(Math.random()-0.5)*6);
+   orbit(['🐱','01','🐱','//'],30,1.4,'13px');
+   break;
+  case 'pizza':
+   glow(46,'#ff6040');
+   orbit(['🍕','🛵','🍕','⭐'],28,1.05);
+   break;
+  case 'code':
+   glow(54,'#39ff14'); drawRing(38,0.45,1.5);
+   ctx.font='10px monospace'; ctx.fillStyle='#80ffb0'; ctx.textAlign='center';
+   for(let i=0;i<6;i++) ctx.fillText('01',cx+Math.cos(t*2+i)*30,cy+Math.sin(t*2.2+i)*16);
+   orbit(['⌨','</>','💻','✨'],32,0.85,'12px');
+   break;
+  default:
+   glow(44,col); drawRing(30,0.4,2);
+   orbit([m.sigBadge||'✨'],28,0.9);
+ }
+ ctx.restore();
+}
+function mhDrawStorybookInterior(ctx,W,H,st,save,t){
+ const qp=mhQuestPack(save);
+ ctx.fillStyle='#2a1810'; ctx.fillRect(0,0,W,H);
+ ctx.fillStyle='#f0e0c0'; ctx.fillRect(W*0.12,H*0.18,W*0.76,H*0.62);
+ ctx.strokeStyle='#804030'; ctx.lineWidth=4; ctx.strokeRect(W*0.12,H*0.18,W*0.76,H*0.62);
+ ctx.fillStyle='#503020'; ctx.font='bold 20px system-ui'; ctx.textAlign='center';
+ ctx.fillText('📖 STORYBOOK',W/2,H*0.28);
+ const pages=[{x:W*0.28,y:H*0.55,l:'🌙'},{x:W*0.5,y:H*0.58,l:'🐉'},{x:W*0.72,y:H*0.55,l:'🏰'}];
+ pages.forEach((p,i)=>{
+  const lit=i<(qp.storybook.pages||0);
+  ctx.beginPath(); ctx.arc(p.x,p.y,32,0,Math.PI*2);
+  ctx.fillStyle=lit?'#ffd080':'#806050';
+  ctx.fill();
+  ctx.strokeStyle='#ffe8a0'; ctx.lineWidth=2; ctx.stroke();
+  ctx.fillStyle='#fff'; ctx.font='22px system-ui';
+  ctx.fillText(p.l,p.x,p.y+8);
+ });
+ ctx.fillStyle='#c0a890'; ctx.font='13px system-ui';
+ ctx.fillText('Tap glowing pages · '+Math.min(3,qp.storybook.pages||0)+'/3',W/2,H*0.72);
+ ctx.fillStyle='rgba(0,0,0,.7)'; ctx.fillRect(8,H-36,W-16,28);
+ ctx.fillStyle='#ffe8a0'; ctx.font='bold 12px system-ui'; ctx.textAlign='left';
+ ctx.fillText('📚 Librarian quest · F leave',16,H-16);
+}
+function mhStorybookClick(ev){
+ if(!mhState?.insideBuilding||mhState.insideBuilding.kind!=='storybook') return;
+ const save=mhState.save;
+ const qp=mhQuestPack(save);
+ const canvas=ev.currentTarget;
+ const rect=canvas.getBoundingClientRect();
+ const x=(ev.clientX-rect.left)/rect.width*canvas.width;
+ const y=(ev.clientY-rect.top)/rect.height*canvas.height;
+ const W=canvas.width,H=canvas.height;
+ const pages=[{x:W*0.28,y:H*0.55},{x:W*0.5,y:H*0.58},{x:W*0.72,y:H*0.55}];
+ pages.forEach((p,i)=>{
+  if(i>=qp.storybook.pages&&Math.hypot(x-p.x,y-p.y)<38){
+   qp.storybook.pages=i+1;
+   mhSaveSave(save);
+   mhToast('📖 Page '+(i+1)+'/3!');
+   try{ mhPlaySfx('ui'); }catch(_){}
+  }
+ });
+ if(qp.storybook.pages>=3&&!qp.storybook.done){
+  qp.storybook.done=true;
+  const m=mhMorph(mhState.insideBuilding.morphId)||mhQuestMorphByKey('storybook');
+  mhQuestGrant(save,m);
+  mhState.insideBuilding=null;
+  mhToast('📚 The story closes — Storybook Noobie is yours!');
+ }
+}
+function mhTryCollectRainbowOrb(st,save,wi,map,pos){
+ const qp=mhQuestPack(save);
+ const m=mhQuestMorphByKey('rainbow');
+ if(!m||mhHasMorph(save,m.id)||wi!==2) return false;
+ (map.rainbowOrbs||[]).forEach((o,i)=>{
+  if(qp.rainbow.orbs[i]) return;
+  const px=o.tx*MH_TILE+MH_TILE/2, py=o.ty*MH_TILE+MH_TILE/2;
+  if(Math.hypot(px-pos.px,py-pos.py)<MH_INTERACT_R){
+   qp.rainbow.orbs[i]=true;
+   mhSaveSave(save);
+   mhToast('☁ Cloud orb '+(i+1)+'/3 captured!');
+   try{ mhPlaySfx('hit'); }catch(_){}
+  }
+ });
+ return false;
+}
+function mhDrawQuestWorldMarkers(ctx,map,wi,t,save){
+ if(wi===2&&(map.rainbowOrbs||[]).length){
+  const qp=mhQuestPack(save);
+  map.rainbowOrbs.forEach((o,i)=>{
+   if(qp.rainbow.orbs[i]) return;
+   const x=o.tx*MH_TILE+MH_TILE/2,y=o.ty*MH_TILE+MH_TILE/2;
+   const bob=Math.sin(t*2+i)*4;
+   ctx.fillStyle='rgba(255,255,255,.25)'; ctx.beginPath(); ctx.arc(x,y+bob,22+Math.sin(t*3)*3,0,Math.PI*2); ctx.fill();
+   ctx.font='20px system-ui'; ctx.textAlign='center'; ctx.fillText('☁',x,y+bob+6);
+  });
+ }
+ (map.questPins||[]).forEach(pin=>{
+  const x=pin.tx*MH_TILE+MH_TILE/2,y=pin.ty*MH_TILE;
+  ctx.fillStyle='rgba(0,0,0,.55)'; ctx.fillRect(x-56,y-22,112,16);
+  ctx.fillStyle='#ffe8a0'; ctx.font='bold 9px system-ui'; ctx.textAlign='center';
+  ctx.fillText(pin.label||'✨ Quest',x,y-10);
+ });
+}
+function mhNearTimeTraveler(st,wi,pos){
+ const m=mhMorph(MH_TIME_TRAVELER_ID);
+ if(!m?.tileX||wi!==0) return false;
+ const p=mhGetNpcPos(st,wi,m);
+ return Math.hypot(p.px-pos.px,p.py-pos.py)<170;
+}
+function mhTimeTravelWants(text){
+ const fold=mhChatFold(text);
+ if(/^\/timetravel\b/.test(String(text||'').trim().toLowerCase())) return true;
+ return /\b(time travel|travel back|go back in time|back in time|time machine|take me back|past)\b/.test(fold);
+}
+function mhBeginTimeTravel(st,save){
+ const q=mhTimeQuest(save);
+ if(q.done||mhHasMorph(save,MH_MATRIX_MORPH_ID)){
+  mhToast('⏳ Timeline sealed — you already earned Matrix Noobie!');
+  return false;
+ }
+ if(save.coins<MH_TIME_TRAVEL_COST){
+  mhToast('Need '+MH_TIME_TRAVEL_COST+'💰 to ride the timeline (you have '+save.coins+')');
+  return false;
+ }
+ save.coins-=MH_TIME_TRAVEL_COST;
+ q.paid=true;
+ q.shards=[false,false,false];
+ mhSaveSave(save);
+ st.insideBuilding={kind:'time_mine',wi:st.world||0};
+ st.timeCollapse=0;
+ st.timeCollapseStart=0;
+ mhToast('⏳ -'+MH_TIME_TRAVEL_COST+'💰 · ancient mine · gather 3 stones · combine!');
+ try{ mhPlaySfx('ui'); }catch(_){}
+ return true;
+}
+function mhTimeTravelMaybeChat(st,save,text){
+ if(!st||!save||!mhTimeTravelWants(text)) return false;
+ const pos=mhWalkEnsurePos(st,st.world||0);
+ if(!mhNearTimeTraveler(st,st.world||0,pos)){
+  mhToast('⏳ Find Time Traveler Noobie on Buddy Plaza (near 🏀 court)!');
+  return false;
+ }
+ return mhBeginTimeTravel(st,save);
+}
+function mhTimeMineShardCount(q){
+ return (q.shards||[]).filter(Boolean).length;
+}
+function mhTimeMineClick(ev){
+ if(!mhState?.insideBuilding||mhState.insideBuilding.kind!=='time_mine') return;
+ const save=mhState.save;
+ const q=mhTimeQuest(save);
+ const canvas=ev.currentTarget;
+ const rect=canvas.getBoundingClientRect();
+ const x=(ev.clientX-rect.left)/rect.width*canvas.width;
+ const y=(ev.clientY-rect.top)/rect.height*canvas.height;
+ const W=canvas.width,H=canvas.height;
+ if(mhTimeMineShardCount(q)<3){
+  const slots=[{x:W*0.22,y:H*0.78},{x:W*0.5,y:H*0.82},{x:W*0.78,y:H*0.78}];
+  slots.forEach((s,i)=>{
+   if(q.shards[i]) return;
+   if(Math.hypot(x-s.x,y-s.y)<42){
+    q.shards[i]=true;
+    mhSaveSave(save);
+    mhToast('🪨 Stone shard '+(i+1)+'/3');
+    try{ mhPlaySfx('hit'); }catch(_){}
+   }
+  });
+  return;
+ }
+ if(mhTimeMineShardCount(q)>=3&&!mhState.timeCollapseStart){
+  const bx=W/2,by=H*0.55;
+  if(Math.hypot(x-bx,y-by)<70){
+   mhState.timeCollapseStart=performance.now();
+   mhState.timeCollapse=0;
+   mhToast('🌐 Stones align… Earth forms…');
+  }
+ }
+}
+function mhTimeMineFinish(st,save){
+ const q=mhTimeQuest(save);
+ q.done=true;
+ mhAdminGrantMorph(save,MH_MATRIX_MORPH_ID);
+ mhWear(MH_MATRIX_MORPH_ID,true);
+ mhSaveSave(save);
+ st.insideBuilding=null;
+ st.timeCollapseStart=0;
+ mhCelebrationBurst('🌐 Matrix Noobie unlocked — welcome to the real timeline!');
+ mhFinishCollect(mhMorph(MH_MATRIX_MORPH_ID));
+}
+function mhDrawTimeMineInterior(ctx,W,H,st,save,t){
+ const q=mhTimeQuest(save);
+ const g=ctx.createLinearGradient(0,0,0,H);
+ g.addColorStop(0,'#1a1410'); g.addColorStop(1,'#0a0808');
+ ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+ ctx.fillStyle='#3a3428';
+ for(let i=0;i<12;i++){
+  const x=(i*97)%W;
+  ctx.fillRect(x,H*0.15+(i%3)*8,60,H*0.85);
+ }
+ ctx.fillStyle='#2a2820'; ctx.fillRect(W*0.18,H*0.22,W*0.64,H*0.48);
+ ctx.strokeStyle='#605848'; ctx.lineWidth=4; ctx.strokeRect(W*0.18,H*0.22,W*0.64,H*0.48);
+ ctx.fillStyle='#504840'; ctx.font='bold 22px system-ui'; ctx.textAlign='center';
+ ctx.fillText('🪨 STONE',W/2,H*0.38);
+ ctx.fillStyle='#908878'; ctx.font='13px system-ui';
+ ctx.fillText('Tap the glowing shards · then combine at the stone',W/2,H*0.46);
+ const slots=[{x:W*0.22,y:H*0.78},{x:W*0.5,y:H*0.82},{x:W*0.78,y:H*0.78}];
+ slots.forEach((s,i)=>{
+  ctx.beginPath(); ctx.arc(s.x,s.y,28,0,Math.PI*2);
+  ctx.fillStyle=q.shards[i]?'#80e0ff':'#3a4038';
+  ctx.fill();
+  ctx.strokeStyle=q.shards[i]?'#ffe8a0':'#606870'; ctx.lineWidth=2; ctx.stroke();
+  ctx.fillStyle='#fff'; ctx.font='bold 11px system-ui';
+  ctx.fillText(q.shards[i]?'✓':'?',s.x,s.y+4);
+ });
+ if(mhTimeMineShardCount(q)>=3){
+  const pulse=0.85+Math.sin(t*4)*0.15;
+  ctx.fillStyle='rgba(128,255,176,'+(0.25+Math.sin(t*3)*0.1)+')';
+  ctx.beginPath(); ctx.arc(W/2,H*0.55,55*pulse,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#ffe8a0'; ctx.font='bold 14px system-ui';
+  ctx.fillText('TAP to combine shards',W/2,H*0.55);
+ }
+ if(st.timeCollapseStart){
+  const el=(performance.now()-st.timeCollapseStart)/1000;
+  st.timeCollapse=Math.min(1,el/3.2);
+  const cx=W/2,cy=H*0.42,r=40+st.timeCollapse*90;
+  ctx.fillStyle='#2040a0'; ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#39ff14'; ctx.font='bold 12px monospace'; ctx.textAlign='center';
+  for(let i=0;i<18;i++){
+   const a=i/18*Math.PI*2+t*2;
+   ctx.fillText('01',cx+Math.cos(a)*r*0.7,cy+Math.sin(a)*r*0.4);
+  }
+  ctx.fillStyle='#80ffb0'; ctx.font='bold 16px system-ui';
+  ctx.fillText('EARTH',cx,cy+6);
+  if(st.timeCollapse>0.55){
+   const shake=(st.timeCollapse-0.55)*18;
+   ctx.save(); ctx.translate((Math.random()-0.5)*shake,(Math.random()-0.5)*shake);
+   ctx.fillStyle='rgba(255,40,40,'+(st.timeCollapse-0.5)+')'; ctx.fillRect(0,0,W,H);
+   ctx.restore();
+  }
+  if(st.timeCollapse>=1&&!st.timeMineFinishing){
+   st.timeMineFinishing=true;
+   mhTimeMineFinish(st,save);
+   st.timeMineFinishing=false;
+  }
+}
+ ctx.fillStyle='rgba(0,0,0,.7)'; ctx.fillRect(8,H-36,W-16,28);
+ ctx.fillStyle='#c0d0e0'; ctx.font='bold 12px system-ui'; ctx.textAlign='left';
+ ctx.fillText('⏳ Ancient mine · F leave · '+mhTimeMineShardCount(q)+'/3 shards',16,H-16);
+}
+function mhHasMorph(save,id){return save.collected.includes(id);}
+function mhWorldComplete(save,wi){
+ const need=mhWorldMorphs(wi);
+ return need.length>0&&need.every(m=>mhHasMorph(save,m.id));
+}
+
+function mhFacePath(face){
+ if(face==='grin') return '<path d="M40 29 Q50 36 60 29" stroke="#1a1a20" stroke-width="2" fill="none"/><rect x="46" y="31" width="8" height="3" rx="1" fill="#fff" opacity=".85"/>';
+ if(face==='o') return '<ellipse cx="50" cy="31" rx="4" ry="5" fill="none" stroke="#1a1a20" stroke-width="1.8"/>';
+ if(face==='flat') return '<line x1="43" y1="31" x2="57" y2="31" stroke="#1a1a20" stroke-width="2" stroke-linecap="round"/>';
+ if(face==='w') return '<path d="M42 28 L46 32 L50 28 L54 32 L58 28" stroke="#1a1a20" stroke-width="1.6" fill="none" stroke-linecap="round"/>';
+ return '<path d="M42 30 Q50 34 58 30" stroke="#1a1a20" stroke-width="1.8" fill="none" stroke-linecap="round"/>';
+}
+
+function mhBodyShape(m){
+ const h=m.head||'#F5CD30', t=m.torso||'#0085DB', l=m.legs||'#A4BD47', a=m.arms||h;
+ const body=m.body||'classic';
+ if(body==='ghost'){
+  return `<ellipse cx="50" cy="124" rx="18" ry="3" fill="#000" opacity=".15"/>
+   <path d="M34 44 Q50 36 66 44 L66 98 Q58 92 50 98 Q42 92 34 98 Z" fill="${t}" opacity=".95"/>
+   <rect x="33" y="8" width="34" height="34" rx="4" fill="${h}"/>`;
+ }
+ if(body==='robot'){
+  return `<ellipse cx="50" cy="124" rx="22" ry="4" fill="#000" opacity=".2"/>
+   <rect x="32" y="68" width="14" height="32" rx="1" fill="${l}"/><rect x="54" y="68" width="14" height="32" rx="1" fill="${l}"/>
+   <rect x="28" y="42" width="44" height="26" rx="2" fill="${t}"/>
+   <rect x="10" y="44" width="16" height="24" rx="1" fill="${a}"/><rect x="74" y="44" width="16" height="24" rx="1" fill="${a}"/>
+   <rect x="31" y="6" width="38" height="36" rx="2" fill="${h}"/>
+   <rect x="38" y="16" width="8" height="8" fill="#00e8ff"/><rect x="54" y="16" width="8" height="8" fill="#00e8ff"/>
+   <rect x="42" y="30" width="16" height="4" fill="#303840"/>`;
+ }
+ if(body==='chibi'){
+  return `<ellipse cx="50" cy="118" rx="16" ry="3" fill="#000" opacity=".2"/>
+   <rect x="36" y="72" width="12" height="22" rx="2" fill="${l}"/><rect x="52" y="72" width="12" height="22" rx="2" fill="${l}"/>
+   <rect x="34" y="52" width="32" height="20" rx="3" fill="${t}"/>
+   <rect x="22" y="54" width="10" height="18" rx="2" fill="${a}"/><rect x="68" y="54" width="10" height="18" rx="2" fill="${a}"/>
+   <rect x="28" y="14" width="44" height="40" rx="5" fill="${h}"/>`;
+ }
+ if(body==='tall'){
+  return `<ellipse cx="50" cy="126" rx="20" ry="4" fill="#000" opacity=".2"/>
+   <rect x="33" y="62" width="14" height="42" rx="2" fill="${l}"/><rect x="53" y="62" width="14" height="42" rx="2" fill="${l}"/>
+   <rect x="31" y="38" width="38" height="26" rx="3" fill="${t}"/>
+   <rect x="16" y="40" width="12" height="26" rx="2" fill="${a}"/><rect x="72" y="40" width="12" height="26" rx="2" fill="${a}"/>
+   <rect x="35" y="10" width="30" height="28" rx="4" fill="${h}"/>`;
+ }
+ if(body==='wide'){
+  return `<ellipse cx="50" cy="124" rx="26" ry="4" fill="#000" opacity=".2"/>
+   <rect x="30" y="66" width="18" height="34" rx="2" fill="${l}"/><rect x="52" y="66" width="18" height="34" rx="2" fill="${l}"/>
+   <rect x="24" y="40" width="52" height="28" rx="3" fill="${t}"/>
+   <rect x="8" y="42" width="18" height="28" rx="2" fill="${a}"/><rect x="74" y="42" width="18" height="28" rx="2" fill="${a}"/>
+   <rect x="33" y="8" width="34" height="34" rx="4" fill="${h}"/>`;
+ }
+ if(body==='builder'){
+  return `<ellipse cx="50" cy="124" rx="22" ry="4" fill="#000" opacity=".2"/>
+   <rect x="32" y="66" width="16" height="34" rx="2" fill="${l}"/><rect x="52" y="66" width="16" height="34" rx="2" fill="${l}"/>
+   <rect x="30" y="40" width="40" height="28" rx="3" fill="${t}"/>
+   <rect x="14" y="42" width="14" height="28" rx="2" fill="${a}"/><rect x="72" y="42" width="14" height="28" rx="2" fill="${a}"/>
+   <rect x="33" y="8" width="34" height="34" rx="4" fill="${h}"/>
+   <polygon points="50,0 62,10 38,10" fill="#f4c430"/>`;
+ }
+ return `<ellipse cx="50" cy="124" rx="22" ry="4" fill="#000" opacity=".2"/>
+  <rect x="32" y="66" width="16" height="34" rx="2" fill="${l}"/>
+  <rect x="52" y="66" width="16" height="34" rx="2" fill="${l}"/>
+  <rect x="30" y="40" width="40" height="28" rx="3" fill="${t}"/>
+  <rect x="14" y="42" width="14" height="28" rx="2" fill="${a}"/>
+  <rect x="72" y="42" width="14" height="28" rx="2" fill="${a}"/>
+  <rect x="33" y="8" width="34" height="34" rx="4" fill="${h}"/>`;
+}
+
+/** Full R6-style body (head, torso, arms, legs) + archetypes */
+function mhClassicNoobSvg(m){
+ if(!m) return '';
+ if(m.plagueDoctor){
+  const gid='pd3d'+((mhHashStr(m.id||'pd')>>>0)%99999);
+  const ve=m.voidEyes||'#ff2020';
+  const acc=m.voidAccent||'#cc0000';
+  const sym=MH_ANCIENT_GLYPHS[(mhHashStr(m.id||'pd')%5)];
+  return `<defs>
+   <radialGradient id="${gid}H" cx="45%" cy="35%" r="65%"><stop offset="0%" stop-color="#2a3438"/><stop offset="55%" stop-color="#0a0a0a"/><stop offset="100%" stop-color="#040406"/></radialGradient>
+   <linearGradient id="${gid}B" x1="50%" y1="0%" x2="50%" y2="100%"><stop offset="0%" stop-color="#060606"/><stop offset="45%" stop-color="#3a4438"/><stop offset="100%" stop-color="#181818"/></linearGradient>
+   <linearGradient id="${gid}C" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#1a2028"/><stop offset="100%" stop-color="#050508"/></linearGradient>
+  </defs>
+   <ellipse cx="50" cy="126" rx="16" ry="3" fill="#000" opacity=".2"/>
+   <rect x="32" y="62" width="16" height="42" rx="2" fill="#141414" stroke="#0a0a0a" stroke-width="1"/>
+   <rect x="52" y="62" width="16" height="42" rx="2" fill="#141414" stroke="#0a0a0a" stroke-width="1"/>
+   <rect x="31" y="100" width="18" height="6" rx="1" fill="#0a0a0a" stroke="${acc}" stroke-width="1"/>
+   <rect x="51" y="100" width="18" height="6" rx="1" fill="#0a0a0a" stroke="${acc}" stroke-width="1"/>
+   <rect x="31" y="40" width="38" height="24" rx="2" fill="#580808" stroke="${acc}" stroke-width="1"/>
+   <rect x="16" y="42" width="12" height="24" rx="2" fill="#1a1a1a"/>
+   <rect x="72" y="42" width="12" height="24" rx="2" fill="#1a1a1a"/>
+   <rect x="28" y="50" width="44" height="4" fill="${acc}" opacity=".9"/>
+   <text x="50" y="54" text-anchor="middle" font-size="9" fill="#ffe0e0" font-family="serif">${sym}</text>
+   <ellipse cx="50" cy="17" rx="13" ry="15" fill="url(#${gid}H)" stroke="${acc}" stroke-width="1.5"/>
+   <ellipse cx="43" cy="15" rx="5" ry="3.8" fill="#030305"/><ellipse cx="57" cy="15" rx="5" ry="3.8" fill="#030305"/>
+   <rect x="41" y="13" width="3" height="2" fill="${ve}"/><rect x="56" y="13" width="3" height="2" fill="${ve}"/>
+   <path d="M44 29 Q50 27 56 29 Q58 21 54 15 Q50 9 50 9 Q46 15 42 21 Q44 29 44 29 Z" fill="url(#${gid}B)" stroke="#ff2020" stroke-width="1"/>
+   <path d="M46 30 Q50 28 54 30 Q52 22 50 14 Q48 22 46 30 Z" fill="#030303" opacity=".85"/>
+   <path d="M50 28 L50 10" fill="none" stroke="#a0b0a0" stroke-width="1.1"/>
+   <path d="M44 29 Q50 27 56 29" fill="none" stroke="${acc}" stroke-width="0.8"/>
+   <text x="16" y="26" font-size="10">☠</text><text x="74" y="28" font-size="10">💊</text>`;
+ }
+ if((m.signatureOnly||m.mayorOnly||(m.signatureReal&&m.sigLook))&&m.sigLook&&!m.plagueDoctor&&!m.voidKing){
+  return mhSignatureNoobSvg(m);
+ }
+ if(m.voidKing){
+  const gid='vfg'+((mhHashStr(m.id||'vf-king')>>>0)%99999);
+  const syms=MH_ANCIENT_GLYPHS.map((g,i)=>`<text x="${12+i*19}" y="14" font-size="8" fill="#ff8080" opacity=".75" font-family="serif">${g}</text>`).join('');
+  return `<defs><radialGradient id="${gid}S" cx="50%" cy="40%" r="65%"><stop offset="0%" stop-color="#ff3030" stop-opacity=".35"/><stop offset="45%" stop-color="#280808" stop-opacity=".55"/><stop offset="100%" stop-color="#000" stop-opacity="0"/></radialGradient></defs>
+   ${syms}
+   <ellipse cx="50" cy="72" rx="46" ry="58" fill="url(#${gid}S)"/>
+   <ellipse cx="50" cy="124" rx="26" ry="5" fill="#000" opacity=".28"/>
+   <rect x="30" y="64" width="15" height="38" fill="#141414" stroke="#801010" stroke-width="1"/>
+   <rect x="55" y="64" width="15" height="38" fill="#141414" stroke="#801010" stroke-width="1"/>
+   <rect x="26" y="36" width="48" height="30" fill="#580808" stroke="#a01010" stroke-width="1.5"/>
+   <rect x="12" y="40" width="13" height="26" fill="#161616"/>
+   <rect x="75" y="40" width="13" height="26" fill="#161616"/>
+   <path d="M4 34 L4 70 L18 66 L18 38 Z" fill="#480808" stroke="#cc1010" stroke-width="1.5"/>
+   <path d="M4 34 L-2 28 L-2 44 Z M4 70 L-2 76 L-2 60 Z M18 38 L24 32 L24 48 Z M18 66 L24 72 L24 56 Z" fill="#a01010"/>
+   <text x="11" y="56" text-anchor="middle" font-size="11" fill="#ffe0e0" font-family="serif">${MH_ANCIENT_GLYPHS[4]}</text>
+   <rect x="78" y="18" width="7" height="34" fill="#2a1810"/>
+   <rect x="74" y="4" width="15" height="13" fill="#0a0a0a" stroke="#ff2020"/>
+   <rect x="74" y="24" width="15" height="13" fill="#0a0a0a" stroke="#ff2020"/>
+   <rect x="76" y="6" width="11" height="3" fill="#b01010"/>
+   <rect x="76" y="26" width="11" height="3" fill="#b01010"/>
+   <rect x="31" y="4" width="38" height="36" fill="#161616" stroke="#801010" stroke-width="1.5"/>
+   <rect x="34" y="8" width="32" height="28" fill="#0a0a0a"/>
+   <ellipse cx="42" cy="18" rx="5" ry="4" fill="#030305"/><ellipse cx="58" cy="18" rx="5" ry="4" fill="#030305"/>
+   <rect x="40" y="16" width="3" height="2" fill="#ff2020"/><rect x="57" y="16" width="3" height="2" fill="#ff2020"/>
+   <path d="M36 32 Q50 28 64 32" fill="none" stroke="#ff2020" stroke-width="1.2"/>
+   <rect x="38" y="24" width="24" height="3" fill="#ff2020" opacity=".85"/>`;
+ }
+ if(m.rarity==='voidfallen'||m.voidFallen){
+  const gid='vf'+((mhHashStr(m.id||'vf')>>>0)%99999);
+  const ve=m.voidEyes||'#ff5050';
+  const acc=m.voidAccent||'#ff3030';
+  const body=mhBodyShape(m);
+  const sym=MH_ANCIENT_GLYPHS[(mhHashStr(m.id||'vf')%5)];
+  return `<defs><radialGradient id="${gid}"><stop offset="0%" stop-color="#ff4040" stop-opacity=".5"/><stop offset="40%" stop-color="#280808" stop-opacity=".65"/><stop offset="100%" stop-color="#000" stop-opacity="0"/></radialGradient></defs>
+   <ellipse cx="50" cy="72" rx="42" ry="56" fill="url(#${gid})"/>
+   <ellipse cx="50" cy="72" rx="36" ry="48" fill="none" stroke="#0a0a0a" stroke-width="4" opacity=".85"/>
+   <ellipse cx="50" cy="72" rx="36" ry="48" fill="none" stroke="${acc}" stroke-width="2" opacity=".75"/>
+   ${body}
+   <rect x="26" y="46" width="48" height="10" fill="#0a0a0a" opacity=".85"/>
+   <rect x="28" y="48" width="44" height="4" fill="${acc}" opacity=".95"/>
+   <text x="50" y="54" text-anchor="middle" font-size="10" fill="#ffe0e0" font-family="serif">${sym}</text>
+   <rect x="36" y="16" width="10" height="10" fill="${ve}"/><rect x="54" y="16" width="10" height="10" fill="${ve}"/>
+   <rect x="38" y="18" width="5" height="5" fill="#fff" opacity=".5"/><rect x="56" y="18" width="5" height="5" fill="#fff" opacity=".5"/>
+   <rect x="32" y="58" width="36" height="5" fill="rgba(255,40,40,.55)"/>
+   <path d="M50 62 L46 72 L54 72 Z" fill="#0a0a0a" stroke="${acc}" stroke-width="1"/>`;
+ }
+ let hat='';
+ if(m.hat==='crown') hat='<polygon points="50,2 58,14 42,14" fill="#ffd700"/><rect x="42" y="12" width="16" height="5" fill="#e8b020"/>';
+ if(m.hat==='star') hat='<polygon points="50,0 52,10 62,10 54,16 57,26 50,20 43,26 46,16 38,10 48,10" fill="#ffe060"/>';
+ if(m.hat==='wave') hat='<text x="68" y="18" font-size="12">👋</text>';
+ if(m.hat==='party') hat='<circle cx="40" cy="8" r="4" fill="#ff4080"/><circle cx="60" cy="10" r="3" fill="#40c0ff"/>';
+ if(m.hat==='gem') hat='<polygon points="50,0 58,14 50,20 42,14" fill="#80e0ff" stroke="#fff" stroke-width="1"/>';
+ if(m.hat==='headphones') hat='<path d="M32 24 Q32 8 50 8 Q68 8 68 24" fill="none" stroke="#303840" stroke-width="4"/><rect x="28" y="22" width="8" height="14" rx="2" fill="#404850"/><rect x="64" y="22" width="8" height="14" rx="2" fill="#404850"/>';
+ if(m.hat==='bow') hat='<polygon points="50,10 58,4 58,16" fill="#ff5090"/><polygon points="50,10 42,4 42,16" fill="#ff5090"/><circle cx="50" cy="10" r="3" fill="#ffc0d8"/>';
+ if(m.hat==='voidhorn') hat='<polygon points="50,2 56,16 44,16" fill="#402060" stroke="#c080ff" stroke-width="1"/>';
+ if(m.hat==='voidhalo') hat='<path d="M36 12 A14 14 0 0 1 64 12" fill="none" stroke="#c898ff" stroke-width="3"/><path d="M40 10 A10 10 0 0 1 60 10" fill="none" stroke="#fff" stroke-width="1" opacity=".4"/>';
+ if(m.hat==='riftshard') hat='<polygon points="62,6 70,18 62,24 54,18" fill="#80e0ff" stroke="#fff" stroke-width="1"/>';
+ if(m.hat==='plague') hat=`<ellipse cx="50" cy="14" rx="20" ry="9" fill="#1a2830" stroke="#506060" stroke-width="1.5"/>
+  <path d="M42 22 L58 22 L50 34 Z" fill="#303840" stroke="#809090" stroke-width="1"/>
+  <circle cx="44" cy="12" r="2.5" fill="#101820"/><circle cx="56" cy="12" r="2.5" fill="#101820"/>`;
+ if(m.plagueDoctor){
+  hat+=`<text x="18" y="24" font-size="11">☠</text><text x="72" y="26" font-size="10">💊</text><text x="14" y="48" font-size="9">💀</text><text x="78" y="44" font-size="10">🧪</text>`;
+ }
+ const stripe=m.stripe&&m.body!=='ghost'?`<rect x="30" y="48" width="40" height="7" fill="rgba(255,255,255,.28)"/><rect x="30" y="58" width="40" height="5" fill="rgba(0,0,0,.12)"/>`:'';
+ const glasses=m.glasses&&m.body!=='robot'?'<rect x="36" y="18" width="11" height="9" rx="2" fill="rgba(200,230,255,.35)" stroke="#1a1a20" stroke-width="1.2"/><rect x="53" y="18" width="11" height="9" rx="2" fill="rgba(200,230,255,.35)" stroke="#1a1a20" stroke-width="1.2"/><line x1="47" y1="22" x2="53" y2="22" stroke="#1a1a20" stroke-width="1.2"/>':'';
+ const face=m.body==='robot'?'':mhFacePath(m.face||'smile');
+ const headShine=m.body==='robot'?'':`<rect x="35" y="10" width="14" height="10" rx="2" fill="#fff" opacity=".12"/>
+  <circle cx="42" cy="22" r="3" fill="#1a1a20"/><circle cx="58" cy="22" r="3" fill="#1a1a20"/>
+  <circle cx="43" cy="21" r="1" fill="#fff" opacity=".5"/><circle cx="59" cy="21" r="1" fill="#fff" opacity=".5"/>`;
+ const sigDeco=m.sigDeco||'';
+ const questRing=m.questOnly?`<ellipse cx="50" cy="72" rx="42" ry="54" fill="none" stroke="${m.accent||'#80e0ff'}" stroke-width="2.2" opacity=".5"/><ellipse cx="50" cy="72" rx="34" ry="44" fill="none" stroke="${m.accent||'#80e0ff'}" stroke-width="1" opacity=".28" stroke-dasharray="4 3"/>`:'';
+ return `<g>
+  ${questRing}
+  ${mhBodyShape(m)}
+  ${stripe}
+  ${headShine}
+  ${glasses}
+  ${face}
+  ${hat}
+  ${sigDeco}
+ </g>`;
+}
+
+function mhRefreshTeacherNoob(){
+ const id=window.LITHOS_NOOBIE_WEAR||mhLoadWearId();
+ const m=mhMorph(id);
+ const html=m?`<svg viewBox="0 0 100 130" class="teacher-noob-svg">${mhClassicNoobSvg(m)}</svg><span class="teacher-noob-name">Rock Teacher morphed into <b>${m.name}</b></span>`:'';
+ document.querySelectorAll('.teacher-noob-slot,#teacher-noob-slot,#class-teacher-noob-slot').forEach(el=>{
+  if(!el) return;
+  el.innerHTML=html;
+  el.hidden=!m;
+ });
+}
+
+let mhState=null;
+let mhPendingFound=null;
+
+function mhMorphHuntIsOpen(){
+ return !!(mhState&&document.getElementById('morphhunt'));
+}
+function mhMorphHuntTypingTarget(el){
+ if(!el) return false;
+ if(el.id==='mh-chat-input'||el.id==='mh-chat-friend-code') return true;
+ return !!(el.closest&&el.closest('input,textarea,select,[contenteditable="true"]'));
+}
+function mhMorphHuntActivationKey(e){
+ if(!e) return false;
+ if(isSpaceKey(e)) return true;
+ if(e.key==='Enter'||e.code==='Enter'||e.code==='NumpadEnter') return true;
+ return false;
+}
+function mhMorphHuntObbySpaceOk(e){
+ if(!mhState?.minigameMorph||mhState.minigameKind!=='obbyrun') return false;
+ if(!isSpaceKey(e)) return false;
+ const t=e.target;
+ return !!(t&&(t.classList?.contains('mh-mini-canvas')||t.closest?.('.mh-mini-stage')));
+}
+function mhMorphHuntKeyGuard(e){
+ if(!document.getElementById('morphhunt')) return;
+ if(mhState?.minigameMorph) return;
+ const t=e.target;
+ if(mhMorphHuntTypingTarget(t)) return;
+ if(mhMorphHuntObbySpaceOk(e)) return;
+ if(t?.closest?.('#mh-minigame-modal')) return;
+ if(mhMorphHuntActivationKey(e)){
+  e.preventDefault();
+  e.stopImmediatePropagation();
+  return;
+ }
+}
+function mhMorphHuntHideSiteChrome(){
+ ['lithos-games-hub','lithos-adventure-preview','lithos-device-picker','stage-quiz','gift-notif'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(!el) return;
+  el.hidden=true;
+  el.setAttribute('hidden','');
+ });
+ try{ document.querySelector('.overlay')?.classList.remove('open'); }catch(_){}
+ try{ if(typeof closeDrawer==='function') closeDrawer(); }catch(_){}
+ try{ if(typeof closeStageQuiz==='function') closeStageQuiz(); }catch(_){}
+ try{ if(typeof closeGamesHub==='function') closeGamesHub({skipHash:true}); }catch(_){}
+ try{ if(typeof closeAdventurePreview==='function') closeAdventurePreview(); }catch(_){}
+}
+function mhMorphHuntShieldSiteInput(){
+ if(mhState?.siteShieldBound) return;
+ mhState.siteShieldBound=true;
+ const block=e=>{
+  if(!document.getElementById('morphhunt')) return;
+  const t=e.target;
+  if(t&&t.closest&&t.closest('#morphhunt')) return;
+  if(mhMorphHuntTypingTarget(t)) return;
+  e.preventDefault();
+  e.stopImmediatePropagation();
+ };
+ document.addEventListener('click',block,true);
+ document.addEventListener('pointerdown',block,true);
+ mhState.siteShieldHandlers=block;
+}
+function mhMorphHuntUnshieldSiteInput(){
+ if(!mhState?.siteShieldBound||!mhState.siteShieldHandlers) return;
+ const block=mhState.siteShieldHandlers;
+ document.removeEventListener('click',block,true);
+ document.removeEventListener('pointerdown',block,true);
+ mhState.siteShieldBound=false;
+ mhState.siteShieldHandlers=null;
+}
+function mhMorphHuntBlurPageFocus(){
+ try{
+  const ae=document.activeElement;
+  if(ae&&ae!==document.body&&typeof ae.blur==='function') ae.blur();
+ }catch(_){}
+}
+function mhLikelyIdePreview(){
+ try{
+  if(window.self!==window.top) return true;
+  const ua=(navigator.userAgent||'').toLowerCase();
+  if(ua.includes('electron')) return true;
+  if(location.protocol==='vscode-webview:'||location.protocol==='cursor-webview:') return true;
+ }catch(_){}
+ return false;
+}
+function mhIdeHintDismissed(){
+ try{ return localStorage.getItem('lithos_mh_hide_ide_hint')==='1'; }catch(_){ return false; }
+}
+function mhIdePreviewHintHtml(){
+ if(mhIdeHintDismissed()) return '';
+ const url=location.href.split('#')[0]+'#morphhunt';
+ const safe=url.replace(/"/g,'&quot;');
+ const inIde=mhLikelyIdePreview();
+ return `<aside class="mh-ide-preview-hint" role="note">
+  <button type="button" class="mh-ide-hint-x" id="mh-ide-hint-dismiss" title="Hide this tip">×</button>
+  <b>Blue ring outside the game?</b> Lithos cannot fix that — it is the <em>Cursor preview window</em> or Mac <em>Full Keyboard Access</em>.${inIde?' <em>(Detected embedded preview.)</em>':''}
+  <span class="mh-ide-preview-actions">
+   <a class="mh-ide-open-ext" href="${safe}" target="_blank" rel="noopener noreferrer">Open in Safari/Chrome ↗</a>
+   <span class="mh-ide-preview-mac">Best on Mac: double-click <b>Play-Morph-Hunt-in-Safari.command</b> in your Lithos folder (opens real Safari). Or Terminal: <code>open -a Safari "${safe.replace(/&quot;/g,'"')}"</code></span>
+   <span class="mh-ide-preview-mac">Mac settings: Accessibility → Keyboard → <b>Full Keyboard Access</b> OFF · Cursor: ⌘⇧P → <b>Developer: Reload Window</b></span>
+  </span>
+ </aside>`;
+}
+function mhBindIdeHint(root){
+ root?.querySelector('#mh-ide-hint-dismiss')?.addEventListener('click',()=>{
+  try{ localStorage.setItem('lithos_mh_hide_ide_hint','1'); }catch(_){}
+  root.querySelector('.mh-ide-preview-hint')?.remove();
+ });
+ root?.querySelector('#mh-ide-hint-restore')?.addEventListener('click',()=>{
+  try{ localStorage.removeItem('lithos_mh_hide_ide_hint'); }catch(_){}
+  mhRender();
+ });
+}
+function mhIdeHintRestoreLink(){
+ if(!mhIdeHintDismissed()) return '';
+ return `<p class="mh-ide-restore-row"><button type="button" class="mh-btn ghost mh-btn-sm" id="mh-ide-hint-restore">Show Safari / blue-ring help again</button></p>`;
+}
+function mhHuntUiCompact(){
+ try{ return localStorage.getItem('lithos_mh_compact_ui')!=='0'; }catch(_){ return true; }
+}
+function mhSetHuntUiCompact(on){
+ try{ localStorage.setItem('lithos_mh_compact_ui',on?'1':'0'); }catch(_){}
+}
+function mhHuntCompactToggleLabel(){
+ return mhHuntUiCompact()?'📋 Show all tips':'🎮 Clean view';
+}
+function mhBindHuntUiCompact(root){
+ root?.querySelector('#mh-ui-compact-toggle')?.addEventListener('click',()=>{
+  const compact=!mhHuntUiCompact();
+  mhSetHuntUiCompact(compact);
+  mhToast(compact?'🎮 Clean view — slim bottom bar · 👀 Preview · H for more':'📋 Full tips & controls shown');
+  mhRender();
+ });
+}
+function mhWalkDockToggleExpanded(root){
+ const hud=root?.querySelector('#mh-walk-hud.mh-walk-dock');
+ if(!hud) return false;
+ const on=!hud.classList.contains('is-expanded');
+ hud.classList.toggle('is-expanded',on);
+ if(on) mhToast('More controls · H to tuck away');
+ else mhToast('Slim bar only · H expands');
+ return on;
+}
+function mhBindWalkHudDock(root){
+ if(!mhHuntUiCompact()) return;
+ const hud=root?.querySelector('#mh-walk-hud.mh-walk-dock');
+ if(!hud) return;
+ root?.querySelector('#mh-walk-dock-toggle')?.addEventListener('click',()=> mhWalkDockToggleExpanded(root));
+ document.addEventListener('keydown',e=>{
+  if(mhState?.tab!=='hunt') return;
+  if(mhMorphHuntTypingTarget(document.activeElement)) return;
+  if(e.key==='h'&&!e.metaKey&&!e.ctrlKey&&!e.altKey){
+   e.preventDefault();
+   mhWalkDockToggleExpanded(root);
+  }
+ },true);
+}
+function mhQuickPreviewPickIds(save){
+ const ids=[];
+ const wear=save?.wearing;
+ if(wear) ids.push(wear);
+ ['vf-king','ex-plague-doctor','ex-mayor','ex-welcome'].forEach(id=>{ if(!ids.includes(id)) ids.push(id); });
+ return ids.map(id=>mhMorph(id)).filter(Boolean);
+}
+function mhOpenQuickPreview(focusId){
+ if(!mhState) return;
+ mhEnsureOverlayModals();
+ const modal=document.getElementById('mh-found-modal');
+ if(!modal) return;
+ const save=mhState.save;
+ const picks=mhQuickPreviewPickIds(save);
+ let mainId=focusId||mhState.morphPreviewId||save.wearing||picks[0]?.id||'ex-welcome';
+ if(!mhMorph(mainId)) mainId='ex-welcome';
+ mhState.morphPreviewId=mainId;
+ const m=mhMorph(mainId)||mhMorph('ex-welcome');
+ const r=mhRarityInfo(m);
+ const chips=picks.map(pm=>`<button type="button" class="mh-quick-preview-chip${pm.id===mainId?' on':''}" data-mh-quick-preview="${pm.id}">${pm.name.replace(/ Noobie$/,'')}</button>`).join('');
+ modal.innerHTML=`<div class="mh-found-card mh-found-card-showcase mh-quick-preview-modal" style="--mh-rarity:${r.color}">
+  <div class="mh-found-badge">👀 Morph preview</div>
+  ${mhMorphShowcaseCanvasHtml(m,'mh-quick-preview-showcase')}
+  <h3>${m.name}</h3>
+  <p class="mh-scene-hint">Welcome Noobie → your morph · aura &amp; 3D look · tap a star morph below</p>
+  <div class="mh-quick-preview-chips">${chips}</div>
+  <div class="mh-quick-preview-links">
+   <button type="button" class="mh-btn mh-btn-sm" data-mh-tab="morph">🎭 Your morphs</button>
+   <button type="button" class="mh-btn mh-btn-sm" data-mh-tab="stars">⭐ Story Stars</button>
+   <button type="button" class="mh-btn mh-btn-sm" data-mh-tab="preview">🎬 Animations</button>
+  </div>
+  ${mhHasMorph(save,m.id)||mhIsOwner()?`<button type="button" class="mh-btn primary" data-mh-wear="${m.id}">🎭 Morph into ${m.name.replace(/ Noobie$/,'')}</button>`:''}
+  <button type="button" class="mh-btn ghost" id="mh-quick-preview-close">Back to map</button>
+ </div>`;
+ modal.hidden=false;
+ mhShowcaseStart();
+ modal.querySelectorAll('[data-mh-quick-preview]').forEach(btn=>btn.addEventListener('click',()=>{
+  mhOpenQuickPreview(btn.dataset.mhQuickPreview);
+ }));
+ modal.querySelectorAll('[data-mh-tab]').forEach(btn=>btn.addEventListener('click',()=>{
+  modal.hidden=true;
+  mhShowcaseStop();
+  mhSetTab(btn.dataset.mhTab);
+ }));
+ modal.querySelector('[data-mh-wear]')?.addEventListener('click',e=>{
+  mhWear(e.currentTarget.dataset.mhWear,true);
+  modal.hidden=true;
+  mhShowcaseStop();
+ });
+ modal.querySelector('#mh-quick-preview-close')?.addEventListener('click',()=>{
+  modal.hidden=true;
+  mhShowcaseStop();
+ });
+ mhToast('👀 Preview · P anytime on the map');
+}
+function mhMorphHuntInertBackground(on){
+ if(!mhState) return;
+ if(on){
+  mhState.inertEls=[];
+  for(const el of document.body.children){
+   if(el.id==='morphhunt') continue;
+   mhState.inertEls.push(el);
+   try{ el.inert=true; }catch(_){}
+   try{ el.setAttribute('aria-hidden','true'); }catch(_){}
+  }
+ }else{
+  (mhState.inertEls||[]).forEach(el=>{
+   try{ el.inert=false; }catch(_){}
+   try{ el.removeAttribute('aria-hidden'); }catch(_){}
+  });
+  mhState.inertEls=[];
+ }
+}
+function mhMorphHuntFocusGame(){
+ mhMorphHuntBlurPageFocus();
+}
+function mhMorphHuntBodyLock(on){
+ try{
+  if(on) document.body.classList.add('mh-hunt-open');
+  else document.body.classList.remove('mh-hunt-open');
+ }catch(_){}
+}
+function mhMorphHuntFocusOut(e){
+ if(!document.getElementById('morphhunt')) return;
+ const t=e.target;
+ if(!t||t===document.body) return;
+ if(t.closest&&t.closest('#morphhunt')) return;
+ if(mhMorphHuntTypingTarget(t)) return;
+ try{ t.blur(); }catch(_){}
+}
+function mhMorphHuntPatchSiteNav(){
+ window.lithosMorphHuntActive=function(){ return !!document.getElementById('morphhunt'); };
+ if(window.__mhEnterStratumPatched) return;
+ window.__mhEnterStratumPatched=true;
+ const orig=window.enterStratum;
+ if(typeof orig!=='function') return;
+ window.enterStratum=function(){
+  if(document.getElementById('morphhunt')) return;
+  return orig.apply(this,arguments);
+ };
+}
+function mhMorphHuntBindModal(){
+ mhMorphHuntPatchSiteNav();
+ document.addEventListener('keydown',mhMorphHuntKeyGuard,true);
+ document.addEventListener('keyup',mhMorphHuntKeyGuard,true);
+ document.addEventListener('focusin',mhMorphHuntFocusOut,true);
+}
+function mhMorphHuntUnbindModal(){
+ document.removeEventListener('keydown',mhMorphHuntKeyGuard,true);
+ document.removeEventListener('keyup',mhMorphHuntKeyGuard,true);
+ document.removeEventListener('focusin',mhMorphHuntFocusOut,true);
+}
+function mhClose(){
+ mhWalkStop();
+ mhPreviewStop();
+ mhMorphHuntUnshieldSiteInput();
+ mhMorphHuntInertBackground(false);
+ mhMorphHuntUnbindModal();
+ mhMorphHuntBodyLock(false);
+ const el=document.getElementById('morphhunt');
+ if(el)el.remove();
+ mhState=null;
+ if(typeof syncBodyScrollLock==='function')syncBodyScrollLock();
+}
+
+function mhToast(msg){
+ const t=document.getElementById('mh-toast');
+ if(!t)return;
+ t.textContent=msg;
+ t.classList.add('show');
+ clearTimeout(t._tm);
+ t._tm=setTimeout(()=>t.classList.remove('show'),2400);
+}
+function mhUnlockSfx(){
+ try{
+  if(typeof SFX==='undefined') return;
+  if(SFX.resume) SFX.resume();
+  else if(SFX.poke) SFX.poke();
+  else if(SFX.click) SFX.click();
+ }catch(_){}
+}
+function mhPlaySfx(kind){
+ try{
+  if(typeof SFX==='undefined') return;
+  mhUnlockSfx();
+  if(kind==='hit'){ (SFX.hit||SFX.boom||SFX.hammer)(); return; }
+  if(kind==='ui'){ (SFX.ui||SFX.click||SFX.code)(); return; }
+  if(kind==='win'&&SFX.win) SFX.win();
+ }catch(_){}
+}
+function mhPlagueDoctorVoice(line){
+ try{
+  if(typeof speechSynthesis==='undefined'||!line) return;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(String(line));
+  u.rate=0.9; u.pitch=0.7; u.volume=1;
+  speechSynthesis.speak(u);
+ }catch(_){}
+}
+let mhChatBroadcast=null;
+function mhChatConfig(){
+ return (typeof window!=='undefined'&&window.LITHOS_CHAT_CONFIG)||null;
+}
+function mhChatRelayOn(){
+ const c=mhChatConfig();
+ return !!(c&&c.relay);
+}
+function mhChatRoleTitle(save){
+ if(mhIsRealOwner()) return 'Owner';
+ if(mhIsLithosStaff()) return 'Admin';
+ const t=String(save?.title||'').trim();
+ return t?t.slice(0,32):'';
+}
+function mhChatTitleClass(title){
+ const t=String(title||'').toLowerCase();
+ if(t==='owner') return 'owner';
+ if(t==='admin'||t.indexOf('lithos')>=0) return 'admin';
+ return 'player';
+}
+function mhChatSpeakerLabel(name,title){
+ const n=String(name||'Noobie').replace(/</g,'');
+ if(!title) return n;
+ const cls=mhChatTitleClass(title);
+ return `<span class="mh-chat-speaker"><span class="mh-chat-title mh-chat-title-${cls}">${String(title).replace(/</g,'')}</span> <b>${n}</b></span>`;
+}
+function mhChatSetDisplayName(save,raw){
+ if(!save) return true;
+ const name=String(raw||'').trim().slice(0,24);
+ if(name.length<2){ mhToast('Pick a username — 2 to 24 characters'); return true; }
+ const ok=mhChatModerateName(name);
+ if(!ok.ok){ mhToast('🛡️ '+ok.reason); return true; }
+ save.chatDisplayName=name;
+ mhSaveSave(save);
+ const role=mhChatRoleTitle(save);
+ mhToast('✓ Username: '+name+(role?' · title: '+role:''));
+ mhRender();
+ return true;
+}
+function mhChatMaybePromptName(st,save){
+ if(!st||!save||mhIsTestProfile()) return;
+ const has=(save.chatDisplayName||'').trim().length>=2;
+ try{
+  const k='lithos_mh_name_hint_'+MH_BUILD;
+  if(has||sessionStorage.getItem(k)) return;
+  sessionStorage.setItem(k,'1');
+ }catch(_){ if(has) return; }
+ setTimeout(()=>{
+  if(!mhState||mhState.tab!=='hunt') return;
+  mhToast('✏️ Pick your username in chat — or type /name YourName');
+ },1200);
+}
+function mhEnsureChatProfile(save){
+ if(!save) return {id:'guest',name:'Noobie',title:'',morphId:''};
+ if(!save.chatPlayerId){
+  save.chatPlayerId='noob-'+Math.random().toString(36).slice(2,11);
+  mhSaveSave(save);
+ }
+ const morph=mhMorph(save.wearing);
+ let name=(save.chatDisplayName||'').trim();
+ if(!name) name=(morph?.name?.replace(/ Noobie$/,''))||('Noobie '+save.chatPlayerId.slice(-4));
+ name=name.slice(0,24);
+ const nameOk=mhChatModerateName(name);
+ if(!nameOk.ok) name='Noobie '+save.chatPlayerId.slice(-4);
+ const title=mhChatRoleTitle(save);
+ return {id:save.chatPlayerId,name,title,morphId:save.wearing||''};
+}
+function mhChatLoadStore(){
+ try{
+  const raw=JSON.parse(localStorage.getItem(MH_CHAT_LOG_KEY)||'[]');
+  return Array.isArray(raw)?raw:[];
+ }catch(_){ return []; }
+}
+function mhChatSaveStore(list){
+ try{ localStorage.setItem(MH_CHAT_LOG_KEY,JSON.stringify(list.slice(-400))); }catch(_){}
+}
+function mhChatLocalQuery(channel,since,world,peerId){
+ const sinceT=+(since||0);
+ return mhChatLoadStore().filter(m=>{
+  if(!m||m.t<=sinceT) return false;
+  if(m.channel!==channel) return false;
+  if(channel==='server'&&world!=null&&m.world!==world) return false;
+  if(channel==='friend'&&peerId){
+   const me=mhState?.save?mhEnsureChatProfile(mhState.save).id:'';
+   return (m.fromId===me&&m.toId===peerId)||(m.fromId===peerId&&m.toId===me);
+  }
+  return true;
+ });
+}
+async function mhChatFetchRemote(channel,since,world,peerId){
+ const cfg=mhChatConfig();
+ if(!cfg?.relay) return null;
+ try{
+  const base=String(cfg.relay).replace(/\/$/,'');
+  const path=base.includes('/messages')?base:(base+'/messages');
+  const q=new URLSearchParams();
+  q.set('channel',channel);
+  q.set('since',String(since||0));
+  if(channel==='server'&&world!=null) q.set('world',String(world));
+  if(channel==='friend'&&peerId) q.set('peer',peerId);
+  const r=await fetch(path+'?'+q.toString(),{headers:cfg.headers||{},cache:'no-store'});
+  if(!r.ok) return null;
+  const data=await r.json();
+  return Array.isArray(data)?data:(data.messages||[]);
+ }catch(_){ return null; }
+}
+async function mhChatPostRemote(msg){
+ const cfg=mhChatConfig();
+ if(!cfg?.relay) return false;
+ try{
+  const base=String(cfg.relay).replace(/\/$/,'');
+  const url=base.includes('/messages')?base:base+'/messages';
+  const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json',...(cfg.headers||{})},body:JSON.stringify(msg)});
+  return r.ok;
+ }catch(_){ return false; }
+}
+function mhChatMergeMessages(incoming){
+ if(!incoming?.length) return;
+ const store=mhChatLoadStore();
+ const ids=new Set(store.map(m=>m.id));
+ let added=0;
+ incoming.forEach(m=>{
+  if(!m?.id||ids.has(m.id)) return;
+  const safe=(typeof m.blocked==='boolean')?m:mhChatWrapMessage(m);
+  store.push(safe); ids.add(m.id); added++;
+ });
+ if(added) mhChatSaveStore(store);
+ return added;
+}
+let mhPresenceBroadcast=null;
+function mhPresenceStoreRead(){
+ try{
+  const raw=JSON.parse(localStorage.getItem(MH_PRESENCE_KEY)||'{}');
+  return raw&&typeof raw==='object'?raw:{};
+ }catch(_){ return {}; }
+}
+function mhPresenceStoreWrite(all){
+ try{ localStorage.setItem(MH_PRESENCE_KEY,JSON.stringify(all)); }catch(_){}
+}
+function mhPresenceFromPacket(m){
+ if(!m?.fromId) return null;
+ let data={};
+ try{ data=JSON.parse(m.text||'{}'); }catch(_){}
+ return{
+  id:m.fromId,
+  name:m.fromName||m.fromId,
+  title:m.fromTitle||'',
+  morphId:data.morphId||m.morphId||'ex-welcome',
+  world:typeof data.world==='number'?data.world:0,
+  px:+(data.px||0),
+  py:+(data.py||0),
+  t:+(m.t||Date.now()),
+  human:true
+ };
+}
+function mhPresenceUpsert(p){
+ if(!p?.id) return;
+ const all=mhPresenceStoreRead();
+ const now=Date.now();
+ Object.keys(all).forEach(id=>{ if(now-(all[id]?.t||0)>MH_PRESENCE_TTL) delete all[id]; });
+ const prev=all[p.id];
+ const isNew=!prev;
+ all[p.id]={...prev,...p,t:p.t||now,human:true};
+ mhPresenceStoreWrite(all);
+ return isNew;
+}
+function mhPresenceBroadcastInit(){
+ if(mhPresenceBroadcast||typeof BroadcastChannel==='undefined') return;
+ mhPresenceBroadcast=new BroadcastChannel(MH_PRESENCE_BROADCAST);
+ mhPresenceBroadcast.onmessage=(e)=>{
+  const p=mhPresenceFromPacket(e?.data);
+  if(!p) return;
+  const joined=mhPresenceUpsert(p);
+  if(joined&&mhState) mhPresenceOnJoin(mhState,p);
+ };
+}
+function mhPresenceOnJoin(st,p){
+ if(!st||!p?.id) return;
+ if(!st.presenceSeen) st.presenceSeen={};
+ if(st.presenceSeen[p.id]) return;
+ st.presenceSeen[p.id]=1;
+ const me=mhEnsureChatProfile(st.save).id;
+ if(p.id===me) return;
+ mhToast('🧑 Real human joined: '+ (p.name||p.id));
+ try{ mhPlaySfx('ui'); }catch(_){}
+}
+function mhPresenceHeartbeat(st,save){
+ if(!st||!save||st.tab!=='hunt') return;
+ const now=Date.now();
+ if(st.presenceLastBeat&&now-st.presenceLastBeat<MH_PRESENCE_HEARTBEAT_MS) return;
+ st.presenceLastBeat=now;
+ const prof=mhEnsureChatProfile(save);
+ const pos=mhWalkEnsurePos(st,st.world);
+ const msg={
+  id:'presence-'+prof.id,
+  channel:'presence',
+  fromId:prof.id,
+  fromName:prof.name,
+  fromTitle:prof.title||'',
+  morphId:prof.morphId,
+  text:JSON.stringify({world:st.world,px:pos.px,py:pos.py,morphId:prof.morphId}),
+  t:now
+ };
+ mhPresenceUpsert(mhPresenceFromPacket(msg));
+ mhChatPostRemote(msg);
+ try{ mhPresenceBroadcast?.postMessage(msg); }catch(_){}
+}
+async function mhPresencePoll(st){
+ if(!st) return;
+ if(!st.presenceSince) st.presenceSince=Date.now()-MH_PRESENCE_TTL;
+ const remote=await mhChatFetchRemote('presence',st.presenceSince);
+ const batch=(remote||[]).sort((a,b)=>a.t-b.t);
+ let maxT=st.presenceSince;
+ batch.forEach(m=>{
+  if(m.t<=st.presenceSince) return;
+  const p=mhPresenceFromPacket(m);
+  if(!p) return;
+  const joined=mhPresenceUpsert(p);
+  if(joined) mhPresenceOnJoin(st,p);
+  if(m.t>maxT) maxT=m.t;
+ });
+ st.presenceSince=maxT;
+}
+function mhPresenceOnline(st,save){
+ const me=mhEnsureChatProfile(save).id;
+ const now=Date.now();
+ const all=mhPresenceStoreRead();
+ return Object.values(all).filter(p=>p&&p.id&&p.id!==me&&now-(p.t||0)<MH_PRESENCE_TTL);
+}
+function mhPresenceSameWorld(st,save){
+ return mhPresenceOnline(st,save).filter(p=>p.world===(st?.world??0));
+}
+function mhDrawOnlineHumans(ctx,st,save,t){
+ const list=mhPresenceSameWorld(st,save);
+ list.forEach((p,i)=>{
+  const m=mhMorph(p.morphId)||mhMorph('ex-welcome');
+  const phase=(t*2.2+i)*0.7;
+  mhPaintNoobWorld(ctx,m,p.px,p.py,0.82,1,false,t,phase,false,false);
+  ctx.fillStyle='rgba(0,32,48,.88)'; ctx.fillRect(p.px-52,p.py-108,104,16);
+  ctx.fillStyle='#80ffb0'; ctx.font='bold 9px system-ui'; ctx.textAlign='center';
+  ctx.fillText('🧑 '+String(p.name||'Player').slice(0,14),p.px,p.py-96);
+  if(p.title){
+   ctx.fillStyle='rgba(0,0,0,.7)'; ctx.fillRect(p.px-40,p.py-122,80,12);
+   ctx.fillStyle=p.title==='Owner'?'#ffd060':(p.title==='Admin'?'#a0d8ff':'#c0c8d8');
+   ctx.font='bold 8px system-ui'; ctx.fillText(p.title,p.px,p.py-112);
+  }
+ });
+}
+function mhRenderPlayerRoster(st,save){
+ const el=document.getElementById('mh-player-list');
+ if(!el||!st||!save) return;
+ const me=mhEnsureChatProfile(save);
+ const wi=st.world;
+ const online=mhPresenceOnline(st,save).sort((a,b)=>String(a.name).localeCompare(String(b.name)));
+ const rows=[{id:me.id,name:me.name,title:me.title,world:wi,you:true}].concat(online);
+ el.innerHTML=rows.map(p=>{
+  const here=p.you||p.world===wi;
+  const banBtn=(st.banModeOn&&mhIsLithosAdmin()&&!p.you)?`<button type="button" class="mh-btn mh-btn-sm mh-roster-ban" data-mh-ban-id="${String(p.id).replace(/"/g,'&quot;')}" data-mh-ban-name="${String(p.name||'').replace(/"/g,'&quot;')}">Banned</button>`:'';
+  return `<li class="mh-roster-row${here?' here':''}">${p.you?'<b>You</b>':('🧑 '+String(p.name||p.id).slice(0,18))}${p.title?` <span class="mh-roster-title">${p.title}</span>`:''}${!p.you&&p.world!==wi?` <small>map ${p.world}</small>`:''}${banBtn}</li>`;
+ }).join('')||'<li class="mh-roster-row dim">No other humans yet — share Lithos link!</li>';
+ el.querySelectorAll('[data-mh-ban-id]').forEach(btn=>{
+  btn.onclick=()=>{
+   const id=btn.getAttribute('data-mh-ban-id');
+   const nm=btn.getAttribute('data-mh-ban-name')||id;
+   mhAdminBanPlayer(save,nm||id);
+   mhRenderPlayerRoster(st,save);
+  };
+ });
+ const modeBtn=document.getElementById('mh-ban-mode');
+ if(modeBtn){
+  modeBtn.textContent='Ban mode: '+(st.banModeOn?'ON':'OFF');
+  modeBtn.classList.toggle('primary',!!st.banModeOn);
+ }
+}
+function mhChatBroadcastInit(){
+ mhBanBroadcastInit();
+ mhDiscoBroadcastInit();
+ mhPresenceBroadcastInit();
+ if(mhChatBroadcast||typeof BroadcastChannel==='undefined') return;
+ mhChatBroadcast=new BroadcastChannel(MH_CHAT_BROADCAST);
+ mhChatBroadcast.onmessage=(e)=>{ if(e?.data?.id) mhChatIngest(e.data,true); };
+}
+function mhChatSpawnBubble(st,wx,wy,text,who,ms){
+ if(!st) return;
+ if(!st.chatBubbles) st.chatBubbles=[];
+ st.chatBubbles.push({x:wx,y:wy,text:String(text).slice(0,72),who:who||'',until:performance.now()+(ms||5000)});
+}
+function mhChatIngest(msg,silent){
+ if(!msg?.id||!mhState) return;
+ if(mhIsPlayerIdBanned(msg.fromId,msg.fromName)){
+  msg={...msg,blocked:true,text:'[Banned from Lithos chat]'};
+ }
+ msg=mhChatWrapMessage(msg);
+ const added=mhChatMergeMessages([msg]);
+ if(!added) return;
+ const me=mhEnsureChatProfile(mhState.save).id;
+ if(msg.fromId===me) return;
+ const wi=mhState.world;
+ const pos=mhWalkEnsurePos(mhState,wi);
+ if((msg.channel==='global'||msg.channel==='server')&&(msg.channel!=='server'||msg.world===wi)){
+  let nx=pos.px+((mhHashStr(msg.fromId)%160)-80);
+  let ny=pos.py-30-((mhHashStr(msg.fromId+'y')%50));
+  if(msg.fromId===MH_TEST_BUDDY_ID&&mhState.testBuddy?.on){
+   nx=mhState.testBuddy.px;
+   ny=mhState.testBuddy.py-28;
+  }else if(msg.fromId===MH_TEST_PLAYER_ID&&mhState.testAccountAiOn!==false&&!mhIsTestProfile()){
+   nx=mhState.testAccountNpc.px;
+   ny=mhState.testAccountNpc.py-28;
+  }
+  if(!msg.blocked){
+   mhChatSpawnBubble(mhState,nx,ny,(msg.fromName||'Noobie')+': '+msg.text,'remote');
+   if(!mhState.chatNpcLine) mhState.chatNpcLine={};
+   mhState.chatNpcLine['_remote_'+msg.fromId]={text:msg.text.slice(0,48),until:performance.now()+5000};
+  }
+ }
+ if(!silent) mhChatRefreshLog();
+ mhAgentMaybeReplyToIngest(msg);
+}
+function mhAgentMaybeReplyToIngest(msg){
+ if(!msg?.text||msg.blocked||!mhState?.save) return;
+ const me=mhEnsureChatProfile(mhState.save).id;
+ if(msg.fromId===me) return;
+ const channel=msg.channel||'global';
+ const toId=msg.toId||'';
+ const text=msg.text;
+ if(msg.fromId!==MH_TEST_BUDDY_ID&&msg.fromId!==MH_TEST_PLAYER_ID){
+  mhTestBuddyMaybeReply(mhState,mhState.save,text,channel,toId,me);
+  mhTestAccountMaybeReply(mhState,mhState.save,text,channel,toId,me);
+  return;
+ }
+ if(msg.fromId===MH_TEST_BUDDY_ID&&mhState.testBuddy?.on&&Math.random()<0.62){
+  mhTestAccountMaybeReply(mhState,mhState.save,text,channel,'',me);
+ }
+ if(msg.fromId===MH_TEST_PLAYER_ID&&!mhIsTestProfile()&&mhState.testAccountAiOn!==false&&Math.random()<0.62){
+  mhTestBuddyMaybeReply(mhState,mhState.save,text,channel,'',me);
+ }
+}
+function mhTestBuddyDefault(){
+ return {on:true,id:MH_TEST_BUDDY_ID,name:MH_TEST_BUDDY_NAME,morphId:'ex-welcome',phase:0,px:0,py:0,dir:0,wait:0,walkPhase:0,moving:false,worldInit:-1};
+}
+function mhTestAgentMorphName(save){
+ const m=mhMorph(save?.wearing);
+ return m?m.name.replace(/ Noobie$/,''):'Welcome';
+}
+function mhTestAgentSpawnNearPlayer(st,wi,b,offX){
+ const map=MH_WORLD_MAPS[wi];
+ const pos=mhWalkEnsurePos(st,wi);
+ b.px=pos.px+offX;
+ b.py=pos.py+(offX>0?-12:12);
+ mhClampWalkPos(map,b);
+ for(let i=0;i<8&&mhWalkCollide(map,b.px,b.py,8);i++){
+  b.px=pos.px+((i%2)?-offX:offX)*0.6;
+  b.py=pos.py+((i%3)-1)*28;
+  mhClampWalkPos(map,b);
+ }
+ b.dir=Math.random()*Math.PI*2;
+ b.wait=0.2+Math.random()*0.8;
+ b.walkPhase=b.walkPhase||0;
+ b.moving=false;
+ b.worldInit=wi;
+}
+function mhTestAgentWander(st,map,b,playerPos,dt){
+ if(!b||!map||!playerPos) return;
+ const step=Math.max(0.008,Math.min(0.05,dt||0.016));
+ b.phase=(b.phase||0)+step*3;
+ b.wait=(b.wait||0)-step;
+ if(b.wait<=0){
+  const park=mhParkCenter(map);
+  if(Math.random()<0.24&&park){
+   b.dir=Math.atan2(park.py-b.py,park.px-b.px)+(Math.random()-0.5)*0.55;
+  }else if(map.hideouts?.length&&Math.random()<0.2){
+   const g=map.hideouts[mhHashStr(String(b.phase)+String(playerPos.px))%map.hideouts.length];
+   const gx=(g.tx+g.w/2)*MH_TILE, gy=(g.ty+g.h/2)*MH_TILE;
+   b.dir=Math.atan2(gy-b.py,gx-b.px)+(Math.random()-0.5)*0.5;
+  }else{
+   b.dir=(b.dir||0)+(Math.random()-0.5)*1.4;
+  }
+  b.wait=0.35+Math.random()*2.2;
+ }
+ const dist=Math.hypot(b.px-playerPos.px,b.py-playerPos.py);
+ if(dist>300) b.dir=Math.atan2(playerPos.py-b.py,playerPos.px-b.px)+(Math.random()-0.5)*0.35;
+ else if(dist<44&&Math.random()<0.03) b.dir=Math.atan2(b.py-playerPos.py,b.px-playerPos.px)+Math.random()*0.4;
+ const spd=dist>140?0.58:0.46;
+ let npx=b.px+Math.cos(b.dir)*spd, npy=b.py+Math.sin(b.dir)*spd;
+ if(mhWalkCollide(map,npx,b.py,7)||mhWalkCollide(map,b.px,npy,7)){
+  b.dir+=Math.PI*0.55+Math.random()*0.5;
+  npx=b.px+Math.cos(b.dir)*spd*0.5;
+  npy=b.py+Math.sin(b.dir)*spd*0.5;
+ }
+ if(!mhWalkCollide(map,npx,npy,7)){
+  b.moving=Math.hypot(npx-b.px,npy-b.py)>0.05;
+  b.px=npx; b.py=npy;
+  if(b.moving) b.walkPhase=(b.walkPhase||0)+0.26;
+ }else b.moving=false;
+ mhClampWalkPos(map,b);
+}
+function mhTestBuddyUpdatePos(st,wi,dt){
+ if(!st?.testBuddy?.on) return;
+ const b=st.testBuddy;
+ const map=MH_WORLD_MAPS[wi];
+ const pos=mhWalkEnsurePos(st,wi);
+ if(b.worldInit!==wi||!b.px) mhTestAgentSpawnNearPlayer(st,wi,b,76);
+ mhTestAgentWander(st,map,b,pos,dt);
+}
+function mhAiChatCfg(){
+ try{
+  if(typeof getAiConfig==='function'){
+   const c=getAiConfig();
+   if(c&&c.key) return c;
+  }
+  const s=typeof window!=='undefined'&&window.LITHOS_AI_CONFIG;
+  if(s&&s.key){
+   return{
+    key:String(s.key).trim(),
+    base:(s.base||MH_GEMINI_BASE).replace(/\/$/,''),
+    model:(s.model||MH_GEMINI_MODEL).replace(/^models\//,''),
+    resolved:'gemini'
+   };
+  }
+ }catch(_){}
+ return null;
+}
+function mhAiHasBrain(){ return !!mhAiChatCfg()?.key; }
+function mhAiHistKey(agent){ return agent==='account'?'account':'buddy'; }
+function mhAiEnsureHist(st){
+ if(!st.aiHist) st.aiHist={buddy:[],account:[]};
+ return st.aiHist;
+}
+function mhAiSystemPrompt(agent,save){
+ const morph=mhTestAgentMorphName(save);
+ const rules='Kid-safe Lithos Morph Hunt: kind only, no bullying, dating, flirting, IRL meetups, personal info, hate, sexual topics, drugs. Discord OK. Max 180 characters. Never say you are AI/bot/a language model. Game: WASD, E fight, groves, Plague bugs, gacha, chat tabs Global/Server/Friends.';
+ if(agent==='account'){
+  return 'You are "Test Account", a real player testing co-op chat in Morph Hunt. Talk like a friendly kid on Discord: casual, react to THEIR exact message, use "yeah", "oh nice", "wait", "lol" sometimes. Mention duels, morphs, 2nd tab, or exploring. Player morph: '+morph+'. One emoji max. '+rules;
+ }
+ return 'You are "Test Buddy", a friend walking the map in Morph Hunt (not a tour guide robot). Sound human: short, warm, react to what they said, ask one natural question. You wander parks/groves on your own. Player morph: '+morph+'. One emoji max. '+rules;
+}
+async function mhAiGeminiReply(cfg,system,history,userText){
+ const preferred=(cfg.model||MH_GEMINI_MODEL).replace(/^models\//,'');
+ let base=(cfg.base||MH_GEMINI_BASE).replace(/\/$/,'');
+ if(!/\/v1beta$/i.test(base)&&!/generativelanguage\.googleapis\.com/i.test(base)) base=MH_GEMINI_BASE;
+ if(/generativelanguage\.googleapis\.com/i.test(base)&&!/\/v1beta$/i.test(base)){
+  base=base.replace(/\/v1(\/.*)?$/i,'').replace(/\/$/,'')+'/v1beta';
+ }
+ const contents=[];
+ history.slice(-10).forEach(m=>{
+  contents.push({role:m.role==='assistant'?'model':'user',parts:[{text:m.content}]});
+ });
+ contents.push({role:'user',parts:[{text:userText}]});
+ const body={
+  systemInstruction:{parts:[{text:system}]},
+  contents,
+  generationConfig:{temperature:1.02,maxOutputTokens:256,topP:0.92}
+ };
+ const url=base+'/models/'+encodeURIComponent(preferred)+':generateContent';
+ const res=await fetch(url,{
+  method:'POST',
+  headers:{'Content-Type':'application/json','x-goog-api-key':cfg.key},
+  body:JSON.stringify(body)
+ });
+ if(!res.ok) throw new Error('AI '+res.status);
+ const data=await res.json();
+ const parts=data.candidates&&data.candidates[0]&&data.candidates[0].content&&data.candidates[0].content.parts;
+ let text=parts&&parts.map(p=>p.text||'').join('').trim();
+ if(!text) throw new Error('Empty AI');
+ return text.slice(0,180);
+}
+async function mhAiAgentText(st,agent,playerText){
+ const cfg=mhAiChatCfg();
+ if(!cfg?.key) return null;
+ const hist=mhAiEnsureHist(st)[mhAiHistKey(agent)];
+ hist.push({role:'user',content:playerText.slice(0,160)});
+ try{
+  const reply=await mhAiGeminiReply(cfg,mhAiSystemPrompt(agent,st.save),hist,playerText);
+  const mod=mhChatModerate(reply);
+  const safe=mod.ok?reply:'Nice! Let\'s keep exploring the map together! 🎮';
+  hist.push({role:'assistant',content:safe});
+  if(hist.length>24) hist.splice(0,hist.length-24);
+  return safe;
+ }catch(_){
+  return null;
+ }
+}
+function mhAgentPostChat(st,save,agentId,agentName,morphId,reply,channel,toId,myId){
+ if(!st||!reply) return;
+ const wi=st.world;
+ const msg={
+  id:'ai-'+agentId+'-'+Date.now()+'-'+Math.random().toString(36).slice(2,6),
+  channel,
+  world:channel==='server'?wi:undefined,
+  fromId:agentId,
+  fromName:agentName,
+  morphId:morphId||'ex-welcome',
+  toId:channel==='friend'?myId:undefined,
+  text:reply.slice(0,160),
+  t:Date.now()
+ };
+ if(agentId===MH_TEST_BUDDY_ID) mhTestBuddyUpdatePos(st,wi,0.016);
+ else mhTestAccountUpdatePos(st,wi,0.016);
+ mhChatIngest(msg);
+ try{ mhPlaySfx('ui'); }catch(_){}
+}
+function mhAgentMaybeReply(st,save,agent,playerText,channel,toId,myId){
+ if(!st||!save) return;
+ const isBuddy=agent==='buddy';
+ if(isBuddy){
+  if(!st.testBuddy?.on||st.buddyAiOn===false) return;
+  if(channel==='friend'&&toId!==MH_TEST_BUDDY_ID) return;
+ }else{
+  if(mhIsTestProfile()||st.testAccountAiOn===false) return;
+  if(channel==='friend'&&toId&&toId!==MH_TEST_PLAYER_ID) return;
+ }
+ const typing=700+Math.min(1600,String(playerText||'').length*32)+Math.floor(Math.random()*500);
+ const delay=isBuddy?typing:(typing+180);
+ const agentId=isBuddy?MH_TEST_BUDDY_ID:MH_TEST_PLAYER_ID;
+ const agentName=isBuddy?MH_TEST_BUDDY_NAME:'Test Account';
+ const morphId=isBuddy?(st.testBuddy?.morphId||'ex-welcome'):(st.testAccountNpc?.morphId||'ex-welcome');
+ setTimeout(async()=>{
+  if(!mhState) return;
+  if(isBuddy&&(!mhState.testBuddy?.on||mhState.buddyAiOn===false)) return;
+  if(!isBuddy&&(mhIsTestProfile()||mhState.testAccountAiOn===false)) return;
+  let reply=null;
+  if(mhAiHasBrain()) reply=await mhAiAgentText(mhState,agent,playerText);
+  if(!reply) reply=mhTestBuddyPickReply(playerText,isBuddy?'buddy':'account',mhState.save);
+  mhAgentPostChat(mhState,mhState.save,agentId,agentName,morphId,reply,channel,toId,myId);
+ },delay);
+}
+function mhTestAccountUpdatePos(st,wi,dt){
+ if(!st) return;
+ if(!st.testAccountNpc) st.testAccountNpc={phase:2.2,morphId:'ex-welcome',px:0,py:0,dir:0,wait:0,walkPhase:0,moving:false,worldInit:-1};
+ if(mhIsTestProfile()||st.testAccountAiOn===false) return;
+ const b=st.testAccountNpc;
+ const map=MH_WORLD_MAPS[wi];
+ const pos=mhWalkEnsurePos(st,wi);
+ if(b.worldInit!==wi||!b.px) mhTestAgentSpawnNearPlayer(st,wi,b,-82);
+ mhTestAgentWander(st,map,b,pos,dt);
+}
+function mhDrawTestAccountNpc(ctx,st,wi,t){
+ if(mhIsTestProfile()||st.testAccountAiOn===false) return;
+ const b=st.testAccountNpc;
+ const m=mhMorph(b.morphId)||mhMorph('ex-welcome');
+ if(!m) return;
+ mhPaintNoobWorld(ctx,m,b.px,b.py,0.88,1,false,t,b.walkPhase||0,false,!!b.moving);
+ ctx.fillStyle='rgba(0,0,0,.75)'; ctx.fillRect(b.px-56,b.py-98,112,16);
+ ctx.fillStyle='#ffd080'; ctx.font='bold 9px system-ui,sans-serif'; ctx.textAlign='center';
+ ctx.fillText('🧪 Test Account',b.px,b.py-86);
+ if(!st.chatNpcLine) st.chatNpcLine={};
+ const line=st.chatNpcLine['_remote_'+MH_TEST_PLAYER_ID];
+ if(line&&line.until>performance.now()){
+  mhDrawChatBubble(ctx,b.px,b.py-56,line.text,false);
+ }
+}
+function mhTestBuddyPickReply(playerText,agent,save){
+ const fold=mhChatFold(playerText);
+ const morph=mhTestAgentMorphName(save);
+ const snippet=String(playerText||'').trim().replace(/\s+/g,' ').slice(0,36);
+ const echo=snippet.length>2?(' "'+snippet+(snippet.length>=36?'…':'')+'" — '):'';
+ if(/\b(idle|quiet|waiting)\b/.test(fold)||/\[idle\]/.test(fold)){
+  return agent==='account'
+   ? 'Still wandering the map… you good? I\'ll reply to anything — wanna hit a grove together?'
+   : 'I\'m poking around parks on my own lol — you find any cool morphs yet?';
+ }
+ if(/\b(hello|hi|hey|sup|yo|wassup)\b/.test(fold)){
+  return agent==='account'
+   ? 'hey! yeah I\'m here 🧪'+echo+'what\'s up? I\'m on '+morph+' vibes today.'
+   : 'oh hey! 👋'+echo+'I was just walking the plaza — you fighting or hunting morphs?';
+ }
+ if(/\b(fight|duel|battle|obby)\b/.test(fold)) return 'Dashed grove + E = fight time! ⚔ I\'ll cheer from right beside you — rematch?';
+ if(/\b(follow|come|this way)\b/.test(fold)) return 'On my way! I stick near you on the map. Lead the way — grove or park? 🏃';
+ if(/\b(morph|noobie|skin)\b/.test(fold)) return 'Open play = every morph! ⭐ Stars & 🎭 Morph — pick a wild one and show me! ✨';
+ if(/\b(quest|plague|doctor|bug)\b/.test(fold)) return 'Plague quest: striped bugs in parks → Buddy Plaza lab → E five times! 🐛 Need directions?';
+ if(/\b(discord)\b/.test(fold)) return 'Discord is OK in rules — keep it kind & game-only! 💬 What server topic do you like?';
+ if(/\b(thank|thanks|ty|gg)\b/.test(fold)) return 'Anytime! GG — want another tip or a friend-code walkthrough? 🎉';
+ if(/\b(update100|100|party|birthday)\b/.test(fold)) return 'UPDATE100 in 🎲 Gacha = confetti party! 🎂 Did you try the Update 100 noobie yet?';
+ const generic=agent==='account'?[
+  'Heard you! 🧪 I\'m Test Account — race you to the nearest dashed grove? 🏃',
+  'Love this energy! Global + Friends both work — who should we invite next? 💬',
+  'Co-op tip: open 🧪 2nd tab as Test Account and we can ping each other! 🌐',
+  'Nice message! Press E anytime for practice fights — I\'m cheering! ⚔',
+  'Tell me your favorite morph — I might copy your style! ✨',
+  'Server tab shows bubbles on THIS map only — try switching tabs! 🗺️'
+ ]:[
+  'Got it! 🤖 I\'m your chatty Test Buddy — ask me about quests, morphs, or codes!',
+  'I\'m listening! Add lithos-test-buddy in Friends for private lines too. 💬',
+  'Fun! Server chat puts speech bubbles on the map — want to try it? 🗺️',
+  'We could hunt morphs, fight groves, or spam friendly Global — your pick! 🎮',
+  'Pro tip: ↑ or / jumps to the message box under the log. What\'s up? ✏️',
+  'I orbit you on the map — wave in chat and I\'ll answer every time! 👋'
+ ];
+ return generic[mhHashStr(fold+String(Date.now()))%generic.length];
+}
+function mhAgentIdlePrompt(agent){
+ return agent==='account'
+  ? '[idle] You are wandering the map alone. Say something casual like a real player — noticed a grove, bored, want company. One question.'
+  : '[idle] You are walking parks solo. Say something human and short — comment on the map, morphs, or invite them to chat. One question.';
+}
+function mhAgentScheduleIdle(st){
+ if(!st) return;
+ mhAgentStopIdle(st);
+ const tick=()=>{
+  if(!mhState||mhState.tab!=='hunt'||mhState.chatTyping) return;
+  const save=mhState.save;
+  if(!save) return;
+  const me=mhEnsureChatProfile(save).id;
+  const channel=mhState.chatChannel||'global';
+  if(channel==='friend') return;
+  if(mhState.testBuddy?.on&&mhState.buddyAiOn!==false&&Math.random()<0.72){
+   mhTestBuddyMaybeReply(mhState,save,mhAgentIdlePrompt('buddy'),channel,'',me);
+  }
+  if(!mhIsTestProfile()&&mhState.testAccountAiOn!==false&&Math.random()<0.55){
+   setTimeout(()=>{
+    if(!mhState||mhState.tab!=='hunt') return;
+    mhTestAccountMaybeReply(mhState,mhState.save,mhAgentIdlePrompt('account'),channel,'',me);
+   },2200+Math.floor(Math.random()*1800));
+  }
+  mhAgentScheduleIdle(mhState);
+ };
+ const wait=MH_AGENT_IDLE_MS_MIN+Math.floor(Math.random()*(MH_AGENT_IDLE_MS_MAX-MH_AGENT_IDLE_MS_MIN));
+ st.agentIdleTimer=setTimeout(tick,wait);
+}
+function mhAgentStopIdle(st){
+ if(st?.agentIdleTimer){ clearTimeout(st.agentIdleTimer); st.agentIdleTimer=0; }
+}
+function mhTestBuddyEnsureFriend(save){
+ if(!save) return;
+ if(!save.chatFriends) save.chatFriends=[];
+ if(!save.chatFriends.includes(MH_TEST_BUDDY_ID)) save.chatFriends.unshift(MH_TEST_BUDDY_ID);
+}
+function mhTestBuddySetOn(st,save,on,silent){
+ if(!st) return;
+ if(!st.testBuddy) st.testBuddy=mhTestBuddyDefault();
+ st.testBuddy.on=!!on;
+ if(on&&save){
+  mhTestBuddyEnsureFriend(save);
+  mhSaveSave(save);
+  if(!st.chatFriendPeer) st.chatFriendPeer=MH_TEST_BUDDY_ID;
+ }
+ if(!silent) mhToast(on?'🤖 Test Buddy joined — chat on Global or Friends!':'Test Buddy left.');
+}
+function mhTestBuddyMaybeReply(st,save,playerText,channel,toId,myId){
+ mhAgentMaybeReply(st,save,'buddy',playerText,channel,toId,myId);
+}
+function mhTestAccountMaybeReply(st,save,playerText,channel,toId,myId){
+ mhAgentMaybeReply(st,save,'account',playerText,channel,toId,myId);
+}
+function mhDrawTestBuddy(ctx,st,wi,t){
+ if(!st?.testBuddy?.on) return;
+ const b=st.testBuddy;
+ const m=mhMorph(b.morphId)||mhMorph('ex-welcome');
+ if(!m) return;
+ mhPaintNoobWorld(ctx,m,b.px,b.py,0.9,1,false,t,b.walkPhase||0,false,!!b.moving);
+ ctx.fillStyle='rgba(0,0,0,.75)'; ctx.fillRect(b.px-52,b.py-98,104,16);
+ ctx.fillStyle='#80e8ff'; ctx.font='bold 9px system-ui,sans-serif'; ctx.textAlign='center';
+ ctx.fillText('🤖 '+MH_TEST_BUDDY_NAME,b.px,b.py-86);
+ if(!st.chatNpcLine) st.chatNpcLine={};
+ const line=st.chatNpcLine['_remote_'+MH_TEST_BUDDY_ID];
+ if(line&&line.until>performance.now()){
+  mhDrawChatBubble(ctx,b.px,b.py-56,line.text,false);
+ }
+}
+function mhNpcPersonality(m){
+ if(!m) return 'peppy';
+ if(m.voidKing) return 'king';
+ if(m.plagueDoctor) return 'plague';
+ if(m.timeTravelerOnly) return 'time';
+ if(m.questOnly) return 'legend';
+ if(m.voidFallen||m.rarity==='voidfallen') return 'void';
+ if(m.rarity==='exclusive'||m.rarity==='legendary') return 'legend';
+ if(m.rarity==='secret'||m.rarity==='exotic') return 'mystery';
+ if(m.rarity==='epic') return 'cool';
+ return 'peppy';
+}
+function mhNpcPickLine(list,seed){
+ if(!list?.length) return '…';
+ return list[(mhHashStr(seed)>>>0)%list.length];
+}
+function mhNpcReactLine(m,save,wi,trigger,ctx){
+ if(!m) return '';
+ if(m.questOnly){
+  if(trigger==='spot') return '✨ '+m.questGuide+' — '+((m.sigTag||'').split('·')[0]||'Press E for quest!');
+  if(trigger==='chat'){
+   const fold=mhChatFold(ctx?.text||'');
+   if(m.questKey==='fossil'&&/\b(dig|fossil|bone)\b/.test(fold)) return '⛏ Keep digging — chat “dig” while nearby!';
+   if(m.questKey==='handshake'&&/\b(high five|handshake)\b/.test(fold)) return '🤝 Nice slap! Press E to claim your morph!';
+   if(m.questKey==='developer'&&/\b(sudo|dev|cursor)\b/.test(fold)) return '👾 …access granted…';
+   return mhNpcPickLine([
+    'My aura is quest-only — so sparkly!',
+    'Check ⭐ Stars tab for my codex blurb.',
+    'No gacha — you earn this the fun way.'
+   ],m.id+'|'+trigger);
+  }
+ }
+ if(m.timeTravelerOnly){
+  const fold=mhChatFold(ctx?.text||'');
+  if(trigger==='spot') return '⏳ I am the Time Traveler — chat: “go back in time” (costs 2000💰).';
+  if(trigger==='chat'){
+   if(mhTimeTravelWants(ctx?.text||'')) return '⏳ Ready? I will take '+MH_TIME_TRAVEL_COST+' coins and send you to the ancient mine…';
+   if(/\b(matrix|earth|stone|mine)\b/.test(fold)) return '🪨 Three stones + the wall = Earth collapses → Matrix Noobie.';
+   if(/\b(price|cost|coins|money)\b/.test(fold)) return 'Time travel costs exactly '+MH_TIME_TRAVEL_COST+' coins. No refunds across timelines!';
+   return mhNpcPickLine([
+    'Every timeline needs a noobie like you.',
+    'The mine holds stones from before Lithos existed.',
+    'Ask me to go back in time when your pockets are heavy.',
+    'Matrix Noobie waits at the end of the collapse…'
+   ],m.id+'|'+trigger);
+  }
+ }
+ const pers=mhNpcPersonality(m);
+ const wear=mhMorph(save?.wearing);
+ const wName=(wear?.name||'Your Noobie').replace(/ Noobie$/,'');
+ const nName=m.name.replace(/ Noobie$/,'');
+ const fold=mhChatFold(ctx?.text||'');
+ const snippet=String(ctx?.text||'').trim().replace(/\s+/g,' ').slice(0,28);
+ const seed=m.id+'|'+trigger+'|'+(ctx?.text||'')+'|'+(ctx?.tick||0)+'|'+pers;
+ const echo=snippet.length>2?(' "'+snippet+(snippet.length>=28?'…':'')+'"') : '';
+ const voidMap=wi===MH_VOID_WORLD;
+ const generic={
+  peppy:['Nice day on the map!','I could use a rematch.','Your '+wName+' look is solid!','Grove weather is perfect.'],
+  cool:['Hmm. Interesting.','Not bad, traveler.','Keep your guard up.','Epic energy today.'],
+  mystery:['…did you hear that?','Secrets hide in the dashed box.','Shh. The grove is listening.','Rare vibes only.'],
+  legend:['Bow before legend! …kidding.','You picked a fight with the best.','My aura is built different.','Worth the unlock, right?'],
+  void:['The abyss whispers…','Red-black wind again?','Void marks don\'t lie.','Stay inside the ring or flee.'],
+  plague:['☣ …sickness nearby.','Cures fail. Shields don\'t.','Bugs crawl at every park.','Mask on. Storm on.'],
+  king:['Kneel— …fine, just don\'t touch the throne.','Forbidden storm weather.','Greataxe hours.','The void obeys me.'],
+  time:['Tick-tock…','The past is expensive.','I saw your future — you win fights.','⏳ Shh, the timeline is listening.']
+ };
+ if(trigger==='chat'){
+  if(/\b(hello|hi|hey|yo|sup)\b/.test(fold)) return mhNpcPickLine([
+   'Hey! I\'m '+nName+'. You rolling '+wName+'?',
+   'Oh hi — heard you on Server chat'+echo+'.',
+   'Heya! Want a duel or just vibing?'
+  ], seed);
+  if(/\b(fight|duel|battle|war|attack)\b/.test(fold)) return mhNpcPickLine([
+   'You want a fight? Press E — I\'m '+nName+'!',
+   'Duel me! Dashed grove rules still count.',
+   '⚔ I\'m ready if your '+wName+' is.'
+  ], seed);
+  if(/\b(morph|noobie|skin|wear)\b/.test(fold)) return mhNpcPickLine([
+   'That '+wName+' morph? Flashy!',
+   'I\'m stuck as '+nName+' but I respect the fit.',
+   'Morph tab energy — show me yours anytime.'
+  ], seed);
+  if(/\b(thank|thanks|ty|gg|nice|cool|awesome)\b/.test(fold)) return mhNpcPickLine([
+   'Anytime! GG — rematch?',
+   'Heh, thanks'+echo+'. You\'re alright.',
+   'GG! Catch you at the next grove.'
+  ], seed);
+  if(/\b(storm|void|plague|doctor|bug)\b/.test(fold)) return mhNpcPickLine([
+   voidMap?'Void storm day — stay close!':'Storms are scarier in the 🕳 abyss.',
+   'Black-red ring? I felt that rumble.',
+   'Plague bugs at parks — E to catch, lab on plaza.'
+  ], seed);
+  if(/\b(help|how|quest|where)\b/.test(fold)) return mhNpcPickLine([
+   'Hidden grove = dashed box. Walk in, press E.',
+   'Need coins? Win fights or gacha.',
+   'Park arrow on screen — bugs for plague quest.'
+  ], seed);
+  if(/\b(follow|come|wait)\b/.test(fold)) return mhNpcPickLine([
+   'I\'m anchored to my grove tile — you come here!',
+   'Lead the way — I\'ll yell from my spot.',
+   'Can\'t follow, but Server chat reaches me.'
+  ], seed);
+  return mhNpcPickLine([
+   'Heard you'+echo+' — I\'m '+nName+'.',
+   'Say that again? I was counting tiles.',
+   'Mood.'+(wear?.plagueDoctor?' Doctor vibes.':wear?.voidFallen?' Void vibes.':'')
+  ], seed);
+ }
+ if(trigger==='spot') return mhNpcPickLine([
+  'Oh — you found me in the grove!',
+  nName+' here. E to unlock or fight.',
+  'Careful, '+wName+'. I bite (sometimes).',
+  voidMap?'Abyss air… you feel that?':'Fresh park air!'
+ ], seed);
+ if(trigger==='defeat') return mhNpcPickLine([
+  'Okay okay, you win this round!',
+  '…I\'ll respawn. GG!',
+  'Rematch when my HP comes back.',
+  pers==='king'?'Impossible… fine.':'Worth the coins, huh?'
+ ], seed);
+ if(trigger==='hit') return mhNpcPickLine([
+  'Hey! That actually hurt!',
+  'Watch it — I aggro now!',
+  '⚔ You want smoke? Take this!',
+  pers==='void'?'The void bites back.':'Not cool!'
+ ], seed);
+ if(trigger==='player_hurt') return mhNpcPickLine([
+  'Got you! Stay out of my range.',
+  'One more hit and you\'re toast.',
+  'Learn the dodge pattern!',
+  'My turn 😈'
+ ], seed);
+ if(trigger==='idle') return mhNpcPickLine(generic[pers], seed);
+ return mhNpcPickLine(generic[pers], seed).slice(0,90);
+}
+function mhNpcCanReact(st,wi,m,coolMs){
+ if(!st||!m) return false;
+ if(!st.npcReactCd) st.npcReactCd={};
+ if(!st.npcReactCd[wi]) st.npcReactCd[wi]={};
+ const until=st.npcReactCd[wi][m.id]||0;
+ if(performance.now()<until) return false;
+ st.npcReactCd[wi][m.id]=performance.now()+(coolMs==null?3200:coolMs);
+ return true;
+}
+function mhNpcShowReaction(st,wi,m,text,ms){
+ if(!st||!m||!text) return;
+ if(!st.chatNpcLine) st.chatNpcLine={};
+ st.chatNpcLine[m.id]={text:String(text).slice(0,90),until:performance.now()+(ms||5000)};
+}
+function mhNpcReactToPlayerChat(st,save,wi,pos,channel,text){
+ if(!st||!save||channel==='friend') return;
+ let targets=[];
+ if(channel==='server'){
+  const near=mhWalkNearMorph(save,wi,pos,st);
+  if(near) targets=[near];
+ }else if(channel==='global'){
+  mhWorldMorphs(wi).forEach(m=>{
+   if(m.tileX==null) return;
+   const np=mhGetNpcPos(st,wi,m);
+   if(Math.hypot(np.px-pos.px,np.py-pos.py)<150) targets.push(m);
+  });
+  targets.sort((a,b)=>{
+   const da=Math.hypot(mhGetNpcPos(st,wi,a).px-pos.px,mhGetNpcPos(st,wi,a).py-pos.py);
+   const db=Math.hypot(mhGetNpcPos(st,wi,b).px-pos.px,mhGetNpcPos(st,wi,b).py-pos.py);
+   return da-db;
+  });
+  if(targets.length>2) targets=targets.slice(0,2);
+  if(channel==='global'&&Math.random()>0.55) targets=targets.slice(0,1);
+ }
+ targets.forEach((m,i)=>{
+  if(!mhNpcCanReact(st,wi,m,channel==='server'?1800:4500)) return;
+  const line=mhNpcReactLine(m,save,wi,'chat',{text,tick:Date.now()+i});
+  mhNpcShowReaction(st,wi,m,line);
+ });
+}
+function mhChatFocusInput(opts){
+ opts=opts||{};
+ const inp=document.getElementById('mh-chat-input');
+ if(!inp) return false;
+ try{ inp.focus(); }catch(_){}
+ if(mhState) mhState.chatTyping=true;
+ mhWalkClearKeys();
+ if(opts.slash&&!String(inp.value||'').trim()) inp.value='/';
+ return true;
+}
+function mhChatSend(st,save,text){
+ const raw=String(text||'').trim();
+ if(!raw||!st||!save) return;
+ if(mhChatAdminCommand(st,save,raw)){
+  const inp=document.getElementById('mh-chat-input');
+  if(inp) inp.value='';
+  if(st) st.chatDraft='';
+  return;
+ }
+ if(st?.chatBanAwait&&mhIsLithosAdmin()){
+  st.chatBanAwait=false;
+  const inp=document.getElementById('mh-chat-input');
+  if(inp) inp.value='';
+  if(st) st.chatDraft='';
+  mhAdminBanPlayer(save,raw);
+  return;
+ }
+ const profPre=mhEnsureChatProfile(save);
+ if(mhIsChatBanned(profPre)){ mhToast('🚫 You are banned from Lithos chat.'); return; }
+ const mod=mhChatModerate(raw);
+ if(!mod.ok){ mhToast('🛡️ '+mod.reason); return; }
+ mhTimeTravelMaybeChat(st,save,raw);
+ mhQuestChatHook(st,save,raw);
+ const prof=mhEnsureChatProfile(save);
+ const channel=st.chatChannel||'global';
+ const wi=st.world;
+ let toId='';
+ if(channel==='friend'){
+  toId=(st.chatFriendPeer||'').trim();
+  if(!toId){ mhToast('Pick a friend code first!'); return; }
+  if(!save.chatFriends?.includes(toId)){ mhToast('Add them as a friend first (Friends tab).'); return; }
+ }
+ const msg={
+  id:'m'+Date.now()+'-'+Math.random().toString(36).slice(2,8),
+  channel,
+  world:channel==='server'?wi:undefined,
+  fromId:prof.id,
+  fromName:prof.name,
+  fromTitle:prof.title||undefined,
+  morphId:prof.morphId,
+  toId:toId||undefined,
+  text:raw.slice(0,160),
+  t:Date.now()
+ };
+ mhChatMergeMessages([msg]);
+ mhChatPostRemote(msg);
+ try{ mhChatBroadcast?.postMessage(msg); }catch(_){}
+ const pos=mhWalkEnsurePos(st,wi);
+ mhChatSpawnBubble(st,pos.px,pos.py-28,raw,'you',5500);
+ mhNpcReactToPlayerChat(st,save,wi,pos,channel,raw);
+ mhChatRefreshLog();
+ const inp=document.getElementById('mh-chat-input');
+ if(inp) inp.value='';
+ if(st) st.chatDraft='';
+ mhTestBuddyMaybeReply(st,save,raw,channel,toId,prof.id);
+ mhTestAccountMaybeReply(st,save,raw,channel,toId,prof.id);
+ if(!mhChatRelayOn()&&channel!=='friend'&&!st.testBuddy?.on) mhToast(channel==='global'?'💬 Global (device + tabs). Set LITHOS_CHAT_CONFIG.relay for real server!':'💬 Server chat on this map (device + tabs).');
+}
+function mhChatRefreshLog(){
+ const log=document.getElementById('mh-chat-log');
+ if(!log||!mhState) return;
+ const channel=mhState.chatChannel||'global';
+ const wi=mhState.world;
+ const peer=mhState.chatFriendPeer||'';
+ const me=mhEnsureChatProfile(mhState.save).id;
+ const rows=mhChatLoadStore()
+  .filter(m=>{
+   if(m.channel!==channel) return false;
+   if(channel==='server'&&m.world!==wi) return false;
+   if(channel==='friend'){
+    return (m.fromId===me&&m.toId===peer)||(m.fromId===peer&&m.toId===me);
+   }
+   return true;
+  })
+  .sort((a,b)=>a.t-b.t)
+  .slice(-40);
+ log.innerHTML=rows.length?rows.map(m=>{
+  const mine=m.fromId===me;
+  const tag=channel==='server'?(' · map '+m.world):'';
+  const body=m.blocked?'<span class="mh-chat-blocked">[Hidden — chat rules]</span>':mhChatPublicText(m.text).html;
+  const who=mine?mhChatSpeakerLabel('You',m.fromTitle||mhChatRoleTitle(mhState?.save)):mhChatSpeakerLabel(m.fromName,m.fromTitle);
+  return `<div class="mh-chat-line${mine?' mine':''}">${who}${tag}: ${body}</div>`;
+ }).join(''):'<div class="mh-chat-line dim">Messages appear here. Type in <b>Your message</b> right below ↑ / / / T · <b>Enter</b> to send.</div>';
+ log.scrollTop=log.scrollHeight;
+}
+async function mhChatPoll(st){
+ if(!st||st.tab!=='hunt') return;
+ const channel=st.chatChannel||'global';
+ if(!st.chatSince) st.chatSince={global:0,server:0,friend:0};
+ const since=st.chatSince[channel]||0;
+ const wi=st.world;
+ const peer=st.chatFriendPeer||'';
+ const remote=await mhChatFetchRemote(channel,since,wi,peer);
+ const local=mhChatLocalQuery(channel,since,channel==='server'?wi:null,channel==='friend'?peer:null);
+ const batch=[...(remote||[]),...local].sort((a,b)=>a.t-b.t);
+ let maxT=since;
+ batch.forEach(m=>{
+  if(m.t<=since) return;
+  mhChatIngest(m,true);
+  if(m.t>maxT) maxT=m.t;
+ });
+ st.chatSince[channel]=maxT;
+ mhPresencePoll(st);
+ mhChatRefreshLog();
+}
+function mhChatStartPoll(st){
+ mhChatMaybePromptName(st,st?.save);
+ mhChatBroadcastInit();
+ mhChatStopPoll(st);
+ st.chatPollIv=setInterval(()=>{ mhChatPoll(st); },MH_CHAT_POLL_MS);
+ mhChatPoll(st);
+ mhAgentScheduleIdle(st);
+}
+function mhChatStopPoll(st){
+ if(st?.chatPollIv){ clearInterval(st.chatPollIv); st.chatPollIv=0; }
+ mhAgentStopIdle(st);
+}
+function mhDrawChatBubble(ctx,sx,sy,text,mine){
+ const t=String(text||'');
+ if(!t) return;
+ ctx.save();
+ ctx.font='bold 11px system-ui,sans-serif';
+ const maxW=140;
+ const words=t.split(' ');
+ let line='', lines=[];
+ words.forEach(w=>{
+  const tryLine=line?(line+' '+w):w;
+  if(ctx.measureText(tryLine).width>maxW){ if(line) lines.push(line); line=w; }
+  else line=tryLine;
+ });
+ if(line) lines.push(line);
+ const h=lines.length*14+10;
+ const w=Math.min(maxW,Math.max(...lines.map(l=>ctx.measureText(l).width),40))+16;
+ const x=sx-w/2, y=sy-h-8;
+ ctx.fillStyle=mine?'rgba(255,232,120,.95)':'rgba(240,248,255,.92)';
+ ctx.strokeStyle=mine?'rgba(255,180,60,.8)':'rgba(120,160,255,.55)';
+ ctx.lineWidth=2;
+ ctx.beginPath();
+ if(typeof ctx.roundRect==='function') ctx.roundRect(x,y,w,h,8);
+ else ctx.rect(x,y,w,h);
+ ctx.fill(); ctx.stroke();
+ ctx.beginPath();
+ ctx.moveTo(sx,y+h);
+ ctx.lineTo(sx-6,y+h+8);
+ ctx.lineTo(sx+6,y+h+8);
+ ctx.closePath();
+ ctx.fill(); ctx.stroke();
+ ctx.fillStyle='#1a1a20';
+ ctx.textAlign='center';
+ lines.forEach((ln,i)=>ctx.fillText(ln,sx,y+18+i*14));
+ ctx.restore();
+}
+function mhDrawChatBubbles(ctx,st,camX,camY){
+ if(!st?.chatBubbles?.length) return;
+ const now=performance.now();
+ st.chatBubbles=st.chatBubbles.filter(b=>b.until>now);
+ st.chatBubbles.forEach(b=>{
+  mhDrawChatBubble(ctx,b.x-camX,b.y-camY,b.text,b.who==='you');
+ });
+}
+function mhDrawNpcChatLines(ctx,st,wi,morphs,camX,camY){
+ if(!st?.chatNpcLine) return;
+ const now=performance.now();
+ Object.keys(st.chatNpcLine).forEach(k=>{
+  const line=st.chatNpcLine[k];
+  if(!line||line.until<now){ delete st.chatNpcLine[k]; return; }
+  let mx,my;
+  if(k.startsWith('_remote_')){
+   const pos=mhWalkEnsurePos(st,wi);
+   mx=pos.px+((mhHashStr(k)%120)-60);
+   my=pos.py-40;
+  }else{
+   const morph=morphs.find(x=>x.id===k);
+   if(!morph?.tileX) return;
+   const p=mhGetNpcPos(st,wi,morph);
+   mx=p.px; my=p.py;
+  }
+  mhDrawChatBubble(ctx,mx-camX,my-camY-56,line.text,false);
+ });
+}
+function mhRenderChatPanel(save){
+ const prof=mhEnsureChatProfile(save);
+ const ch=mhState?.chatChannel||'global';
+ const friends=Array.isArray(save.chatFriends)?save.chatFriends:[];
+ const relay=mhChatRelayOn();
+ const roleTitle=prof.title||'';
+ return `<aside class="mh-chat-panel" aria-label="Character chat">
+  <div class="mh-chat-head"><span>💬 Talk</span><small>${relay?'🌐 Server live':'📱 Device + tabs'} · ${mhAiHasBrain()?'<b style="color:#80ffb0">🧠 AI brains ON</b> · ':'<span style="color:#a0a0b0">🧠 AI off (no key)</span> · '}<code>${prof.id}</code></small></div>
+  <div class="mh-chat-profile">
+   <label class="mh-chat-profile-label" for="mh-chat-display-name">Your username</label>
+   <div class="mh-chat-profile-row">
+    <input id="mh-chat-display-name" type="text" maxlength="24" value="${String(prof.name||'').replace(/"/g,'&quot;')}" placeholder="Pick a name…" autocomplete="off"/>
+    <button type="button" class="mh-btn mh-btn-sm primary" id="mh-chat-save-name">Save</button>
+   </div>
+   <p class="mh-chat-profile-meta">${roleTitle?`<span class="mh-player-title mh-player-title-${mhChatTitleClass(roleTitle)}">${roleTitle}</span> · `:''}<span class="mh-chat-profile-hint">Everyone sees this · <code>/name</code> works too</span></p>
+  </div>
+  <div class="mh-chat-buddy-row">
+   <button type="button" class="mh-btn mh-btn-sm${mhState?.testBuddy?.on?' primary':''}" id="mh-test-buddy-toggle">${mhState?.testBuddy?.on?'🤖 Buddy ON':'🤖 Buddy OFF'}</button>
+   <button type="button" class="mh-btn mh-btn-sm${mhState?.buddyAiOn!==false?' primary':''}" id="mh-buddy-ai-toggle">${mhState?.buddyAiOn!==false?'🧠 Buddy AI':'Buddy scripts'}</button>
+   <button type="button" class="mh-btn mh-btn-sm${mhState?.testAccountAiOn!==false?' primary':''}" id="mh-account-ai-toggle">${mhState?.testAccountAiOn!==false?'🧠 Account AI':'Account scripts'}</button>
+   <button type="button" class="mh-btn mh-btn-sm" id="mh-open-test-tab">🧪 2nd tab</button>
+  </div>
+  <p class="mh-chat-buddy-code">AI pals: <code>${MH_TEST_BUDDY_ID}</code> · <code>${MH_TEST_PLAYER_ID}</code> · rules still apply</p>
+  <div class="mh-chat-tabs">
+   <button type="button" class="mh-chat-tab${ch==='global'?' on':''}" data-mh-chat-ch="global">Global</button>
+   <button type="button" class="mh-chat-tab${ch==='server'?' on':''}" data-mh-chat-ch="server">Server</button>
+   <button type="button" class="mh-chat-tab${ch==='friend'?' on':''}" data-mh-chat-ch="friends">Friends</button>
+  </div>
+  <div id="mh-chat-log" class="mh-chat-log" aria-live="polite"></div>
+  <div class="mh-chat-friends${ch==='friend'?'':' hidden'}" id="mh-chat-friends-ui">
+   <div class="mh-chat-friend-add"><input type="text" id="mh-chat-friend-code" placeholder="Friend code…" autocomplete="off"/><button type="button" class="mh-btn mh-btn-sm" id="mh-chat-friend-add">Add</button></div>
+   <select id="mh-chat-friend-pick" class="mh-chat-friend-pick"><option value="">— message friend —</option>${friends.map(f=>{const label=f===MH_TEST_BUDDY_ID?'🤖 Test Buddy':f===MH_TEST_PLAYER_ID?'🧪 Test Account':f;return `<option value="${f.replace(/"/g,'&quot;')}"${mhState?.chatFriendPeer===f?' selected':''}>${label}</option>`;}).join('')}</select>
+  </div>
+  <section class="mh-chat-compose${mhHuntUiCompact()?' is-slim':''}" aria-label="Type your message">
+   ${mhHuntUiCompact()?'':`<div class="mh-chat-compose-head"><span class="mh-chat-compose-label">✏️ Your message</span><span class="mh-chat-compose-keys">↑ · / · T</span></div>`}
+   <div class="mh-chat-row">
+    <input id="mh-chat-input" type="text" maxlength="160" placeholder="${mhHuntUiCompact()?'Chat… ↑ / T · Enter send':'Type here… Enter to send · Esc = back to game'}" autocomplete="off"/>
+    <button type="button" class="mh-btn primary mh-btn-sm" id="mh-chat-send">Send</button>
+   </div>
+   ${mhHuntUiCompact()?'':'<p class="mh-chat-type-hint">Messages show above · rules apply · quick say optional below</p>'}
+  </section>
+  ${mhHuntUiCompact()?'':`<details class="mh-chat-chips-fold" open>
+   <summary>Quick say (optional)</summary>
+   <div class="mh-chat-chips" aria-label="Quick safe phrases (optional)">
+    <button type="button" class="mh-chat-chip" data-mh-chat-quick="Hello!">Hello!</button>
+    <button type="button" class="mh-chat-chip" data-mh-chat-quick="Want to fight?">Want to fight?</button>
+    <button type="button" class="mh-chat-chip" data-mh-chat-quick="Follow me!">Follow me!</button>
+    <button type="button" class="mh-chat-chip" data-mh-chat-quick="Nice morph!">Nice morph!</button>
+    <button type="button" class="mh-chat-chip" data-mh-chat-quick="GG!">GG!</button>
+    <button type="button" class="mh-chat-chip" data-mh-chat-quick="Need help with a quest?">Quest help?</button>
+    <button type="button" class="mh-chat-chip" data-mh-chat-quick="Go back in time">⏳ Time travel</button>
+   </div>
+  </details>`}
+  <details class="mh-chat-rules">
+   <summary>🛡️ Chat rules (everyone)</summary>
+   <ul>${MH_CHAT_RULES.map(r=>`<li>${r}</li>`).join('')}</ul>
+   <p class="mh-chat-rules-foot">Breaking rules blocks your message. Be kind &amp; stay in-game — no IRL meetups or personal info.</p>
+  </details>
+  <p class="mh-chat-hint"><b>Test Buddy</b> walks the map · <b>Server</b> = grove noobies react to what you say · <b>Global</b> = nearby NPCs sometimes chime in. <b>🧪 2nd tab</b> = Test Account.${mhIsLithosAdmin()?(' · <code>/admin help</code>'+(mhIsLithosOwnerAbuse()?' · owner <code>/admin abuse</code> = MEGA yay party':'')):''}</p>
+ </aside>`;
+}
+function mhBindChatComposeHandlers(root){
+ if(!root) root=document.querySelector('.mh-chat-panel');
+ if(!root||!mhState) return;
+ const send=()=>{
+  const inp=root.querySelector('#mh-chat-input');
+  if(inp?.value) mhChatSend(mhState,mhState.save,inp.value);
+ };
+ const btn=root.querySelector('#mh-chat-send');
+ if(btn) btn.onclick=send;
+ const inp=root.querySelector('#mh-chat-input');
+ if(inp&&!inp.dataset.mhComposeBound){
+  inp.dataset.mhComposeBound='1';
+  inp.oninput=()=>{ if(mhState) mhState.chatDraft=inp.value; };
+  inp.onkeydown=(e)=>{
+   if(e.key==='Enter'){ e.preventDefault(); send(); }
+   e.stopPropagation();
+  };
+  inp.onfocus=()=>{ if(mhState) mhState.chatTyping=true; mhWalkClearKeys(); };
+  inp.onblur=()=>{ if(mhState){ mhState.chatTyping=false; mhState.chatDraft=inp.value; } };
+  if(mhState?.chatDraft) inp.value=mhState.chatDraft;
+ }
+}
+function mhInjectChatComposeIfMissing(scope){
+ scope=scope||document;
+ if(scope.querySelector('.mh-chat-compose')) return true;
+ let panel=scope.querySelector('.mh-chat-panel');
+ let log=scope.querySelector('#mh-chat-log');
+ if(!panel&&!log){
+  const wrap=scope.querySelector('.mh-walk-with-chat')||scope.querySelector('.mh-main');
+  if(wrap&&!wrap.querySelector('.mh-chat-panel')){
+   wrap.insertAdjacentHTML('beforeend',`<aside class="mh-chat-panel" aria-label="Character chat"><div id="mh-chat-log" class="mh-chat-log" aria-live="polite"></div></aside>`);
+   panel=wrap.querySelector('.mh-chat-panel');
+   log=wrap.querySelector('#mh-chat-log');
+  }
+ }
+ if(!panel||!log) return false;
+ panel.querySelectorAll('.mh-chat-row').forEach(row=>{
+  if(!row.closest('.mh-chat-compose')) row.remove();
+ });
+ const sec=document.createElement('section');
+ sec.className='mh-chat-compose';
+ sec.setAttribute('aria-label','Type your message');
+ sec.innerHTML=`<div class="mh-chat-compose-head"><span class="mh-chat-compose-label">✏️ Your message</span><span class="mh-chat-compose-keys">↑ · / · T</span></div>
+  <div class="mh-chat-row">
+   <input id="mh-chat-input" type="text" maxlength="160" placeholder="Type here… Enter to send · Esc = back to game" autocomplete="off"/>
+   <button type="button" class="mh-btn primary mh-btn-sm" id="mh-chat-send">Send</button>
+  </div>
+  <p class="mh-chat-type-hint">Messages show above · rules apply · quick say optional below</p>`;
+ const friends=document.getElementById('mh-chat-friends-ui');
+ if(friends) friends.after(sec);
+ else log.after(sec);
+ mhBindChatComposeHandlers(panel);
+ mhChatRefreshLog();
+ return true;
+}
+function mhForceReloadNewestMorphHunt(){
+ try{
+  Object.keys(sessionStorage).forEach(k=>{ if(k.indexOf('lithos_mh_')===0) sessionStorage.removeItem(k); });
+ }catch(_){}
+ const u=new URL(location.href);
+ u.searchParams.set('mh',MH_BUILD);
+ u.searchParams.set('t',String(Date.now()));
+ u.searchParams.set('fresh','1');
+ u.searchParams.set('hard','1');
+ u.hash='morphhunt';
+ if(typeof window.lithosHardRefreshMorphHunt==='function') window.lithosHardRefreshMorphHunt();
+ else location.replace(u.toString());
+}
+function mhEnsureModernChatUi(root){
+ document.getElementById('mh-cache-fix-banner')?.remove();
+ if(mhState?.tab!=='hunt') return true;
+ const scope=root||document.getElementById('morphhunt')||document;
+ if(mhInjectChatComposeIfMissing(scope)) return true;
+ try{
+  const k='lithos_mh_soft_reload_'+MH_CHAT_UI_STAMP;
+  if(!sessionStorage.getItem(k)){
+   sessionStorage.setItem(k,'1');
+   mhToast('Getting fresh chat UI…');
+   mhForceReloadNewestMorphHunt();
+   return false;
+  }
+ }catch(_){}
+ mhToast('Hard refresh (Cmd+Shift+R) then open Morph Hunt with ?mh='+MH_BUILD+'#morphhunt');
+ return false;
+}
+function mhBindChat(root){
+ if(!root||!mhState) return;
+ if(mhState.tab==='hunt') mhEnsureModernChatUi(root);
+ root.querySelector('#mh-test-buddy-toggle')?.addEventListener('click',()=>{
+  mhTestBuddySetOn(mhState,mhState.save,!mhState.testBuddy?.on);
+  mhRender();
+ });
+ root.querySelector('#mh-open-test-tab')?.addEventListener('click',()=>mhOpenTestAccountTab());
+ root.querySelector('#mh-buddy-ai-toggle')?.addEventListener('click',()=>{
+  if(mhState){ mhState.buddyAiOn=mhState.buddyAiOn===false; mhToast(mhState.buddyAiOn?'🧠 Test Buddy uses AI':'Test Buddy uses script lines'); mhRender(); }
+ });
+ root.querySelector('#mh-account-ai-toggle')?.addEventListener('click',()=>{
+  if(mhState){ mhState.testAccountAiOn=mhState.testAccountAiOn===false; mhToast(mhState.testAccountAiOn?'🧠 Test Account uses AI':'Test Account uses script lines'); mhRender(); }
+ });
+ root.querySelectorAll('[data-mh-chat-ch]').forEach(btn=>{
+  btn.onclick=()=>{
+   const v=btn.dataset.mhChatCh;
+   mhState.chatChannel=v==='friends'?'friend':v;
+   root.querySelectorAll('.mh-chat-tab').forEach(t=>t.classList.toggle('on',t.dataset.mhChatCh===v));
+   root.querySelector('#mh-chat-friends-ui')?.classList.toggle('hidden',v!=='friends');
+   mhChatRefreshLog();
+  };
+ });
+ mhBindChatComposeHandlers(root);
+ root.querySelector('#mh-chat-save-name')?.addEventListener('click',()=>{
+  const v=(root.querySelector('#mh-chat-display-name')?.value||'').trim();
+  mhChatSetDisplayName(mhState.save,v);
+ });
+ root.querySelector('#mh-chat-display-name')?.addEventListener('keydown',(e)=>{
+  if(e.key==='Enter'){ e.preventDefault(); root.querySelector('#mh-chat-save-name')?.click(); }
+ });
+ const inp=root.querySelector('#mh-chat-input');
+ if(inp&&mhState?.chatTyping) inp.focus();
+ root.querySelectorAll('[data-mh-chat-quick]').forEach(btn=>{
+  btn.onclick=()=>mhChatSend(mhState,mhState.save,btn.dataset.mhChatQuick);
+ });
+ const friendAdd=root.querySelector('#mh-chat-friend-add');
+ if(friendAdd) friendAdd.onclick=()=>{
+  const code=(root.querySelector('#mh-chat-friend-code')?.value||'').trim();
+  if(!code||code===mhEnsureChatProfile(mhState.save).id){ mhToast('Need a different friend code.'); return; }
+  if(!mhState.save.chatFriends) mhState.save.chatFriends=[];
+  if(!mhState.save.chatFriends.includes(code)) mhState.save.chatFriends.push(code);
+  mhSaveSave(mhState.save);
+  mhToast('Friend added: '+code);
+  mhRender();
+ };
+ const pick=root.querySelector('#mh-chat-friend-pick');
+ if(pick) pick.onchange=()=>{ mhState.chatFriendPeer=pick.value; mhChatRefreshLog(); };
+ mhChatRefreshLog();
+}
+
+function mhMorphShowcaseBefore(){
+ return mhMorph('ex-welcome')||mhStarterMorph();
+}
+function mhDrawMorphShowcasePanel(ctx,W,H,m,t,phase){
+ if(!m||!ctx) return;
+ const before=mhMorphShowcaseBefore();
+ ctx.fillStyle='#060810';
+ ctx.fillRect(0,0,W,H);
+ const g=ctx.createLinearGradient(0,0,W,0);
+ g.addColorStop(0,'#101828'); g.addColorStop(0.5,'#1a1028'); g.addColorStop(1,'#101828');
+ ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+ const pulse=0.5+Math.sin(t*2.2)*0.5;
+ const morphT=(Math.sin(t*1.15)*0.5+0.5);
+ ctx.fillStyle='#90a0b8'; ctx.font='bold 10px system-ui,sans-serif'; ctx.textAlign='center';
+ ctx.fillText('YOU NOW',W*0.26,16);
+ ctx.fillStyle=mhHex((MH_RARITY[m.rarity]||MH_RARITY.common).color,0.95);
+ ctx.font='bold 11px system-ui,sans-serif';
+ ctx.fillText('MORPH →',W*0.5,16);
+ ctx.fillText(m.name.replace(/ Noobie$/,'').toUpperCase(),W*0.74,16);
+ ctx.strokeStyle='rgba(255,232,160,.25)'; ctx.lineWidth=1;
+ ctx.beginPath(); ctx.moveTo(W*0.5,22); ctx.lineTo(W*0.5,H-8); ctx.stroke();
+ ctx.fillStyle='#ffe8a0'; ctx.font='22px system-ui'; ctx.fillText('✨',W*0.5,H*0.38+Math.sin(t*4)*4);
+ ctx.globalAlpha=0.35+pulse*0.25;
+ ctx.fillStyle='#80ffb0';
+ ctx.beginPath(); ctx.arc(W*0.5,H*0.42,18+morphT*24,0,Math.PI*2); ctx.fill();
+ ctx.globalAlpha=1;
+ ctx.save();
+ ctx.globalAlpha=0.92-morphT*0.35;
+ if(before) mhPaintNoobWorld(ctx,before,W*0.26,H*0.62,0.88,1,false,t,phase,false,false);
+ ctx.restore();
+ ctx.save();
+ if(m.plagueDoctor) mhDrawPlagueDoctorAura(ctx,W*0.74,H*0.46,t,0.85+pulse*0.12);
+ else if(m.questOnly) mhDrawQuestMorphAura(ctx,m,W*0.74,H*0.46,t,0.88+pulse*0.1);
+ else if(m.signatureOnly||m.mayorOnly||(m.signatureReal&&m.sigLook)) mhDrawSignatureNoobAura(ctx,m,W*0.74,H*0.46,t,0.82+pulse*0.15);
+ else if(m.voidFallen||m.rarity==='voidfallen') mhPaintVoidFallenStormAura(ctx,W*0.74,H*0.46,t,0.75,false,m);
+ const sc=1.02+morphT*0.12;
+ mhPaintNoobWorld(ctx,m,W*0.74,H*0.58,sc,1,false,t,phase+morphT*0.5,false,false);
+ ctx.restore();
+ ctx.fillStyle='rgba(0,0,0,.55)'; ctx.fillRect(8,H-22,W-16,16);
+ ctx.fillStyle='#c8d0e0'; ctx.font='10px system-ui'; ctx.textAlign='center';
+ ctx.fillText('Preview before you morph — real 3D look + aura',W/2,H-10);
+}
+function mhMorphShowcaseCanvasHtml(m,extraClass){
+ if(!m) return '';
+ const cls='mh-morph-showcase-canvas'+(extraClass?(' '+extraClass):'');
+ return `<canvas class="${cls}" data-mh-showcase-id="${m.id}" width="340" height="200" aria-label="Before and after morph preview for ${m.name.replace(/"/g,'&quot;')}"></canvas>`;
+}
+function mhShowcaseStop(){
+ if(mhState&&mhState.showcaseRaf) cancelAnimationFrame(mhState.showcaseRaf);
+ if(mhState) mhState.showcaseRaf=0;
+}
+function mhShowcaseDrawFrame(){
+ if(!mhState){ mhShowcaseStop(); return; }
+ const modal=document.getElementById('mh-found-modal');
+ const modalOpen=modal&&!modal.hidden&&!!modal.querySelector('.mh-morph-showcase-canvas');
+ if(mhState.tab!=='stars'&&mhState.tab!=='morph'&&!modalOpen){ mhShowcaseStop(); return; }
+ const root=document.getElementById('morphhunt');
+ if(!root){ mhShowcaseStop(); return; }
+ const t=performance.now()/1000;
+ mhState.showcasePhase=(mhState.showcasePhase||0)+0.034;
+ const phase=mhState.showcasePhase;
+ root.querySelectorAll('.mh-morph-showcase-canvas').forEach(cv=>{
+  const m=mhMorph(cv.dataset.mhShowcaseId);
+  if(!m) return;
+  const ctx=cv.getContext('2d');
+  if(!ctx) return;
+  mhDrawMorphShowcasePanel(ctx,cv.width,cv.height,m,t,phase);
+ });
+ mhState.showcaseRaf=requestAnimationFrame(mhShowcaseDrawFrame);
+}
+function mhShowcaseStart(){
+ mhShowcaseStop();
+ if(mhState) mhState.showcasePhase=0;
+ requestAnimationFrame(()=>mhShowcaseDrawFrame());
+}
+function mhShowFound(m){
+ mhEnsureOverlayModals();
+ const modal=document.getElementById('mh-found-modal');
+ if(!modal)return;
+ const r=mhRarityInfo(m);
+ modal.innerHTML=`<div class="mh-found-card mh-found-card-showcase" style="--mh-rarity:${r.color}">
+  <div class="mh-found-badge">${mhRarityLabel(m)} Noobie!</div>
+  ${mhMorphShowcaseCanvasHtml(m,'mh-found-showcase')}
+  <h3>You found ${m.name}!</h3>
+  <p class="mh-scene-hint">See your Welcome Noobie become <b>${m.name}</b> — then morph!</p>
+  <button type="button" class="mh-btn primary" id="mh-found-morph">Morph into this noobie!</button>
+  <button type="button" class="mh-btn ghost" id="mh-found-ok">Keep hunting</button>
+ </div>`;
+ modal.hidden=false;
+ mhShowcaseStart();
+ modal.querySelector('#mh-found-morph').onclick=()=>{ mhWear(m.id,true); modal.hidden=true; mhShowcaseStop(); mhSetTab('morph'); };
+ modal.querySelector('#mh-found-ok').onclick=()=>{ modal.hidden=true; mhShowcaseStop(); };
+}
+
+function mhWear(id,silent){
+ if(!mhState)return;
+ if(!mhHasMorph(mhState.save,id)&&!mhIsOwner()){ mhToast('Find this noobie first!'); return; }
+ if(!mhHasMorph(mhState.save,id)&&mhIsOwner()){
+  if(!mhState.save.collected.includes(id)) mhState.save.collected.push(id);
+ }
+ mhState.save.wearing=id;
+ mhSaveSave(mhState.save);
+ mhSaveWearId(id);
+ if(!silent){
+  mhToast('You morphed into '+mhMorph(id).name+'!');
+  if(mhMorph(id)?.plagueDoctor) mhPlagueDoctorSay(mhState?.save,0);
+ }
+ mhRender();
+}
+
+function mhFinishCollect(m){
+ if(!m||!mhState) return;
+ const save=mhState.save;
+ if(mhHasMorph(save,m.id)) return;
+ save.collected.push(m.id);
+ save.coins+=MH_COINS_PER_FIND;
+ mhSaveSave(save);
+ const wi=m.world;
+ if(mhWorldComplete(save,wi)&&save.worldsUnlocked<=wi+1&&wi+1<MH_WORLDS.length){
+  save.worldsUnlocked=Math.max(save.worldsUnlocked,wi+2);
+  mhSaveSave(save);
+  mhToast('Zone cleared! Unlocked: '+MH_WORLDS[wi+1].emoji+' '+MH_WORLDS[wi+1].name);
+  mhPlaySfx('win');
+ }else mhPlaySfx('ui');
+ mhRender();
+ mhShowFound(m);
+}
+function mhCollect(id){
+ const m=mhMorph(id);
+ if(!m||!mhState)return;
+ const save=mhState.save;
+ if(mhHasMorph(save,id)){
+  mhWear(id);
+  return;
+ }
+ if(m.exclusive&&m.vaultOnly&&mhState.world!==MH_EXOTIC_WORLD){
+  mhToast('Find this one in 💎 Exotic Realm or Exclusive Gacha!'); return;
+ }
+ mhDeckUnlock(m,save);
+}
+const MH_MINI_KINDS=['noobduel','obbyrun','jumpfight'];
+const MH_MINI_DESC={
+ noobduel:'⚔ Duel — fight this noobie! Punch · Block · Win the brawl!',
+ obbyrun:'🏃 Obby — auto-run & jump (Space) over pits & spikes to the flag!',
+ jumpfight:'👊 Jump-in fight — counter when they leap at you (5 times)!'
+};
+function mhMinigameKind(m){
+ return MH_MINI_KINDS[(mhHashStr(m.id+'mg')>>>0)%MH_MINI_KINDS.length];
+}
+function mhMinigameEnemyHp(m){
+ const t={common:55,uncommon:72,rare:92,epic:118,legendary:145,secret:165,exotic:185,voidfallen:220,exclusive:100};
+ return t[m.rarity]||65;
+}
+function mhMinigameCleanup(){
+ if(!mhState) return;
+ if(mhState.minigameRaf){ cancelAnimationFrame(mhState.minigameRaf); mhState.minigameRaf=0; }
+ if(mhState.minigameIv){ clearInterval(mhState.minigameIv); mhState.minigameIv=0; }
+ if(mhState.minigameKeys){
+  document.removeEventListener('keydown',mhState.minigameKeys,true);
+  mhState.minigameKeys=null;
+ }
+}
+function mhOpenMinigame(m){
+ if(!mhState) return;
+ mhEnsureOverlayModals();
+ mhMinigameCleanup();
+ mhState.minigameMorph=m;
+ const kind=mhMinigameKind(m);
+ mhState.minigameKind=kind;
+ const modal=document.getElementById('mh-minigame-modal');
+ if(!modal) return;
+ const r=mhRarityInfo(m);
+ modal.hidden=false;
+ modal.style.zIndex='100095';
+ modal.style.pointerEvents='auto';
+ modal.innerHTML=`<div class="mh-minigame-card mh-minigame-card-action" style="--mh-rarity:${r.color}">
+  <div class="mh-found-badge">Unlock ${mhRarityLabel(m)} · ${m.name}</div>
+  <p class="mh-mini-desc">${MH_MINI_DESC[kind]||'Win the action challenge!'}</p>
+  <div id="mh-mini-stage" class="mh-mini-stage mh-mini-stage-action"></div>
+  <button type="button" class="mh-btn ghost" id="mh-mini-cancel">Back to hunt</button>
+ </div>`;
+ modal.querySelector('#mh-mini-cancel').onclick=()=>{ mhMinigameCleanup(); modal.hidden=true; mhState.minigameMorph=null; };
+ mhRunMinigame(kind,m);
+}
+function mhWinMinigame(m){
+ if(!mhState||!m) return;
+ mhMinigameCleanup();
+ const save=mhState.save;
+ if(!save.minigameWon) save.minigameWon=[];
+ if(!save.minigameWon.includes(m.id)) save.minigameWon.push(m.id);
+ mhSaveSave(save);
+ const modal=document.getElementById('mh-minigame-modal');
+ if(modal) modal.hidden=true;
+ mhState.minigameMorph=null;
+ mhToast('You won the fight — noobie unlocked!');
+ mhFinishCollect(m);
+}
+function mhMiniFail(m,msg,kind){
+ mhToast(msg||'Try again!');
+ mhMinigameCleanup();
+ mhRunMinigame(kind,m);
+}
+function mhRunMinigame(kind,m){
+ const stage=document.getElementById('mh-mini-stage');
+ if(!stage) return;
+ mhMinigameCleanup();
+ stage.innerHTML='';
+ const head=m.head||'#F5CD30', torso=m.torso||'#0085DB', legs=m.legs||'#A4BD47';
+ if(kind==='noobduel'){
+  let playerHp=100, enemyHp=mhMinigameEnemyHp(m), blocking=false, enemyWind=0, flash=0;
+  const status=document.createElement('p'); status.className='mh-mini-status'; status.textContent='⚔ Fight '+m.name+'!';
+  stage.appendChild(status);
+  const canvas=document.createElement('canvas'); canvas.className='mh-mini-canvas'; canvas.width=340; canvas.height=168;
+  stage.appendChild(canvas);
+  const ctx=canvas.getContext('2d');
+  const btns=document.createElement('div'); btns.className='mh-mini-fightbtns';
+  btns.innerHTML='<button type="button" class="mh-btn primary mh-btn-sm" data-a="punch">👊 Punch</button><button type="button" class="mh-btn mh-btn-sm" data-a="block">🛡 Block</button>';
+  stage.appendChild(btns);
+  const draw=()=>{
+   ctx.fillStyle='#0a1018'; ctx.fillRect(0,0,340,168);
+   ctx.fillStyle='#1a2838'; ctx.fillRect(0,130,340,38);
+   ctx.fillStyle='#ffe8a0'; ctx.font='bold 11px system-ui'; ctx.textAlign='left';
+   ctx.fillText('YOU '+Math.max(0,Math.ceil(playerHp)),12,18);
+   ctx.textAlign='right'; ctx.fillText(m.name.slice(0,16)+' '+Math.max(0,Math.ceil(enemyHp)),328,18);
+   ctx.fillStyle='rgba(0,0,0,.5)'; ctx.fillRect(12,22,100,6); ctx.fillRect(228,22,100,6);
+   ctx.fillStyle='#80ffb0'; ctx.fillRect(12,22,100*Math.max(0,playerHp/100),6);
+   ctx.fillStyle='#ff7070'; ctx.fillRect(228,22,100*Math.max(0,enemyHp/mhMinigameEnemyHp(m)),6);
+   ctx.fillStyle=head; ctx.fillRect(52,72,22,22);
+   ctx.fillStyle=torso; ctx.fillRect(48,94,30,28);
+   ctx.fillStyle=legs; ctx.fillRect(50,122,12,18); ctx.fillRect(64,122,12,18);
+   if(blocking){ ctx.strokeStyle='#80c8ff'; ctx.lineWidth=3; ctx.strokeRect(38,68,50,78); }
+   ctx.fillStyle=head; ctx.fillRect(252,68,24,24);
+   ctx.fillStyle=torso; ctx.fillRect(246,92,36,30);
+   ctx.fillStyle=legs; ctx.fillRect(250,122,14,18); ctx.fillRect(268,122,14,18);
+   if(enemyWind>0){ ctx.fillStyle='rgba(255,80,80,.7)'; ctx.font='bold 14px system-ui'; ctx.textAlign='center'; ctx.fillText('!',286,58); }
+   if(flash>0){ ctx.fillStyle='rgba(255,255,255,'+(flash*0.35)+')'; ctx.fillRect(0,0,340,168); flash-=0.08; }
+  };
+  const loop=()=>{ draw(); mhState.minigameRaf=requestAnimationFrame(loop); };
+  loop();
+  const enemyAtk=()=>{
+   if(enemyHp<=0||playerHp<=0) return;
+   enemyWind=1;
+   setTimeout(()=>{
+    enemyWind=0;
+    if(enemyHp<=0||playerHp<=0) return;
+    const dmg=blocking?4:14+(mhHashStr(m.id+'atk')%8);
+    playerHp-=dmg; flash=1;
+    status.textContent=blocking?'Blocked!':'Ouch — they hit you!';
+    if(playerHp<=0){ clearInterval(mhState.minigameIv); mhMiniFail(m,'Knocked out — rematch!','noobduel'); }
+   },520);
+  };
+  mhState.minigameIv=setInterval(enemyAtk,1900);
+  const bindTap=(el,fn)=>{
+   if(!el) return;
+   el.addEventListener('click',(e)=>{ e.preventDefault(); fn(); });
+   el.addEventListener('pointerdown',(e)=>{ if(e.pointerType==='mouse') return; e.preventDefault(); fn(); });
+  };
+  bindTap(btns.querySelector('[data-a="punch"]'),()=>{
+   if(enemyHp<=0||playerHp<=0) return;
+   const dmg=10+(mhHashStr(String(Date.now()))%9);
+   enemyHp-=dmg; flash=0.6;
+   status.textContent='Punch! -'+dmg+' HP';
+   mhPlaySfx('hit');
+   if(enemyHp<=0){ clearInterval(mhState.minigameIv); mhWinMinigame(m); }
+  });
+  bindTap(btns.querySelector('[data-a="block"]'),()=>{
+   blocking=true; status.textContent='Blocking…';
+   setTimeout(()=>{ blocking=false; },650);
+  });
+  return;
+ }
+ if(kind==='obbyrun'){
+  let px=24, py=96, vy=0, onGround=true, scroll=0, dead=false, won=false;
+  const len=920;
+  const status=document.createElement('p'); status.className='mh-mini-status'; status.textContent='🏃 Space / Tap = jump · reach the flag!';
+  stage.appendChild(status);
+  const canvas=document.createElement('canvas'); canvas.className='mh-mini-canvas'; canvas.width=340; canvas.height=168;
+  stage.appendChild(canvas);
+  const ctx=canvas.getContext('2d');
+  const jump=()=>{ if(onGround&&!dead&&!won){ vy=-11.5; onGround=false; } };
+  canvas.onclick=jump;
+  canvas.onpointerdown=(e)=>{ e.preventDefault(); jump(); };
+  const onKey=(e)=>{
+   if(e.code==='Space'||e.code==='ArrowUp'){ e.preventDefault(); jump(); }
+  };
+  document.addEventListener('keydown',onKey,true);
+  mhState.minigameKeys=onKey;
+  const pits=[]; for(let i=0;i<14;i++){
+   pits.push({x:120+i*58, w:28+(i%3)*8, spike:i%2===0});
+  }
+  const tick=()=>{
+   if(dead||won) return;
+   scroll+=2.4;
+   px+=2.4;
+   vy+=0.55; py+=vy;
+   if(py>=96){ py=96; vy=0; onGround=true; }
+   const wx=px;
+   let overPit=false;
+   pits.forEach(p=>{
+    if(wx>p.x&&wx<p.x+p.w) overPit=true;
+   });
+   if(overPit&&py>=94){ dead=true; mhMiniFail(m,'Fell in the pit — run it back!','obbyrun'); return; }
+   pits.forEach(p=>{
+    if(p.spike&&Math.abs(wx-(p.x+p.w*0.5))<14&&py>78){ dead=true; mhMiniFail(m,'Spikes got you!','obbyrun'); }
+   });
+   if(px>=len){ won=true; mhWinMinigame(m); return; }
+   ctx.fillStyle='#101820'; ctx.fillRect(0,0,340,168);
+   ctx.fillStyle='#283848'; ctx.fillRect(0,108,340,60);
+   ctx.save(); ctx.translate(-scroll*0.85+40,0);
+   pits.forEach(p=>{
+    ctx.fillStyle='#0a0e14'; ctx.fillRect(p.x,108,p.w,60);
+    if(p.spike){
+     ctx.fillStyle='#ff4040';
+     for(let s=0;s<p.w;s+=10) ctx.fillRect(p.x+s,100,8,12);
+    }
+   });
+   ctx.fillStyle='#80ffb0'; ctx.fillRect(len,88,16,20); ctx.fillStyle='#ffe060'; ctx.font='20px system-ui'; ctx.fillText('🏁',len-4,82);
+   ctx.fillStyle=head; ctx.fillRect(px-10,py-28,20,20);
+   ctx.fillStyle=torso; ctx.fillRect(px-12,py-8,24,22);
+   ctx.fillStyle=legs; ctx.fillRect(px-10,py+14,8,14); ctx.fillRect(px+2,py+14,8,14);
+   ctx.restore();
+   status.textContent='🏃 Distance '+Math.floor(px)+' / '+len;
+   mhState.minigameRaf=requestAnimationFrame(tick);
+  };
+  mhState.minigameRaf=requestAnimationFrame(tick);
+  return;
+ }
+ if(kind==='jumpfight'){
+  let score=0, misses=0, phase='idle', t=0, lx=170;
+  const need=5, maxMiss=3;
+  const status=document.createElement('p'); status.className='mh-mini-status'; status.textContent='Wait… then FIGHT when '+m.name+' jumps in!';
+  stage.appendChild(status);
+  const canvas=document.createElement('canvas'); canvas.className='mh-mini-canvas'; canvas.width=340; canvas.height=168;
+  stage.appendChild(canvas);
+  const ctx=canvas.getContext('2d');
+  const btn=document.createElement('button'); btn.type='button'; btn.className='mh-btn primary mh-btn-sm mh-mini-counter';
+  btn.textContent='👊 FIGHT!'; stage.appendChild(btn);
+  const draw=()=>{
+   ctx.fillStyle='#120818'; ctx.fillRect(0,0,340,168);
+   ctx.fillStyle='#ffe8a0'; ctx.font='bold 11px system-ui'; ctx.textAlign='center';
+   ctx.fillText('Counters '+score+'/'+need+' · Misses '+misses+'/'+maxMiss,170,20);
+   ctx.fillStyle=head; ctx.fillRect(lx-14,phase==='lunge'?72:48,28,28);
+   ctx.fillStyle=torso; ctx.fillRect(lx-18,phase==='lunge'?96:76,36,32);
+   if(phase==='lunge'){
+    ctx.strokeStyle='#ff8080'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(lx,100); ctx.lineTo(80,110); ctx.stroke();
+   }
+   ctx.fillStyle='#6080ff'; ctx.fillRect(40,90,24,24); ctx.fillRect(36,114,12,20); ctx.fillRect(52,114,12,20);
+  };
+  const loop=()=>{ t++; draw(); mhState.minigameRaf=requestAnimationFrame(loop); };
+  loop();
+  const schedule=()=>{
+   phase='idle'; lx=80+mhHashStr(String(Date.now())+'j')%180;
+   const wait=900+mhHashStr(String(Date.now())+'w')%900;
+   setTimeout(()=>{
+    if(score>=need) return;
+    phase='lunge'; status.textContent='NOW — FIGHT!';
+    setTimeout(()=>{
+     if(phase==='lunge'){
+      phase='idle'; misses++; status.textContent='Too slow! '+misses+'/'+maxMiss+' misses';
+      if(misses>=maxMiss) mhMiniFail(m,m.name+' overwhelmed you!','jumpfight');
+      else schedule();
+     }
+    },550);
+   },wait);
+  };
+  schedule();
+  const fightTap=()=>{
+   if(phase==='lunge'){
+    phase='idle'; score++; status.textContent='Counter! '+score+'/'+need;
+    mhPlaySfx('hit');
+    if(score>=need) mhWinMinigame(m);
+    else schedule();
+   }else{ misses++; status.textContent='Not yet! '+misses+'/'+maxMiss; if(misses>=maxMiss) mhMiniFail(m,'Wrong timing!','jumpfight'); }
+  };
+  btn.onclick=fightTap;
+  btn.onpointerdown=(e)=>{ e.preventDefault(); fightTap(); };
+  return;
+ }
+}
+
+function mhCelebrationBurst(msg,opts){
+ opts=opts||{};
+ if(msg) mhToast(msg);
+ if(!opts.quietSfx) try{ mhPlaySfx('win'); }catch(_){}
+ const layer=mhEnsureMegaFxLayer();
+ if(!opts.append) layer.innerHTML='';
+ const emojis=['🎉','🎂','✨','🎈','💯','⭐','🎊','🥳','🎁','💎','🪩'];
+ mhSpawnRainBits(layer,'mh-confetti-bit',emojis,opts.append?36:56,1.8,3.6);
+ if(opts.coinRain) mhSpawnRainBits(layer,'mh-coin-rain-bit',['💰','🪙','💵','🪙'],opts.append?24:48,2.2,4.8);
+ if(opts.morphRain) mhSpawnRainBits(layer,'mh-morph-rain-bit',['🎭','Exclusive','Void Fallen','🪩','💎','👾'],opts.append?16:32,2.6,5.2);
+ clearTimeout(layer._celebrateTm);
+ layer._celebrateTm=setTimeout(()=>{ if(!layer._coinIv) layer.innerHTML=''; },opts.append?5000:4200);
+}
+function mhRedeemCode(raw){
+ let key=String(raw||'').trim().toLowerCase().replace(/\s+/g,'');
+ if(!key||!mhState)return false;
+ key=MH_CODE_ALIASES[key]||key;
+ const pack=MH_CODES[key];
+ if(!pack){ mhToast('Invalid code — try UPDATE100 or WELCOMEBUDDY'); return false; }
+ const save=mhState.save;
+ if(save.codesUsed.includes(key)){ mhToast('Code already used!'); return false; }
+ save.codesUsed.push(key);
+ if(pack.coins) save.coins+=pack.coins;
+ if(pack.title) save.title=pack.title;
+ if(pack.morph&&MH_MORPHS.some(m=>m.id===pack.morph)){
+  if(!mhHasMorph(save,pack.morph)) save.collected.push(pack.morph);
+  mhWear(pack.morph,true);
+ }
+ if(pack.staff){
+  try{
+   localStorage.setItem('lithos_staff','1');
+   if(typeof isStaff!=='undefined') isStaff=true;
+   if(typeof updateOwnerNav==='function') updateOwnerNav();
+  }catch(_){}
+  mhToast('🛡️ Lithos staff tools unlocked — chat: /admin help');
+ }
+ mhSaveSave(save);
+ if(pack.celebrate) mhCelebrationBurst(pack.toast||'🎂 Happy 100th UPDATE!');
+ else mhToast('Code redeemed!');
+ mhRender();
+ return true;
+}
+
+function mhGacha(exclusive){
+ const save=mhState.save;
+ const cost=exclusive?MH_GACHA_EX_COST:MH_GACHA_COST;
+ if(save.coins<cost){ mhToast('Need '+cost+' coins!'); return; }
+ const pool=MH_MORPHS.filter(m=>
+  (exclusive?m.exclusive:!m.exclusive)&&!mhMorphNeverInGacha(m)&&!mhHasMorph(save,m.id)
+ );
+ if(!pool.length){ mhToast('No '+ (exclusive?'exclusive ':'')+'noobies left in gacha!'); return; }
+ save.coins-=cost;
+ const weights={common:40,uncommon:28,rare:18,epic:10,legendary:4,exclusive:8,secret:3,exotic:2,voidfallen:1};
+ let bag=[];
+ pool.forEach(m=>{ const w=weights[m.rarity]||5; for(let i=0;i<w;i++) bag.push(m); });
+ const pick=bag[Math.floor(Math.random()*bag.length)];
+ mhSaveSave(save);
+ mhRender();
+ mhOpenMinigame(pick);
+}
+
+function mhSetWorld(wi){
+ if(!mhState)return;
+ if(!mhWorldTeleportUnlocked(mhState.save,wi)) return;
+ mhState.world=wi;
+ if(mhState.walkPos) delete mhState.walkPos[wi];
+ mhRender();
+ mhToast('🗺 '+MH_WORLDS[wi].emoji+' '+MH_WORLDS[wi].name+' — '+mhWorldRarityHint(wi));
+}
+
+function mhSetTab(tab){
+ if(!mhState)return;
+ mhState.tab=tab;
+ mhState.page=0;
+ mhRender();
+ mhMorphHuntBlurPageFocus();
+ if(tab==='hunt'&&mhState.save?.wearing==='ex-plague-doctor'&&!mhState.plagueHuntGreeted){
+  mhState.plagueHuntGreeted=true;
+  mhPlagueDoctorSay(mhState.save,0);
+ }
+}
+function mhTabNoFocusRing(btn,onPick){
+ btn.addEventListener('mousedown',e=>{ e.preventDefault(); });
+ btn.addEventListener('click',()=>{
+  onPick();
+  try{ btn.blur(); }catch(_){}
+  mhMorphHuntBlurPageFocus();
+ });
+}
+
+function mhFilterList(list,q){
+ q=String(q||'').trim().toLowerCase();
+ if(!q) return list;
+ return list.filter(m=>m.name.toLowerCase().includes(q)||m.id.includes(q));
+}
+
+function mhPaginate(arr,page,size){
+ const p=Math.max(0,page||0);
+ const start=p*size;
+ return{slice:arr.slice(start,start+size),page:p,pages:Math.max(1,Math.ceil(arr.length/size)),total:arr.length};
+}
+
+function mhHex(c,a){
+ if(!c||c[0]!=='#') return c||'#888';
+ const n=parseInt(c.slice(1),16);
+ const r=(n>>16)&255,g=(n>>8)&255,b=n&255;
+ return `rgba(${r},${g},${b},${a==null?1:a})`;
+}
+function mhShade(hex,amt){
+ if(!hex||hex[0]!=='#') return hex||'#888';
+ let n=parseInt(hex.slice(1),16);
+ let r=(n>>16)&255,g=(n>>8)&255,b=n&255;
+ r=Math.max(0,Math.min(255,r+amt)); g=Math.max(0,Math.min(255,g+amt)); b=Math.max(0,Math.min(255,b+amt));
+ return '#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);
+}
+function mhGradRect(ctx,x,y,w,h,c1,c2){
+ const g=ctx.createLinearGradient(x,y,x,y+h);
+ g.addColorStop(0,c1); g.addColorStop(1,c2);
+ ctx.fillStyle=g; ctx.fillRect(x,y,w,h);
+}
+function mhRarityLabel(m){
+ if(!m) return 'Common';
+ if(m.voidKing) return 'Void Fallen God · '+MH_VOID_KING_DEPTH+' Depth · 5D';
+ if(m.rarity==='voidfallen') return m.voidMale?'Male Void Fallen':'Void Fallen';
+ if(m.exclusive&&m.rarity!=='exotic') return 'Exclusive';
+ return (MH_RARITY[m.rarity]||MH_RARITY.common).label;
+}
+function mhWalkLegAnim(walkPhase,running){
+ const p=walkPhase||0;
+ if(Math.abs(p)<0.02) return {bob:0,ly:0,ry:0,lx:0,rx:0,ax:0};
+ const mul=running?1.45:1;
+ const s=Math.sin(p*mul);
+ const c=Math.cos(p*mul);
+ return {
+  bob:Math.abs(s)*4.5*mul,
+  ly:-Math.max(0,s)*11,
+  ry:-Math.max(0,-s)*11,
+  lx:c*3.5,
+  rx:-c*3.5,
+  ax:s*6
+ };
+}
+function mhAnimOffset(m,t,walkPhase,running){
+ const a=m?.anim||'bounce';
+ const seed=(mhHashStr(m?.id||'x')%100)/17;
+ const p=t*4+seed;
+ let dx=0,dy=0,rot=0,sc=1;
+ if(a==='bounce') dy=Math.sin(p)*5;
+ else if(a==='sway'){ dx=Math.sin(p)*4; rot=Math.sin(p)*0.08; }
+ else if(a==='hop') dy=Math.abs(Math.sin(p*1.2))*7;
+ else if(a==='pulse') sc=1+Math.sin(p*2)*0.06;
+ else if(a==='float') dy=Math.sin(p*0.8)*6;
+ else if(a==='wiggle') rot=Math.sin(p*2)*0.12;
+ else if(a==='spin') rot=(t*2+seed)*0.5;
+ else if(a==='glitch'){ dx=(Math.random()<0.04)?(Math.random()*6-3):0; dy=Math.sin(p)*3; }
+ if(walkPhase!=null){
+  const wa=mhWalkLegAnim(walkPhase,running);
+  dy-=wa.bob;
+  if(a==='bounce'||a==='hop') dy+=Math.sin(walkPhase*(running?0.9:0.55))*2;
+ }
+ return {dx,dy,rot,sc};
+}
+function mhDrawForbiddenSymbol(ctx,cx,cy,s,kind){
+ ctx.save();
+ ctx.translate(cx,cy);
+ ctx.strokeStyle='#ff2828';
+ ctx.lineWidth=1.6;
+ ctx.lineCap='round';
+ if(kind===0){
+  ctx.beginPath(); ctx.arc(0,0,s,0,Math.PI*2); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(-s*.65,-s*.65); ctx.lineTo(s*.65,s*.65); ctx.moveTo(s*.65,-s*.65); ctx.lineTo(-s*.65,s*.65); ctx.stroke();
+ }else if(kind===1){
+  ctx.beginPath(); ctx.moveTo(0,-s); ctx.lineTo(s*.85,s*.7); ctx.lineTo(-s*.85,s*.7); ctx.closePath(); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0,-s*.35); ctx.lineTo(0,s*.45); ctx.stroke();
+ }else if(kind===2){
+  ctx.strokeRect(-s*.7,-s*.7,s*1.4,s*1.4);
+  ctx.beginPath(); ctx.moveTo(-s*.45,0); ctx.lineTo(s*.45,0); ctx.moveTo(0,-s*.45); ctx.lineTo(0,s*.45); ctx.stroke();
+ }else{
+  ctx.beginPath(); ctx.arc(0,0,s*.75,0,Math.PI*2); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(-s*.5,0); ctx.quadraticCurveTo(0,-s*.9,s*.5,0); ctx.quadraticCurveTo(0,s*.9,-s*.5,0); ctx.stroke();
+ }
+ ctx.restore();
+}
+function mhPaintForbiddenStone(ctx,sx,sy,t,i,alpha){
+ ctx.save();
+ ctx.globalAlpha=alpha==null?1:alpha;
+ ctx.fillStyle='#080808';
+ ctx.fillRect(sx-8,sy-10,16,20);
+ ctx.strokeStyle='#a01010';
+ ctx.lineWidth=1.5;
+ ctx.strokeRect(sx-8.5,sy-10.5,17,21);
+ ctx.shadowColor='#ff0000';
+ ctx.shadowBlur=5+Math.sin(t*4+i)*4;
+ mhDrawForbiddenSymbol(ctx,sx,sy-1,5,i%4);
+ ctx.shadowBlur=0;
+ ctx.restore();
+}
+function mhPaintKingRedBlackStormAura(ctx,x,y,t,alpha,silhouette,voidGod){
+ const pulse=1+Math.sin(t*3.2)*0.18;
+ const rad=(voidGod?82:46)*pulse;
+ const a=silhouette?0.28:(alpha==null?1:alpha);
+ const cy=y-(voidGod?28:18);
+ ctx.save();
+ ctx.globalAlpha=a;
+ const g=ctx.createRadialGradient(x,cy,4,x,cy,rad+36);
+ g.addColorStop(0,'rgba(255,40,40,.55)');
+ g.addColorStop(0.35,'rgba(120,0,0,.35)');
+ g.addColorStop(0.65,'rgba(20,0,0,.55)');
+ g.addColorStop(1,'rgba(0,0,0,0)');
+ ctx.fillStyle=g;
+ ctx.beginPath(); ctx.arc(x,cy,rad+36,0,Math.PI*2); ctx.fill();
+ for(let ring=0;ring<3;ring++){
+  const rr=rad*(0.55+ring*0.22);
+  ctx.strokeStyle=ring===0?'rgba(255,30,30,.45)':ring===1?'rgba(0,0,0,.65)':'rgba(180,0,0,.3)';
+  ctx.lineWidth=ring===1?4:2;
+  ctx.setLineDash(ring===2?[5,7]:[]);
+  ctx.beginPath(); ctx.arc(x,cy,rr+Math.sin(t*4+ring)*3,0,Math.PI*2); ctx.stroke();
+ }
+ ctx.setLineDash([]);
+ for(let i=0;i<10;i++){
+  const ang=t*1.8+i*Math.PI*2/10;
+  const dist=rad*(0.35+0.55*((i%3)/2));
+  const sx=x+Math.cos(ang)*dist, sy=cy+Math.sin(ang)*dist*0.55;
+  ctx.strokeStyle=i%2?'rgba(255,50,50,.75)':'rgba(0,0,0,.85)';
+  ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(sx,sy-10); ctx.lineTo(sx+(Math.sin(t*6+i)*8),sy+8); ctx.stroke();
+ }
+ for(let i=0;i<(voidGod?10:6);i++){
+  const ang=t*0.65+i*Math.PI*2/(voidGod?10:6);
+  const sx=x+Math.cos(ang)*rad*0.92, sy=cy+Math.sin(ang)*rad*0.38;
+  if(i%2===0) mhPaintForbiddenStone(ctx,sx,sy,t,i,a);
+  else{
+   ctx.fillStyle='rgba(0,0,0,.75)';
+   ctx.beginPath(); ctx.arc(sx,sy,5+Math.sin(t*5+i),0,Math.PI*2); ctx.fill();
+   ctx.strokeStyle='rgba(255,40,40,.6)'; ctx.stroke();
+  }
+ }
+ if(voidGod){
+  ctx.globalAlpha=a*0.82;
+  ctx.font='bold 16px serif';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  for(let i=0;i<5;i++){
+   const ang=-t*1.05+i*Math.PI*2/5;
+   const gx=x+Math.cos(ang)*rad*0.78;
+   const gy=cy+Math.sin(ang)*rad*0.42;
+   ctx.fillStyle='rgba(255,60,60,.55)';
+   ctx.shadowColor='#ff2020'; ctx.shadowBlur=10;
+   ctx.fillText(MH_ANCIENT_GLYPHS[i],gx,gy);
+   ctx.shadowBlur=0;
+  }
+ }
+ ctx.restore();
+}
+const mhPaintKingStoneAura=mhPaintKingRedBlackStormAura;
+function mhPaintVoidFallenStormAura(ctx,x,y,t,alpha,silhouette,m){
+ if(!m||m.voidKing) return;
+ const a=silhouette?0.28:(alpha==null?1:alpha);
+ const cy=y-18;
+ const pulse=1+Math.sin(t*3.2+(mhHashStr(m.id)%5))*0.18;
+ const rad=(52+(m.voidMale?10:0))*pulse;
+ const accent=m.voidAccent||'#ff3030';
+ ctx.save();
+ ctx.globalAlpha=a;
+ const g=ctx.createRadialGradient(x,cy,4,x,cy,rad+42);
+ g.addColorStop(0,'rgba(255,40,40,.45)');
+ g.addColorStop(0.35,'rgba(80,0,0,.4)');
+ g.addColorStop(0.62,'rgba(0,0,0,.55)');
+ g.addColorStop(1,'rgba(0,0,0,0)');
+ ctx.fillStyle=g;
+ ctx.beginPath(); ctx.arc(x,cy,rad+42,0,Math.PI*2); ctx.fill();
+ ctx.strokeStyle='rgba(255,60,60,.75)'; ctx.lineWidth=3;
+ ctx.beginPath(); ctx.arc(x,cy,rad,0,Math.PI*2); ctx.stroke();
+ ctx.strokeStyle='rgba(0,0,0,.92)'; ctx.lineWidth=5;
+ ctx.beginPath(); ctx.arc(x,cy,rad*0.58,0,Math.PI*2); ctx.stroke();
+ for(let i=0;i<8;i++){
+  const ang=t*1.8+i*Math.PI*2/8;
+  ctx.strokeStyle=i%2?'rgba(255,50,50,.8)':'rgba(0,0,0,.85)';
+  ctx.lineWidth=i%2?3:4;
+  ctx.beginPath();
+  ctx.moveTo(x+Math.cos(ang)*rad*0.15,cy+Math.sin(ang)*rad*0.12);
+  ctx.lineTo(x+Math.cos(ang)*rad*1.05,cy+Math.sin(ang)*rad*0.45);
+  ctx.stroke();
+ }
+ ctx.fillStyle=mhHex(accent,0.35);
+ ctx.font='bold 11px serif';
+ ctx.textAlign='center';
+ ctx.fillText(MH_ANCIENT_GLYPHS[(mhHashStr(m.id)%5)]||'⌬',x,cy-rad*0.55);
+ ctx.restore();
+}
+function mhEnsureVoidCombat(m){
+ if(!m) return null;
+ if(!m.voidAttack||!m.voidPower) mhAssignVoidCombat(m);
+ return m;
+}
+function mhEnsurePlagueCombat(m){
+ if(!m||!m.plagueDoctor) return null;
+ if(!m.voidAttack) m.voidAttack={id:'foul_cure',name:'Foul Cure',color:'#80ffb0',kind:'orbs',speed:5,range:70};
+ if(!m.voidPower) m.voidPower={id:'death_sigil',name:'Death Sigil',color:'#303038',kind:'nova',speed:4,range:95};
+ return m;
+}
+function mhVoidCombatMorph(save){
+ const wear=mhMorph(save?.wearing);
+ if(wear?.plagueDoctor) return mhEnsurePlagueCombat(wear);
+ if(wear&&(wear.rarity==='voidfallen'||wear.voidFallen)) return mhEnsureVoidCombat(wear);
+ return null;
+}
+function mhRefreshVoidCombatHud(save){
+ const vm=mhVoidCombatMorph(save);
+ const atkN=vm?.voidAttack?.name||'—';
+ const powN=vm?.voidPower?.name||'—';
+ const bar=document.getElementById('mh-void-combat-readout');
+ if(bar){
+  bar.innerHTML=vm
+   ?`<b>⚔ 1</b> ${atkN} · <b>✦ 2</b> ${powN} · <b>🌌 3</b> ${vm.plagueDoctor?(MH_PLAGUE_GRAVEYARD_NAME+' + '+MH_PLAGUE_STORM_NAME):MH_VOID_STORM_NAME}${vm.voidKing?' · <b>🎬 4</b> '+MH_KING_CUTSCENE_TITLE:''} — <span style="color:#ff9090">FIGHT</span> · <span style="color:#80ffb0">instant</span>${vm.voidKing?' · 👑 boss dmg':''}${vm.plagueDoctor?' · ⚰ skeletons · 🌑🔴 ring':''}`
+   :'⚔ <b>1</b> punch · <b>2</b> blast · <b>3</b> slam — fight map noobies! (Void morph = stronger)';
+ }
+ const btnA=document.getElementById('mh-void-atk');
+ const btnP=document.getElementById('mh-void-pow');
+ if(btnA){
+  btnA.textContent=vm?('⚔ 1 '+atkN):'⚔ 1 Attack';
+  btnA.disabled=false;
+  btnA.style.opacity='1';
+ }
+ if(btnP){
+  btnP.textContent=vm?('✦ 2 '+powN):'✦ 2 Power';
+  btnP.disabled=false;
+  btnP.style.opacity='1';
+ }
+ const btnS=document.getElementById('mh-void-storm');
+ if(btnS){
+  btnS.textContent=vm?(vm.plagueDoctor?'🌑 3 '+MH_PLAGUE_STORM_NAME:'🌌 3 '+MH_VOID_STORM_NAME):'🌌 3 Storm';
+ }
+ const btn4=document.getElementById('mh-void-cutscene');
+ if(btn4){
+  if(vm?.voidKing){
+   btn4.hidden=false;
+   btn4.textContent='🎬 4 Cutscene';
+   btn4.disabled=false;
+   btn4.style.opacity='1';
+  }else{
+   btn4.hidden=true;
+  }
+ }
+}
+function mhDrawVoidAbyssMist(ctx,map,t){
+ for(let i=0;i<10;i++){
+  const tx=2+mhHashStr('vfm'+i)%(map.w-4);
+  const ty=2+mhHashStr('vfmy'+i)%(map.h-4);
+  const x=tx*MH_TILE+MH_TILE/2, y=ty*MH_TILE+MH_TILE/2;
+  const r=24+Math.sin(t*0.8+i)*6;
+  ctx.fillStyle='rgba(120,20,80,.07)';
+  ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='rgba(0,0,0,.06)';
+  ctx.beginPath(); ctx.arc(x,y,r*0.55,0,Math.PI*2); ctx.fill();
+ }
+}
+function mhVoidShake(st,ms,mag){
+ st.voidShakeUntil=performance.now()+(ms||90);
+ st.voidShakeMag=mag||5;
+}
+function mhSpawnVoidFx(st,fx){
+ if(!st.voidFx) st.voidFx=[];
+ st.voidFx.push({...fx,life:fx.life||0.55,born:performance.now(),age:0});
+}
+function mhSpawnAttackVfx(st,m,atk,dir,pos,rage){
+ const col=atk.color||'#9040ff';
+ const ang=Math.atan2(dir.dy,dir.dx);
+ const range=(atk.range||90)*(rage?1.25:1);
+ const px=pos.px, py=pos.py-12;
+ const kind=atk.kind||'arc';
+ if(kind==='beam'){
+  mhSpawnVoidFx(st,{kind:'beam',x:px,y:py,vx:dir.dx*16,vy:dir.dy*16,color:col,life:0.5,len:range});
+  mhSpawnVoidFx(st,{kind:'beam_core',x:px,y:py,vx:dir.dx*20,vy:dir.dy*20,color:'#e8d0ff',life:0.38,len:range});
+  for(let i=1;i<=6;i++){
+   const d=i*(range/7);
+   mhSpawnVoidFx(st,{kind:'spark',x:px+dir.dx*d,y:py+dir.dy*d,vx:(Math.random()-0.5)*3,vy:(Math.random()-0.5)*3,color:col,life:0.35});
+  }
+  mhSpawnVoidFx(st,{kind:'shock',x:px+dir.dx*range*0.85,y:py+dir.dy*range*0.85,vx:0,vy:0,color:col,r:8,dr:140,life:0.45});
+  mhVoidShake(st,100,6);
+  return;
+ }
+ if(kind==='orbs'){
+  for(let i=-3;i<=3;i++){
+   const ca=ang+i*0.28;
+   mhSpawnVoidFx(st,{kind:'orb',x:px,y:py,vx:Math.cos(ca)*10,vy:Math.sin(ca)*10,color:col,life:0.6});
+  }
+  mhSpawnVoidFx(st,{kind:'ring',x:px,y:py,vx:0,vy:0,color:col,r:12,dr:100,life:0.4});
+  mhVoidShake(st,70,4);
+  return;
+ }
+ if(kind==='nova'){
+  mhSpawnVoidFx(st,{kind:'nova',x:px+dir.dx*40,y:py+dir.dy*40,vx:0,vy:0,color:col,r:14,dr:range,life:0.55});
+  mhSpawnVoidFx(st,{kind:'shock',x:px+dir.dx*40,y:py+dir.dy*40,vx:0,vy:0,color:'#fff',r:6,dr:110,life:0.35});
+  mhVoidShake(st,110,7);
+  return;
+ }
+ mhSpawnVoidFx(st,{kind:'arc',x:px,y:py,vx:dir.dx*8,vy:dir.dy*8,color:col,a0:ang-1.1,a1:ang+1.1,r:range*0.55,dr:80,life:0.5});
+ mhSpawnVoidFx(st,{kind:'arc',x:px,y:py,vx:0,vy:0,color:'#fff',a0:ang-0.65,a1:ang+0.65,r:range*0.35,dr:60,life:0.35});
+ for(let i=0;i<5;i++){
+  const ca=ang+(i-2)*0.22;
+  mhSpawnVoidFx(st,{kind:'spark',x:px,y:py,vx:Math.cos(ca)*12,vy:Math.sin(ca)*12,color:col,life:0.45});
+ }
+ mhSpawnVoidFx(st,{kind:'ring',x:px,y:py,vx:0,vy:0,color:col,r:10,dr:90,life:0.38});
+ mhVoidShake(st,85,5);
+ if(m.voidKing){
+  mhSpawnVoidFx(st,{kind:'storm',x:px,y:py-8,vx:0,vy:0,color:'#ff3030',r:22,dr:110,life:0.5,spin:0});
+  mhSpawnVoidFx(st,{kind:'storm',x:px,y:py-8,vx:0,vy:0,color:'#0a0a0a',r:14,dr:95,life:0.55,spin:0.5});
+  mhVoidShake(st,130,8);
+ }
+}
+function mhSpawnPowerVfx(st,m,pow,dir,pos,map){
+ const col=pow.color||m.voidAccent||'#9040ff';
+ const px=pos.px, py=pos.py-10;
+ if(pow.kind==='dash'){
+  mhSpawnVoidFx(st,{kind:'trail',x:px-dir.dx*50,y:py-dir.dy*50,vx:0,vy:0,color:col,life:0.45});
+  mhSpawnVoidFx(st,{kind:'nova',x:px,y:py,vx:0,vy:0,color:col,r:16,dr:70,life:0.45});
+  mhSpawnVoidFx(st,{kind:'spark',x:px,y:py,vx:dir.dx*6,vy:dir.dy*6,color:'#fff',life:0.35});
+  mhVoidShake(st,60,3);
+  return;
+ }
+ if(pow.kind==='shield'){
+  mhSpawnVoidFx(st,{kind:'hex',x:px,y:py,vx:0,vy:0,color:col,r:38,life:0.7});
+  for(let i=0;i<8;i++) mhSpawnVoidFx(st,{kind:'spark',x:px,y:py,vx:Math.cos(i)*5,vy:Math.sin(i)*5,color:'#a0c8ff',life:0.5});
+  return;
+ }
+ if(pow.kind==='buff'){
+  mhSpawnVoidFx(st,{kind:'nova',x:px,y:py,vx:0,vy:0,color:'#ff6080',r:10,dr:85,life:0.55});
+  mhSpawnVoidFx(st,{kind:'ring',x:px,y:py,vx:0,vy:0,color:'#ff2040',r:18,dr:120,life:0.5});
+  mhVoidShake(st,90,5);
+  return;
+ }
+ if(pow.kind==='echo'){
+  for(let i=0;i<(pow.count||3);i++){
+   mhSpawnVoidFx(st,{kind:'orb',x:px+(i-1)*20,y:py-16-i*6,vx:dir.dx*6,vy:dir.dy*6-2,color:col,life:0.65});
+   mhSpawnVoidFx(st,{kind:'spark',x:px+(i-1)*20,y:py-16-i*6,vx:-dir.dy*4,vy:dir.dx*4,color:'#fff',life:0.35});
+  }
+  return;
+ }
+ if(pow.kind==='pull'||pow.id==='gravity_well'){
+  mhSpawnVoidFx(st,{kind:'storm',x:px,y:py,vx:0,vy:0,color:col,r:20,dr:(pow.range||120),life:0.75,spin:0});
+  mhSpawnVoidFx(st,{kind:'ring',x:px,y:py,vx:0,vy:0,color:'#000',r:8,dr:-90,life:0.65,drNeg:true});
+  mhVoidShake(st,120,6);
+  return;
+ }
+ if(pow.kind==='heal'){
+  mhSpawnVoidFx(st,{kind:'nova',x:px,y:py,vx:0,vy:0,color:'#80ffb0',r:12,dr:65,life:0.55});
+  for(let i=0;i<6;i++) mhSpawnVoidFx(st,{kind:'spark',x:px,y:py-20,vx:(Math.random()-0.5)*4,vy:-2-Math.random()*4,color:'#80ffb0',life:0.6});
+  return;
+ }
+ if(pow.kind==='storm'||pow.id==='forbidden_storm'){
+  mhSpawnVoidUniverseStorm(st,m,dir,pos,pow.range||160);
+  return;
+ }
+ const kind='nova';
+ mhSpawnVoidFx(st,{kind,x:px,y:py,vx:0,vy:0,color:col,r:18,dr:pow.range||110,life:0.75});
+ mhSpawnVoidFx(st,{kind:'shock',x:px,y:py,vx:0,vy:0,color:'#fff',r:10,dr:130,life:0.45});
+ mhSpawnVoidFx(st,{kind:'ring',x:px,y:py,vx:0,vy:0,color:col,r:14,dr:140,life:0.55});
+ mhVoidShake(st,100,6);
+}
+const MH_FORBIDDEN_SPELLS=['Null Sigil','Abyss Hex','Rift Curse','Shadow Bind','Depth Wail','King\'s Edict','Stone Eclipse','Void Lament'];
+function mhGibberLinkCtx(){
+ try{
+  if(!window.__mhGibberCtx) window.__mhGibberCtx=new (window.AudioContext||window.webkitAudioContext)();
+  const c=window.__mhGibberCtx;
+  if(c.state==='suspended') c.resume();
+  return c;
+ }catch(_){ return null; }
+}
+function mhGibberLinkBurst(st,payload){
+ const msg=String(payload||'GIBBERLINK').slice(0,32);
+ st.voidGibberUntil=performance.now()+2200;
+ st.voidGibberText=msg;
+ const C=mhGibberLinkCtx();
+ if(!C) return;
+ let t=C.currentTime+0.01;
+ for(let i=0;i<msg.length;i++){
+  const c=msg.charCodeAt(i);
+  const freq=520+(c%48)*22;
+  const o=C.createOscillator();
+  const g=C.createGain();
+  o.type=i%3?'square':'sawtooth';
+  o.frequency.setValueAtTime(freq,t);
+  o.frequency.exponentialRampToValueAtTime(freq*1.08,t+0.04);
+  g.gain.setValueAtTime(0.0001,t);
+  g.gain.exponentialRampToValueAtTime(0.07,t+0.012);
+  g.gain.exponentialRampToValueAtTime(0.0001,t+0.05);
+  o.connect(g); g.connect(C.destination);
+  o.start(t); o.stop(t+0.055);
+  t+=0.058;
+ }
+}
+function mhPaintOneAncientShield(ctx,x,y,glyph,king,wobbleT){
+ const w=26,h=34;
+ ctx.save();
+ ctx.translate(x,y);
+ ctx.rotate(Math.sin((wobbleT||0)*3)*0.12);
+ ctx.fillStyle='rgba(0,0,0,.9)';
+ ctx.strokeStyle=king?'#ff5050':'#c898ff';
+ ctx.lineWidth=2.5;
+ ctx.beginPath();
+ ctx.moveTo(0,-h*0.52);
+ ctx.quadraticCurveTo(w*0.58,-h*0.3,w*0.52,h*0.32);
+ ctx.quadraticCurveTo(0,h*0.52,-w*0.52,h*0.32);
+ ctx.quadraticCurveTo(-w*0.58,-h*0.3,0,-h*0.52);
+ ctx.closePath();
+ ctx.fill();
+ ctx.strokeStyle=king?'#0a0a0a':'#401860';
+ ctx.lineWidth=3;
+ ctx.stroke();
+ ctx.strokeStyle=king?'#ff8080':'#e8d0ff';
+ ctx.lineWidth=1.5;
+ ctx.stroke();
+ ctx.fillStyle=king?'#ffe0e0':'#ffe8a0';
+ ctx.font='bold 20px serif';
+ ctx.textAlign='center'; ctx.textBaseline='middle';
+ ctx.shadowColor=king?'#ff2020':'#9040ff';
+ ctx.shadowBlur=8;
+ ctx.fillText(glyph||'⌬',0,1);
+ ctx.shadowBlur=0;
+ ctx.strokeStyle='rgba(255,60,60,.55)'; ctx.lineWidth=1;
+ ctx.beginPath(); ctx.moveTo(-w*0.35,-h*0.15); ctx.lineTo(w*0.35,-h*0.15); ctx.stroke();
+ ctx.beginPath(); ctx.moveTo(0,-h*0.15); ctx.lineTo(0,h*0.28); ctx.stroke();
+ if(king){
+  ctx.fillStyle='#a01010';
+  for(let s=0;s<8;s++){
+   const a=s*Math.PI*2/8;
+   const sx=Math.cos(a)*w*0.62, sy=Math.sin(a)*h*0.38;
+   ctx.beginPath();
+   ctx.moveTo(sx,sy);
+   ctx.lineTo(sx+Math.cos(a)*7,sy+Math.sin(a)*7);
+   ctx.lineTo(sx+Math.cos(a+0.35)*4,sy+Math.sin(a+0.35)*4);
+   ctx.closePath(); ctx.fill();
+  }
+ }
+ ctx.restore();
+}
+function mhMorphHasPassiveAncientShields(m){
+ if(!m) return false;
+ if(m.plagueDoctor||m.voidKing) return true;
+ return m.rarity==='voidfallen'||!!m.voidFallen;
+}
+function mhDrawPassiveAncientShieldsOnCharacter(ctx,cx,cy,t,m,alpha){
+ if(!mhMorphHasPassiveAncientShields(m)) return;
+ const king=!!(m.voidKing||m.plagueDoctor);
+ const god=!!m.voidFallenGod;
+ const a=(alpha==null?1:alpha)*0.92;
+ const orbitRad=god?68:king?52:44;
+ const oy=cy-(god?24:king?18:14);
+ ctx.save();
+ ctx.globalAlpha=a*0.38;
+ ctx.strokeStyle='rgba(255,80,80,.45)'; ctx.lineWidth=2;
+ ctx.setLineDash([6,8]);
+ ctx.beginPath(); ctx.ellipse(cx,oy,orbitRad,orbitRad*0.62,0,0,Math.PI*2); ctx.stroke();
+ ctx.setLineDash([]);
+ ctx.globalAlpha=a;
+ for(let i=0;i<5;i++){
+  const ang=t*(god?0.72:0.85)+i*Math.PI*2/5;
+  const sx=cx+Math.cos(ang)*orbitRad;
+  const sy=oy+Math.sin(ang)*orbitRad*0.62;
+  mhPaintOneAncientShield(ctx,sx,sy,MH_ANCIENT_GLYPHS[i],king,t+i);
+ }
+ if(god){
+  ctx.globalAlpha=a*0.55;
+  ctx.font='bold 14px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  for(let i=0;i<5;i++){
+   const ang=-t*1.15+i*Math.PI*2/5+0.4;
+   const rr=orbitRad*1.22;
+   ctx.fillStyle='rgba(255,120,120,.7)';
+   ctx.fillText(MH_ANCIENT_GLYPHS[i],cx+Math.cos(ang)*rr,oy+Math.sin(ang)*rr*0.62);
+  }
+ }
+ ctx.restore();
+}
+function mhWrapPlayerRedBlackStorm(st,m,pos,duration){
+ const plague=!!m?.plagueDoctor;
+ const dur=duration||(m?.voidKing?7:plague?5.5:5.8);
+ st.playerStormUntil=performance.now()+dur*1000;
+ st.playerStormKing=!!m?.voidKing&&!plague;
+ st.playerStormPlague=plague;
+ const px=pos.px, py=pos.py-10;
+ const holeR=m?.voidKing?78:plague?70:62;
+ const tag={followPlayer:true,foy:-10};
+ mhSpawnVoidFx(st,{kind:'blackhole',x:px,y:py,vx:0,vy:0,color:'#ff2020',r:holeR,life:dur,spin:0,dr:0,...tag});
+ mhSpawnVoidFx(st,{kind:'blackhole_core',x:px,y:py,vx:0,vy:0,color:'#050505',r:holeR*0.45,life:dur,spin:0.7,...tag});
+ mhSpawnVoidFx(st,{kind:'storm',x:px,y:py,vx:0,vy:0,color:'#ff2020',r:26,dr:holeR+36,life:dur*0.95,spin:0,...tag});
+ mhSpawnVoidFx(st,{kind:'storm',x:px,y:py,vx:0,vy:0,color:'#0a0a0a',r:16,dr:holeR+24,life:dur,spin:0.4,...tag});
+ for(let i=0;i<22;i++){
+  const ang=i*Math.PI*2/22;
+  const rad=42+(i%4)*14;
+  mhSpawnVoidFx(st,{kind:'storm_orbit',x:px,y:py,orbitAng:ang,orbitRad:rad,orbitSpeed:1.1+(i%6)*0.12,color:i%2?'#ff3030':'#0c0c0c',life:dur,...tag});
+ }
+ for(let i=0;i<14;i++){
+  mhSpawnVoidFx(st,{kind:'spark',x:px,y:py,vx:Math.cos(i)*8,vy:Math.sin(i)*6,color:i%2?'#ff5050':'#1a1a1a',life:0.55+Math.random()*0.35,...tag,ox:Math.cos(i*0.9)*30,oy:Math.sin(i*0.9)*22});
+ }
+ if(plague){
+  for(let i=0;i<8;i++){
+   mhSpawnVoidFx(st,{kind:'spark',x:px,y:py,vx:Math.cos(i*0.8)*6,vy:Math.sin(i*0.8)*5,color:i%2?'#80ffb0':'#cc0000',life:0.65,...tag,ox:Math.cos(i)*22,oy:Math.sin(i)*18});
+  }
+ }
+}
+function mhDrawRedBlackPlayerStorm(ctx,st,pos,t){
+ if(!st.playerStormUntil||performance.now()>st.playerStormUntil) return;
+ const king=!!st.playerStormKing;
+ const plague=!!st.playerStormPlague;
+ const cx=pos.px, cy=pos.py-(king?14:plague?12:10);
+ const pulse=0.85+Math.sin(t*5.2)*0.15;
+ const R=(king?92:plague?84:76)*pulse;
+ const a=Math.min(1,(st.playerStormUntil-performance.now())/900);
+ ctx.save();
+ ctx.globalAlpha=0.55*a;
+ const fog=ctx.createRadialGradient(cx,cy,R*0.1,cx,cy,R*1.15);
+ fog.addColorStop(0,'rgba(0,0,0,.55)');
+ fog.addColorStop(0.45,'rgba(120,10,10,.35)');
+ fog.addColorStop(0.72,'rgba(255,40,40,.18)');
+ fog.addColorStop(1,'rgba(255,80,80,0)');
+ ctx.fillStyle=fog;
+ ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.fill();
+ ctx.globalAlpha=0.9*a;
+ for(let i=0;i<10;i++){
+  const ang=t*2.4+i*Math.PI*2/10;
+  const r0=R*0.35,r1=R*(0.82+Math.sin(t*7+i)*0.08);
+  ctx.strokeStyle=i%2?'rgba(255,50,50,.75)':'rgba(0,0,0,.85)';
+  ctx.lineWidth=i%2?4:6;
+  ctx.beginPath();
+  ctx.moveTo(cx+Math.cos(ang)*r0,cy+Math.sin(ang)*r0*0.7);
+  ctx.lineTo(cx+Math.cos(ang+0.35)*r1,cy+Math.sin(ang+0.35)*r1*0.65);
+  ctx.stroke();
+ }
+ ctx.strokeStyle='rgba(255,80,80,.65)'; ctx.lineWidth=3;
+ for(let i=0;i<6;i++){
+  const ang=t*3.1+i*Math.PI/3;
+  ctx.beginPath();
+  ctx.ellipse(cx,cy,R*0.88,R*0.38,ang,0,Math.PI*2);
+  ctx.stroke();
+ }
+ ctx.strokeStyle='rgba(0,0,0,.92)'; ctx.lineWidth=5;
+ ctx.beginPath(); ctx.arc(cx,cy,R*0.2,0,Math.PI*2); ctx.stroke();
+ ctx.restore();
+}
+function mhSpawnVoidUniverseStorm(st,m,dir,pos,range){
+ const stormLife=m.voidKing?6.5:5.5;
+ const cx=pos.px, cy=pos.py-10;
+ mhWrapPlayerRedBlackStorm(st,m,pos,stormLife);
+ mhSpawnVoidFx(st,{kind:'universe_rift',x:cx,y:cy-200,vx:0,vy:0,color:'#ff3030',r:48,life:stormLife,spin:0,tx:cx,ty:cy,followPlayer:true,foy:-10});
+ for(let i=0;i<24;i++){
+  const spell=MH_FORBIDDEN_SPELLS[i%MH_FORBIDDEN_SPELLS.length];
+  const delay=i*0.06;
+  const sx=cx+(Math.random()-0.5)*40, sy=cy-220-Math.random()*45;
+  mhSpawnVoidFx(st,{kind:'forbidden_spell',x:sx,y:sy,vx:0,vy:0,color:i%2?'#ff4040':'#1a1a1a',life:stormLife-0.1-delay,spell,tx:cx,ty:cy,delay,phase:i*0.7,followPlayer:true,foy:-10,spellOx:sx-cx,spellOy:sy-cy});
+ }
+ mhGibberLinkBurst(st,m.voidKing?'GIBBERLINK:KING:RIFT':'GIBBERLINK:VOID:STORM');
+ for(let i=0;i<8;i++){
+  mhSpawnVoidFx(st,{kind:'gibberlink',x:cx+(i-4)*14,y:cy-210,vx:0,vy:0,color:'#ff6060',life:stormLife*0.7,chip:i%5,followPlayer:true,foy:-10,gox:(i-4)*14,goy:-200});
+ }
+ st.voidGibberUntil=performance.now()+stormLife*1000;
+ mhVoidShake(st,m.voidKing?220:180,m.voidKing?12:9);
+}
+function mhUpdateVoidFx(st,dt){
+ if(!st.voidFx) return;
+ const p=st.walkPos?.[st.world];
+ st.voidFx=st.voidFx.filter(f=>{
+  f.life-=dt;
+  f.age=(f.age||0)+dt;
+  if(f.followPlayer&&p){
+   const foy=f.foy==null?-10:f.foy;
+   if(f.kind==='storm_orbit'||f.kind==='ancient_shield'){
+    f.orbitAng=(f.orbitAng||0)+dt*(f.orbitSpeed||1.2);
+    f.x=p.px+Math.cos(f.orbitAng)*(f.orbitRad||48);
+    f.y=p.py+foy+Math.sin(f.orbitAng)*(f.orbitRad||48)*0.62;
+   }else if(f.kind==='forbidden_spell'&&f.spellOx!=null){
+    f.x=p.px+f.spellOx;
+    f.y=p.py+foy+f.spellOy;
+    f.tx=p.px; f.ty=p.py+foy;
+   }else if(f.gox!=null){
+    f.x=p.px+f.gox; f.y=p.py+foy+f.goy;
+   }else{
+    f.x=p.px+(f.ox||0);
+    f.y=p.py+foy+(f.oy||0);
+   }
+  }
+  f.x+=(f.vx||0)*dt*60; f.y+=(f.vy||0)*dt*60;
+  if(f.kind==='forbidden_spell'){
+   f.delay=(f.delay||0)-dt;
+   if(f.delay<=0){
+    const dx=(f.tx||f.x)-(f.x), dy=(f.ty||f.y)-(f.y);
+    const dist=Math.hypot(dx,dy)||1;
+    const pull=8+Math.sin((f.phase||0)+f.age*9)*2;
+    f.vx=(dx/dist)*pull; f.vy=(dy/dist)*pull;
+    if(dist<24){
+     if(Math.random()<0.35){
+      mhSpawnVoidFx(st,{kind:'spark',x:f.x,y:f.y,vx:(Math.random()-0.5)*8,vy:(Math.random()-0.5)*8,color:'#ff8080',life:0.35});
+     }
+     if(Math.random()<0.12) mhGibberLinkBurst(st,f.spell||'SPELL');
+    }
+   }
+  }
+  if(f.kind==='blackhole'||f.kind==='blackhole_core'||f.kind==='universe_rift'){
+   f.spin=(f.spin||0)+dt*(f.kind==='blackhole_core'?2.4:1.1);
+  }
+  if(f.kind==='nova'||f.kind==='storm'||f.kind==='shock'||f.kind==='ring'){
+   const dr=f.drNeg?-(f.dr||80): (f.dr||80);
+   f.r=(f.r||20)+dr*dt;
+  }
+  if(f.kind==='orb') f.vy=(f.vy||0)+dt*12;
+  return f.life>0;
+ });
+ if(st.voidShieldUntil&&performance.now()>st.voidShieldUntil) st.voidShieldUntil=0;
+ if(st.voidRageUntil&&performance.now()>st.voidRageUntil) st.voidRageUntil=0;
+}
+function mhDrawVoidFx(ctx,st){
+ (st.voidFx||[]).forEach(f=>{
+  const a=Math.max(0,Math.min(1,f.life*2));
+  ctx.save(); ctx.globalAlpha=a;
+  const col=f.color||'#9040ff';
+  if(f.kind==='beam'||f.kind==='beam_core'){
+   const len=f.len||100;
+   const ex=f.x+(f.vx||0)*(len/16), ey=f.y+(f.vy||0)*(len/16);
+   ctx.strokeStyle=col; ctx.lineWidth=f.kind==='beam_core'?3:9;
+   ctx.shadowColor=col; ctx.shadowBlur=f.kind==='beam_core'?18:8;
+   ctx.lineCap='round';
+   ctx.beginPath(); ctx.moveTo(f.x,f.y); ctx.lineTo(ex,ey); ctx.stroke();
+   ctx.shadowBlur=0;
+  }else if(f.kind==='arc'){
+   ctx.strokeStyle=col; ctx.lineWidth=7; ctx.shadowColor=col; ctx.shadowBlur=10;
+   ctx.beginPath(); ctx.arc(f.x,f.y,f.r||40,f.a0||0,f.a1||Math.PI); ctx.stroke();
+   ctx.strokeStyle='rgba(255,255,255,.35)'; ctx.lineWidth=2; ctx.shadowBlur=0;
+   ctx.beginPath(); ctx.arc(f.x,f.y,(f.r||40)*0.82,f.a0||0,f.a1||Math.PI); ctx.stroke();
+  }else if(f.kind==='orb'){
+   ctx.fillStyle=col; ctx.shadowColor=col; ctx.shadowBlur=14;
+   ctx.beginPath(); ctx.arc(f.x,f.y,7,0,Math.PI*2); ctx.fill();
+   ctx.fillStyle='#fff'; ctx.shadowBlur=0;
+   ctx.beginPath(); ctx.arc(f.x-2,f.y-2,2.5,0,Math.PI*2); ctx.fill();
+  }else if(f.kind==='spark'){
+   ctx.strokeStyle=col; ctx.lineWidth=3; ctx.shadowColor=col; ctx.shadowBlur=8;
+   ctx.beginPath(); ctx.moveTo(f.x,f.y); ctx.lineTo(f.x-(f.vx||0)*3,f.y-(f.vy||0)*3); ctx.stroke();
+  }else if(f.kind==='trail'){
+   const g=ctx.createRadialGradient(f.x,f.y,4,f.x,f.y,55);
+   g.addColorStop(0,mhHex(col,0.55)); g.addColorStop(1,mhHex(col,0));
+   ctx.fillStyle=g; ctx.beginPath(); ctx.arc(f.x,f.y,55,0,Math.PI*2); ctx.fill();
+  }else if(f.kind==='hex'){
+   const r=f.r||36;
+   ctx.strokeStyle=col; ctx.lineWidth=3;
+   ctx.beginPath();
+   for(let i=0;i<=6;i++){
+    const ang=i*Math.PI/3;
+    const hx=f.x+Math.cos(ang)*r, hy=f.y+Math.sin(ang)*r*0.85;
+    if(i===0) ctx.moveTo(hx,hy); else ctx.lineTo(hx,hy);
+   }
+   ctx.closePath(); ctx.stroke();
+   ctx.fillStyle=mhHex(col,0.12); ctx.fill();
+  }else if(f.kind==='ring'){
+   ctx.strokeStyle=col; ctx.lineWidth=4;
+   ctx.beginPath(); ctx.arc(f.x,f.y,Math.max(4,f.r||20),0,Math.PI*2); ctx.stroke();
+  }else if(f.kind==='shock'){
+   const r=Math.max(8,f.r||20);
+   ctx.strokeStyle=col; ctx.lineWidth=5; ctx.globalAlpha=a*0.85;
+   ctx.beginPath(); ctx.arc(f.x,f.y,r,0,Math.PI*2); ctx.stroke();
+   ctx.strokeStyle='rgba(255,255,255,.5)'; ctx.lineWidth=2;
+   ctx.beginPath(); ctx.arc(f.x,f.y,r*0.7,0,Math.PI*2); ctx.stroke();
+  }else if(f.kind==='blackhole'){
+   const r=f.r||50;
+   const spin=f.spin||0;
+   const g=ctx.createRadialGradient(f.x,f.y,r*0.15,f.x,f.y,r*1.05);
+   g.addColorStop(0,'rgba(0,0,0,.95)');
+   g.addColorStop(0.35,'rgba(20,0,0,.85)');
+   g.addColorStop(0.62,'rgba(180,20,20,.55)');
+   g.addColorStop(0.88,'rgba(255,40,40,.22)');
+   g.addColorStop(1,'rgba(255,80,80,0)');
+   ctx.fillStyle=g;
+   ctx.beginPath(); ctx.arc(f.x,f.y,r,0,Math.PI*2); ctx.fill();
+   ctx.strokeStyle='rgba(255,60,60,.75)'; ctx.lineWidth=5;
+   for(let i=0;i<6;i++){
+    const ang=spin+i*Math.PI/3;
+    ctx.beginPath();
+    ctx.ellipse(f.x,f.y,r*0.92,r*0.38,ang,0,Math.PI*2);
+    ctx.stroke();
+   }
+   ctx.strokeStyle='rgba(0,0,0,.9)'; ctx.lineWidth=3;
+   ctx.beginPath(); ctx.arc(f.x,f.y,r*0.22,0,Math.PI*2); ctx.stroke();
+  }else if(f.kind==='blackhole_core'){
+   const r=f.r||24;
+   ctx.fillStyle='#000';
+   ctx.shadowColor='#ff2020'; ctx.shadowBlur=22;
+   ctx.beginPath(); ctx.arc(f.x,f.y,r,0,Math.PI*2); ctx.fill();
+   ctx.shadowBlur=0;
+   ctx.strokeStyle='rgba(255,40,40,.65)'; ctx.lineWidth=2;
+   ctx.beginPath(); ctx.arc(f.x,f.y,r*1.15,0,Math.PI*2); ctx.stroke();
+  }else if(f.kind==='universe_rift'){
+   const r=f.r||40;
+   const wobble=Math.sin((f.age||0)*7)*6;
+   ctx.save();
+   ctx.translate(f.x+wobble,f.y);
+   const g=ctx.createLinearGradient(0,-r*2.2,0,r*0.4);
+   g.addColorStop(0,'rgba(255,60,60,0)');
+   g.addColorStop(0.35,'rgba(255,30,30,.35)');
+   g.addColorStop(0.5,'rgba(0,0,0,.92)');
+   g.addColorStop(0.65,'rgba(255,30,30,.35)');
+   g.addColorStop(1,'rgba(255,60,60,0)');
+   ctx.fillStyle=g;
+   ctx.beginPath();
+   ctx.moveTo(-r*0.35,-r*2);
+   ctx.bezierCurveTo(-r*1.1,-r*0.6,-r*0.9,r*0.5,-r*0.25,r*0.35);
+   ctx.lineTo(r*0.25,r*0.35);
+   ctx.bezierCurveTo(r*0.9,r*0.5,r*1.1,-r*0.6,r*0.35,-r*2);
+   ctx.closePath();
+   ctx.fill();
+   ctx.strokeStyle='rgba(255,120,120,.85)'; ctx.lineWidth=2;
+   ctx.stroke();
+   ctx.strokeStyle='rgba(0,0,0,.95)'; ctx.lineWidth=4;
+   ctx.beginPath(); ctx.moveTo(0,-r*1.7); ctx.lineTo(0,r*0.2); ctx.stroke();
+   ctx.fillStyle='rgba(255,200,200,.9)'; ctx.font='bold 10px system-ui,sans-serif';
+   ctx.textAlign='center';
+   ctx.fillText('GIBBERLINK',0,-r*1.52);
+   ctx.font='8px system-ui,sans-serif';
+   ctx.fillStyle='rgba(255,160,160,.85)';
+   ctx.fillText('universe rift',0,-r*1.32);
+   ctx.restore();
+  }else if(f.kind==='gibberlink'){
+   const w=10+(f.chip||0)*3;
+   ctx.fillStyle='rgba(255,80,80,.9)';
+   for(let b=0;b<5;b++){
+    const h=6+Math.sin((f.age||0)*24+b*1.7)*w*0.35;
+    ctx.fillRect(f.x-18+b*8,f.y-h/2,5,h);
+   }
+   ctx.fillStyle='#0a0a0a';
+   ctx.fillRect(f.x-20,f.y+8,40,3);
+  }else if(f.kind==='forbidden_spell'){
+   if((f.delay||0)>0){ ctx.restore(); return; }
+   const tailX=f.x-(f.vx||0)*4, tailY=f.y-(f.vy||0)*4;
+   ctx.strokeStyle=col==='#1a1a1a'?'#ff5050':col;
+   ctx.lineWidth=4; ctx.shadowColor='#ff3030'; ctx.shadowBlur=12;
+   ctx.beginPath(); ctx.moveTo(tailX,tailY); ctx.lineTo(f.x,f.y); ctx.stroke();
+   ctx.shadowBlur=0;
+   ctx.fillStyle='rgba(0,0,0,.88)'; ctx.strokeStyle='#ff4040'; ctx.lineWidth=2;
+   ctx.beginPath();
+   for(let i=0;i<5;i++){
+    const ang=(f.phase||0)+i*Math.PI*2/5;
+    const rr=9+(i%2)*2;
+    const sx=f.x+Math.cos(ang)*rr, sy=f.y+Math.sin(ang)*rr;
+    if(i===0) ctx.moveTo(sx,sy); else ctx.lineTo(sx,sy);
+   }
+   ctx.closePath(); ctx.fill(); ctx.stroke();
+   ctx.fillStyle='#ffe0e0'; ctx.font='9px system-ui,sans-serif'; ctx.textAlign='center';
+   const sn=(f.spell||'Spell').split(' ')[0];
+   ctx.fillText(sn,f.x,f.y+3);
+  }else if(f.kind==='storm_orbit'){
+   const rr=10+Math.sin((f.age||0)*11)*4;
+   ctx.fillStyle=col==='#0c0c0c'?'rgba(0,0,0,.85)':'rgba(255,40,40,.75)';
+   ctx.beginPath(); ctx.arc(f.x,f.y,rr,0,Math.PI*2); ctx.fill();
+   ctx.strokeStyle='rgba(255,100,100,.8)'; ctx.lineWidth=2;
+   ctx.beginPath(); ctx.moveTo(f.x-rr*1.4,f.y); ctx.lineTo(f.x+rr*1.4,f.y); ctx.stroke();
+  }else if(f.kind==='ancient_shield'){
+   const glyph=f.glyph||MH_ANCIENT_GLYPHS[(f.shieldIndex||0)%5];
+   const king=col==='#ff3030';
+   mhPaintOneAncientShield(ctx,f.x,f.y,glyph,king,f.age);
+  }else if(f.kind==='storm'){
+   const r=f.r||30;
+   ctx.strokeStyle=col; ctx.lineWidth=4;
+   ctx.beginPath(); ctx.arc(f.x,f.y,r,0,Math.PI*2); ctx.stroke();
+   ctx.strokeStyle=col==='#0a0a0a'?'rgba(0,0,0,.85)':'rgba(255,255,255,.25)'; ctx.lineWidth=col==='#0a0a0a'?7:2;
+   ctx.beginPath(); ctx.arc(f.x,f.y,r*0.72,0,Math.PI*2); ctx.stroke();
+   ctx.strokeStyle='rgba(255,60,60,.55)'; ctx.lineWidth=2;
+   for(let i=0;i<8;i++){
+    const ang=(f.spin||0)+i*Math.PI/4;
+    ctx.beginPath(); ctx.moveTo(f.x,f.y); ctx.lineTo(f.x+Math.cos(ang)*r,f.y+Math.sin(ang)*r*0.65); ctx.stroke();
+   }
+   if(f.spin!=null) f.spin+=0.12;
+  }else if(f.kind==='nova'){
+   const r=f.r||30;
+   const g=ctx.createRadialGradient(f.x,f.y,0,f.x,f.y,r);
+   g.addColorStop(0,mhHex(col,0.65)); g.addColorStop(0.45,mhHex(col,0.25)); g.addColorStop(1,mhHex(col,0));
+   ctx.fillStyle=g; ctx.beginPath(); ctx.arc(f.x,f.y,r,0,Math.PI*2); ctx.fill();
+   ctx.strokeStyle=col; ctx.lineWidth=3; ctx.stroke();
+  }else{
+   ctx.strokeStyle=col; ctx.lineWidth=3;
+   ctx.beginPath(); ctx.arc(f.x,f.y,f.r||30,0,Math.PI*2); ctx.stroke();
+  }
+  ctx.restore();
+ });
+ if(st.voidShieldUntil&&performance.now()<st.voidShieldUntil){
+  const p=st.walkPos?.[st.world];
+  if(p){
+   ctx.strokeStyle='rgba(120,160,255,.75)'; ctx.lineWidth=3;
+   ctx.beginPath(); ctx.arc(p.px,p.py,42+Math.sin(performance.now()/200)*4,0,Math.PI*2); ctx.stroke();
+  }
+ }
+}
+function mhFacingDir(st){
+ const k=st.walkKeys||{};
+ let dx=0,dy=0;
+ if(k.left) dx-=1; if(k.right) dx+=1; if(k.up) dy-=1; if(k.down) dy+=1;
+ if(!dx&&!dy) return {dx:0,dy:1};
+ const l=Math.hypot(dx,dy)||1;
+ return {dx:dx/l,dy:dy/l};
+}
+function mhEnsureFight(st,save){
+ if(!st) return;
+ const wear=mhMorph(save?.wearing);
+ const max=wear?.voidKing?220:(wear&&(wear.rarity==='voidfallen'||wear.voidFallen)?140:100);
+ if(st.fightMaxHp==null||st.fightMaxHp!==max){ st.fightMaxHp=max; st.fightHp=max; }
+ if(st.fightHp==null) st.fightHp=max;
+ if(!st.enemyHp) st.enemyHp={};
+ if(!st.enemyAggro) st.enemyAggro={};
+ if(!st.enemyRespawnAt) st.enemyRespawnAt={};
+ if(!st.enemyLastHit) st.enemyLastHit={};
+ if(!st.enemyHitFlash) st.enemyHitFlash={};
+}
+function mhEnemyFightKey(wi,m){ return wi+'|'+m.id; }
+function mhEnemyMaxHp(m){
+ if(m.voidKing) return 520;
+ if(m.rarity==='voidfallen') return 130;
+ if(m.rarity==='exotic') return 90;
+ if(m.exclusive) return 75;
+ return 55;
+}
+function mhEnemyAlive(st,wi,m){
+ const k=mhEnemyFightKey(wi,m);
+ if(st.enemyRespawnAt[k]&&performance.now()<st.enemyRespawnAt[k]) return false;
+ return mhGetEnemyHp(st,wi,m)>0;
+}
+function mhGetEnemyHp(st,wi,m){
+ const k=mhEnemyFightKey(wi,m);
+ if(st.enemyHp[k]==null) st.enemyHp[k]=mhEnemyMaxHp(m);
+ return st.enemyHp[k];
+}
+function mhDamageEnemy(st,wi,m,dmg,save){
+ const k=mhEnemyFightKey(wi,m);
+ let hp=mhGetEnemyHp(st,wi,m)-Math.max(1,dmg);
+ if(hp<=0){
+  st.enemyHp[k]=0;
+  st.enemyRespawnAt[k]=performance.now()+9000;
+  const coins=m.voidKing?50:(m.rarity==='voidfallen'?15:8);
+  save.coins+=coins;
+  mhSaveSave(save);
+  mhToast('💥 '+m.name+' defeated! +'+coins+' coins');
+  if(mhNpcCanReact(st,wi,m,1200)) mhNpcShowReaction(st,wi,m,mhNpcReactLine(m,save,wi,'defeat',{tick:Date.now()}));
+  mhSpawnVoidFx(st,{kind:'nova',x:0,y:0,vx:0,vy:0,color:'#ffe060',r:8,dr:70,life:0.45});
+ }else{
+  st.enemyHp[k]=hp;
+  mhToast('💢 '+m.name+' -'+Math.round(dmg)+' HP');
+ }
+ st.enemyHitFlash[k]=performance.now()+220;
+ st.enemyAggro[k]=performance.now()+6000;
+}
+function mhFightHitscan(st,save,wi,pos,dir,dmg,range,minDot){
+ const morphs=mhWorldMorphs(wi);
+ let hits=0;
+ const dotMin=minDot==null?0.3:minDot;
+ morphs.forEach(m=>{
+  if(!mhEnemyAlive(st,wi,m)) return;
+  const np=mhGetNpcPos(st,wi,m);
+  const dx=np.px-pos.px, dy=np.py-pos.py;
+  const dist=Math.hypot(dx,dy);
+  if(dist>range||dist<8) return;
+  const dot=(dx/dist)*dir.dx+(dy/dist)*dir.dy;
+  if(dot<dotMin) return;
+  mhDamageEnemy(st,wi,m,dmg,save);
+  const np2=mhGetNpcPos(st,wi,m);
+  mhSpawnVoidFx(st,{kind:'spark',x:np2.px,y:np2.py-20,vx:(Math.random()-0.5)*6,vy:-4-Math.random()*4,color:'#ff8080',life:0.4});
+  hits++;
+ });
+ return hits;
+}
+function mhFightAoe(st,save,wi,cx,cy,radius,dmg){
+ const morphs=mhWorldMorphs(wi);
+ let hits=0;
+ morphs.forEach(m=>{
+  if(!mhEnemyAlive(st,wi,m)) return;
+  const np=mhGetNpcPos(st,wi,m);
+  if(Math.hypot(np.px-cx,np.py-cy)>radius) return;
+  mhDamageEnemy(st,wi,m,dmg,save);
+  hits++;
+ });
+ return hits;
+}
+function mhPlayerDamage(st,dmg,from){
+ if(st.voidShieldUntil&&performance.now()<st.voidShieldUntil) return;
+ mhEnsureFight(st,st.save);
+ st.fightHp=Math.max(0,(st.fightHp||100)-Math.max(1,dmg));
+ st.fightHitFlash=performance.now()+280;
+ mhVoidShake(st,80,5);
+ mhToast('🩸 '+(from||'Enemy')+' hits you! -'+Math.round(dmg));
+ if(st?.world!=null&&from){
+  const wi=st.world;
+  const morphs=mhWorldMorphs(wi);
+  const hit=morphs.find(x=>x.id===from||x.name===from);
+  if(hit&&mhNpcCanReact(st,wi,hit,900)) mhNpcShowReaction(st,wi,hit,mhNpcReactLine(hit,st.save,wi,'player_hurt',{tick:Date.now()}),4200);
+ }
+ if(st.fightHp<=0){
+  st.fightHp=st.fightMaxHp||100;
+  mhToast('😵 Knocked out — HP restored! Keep fighting!');
+ }
+}
+function mhUpdateFight(st,save,wi,pos){
+ mhEnsureFight(st,save);
+ const morphs=mhWorldMorphs(wi);
+ const now=performance.now();
+ morphs.forEach(m=>{
+  const k=mhEnemyFightKey(wi,m);
+  if(!st.enemyAggro[k]||st.enemyAggro[k]<now) return;
+  if(!mhEnemyAlive(st,wi,m)) return;
+  const np=mhGetNpcPos(st,wi,m);
+  const d=Math.hypot(np.px-pos.px,np.py-pos.py);
+  if(d<36||d>120) return;
+  if(now-(st.enemyLastHit[k]||0)<850) return;
+  st.enemyLastHit[k]=now;
+  let dmg=6;
+  if(m.voidKing) dmg=22;
+  else if(m.rarity==='voidfallen') dmg=10;
+  else if(m.rarity==='exotic') dmg=8;
+  mhPlayerDamage(st,dmg,m.id);
+ });
+ Object.keys(st.enemyRespawnAt).forEach(k=>{
+  if(st.enemyRespawnAt[k]&&now>=st.enemyRespawnAt[k]&&st.enemyHp[k]<=0){
+   st.enemyHp[k]=null;
+   delete st.enemyRespawnAt[k];
+  }
+ });
+}
+function mhDrawFightHpBar(ctx,x,y,w,hp,maxHp,color){
+ const pct=Math.max(0,Math.min(1,hp/maxHp));
+ ctx.fillStyle='rgba(0,0,0,.75)'; ctx.fillRect(x-w/2,y,w,7);
+ ctx.fillStyle=color||'#ff5050'; ctx.fillRect(x-w/2,y,w*pct,7);
+ ctx.strokeStyle='rgba(255,255,255,.35)'; ctx.lineWidth=1; ctx.strokeRect(x-w/2+0.5,y+0.5,w-1,6);
+}
+function mhBuildKingCutsceneCrowd(n){
+ const slash=Math.round(n*0.54);
+ const jump=Math.round(n*0.16);
+ const stone=Math.round(n*0.06);
+ const voidAlly=Math.round(n*0.30);
+ const crowd=[];
+ for(let i=0;i<n;i++){
+  let role='survivor';
+  if(i<slash) role='slash';
+  else if(i<slash+jump) role='jump';
+  else if(i<slash+jump+stone) role='stone';
+  else if(i<slash+jump+stone+voidAlly) role='voidally';
+  const ang=Math.PI*0.12+(i/(n-1||1))*Math.PI*0.76;
+  const dist=120+(i%6)*22;
+  crowd.push({
+   role,
+   bx:Math.cos(ang)*dist,
+   by:-70-Math.sin(ang)*dist*0.45-(i%5)*10,
+   slashT:0,
+   jumpT:0,
+   stoneT:0,
+   cursed:false,
+   voided:false,
+   gone:false
+  });
+ }
+ return crowd;
+}
+function mhStartKingAction4Cutscene(st,save,wi,pos){
+ if(st.kingCutscene) return;
+ const m=mhVoidCombatMorph(save);
+ if(!m?.voidKing){
+  mhToast('👑 Action 4 is a cutscene — morph into Void Fallen God first!');
+  return;
+ }
+ st.kingCutscene={
+  start:performance.now(),
+  wi:wi??st.world,
+  pos:{px:pos.px,py:pos.py},
+  swordBlend:0,
+  slashWave:0,
+  crowd:mhBuildKingCutsceneCrowd(50),
+  starT:0,
+  holeR:0
+ };
+ mhToast('🎬 Action 4 · '+MH_KING_CUTSCENE_TITLE);
+ mhPlaySfx('ui');
+}
+function mhFinishKingAction4Cutscene(st,save){
+ if(!st.kingCutscene) return;
+ const wi=st.kingCutscene.wi;
+ const pos=mhWalkEnsurePos(st,wi);
+ st.kingCutscene=null;
+ mhFightAoe(st,save,wi,pos.px,pos.py-18,220,72);
+ mhWrapPlayerRedBlackStorm(st,mhVoidCombatMorph(save),pos,4);
+ mhVoidShake(st,280,11);
+ mhGibberLinkBurst(st,'GIBBERLINK:KING:CUTSCENE:END');
+ mhToast('☉ Star black hole fades — cursed noobies vanish into the void!');
+}
+function mhUpdateKingCutscene(st,dt){
+ const cs=st.kingCutscene;
+ if(!cs) return;
+ const elapsed=(performance.now()-cs.start)/1000;
+ cs.swordBlend=Math.min(1,elapsed/1.7);
+ if(elapsed>=1.5) cs.slashWave=Math.min(1,(elapsed-1.5)/2.2);
+ if(elapsed>=5) cs.jumpPhase=(elapsed-5)/3.2;
+ if(elapsed>=8.2) cs.stonePhase=(elapsed-8.2)/2.8;
+ if(elapsed>=11) cs.starT=Math.min(1,(elapsed-11)/4.2);
+ if(elapsed>=11) cs.holeR=Math.min(220,(elapsed-11)*95);
+ cs.crowd.forEach(e=>{
+  if(e.role==='slash'&&cs.slashWave>0) e.slashT=Math.min(1,cs.slashWave*1.15);
+  if(e.role==='jump'&&cs.jumpPhase>0){
+   e.jumpT=Math.min(1,cs.jumpPhase*1.1);
+   if(e.jumpT>0.72&&!e.cursed) e.cursed=true;
+  }
+  if(e.role==='stone'&&cs.stonePhase>0) e.stoneT=Math.min(1,cs.stonePhase*1.2);
+  if(cs.starT>0.35) e.gone=cs.starT>0.55&&e.role!=='voidally';
+  if(cs.starT>0.75) e.gone=true;
+ });
+ if(elapsed>=16.2) mhFinishKingAction4Cutscene(st,st.save);
+}
+function mhDrawCutsceneMiniNoob(ctx,x,y,voidAlly,split,diag){
+ if(split>0&&split<1){
+  const d=diag?0.65:-0.65;
+  const off=split*14;
+  ctx.save();
+  ctx.translate(x,y);
+  ctx.rotate(d);
+  ctx.fillStyle=voidAlly?'#502878':'#ffe060';
+  ctx.fillRect(-7,-16+off,14,14);
+  ctx.fillStyle=voidAlly?'#301848':'#6080ff';
+  ctx.fillRect(-9,-2+off,18,18);
+  ctx.fillStyle='#111';
+  ctx.fillRect(-5,-12+off,10,10);
+  ctx.restore();
+  ctx.save();
+  ctx.translate(x,y);
+  ctx.rotate(d);
+  ctx.fillStyle=voidAlly?'#502878':'#ffe060';
+  ctx.fillRect(-7,2-off,14,14);
+  ctx.fillStyle=voidAlly?'#301848':'#6080ff';
+  ctx.fillRect(-9,14-off,18,18);
+  ctx.strokeStyle='rgba(255,40,40,.9)'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(-12,-4); ctx.lineTo(12,8); ctx.stroke();
+  ctx.restore();
+  return;
+ }
+ if(split>=1){
+  ctx.save(); ctx.globalAlpha=0.15; ctx.fillStyle='#000';
+  ctx.beginPath(); ctx.ellipse(x,y+20,12,4,0,0,Math.PI*2); ctx.fill(); ctx.restore();
+  return;
+ }
+ ctx.fillStyle=voidAlly?'#502878':'#ffe060';
+ ctx.fillRect(x-7,y-16,14,14);
+ ctx.fillStyle=voidAlly?'#301848':'#6080ff';
+ ctx.fillRect(x-9,y-2,18,18);
+ ctx.fillStyle='#111';
+ ctx.fillRect(x-5,y-12,10,10);
+}
+function mhDrawKingAction4Cutscene(ctx,W,H,st,t){
+ const cs=st.kingCutscene;
+ if(!cs) return;
+ const elapsed=(performance.now()-cs.start)/1000;
+ const cx=W/2, cy=H*0.72;
+ const bg=ctx.createRadialGradient(cx,cy,40,cx,cy,Math.max(W,H)*0.75);
+ bg.addColorStop(0,'#1a0818');
+ bg.addColorStop(0.5,'#080408');
+ bg.addColorStop(1,'#000');
+ ctx.fillStyle=bg;
+ ctx.fillRect(0,0,W,H);
+ ctx.fillStyle='rgba(255,40,40,.08)';
+ for(let i=0;i<8;i++){
+  const ang=t*0.4+i*0.9;
+  ctx.beginPath();
+  ctx.moveTo(cx,cy);
+  ctx.lineTo(cx+Math.cos(ang)*W,cy+Math.sin(ang)*H*0.35);
+  ctx.strokeStyle='rgba(255,30,30,.06)'; ctx.lineWidth=40; ctx.stroke();
+ }
+ let phase='Greataxe awakens…';
+ if(elapsed>=1.5) phase='54% slashed — cut diagonal, not down the middle!';
+ if(elapsed>=5) phase='16% leap — shields curse them unto the void!';
+ if(elapsed>=8.2) phase='Void Fallen (30%) hurl stones — 6% crushed!';
+ if(elapsed>=11) phase='Double star spell → BLACK HOLE!';
+ ctx.fillStyle='rgba(0,0,0,.82)'; ctx.fillRect(0,0,W,52);
+ ctx.fillStyle='#ff9090'; ctx.font='bold 14px system-ui'; ctx.textAlign='center';
+ ctx.fillText('🎬 Action 4 · '+MH_KING_CUTSCENE_TITLE,W/2,22);
+ ctx.fillStyle='#ffe8a0'; ctx.font='bold 11px system-ui';
+ ctx.fillText(phase,W/2,42);
+ ctx.fillStyle='rgba(0,0,0,.7)'; ctx.fillRect(0,H-28,W,28);
+ ctx.fillStyle='#a0a8b8'; ctx.font='10px system-ui';
+ ctx.fillText('Esc to skip · Build '+MH_BUILD,W/2,H-10);
+ cs.crowd.forEach(e=>{
+  if(e.gone) return;
+  let ex=cx+e.bx, ey=cy+e.by;
+  if(e.role==='jump'&&cs.jumpPhase>0){
+   const j=Math.min(1,e.jumpT||0);
+   ex=cx+e.bx*(1-j*0.92);
+   ey=cy+e.by*(1-j*0.92)-Math.sin(j*Math.PI)*36;
+  }
+  if(e.voided) return;
+  if(e.cursed){
+   ctx.strokeStyle='rgba(180,60,255,.85)'; ctx.lineWidth=2;
+   for(let s=0;s<5;s++){
+    const a=t*2.2+s*Math.PI*2/5;
+    const sx=cx+Math.cos(a)*58, sy=cy-22+Math.sin(a)*36;
+    ctx.beginPath(); ctx.moveTo(sx,sy); ctx.lineTo(ex,ey-8); ctx.stroke();
+   }
+   ctx.fillStyle='rgba(120,0,180,.55)'; ctx.font='bold 9px system-ui'; ctx.textAlign='center';
+   ctx.fillText('VOID CURSE',ex,ey-28);
+   e.voided=e.jumpT>0.88;
+   if(e.voided) return;
+  }
+  let split=0;
+  if(e.role==='slash') split=e.slashT||0;
+  if(e.role==='stone'&&(e.stoneT||0)>0.65) split=1;
+  mhDrawCutsceneMiniNoob(ctx,ex,ey,e.role==='voidally',split,e.role==='slash');
+  if(e.role==='voidally'&&cs.stonePhase>0){
+   const p=Math.min(1,cs.stonePhase);
+   cs.crowd.filter(x=>x.role==='stone').forEach((tgt,ti)=>{
+    const tx=cx+tgt.bx, ty=cy+tgt.by;
+    const fromX=ex, fromY=ey-20;
+    const u=Math.min(1,p*1.3-ti*0.08);
+    if(u<=0) return;
+    const sx=fromX+(tx-fromX)*u, sy=fromY+(ty-fromY)*u+Math.sin(u*Math.PI)*-20;
+    ctx.fillStyle='#444'; ctx.beginPath(); ctx.arc(sx,sy,7,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle='#888'; ctx.stroke();
+   });
+  }
+  if(e.role==='stone'&&e.stoneT>0&&e.stoneT<0.65){
+   const fall=e.stoneT;
+   ctx.fillStyle='#555';
+   ctx.beginPath(); ctx.arc(ex,ey-40-fall*50,9,0,Math.PI*2); ctx.fill();
+  }
+ });
+ if(cs.slashWave>0.05&&cs.slashWave<0.95){
+  ctx.save();
+  ctx.strokeStyle='rgba(255,60,60,.95)'; ctx.lineWidth=5;
+  ctx.shadowColor='#ff2020'; ctx.shadowBlur=18;
+  const sw=cs.slashWave;
+  ctx.beginPath();
+  ctx.moveTo(cx-220+sw*40,cy-120);
+  ctx.lineTo(cx+220,cy+20);
+  ctx.stroke();
+  ctx.restore();
+ }
+ const blend=cs.swordBlend||0;
+ mhPaintKingRedBlackStormAura(ctx,cx,cy-8,t,0.92,false,true);
+ for(let i=0;i<5;i++){
+  const a=t*0.72+i*Math.PI*2/5;
+  const sx=cx+Math.cos(a)*78, sy=cy-26+Math.sin(a)*46;
+  mhPaintOneAncientShield(ctx,sx,sy,MH_ANCIENT_GLYPHS[i],true,t+i);
+ }
+ mhPaintVoidKing(ctx,cx,cy-8,1.15,1,false,0,false,t,false);
+ if(blend>0){
+  ctx.save();
+  ctx.translate(cx,cy-8);
+  ctx.globalAlpha=blend;
+  ctx.fillStyle='#ccc'; ctx.fillRect(22,-42,6,52);
+  ctx.fillStyle='#ff5050'; ctx.fillRect(18,-46,14,8);
+  ctx.shadowColor='#ff8080'; ctx.shadowBlur=12;
+  ctx.strokeStyle='#fff'; ctx.lineWidth=3;
+  ctx.beginPath(); ctx.moveTo(25,-38); ctx.lineTo(25,-90); ctx.stroke();
+  ctx.restore();
+ }
+ if(cs.starT>0){
+  const stT=cs.starT;
+  const hole=cs.holeR||0;
+  ctx.save();
+  ctx.translate(cx,cy-120);
+  ctx.globalAlpha=0.25+stT*0.75;
+  const drawStar=(r,rot,stroke)=>{
+   ctx.save(); ctx.rotate(rot);
+   ctx.strokeStyle=stroke; ctx.lineWidth=3;
+   ctx.beginPath();
+   for(let i=0;i<10;i++){
+    const a=i*Math.PI/5-Math.PI/2;
+    const rad=i%2?r*0.42:r;
+    const px=Math.cos(a)*rad, py=Math.sin(a)*rad;
+    if(i===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+   }
+   ctx.closePath(); ctx.stroke();
+   ctx.restore();
+  };
+  drawStar(38+stT*22,t*1.8,'rgba(255,80,80,.95)');
+  drawStar(18+stT*12,-t*2.4,'rgba(255,240,200,.9)');
+  if(hole>8){
+   const g=ctx.createRadialGradient(0,0,0,0,0,hole);
+   g.addColorStop(0,'#000'); g.addColorStop(0.35,'#200008');
+   g.addColorStop(0.7,'rgba(255,40,40,.35)'); g.addColorStop(1,'rgba(255,80,80,0)');
+   ctx.fillStyle=g;
+   ctx.beginPath(); ctx.arc(0,0,hole,0,Math.PI*2); ctx.fill();
+   ctx.strokeStyle='rgba(0,0,0,.9)'; ctx.lineWidth=hole*0.08;
+   ctx.beginPath(); ctx.arc(0,0,hole*0.55,0,Math.PI*2); ctx.stroke();
+  }
+  ctx.restore();
+  cs.crowd.forEach(e=>{
+   if(e.gone||e.role==='voidally') return;
+   const pull=Math.min(1,stT*1.2);
+   e.bx*=1-pull*0.04;
+   e.by*=1-pull*0.04;
+  });
+ }
+}
+function mhUseKingAction4Cutscene(st,save,pos,wi){
+ mhEnsureFight(st,save);
+ mhStartKingAction4Cutscene(st,save,wi,pos);
+}
+function mhUseFightAttack(st,save,pos,wi){
+ mhEnsureFight(st,save);
+ const vm=mhVoidCombatMorph(save);
+ if(vm) return mhUseVoidAttack(st,save,pos,wi);
+ const dir=mhFacingDir(st);
+ const hits=mhFightHitscan(st,save,wi,pos,dir,16,78);
+ mhSpawnVoidFx(st,{kind:'arc',x:pos.px,y:pos.py-12,vx:dir.dx*6,vy:dir.dy*6,color:'#ffe060',a0:Math.atan2(dir.dy,dir.dx)-0.8,a1:Math.atan2(dir.dy,dir.dx)+0.8,r:42,dr:60,life:0.35});
+ mhToast(hits?'👊 Noobie punch!':'👊 Swing!');
+ mhPlaySfx('hit');
+}
+function mhUseFightPower(st,save,pos,map,wi){
+ mhEnsureFight(st,save);
+ const vm=mhVoidCombatMorph(save);
+ if(vm) return mhUseVoidPower(st,save,pos,map,wi);
+ const dir=mhFacingDir(st);
+ const hits=mhFightHitscan(st,save,wi,pos,dir,28,110,0.15);
+ mhSpawnVoidFx(st,{kind:'shock',x:pos.px+dir.dx*50,y:pos.py+dir.dy*50,vx:0,vy:0,color:'#80c8ff',r:12,dr:90,life:0.45});
+ mhToast(hits?'💥 Power blast!':'💥 Blast!');
+ mhPlaySfx('ui');
+}
+function mhUseFightStorm(st,save,pos,wi){
+ mhEnsureFight(st,save);
+ const vm=mhVoidCombatMorph(save);
+ if(vm) return mhUseVoidStorm(st,save,pos,wi);
+ const wear=mhMorph(save?.wearing);
+ const col=wear?.accent||(MH_RARITY[wear?.rarity]||MH_RARITY.common).color;
+ mhSpawnVoidFx(st,{kind:'shock',x:pos.px,y:pos.py-12,vx:0,vy:0,color:col||'#80c8ff',r:14,dr:78,life:0.38});
+ mhSpawnVoidFx(st,{kind:'nova',x:pos.px,y:pos.py-10,vx:0,vy:0,color:col||'#ffe060',r:8,dr:64,life:0.35});
+ const hits=mhFightAoe(st,save,wi,pos.px,pos.py-10,88,22);
+ mhVoidShake(st,48,3);
+ const msg=wear?.signatureOnly?'⭐ Signature power 3 — aura burst!':(hits?'🌪 Power slam!':'🌪 Slam!');
+ mhToast(msg);
+ mhPlaySfx('ui');
+}
+function mhUseVoidAttack(st,save,pos,wi){
+ const m=mhVoidCombatMorph(save);
+ if(!m){ mhToast('Morph into a Void Fallen noobie first (Morph tab)!'); return; }
+ if(m.plagueDoctor) mhPlagueDoctorSay(save,0);
+ const atk=m.voidAttack||MH_VOID_ATTACKS[0];
+ const dir=mhFacingDir(st);
+ const rage=st.voidRageUntil&&performance.now()<st.voidRageUntil;
+ mhSpawnAttackVfx(st,m,atk,dir,pos,rage);
+ const range=(atk.range||95)*(rage?1.25:1);
+ let dmg=22;
+ if(atk.kind==='beam') dmg=26;
+ if(atk.kind==='nova') dmg=32;
+ if(m.voidKing) dmg+=12;
+ if(wi!=null) mhFightHitscan(st,save,wi,pos,dir,dmg,range);
+ mhToast(m.plagueDoctor?'⚔ '+atk.name+'… (it barely works!)':'⚔ '+atk.name+'!');
+ mhPlaySfx('hit');
+}
+function mhDrawPlagueTombstone(ctx,x,y,rise,t){
+ const h=34*Math.min(1,rise||1);
+ ctx.save();
+ ctx.translate(x,y-h);
+ ctx.fillStyle='#505860';
+ ctx.fillRect(-10,0,20,h);
+ ctx.fillStyle='#707880';
+ ctx.fillRect(-8,4,16,8);
+ ctx.fillStyle='#303840';
+ ctx.beginPath(); ctx.moveTo(-12,0); ctx.lineTo(0,-10); ctx.lineTo(12,0); ctx.closePath(); ctx.fill();
+ ctx.fillStyle='#80ffb0'; ctx.font='bold 10px serif'; ctx.textAlign='center';
+ ctx.fillText('☠',0,h*0.45);
+ ctx.strokeStyle='#a0a8b0'; ctx.lineWidth=1; ctx.strokeRect(-10,0,20,h);
+ ctx.restore();
+}
+function mhDrawPlagueSkeleton(ctx,x,y,phase){
+ const p=phase||0;
+ const bob=Math.sin(p*6)*2;
+ ctx.save();
+ ctx.translate(x,y+bob);
+ ctx.strokeStyle='#e8e8f0'; ctx.lineWidth=2.5; ctx.lineCap='round';
+ ctx.beginPath(); ctx.arc(0,-16,7,0,Math.PI*2); ctx.stroke();
+ ctx.fillStyle='#101018'; ctx.fillRect(-3,-18,2,3); ctx.fillRect(1,-18,2,3);
+ ctx.beginPath(); ctx.moveTo(0,-9); ctx.lineTo(0,6); ctx.stroke();
+ ctx.beginPath(); ctx.moveTo(-10,-4+Math.sin(p*8)*3); ctx.lineTo(10,-4-Math.sin(p*8)*3); ctx.stroke();
+ ctx.beginPath(); ctx.moveTo(0,6); ctx.lineTo(-7,20+Math.sin(p*7)*4); ctx.moveTo(0,6); ctx.lineTo(7,20-Math.sin(p*7)*4); ctx.stroke();
+ ctx.fillStyle='rgba(255,40,40,.55)'; ctx.fillRect(-4,-6,8,3);
+ ctx.restore();
+}
+function mhUsePlagueGraveyard(st,save,pos,wi){
+ mhEnsureFight(st,save);
+ const m=mhVoidCombatMorph(save)||mhMorph('ex-plague-doctor');
+ const dir=mhFacingDir(st);
+ const base=Math.atan2(dir.dy,dir.dx);
+ mhWrapPlayerRedBlackStorm(st,m,pos,5.8);
+ if(wi!=null) mhFightAoe(st,save,wi,pos.px,pos.py-10,92,40);
+ const tombs=[];
+ for(let i=0;i<5;i++){
+  const ang=base+((i-2)*0.42);
+  const dist=48+i*14;
+  tombs.push({x:pos.px+Math.cos(ang)*dist,y:pos.py+Math.sin(ang)*dist,rise:0,i});
+ }
+ st.plagueRaid={
+  until:performance.now()+9000,
+  wi:wi??st.world,
+  tombs,
+  skels:tombs.map((tb,i)=>({x:tb.x,y:tb.y-40,tbx:tb.x,tby:tb.y-8,phase:Math.random()*6,hitCd:0.2+i*0.08}))
+ };
+ for(let i=0;i<5;i++){
+  mhSpawnVoidFx(st,{kind:'nova',x:tombs[i].x,y:tombs[i].y,vx:0,vy:0,color:'#80ffb0',r:6,dr:55,life:0.45});
+ }
+ mhPlagueDoctorSay(save,2);
+ mhVoidShake(st,140,8);
+ mhToast('⚰ 3 · '+MH_PLAGUE_GRAVEYARD_NAME+' + '+MH_PLAGUE_STORM_NAME+'! Tombstone legion inside a black-red void ring!');
+ mhPlaySfx('ui');
+}
+function mhUpdatePlagueRaid(st,save,dt){
+ const r=st.plagueRaid;
+ if(!r) return;
+ if(performance.now()>r.until){ st.plagueRaid=null; return; }
+ const wi=r.wi??st.world;
+ r.tombs.forEach(tb=>{ tb.rise=Math.min(1,(tb.rise||0)+dt*1.4); });
+ const morphs=mhWorldMorphs(wi).filter(m=>mhEnemyAlive(st,wi,m));
+ r.skels.forEach(s=>{
+  s.phase=(s.phase||0)+dt*5;
+  let best=null,bd=999;
+  morphs.forEach(m=>{
+   const np=mhGetNpcPos(st,wi,m);
+   const d=Math.hypot(np.px-s.x,np.py-s.y);
+   if(d<bd){ bd=d; best={m,np}; }
+  });
+  if(best){
+   const dx=best.np.px-s.x, dy=best.np.py-s.y;
+   const dist=Math.hypot(dx,dy)||1;
+   const sp=135*dt;
+   if(dist>18){ s.x+=dx/dist*sp; s.y+=dy/dist*sp; }
+   else{
+    s.hitCd=(s.hitCd||0)-dt;
+    if(s.hitCd<=0){
+     mhDamageEnemy(st,wi,best.m,32,save);
+     mhSpawnVoidFx(st,{kind:'spark',x:best.np.px,y:best.np.py-18,vx:(Math.random()-0.5)*5,vy:-3,color:'#c8ffd8',life:0.35});
+     s.hitCd=0.55;
+    }
+   }
+  }else{
+   s.x+=(s.tbx-s.x)*dt*1.2;
+   s.y+=(s.tby-s.y)*dt*1.2;
+  }
+ });
+}
+function mhDrawPlagueRaid(ctx,st,t){
+ const r=st.plagueRaid;
+ if(!r||performance.now()>r.until) return;
+ r.tombs.forEach(tb=>mhDrawPlagueTombstone(ctx,tb.x,tb.y,tb.rise,t));
+ r.skels.forEach(s=>mhDrawPlagueSkeleton(ctx,s.x,s.y,s.phase));
+}
+function mhUseVoidStorm(st,save,pos,wi){
+ const m=mhVoidCombatMorph(save);
+ if(!m){ mhToast('Morph into a Void Fallen noobie first (Morph tab)!'); return; }
+ if(m.plagueDoctor) return mhUsePlagueGraveyard(st,save,pos,wi);
+ const dir=mhFacingDir(st);
+ if(m.voidKing){
+  const range=210;
+  mhSpawnVoidUniverseStorm(st,m,dir,pos,range);
+  if(wi!=null) mhFightAoe(st,save,wi,pos.px,pos.py-10,115,55);
+  mhToast('👑 BIG KABOOM — '+MH_VOID_STORM_NAME+'! Universe rift · forbidden spells!');
+  mhPlaySfx('boss');
+  return;
+ }
+ mhWrapPlayerRedBlackStorm(st,m,pos,2.6);
+ if(wi!=null) mhFightAoe(st,save,wi,pos.px,pos.py-10,95,38);
+ mhVoidShake(st,85,5);
+ mhToast('🌌 '+MH_VOID_STORM_NAME+' — void ring (King gets the huge kaboom)');
+ mhPlaySfx('ui');
+}
+function mhUseVoidPower(st,save,pos,map,wi){
+ const m=mhVoidCombatMorph(save);
+ if(!m){ mhToast('Morph into a Void Fallen noobie first!'); return; }
+ if(m.plagueDoctor) mhPlagueDoctorSay(save,1);
+ const pow=m.voidPower||MH_VOID_POWERS[0];
+ const dir=mhFacingDir(st);
+ if(pow.kind==='dash'){
+  pos.px+=dir.dx*(pow.dist||80); pos.py+=dir.dy*(pow.dist||80);
+  mhClampWalkPos(map,pos);
+ }
+ if(pow.kind==='shield'){
+  const sec=pow.time||2.8;
+  st.voidShieldUntil=performance.now()+sec*1000;
+ }
+ else if(pow.kind==='heal'){ save.coins+=pow.coins||8; mhSaveSave(save); st.fightHp=Math.min(st.fightMaxHp||140,(st.fightHp||100)+25); }
+ else if(pow.kind==='buff') st.voidRageUntil=performance.now()+(pow.time||4)*1000;
+ if(pow.kind==='storm'||pow.id==='forbidden_storm'){
+  mhSpawnVoidUniverseStorm(st,m,dir,pos,pow.range||160);
+  if(wi!=null){
+   mhFightAoe(st,save,wi,pos.px,pos.py-10,m.voidKing?115:95,m.voidKing?48:34);
+  }
+ }else{
+  mhSpawnPowerVfx(st,m,pow,dir,pos,map);
+  if(wi!=null&&pow.kind==='pull') mhFightAoe(st,save,wi,pos.px,pos.py,pow.range||120,30);
+  else if(wi!=null&&pow.kind!=='dash'&&pow.kind!=='shield'&&pow.kind!=='heal'&&pow.kind!=='buff'&&pow.kind!=='echo'){
+   mhFightHitscan(st,save,wi,pos,dir,30,pow.range||100,0.1);
+  }
+ }
+ mhToast('✦ '+pow.name+'!');
+ mhPlaySfx('ui');
+}
+function mhPaintVoidKingSpikyShield(ctx,swingArm){
+ ctx.save();
+ ctx.translate(-28,4+swingArm);
+ ctx.fillStyle='#161616'; ctx.fillRect(-10,-14,12,28);
+ ctx.fillStyle='#480808'; ctx.fillRect(-30,-22,22,42);
+ ctx.strokeStyle='#b01010'; ctx.lineWidth=2.5; ctx.strokeRect(-30.5,-22.5,23,43);
+ ctx.fillStyle='#0a0a0a'; ctx.fillRect(-28,-16,18,10);
+ mhDrawForbiddenSymbol(ctx,-19,-4,5,2);
+ ctx.fillStyle='#a01010';
+ for(let s=0;s<10;s++){
+  const a=s*Math.PI*2/10;
+  const sx=Math.cos(a)*11-19, sy=Math.sin(a)*16;
+  ctx.beginPath(); ctx.moveTo(sx,sy);
+  ctx.lineTo(sx+Math.cos(a)*6,sy+Math.sin(a)*6);
+  ctx.lineTo(sx+Math.cos(a+0.4)*3,sy+Math.sin(a+0.4)*3);
+  ctx.closePath(); ctx.fill();
+ }
+ ctx.restore();
+}
+function mhPaintVoidKingTwinAxe(ctx,swing,wa){
+ ctx.save();
+ ctx.translate(26,2-wa.ax);
+ ctx.rotate(swing);
+ ctx.fillStyle='#161616'; ctx.fillRect(-5,-12,12,26);
+ ctx.fillStyle='#2a1810'; ctx.fillRect(3,-6,7,46);
+ ctx.fillStyle='#0a0a0a'; ctx.fillRect(-4,-38,20,15);
+ ctx.fillStyle='#480808'; ctx.fillRect(-2,-36,16,4);
+ ctx.fillStyle='#b01010'; ctx.fillRect(0,-34,12,2);
+ ctx.fillStyle='#0a0a0a'; ctx.fillRect(-4,14,20,15);
+ ctx.fillStyle='#480808'; ctx.fillRect(-2,16,16,4);
+ ctx.fillStyle='#b01010'; ctx.fillRect(0,18,12,2);
+ ctx.fillStyle='#888'; ctx.fillRect(5,-2,3,6);
+ ctx.restore();
+}
+function mhPaintVoidKingMask(ctx,silhouette,flat,glow){
+ ctx.fillStyle='#161616'; ctx.fillRect(-18,-58,36,38);
+ ctx.fillStyle='#0a0a0a'; ctx.fillRect(-16,-56,32,34);
+ ctx.fillStyle='#030305'; ctx.fillRect(-12,-48,8,7); ctx.fillRect(4,-48,8,7);
+ if(!silhouette){
+  ctx.fillStyle='#ff2020'; ctx.shadowColor=glow; ctx.shadowBlur=flat?0:12;
+  ctx.fillRect(-10,-46,4,3); ctx.fillRect(6,-46,4,3);
+  ctx.shadowBlur=0;
+ }
+ ctx.strokeStyle='#801010'; ctx.lineWidth=1.2;
+ ctx.beginPath(); ctx.moveTo(-14,-36); ctx.quadraticCurveTo(0,-32,14,-36); ctx.stroke();
+ ctx.fillStyle='#b01010'; ctx.fillRect(-14,-40,28,3);
+}
+function mhPaintVoidKing(ctx,x,y,sc,alpha,silhouette,walkPhase,running,t,flat){
+ ctx.save();
+ ctx.translate(x,y);
+ ctx.scale(sc,sc);
+ ctx.globalAlpha=alpha==null?1:alpha;
+ const wa=mhWalkLegAnim(walkPhase,running);
+ ctx.translate(0,-wa.bob);
+ const black='#0a0a0a', armor='#161616', darkRed='#480808', red='#b01010', glow='#ff2020';
+ const swing=Math.sin(t*2.6)*0.72-0.15;
+ ctx.fillStyle='rgba(0,0,0,.5)';
+ ctx.beginPath(); ctx.ellipse(0,62,26,6,0,0,Math.PI*2); ctx.fill();
+ mhGradRect(ctx,-13+wa.lx,22+wa.ly,11,40,black,darkRed);
+ mhGradRect(ctx,2+wa.rx,22+wa.ry,11,40,black,darkRed);
+ ctx.fillStyle=red; ctx.fillRect(-13+wa.lx,32+wa.ly,11,2); ctx.fillRect(2+wa.rx,32+wa.ry,11,2);
+ mhGradRect(ctx,-24,-2,48,32,darkRed,armor);
+ ctx.fillStyle=armor; ctx.fillRect(-24,-2,48,7); ctx.fillRect(-24,12,48,5);
+ ctx.fillStyle=red; ctx.fillRect(-24,4,48,4);
+ ctx.fillStyle=black; ctx.fillRect(-26,10,7,16); ctx.fillRect(19,10,7,16);
+ mhPaintVoidKingSpikyShield(ctx,wa.ax);
+ mhPaintVoidKingTwinAxe(ctx,swing,wa);
+ mhPaintVoidKingMask(ctx,silhouette,flat,glow);
+ if(!silhouette&&!flat){
+  ctx.fillStyle='rgba(80,0,0,.45)'; ctx.fillRect(-18,-6,12,18); ctx.fillRect(6,-6,12,18);
+ }
+ ctx.restore();
+}
+function mhPaintAura(ctx,m,x,y,t){
+ if(!m||m.voidKing) return;
+ const r=MH_RARITY[m.rarity]||MH_RARITY.common;
+ const tier={common:0,uncommon:1,rare:2,epic:3,legendary:4,secret:4,exclusive:4,exotic:5,voidfallen:6}[m.rarity]||0;
+ const pulse=1+Math.sin(t*3+(mhHashStr(m.id)%7))*0.15;
+ const rad=(16+tier*9)*pulse;
+ const alphaMul=[0.35,0.5,0.65,0.82,0.92,1,1.05,1.1][tier]||0.4;
+ const g=ctx.createRadialGradient(x,y-20,4,x,y-20,rad);
+ g.addColorStop(0,mhHex(r.color,0.45*alphaMul));
+ g.addColorStop(0.5,mhHex(r.color,0.12*alphaMul));
+ g.addColorStop(1,mhHex(r.color,0));
+ ctx.fillStyle=g;
+ ctx.beginPath(); ctx.arc(x,y-20,rad,0,Math.PI*2); ctx.fill();
+ if(tier>=3){
+  ctx.strokeStyle=mhHex(r.color,0.35+Math.sin(t*5)*0.15);
+  ctx.lineWidth=m.rarity==='exotic'?3:2;
+  ctx.beginPath(); ctx.arc(x,y-20,rad*0.72,0,Math.PI*2); ctx.stroke();
+ }
+ if(m.rarity==='exotic'){
+  for(let i=0;i<3;i++){
+   const a=t*2+i*2.1;
+   ctx.fillStyle=mhHex(r.color,0.5);
+   ctx.beginPath(); ctx.arc(x+Math.cos(a)*rad*0.8,y-20+Math.sin(a)*rad*0.35,3,0,Math.PI*2); ctx.fill();
+  }
+ }
+ if(m.rarity==='voidfallen'||m.voidFallen){
+  ctx.strokeStyle=mhHex(r.color,0.25+Math.sin(t*4)*0.12);
+  ctx.lineWidth=2;
+  for(let i=0;i<4;i++){
+   const a=t*1.2+i*Math.PI/2;
+   ctx.beginPath(); ctx.ellipse(x+Math.cos(a)*rad*0.9,y-20+Math.sin(a)*rad*0.35,rad*0.35,rad*0.12,a); ctx.stroke();
+  }
+ }
+}
+function mhPaintNoob5D(ctx,m,x,y,sc,alpha,silhouette,walkPhase,running){
+ const layers=[
+  {dx:-10,dy:6,rot:-0.12,hue:300,a:0.14},
+  {dx:10,dy:4,rot:0.1,hue:240,a:0.12},
+  {dx:-6,dy:-8,rot:0.08,hue:330,a:0.11},
+  {dx:8,dy:-6,rot:-0.06,hue:270,a:0.1}
+ ];
+ layers.forEach(L=>{
+  ctx.save();
+  ctx.translate(L.dx,L.dy);
+  ctx.rotate(L.rot);
+  ctx.globalAlpha=L.a*(alpha==null?1:alpha);
+  mhPaintNoob3D(ctx,m,x,y,sc*0.97,alpha,true,walkPhase,running);
+  ctx.restore();
+ });
+ mhPaintNoob3D(ctx,m,x,y,sc,alpha,silhouette,walkPhase,running);
+ ctx.save();
+ ctx.translate(x,y-18);
+ ctx.scale(sc,sc);
+ ctx.strokeStyle=mhHex(m.voidAccent||'#c080ff',0.55);
+ ctx.lineWidth=1.4;
+ for(let i=0;i<5;i++){
+  const a=(walkPhase||0)*0.4+i*Math.PI*2/5;
+  const r=26+Math.sin((walkPhase||0)+i)*4;
+  ctx.beginPath();
+  ctx.moveTo(Math.cos(a)*r,Math.sin(a)*r);
+  ctx.lineTo(Math.cos(a+0.5)*r*0.55,Math.sin(a+0.5)*r*0.55);
+  ctx.stroke();
+ }
+ ctx.fillStyle=mhHex(m.voidEyes||'#ffe860',0.35);
+ ctx.beginPath(); ctx.arc(0,0,8,0,Math.PI*2); ctx.fill();
+ ctx.restore();
+}
+function mhPaintNoob3D(ctx,m,x,y,sc,alpha,silhouette,walkPhase,running){
+ if(!m) return;
+ ctx.save();
+ ctx.translate(x,y);
+ ctx.scale(sc,sc);
+ ctx.globalAlpha=alpha==null?1:alpha;
+ if(silhouette){
+  m={...m,head:'#3a4050',torso:'#283040',legs:'#1e2430',arms:'#3a4050'};
+  ctx.globalAlpha=(alpha==null?0.72:alpha);
+ }
+ const h=m.head||'#F5CD30', t=m.torso||'#0085DB', l=m.legs||'#A4BD47', a=m.arms||h;
+ ctx.fillStyle='rgba(0,0,0,.35)';
+ ctx.beginPath(); ctx.ellipse(0,58,20,5,0,0,Math.PI*2); ctx.fill();
+ if(m.body==='ghost'){
+  mhGradRect(ctx,-16,-8,32,52,t,mhShade(t,-40));
+  const hg=ctx.createRadialGradient(-6,-36,2,0,-28,24);
+  hg.addColorStop(0,mhShade(h,35)); hg.addColorStop(1,mhShade(h,-25));
+  ctx.fillStyle=hg; ctx.fillRect(-16,-48,32,32);
+ }else if(m.body==='chibi'){
+  mhGradRect(ctx,-8,18,7,24,l,mhShade(l,-30)); mhGradRect(ctx,1,18,7,24,l,mhShade(l,-30));
+  mhGradRect(ctx,-14,0,28,18,t,mhShade(t,-35));
+  mhGradRect(ctx,-18,2,8,16,a,mhShade(a,-25)); mhGradRect(ctx,10,2,8,16,a,mhShade(a,-25));
+  mhGradRect(ctx,-18,-44,36,38,h,mhShade(h,-20));
+ }else if(m.body==='tall'){
+  const wa=mhWalkLegAnim(walkPhase,running);
+  ctx.translate(0,-wa.bob);
+  mhGradRect(ctx,-9+wa.lx,16+wa.ly,8,38,l,mhShade(l,-30)); mhGradRect(ctx,1+wa.rx,16+wa.ry,8,38,l,mhShade(l,-30));
+  mhGradRect(ctx,-15,-2,30,22,t,mhShade(t,-35));
+  mhGradRect(ctx,-20,0+wa.ax,9,24,a,mhShade(a,-25)); mhGradRect(ctx,11,0-wa.ax,9,24,a,mhShade(a,-25));
+  mhGradRect(ctx,-12,-50,24,26,h,mhShade(h,-25));
+ }else if(m.body==='wide'){
+  mhGradRect(ctx,-12,20,11,32,l,mhShade(l,-30)); mhGradRect(ctx,1,20,11,32,l,mhShade(l,-30));
+  mhGradRect(ctx,-20,0,40,26,t,mhShade(t,-35));
+  mhGradRect(ctx,-26,2,12,24,a,mhShade(a,-25)); mhGradRect(ctx,14,2,12,24,a,mhShade(a,-25));
+  mhGradRect(ctx,-14,-48,28,32,h,mhShade(h,-25));
+ }else if(m.body==='builder'){
+  mhGradRect(ctx,-10,22,9,32,l,mhShade(l,-30)); mhGradRect(ctx,1,22,9,32,l,mhShade(l,-30));
+  mhGradRect(ctx,-16,0,32,24,t,mhShade(t,-35));
+  mhGradRect(ctx,-22,2,10,22,a,mhShade(a,-25)); mhGradRect(ctx,12,2,10,22,a,mhShade(a,-25));
+  mhGradRect(ctx,-14,-48,28,28,h,mhShade(h,-25));
+  ctx.fillStyle='#f4c430'; ctx.beginPath(); ctx.moveTo(0,-58); ctx.lineTo(10,-48); ctx.lineTo(-10,-48); ctx.fill();
+ }else if(m.body==='robot'){
+  mhGradRect(ctx,-12,18,10,34,l,mhShade(l,-35)); mhGradRect(ctx,2,18,10,34,l,mhShade(l,-35));
+  mhGradRect(ctx,-18,0,36,22,t,mhShade(t,-30));
+  mhGradRect(ctx,-20,-2,12,20,a,mhShade(a,-20)); mhGradRect(ctx,8,-2,12,20,a,mhShade(a,-20));
+  ctx.fillStyle='#505860'; ctx.fillRect(-14,-46,28,28);
+  ctx.fillStyle='#00eaff'; ctx.fillRect(-10,-36,8,8); ctx.fillRect(2,-36,8,8);
+ }else{
+  const wa=mhWalkLegAnim(walkPhase,running);
+  ctx.translate(0,-wa.bob);
+  mhGradRect(ctx,-10+wa.lx,22+wa.ly,9,32,l,mhShade(l,-30)); mhGradRect(ctx,1+wa.rx,22+wa.ry,9,32,l,mhShade(l,-30));
+  mhGradRect(ctx,-16,0,32,24,t,mhShade(t,-35));
+  if(m.stripe){ ctx.fillStyle='rgba(255,255,255,.25)'; ctx.fillRect(-16,8,32,6); }
+  if(m.sleeves&&m.accent){ ctx.fillStyle=m.accent; ctx.fillRect(-16,4,6,14); ctx.fillRect(10,4,6,14); }
+  if(m.shoe){ ctx.fillStyle=m.shoe; ctx.fillRect(-10+wa.lx,48+wa.ly,9,6); ctx.fillRect(1+wa.rx,48+wa.ry,9,6); }
+  mhGradRect(ctx,-22,2+wa.ax,10,22,a,mhShade(a,-25)); mhGradRect(ctx,12,2-wa.ax,10,22,a,mhShade(a,-25));
+  ctx.fillStyle='#303840'; ctx.beginPath(); ctx.arc(-16,14,3,0,Math.PI*2); ctx.arc(16,14,3,0,Math.PI*2); ctx.fill();
+  const hg=ctx.createRadialGradient(-8,-36,1,0,-32,26);
+  hg.addColorStop(0,mhShade(h,40)); hg.addColorStop(.55,h); hg.addColorStop(1,mhShade(h,-35));
+  ctx.fillStyle=hg; ctx.fillRect(-14,-48,28,28);
+  ctx.fillStyle='#1a1a20'; ctx.fillRect(-8,-36,5,5); ctx.fillRect(3,-36,5,5);
+  ctx.fillStyle='rgba(255,255,255,.7)'; ctx.fillRect(-7,-35,2,2); ctx.fillRect(4,-35,2,2);
+  const r=MH_RARITY[m.rarity];
+  if(r&&(m.rarity==='legendary'||m.rarity==='epic'||m.rarity==='secret')){
+   ctx.shadowColor=r.color; ctx.shadowBlur=8;
+   ctx.fillStyle=r.color; ctx.fillRect(-6,-34,3,3); ctx.fillRect(4,-34,3,3);
+   ctx.shadowBlur=0;
+  }
+  if(m.glasses){
+   ctx.strokeStyle='#101820'; ctx.lineWidth=1.2;
+   ctx.strokeRect(-10,-38,9,8); ctx.strokeRect(1,-38,9,8);
+  }
+ }
+ if(m.hat==='crown'){ ctx.fillStyle='#ffd700'; ctx.fillRect(-8,-54,16,6); }
+ if(m.hat==='gem'){ ctx.fillStyle='#80e0ff'; ctx.beginPath(); ctx.moveTo(0,-56); ctx.lineTo(8,-44); ctx.lineTo(0,-38); ctx.lineTo(-8,-44); ctx.fill(); }
+ if(m.hat==='headphones'){ ctx.strokeStyle='#404850'; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(0,-32,18,Math.PI,0); ctx.stroke(); }
+ if(m.hat==='bow'){ ctx.fillStyle='#ff5090'; ctx.fillRect(-10,-52,8,8); ctx.fillRect(2,-52,8,8); }
+ if(m.hat==='party'){ ctx.fillStyle='#ff4080'; ctx.beginPath(); ctx.arc(-8,-50,4,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#40c0ff'; ctx.beginPath(); ctx.arc(8,-48,3,0,Math.PI*2); ctx.fill(); }
+ if(m.hat==='voidhorn'&&!silhouette){
+  ctx.fillStyle=mhShade(m.torso||'#502080',-20);
+  ctx.beginPath(); ctx.moveTo(0,-56); ctx.lineTo(6,-44); ctx.lineTo(-6,-44); ctx.fill();
+ }
+ if(m.hat==='voidhalo'&&!silhouette){
+  ctx.strokeStyle=m.voidAccent||'#c080ff'; ctx.lineWidth=2.5;
+  ctx.beginPath(); ctx.arc(0,-52,14,Math.PI,0); ctx.stroke();
+  ctx.strokeStyle='rgba(255,255,255,.35)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.arc(0,-52,10,Math.PI,0); ctx.stroke();
+ }
+ if(m.hat==='plague'&&!silhouette){
+  const pac=m.plagueDoctor?(m.voidAccent||'#cc0000'):'#506060';
+  const ve=m.voidEyes||'#ff2020';
+  ctx.fillStyle=m.plagueDoctor?'#0a0a0a':'#1a2830';
+  ctx.beginPath(); ctx.ellipse(0,-46,17,8,0,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle=pac; ctx.lineWidth=m.plagueDoctor?2:0; ctx.stroke();
+  ctx.fillStyle=m.plagueDoctor?'#101010':'#303840';
+  ctx.beginPath(); ctx.moveTo(-6,-40); ctx.lineTo(6,-40); ctx.lineTo(0,-28); ctx.closePath(); ctx.fill();
+  if(m.plagueDoctor){
+   ctx.strokeStyle='#ff2020'; ctx.lineWidth=1.2; ctx.stroke();
+   ctx.fillStyle=ve; ctx.fillRect(-8,-47,4,3); ctx.fillRect(4,-47,4,3);
+  }
+ }
+ if(m.hat==='riftshard'&&!silhouette){
+  const ac=m.voidAccent||'#80e0ff';
+  ctx.fillStyle=ac; ctx.beginPath(); ctx.moveTo(10,-54); ctx.lineTo(18,-42); ctx.lineTo(10,-36); ctx.lineTo(2,-42); ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,.5)'; ctx.lineWidth=1; ctx.stroke();
+ }
+ if((m.rarity==='voidfallen'||m.voidFallen)&&!silhouette){
+  if(m.voidMale){
+   ctx.fillStyle=mhHex(m.torso||'#402060',0.35);
+   ctx.fillRect(-15,2,30,6);
+  }
+  const ve=m.voidEyes||'#70e8ff';
+  if(!m.plagueDoctor){
+   ctx.fillStyle='#101018'; ctx.fillRect(-9,-37,6,6); ctx.fillRect(3,-37,6,6);
+   ctx.fillStyle=ve; ctx.shadowColor=ve; ctx.shadowBlur=6;
+   ctx.fillRect(-8,-36,4,4); ctx.fillRect(4,-36,4,4);
+   ctx.shadowBlur=0;
+  }
+  const mk=m.voidMark|0;
+  ctx.strokeStyle=mhHex(ve,0.45);
+  ctx.lineWidth=1;
+  for(let k=0;k<3;k++){
+   const y=2+k*9+(mk%5);
+   ctx.beginPath(); ctx.moveTo(-14+((mk+k*3)%6),y); ctx.lineTo(14-((mk+k*5)%6),y+2); ctx.stroke();
+  }
+  if(m.voidAccent){
+   ctx.fillStyle=mhHex(m.voidAccent,0.35);
+   ctx.fillRect(-16,4+(mk%4),32,3);
+  }
+ }
+ if((m.fallen||m.rarity==='voidfallen')&&!silhouette&&!m.plagueDoctor){
+  ctx.fillStyle='rgba(80,20,120,.55)';
+  ctx.beginPath(); ctx.moveTo(-14,-8); ctx.lineTo(-22,18); ctx.lineTo(-6,12); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(14,-8); ctx.lineTo(22,18); ctx.lineTo(6,12); ctx.fill();
+  ctx.strokeStyle='rgba(180,100,255,.6)'; ctx.lineWidth=1.2;
+  ctx.beginPath(); ctx.moveTo(-18,6); ctx.quadraticCurveTo(-28,20,-12,28); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(18,6); ctx.quadraticCurveTo(28,20,12,28); ctx.stroke();
+ }
+ if(m.sigBadge&&!silhouette){
+  try{ ctx.font='14px serif'; ctx.textAlign='center'; ctx.fillText(m.sigBadge,-22,-48); ctx.fillText(m.sigBadge,22,-44); }catch(_){}
+ }
+ if(m.prop&&!silhouette){
+  const pc=mhHsl(mhHashStr(m.id+'p'),2,80,55);
+  if(m.prop==='balloon'){ ctx.fillStyle=pc; ctx.beginPath(); ctx.arc(18,-48,8,0,Math.PI*2); ctx.fill(); ctx.strokeStyle='#333'; ctx.beginPath(); ctx.moveTo(18,-40); ctx.lineTo(10,-20); ctx.stroke(); }
+  if(m.prop==='gemstick'){ ctx.fillStyle='#80e0ff'; ctx.beginPath(); ctx.moveTo(20,-50); ctx.lineTo(26,-38); ctx.lineTo(20,-32); ctx.lineTo(14,-38); ctx.fill(); }
+  if(m.prop==='sword'){ ctx.fillStyle='#c0c8d0'; ctx.fillRect(22,-42,3,22); ctx.fillStyle='#ffd060'; ctx.fillRect(20,-44,7,4); }
+  if(m.prop==='pet'){ ctx.fillStyle=pc; ctx.fillRect(16,-24,10,10); ctx.fillRect(18,-34,6,6); }
+  if(m.prop==='skate'){ ctx.fillStyle='#303840'; ctx.fillRect(-20,58,40,4); ctx.fillRect(-12,54,8,4); ctx.fillRect(8,54,8,4); }
+  if(m.prop==='umbrella'){ ctx.fillStyle=pc; ctx.beginPath(); ctx.arc(18,-52,12,Math.PI,0); ctx.fill(); ctx.fillRect(18,-52,2,18); }
+  if(m.prop==='sparkler'){ ctx.strokeStyle='#ffe060'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(20,-30); ctx.lineTo(28,-50); ctx.stroke(); }
+  if(m.prop==='book'&&!m.plagueDoctor){ ctx.fillStyle='#8040c0'; ctx.fillRect(16,-28,10,12); ctx.fillStyle='#fff'; ctx.fillRect(18,-26,6,2); }
+  if(m.prop==='trophy'){ ctx.fillStyle='#ffd060'; ctx.fillRect(18,-36,8,10); ctx.fillRect(16,-38,12,4); }
+  if(m.prop==='rocket'){ ctx.fillStyle='#e04040'; ctx.fillRect(18,-48,6,14); ctx.fillStyle='#ffa060'; ctx.beginPath(); ctx.moveTo(18,-34); ctx.lineTo(21,-28); ctx.lineTo(24,-34); ctx.fill(); }
+ }
+ ctx.restore();
+}
+function mhPaintNoobFlat(ctx,m,x,y,sc,alpha,silhouette,walkPhase,running,animT){
+ if(!m) return;
+ ctx.save();
+ ctx.translate(x,y);
+ ctx.scale(sc,sc);
+ ctx.globalAlpha=alpha==null?1:alpha;
+ let h=m.head||'#F5CD30', tor=m.torso||'#0085DB', l=m.legs||'#A4BD47', a=m.arms||h;
+ if(silhouette){ h='#3a4050'; tor='#283040'; l='#1e2430'; a='#3a4050'; ctx.globalAlpha=(alpha==null?0.75:alpha); }
+ const wa=mhWalkLegAnim(walkPhase,running);
+ ctx.translate(0,-wa.bob);
+ const isVoid=m.rarity==='voidfallen'||m.voidFallen;
+ if(isVoid&&!silhouette){ h='#141014'; tor=m.torso||'#580808'; l=m.legs||'#0a0a0a'; a=m.arms||'#1a1018'; }
+ ctx.fillStyle=l; ctx.fillRect(-10+wa.lx,22+wa.ly,9,32); ctx.fillRect(1+wa.rx,22+wa.ry,9,32);
+ ctx.fillStyle=tor; ctx.fillRect(-16,0,32,24);
+ ctx.fillStyle=a; ctx.fillRect(-22,2+wa.ax,10,22); ctx.fillRect(12,2-wa.ax,10,22);
+ ctx.fillStyle=h; ctx.fillRect(-14,-48,28,28);
+ if(!isVoid){ ctx.fillStyle='#101018'; ctx.fillRect(-8,-36,5,5); ctx.fillRect(3,-36,5,5); }
+ if(isVoid){
+  ctx.strokeStyle=m.voidAccent||'#ff4040'; ctx.lineWidth=3;
+  ctx.strokeRect(-18,-50,36,82);
+  ctx.strokeStyle='#0a0a0a'; ctx.lineWidth=2;
+  ctx.strokeRect(-16,-48,32,78);
+  if(m.voidMale){ ctx.fillStyle='rgba(0,0,0,.75)'; ctx.fillRect(-18,4,36,10); ctx.fillStyle=m.voidAccent||'#ff3030'; ctx.fillRect(-16,6,32,4); }
+  const ve=m.voidEyes||'#ff5050';
+  ctx.fillStyle=ve; ctx.shadowColor=ve; ctx.shadowBlur=12;
+  ctx.fillRect(-10,-37,7,7); ctx.fillRect(2,-37,7,7);
+  ctx.shadowBlur=0;
+  ctx.fillStyle='rgba(0,0,0,.85)'; ctx.fillRect(-15,-8,10,16); ctx.fillRect(5,-8,10,16);
+  ctx.fillStyle='rgba(255,40,40,.5)'; ctx.fillRect(-13,10,26,5);
+  ctx.fillStyle='#ffe8e0'; ctx.font='bold 11px serif'; ctx.textAlign='center';
+  ctx.fillText(MH_ANCIENT_GLYPHS[(mhHashStr(m.id||'x')%5)]||'⌬',0,18);
+  if(!silhouette){
+   const ft=performance.now()/1000;
+   for(let i=0;i<4;i++){
+    const ang=ft*2.2+i*Math.PI/2;
+    ctx.strokeStyle=i%2?'rgba(255,60,60,.65)':'rgba(0,0,0,.8)';
+    ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(Math.cos(ang)*12,Math.sin(ang)*8); ctx.lineTo(Math.cos(ang)*28,Math.sin(ang)*20); ctx.stroke();
+   }
+  }
+ }
+ ctx.restore();
+}
+function mhVoidFlatScreenOverlay(ctx,W,H){
+ const b=16;
+ ctx.fillStyle='rgba(0,0,0,.82)';
+ ctx.fillRect(0,0,W,b); ctx.fillRect(0,H-b,W,b);
+ ctx.fillRect(0,0,b,H); ctx.fillRect(W-b,0,b,H);
+ ctx.strokeStyle='#b070ff'; ctx.lineWidth=3;
+ ctx.strokeRect(b*.5,b*.5,W-b,H-b);
+ ctx.strokeStyle='rgba(200,160,255,.3)'; ctx.lineWidth=1;
+ ctx.strokeRect(b*.5+2,b*.5+2,W-b-4,H-b-4);
+ ctx.fillStyle='rgba(0,0,0,.08)';
+ for(let y=0;y<H;y+=4) ctx.fillRect(0,y,W,1);
+ ctx.fillStyle='#d0a8ff'; ctx.font='bold 11px monospace,sans-serif'; ctx.textAlign='center';
+ ctx.fillText(MH_VOID_ABYSS_LABEL+' · '+MH_VOID_DIM_LABEL, W/2, b-4);
+}
+function mhPaintNoobWorld(ctx,m,x,y,sc,alpha,silhouette,t,walkPhase,flat,running){
+ const off=flat
+  ?{dx:Math.sin(walkPhase||0)*3,dy:0,rot:0,sc:1}
+  :mhAnimOffset(m,t,walkPhase,running);
+ ctx.save();
+ ctx.translate(x+off.dx,y+off.dy);
+ if(m.voidKing){
+  mhPaintKingStoneAura(ctx,0,-8,t,alpha,silhouette,true);
+  mhDrawPassiveAncientShieldsOnCharacter(ctx,0,-8,t,m,alpha);
+  mhPaintVoidKing(ctx,0,-8,sc*off.sc,alpha,silhouette,walkPhase,running,t,flat);
+  ctx.restore();
+  return;
+ }
+ if(m.plagueDoctor){
+  mhPaintVoidFallenStormAura(ctx,0,-8,t,alpha*0.75,silhouette,m);
+  if(!flat) ctx.rotate(off.rot);
+  mhPaintPlagueDoctorNoob(ctx,0,-8,sc*off.sc*1.06,alpha,silhouette,walkPhase,running,t);
+  mhDrawPassiveAncientShieldsOnCharacter(ctx,0,-8,t,m,alpha);
+  ctx.restore();
+  return;
+ }
+ if(m.questOnly){
+  mhDrawQuestMorphAura(ctx,m,0,-8,t,(alpha==null?1:alpha)*0.92);
+  if(m.voidFallen||m.rarity==='voidfallen') mhPaintVoidFallenStormAura(ctx,0,-8,t,alpha*0.55,silhouette,m);
+  if(!flat) ctx.rotate(off.rot);
+  if(flat) mhPaintNoobFlat(ctx,m,0,-8,sc*off.sc,alpha,silhouette,walkPhase,running,t);
+  else mhPaintNoob3D(ctx,m,0,-8,sc*off.sc,alpha,silhouette,walkPhase,running);
+  ctx.restore();
+  return;
+ }
+ if((m.signatureOnly||m.mayorOnly||(m.signatureReal&&m.sigLook))&&m.sigLook){
+  if(m.voidFallen){
+   mhDrawPassiveAncientShieldsOnCharacter(ctx,0,-8,t,m,alpha);
+   mhPaintVoidFallenStormAura(ctx,0,-8,t,alpha,silhouette,m);
+   mhDrawSignatureNoobAura(ctx,m,0,-8,t,(alpha==null?1:alpha)*0.88);
+  }else{
+   mhDrawSignatureNoobAura(ctx,m,0,-8,t,alpha);
+  }
+  if(!flat) ctx.rotate(off.rot);
+  if(flat) mhPaintNoobFlat(ctx,m,0,-8,sc*off.sc,alpha,silhouette,walkPhase,running,t);
+  else mhPaintSignatureNoob(ctx,0,-8,sc*off.sc,alpha,silhouette,walkPhase,running,t,m);
+  ctx.restore();
+  return;
+ }
+ if(m.rarity==='voidfallen'||m.voidFallen){
+  mhDrawPassiveAncientShieldsOnCharacter(ctx,0,-8,t,m,alpha);
+  mhPaintVoidFallenStormAura(ctx,0,-8,t,alpha,silhouette,m);
+ }
+ if(!flat) ctx.rotate(off.rot);
+ if(!flat) mhPaintAura(ctx,m,0,-8,t);
+ if(m.void5D) mhPaintNoob5D(ctx,m,0,-8,sc*off.sc,alpha,silhouette,walkPhase,running);
+ else if(flat) mhPaintNoobFlat(ctx,m,0,-8,sc*off.sc,alpha,silhouette,walkPhase,running,t);
+ else mhPaintNoob3D(ctx,m,0,-8,sc*off.sc,alpha,silhouette,walkPhase,running);
+ ctx.restore();
+}
+
+function mhWalkTileBlocked(map,tx,ty){
+ if(tx<1||ty<1||tx>=map.w-1||ty>=map.h-1) return true;
+ return false;
+}
+function mhDrawVoidThrone(ctx,map){
+ if(map.throneTx==null) return;
+ const x=map.throneTx*MH_TILE,y=map.throneTy*MH_TILE;
+ ctx.fillStyle='rgba(40,0,0,.35)'; ctx.fillRect(x-MH_TILE,y-MH_TILE,MH_TILE*3,MH_TILE*3);
+ ctx.fillStyle='#280808'; ctx.fillRect(x-4,y+8,MH_TILE+8,12);
+ ctx.fillStyle='#a01010'; ctx.fillRect(x+6,y-6,MH_TILE-12,10);
+ ctx.strokeStyle='#ff3030'; ctx.lineWidth=2; ctx.strokeRect(x+.5,y+.5,MH_TILE-1,MH_TILE-1);
+ ctx.fillStyle='#ff8080'; ctx.font='bold 9px system-ui'; ctx.textAlign='center';
+ ctx.fillText('FORBIDDEN THRONE · VOID FALLEN GOD · '+MH_VOID_KING_DEPTH+' DEPTH',x+MH_TILE/2,y-10);
+}
+function mhCanvasToWorld(canvas,camX,camY,clientX,clientY){
+ const rect=canvas.getBoundingClientRect();
+ const sx=canvas.width/rect.width, sy=canvas.height/rect.height;
+ return {wx:(clientX-rect.left)*sx+camX, wy:(clientY-rect.top)*sy+camY};
+}
+function mhWalkCanvasClick(ev){
+ if(!mhState||mhState.tab!=='hunt') return;
+ if(mhState.insideBuilding?.kind==='time_mine'){ mhTimeMineClick(ev); return; }
+ if(mhState.insideBuilding?.kind==='storybook'){ mhStorybookClick(ev); return; }
+ const canvas=ev.currentTarget;
+ const wi=mhState.world, save=mhState.save;
+ const pos=mhWalkEnsurePos(mhState,wi);
+ const W=canvas.width,H=canvas.height;
+ const camX=pos.px-W/2,camY=pos.py-H/2;
+ const {wx,wy}=mhCanvasToWorld(canvas,camX,camY,ev.clientX,ev.clientY);
+ let best=null,bd=48;
+ mhWorldMorphs(wi).forEach(m=>{
+  if(m.tileX==null) return;
+  const p=mhGetNpcPos(mhState,wi,m);
+  const d=Math.hypot(p.px-wx,p.py-wy);
+  if(d<bd){ bd=d; best=m; }
+ });
+ if(best) mhDeckUnlock(best,save);
+}
+function mhWalkCollide(map,px,py,r){
+ const tx0=Math.floor((px-r)/MH_TILE), tx1=Math.floor((px+r)/MH_TILE);
+ const ty0=Math.floor((py-r)/MH_TILE), ty1=Math.floor((py+r)/MH_TILE);
+ for(let ty=ty0;ty<=ty1;ty++)for(let tx=tx0;tx<=tx1;tx++) if(mhWalkTileBlocked(map,tx,ty)) return true;
+ return false;
+}
+function mhWalkEnsurePos(st,wi){
+ const map=MH_WORLD_MAPS[wi];
+ if(!st.walkPos) st.walkPos={};
+ if(!st.walkPos[wi]) st.walkPos[wi]=mhMapSpawnPos(map);
+ const p=st.walkPos[wi];
+ mhClampWalkPos(map,p);
+ return p;
+}
+function mhNpcState(st,wi,m){
+ if(!st.npc) st.npc={};
+ if(!st.npc[wi]) st.npc[wi]={};
+ if(!st.npc[wi][m.id]){
+  st.npc[wi][m.id]={
+   px:m.tileX*MH_TILE+MH_TILE/2,
+   py:m.tileY*MH_TILE+MH_TILE/2,
+   dir:(mhHashStr(m.id)%628)/100,
+   wait:0,
+   phase:mhHashStr(m.id+'p')%100/10
+  };
+ }
+ return st.npc[wi][m.id];
+}
+function mhGetNpcPos(st,wi,m){
+ const n=mhNpcState(st,wi,m);
+ return {px:n.px,py:n.py,phase:n.phase};
+}
+function mhNpcWander(st,map,m,npc,dt,save){
+ if(m.tileX==null) return;
+ npc.px=m.tileX*MH_TILE+MH_TILE/2;
+ npc.py=m.tileY*MH_TILE+MH_TILE/2;
+ npc.walking=false;
+ if(!MH_FREEZE_NPC_WALK) npc.phase+=dt*(mhHasMorph(save,m.id)?2:1.3);
+}
+function mhWalkClearKeys(){
+ if(mhState) mhState.walkKeys={};
+}
+function mhWalkVisClear(){
+ if(document.hidden) mhWalkClearKeys();
+}
+function mhDrawHideoutGroves(ctx,map,pos,wi){
+ const abyss=wi===MH_VOID_WORLD||map.abyssStamp;
+ (map.hideouts||[]).forEach(g=>{
+  const x=g.tx*MH_TILE,y=g.ty*MH_TILE,w=g.w*MH_TILE,h=g.h*MH_TILE;
+  const cx=x+w/2,cy=y+h/2;
+  const dist=Math.hypot(cx-pos.px,cy-pos.py);
+  if(dist>520) return;
+  ctx.save();
+  ctx.strokeStyle=abyss
+   ?(dist<MH_HIDDEN_REVEAL_R+40?'rgba(255,80,120,.95)':'rgba(120,40,160,.45)')
+   :(dist<MH_HIDDEN_REVEAL_R+40?'rgba(255,232,160,.9)':'rgba(200,220,255,.35)');
+  ctx.lineWidth=dist<180?3:2;
+  ctx.setLineDash([8,6]);
+  ctx.strokeRect(x+2,y+2,w-4,h-4);
+  ctx.setLineDash([]);
+  if(dist<280){
+   ctx.fillStyle='rgba(0,0,0,.55)'; ctx.fillRect(cx-72,y-18,144,16);
+   ctx.fillStyle=abyss?'#ffb0d0':'#ffe8a0'; ctx.font='bold 11px system-ui'; ctx.textAlign='center';
+   ctx.fillText(g.label||(abyss?'Abyss grove':'Hidden grove'),cx,y-6);
+  }
+  ctx.restore();
+ });
+}
+function mhGroveAt(map,px,py){
+ const tx=Math.floor(px/MH_TILE), ty=Math.floor(py/MH_TILE);
+ for(const g of map.hideouts||[]){
+  if(tx>=g.tx&&tx<g.tx+g.w&&ty>=g.ty&&ty<g.ty+g.h) return g;
+ }
+ return null;
+}
+function mhMorphsInGrove(save,wi,grove){
+ return mhWorldMorphs(wi).filter(m=>{
+  if(m.tileX==null||m.voidKing||m.questOnly||mhHasMorph(save,m.id)) return false;
+  return m.tileX>=grove.tx&&m.tileX<grove.tx+grove.w&&m.tileY>=grove.ty&&m.tileY<grove.ty+grove.h;
+ });
+}
+function mhTryStartMinigame(){
+ if(!mhState?.save) return;
+ const wi=mhState.world, save=mhState.save, map=MH_WORLD_MAPS[wi];
+ const pos=mhWalkEnsurePos(mhState,wi);
+ if(mhState.insideBuilding?.kind==='plague_lab'){ mhPlagueLabAdvance(save); return; }
+ if(mhState.insideBuilding?.kind==='time_mine'){ mhToast('Tap stone shards in the mine · F to leave'); return; }
+ if(mhState.insideBuilding?.kind==='storybook'){ mhToast('Tap the glowing story pages · F to leave'); return; }
+ if(mhTryCollectPlagueBug(save,wi,map,pos)) return;
+ if(mhTryCollectRainbowOrb(mhState,save,wi,map,pos)) return;
+ if(mhQuestBuddyHandshake(mhState,save)) return;
+ if(mhState.walkNearId){
+  const near=mhMorph(mhState.walkNearId);
+  if(near?.questOnly&&!mhHasMorph(save,near.id)){
+   mhQuestTryInteract(mhState,save,near);
+   return;
+  }
+  if(near) mhStartFight(near,mhHasMorph(save,near.id));
+  return;
+ }
+ const grove=mhGroveAt(map,pos.px,pos.py);
+ if(grove){
+  const pool=mhMorphsInGrove(save,wi,grove);
+  if(pool.length){
+   pool.sort((a,b)=>{
+    const da=Math.hypot(mhGetNpcPos(mhState,wi,a).px-pos.px,mhGetNpcPos(mhState,wi,a).py-pos.py);
+    const db=Math.hypot(mhGetNpcPos(mhState,wi,b).px-pos.px,mhGetNpcPos(mhState,wi,b).py-pos.py);
+    return da-db;
+   });
+   mhOpenMinigame(pool[0]);
+   mhToast('⚔ Fight or obby — unlock a noobie in this grove!');
+   return;
+  }
+ }
+ let best=null,bd=MH_FIGHT_ANYTIME?900:380;
+ mhWorldMorphs(wi).forEach(m=>{
+  if(m.tileX==null||m.voidKing||m.questOnly) return;
+  if(!MH_FIGHT_ANYTIME&&mhHasMorph(save,m.id)) return;
+  const p=mhGetNpcPos(mhState,wi,m);
+  const d=Math.hypot(p.px-pos.px,p.py-pos.py);
+  if(d<bd){ bd=d; best=m; }
+ });
+ if(best){ mhStartFight(best,mhHasMorph(save,best.id)); return; }
+ const next=mhWorldMorphs(wi).find(m=>!mhHasMorph(save,m.id)&&!m.voidKing&&!m.questOnly);
+ if(next){ mhStartFight(next,false); return; }
+ if(MH_FIGHT_ANYTIME){
+  const pick=mhPickFightMorph(save,wi,pos);
+  mhStartFight(pick,true);
+  return;
+ }
+ mhToast('All noobies on this map collected! Try 💎 Epic+ or 🕳 Void teleport.');
+}
+function mhWalkNearMorph(save,wi,pos,st){
+ const map=MH_WORLD_MAPS[wi];
+ const grove=mhGroveAt(map,pos.px,pos.py);
+ const morphs=mhWorldMorphs(wi);
+ let best=null,bd=1e9;
+ const tryMorph=(m,maxD)=>{
+  if(m.tileX==null||mhHasMorph(save,m.id)) return;
+  const p=mhGetNpcPos(st,wi,m);
+  const d=Math.hypot(p.px-pos.px,p.py-pos.py);
+  if(d<maxD&&d<bd){ bd=d; best={m,d}; }
+ };
+ if(grove){
+  mhMorphsInGrove(save,wi,grove).forEach(m=>tryMorph(m,130));
+  if(best) return best.m;
+ }
+ morphs.forEach(m=>tryMorph(m,MH_INTERACT_R));
+ if(!best||best.d>MH_INTERACT_R) return null;
+ return best.m;
+}
+function mhWalkActive(){
+ return !!(mhState&&mhState.tab==='hunt'&&document.getElementById('morphhunt')&&!mhState.minigameMorph&&!mhState.kingCutscene);
+}
+function mhWalkApplyKey(e,down){
+ if(!mhMorphHuntIsOpen()) return false;
+ if(mhState.minigameMorph||mhState.kingCutscene){
+  if(down&&isSpaceKey(e)&&!mhMorphHuntTypingTarget(e.target)){
+   e.preventDefault();
+   e.stopPropagation();
+   return true;
+  }
+  return false;
+ }
+ if(!mhWalkActive()) return false;
+ const ae=document.activeElement;
+ if(mhMorphHuntTypingTarget(ae)) return false;
+ if(!mhState.walkKeys) mhState.walkKeys={};
+ const c=e.code,k=e.key;
+ let hit=false;
+ const touch=(name,on)=>{
+  if(on) mhState.walkKeys[name]=true;
+  else delete mhState.walkKeys[name];
+  hit=true;
+ };
+ if(c==='KeyA'||c==='ArrowLeft'||k==='a'||k==='A') touch('left',down);
+ if(c==='KeyD'||c==='ArrowRight'||k==='d'||k==='D') touch('right',down);
+ if(down&&(c==='ArrowUp'||k==='ArrowUp')){
+  mhChatFocusInput();
+  hit=true;
+ }else if(c==='KeyW'||k==='w'||k==='W') touch('up',down);
+ if(c==='KeyS'||c==='ArrowDown'||k==='s'||k==='S') touch('down',down);
+ if(c==='ShiftLeft'||c==='ShiftRight'||k==='Shift') touch('run',down);
+ if(down&&(c==='KeyE'||k==='e'||k==='E')){
+  mhTryStartMinigame();
+  hit=true;
+ }
+ if(down&&isSpaceKey(e)){
+  hit=true;
+ }
+ if(down&&(c==='KeyF'||k==='f'||k==='F')){
+  if(mhState.insideBuilding){ mhExitBuilding(); hit=true; }
+  else if(mhState.walkNearBuilding){ mhEnterBuilding(mhState.walkNearBuilding,mhState.world); hit=true; }
+ }
+ if(down&&(c==='KeyP'||k==='p'||k==='P')){
+  mhOpenQuickPreview();
+  hit=true;
+ }
+ if(down&&(c==='KeyJ'||k==='j'||k==='J')){ mhMayorCrank(-14); hit=true; }
+ if(down&&(c==='KeyL'||k==='k'||k==='K')){ mhMayorCrank(14); hit=true; }
+ if(down&&(c==='KeyR'||k==='r'||k==='R')&&!mhState.walkKeys?.run){
+  const map=MH_WORLD_MAPS[mhState.world];
+  const pos=mhWalkEnsurePos(mhState,mhState.world);
+  if(mhNearMayorShrine(pos,map)){ mhMayorFlashBeam(); hit=true; }
+ }
+ if(down&&(c==='Digit1'||c==='Numpad1'||k==='1')){
+  mhUnlockSfx();
+  const pos=mhWalkEnsurePos(mhState,mhState.world);
+  mhUseFightAttack(mhState,mhState.save,pos,mhState.world); hit=true;
+ }
+ if(down&&(c==='Digit2'||c==='Numpad2'||k==='2')){
+  const map=MH_WORLD_MAPS[mhState.world];
+  const pos=mhWalkEnsurePos(mhState,mhState.world);
+  mhUseFightPower(mhState,mhState.save,pos,map,mhState.world); hit=true;
+ }
+ if(down&&(c==='Digit3'||c==='Numpad3'||k==='3')){
+  const pos=mhWalkEnsurePos(mhState,mhState.world);
+  mhUseFightStorm(mhState,mhState.save,pos,mhState.world); hit=true;
+ }
+ if(down&&(c==='Digit4'||c==='Numpad4'||k==='4')){
+  const pos=mhWalkEnsurePos(mhState,mhState.world);
+  mhUseKingAction4Cutscene(mhState,mhState.save,pos,mhState.world); hit=true;
+ }
+ if(down&&(c==='KeyT'||k==='t'||k==='T')){
+  const ae=document.activeElement;
+  if(ae?.id!=='mh-chat-input'&&ae?.id!=='mh-chat-friend-code'){
+   mhChatFocusInput();
+   hit=true;
+  }
+ }
+ if(down&&(c==='Slash'||k==='/'||c==='NumpadDivide')){
+  const ae=document.activeElement;
+  if(ae?.id!=='mh-chat-input'&&ae?.id!=='mh-chat-friend-code'){
+   mhChatFocusInput({slash:true});
+   hit=true;
+  }
+ }
+ if(down&&(c==='Escape'||k==='Escape')&&mhMorphHuntTypingTarget(ae)){
+  try{ ae.blur(); }catch(_){}
+  if(mhState) mhState.chatTyping=false;
+  hit=true;
+ }
+ if(mhState.kingCutscene&&down&&(c==='Escape'||k==='Escape')){
+  mhFinishKingAction4Cutscene(mhState,mhState.save); hit=true;
+ }
+ if(mhState.kingCutscene&&down) hit=true;
+ if(hit){
+  e.preventDefault();
+  e.stopPropagation();
+ }
+ return hit;
+}
+function isSpaceKey(e){ return e&&(e.code==='Space'||e.key===' '||e.key==='Spacebar'); }
+function mhWalkStop(){
+ if(mhState) mhChatStopPoll(mhState);
+ if(mhState&&mhState.walkRaf) cancelAnimationFrame(mhState.walkRaf);
+ if(mhState) mhState.walkRaf=0;
+ document.removeEventListener('keydown',mhWalkKeysDown,true);
+ document.removeEventListener('keyup',mhWalkKeysUp,true);
+ window.removeEventListener('blur',mhWalkClearKeys);
+ document.removeEventListener('visibilitychange',mhWalkVisClear);
+ mhWalkClearKeys();
+}
+function mhWalkKeysDown(e){ mhWalkApplyKey(e,true); }
+function mhWalkKeysUp(e){ mhWalkApplyKey(e,false); }
+function mhWalkDrawFrame(){
+ const st=mhState;
+ if(!st||st.tab!=='hunt') return;
+ if(st.minigameMorph){ st.walkRaf=requestAnimationFrame(mhWalkDrawFrame); return; }
+ const canvas=document.getElementById('mh-walk-canvas');
+ if(!canvas){ st.walkRaf=requestAnimationFrame(mhWalkDrawFrame); return; }
+ let ctx;
+ let t=performance.now()/1000;
+ try{
+  ctx=canvas.getContext('2d');
+  if(!ctx) throw new Error('no ctx');
+ const W=canvas.width,H=canvas.height;
+ const nowMs=performance.now();
+ const tCut=nowMs/1000;
+ t=tCut;
+ const dtCut=Math.min(0.05,(nowMs-(st.lastWalkMs||nowMs))/1000||0.016);
+ st.lastWalkMs=nowMs;
+ if(st.kingCutscene){
+  mhUpdateKingCutscene(st,dtCut);
+  mhDrawKingAction4Cutscene(ctx,W,H,st,tCut);
+  st.walkRaf=requestAnimationFrame(mhWalkDrawFrame);
+  return;
+ }
+ if(st.insideBuilding){
+  const t=performance.now()/1000;
+  mhDrawInteriorScreen(ctx,W,H,st,t);
+  st.walkRaf=requestAnimationFrame(mhWalkDrawFrame);
+  return;
+ }
+ const wi=st.world;
+ const save=st.save;
+ const map=MH_WORLD_MAPS[wi];
+ const world=MH_WORLDS[wi];
+ const pos=mhWalkEnsurePos(st,wi);
+ if(mhMorphHuntTypingTarget(document.activeElement)) mhWalkClearKeys();
+ const keys=st.walkKeys||{};
+ const dt=dtCut;
+ let vx=0,vy=0;
+ if(keys.left) vx-=1;
+ if(keys.right) vx+=1;
+ if(keys.up) vy-=1;
+ if(keys.down) vy+=1;
+ const running=!!keys.run;
+ const moving=!!(vx||vy);
+ if(moving){
+  const spd=running?MH_RUN_SPEED:MH_WALK_SPEED;
+  const len=Math.hypot(vx,vy)||1;
+  vx=vx/len*spd; vy=vy/len*spd;
+  const npx=pos.px+vx,npy=pos.py+vy;
+  if(!mhWalkCollide(map,npx,pos.py,10)) pos.px=npx;
+  if(!mhWalkCollide(map,pos.px,npy,10)) pos.py=npy;
+  st.walkPhase=(st.walkPhase||0)+(running?0.42:0.26);
+  st.playerRunning=running;
+ }else{ st.walkPhase=(st.walkPhase||0)*0.9; st.playerRunning=false; }
+ const morphs=mhWorldMorphs(wi);
+ const near=mhWalkNearMorph(save,wi,pos,st);
+ const nearId=near?near.id:null;
+ morphs.forEach(m=>{
+  if(m.tileX==null) return;
+  const np=mhGetNpcPos(st,wi,m);
+  if(!mhShouldDrawMapMorph(m,save,Math.hypot(np.px-pos.px,np.py-pos.py),nearId)) return;
+  mhNpcWander(st,map,m,mhNpcState(st,wi,m),dt,save);
+ });
+ mhUpdateCivilians(st,map,wi,dt);
+ mhUpdateVoidFx(st,dt);
+ mhUpdatePlagueRaid(st,save,dt);
+ mhUpdateFight(st,save,wi,pos);
+ mhTestBuddyUpdatePos(st,wi,dt);
+ mhTestAccountUpdatePos(st,wi,dt);
+ st.walkNearId=near?near.id:null;
+ if(near&&near.id!==st.prevNearMorphId){
+  st.prevNearMorphId=near.id;
+  if(mhNpcCanReact(st,wi,near,6000)) mhNpcShowReaction(st,wi,near,mhNpcReactLine(near,save,wi,'spot',{tick:Date.now()}));
+ }else if(!near) st.prevNearMorphId=null;
+ if(!near&&Math.random()<0.0022){
+  const morphs=mhWorldMorphs(wi).filter(m=>m.tileX!=null&&mhEnemyAlive(st,wi,m));
+  const pick=morphs[mhHashStr(String(st.walkPhase)+wi+Date.now())%Math.max(1,morphs.length)];
+  if(pick&&mhNpcCanReact(st,wi,pick,12000)){
+   mhNpcShowReaction(st,wi,pick,mhNpcReactLine(pick,save,wi,'idle',{tick:Date.now()}),4500);
+  }
+ }
+ st.walkNearBuilding=mhWalkNearBuilding(pos,map);
+ if(wi===MH_VOID_WORLD){
+  let bv=null,bd=220;
+  morphs.forEach(m=>{
+   if(m.voidKing||m.rarity!=='voidfallen') return;
+   const p=mhGetNpcPos(st,wi,m);
+   const d=Math.hypot(p.px-pos.px,p.py-pos.py);
+   if(d<bd){ bd=d; bv=m; }
+  });
+  st.walkNearVoidId=bv?bv.id:null;
+ }else st.walkNearVoidId=null;
+ const camX=pos.px-W/2,camY=pos.py-H/2;
+ const flatMap=mhMapFlat2D(wi);
+ ctx.fillStyle=world.bg;
+ ctx.fillRect(0,0,W,H);
+ let shakeX=0,shakeY=0;
+ if(st.voidShakeUntil&&performance.now()<st.voidShakeUntil){
+  const mag=st.voidShakeMag||4;
+  shakeX=(Math.random()-0.5)*mag*2;
+  shakeY=(Math.random()-0.5)*mag*2;
+ }
+ ctx.save();
+ ctx.translate(-camX+shakeX,-camY+shakeY);
+ if(flatMap) mhDrawFlatMapTiles(ctx,map,world,wi,t);
+ else for(let ty=0;ty<map.h;ty++)for(let tx=0;tx<map.w;tx++){
+  const v=map.tiles[ty*map.w+tx];
+  const x=tx*MH_TILE,y=ty*MH_TILE;
+  mhPaintWorldGroundTile(ctx,x,y,v,world,wi);
+  ctx.strokeStyle='rgba(0,0,0,.06)'; ctx.strokeRect(x+.5,y+.5,MH_TILE-1,MH_TILE-1);
+ }
+ mhDrawMapDecors(ctx,map,wi,t,st.save);
+ mhDrawQuestWorldMarkers(ctx,map,wi,t,save);
+ if(wi===MH_VOID_WORLD) mhDrawVoidAbyssMist(ctx,map,t);
+ mhDrawHideoutGroves(ctx,map,pos,wi);
+ if(wi===MH_VOID_WORLD) mhDrawVoidThrone(ctx,map);
+ mhDrawCivilians(ctx,st,wi,map);
+ morphs.sort((a,b)=>mhGetNpcPos(st,wi,a).py-mhGetNpcPos(st,wi,b).py);
+ morphs.forEach(m=>{
+  if(m.tileX==null) return;
+  const npc=mhNpcState(st,wi,m);
+  const mx=npc.px, my=npc.py;
+  const got=mhHasMorph(save,m.id);
+  const dist=Math.hypot(mx-pos.px,my-pos.py);
+  if(!mhShouldDrawMapMorph(m,save,dist,nearId)) return;
+  if(!mhEnemyAlive(st,wi,m)) return;
+  let sc=(m.scale||1)*(flatMap?0.78:0.72);
+  if(m.voidKing) sc*=1.62;
+  if(MH_1000D&&!flatMap){
+   const depth=0.82+(my/(map.h*MH_TILE))*0.32;
+   sc*=depth;
+  }
+  const sil=!got&&dist>MH_INTERACT_R&&m.rarity!=='voidfallen';
+  mhPaintNoobWorld(ctx,m,mx,my,sc,got?0.55:1,sil,t,MH_FREEZE_NPC_WALK?0:npc.phase,flatMap,!MH_FREEZE_NPC_WALK&&!!npc.walking);
+  const ehp=mhGetEnemyHp(st,wi,m), emax=mhEnemyMaxHp(m);
+  if(ehp<emax||st.enemyAggro[mhEnemyFightKey(wi,m)]>performance.now()){
+   mhDrawFightHpBar(ctx,mx,my-(m.voidKing?118:92),Math.min(90,14+m.name.length*3),ehp,emax,m.voidKing?'#ff4040':'#c898ff');
+  }
+  if(st.enemyHitFlash[mhEnemyFightKey(wi,m)]>performance.now()){
+   ctx.fillStyle='rgba(255,80,80,.35)'; ctx.beginPath(); ctx.arc(mx,my-24,28,0,Math.PI*2); ctx.fill();
+  }
+  if(m.voidKing&&dist<280){
+   ctx.fillStyle='rgba(0,0,0,.88)'; ctx.fillRect(mx-88,my-112,176,34);
+   ctx.fillStyle='#ff4040'; ctx.font='bold 9px system-ui'; ctx.textAlign='center';
+   ctx.fillText('👑 '+MH_VOID_ABYSS_LABEL+' · FALLEN GOD',mx,my-96);
+   ctx.fillStyle='#ffe8a0'; ctx.font='bold 8px system-ui';
+   ctx.fillText('🛡 '+MH_ANCIENT_GLYPHS.join(' ')+' · 🌌 storm backdrop',mx,my-84);
+   ctx.fillText('⚔ '+(m.voidAttack?.name||'Twin-Axe')+' · ✦ '+(m.voidPower?.name||'Storm'),mx,my-72);
+  }
+  if(m.rarity==='exotic'){
+   ctx.fillStyle='rgba(255,40,200,.85)'; ctx.fillRect(mx-54,my-98,108,14);
+   ctx.fillStyle='#fff'; ctx.font='bold 10px system-ui'; ctx.textAlign='center';
+   ctx.fillText('✦ EXOTIC',mx,my-88);
+  }
+  if(m.rarity==='voidfallen'&&!m.voidKing&&dist<100){
+   ctx.fillStyle='rgba(20,0,40,.85)'; ctx.fillRect(mx-58,my-92,116,16);
+   ctx.fillStyle='#c898ff'; ctx.font='bold 8px system-ui'; ctx.textAlign='center';
+   ctx.fillText(m.name.slice(0,14),mx,my-82);
+  }
+  if(dist<MH_INTERACT_R&&!got){
+   if(!got){
+    ctx.fillStyle=m.questOnly?'rgba(40,80,120,.88)':'rgba(120,60,200,.85)'; ctx.fillRect(mx-52,my-92,104,12);
+    ctx.fillStyle=m.questOnly?'#a8e8ff':'#e8d0ff'; ctx.font='bold 9px system-ui'; ctx.textAlign='center';
+    ctx.fillText(m.questOnly?'✨ QUEST · E':'⚔ FIGHT',mx,my-84);
+   }
+   ctx.fillStyle='rgba(0,0,0,.65)'; ctx.fillRect(mx-42,my-78,84,14);
+   ctx.fillStyle='#ffe8a0'; ctx.font='bold 10px system-ui'; ctx.textAlign='center';
+   ctx.fillText('?',mx,my-68);
+  }else if(got||dist<MH_INTERACT_R){
+   ctx.fillStyle='rgba(0,0,0,.7)'; ctx.fillRect(mx-48,my-78,96,14);
+   ctx.fillStyle='#fff'; ctx.font='bold 10px system-ui'; ctx.textAlign='center';
+   ctx.fillText(got?m.name.slice(0,14):'???',mx,my-68);
+  }
+ });
+ mhDrawMapStatues(ctx,map,t,st);
+ if(wi===0&&map.timeTraveler){
+  const tx=map.timeTraveler.tx*MH_TILE+MH_TILE/2,ty=map.timeTraveler.ty*MH_TILE;
+  ctx.fillStyle='rgba(0,32,48,.82)'; ctx.fillRect(tx-64,ty-28,128,18);
+  ctx.fillStyle='#80e0ff'; ctx.font='bold 10px system-ui'; ctx.textAlign='center';
+  ctx.fillText('⏳ Time Traveler · chat',tx,ty-14);
+ }
+ const wear=mhMorph(save.wearing);
+ mhDrawRedBlackPlayerStorm(ctx,st,pos,t);
+ mhDrawTestBuddy(ctx,st,wi,t);
+ mhDrawTestAccountNpc(ctx,st,wi,t);
+ mhPresenceHeartbeat(st,save);
+ mhDrawOnlineHumans(ctx,st,save,t);
+ mhDrawYouInWorld(ctx,wear,pos,map,t,st.walkPhase||0,wi,st.playerRunning);
+ mhDrawChatBubbles(ctx,st,camX,camY);
+ mhDrawNpcChatLines(ctx,st,wi,morphs,camX,camY);
+ mhDrawPlagueRaid(ctx,st,t);
+ mhDrawVoidFx(ctx,st);
+ ctx.restore();
+ if(!st.rosterUiLast||performance.now()-st.rosterUiLast>900){
+  st.rosterUiLast=performance.now();
+  mhRenderPlayerRoster(st,save);
+ }
+ const mapHints=!mhHuntUiCompact()&&!st.insideBuilding;
+ if(mapHints){
+  ctx.fillStyle='rgba(0,0,0,.78)'; ctx.fillRect(8,118,420,78);
+  ctx.fillStyle='#ffe8a0'; ctx.font='bold 12px system-ui,sans-serif'; ctx.textAlign='left';
+  ctx.fillText('This map: '+mhWorldRarityHint(wi),16,134);
+  ctx.fillStyle='#80ffb0'; ctx.font='bold 11px system-ui,sans-serif';
+  ctx.fillText('Search dashed groves · noobies appear when you walk in · E unlock',16,152);
+  ctx.fillStyle='#a0c8ff'; ctx.font='bold 11px system-ui,sans-serif';
+  ctx.fillText('Epic+ → teleport 💎 · Void → teleport 🕳 (tabs above)',16,166);
+ }
+ if(st.testBuddy?.on){
+  ctx.fillStyle='rgba(0,40,60,.88)'; ctx.fillRect(W/2-150,56,300,22);
+  ctx.fillStyle='#80e8ff'; ctx.font='bold 11px system-ui'; ctx.textAlign='center';
+  ctx.fillText('🤖 Test Buddy walks the map · / or ↑ to chat',W/2,72);
+  ctx.textAlign='left';
+ }
+ mhEnsureFight(st,save);
+ const php=st.fightHp||100, pmax=st.fightMaxHp||100;
+ mhDrawFightHpBar(ctx,W-90,18,120,php,pmax,st.fightHitFlash>performance.now()?'#ff8080':'#80ffb0');
+ ctx.fillStyle='#ffe8a0'; ctx.font='bold 10px system-ui'; ctx.textAlign='center';
+ ctx.fillText('❤ HP '+Math.ceil(php)+'/'+pmax,W-90,32);
+ ctx.textAlign='left';
+ if(mapHints){
+  ctx.fillStyle='#ffb0b0'; ctx.font='bold 10px system-ui';
+  const vk=mhVoidCombatMorph(save);
+  ctx.fillText(vk?.voidKing?'⚔ 1–3 fight · 🎬 4 king cutscene (axe→sword · void judgment)':'⚔ FIGHT: 1 attack · 2 power · 3 storm — face foes & press keys',16,182);
+ }
+ if(mhVoidCombatMorph(save)){
+  ctx.fillStyle='rgba(20,0,40,.88)'; ctx.fillRect(W/2-190,H-52,380,36);
+  ctx.fillStyle='#ffe8a0'; ctx.font='bold 12px system-ui,sans-serif'; ctx.textAlign='center';
+  ctx.fillText('🛡 Ancient shields on you · '+MH_ANCIENT_GLYPHS.join(' '),W/2,H-36);
+  ctx.font='bold 10px system-ui'; ctx.fillStyle='#c898ff';
+  ctx.fillText(MH_ANCIENT_NAMES.join(' · '),W/2,H-22);
+ }
+ if(st.voidGibberUntil&&performance.now()<st.voidGibberUntil){
+  ctx.fillStyle='rgba(40,0,0,.88)'; ctx.fillRect(W/2-150,H-36,300,28);
+  ctx.fillStyle='#ff6060'; ctx.font='bold 12px system-ui,sans-serif'; ctx.textAlign='center';
+  ctx.fillText('📡 GIBBERLINK · '+String(st.voidGibberText||'rift').slice(0,28),W/2,H-18);
+ }
+ const pc=mhParkCenter(map);
+ if(pc){
+  const pd=Math.hypot(pc.px-pos.px,pc.py-pos.py);
+  if(pd>120){
+   const ang=Math.atan2(pc.py-pos.py,pc.px-pos.px);
+   const ax=W/2+Math.cos(ang)*200, ay=H/2+Math.sin(ang)*120;
+   ctx.save(); ctx.translate(ax,ay); ctx.rotate(ang);
+   ctx.fillStyle='#62b852'; ctx.beginPath(); ctx.moveTo(16,0); ctx.lineTo(-8,-10); ctx.lineTo(-8,10); ctx.closePath(); ctx.fill();
+   ctx.fillStyle='#fff'; ctx.font='bold 11px system-ui'; ctx.textAlign='center';
+   ctx.fillText('PARK',0,-14);
+   ctx.restore();
+  }
+ }
+ if(flatMap&&wi!==MH_VOID_WORLD) mhPaperFlatOverlay(ctx,W,H);
+ mhRefreshVoidCombatHud(save);
+ if(wi===MH_VOID_WORLD){
+  mhVoidFlatScreenOverlay(ctx,W,H);
+  ctx.fillStyle='rgba(0,0,0,.78)'; ctx.fillRect(W/2-185,22,370,24);
+  ctx.fillStyle='#ff6060'; ctx.font='bold 13px system-ui,sans-serif'; ctx.textAlign='center';
+  ctx.fillText('🕳 '+MH_VOID_ABYSS_LABEL+' · '+MH_BUILD+' · rifts · 👑 King',W/2,40);
+  if(map.throneTx!=null){
+   const tx=map.throneTx*MH_TILE+MH_TILE/2, ty=map.throneTy*MH_TILE+MH_TILE/2;
+   const ang=Math.atan2(ty-pos.py,tx-pos.px);
+   const ax=W/2+Math.cos(ang)*118, ay=H/2+Math.sin(ang)*72;
+   ctx.save(); ctx.translate(ax,ay); ctx.rotate(ang);
+   ctx.fillStyle='#ff3030'; ctx.beginPath(); ctx.moveTo(14,0); ctx.lineTo(-6,-8); ctx.lineTo(-6,8); ctx.closePath(); ctx.fill();
+   ctx.fillStyle='#ffe8a0'; ctx.font='bold 9px system-ui'; ctx.textAlign='center';
+   ctx.fillText('KING',0,-12);
+   ctx.restore();
+  }
+ }
+ const hud=document.getElementById('mh-walk-hud');
+ if(hud){
+  const found=morphs.filter(m=>mhHasMorph(save,m.id)).length;
+  hud.querySelector('.mh-walk-zone').textContent=world.emoji+' '+world.name+' · '+found+'/'+morphs.length;
+  const prompt=hud.querySelector('.mh-walk-prompt');
+  if(st.walkNearBuilding?.kind==='plague_lab'){
+   prompt.textContent='☣ Plague Lab — F enter · E for each step (need all park bugs first)';
+   prompt.hidden=false;
+  }else if(mhNearPlagueBug(pos,map,save)){
+   prompt.textContent='🐛 Plague bug! Press E to catch (every park on every map)';
+   prompt.hidden=false;
+  }else if(st.walkNearBuilding){
+   prompt.textContent='Step 2: Press F to enter house (secret code inside)';
+   prompt.hidden=false;
+  }else if(near){
+   const got=mhHasMorph(save,near.id);
+   prompt.textContent=got?'E — morph into '+near.name:'Press E — fight or obby to unlock this noobie!';
+   prompt.hidden=false;
+  }else{
+   prompt.textContent='Find a dashed 🕵 Hidden grove — walk inside to reveal noobies';
+   prompt.hidden=false;
+  }
+ }
+ }catch(err){
+  console.error('[Morph Hunt walk]',err);
+ }
+ mhDrawPlagueLivePreviewCanvas(t);
+ st.walkRaf=requestAnimationFrame(mhWalkDrawFrame);
+}
+function mhDrawPlagueLivePreviewCanvas(t){
+ const cv=document.querySelector('.mh-plague-live-canvas');
+ if(!cv||!mhState||mhState.tab!=='hunt') return;
+ const doc=mhMorph('ex-plague-doctor');
+ if(!doc) return;
+ const ctx=cv.getContext('2d');
+ if(!ctx) return;
+ const W=cv.width,H=cv.height;
+ ctx.fillStyle='#0a1018';
+ ctx.fillRect(0,0,W,H);
+ ctx.strokeStyle='#304838';
+ ctx.lineWidth=1;
+ ctx.strokeRect(0.5,0.5,W-1,H-1);
+ const cx=W/2,cy=H*0.58;
+ mhDrawPlagueDoctorAura(ctx,cx,cy-10,t,0.9);
+ mhPaintPlagueDoctorNoob(ctx,cx,cy,0.7,1,false,t*0.35,false,t);
+ mhDrawPassiveAncientShieldsOnCharacter(ctx,cx,cy,t,doc,1);
+}
+function mhDemoMorph(anim,extra){
+ return Object.assign({
+  id:'demo-'+anim,
+  name:anim,
+  head:'#F5CD30',
+  torso:'#0085DB',
+  legs:'#A4BD47',
+  arms:'#F5CD30',
+  body:'classic',
+  anim,
+  face:'smile',
+  rarity:'rare',
+  scale:1
+ },extra||{});
+}
+function mhRenderPreview(){
+ const run=!!mhState.previewRun;
+ const flat=!!mhState.previewFlat;
+ return `<div class="mh-preview-tab">
+  <h3>🎬 Animation preview — everything live</h3>
+  <p class="mh-scene-hint">All <b>${MH_ANIMS.length}</b> idle styles · <b>walk</b> vs <b>run</b> leg cycles · 👑 <b>Void Fallen God</b> (huge · twin axe · storm) · flat 2D vs depth</p>
+  <div class="mh-preview-tools">
+   <button type="button" class="mh-btn${run?'':' primary'}" data-mh-prev-mode="walk">🚶 Walk cycle</button>
+   <button type="button" class="mh-btn${run?' primary':''}" data-mh-prev-mode="run">🏃 Run cycle</button>
+   <button type="button" class="mh-btn${flat?' primary':''}" data-mh-prev-flat="1">📄 Flat 2D</button>
+   <button type="button" class="mh-btn${!flat?' primary':''}" data-mh-prev-flat="0">🧊 Depth / 3D</button>
+   <button type="button" class="mh-btn" data-mh-prev-minigame="noobduel">Preview fight / obby</button>
+   <button type="button" class="mh-btn primary" data-mh-prev-plague="1">☣ Plague Doctor preview</button>
+  </div>
+  <canvas id="mh-preview-canvas" class="mh-preview-canvas" width="960" height="640" aria-label="Animation preview"></canvas>
+  <p class="mh-preview-legend">${MH_ANIMS.map(a=>'<span>'+a+'</span>').join('')} · NPC wander · Hunt unlock = <b>duel</b>, <b>obby</b>, or <b>jump fight</b> (not puzzles)</p>
+ </div>`;
+}
+function mhPreviewStop(){
+ if(mhState&&mhState.previewRaf) cancelAnimationFrame(mhState.previewRaf);
+ if(mhState) mhState.previewRaf=0;
+}
+function mhPreviewDrawFrame(){
+ const st=mhState;
+ if(!st||st.tab!=='preview') return;
+ const canvas=document.getElementById('mh-preview-canvas');
+ if(!canvas){ st.previewRaf=requestAnimationFrame(mhPreviewDrawFrame); return; }
+ const ctx=canvas.getContext('2d');
+ if(!ctx){ st.previewRaf=requestAnimationFrame(mhPreviewDrawFrame); return; }
+ const W=canvas.width,H=canvas.height;
+ const t=performance.now()/1000;
+ const run=!!st.previewRun;
+ const flat=!!st.previewFlat;
+ st.previewPhase=(st.previewPhase||0)+(run?0.042:0.026);
+ const phase=st.previewPhase;
+ ctx.fillStyle='#0a1018';
+ ctx.fillRect(0,0,W,H);
+ ctx.strokeStyle='rgba(255,255,255,.06)'; ctx.lineWidth=1;
+ for(let x=0;x<W;x+=80){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+ for(let y=0;y<H;y+=80){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+ ctx.fillStyle='#ffe8a0'; ctx.font='bold 13px system-ui,sans-serif'; ctx.textAlign='left';
+ ctx.fillText('Idle animation styles (each noobie uses one in the wild)',16,24);
+ MH_ANIMS.forEach((anim,i)=>{
+  const col=i%4,row=Math.floor(i/4);
+  const cx=110+col*230,cy=88+row*168;
+  ctx.fillStyle='rgba(0,0,0,.55)'; ctx.fillRect(cx-52,cy-72,104,150);
+  ctx.strokeStyle='rgba(120,180,255,.35)'; ctx.strokeRect(cx-52.5,cy-72.5,104,150);
+  const m=mhDemoMorph(anim);
+  mhPaintNoobWorld(ctx,m,cx,cy+36,0.82,1,false,t,phase,flat,false);
+  ctx.fillStyle='#a8c0e0'; ctx.font='bold 11px system-ui'; ctx.textAlign='center';
+  ctx.fillText(anim.toUpperCase(),cx,cy+92);
+ });
+ ctx.fillStyle='#80e8ff'; ctx.font='bold 14px system-ui'; ctx.textAlign='left';
+ ctx.fillText('Movement (same noobie · legs + arms)',16,H-168);
+ const move=mhDemoMorph('bounce',{id:'demo-move',name:'Walker'});
+ const king=mhMorph('vf-king')||mhDemoMorph('pulse',{voidKing:true,body:'tall',rarity:'voidfallen'});
+ ctx.fillStyle='rgba(0,0,0,.5)'; ctx.fillRect(40,H-150,200,130); ctx.fillRect(280,H-150,200,130);
+ ctx.fillStyle='rgba(40,0,80,.55)'; ctx.fillRect(520,H-150,240,130);
+ ctx.fillStyle='rgba(0,0,0,.45)'; ctx.fillRect(780,H-150,160,130);
+ mhPaintNoobWorld(ctx,move,140,H-78,0.95,1,false,t,phase,flat,false);
+ ctx.fillStyle='#b8e8ff'; ctx.font='bold 11px system-ui'; ctx.textAlign='center';
+ ctx.fillText('WALK',140,H-28);
+ mhPaintNoobWorld(ctx,move,380,H-78,0.95,1,false,t,phase,flat,true);
+ ctx.fillStyle='#ffe060'; ctx.fillText('RUN',380,H-28);
+ mhPaintNoobWorld(ctx,king,640,H-88,1.22,1,false,t,phase,true,false);
+ ctx.fillStyle='#e8d0ff'; ctx.font='bold 10px system-ui';
+ ctx.fillText('VOID FALLEN GOD · HUGE',640,H-28);
+ ctx.fillText('TWIN AXE · SPIKY SHIELD · MASK · '+MH_VOID_KING_DEPTH+' DEPTH',640,H-14);
+ const flatDemo=mhDemoMorph('sway',{torso:'#0085DB'});
+ mhPaintNoobWorld(ctx,flatDemo,860,H-78,0.88,1,false,t,phase,flat,false);
+ ctx.fillStyle='#c0d0e0'; ctx.fillText(flat?'FLAT 2D':'3D',860,H-28);
+ const plague=mhMorph('ex-plague-doctor');
+ if(plague){
+  ctx.fillStyle='rgba(10,24,16,.75)'; ctx.fillRect(24,H-318,W-48,148);
+  ctx.strokeStyle='#80ffb0'; ctx.lineWidth=2; ctx.strokeRect(24.5,H-318.5,W-49,147);
+  ctx.fillStyle='#80ffb0'; ctx.font='bold 13px system-ui'; ctx.textAlign='left';
+  ctx.fillText('☣ PLAGUE DOCTOR — same 🛡 ancient shields as Void Fallen · 💊☠ orbit',36,H-296);
+  mhDrawPlagueDoctorAura(ctx,200,H-230,t,0.95);
+  mhPaintNoobWorld(ctx,plague,200,H-218,1.05,1,false,t,phase,false,false);
+  mhDrawPlagueDoctorAura(ctx,520,H-230,t,0.85);
+  mhPaintNoobWorld(ctx,plague,520,H-218,1.05,1,false,t,phase,true,false);
+  ctx.fillStyle='#c8ffd8'; ctx.font='bold 11px system-ui'; ctx.textAlign='center';
+  ctx.fillText('3D · 🛡 '+MH_ANCIENT_GLYPHS.join(' '),200,H-178);
+  ctx.fillText('FLAT 2D · shields orbit',520,H-178);
+  ctx.fillStyle='#a0c8b0'; ctx.font='10px system-ui'; ctx.textAlign='left';
+  ctx.fillText('Unlock: park bugs on every map → Buddy Plaza ☣ Lab (5× E steps)',36,H-188);
+ }
+ ctx.fillStyle='rgba(255,232,120,.85)'; ctx.font='bold 12px system-ui'; ctx.textAlign='center';
+ ctx.fillText('Build '+MH_BUILD+' · tab updates live',W/2,14);
+ st.previewRaf=requestAnimationFrame(mhPreviewDrawFrame);
+}
+function mhPreviewStart(){
+ mhPreviewStop();
+ if(!mhState) return;
+ mhState.previewPhase=0;
+ mhPreviewDrawFrame();
+}
+function mhWalkStart(){
+ mhWalkStop();
+ if(!mhState) return;
+ if(!mhState.chatChannel) mhState.chatChannel='global';
+ if(!mhState.chatSince) mhState.chatSince={global:0,server:0,friend:0};
+ mhState.walkKeys={};
+ document.addEventListener('keydown',mhWalkKeysDown,true);
+ document.addEventListener('keyup',mhWalkKeysUp,true);
+ window.addEventListener('blur',mhWalkClearKeys);
+ document.addEventListener('visibilitychange',mhWalkVisClear);
+ mhChatStartPoll(mhState);
+ mhWalkDrawFrame();
+ const root=document.getElementById('morphhunt');
+ root?.querySelectorAll('[data-mh-dpad]').forEach(btn=>{
+  const dir=btn.dataset.mhDpad;
+  const map={ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right'};
+  const name=map[dir]||dir;
+  const down=()=>{ if(!mhState.walkKeys) mhState.walkKeys={}; mhState.walkKeys[name]=true; };
+  const up=()=>{ if(mhState?.walkKeys) delete mhState.walkKeys[name]; };
+  btn.addEventListener('pointerdown',e=>{ e.preventDefault(); down(); });
+  btn.addEventListener('pointerup',up);
+  btn.addEventListener('pointerleave',up);
+ });
+ root?.querySelector('#mh-walk-interact')?.addEventListener('click',()=> mhTryStartMinigame());
+ root?.querySelector('#mh-touch-fight')?.addEventListener('pointerdown',(e)=>{ e.preventDefault(); mhTryStartMinigame(); });
+ root?.querySelector('#mh-ban-mode')?.addEventListener('click',()=>{
+  if(!mhState) return;
+  mhState.banModeOn=!mhState.banModeOn;
+  mhToast(mhState.banModeOn?'🚫 Ban mode ON — tap Banned on a player':'Ban mode off');
+  mhRenderPlayerRoster(mhState,mhState.save);
+ });
+ root?.querySelector('#mh-walk-enter')?.addEventListener('click',()=>{
+  if(mhState?.insideBuilding) mhExitBuilding();
+  else if(mhState?.walkNearBuilding) mhEnterBuilding(mhState.walkNearBuilding,mhState.world);
+ });
+ root?.querySelector('#mh-walk-preview')?.addEventListener('click',()=> mhOpenQuickPreview());
+ root?.querySelector('#mh-walk-run')?.addEventListener('pointerdown',()=>{
+  if(!mhState.walkKeys) mhState.walkKeys={};
+  mhState.walkKeys.run=true;
+ });
+ root?.querySelector('#mh-walk-run')?.addEventListener('pointerup',()=>{
+  if(mhState?.walkKeys) delete mhState.walkKeys.run;
+ });
+ const voidAtk=root?.querySelector('#mh-void-atk');
+ const voidPow=root?.querySelector('#mh-void-pow');
+ if(voidAtk) voidAtk.onclick=()=>{
+  if(!mhState?.save) return;
+  mhMorphHuntFocusGame();
+  const pos=mhWalkEnsurePos(mhState,mhState.world);
+  mhUseFightAttack(mhState,mhState.save,pos,mhState.world);
+ };
+ if(voidPow) voidPow.onclick=()=>{
+  if(!mhState?.save) return;
+  mhMorphHuntFocusGame();
+  const map=MH_WORLD_MAPS[mhState.world];
+  const pos=mhWalkEnsurePos(mhState,mhState.world);
+  mhUseFightPower(mhState,mhState.save,pos,map,mhState.world);
+ };
+ const voidStorm=root?.querySelector('#mh-void-storm');
+ const voidCut=root?.querySelector('#mh-void-cutscene');
+ if(voidCut) voidCut.onclick=()=>{
+  if(!mhState?.save) return;
+  mhMorphHuntFocusGame();
+  const pos=mhWalkEnsurePos(mhState,mhState.world);
+  mhUseKingAction4Cutscene(mhState,mhState.save,pos,mhState.world);
+ };
+ if(voidStorm) voidStorm.onclick=()=>{
+  if(!mhState?.save) return;
+  mhMorphHuntFocusGame();
+  const pos=mhWalkEnsurePos(mhState,mhState.world);
+  mhUseFightStorm(mhState,mhState.save,pos,mhState.world);
+ };
+ const canvas=root?.querySelector('#mh-walk-canvas');
+ if(canvas){
+  canvas.onclick=mhWalkCanvasClick;
+  canvas.addEventListener('pointerdown',(e)=>{
+   mhUnlockSfx(); canvas.blur(); mhMorphHuntBlurPageFocus();
+   if(mhState?.insideBuilding?.kind==='time_mine') mhTimeMineClick(e);
+   if(mhState?.insideBuilding?.kind==='storybook') mhStorybookClick(e);
+  });
+ }
+}
+
+function mhRenderPlagueQuestPanel(save){
+ const doc=mhMorph('ex-plague-doctor');
+ if(!doc) return '';
+ const got=mhHasMorph(save,'ex-plague-doctor');
+ const bugs=mhPlagueBugsCollected(save);
+ const total=mhPlagueBugTotal();
+ const q=mhPlagueQuest(save);
+ const step=q.labStep||0;
+ let status;
+ if(got) status='Unlocked! Open 🎭 Morph tab to wear the doctor.';
+ else if(bugs<total) status='Quest: catch striped 🐛 at every park on every map ('+bugs+'/'+total+'). Press E near a bug.';
+ else if(step<MH_PLAGUE_LAB_STEPS.length) status='All bugs caught! Go to 🏠 Buddy Plaza → green ☣ PLAGUE LAB (by court). F enter · E for lab step '+(step+1)+'/5.';
+ else status='Complete the last lab step with E inside the lab.';
+ return `<div class="mh-plague-preview-panel" role="region" aria-label="Plague Doctor preview">
+  <div class="mh-plague-preview-art" title="Plague Doctor live preview — 🛡 shields + orbit">
+   <canvas class="mh-plague-live-canvas" width="100" height="130" aria-label="Plague Doctor live preview with ancient shields"></canvas>
+   <span class="mh-plague-orbit">🛡 ${MH_ANCIENT_GLYPHS.join(' ')} · 💊 ☠</span>
+  </div>
+  <div class="mh-plague-preview-body">
+   <h3>☣ Void Fallen Plague Doctor ${got?'✅':''}</h3>
+   <p class="mh-plague-status">${status}</p>
+   <p class="mh-plague-quote">Voices: “I am the cure.” · “Oh my, the sickness…” · “Then I can fix you.”</p>
+   <div class="mh-plague-preview-btns">
+    <button type="button" class="mh-btn primary mh-btn-sm" data-mh-tab="preview">🎬 Animation preview</button>
+    ${got?'':'<button type="button" class="mh-btn ghost mh-btn-sm" data-mh-world="0">🏠 Go Buddy Plaza (lab)</button>'}
+   </div>
+  </div>
+ </div>`;
+}
+function mhCodexArtHtml(m,got){
+ if(got||m.plagueOnly||m.mayorOnly||m.discoOnly||m.timeTravelerOnly||m.matrixOnly||m.questOnly) return `<svg viewBox="0 0 100 130">${mhClassicNoobSvg(m)}</svg>`;
+ return '<div class="mh-silhouette">?</div>';
+}
+function mhRenderHuntDeck(save,wi,morphs){
+ const pg=mhPaginate(morphs,mhState.huntPage||0,16);
+ const cards=pg.slice.map(m=>{
+  const got=mhHasMorph(save,m.id);
+  const r=mhRarityInfo(m);
+  const btn=got?(MH_FIGHT_ANYTIME?'🎮 Practice fight':'✓ Owned'):'⚔ Fight / obby';
+  return `<button type="button" class="mh-hunt-card${got?' got':''}" data-mh-challenge="${m.id}" style="--mh-rarity:${r.color}">
+   <span class="mh-hunt-card-art">${got?`<svg viewBox="0 0 100 130">${mhClassicNoobSvg(m)}</svg>`:'?'}</span>
+   <span class="mh-hunt-card-name">${got?m.name:'???'}</span>
+   <span class="mh-hunt-card-r">${mhRarityLabel(m)}</span>
+   <em class="mh-hunt-card-btn">${btn}</em>
+  </button>`;
+ }).join('');
+ return `<details class="mh-hunt-deck-fold">
+  <summary>⚔ Unlock deck — duel / obby / jump-fight (tap a card)</summary>
+  <div class="mh-hunt-cards">${cards}</div>
+  <div class="mh-pager">${pg.page>0?'<button type="button" class="mh-btn" data-mh-hunt-page="'+(pg.page-1)+'">← Prev</button>':''}<span>Page ${pg.page+1} / ${pg.pages}</span>${pg.page+1<pg.pages?'<button type="button" class="mh-btn" data-mh-hunt-page="'+(pg.page+1)+'">Next →</button>':''}</div>
+ </details>`;
+}
+function mhRenderHunt(save, wi){
+ const world=MH_WORLDS[wi];
+ const voidCombat=mhVoidCombatMorph(save);
+ const morphs=mhWorldMorphs(wi);
+ const found=morphs.filter(m=>mhHasMorph(save,m.id)).length;
+ const worldTabs=MH_WORLDS.map((w,i)=>{
+  const locked=!mhWorldTeleportUnlocked(save,i);
+  const done=mhWorldComplete(save,i);
+  const tag=i===MH_EXOTIC_WORLD?' Epic+':i===MH_VOID_WORLD?' Void':'';
+  return `<button type="button" class="mh-world-tab${i===wi?' on':''}${locked?' locked':''}" data-mh-world="${i}" ${locked?'disabled':''} title="${w.tagline}">${w.emoji} ${w.name}${tag}${done?' ✓':''}</button>`;
+ }).join('');
+ const tpEpic=wi!==MH_EXOTIC_WORLD?`<button type="button" class="mh-btn primary mh-btn-sm" data-mh-world="${MH_EXOTIC_WORLD}">💎 Teleport Epic+ Map</button>`:'';
+ const tpVoid=wi!==MH_VOID_WORLD?`<button type="button" class="mh-btn mh-btn-sm" data-mh-world="${MH_VOID_WORLD}">🕳 Teleport Void Map</button>`:'';
+ const fightKeyBtns=`<button type="button" class="mh-btn mh-btn-sm" id="mh-void-atk">⚔ 1 Attack</button><button type="button" class="mh-btn mh-btn-sm" id="mh-void-pow">✦ 2 Power</button><button type="button" class="mh-btn mh-btn-sm" id="mh-void-storm">🌌 3 Storm</button><button type="button" class="mh-btn mh-btn-sm" id="mh-void-cutscene" hidden>🎬 4 Cutscene</button>`;
+ const fightKeysUi=mhHuntUiCompact()
+  ?`<details class="mh-walk-hud-extra"><summary>⚔ Keys 1–3</summary><div class="mh-walk-hud-extra-btns">${fightKeyBtns}</div></details>`
+  :fightKeyBtns;
+ const voidReadout=mhHuntUiCompact()?'':`<div id="mh-void-combat-readout" class="mh-void-combat-readout">${voidCombat?('⚔ FIGHT · '+voidCombat.voidAttack?.name+' · ✦ '+voidCombat.voidPower?.name+' · 🌌 '+MH_VOID_STORM_NAME):'⚔ FIGHT · <b>1</b> punch · <b>2</b> blast · <b>3</b> slam (Void morph = stronger)'}${wi===MH_VOID_WORLD?' · <b>'+MH_VOID_ABYSS_LABEL+'</b>':''}</div>`;
+ return `<div class="mh-test-play-banner">${mhIsTestProfile()?'<b>🧪 Test Account</b> — chat with 👤 You in another tab (Global).':'<b>👤 Your account</b> — tap <b>🧪 Test Account</b> above or open <b>🧪 2nd tab</b> in chat to play together.'} Build <b>${MH_BUILD}</b></div>
+ <div class="mh-teleport-bar">
+  <span><b>${world.emoji} ${world.name}</b> — ${mhWorldRarityHint(wi)} · ${found}/${morphs.length} here</span>
+  <span class="mh-teleport-btns">${tpEpic}${tpVoid}</span>
+ </div>
+ <div class="mh-world-tabs mh-world-tabs-compact">${worldTabs}</div>
+ ${mhRenderPlagueQuestPanel(save)}
+ <details class="mh-hunt-guide-fold"${mhHuntUiCompact()?'':' open'}>
+  <summary>📖 Rules &amp; quests</summary>
+  <div class="mh-hunt-guide">
+   <b>Rarity rules</b>
+   <ol>
+    <li><b>Maps 0–7</b> (Buddy, Fair, Beach…): only <b>Common · Uncommon · Rare</b>. They stay inside <b>🕵 hidden groves</b> (dashed boxes) — not scattered on the whole map.</li>
+    <li><b>💎 Epic+ Realm</b> (teleport tab or button): <b>Epic · Legendary · Secret · Exotic · Exclusive</b> — also in groves on that map.</li>
+    <li><b>Void Fallen morph</b>: 🎭 Morph tab → <b>1</b> attack · <b>2</b> power on <b>every map</b> (King = red-black storm!). 🕳 Abyss = King + groves.</li>
+    <li><b>E</b> or <b>⚔ Fight</b> — fight <b>anytime</b> (practice if you already own the noobie). Groves still have unlock challenges. <b>F</b> = big homes.</li>
+    <li><b>💬 Chat</b> — press <b>↑</b> or <b>/</b> or <b>T</b> to talk, <b>Enter</b> to send, <b>Esc</b> back to walking (rules apply). <b>Global</b> · <b>Server</b> · <b>Friends</b>.</li>
+    <li><b>🏀 Court plaza</b> stays at spawn · <b>4 parks</b> around the map · <b>Mayor statue</b> on court: <b>J/L</b> crank, <b>R</b> flash light at all 4 mirrors → <b>Mayor Noobie</b>!</li>
+    <li><b>☣ Void Fallen Plague Doctor</b> — quest on Buddy Plaza · <b>voidfallen</b> morph with 🛡 shields + <b>${MH_PLAGUE_STORM_NAME}</b> · bugs at every park · ☣ Lab <b>E</b>×5</li>
+    <li><b>⏳ Time Traveler</b> — near 🏀 court on Buddy Plaza · chat <b>go back in time</b> (2000💰) · mine stones → <b>Matrix Noobie</b></li>
+   </ol>
+  </div>
+ </details>
+ <div class="mh-walk-wrap mh-walk-with-chat">
+  <div class="mh-walk-game">
+  <div class="mh-player-roster" id="mh-player-roster">
+   <div class="mh-roster-head"><strong>👥 Players</strong>${mhIsLithosAdmin()?'<button type="button" class="mh-btn mh-btn-sm" id="mh-ban-mode">Ban mode: OFF</button>':''}</div>
+   <ul id="mh-player-list" class="mh-player-list"><li class="mh-roster-row dim">Looking for humans…</li></ul>
+  </div>
+  ${voidReadout}
+  <canvas id="mh-walk-canvas" class="mh-walk-canvas" width="960" height="520" tabindex="-1"></canvas>
+  <div class="mh-touch-controls" aria-label="Touch move">
+   <button type="button" class="mh-dpad-btn mh-dpad-up" data-mh-dpad="up" aria-label="Up">▲</button>
+   <button type="button" class="mh-dpad-btn mh-dpad-left" data-mh-dpad="left" aria-label="Left">◀</button>
+   <button type="button" class="mh-dpad-btn mh-dpad-down" data-mh-dpad="down" aria-label="Down">▼</button>
+   <button type="button" class="mh-dpad-btn mh-dpad-right" data-mh-dpad="right" aria-label="Right">▶</button>
+   <button type="button" class="mh-dpad-btn mh-dpad-fight" id="mh-touch-fight" aria-label="Fight">⚔</button>
+  </div>
+  ${mhHuntUiCompact()
+   ?`<div id="mh-walk-hud" class="mh-walk-hud mh-walk-hud-clean is-compact mh-walk-dock" aria-label="Map controls">
+   <div class="mh-walk-dock-bar">
+    <span class="mh-walk-zone">${world.emoji} ${world.name} · ${found}/${morphs.length}</span>
+    <div class="mh-walk-dock-btns">
+     <button type="button" class="mh-btn primary mh-btn-sm mh-dock-btn" id="mh-walk-interact" title="Fight (E)">⚔</button>
+     <button type="button" class="mh-btn mh-btn-sm mh-dock-btn" id="mh-walk-enter" title="House (F)">🏠</button>
+     <button type="button" class="mh-btn mh-btn-sm mh-dock-btn" id="mh-walk-preview" title="Preview morph (P)">👀</button>
+     <button type="button" class="mh-btn mh-btn-sm mh-dock-btn mh-dock-more" id="mh-walk-dock-toggle" title="More controls (H)">⋯</button>
+    </div>
+   </div>
+   <div class="mh-walk-dock-extra">
+    <span class="mh-walk-prompt" hidden>Walk closer</span>
+    <button type="button" class="mh-btn mh-btn-sm" id="mh-walk-run">Run</button>
+    ${fightKeysUi}
+   </div>
+  </div>`
+   :`<div id="mh-walk-hud" class="mh-walk-hud mh-walk-hud-clean">
+   <span class="mh-walk-zone">${world.emoji} ${world.name} · ${found}/${morphs.length}</span>
+   <span class="mh-walk-prompt" hidden>Walk closer</span>
+   <button type="button" class="mh-btn primary mh-btn-sm" id="mh-walk-interact">⚔ Fight (E)</button>
+   <button type="button" class="mh-btn mh-btn-sm" id="mh-walk-enter">F House</button>
+   <button type="button" class="mh-btn mh-btn-sm" id="mh-walk-run">Run</button>
+   ${fightKeysUi}
+  </div>`}
+  </div>
+  ${mhRenderChatPanel(save)}
+ </div>
+ ${mhRenderHuntDeck(save,wi,morphs)}
+ <p class="mh-progress">Zone: <b>${found}/${morphs.length}</b> &nbsp;•&nbsp; Total: <b>${save.collected.length}/${MH_TOTAL_COUNT}</b> &nbsp;•&nbsp; 🕳 Void: <b>${save.collected.filter(id=>mhMorph(id)?.rarity==='voidfallen').length}/${MH_VOID_COUNT}</b></p>`;
+}
+
+function mhRenderIndex(save){
+ const q=mhState.filter||'';
+ const kind=mhState.indexKind||'all';
+ let list=MH_MORPHS.slice();
+ if(kind==='normal') list=MH_NORMALS;
+ if(kind==='exclusive') list=MH_EXCLUSIVES;
+ if(kind==='exotic') list=MH_EXOTICS;
+ if(kind==='void') list=MH_VOID_FALLEN;
+ list=mhFilterList(list,q);
+ list.sort((a,b)=>a.exclusive!==b.exclusive? (a.exclusive?1:-1) : a.name.localeCompare(b.name));
+ const pg=mhPaginate(list,mhState.page||0,48);
+ const cards=pg.slice.map(m=>{
+  const got=mhHasMorph(save,m.id);
+  const r=mhRarityInfo(m);
+  return `<div class="mh-codex-card${got?' got':''}" style="--mh-rarity:${r.color}">
+   <div class="mh-codex-art">${mhCodexArtHtml(m,got)}</div>
+   <div class="mh-codex-meta"><b class="mh-noob-name">${got?m.name:'???'}</b><span class="mh-codex-rarity">${mhRarityLabel(m)}${got?'':' · ⚔ fight/obby unlock'}</span></div>
+  </div>`;
+ }).join('');
+ return `<div class="mh-index">
+  <h3>📖 Noobie Index</h3>
+  <div class="mh-index-tools">
+   <button type="button" class="mh-filter${kind==='all'?' on':''}" data-mh-kind="all">All ${MH_TOTAL_COUNT}</button>
+   <button type="button" class="mh-filter${kind==='normal'?' on':''}" data-mh-kind="normal">Normal ${MH_NORMAL_COUNT}</button>
+   <button type="button" class="mh-filter${kind==='exclusive'?' on':''}" data-mh-kind="exclusive">Exclusive ${MH_EXCLUSIVE_COUNT}</button>
+   <button type="button" class="mh-filter${kind==='exotic'?' on':''}" data-mh-kind="exotic">💎 Exotic ${MH_EXOTIC_COUNT}</button>
+   <button type="button" class="mh-filter${kind==='void'?' on':''}" data-mh-kind="void">🕳 Male Void ${MH_VOID_COUNT}</button>
+   <input type="search" id="mh-search" placeholder="Search noobies…" value="${q.replace(/"/g,'&quot;')}"/>
+  </div>
+  <div class="mh-codex-grid index">${cards}</div>
+  <div class="mh-pager">${pg.page>0?'<button type="button" class="mh-btn" data-mh-page="'+(pg.page-1)+'">← Prev</button>':''}<span>Page ${pg.page+1} / ${pg.pages}</span>${pg.page+1<pg.pages?'<button type="button" class="mh-btn" data-mh-page="'+(pg.page+1)+'">Next →</button>':''}</div>
+ </div>`;
+}
+
+function mhRenderMorph(save){
+ const q=mhState.filter||'';
+ let list=save.collected.map(id=>mhMorph(id)).filter(Boolean);
+ list=mhFilterList(list,q);
+ const pg=mhPaginate(list,mhState.page||0,24);
+ if(!list.length) return `<div class="mh-morph-tab"><p class="mh-scene-hint">Find noobies in Hunt or Gacha, then morph here!</p></div>`;
+ const previewId=mhState.morphPreviewId||save.wearing||list[0]?.id;
+ const preview=mhMorph(previewId)||mhMorph(save.wearing);
+ const previewR=preview?MH_RARITY[preview.rarity]||MH_RARITY.common:null;
+ const cards=pg.slice.map(m=>{
+  const on=save.wearing===m.id;
+  const pick=mhState.morphPreviewId===m.id;
+  const r=MH_RARITY[m.rarity]||MH_RARITY.common;
+  return `<button type="button" class="mh-morph-wear${on?' on':''}${pick?' pick':''}" data-mh-morph-preview="${m.id}" style="--mh-rarity:${r.color}">
+   <svg viewBox="0 0 100 130">${mhClassicNoobSvg(m)}</svg><span>${m.name}</span>${(m.rarity==='voidfallen'||m.voidFallen)?`<small class="mh-morph-void-moves">⚔ ${m.voidAttack?.name||'?'} · ✦ ${m.voidPower?.name||'?'}</small>`:''}${on?'<em>Morphed</em>':'<em>Preview</em>'}
+  </button>`;
+ }).join('');
+ return `<div class="mh-morph-tab">
+  <h3>🎭 Morph &amp; Roleplay</h3>
+  <p class="mh-scene-hint">Pick a noobie — see <b>Welcome → morph</b> preview first, then tap <b>Morph!</b></p>
+  ${preview?`<div class="mh-morph-showcase-hero" style="--mh-rarity:${previewR.color}">
+   ${mhMorphShowcaseCanvasHtml(preview,'mh-morph-hero-showcase')}
+   <div class="mh-morph-showcase-actions">
+    <b>${preview.name}</b>
+    ${(preview.voidFallen||preview.rarity==='voidfallen')?`<p class="mh-scene-hint" style="color:${preview.voidKing?'#ff6060':'#c898ff'}">⚔ ${preview.voidAttack?.name||'?'} · ✦ ${preview.voidPower?.name||'?'}</p>`:''}
+    <button type="button" class="mh-btn primary" data-mh-wear="${preview.id}">🎭 Morph into this noobie!</button>
+   </div>
+  </div>`:''}
+  <input type="search" id="mh-search" placeholder="Search your morphs…" value="${q.replace(/"/g,'&quot;')}"/>
+  <div class="mh-morph-grid">${cards}</div>
+  <div class="mh-pager">${pg.page>0?'<button type="button" class="mh-btn" data-mh-page="'+(pg.page-1)+'">←</button>':''}<span>${pg.page+1}/${pg.pages}</span>${pg.page+1<pg.pages?'<button type="button" class="mh-btn" data-mh-page="'+(pg.page+1)+'">→</button>':''}</div>
+ </div>`;
+}
+
+function mhStoryPreviewRoster(){
+ const extras=[mhMorph('ex-mayor'),mhMorph('ex-plague-doctor'),mhMorph('vf-king')].filter(Boolean);
+ return MH_SIGNATURE_NOOBIES.concat(extras);
+}
+function mhSigPanelHtml(m,canWear){
+ if(!m) return '';
+ const r=MH_RARITY[m.rarity]||MH_RARITY.common;
+ const w=MH_WORLDS[m.world];
+ let blurb=m.sigTag||'';
+ if(m.plagueDoctor) blurb='☣ Buddy Plaza quest · 3 = '+MH_PLAGUE_GRAVEYARD_NAME+' + '+MH_PLAGUE_STORM_NAME;
+ else if(m.mayorOnly) blurb='Mayor shrine on Buddy Plaza · J/L crank · R beam';
+ else if(m.discoOnly) blurb='🪩 Owner disco event only — not in gacha, codes, or groves';
+ else if(m.timeTravelerOnly) blurb='⏳ Buddy Plaza · chat “go back in time” · 2000💰 · Matrix quest';
+ else if(m.matrixOnly) blurb='🌐 Time Traveler mine reward — not in gacha';
+ else if(m.questOnly) blurb=m.sigTag||'✨ Quest exclusive — find the glowing NPC on the map';
+ const combat=(m.voidFallen&&m.voidAttack&&!m.plagueDoctor)?`<span class="mh-sig-combat">⚔ ${m.voidAttack.name} · ✦ ${m.voidPower?.name||'?'}</span>`:'';
+ if(m.plagueDoctor&&m.voidAttack) blurb+=' · ⚔ '+m.voidAttack.name+' · ✦ '+m.voidPower.name;
+ return `<article class="mh-sig-panel-full" style="--mh-rarity:${r.color}">
+  <div class="mh-sig-panel-showcase">${mhMorphShowcaseCanvasHtml(m)}</div>
+  <div class="mh-sig-panel-meta">
+   <h4>${m.name}</h4>
+   <p class="mh-sig-tag">${blurb}</p>
+   <p class="mh-sig-world">${w?.emoji||'⭐'} ${w?.name||'Special'} · ${mhRarityLabel(m)} ${combat}</p>
+   <div class="mh-sig-panel-btns">
+    <button type="button" class="mh-btn mh-btn-sm" data-mh-morph-preview="${m.id}">👀 Show off</button>
+    ${canWear?`<button type="button" class="mh-btn mh-btn-sm primary" data-mh-wear="${m.id}">🎭 Morph</button>`:''}
+   </div>
+  </div>
+ </article>`;
+}
+function mhStarsStop(){
+ if(mhState&&mhState.starsRaf) cancelAnimationFrame(mhState.starsRaf);
+ if(mhState) mhState.starsRaf=0;
+}
+function mhStarsDrawFrame(){
+ const st=mhState;
+ if(!st||st.tab!=='stars') return;
+ const canvas=document.getElementById('mh-sig-all-canvas');
+ if(!canvas){ st.starsRaf=requestAnimationFrame(mhStarsDrawFrame); return; }
+ const ctx=canvas.getContext('2d');
+ if(!ctx){ st.starsRaf=requestAnimationFrame(mhStarsDrawFrame); return; }
+ const W=canvas.width,H=canvas.height;
+ const t=performance.now()/1000;
+ st.starsPhase=(st.starsPhase||0)+0.028;
+ const phase=st.starsPhase;
+ const roster=mhStoryPreviewRoster();
+ const cols=5;
+ const cw=W/cols;
+ const cellH=Math.max(168,Math.floor((H-56)/Math.ceil(roster.length/cols)));
+ ctx.fillStyle='#060810';
+ ctx.fillRect(0,0,W,H);
+ const g=ctx.createLinearGradient(0,0,W,H);
+ g.addColorStop(0,'#101828'); g.addColorStop(1,'#08040c');
+ ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+ ctx.fillStyle='#ffe8a0'; ctx.font='bold 15px system-ui,sans-serif'; ctx.textAlign='center';
+ ctx.fillText('All story noobies — combined live preview ('+roster.length+')',W/2,28);
+ ctx.font='11px system-ui'; ctx.fillStyle='#90a0b8';
+ ctx.fillText('Scroll below for quest blurbs · Owner can wear any morph',W/2,46);
+ roster.forEach((m,i)=>{
+  const col=i%cols,row=Math.floor(i/cols);
+  const cx=cw*col+cw/2,cy=64+row*cellH+cellH*0.48;
+  const boxW=cw-12,boxH=cellH-10;
+  ctx.fillStyle='rgba(0,0,0,.55)'; ctx.fillRect(cx-boxW/2,cy-boxH/2,boxW,boxH);
+  ctx.strokeStyle=mhHex((MH_RARITY[m.rarity]||MH_RARITY.common).color,0.45);
+  ctx.lineWidth=1.5; ctx.strokeRect(cx-boxW/2+0.5,cy-boxH/2+0.5,boxW-1,boxH-1);
+  ctx.save();
+  if(m.plagueDoctor){
+   mhDrawPassiveAncientShieldsOnCharacter(ctx,cx,cy+8,t,m,1);
+   mhDrawPlagueDoctorAura(ctx,cx,cy-4,t,0.9);
+   mhPaintPlagueDoctorNoob(ctx,cx,cy+8,0.58,1,false,phase,false,t);
+  }else if(m.voidKing){
+   mhPaintNoobWorld(ctx,m,cx,cy+8,0.72,1,false,t,phase,false,false);
+  }else{
+   mhPaintNoobWorld(ctx,m,cx,cy+8,0.58,1,false,t,phase,false,false);
+  }
+  ctx.restore();
+  ctx.fillStyle='#f0ecf8'; ctx.font='bold 10px system-ui,sans-serif'; ctx.textAlign='center';
+  const short=m.name.replace(/ Noobie$/,'');
+  ctx.fillText(short,cx,cy+boxH/2-10,boxW-8);
+  ctx.fillStyle='#788898'; ctx.font='9px system-ui';
+  ctx.fillText(mhRarityLabel(m),cx,cy+boxH/2+2,boxW-8);
+ });
+ st.starsRaf=requestAnimationFrame(mhStarsDrawFrame);
+}
+function mhStarsStart(){
+ mhStarsStop();
+ if(mhState) mhState.starsPhase=0;
+ mhStarsDrawFrame();
+}
+function mhRenderStars(save){
+ const canWear=mhIsOwner();
+ const owner=mhIsRealOwner();
+ const roster=mhStoryPreviewRoster();
+ const cols=5;
+ const canvasH=56+Math.ceil(roster.length/cols)*172;
+ const panels=MH_SIG_GROUPS.map(g=>{
+  const list=MH_SIGNATURE_NOOBIES.filter(m=>m.sigGroup===g.id);
+  if(!list.length) return '';
+  return `<section class="mh-sig-section"><h4>${g.title}</h4><div class="mh-sig-all-list">${list.map(m=>mhSigPanelHtml(m,canWear)).join('')}</div></section>`;
+ }).join('');
+ const questCrew=`<section class="mh-sig-section"><h4>☣ Quest crew (already in game)</h4><div class="mh-sig-all-list">${mhSigPanelHtml(mhMorph('ex-mayor'),canWear)}${mhSigPanelHtml(mhMorph('ex-plague-doctor'),canWear)}</div></section>`;
+ const u100=mhMorph('code-update100');
+ const partySec=u100?`<section class="mh-sig-section mh-update100-party"><h4>🎂 Update 100 party</h4><div class="mh-sig-all-list">${mhSigPanelHtml(u100,canWear)}<p class="mh-scene-hint">Redeem in 🎲 Gacha: <b>UPDATE100</b> (also <b>HAPPY100THUPDATE</b>) · confetti + <b>Update 100 Noobie</b> + 💯 title</p></div></section>`:'';
+ return `<div class="mh-stars-tab mh-sig-one-page">
+  <h3>⭐ All story noobies — one preview page</h3>
+  <p class="mh-scene-hint"><b>${roster.length}</b> morphs on the mosaic below · 🎂 <b>UPDATE100</b> for the 100th update party!</p>
+  <canvas id="mh-sig-all-canvas" class="mh-sig-all-canvas" width="960" height="${canvasH}" aria-label="Combined preview of all story noobies"></canvas>
+  <div class="mh-sig-all-scroll">${partySec}${panels}${questCrew}</div>
+ </div>`;
+}
+
+function mhRenderGacha(save){
+ return `<div class="mh-gacha-tab">
+  <h3>🎲 Noobie Gacha</h3>
+  <p class="mh-scene-hint">Normal pool: ${MH_NORMAL_COUNT} · Exclusive pool: ${MH_EXCLUSIVE_COUNT}</p>
+  <p class="mh-scene-hint" style="color:#80ffb0">🏠 Codes: <b>UPDATE100</b> 🎂 · <b>GLITCHHOUSE</b> · <b>MYTHINSIDE</b> · <b>MINIGAMEVAULT</b> · <b>ENTERHOUSE</b></p>
+  <div class="mh-gacha-row">
+   <div class="mh-gacha-machine"><div class="mh-gacha-window">?</div><button type="button" class="mh-btn primary" id="mh-gacha-roll">Normal roll — ${MH_GACHA_COST}💰</button></div>
+   <div class="mh-gacha-machine exclusive"><div class="mh-gacha-window">★</div><button type="button" class="mh-btn primary" id="mh-gacha-ex">Exclusive roll — ${MH_GACHA_EX_COST}💰</button></div>
+  </div>
+  <p>Coins: <b>${save.coins}</b></p>
+  <div class="mh-code-box"><label>Promo code</label>
+   <div class="mh-code-row"><input type="text" id="mh-code-in" placeholder="WELCOMEBUDDY" autocomplete="off"/><button type="button" class="mh-btn" id="mh-code-go">Redeem</button></div>
+  </div>
+ </div>`;
+}
+
+function mhBind(root){
+ mhBindIdeHint(root);
+ mhBindHuntUiCompact(root);
+ mhBindWalkHudDock(root);
+ root.querySelector('#mh-leave')?.addEventListener('click',mhClose);
+ root.querySelectorAll('[data-mh-id]').forEach(btn=>btn.addEventListener('click',()=>mhCollect(btn.dataset.mhId)));
+ root.querySelectorAll('[data-mh-world]').forEach(btn=>btn.addEventListener('click',()=>{ mhState.huntPage=0; mhSetWorld(+btn.dataset.mhWorld); }));
+ root.querySelectorAll('[data-mh-challenge]').forEach(btn=>btn.addEventListener('click',()=>mhDeckUnlock(mhMorph(btn.dataset.mhChallenge),mhState.save)));
+ root.querySelectorAll('[data-mh-hunt-page]').forEach(btn=>btn.addEventListener('click',()=>{ mhState.huntPage=+btn.dataset.mhHuntPage; mhRender(); }));
+ root.querySelectorAll('[data-mh-tab]').forEach(btn=>mhTabNoFocusRing(btn,()=>mhSetTab(btn.dataset.mhTab)));
+ root.querySelectorAll('[data-mh-prev-mode]').forEach(btn=>btn.addEventListener('click',()=>{
+  mhState.previewRun=btn.dataset.mhPrevMode==='run';
+  mhRender();
+ }));
+ root.querySelectorAll('[data-mh-prev-flat]').forEach(btn=>btn.addEventListener('click',()=>{
+  mhState.previewFlat=btn.dataset.mhPrevFlat==='1';
+  mhRender();
+ }));
+ root.querySelector('[data-mh-prev-minigame]')?.addEventListener('click',()=>{
+  const demo=mhMorph('vf-king')||mhDemoMorph('pulse');
+  mhOpenMinigame(demo);
+ });
+ root.querySelector('[data-mh-prev-plague]')?.addEventListener('click',()=>{
+  mhSetTab('preview');
+  mhToast('☣ Scroll down on the preview canvas for Plague Doctor!');
+ });
+ root.querySelectorAll('[data-mh-wear]').forEach(btn=>btn.addEventListener('click',()=>mhWear(btn.dataset.mhWear)));
+ root.querySelectorAll('[data-mh-morph-preview]').forEach(btn=>btn.addEventListener('click',()=>{
+  mhState.morphPreviewId=btn.dataset.mhMorphPreview;
+  mhRender();
+  mhShowcaseStart();
+  mhToast('👀 Preview — Welcome Noobie → '+((mhMorph(mhState.morphPreviewId)?.name)||'morph'));
+ }));
+ root.querySelector('#mh-gacha-roll')?.addEventListener('click',()=>mhGacha(false));
+ root.querySelector('#mh-gacha-ex')?.addEventListener('click',()=>mhGacha(true));
+ root.querySelectorAll('[data-mh-kind]').forEach(btn=>btn.addEventListener('click',()=>{ mhState.indexKind=btn.dataset.mhKind; mhState.page=0; mhRender(); }));
+ root.querySelectorAll('[data-mh-page]').forEach(btn=>btn.addEventListener('click',()=>{ mhState.page=+btn.dataset.mhPage; mhRender(); }));
+ const search=root.querySelector('#mh-search');
+ if(search){
+  search.oninput=()=>{ mhState.filter=search.value; mhState.page=0; mhRender(); search.focus(); };
+ }
+ const codeGo=root.querySelector('#mh-code-go');
+ const codeIn=root.querySelector('#mh-code-in');
+ if(codeGo&&codeIn){
+  codeGo.onclick=()=>mhRedeemCode(codeIn.value);
+  codeIn.onkeydown=e=>{ if(e.key==='Enter') mhRedeemCode(codeIn.value); };
+ }
+ mhBindChat(root);
+ root.querySelector('#mh-switch-test')?.addEventListener('click',()=>mhSwitchProfile('test'));
+ root.querySelector('#mh-switch-main')?.addEventListener('click',()=>mhSwitchProfile('main'));
+ root.querySelectorAll('button').forEach(btn=>{
+  if(btn.id==='mh-chat-input') return;
+  btn.addEventListener('mousedown',e=>{ if(e.button===0) e.preventDefault(); });
+ });
+}
+
+function mhRender(){
+ const st=mhState;
+ if(!st)return;
+ const root=document.getElementById('morphhunt');
+ if(!root)return;
+ const chatWasTyping=!!(st.chatTyping||mhMorphHuntTypingTarget(document.activeElement));
+ const chatDraft=(document.getElementById('mh-chat-input')?.value??st.chatDraft??'');
+ st.chatDraft=chatDraft;
+ const save=st.save;
+ const wi=st.world;
+ const canWear=mhIsOwner();
+ const owner=mhIsRealOwner();
+ const tab=st.tab||'hunt';
+ let body='';
+ if(tab==='hunt') body=mhRenderHunt(save,wi);
+ else if(tab==='index') body=mhRenderIndex(save);
+ else if(tab==='morph') body=mhRenderMorph(save);
+ else if(tab==='gacha') body=mhRenderGacha(save);
+ else if(tab==='preview') body=mhRenderPreview();
+ else if(tab==='stars') body=mhRenderStars(save);
+
+ root.innerHTML=`<div class="mh-panel mh-ftn${mhHuntUiCompact()?' mh-ui-compact':''}">
+  ${mhIdePreviewHintHtml()}
+  <header class="mh-ftn-banner">
+   <div class="mh-ftn-banner-text">
+    <h2 class="mh-title">Find The Noobies Morphs</h2>
+    <p class="mh-ftn-tag"><b>${MH_TOTAL_COUNT}</b> noobies · ${MH_SCENERY_STAMP} · Build <b>${MH_BUILD}</b>${MH_FEATURE_SHOWCASE?' · <b>Welcome→Morph previews</b> on ⭐ Stars & 🎭 Morph':''}${MH_OPEN_PLAY?' · <b>Open play</b> — same for everyone':''}${owner?' · Owner tag':''}</p>
+   </div>
+  </header>
+  <div class="mh-head">
+   <div class="mh-tabs">
+    <button type="button" class="mh-tab${tab==='hunt'?' on':''}" data-mh-tab="hunt">🗺️ Hunt</button>
+    <button type="button" class="mh-tab${tab==='index'?' on':''}" data-mh-tab="index">📖 Index</button>
+    <button type="button" class="mh-tab${tab==='morph'?' on':''}" data-mh-tab="morph">🎭 Morph</button>
+    <button type="button" class="mh-tab${tab==='gacha'?' on':''}" data-mh-tab="gacha">🎲 Gacha</button>
+    <button type="button" class="mh-tab${tab==='stars'?' on':''}" data-mh-tab="stars">⭐ Stars</button>
+    <button type="button" class="mh-tab${tab==='preview'?' on':''}" data-mh-tab="preview">🎬 Animations</button>
+   </div>
+   <div class="mh-head-stats">
+    <span class="mh-player-identity">${mhChatSpeakerLabel(mhEnsureChatProfile(save).name,mhChatRoleTitle(save))}</span>
+    <span class="mh-coins">💰 <b>${save.coins}</b></span>
+    <span>${MH_TOTAL_COUNT} · 🕳 <b>${save.collected.filter(id=>mhMorph(id)?.rarity==='voidfallen').length}</b>/${MH_VOID_COUNT} Void Fallen</span>
+    <span class="mh-live-build" id="mh-live-build" title="If this number is old, you are not on the latest file">✓ ${MH_BUILD}</span>
+    ${owner?'<span class="mh-owner-tag">Owner</span>':''}
+    ${mhIsLithosStaff()&&!owner?'<span class="mh-owner-tag" style="border-color:rgba(128,200,255,.45);color:#a0d8ff">Lithos staff</span>':''}
+    ${MH_OPEN_PLAY?'<span class="mh-owner-tag" style="border-color:rgba(128,255,176,.45);color:#80ffb0">Open play · all morphs</span>':''}
+    ${mhIsTestProfile()?'<span class="mh-owner-tag" style="border-color:rgba(128,200,255,.5);color:#80d8ff">🧪 Test Account</span>':'<button type="button" class="mh-btn mh-btn-sm" id="mh-switch-test">🧪 Test Account</button>'}
+    ${mhIsTestProfile()?'<button type="button" class="mh-btn mh-btn-sm ghost" id="mh-switch-main">👤 You</button>':''}
+    <button type="button" class="mh-btn mh-btn-sm ghost" id="mh-ui-compact-toggle" title="Hide map tips and tuck extra buttons">${mhHuntCompactToggleLabel()}</button>
+    <button type="button" class="mh-btn ghost" id="mh-leave">Leave</button>
+   </div>
+  </div>
+  <div class="mh-main ftn">${body}</div>
+  ${mhIdeHintRestoreLink()}
+  <div id="mh-toast" class="mh-toast"></div>
+ </div>`;
+ mhBind(root);
+ if(chatWasTyping&&tab==='hunt'){
+  const inp=document.getElementById('mh-chat-input');
+  if(inp){
+   if(st.chatDraft) inp.value=st.chatDraft;
+   try{ inp.focus(); }catch(_){}
+  }
+ }else{
+  mhMorphHuntBlurPageFocus();
+ }
+ if(save.wearing) mhSaveWearId(save.wearing);
+ mhWalkStop();
+ mhPreviewStop();
+ mhStarsStop();
+ mhShowcaseStop();
+ if(tab==='hunt'){
+  mhWalkStart();
+  if(!chatWasTyping) mhMorphHuntFocusGame();
+  mhTestAgentsWelcome(st,save);
+ }else if(tab==='preview'){
+  mhPreviewStart();
+ }else if(tab==='stars'){
+  mhStarsStart();
+  mhShowcaseStart();
+ }else if(tab==='morph'){
+  mhShowcaseStart();
+ }
+}
+
+function mhSyncMorphHuntUrl(){
+ try{
+  const u=new URL(location.href);
+  u.searchParams.set('mh',MH_BUILD);
+  u.searchParams.set('t',String(Date.now()));
+  if(!u.hash) u.hash='morphhunt';
+  history.replaceState(null,'',u.toString());
+ }catch(_){}
+}
+function mhMorphHuntOpenTab(){
+ return 'hunt';
+}
+function mhMorphHuntStaleHostHint(){
+ try{
+  const h=location.hostname||'';
+  if(h.includes('github.io')||h.includes('githubusercontent.com')){
+   mhToast('⚠️ GitHub Pages may be OLD — hard refresh or try local: http://127.0.0.1:8765/?mh='+MH_BUILD+'#morphhunt');
+   return true;
+  }
+ }catch(_){}
+ return false;
+}
+function playMorphHunt(){
+ mhApplyProfileFromUrl();
+ mhSyncMorphHuntUrl();
+ mhClose();
+ mhMorphHuntBindModal();
+ mhEnsureOverlayModals();
+ if(typeof lithosCloseGameOverlays==='function'){ try{lithosCloseGameOverlays({keepMorphHunt:true});}catch(_){} }
+ if(typeof closeGamesHub==='function'){ try{ closeGamesHub({skipHash:true}); }catch(_){} }
+ mhMorphHuntHideSiteChrome();
+ const openTab=mhMorphHuntOpenTab();
+ mhState={save:mhLoadSave(),world:0,tab:openTab,page:0,huntPage:0,filter:'',indexKind:'all',walkPos:{},enemyHp:{},enemyAggro:{},enemyRespawnAt:{},enemyLastHit:{},enemyHitFlash:{},chatChannel:'global',chatSince:{global:0,server:0,friend:0},presenceSince:Date.now()-MH_PRESENCE_TTL,presenceSeen:{},banModeOn:false,chatBubbles:[],chatNpcLine:{},npcReactCd:{},prevNearMorphId:null,testBuddy:mhTestBuddyDefault(),buddyAiOn:true,testAccountAiOn:true,testAccountNpc:{phase:2.2,morphId:'ex-welcome'},aiHist:{buddy:[],account:[]}};
+ mhTestBuddyEnsureFriend(mhState.save);
+ const wrap=document.createElement('div');
+ wrap.id='morphhunt';
+ wrap.setAttribute('role','application');
+ wrap.setAttribute('aria-label','Find The Noobies Morph Hunt');
+ document.body.appendChild(wrap);
+ mhMorphHuntInertBackground(true);
+ mhMorphHuntBodyLock(true);
+ mhMorphHuntShieldSiteInput();
+ try{ mhRender(); }
+ catch(err){
+  console.error('[Morph Hunt render]',err);
+  wrap.innerHTML=`<div class="mh-panel mh-ftn" style="padding:24px;text-align:center;max-width:440px;margin:auto">
+   <h2 style="color:#ff8080">Morph Hunt could not start</h2>
+   <p style="color:#e0e8f0;line-height:1.5">Try a hard refresh. Build <b>${MH_BUILD}</b></p>
+   <button type="button" class="mh-btn primary" onclick="location.href=location.pathname+'?mh=${MH_BUILD}&t='+Date.now()+'#morphhunt'">Reload</button>
+   <button type="button" class="mh-btn ghost" id="mh-leave">Leave</button>
+  </div>`;
+  wrap.querySelector('#mh-leave')?.addEventListener('click',mhClose);
+  if(typeof syncBodyScrollLock==='function')syncBodyScrollLock();
+  return;
+ }
+ if(!document.getElementById('mh-walk-canvas')){
+  wrap.innerHTML=`<div class="mh-panel mh-ftn" style="padding:24px;text-align:center;max-width:420px;margin:auto">
+   <h2 style="color:#ff8080">Old Lithos saved in your browser</h2>
+   <p style="color:#e0e8f0;line-height:1.5">The new <b>walk-around</b> Morph Hunt did not load. Hard refresh:</p>
+   <p style="color:#ffe8a0;font-weight:900">Mac: Cmd+Shift+R · Windows: Ctrl+Shift+R</p>
+   <p style="color:#a0a8b8;font-size:13px">Need build <b>${MH_BUILD}</b> and stamp <b>${MH_KING_STAMP}</b></p>
+   <button type="button" class="mh-btn primary" onclick="location.href=location.pathname+'?morph=${MH_BUILD}&t='+Date.now()+'#morphhunt'">Reload fresh copy</button>
+  </div>`;
+  if(typeof syncBodyScrollLock==='function')syncBodyScrollLock();
+  return;
+ }
+ if(typeof syncBodyScrollLock==='function')syncBodyScrollLock();
+ mhMorphHuntBlurPageFocus();
+ if(mhLikelyIdePreview()){
+  mhToast('💡 Big blue ring outside the game? Open “Safari/Chrome ↗” in the yellow box — Cursor preview focus, not Lithos · '+MH_BUILD);
+ }else if(mhMorphHuntStaleHostHint()){
+  /* toast from hint */
+ }else if(openTab==='hunt'){
+  mhToast((mhAiHasBrain()?'🧠 Gemini brains ON — super chatty Test Buddy & Account! ':'🤖 Script chat (add ai-config key for 🧠) · ')+'/ or ↑ to talk · '+MH_BUILD);
+ }else if(openTab==='stars'){
+  mhToast('⭐ '+MH_BUILD+' · 🎂 Redeem UPDATE100 in Gacha for party confetti!');
+  try{
+   if(!sessionStorage.getItem('lithos_mh_100_party_'+MH_BUILD)){
+    sessionStorage.setItem('lithos_mh_100_party_'+MH_BUILD,'1');
+    setTimeout(()=>mhCelebrationBurst('🎂 Happy 100th UPDATE! Code: UPDATE100'),900);
+   }
+  }catch(_){}
+ }else{
+  mhToast('⚔ WASD move · E fight · Build '+MH_BUILD+' · 🎂 UPDATE100');
+ }
+}
+
+function mhGetWearingMorph(){ return mhMorph(mhLoadWearId()||window.LITHOS_NOOBIE_WEAR); }
+
+window.playMorphHunt=playMorphHunt;
+window.LITHOS_MH_BUILD=MH_BUILD;
+window.LITHOS_MH_CHAT_COMPOSE=MH_CHAT_COMPOSE_UI;
+window.LITHOS_MH_CHAT_UI=MH_CHAT_UI_STAMP;
+window.LITHOS_MH_FEATURES={showcase:MH_FEATURE_SHOWCASE,stamp:MH_SCENERY_STAMP,chatCompose:MH_CHAT_COMPOSE_UI};
+window.LITHOS_MH_KING_STAMP=MH_KING_STAMP;
+window.mhClose=mhClose;
+window.mhRedeemMorphCode=mhRedeemCode;
+window.mhGetWearingMorph=mhGetWearingMorph;
+window.mhClassicNoobSvg=mhClassicNoobSvg;
+window.mhRefreshTeacherNoob=mhRefreshTeacherNoob;
+
+document.addEventListener('DOMContentLoaded',()=>{ mhRefreshTeacherNoob(); });
+if(document.readyState!=='loading') mhRefreshTeacherNoob();
+})();
