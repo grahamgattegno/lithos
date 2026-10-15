@@ -5,9 +5,9 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v132';
-const MH_SCENERY_STAMP='STABLE_v132';
-const MH_SCRIPT_CANON='morph-hunt.void-2d-v132.js';
+const MH_BUILD='void-2d-v133';
+const MH_SCENERY_STAMP='STABLE_v133';
+const MH_SCRIPT_CANON='morph-hunt.void-2d-v133.js';
 const MH_QUEST_STUB_COST=800;
 const MH_TIME_TRAVEL_COST=2000;
 const MH_TIME_TRAVELER_ID='ex-time-traveler';
@@ -147,7 +147,7 @@ const MH_WORLD_PARK_NAMES=[
  ['Neon Park','Vault Green','Exotic Rest','Prism Lawn'],
  ['Fallen Rest','Void Garden','Abyss Green','King Memorial']
 ];
-const MH_TOTAL_COUNT=1146;
+const MH_TOTAL_COUNT=1234;
 const MH_VOID_KING_DEPTH=100;
 const MH_VOID_KING_DIM='5th Dimensional';
 const MH_1000D=false;
@@ -700,6 +700,2342 @@ const MH_SIG_GROUPS=[
  {id:'silly',title:'😂 Silly squad'}
 ];
 
+function mhMorphAuraKey(m){ return m&&(m.questAura||m.auraType)||null; }
+function mhHasMorphAura(m){ const k=mhMorphAuraKey(m); return !!k&&(m.questOnly||m.auraCollectible); }
+function mhPushAuraNoobie(list,spec){
+ const e=spec.extra||{};
+ const cols=spec.cols||['#F5CD30','#0085DB','#A4BD47','#F5CD30','classic'];
+ list.push({
+  id:spec.id,
+  name:(spec.name||'Aura').replace(/ Noobie$/,'')+' Noobie',
+  exclusive:spec.exclusive!==false,
+  auraCollectible:true,
+  world:spec.world==null?0:spec.world,
+  x:50,y:40,
+  scale:spec.scale||1.02+(mhHashStr(spec.id)%7)*0.015,
+  head:cols[0],torso:cols[1],legs:cols[2],arms:cols[3]||cols[0],
+  body:cols[4]||'classic',
+  anim:spec.anim||'float',
+  face:e.face||spec.face||'grin',
+  rarity:spec.rarity==='voidfallen'?'voidfallen':(spec.rarity||'rare'),
+  hat:e.hat||spec.hat||null,
+  prop:e.prop||spec.prop||'sparkler',
+  accent:e.accent||spec.accent||cols[0],
+  questAura:spec.aura,
+  auraType:spec.aura,
+  auraKind:spec.auraKind||'ring',
+  auraOrbit:spec.orbit||[spec.badge||'✨'],
+  auraGlow:e.accent||spec.accent||cols[0],
+  sigBadge:spec.badge||'✨',
+  sigDeco:spec.sigDeco||('<text x="50" y="10" text-anchor="middle" font-size="10">'+(spec.badge||'✨')+'</text>'),
+  sigTag:spec.tag||('✨ '+spec.name+' — aura collectible · groves, fights & gacha'),
+  stripe:!!(e.stripe||spec.stripe),
+  glasses:!!(e.glasses||spec.glasses),
+  voidFallen:!!(e.voidFallen||spec.voidFallen)
+ });
+}
+function mhAuraCollectibleBatch(){
+ const list=[];
+ const T=[
+ {
+  "id": "ex-aura-fire-sprite",
+  "name": "Fire Sprite",
+  "world": 6,
+  "anim": "float",
+  "aura": "fire",
+  "auraKind": "flame",
+  "rarity": "legendary",
+  "badge": "🔥",
+  "cols": [
+   "#ffb080",
+   "#802818",
+   "#501810",
+   "#ffc090",
+   "builder"
+  ],
+  "extra": {
+   "hat": "star",
+   "prop": "sparkler",
+   "accent": "#ff6040",
+   "orbit": [
+    "🔥",
+    "✨",
+    "🔥",
+    "💥"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-frost-shard",
+  "name": "Frost Shard",
+  "world": 5,
+  "anim": "pulse",
+  "aura": "frost",
+  "auraKind": "shard",
+  "rarity": "epic",
+  "badge": "❄",
+  "cols": [
+   "#c0e8ff",
+   "#4080c0",
+   "#204878",
+   "#e8f8ff",
+   "tall"
+  ],
+  "extra": {
+   "orbit": [
+    "❄",
+    "💎",
+    "❄",
+    "🧊"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-storm-caller",
+  "name": "Storm Caller",
+  "world": 2,
+  "anim": "sway",
+  "aura": "storm",
+  "auraKind": "storm",
+  "rarity": "legendary",
+  "badge": "⛈",
+  "cols": [
+   "#8090a8",
+   "#304060",
+   "#203040",
+   "#a0b0c8",
+   "tall"
+  ],
+  "extra": {
+   "prop": "umbrella",
+   "accent": "#6080ff",
+   "orbit": [
+    "⛈",
+    "☁",
+    "⚡",
+    "💧"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-lightning-zip",
+  "name": "Lightning Zip",
+  "world": 4,
+  "anim": "glitch",
+  "aura": "lightning",
+  "auraKind": "spark",
+  "rarity": "secret",
+  "badge": "⚡",
+  "cols": [
+   "#ffe860",
+   "#283848",
+   "#182028",
+   "#ffffa0",
+   "robot"
+  ],
+  "extra": {
+   "face": "w",
+   "accent": "#ffff40",
+   "orbit": [
+    "⚡",
+    "✦",
+    "⚡",
+    "💫"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-ocean-pearl",
+  "name": "Ocean Pearl",
+  "world": 2,
+  "anim": "float",
+  "aura": "ocean",
+  "auraKind": "bubble",
+  "rarity": "epic",
+  "badge": "🐚",
+  "cols": [
+   "#80d8ff",
+   "#0085db",
+   "#006898",
+   "#a8e8ff",
+   "chibi"
+  ],
+  "extra": {
+   "prop": "umbrella",
+   "orbit": [
+    "🫧",
+    "🐚",
+    "🌊",
+    "🫧"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-sunflower",
+  "name": "Sunflower",
+  "world": 1,
+  "anim": "sway",
+  "aura": "sunflower",
+  "auraKind": "orbit",
+  "rarity": "rare",
+  "badge": "🌻",
+  "cols": [
+   "#ffe860",
+   "#508020",
+   "#406818",
+   "#ffe8a0",
+   "classic"
+  ],
+  "extra": {
+   "hat": "bow",
+   "orbit": [
+    "🌻",
+    "☀",
+    "🌻",
+    "🐝"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-comet-rider",
+  "name": "Comet Rider",
+  "world": 5,
+  "anim": "spin",
+  "aura": "comet",
+  "auraKind": "orbit",
+  "rarity": "legendary",
+  "badge": "☄",
+  "cols": [
+   "#c0d0ff",
+   "#304878",
+   "#203058",
+   "#ffe8a0",
+   "tall"
+  ],
+  "extra": {
+   "hat": "voidhalo",
+   "prop": "rocket",
+   "accent": "#80a0ff",
+   "orbit": [
+    "☄",
+    "⭐",
+    "💫",
+    "☄"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-black-hole",
+  "name": "Black Hole",
+  "world": 9,
+  "anim": "glitch",
+  "aura": "blackhole",
+  "auraKind": "glitch",
+  "rarity": "secret",
+  "badge": "🕳",
+  "cols": [
+   "#180818",
+   "#080010",
+   "#000008",
+   "#9040ff",
+   "ghost"
+  ],
+  "extra": {
+   "face": "w",
+   "voidFallen": true,
+   "accent": "#8040ff",
+   "orbit": [
+    "🕳",
+    "…",
+    "🕳",
+    "⌬"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-neon-dj",
+  "name": "Neon DJ",
+  "world": 8,
+  "anim": "bounce",
+  "aura": "neondj",
+  "auraKind": "pulse",
+  "rarity": "exclusive",
+  "badge": "🎧",
+  "cols": [
+   "#ff48e8",
+   "#0a1830",
+   "#081020",
+   "#40ffff",
+   "tall"
+  ],
+  "extra": {
+   "hat": "headphones",
+   "prop": "sparkler",
+   "accent": "#ff40c0",
+   "orbit": [
+    "🎧",
+    "💿",
+    "🎵",
+    "✨"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-pixel-knight",
+  "name": "Pixel Knight",
+  "world": 4,
+  "anim": "hop",
+  "aura": "pixel",
+  "auraKind": "glitch",
+  "rarity": "epic",
+  "badge": "👾",
+  "cols": [
+   "#39ff14",
+   "#283040",
+   "#1a2030",
+   "#80ffb0",
+   "robot"
+  ],
+  "extra": {
+   "prop": "sword",
+   "orbit": [
+    "▣",
+    "⚔",
+    "▣",
+    "👾"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-ruby-gem",
+  "name": "Ruby Gem",
+  "world": 3,
+  "anim": "pulse",
+  "aura": "ruby",
+  "auraKind": "shard",
+  "rarity": "legendary",
+  "badge": "💎",
+  "cols": [
+   "#ff6080",
+   "#802040",
+   "#501830",
+   "#ffb0c0",
+   "chibi"
+  ],
+  "extra": {
+   "hat": "gem",
+   "prop": "gemstick",
+   "accent": "#ff2060",
+   "orbit": [
+    "💎",
+    "✨",
+    "💎",
+    "♦"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-emerald-sage",
+  "name": "Emerald Sage",
+  "world": 3,
+  "anim": "float",
+  "aura": "emerald",
+  "auraKind": "ring",
+  "rarity": "epic",
+  "badge": "🍀",
+  "cols": [
+   "#80ff90",
+   "#208040",
+   "#184830",
+   "#c0ffc0",
+   "classic"
+  ],
+  "extra": {
+   "glasses": true,
+   "prop": "book",
+   "orbit": [
+    "🍀",
+    "💚",
+    "✨",
+    "🍀"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-sapphire-wave",
+  "name": "Sapphire Wave",
+  "world": 2,
+  "anim": "sway",
+  "aura": "sapphire",
+  "auraKind": "bubble",
+  "rarity": "rare",
+  "badge": "💙",
+  "cols": [
+   "#4080ff",
+   "#1040a0",
+   "#083070",
+   "#80c0ff",
+   "classic"
+  ],
+  "extra": {
+   "orbit": [
+    "💙",
+    "🌊",
+    "💙",
+    "✦"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-amethyst-mystic",
+  "name": "Amethyst Mystic",
+  "world": 7,
+  "anim": "float",
+  "aura": "amethyst",
+  "auraKind": "storm",
+  "rarity": "legendary",
+  "badge": "🔮",
+  "cols": [
+   "#c080ff",
+   "#502080",
+   "#301050",
+   "#e0c0ff",
+   "tall"
+  ],
+  "extra": {
+   "hat": "voidhalo",
+   "prop": "book",
+   "accent": "#b060ff",
+   "orbit": [
+    "🔮",
+    "✨",
+    "🔮",
+    "💫"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-topaz-flash",
+  "name": "Topaz Flash",
+  "world": 1,
+  "anim": "bounce",
+  "aura": "topaz",
+  "auraKind": "spark",
+  "rarity": "uncommon",
+  "badge": "⚡",
+  "cols": [
+   "#ffd060",
+   "#a08020",
+   "#806010",
+   "#ffe8a0",
+   "chibi"
+  ],
+  "extra": {
+   "hat": "star",
+   "orbit": [
+    "💛",
+    "✨",
+    "💛",
+    "⭐"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-opal-dream",
+  "name": "Opal Dream",
+  "world": 8,
+  "anim": "float",
+  "aura": "opal",
+  "auraKind": "pulse",
+  "rarity": "secret",
+  "badge": "🌈",
+  "cols": [
+   "#ffe0ff",
+   "#9080c0",
+   "#605080",
+   "#ffffff",
+   "chibi"
+  ],
+  "extra": {
+   "orbit": [
+    "🌈",
+    "✨",
+    "💎",
+    "🌈"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-rain-dancer",
+  "name": "Rain Dancer",
+  "world": 2,
+  "anim": "sway",
+  "aura": "rain",
+  "auraKind": "storm",
+  "rarity": "rare",
+  "badge": "🌧",
+  "cols": [
+   "#8090b0",
+   "#405878",
+   "#304860",
+   "#c0d0e8",
+   "classic"
+  ],
+  "extra": {
+   "prop": "umbrella",
+   "orbit": [
+    "🌧",
+    "☔",
+    "💧",
+    "🌧"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-snow-globe",
+  "name": "Snow Globe",
+  "world": 5,
+  "anim": "float",
+  "aura": "snowglobe",
+  "auraKind": "bubble",
+  "rarity": "epic",
+  "badge": "🎄",
+  "cols": [
+   "#e8f0ff",
+   "#6080a0",
+   "#406080",
+   "#ffffff",
+   "chibi"
+  ],
+  "extra": {
+   "orbit": [
+    "❄",
+    "🎄",
+    "❄",
+    "✨"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-sandstorm",
+  "name": "Sandstorm Scout",
+  "world": 3,
+  "anim": "hop",
+  "aura": "sandstorm",
+  "auraKind": "storm",
+  "rarity": "rare",
+  "badge": "🏜",
+  "cols": [
+   "#e8c890",
+   "#a08050",
+   "#705838",
+   "#ffe8c0",
+   "builder"
+  ],
+  "extra": {
+   "hat": "bow",
+   "orbit": [
+    "🏜",
+    "💨",
+    "🌵",
+    "☀"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-aurora",
+  "name": "Aurora Weaver",
+  "world": 5,
+  "anim": "float",
+  "aura": "aurora",
+  "auraKind": "pulse",
+  "rarity": "legendary",
+  "badge": "🌌",
+  "cols": [
+   "#80ffb0",
+   "#204878",
+   "#183058",
+   "#ff80c0",
+   "tall"
+  ],
+  "extra": {
+   "accent": "#80e0ff",
+   "orbit": [
+    "🌌",
+    "💚",
+    "💜",
+    "✨"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-volcano-core",
+  "name": "Volcano Core",
+  "world": 6,
+  "anim": "pulse",
+  "aura": "volcano",
+  "auraKind": "flame",
+  "rarity": "legendary",
+  "badge": "🌋",
+  "cols": [
+   "#ff8060",
+   "#802818",
+   "#501810",
+   "#ffc090",
+   "builder"
+  ],
+  "extra": {
+   "prop": "rocket",
+   "orbit": [
+    "🌋",
+    "🔥",
+    "🌋",
+    "💥"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-tidal-trident",
+  "name": "Tidal Trident",
+  "world": 2,
+  "anim": "sway",
+  "aura": "tidal",
+  "auraKind": "orbit",
+  "rarity": "epic",
+  "badge": "🔱",
+  "cols": [
+   "#60c0ff",
+   "#006898",
+   "#004878",
+   "#a0e8ff",
+   "tall"
+  ],
+  "extra": {
+   "prop": "gemstick",
+   "orbit": [
+    "🔱",
+    "🌊",
+    "🐟",
+    "🔱"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-coral-reef",
+  "name": "Coral Reef",
+  "world": 2,
+  "anim": "bounce",
+  "aura": "coral",
+  "auraKind": "bubble",
+  "rarity": "uncommon",
+  "badge": "🪸",
+  "cols": [
+   "#ff9080",
+   "#0085db",
+   "#006898",
+   "#ffc0b0",
+   "chibi"
+  ],
+  "extra": {
+   "orbit": [
+    "🪸",
+    "🐠",
+    "🫧",
+    "🪸"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-deep-abyss",
+  "name": "Deep Abyss",
+  "world": 9,
+  "anim": "float",
+  "aura": "deepabyss",
+  "auraKind": "storm",
+  "rarity": "secret",
+  "badge": "🦑",
+  "cols": [
+   "#102030",
+   "#081820",
+   "#040810",
+   "#4080a0",
+   "ghost"
+  ],
+  "extra": {
+   "voidFallen": true,
+   "face": "w",
+   "orbit": [
+    "🦑",
+    "🕳",
+    "💀",
+    "🦑"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-moon-phase",
+  "name": "Moon Phase",
+  "world": 5,
+  "anim": "spin",
+  "aura": "moon",
+  "auraKind": "ring",
+  "rarity": "epic",
+  "badge": "🌙",
+  "cols": [
+   "#d0d8ff",
+   "#404878",
+   "#283058",
+   "#f0f0ff",
+   "classic"
+  ],
+  "extra": {
+   "hat": "voidhalo",
+   "orbit": [
+    "🌙",
+    "⭐",
+    "🌙",
+    "✨"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-solar-flare",
+  "name": "Solar Flare",
+  "world": 6,
+  "anim": "pulse",
+  "aura": "solar",
+  "auraKind": "flame",
+  "rarity": "exclusive",
+  "badge": "☀",
+  "cols": [
+   "#ffe040",
+   "#ff8040",
+   "#c04010",
+   "#ffffa0",
+   "tall"
+  ],
+  "extra": {
+   "hat": "star",
+   "orbit": [
+    "☀",
+    "🔥",
+    "☀",
+    "💥"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-starfall",
+  "name": "Starfall",
+  "world": 8,
+  "anim": "float",
+  "aura": "starfall",
+  "auraKind": "spark",
+  "rarity": "legendary",
+  "badge": "⭐",
+  "cols": [
+   "#ffffc0",
+   "#6040a0",
+   "#402080",
+   "#ffffff",
+   "chibi"
+  ],
+  "extra": {
+   "hat": "gem",
+   "orbit": [
+    "⭐",
+    "💫",
+    "⭐",
+    "✨"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-meteor-mite",
+  "name": "Meteor Mite",
+  "world": 7,
+  "anim": "hop",
+  "aura": "meteor",
+  "auraKind": "shard",
+  "rarity": "rare",
+  "badge": "🪨",
+  "cols": [
+   "#a09080",
+   "#504840",
+   "#383028",
+   "#d0c8c0",
+   "builder"
+  ],
+  "extra": {
+   "prop": "rocket",
+   "orbit": [
+    "🪨",
+    "☄",
+    "💥",
+    "🪨"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-galaxy-guard",
+  "name": "Galaxy Guard",
+  "world": 8,
+  "anim": "sway",
+  "aura": "galaxy",
+  "auraKind": "orbit",
+  "rarity": "secret",
+  "badge": "🌠",
+  "cols": [
+   "#8040ff",
+   "#180828",
+   "#100018",
+   "#c898ff",
+   "tall"
+  ],
+  "extra": {
+   "hat": "voidhalo",
+   "orbit": [
+    "🌠",
+    "🪐",
+    "🌠",
+    "✨"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-astronaut",
+  "name": "Astronaut Ace",
+  "world": 5,
+  "anim": "float",
+  "aura": "astronaut",
+  "auraKind": "ring",
+  "rarity": "legendary",
+  "badge": "👨‍🚀",
+  "cols": [
+   "#e8e8e8",
+   "#204878",
+   "#183058",
+   "#ffffff",
+   "tall"
+  ],
+  "extra": {
+   "glasses": true,
+   "prop": "rocket",
+   "orbit": [
+    "🚀",
+    "🌙",
+    "🛸",
+    "⭐"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-ufo-abduct",
+  "name": "UFO Abduct",
+  "world": 8,
+  "anim": "glitch",
+  "aura": "ufo",
+  "auraKind": "glitch",
+  "rarity": "exclusive",
+  "badge": "🛸",
+  "cols": [
+   "#80ff90",
+   "#283040",
+   "#1a2030",
+   "#c0ffc0",
+   "robot"
+  ],
+  "extra": {
+   "face": "o",
+   "orbit": [
+    "🛸",
+    "👽",
+    "🛸",
+    "✨"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-satellite",
+  "name": "Satellite Ping",
+  "world": 4,
+  "anim": "spin",
+  "aura": "satellite",
+  "auraKind": "spark",
+  "rarity": "rare",
+  "badge": "📡",
+  "cols": [
+   "#c0c8d0",
+   "#384858",
+   "#283040",
+   "#80e0ff",
+   "robot"
+  ],
+  "extra": {
+   "orbit": [
+    "📡",
+    "📶",
+    "📡",
+    "✦"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-candy-corn",
+  "name": "Candy Corn",
+  "world": 1,
+  "anim": "bounce",
+  "aura": "candy",
+  "auraKind": "orbit",
+  "rarity": "common",
+  "badge": "🍬",
+  "cols": [
+   "#ffe860",
+   "#ff8040",
+   "#ffe8a0",
+   "#ffffff",
+   "chibi"
+  ],
+  "extra": {
+   "hat": "party",
+   "orbit": [
+    "🍬",
+    "🍭",
+    "🍬",
+    "✨"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-chocolate",
+  "name": "Chocolate Chunk",
+  "world": 0,
+  "anim": "sway",
+  "aura": "chocolate",
+  "auraKind": "pulse",
+  "rarity": "uncommon",
+  "badge": "🍫",
+  "cols": [
+   "#806040",
+   "#503020",
+   "#382018",
+   "#a08060",
+   "classic"
+  ],
+  "extra": {
+   "orbit": [
+    "🍫",
+    "✨",
+    "🍫",
+    "🍪"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-bubble-tea",
+  "name": "Bubble Tea",
+  "world": 0,
+  "anim": "float",
+  "aura": "bubbletea",
+  "auraKind": "bubble",
+  "rarity": "rare",
+  "badge": "🧋",
+  "cols": [
+   "#ffc0d0",
+   "#804060",
+   "#603048",
+   "#ffe0f0",
+   "chibi"
+  ],
+  "extra": {
+   "orbit": [
+    "🧋",
+    "🫧",
+    "🧋",
+    "✨"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-pizza-cutter",
+  "name": "Pizza Cutter",
+  "world": 1,
+  "anim": "hop",
+  "aura": "pizzacutter",
+  "auraKind": "flame",
+  "rarity": "uncommon",
+  "badge": "🍕",
+  "cols": [
+   "#ff6040",
+   "#ffe8a0",
+   "#0085DB",
+   "#ff8060",
+   "classic"
+  ],
+  "extra": {
+   "prop": "rocket",
+   "orbit": [
+    "🍕",
+    "🔥",
+    "🍕",
+    "⭐"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-taco-tuesday",
+  "name": "Taco Tuesday",
+  "world": 1,
+  "anim": "bounce",
+  "aura": "taco",
+  "auraKind": "orbit",
+  "rarity": "rare",
+  "badge": "🌮",
+  "cols": [
+   "#ffe860",
+   "#c04020",
+   "#803018",
+   "#80c040",
+   "chibi"
+  ],
+  "extra": {
+   "orbit": [
+    "🌮",
+    "🌶",
+    "🌮",
+    "✨"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-sushi-roll",
+  "name": "Sushi Roll",
+  "world": 2,
+  "anim": "float",
+  "aura": "sushi",
+  "auraKind": "ring",
+  "rarity": "epic",
+  "badge": "🍣",
+  "cols": [
+   "#ffe8e0",
+   "#802030",
+   "#501820",
+   "#80ffb0",
+   "classic"
+  ],
+  "extra": {
+   "orbit": [
+    "🍣",
+    "🥢",
+    "🍣",
+    "✨"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-ice-cream",
+  "name": "Ice Cream Swirl",
+  "world": 1,
+  "anim": "spin",
+  "aura": "icecream",
+  "auraKind": "bubble",
+  "rarity": "common",
+  "badge": "🍦",
+  "cols": [
+   "#ffe0f0",
+   "#ff80c0",
+   "#c04080",
+   "#ffffff",
+   "chibi"
+  ],
+  "extra": {
+   "hat": "party",
+   "orbit": [
+    "🍦",
+    "🫧",
+    "🍦",
+    "✨"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-soccer-star",
+  "name": "Soccer Star",
+  "world": 1,
+  "anim": "hop",
+  "aura": "soccer",
+  "auraKind": "spark",
+  "rarity": "rare",
+  "badge": "⚽",
+  "cols": [
+   "#ffffff",
+   "#0085db",
+   "#006898",
+   "#ffe860",
+   "classic"
+  ],
+  "extra": {
+   "prop": "trophy",
+   "orbit": [
+    "⚽",
+    "⭐",
+    "⚽",
+    "🏆"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-basket-dunk",
+  "name": "Basket Dunk",
+  "world": 0,
+  "anim": "bounce",
+  "aura": "basket",
+  "auraKind": "pulse",
+  "rarity": "uncommon",
+  "badge": "🏀",
+  "cols": [
+   "#ff8040",
+   "#802040",
+   "#501830",
+   "#ffe8a0",
+   "tall"
+  ],
+  "extra": {
+   "prop": "trophy",
+   "orbit": [
+    "🏀",
+    "🔥",
+    "🏀",
+    "⭐"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-skate-kickflip",
+  "name": "Skate Kickflip",
+  "world": 1,
+  "anim": "hop",
+  "aura": "skate",
+  "auraKind": "orbit",
+  "rarity": "epic",
+  "badge": "🛹",
+  "cols": [
+   "#ff48e8",
+   "#283040",
+   "#1a2030",
+   "#ffe8a0",
+   "classic"
+  ],
+  "extra": {
+   "prop": "skate",
+   "orbit": [
+    "🛹",
+    "💨",
+    "🛹",
+    "⭐"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-tennis-ace",
+  "name": "Tennis Ace",
+  "world": 0,
+  "anim": "sway",
+  "aura": "tennis",
+  "auraKind": "ring",
+  "rarity": "rare",
+  "badge": "🎾",
+  "cols": [
+   "#c0ff80",
+   "#ffffff",
+   "#408040",
+   "#ffe860",
+   "classic"
+  ],
+  "extra": {
+   "orbit": [
+    "🎾",
+    "✨",
+    "🎾",
+    "🏆"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-music-note",
+  "name": "Music Note",
+  "world": 0,
+  "anim": "bounce",
+  "aura": "music",
+  "auraKind": "pulse",
+  "rarity": "epic",
+  "badge": "🎵",
+  "cols": [
+   "#ff48e8",
+   "#8020ff",
+   "#401080",
+   "#ffe080",
+   "chibi"
+  ],
+  "extra": {
+   "hat": "headphones",
+   "prop": "sparkler",
+   "orbit": [
+    "🎵",
+    "🎶",
+    "🎵",
+    "✨"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-rock-guitar",
+  "name": "Rock Guitar",
+  "world": 1,
+  "anim": "sway",
+  "aura": "rockguitar",
+  "auraKind": "spark",
+  "rarity": "legendary",
+  "badge": "🎸",
+  "cols": [
+   "#283040",
+   "#802050",
+   "#501030",
+   "#ffe8a0",
+   "tall"
+  ],
+  "extra": {
+   "hat": "star",
+   "orbit": [
+    "🎸",
+    "🔥",
+    "🎸",
+    "⭐"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-drum-beat",
+  "name": "Drum Beat",
+  "world": 1,
+  "anim": "pulse",
+  "aura": "drum",
+  "auraKind": "storm",
+  "rarity": "rare",
+  "badge": "🥁",
+  "cols": [
+   "#c04040",
+   "#802030",
+   "#501820",
+   "#ffe8a0",
+   "builder"
+  ],
+  "extra": {
+   "orbit": [
+    "🥁",
+    "💥",
+    "🥁",
+    "🎵"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-vinyl-spin",
+  "name": "Vinyl Spin",
+  "world": 8,
+  "anim": "spin",
+  "aura": "vinyl",
+  "auraKind": "orbit",
+  "rarity": "secret",
+  "badge": "💿",
+  "cols": [
+   "#101018",
+   "#404050",
+   "#282830",
+   "#ff48e8",
+   "tall"
+  ],
+  "extra": {
+   "hat": "headphones",
+   "orbit": [
+    "💿",
+    "🎵",
+    "💿",
+    "✨"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-circuit-board",
+  "name": "Circuit Board",
+  "world": 4,
+  "anim": "glitch",
+  "aura": "circuit",
+  "auraKind": "glitch",
+  "rarity": "epic",
+  "badge": "💻",
+  "cols": [
+   "#39ff14",
+   "#0a1808",
+   "#081008",
+   "#80ffb0",
+   "robot"
+  ],
+  "extra": {
+   "face": "w",
+   "orbit": [
+    "💻",
+    "01",
+    "⌨",
+    "💻"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-holo-chip",
+  "name": "Holo Chip",
+  "world": 8,
+  "anim": "pulse",
+  "aura": "holochip",
+  "auraKind": "shard",
+  "rarity": "legendary",
+  "badge": "🖥",
+  "cols": [
+   "#40ffff",
+   "#102838",
+   "#081820",
+   "#80e0ff",
+   "robot"
+  ],
+  "extra": {
+   "glasses": true,
+   "orbit": [
+    "🖥",
+    "💾",
+    "🖥",
+    "✦"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-wifi-ghost",
+  "name": "WiFi Ghost",
+  "world": 4,
+  "anim": "float",
+  "aura": "wifi",
+  "auraKind": "spark",
+  "rarity": "uncommon",
+  "badge": "📶",
+  "cols": [
+   "#a0e8ff",
+   "#283040",
+   "#1a2030",
+   "#ffffff",
+   "ghost"
+  ],
+  "extra": {
+   "orbit": [
+    "📶",
+    "👻",
+    "📶",
+    "✨"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-robot-servo",
+  "name": "Robot Servo",
+  "world": 4,
+  "anim": "robot",
+  "aura": "robot",
+  "auraKind": "ring",
+  "rarity": "rare",
+  "badge": "🤖",
+  "cols": [
+   "#c0c8d0",
+   "#506080",
+   "#384858",
+   "#80e0ff",
+   "robot"
+  ],
+  "extra": {
+   "orbit": [
+    "🤖",
+    "⚙",
+    "🤖",
+    "✦"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-mech-pilot",
+  "name": "Mech Pilot",
+  "world": 7,
+  "anim": "pulse",
+  "aura": "mech",
+  "auraKind": "shard",
+  "rarity": "exclusive",
+  "badge": "🦾",
+  "cols": [
+   "#8090a0",
+   "#283848",
+   "#182028",
+   "#ffd060",
+   "tall"
+  ],
+  "extra": {
+   "glasses": true,
+   "prop": "rocket",
+   "orbit": [
+    "🦾",
+    "⚙",
+    "🦾",
+    "💥"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-samurai-bloom",
+  "name": "Samurai Bloom",
+  "world": 7,
+  "anim": "sway",
+  "aura": "samurai",
+  "auraKind": "flame",
+  "rarity": "legendary",
+  "badge": "⛩",
+  "cols": [
+   "#ff6060",
+   "#283040",
+   "#182028",
+   "#ffe8a0",
+   "tall"
+  ],
+  "extra": {
+   "prop": "sword",
+   "hat": "bow",
+   "orbit": [
+    "⛩",
+    "⚔",
+    "🌸",
+    "⛩"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-pirate-gold",
+  "name": "Pirate Gold",
+  "world": 2,
+  "anim": "bounce",
+  "aura": "pirate",
+  "auraKind": "orbit",
+  "rarity": "epic",
+  "badge": "🏴‍☠️",
+  "cols": [
+   "#ffe860",
+   "#283848",
+   "#182028",
+   "#ffe8a0",
+   "classic"
+  ],
+  "extra": {
+   "hat": "crown",
+   "prop": "trophy",
+   "orbit": [
+    "🏴‍☠️",
+    "💰",
+    "⚓",
+    "🏴‍☠️"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-wizard-spell",
+  "name": "Wizard Spell",
+  "world": 7,
+  "anim": "float",
+  "aura": "wizard",
+  "auraKind": "storm",
+  "rarity": "legendary",
+  "badge": "🧙",
+  "cols": [
+   "#8040c0",
+   "#283058",
+   "#182040",
+   "#ffd060",
+   "tall"
+  ],
+  "extra": {
+   "hat": "voidhalo",
+   "prop": "book",
+   "orbit": [
+    "🧙",
+    "✨",
+    "📜",
+    "🧙"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-vampire-mist",
+  "name": "Vampire Mist",
+  "world": 9,
+  "anim": "glitch",
+  "aura": "vampire",
+  "auraKind": "glitch",
+  "rarity": "secret",
+  "badge": "🧛",
+  "cols": [
+   "#802040",
+   "#180810",
+   "#100008",
+   "#ff6080",
+   "ghost"
+  ],
+  "extra": {
+   "voidFallen": true,
+   "face": "w",
+   "orbit": [
+    "🧛",
+    "🦇",
+    "🩸",
+    "🧛"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-fairy-dust",
+  "name": "Fairy Dust",
+  "world": 5,
+  "anim": "float",
+  "aura": "fairy",
+  "auraKind": "spark",
+  "rarity": "epic",
+  "badge": "🧚",
+  "cols": [
+   "#ffc0ff",
+   "#8040a0",
+   "#502070",
+   "#ffffff",
+   "chibi"
+  ],
+  "extra": {
+   "hat": "gem",
+   "orbit": [
+    "🧚",
+    "✨",
+    "🦋",
+    "🧚"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-dragon-scale",
+  "name": "Dragon Scale",
+  "world": 6,
+  "anim": "pulse",
+  "aura": "dragon",
+  "auraKind": "flame",
+  "rarity": "exclusive",
+  "badge": "🐉",
+  "cols": [
+   "#ff6040",
+   "#802818",
+   "#501810",
+   "#ffd060",
+   "tall"
+  ],
+  "extra": {
+   "prop": "sword",
+   "orbit": [
+    "🐉",
+    "🔥",
+    "🐉",
+    "💥"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-phoenix-ash",
+  "name": "Phoenix Ash",
+  "world": 6,
+  "anim": "float",
+  "aura": "phoenix",
+  "auraKind": "flame",
+  "rarity": "secret",
+  "badge": "🔥",
+  "cols": [
+   "#ff9040",
+   "#802040",
+   "#501020",
+   "#ffe860",
+   "tall"
+  ],
+  "extra": {
+   "hat": "star",
+   "orbit": [
+    "🔥",
+    "🐦",
+    "🔥",
+    "✨"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-ghost-lantern",
+  "name": "Ghost Lantern",
+  "world": 4,
+  "anim": "sway",
+  "aura": "ghostlantern",
+  "auraKind": "pulse",
+  "rarity": "rare",
+  "badge": "👻",
+  "cols": [
+   "#d0d0ff",
+   "#404878",
+   "#283058",
+   "#ffffff",
+   "ghost"
+  ],
+  "extra": {
+   "face": "w",
+   "orbit": [
+    "👻",
+    "🕯",
+    "👻",
+    "✨"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-clockwork",
+  "name": "Clockwork Tick",
+  "world": 0,
+  "anim": "spin",
+  "aura": "clockwork",
+  "auraKind": "ring",
+  "rarity": "legendary",
+  "badge": "⏰",
+  "cols": [
+   "#d8c8a0",
+   "#806840",
+   "#604830",
+   "#ffe8a0",
+   "classic"
+  ],
+  "extra": {
+   "glasses": true,
+   "prop": "book",
+   "orbit": [
+    "⏰",
+    "⚙",
+    "⏰",
+    "✨"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-hourglass",
+  "name": "Hourglass Flow",
+  "world": 7,
+  "anim": "float",
+  "aura": "hourglass",
+  "auraKind": "shard",
+  "rarity": "epic",
+  "badge": "⌛",
+  "cols": [
+   "#ffe860",
+   "#806040",
+   "#604830",
+   "#ffffff",
+   "tall"
+  ],
+  "extra": {
+   "orbit": [
+    "⌛",
+    "💫",
+    "⌛",
+    "✨"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-rainbow-prism",
+  "name": "Rainbow Prism",
+  "world": 8,
+  "anim": "spin",
+  "aura": "prism",
+  "auraKind": "pulse",
+  "rarity": "legendary",
+  "badge": "🌈",
+  "cols": [
+   "#ffe0ff",
+   "#ff8080",
+   "#80c0ff",
+   "#ffffa0",
+   "chibi"
+  ],
+  "extra": {
+   "orbit": [
+    "🌈",
+    "💎",
+    "🌈",
+    "✨"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-shadow-cloak",
+  "name": "Shadow Cloak",
+  "world": 4,
+  "anim": "glitch",
+  "aura": "shadow",
+  "auraKind": "storm",
+  "rarity": "secret",
+  "badge": "🌑",
+  "cols": [
+   "#283040",
+   "#101820",
+   "#080810",
+   "#6040a0",
+   "ghost"
+  ],
+  "extra": {
+   "face": "w",
+   "orbit": [
+    "🌑",
+    "👁",
+    "🌑",
+    "…"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-laser-neon",
+  "name": "Laser Neon",
+  "world": 8,
+  "anim": "pulse",
+  "aura": "laserneon",
+  "auraKind": "spark",
+  "rarity": "exclusive",
+  "badge": "💜",
+  "cols": [
+   "#ff40ff",
+   "#0a0830",
+   "#080820",
+   "#40ffff",
+   "tall"
+  ],
+  "extra": {
+   "stripe": true,
+   "orbit": [
+    "💜",
+    "⚡",
+    "💜",
+    "✨"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-glitch-static",
+  "name": "Glitch Static",
+  "world": 9,
+  "anim": "glitch",
+  "aura": "glitchstatic",
+  "auraKind": "glitch",
+  "rarity": "voidfallen",
+  "badge": "📺",
+  "cols": [
+   "#39ff14",
+   "#180818",
+   "#100010",
+   "#ff4080",
+   "robot"
+  ],
+  "extra": {
+   "voidFallen": true,
+   "face": "w",
+   "orbit": [
+    "📺",
+    "01",
+    "//",
+    "📺"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-koi-pond",
+  "name": "Koi Pond",
+  "world": 0,
+  "anim": "float",
+  "aura": "koi",
+  "auraKind": "bubble",
+  "rarity": "rare",
+  "badge": "🐟",
+  "cols": [
+   "#ffe8a0",
+   "#c04020",
+   "#802818",
+   "#80ffb0",
+   "chibi"
+  ],
+  "extra": {
+   "orbit": [
+    "🐟",
+    "🌸",
+    "🐟",
+    "🫧"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-bamboo-ninja",
+  "name": "Bamboo Ninja",
+  "world": 7,
+  "anim": "hop",
+  "aura": "ninja",
+  "auraKind": "shard",
+  "rarity": "legendary",
+  "badge": "🥷",
+  "cols": [
+   "#283040",
+   "#184830",
+   "#103020",
+   "#ffe8a0",
+   "classic"
+  ],
+  "extra": {
+   "prop": "sword",
+   "orbit": [
+    "🥷",
+    "🎋",
+    "🥷",
+    "✨"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-cactus-cowboy",
+  "name": "Cactus Cowboy",
+  "world": 3,
+  "anim": "sway",
+  "aura": "cactus",
+  "auraKind": "ring",
+  "rarity": "uncommon",
+  "badge": "🌵",
+  "cols": [
+   "#80c040",
+   "#806040",
+   "#604830",
+   "#ffe860",
+   "builder"
+  ],
+  "extra": {
+   "hat": "star",
+   "orbit": [
+    "🌵",
+    "🤠",
+    "🌵",
+    "⭐"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-mushroom-cap",
+  "name": "Mushroom Cap",
+  "world": 3,
+  "anim": "bounce",
+  "aura": "mushroom",
+  "auraKind": "orbit",
+  "rarity": "rare",
+  "badge": "🍄",
+  "cols": [
+   "#ff9080",
+   "#ffe8a0",
+   "#806040",
+   "#ffffff",
+   "chibi"
+  ],
+  "extra": {
+   "hat": "party",
+   "orbit": [
+    "🍄",
+    "✨",
+    "🍄",
+    "🌿"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-lighthouse",
+  "name": "Lighthouse Beam",
+  "world": 2,
+  "anim": "pulse",
+  "aura": "lighthouse",
+  "auraKind": "spark",
+  "rarity": "epic",
+  "badge": "🗼",
+  "cols": [
+   "#ffffff",
+   "#c04020",
+   "#802818",
+   "#ffe860",
+   "tall"
+  ],
+  "extra": {
+   "orbit": [
+    "🗼",
+    "💡",
+    "🗼",
+    "🌊"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-treasure-map",
+  "name": "Treasure Map",
+  "world": 3,
+  "anim": "sway",
+  "aura": "treasure",
+  "auraKind": "orbit",
+  "rarity": "legendary",
+  "badge": "🗺",
+  "cols": [
+   "#d8c8a0",
+   "#806840",
+   "#604830",
+   "#ffe8a0",
+   "classic"
+  ],
+  "extra": {
+   "prop": "book",
+   "orbit": [
+    "🗺",
+    "💎",
+    "🗺",
+    "✨"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-compass-rose",
+  "name": "Compass Rose",
+  "world": 5,
+  "anim": "spin",
+  "aura": "compass",
+  "auraKind": "ring",
+  "rarity": "rare",
+  "badge": "🧭",
+  "cols": [
+   "#ffe860",
+   "#204878",
+   "#183058",
+   "#ffffff",
+   "classic"
+  ],
+  "extra": {
+   "orbit": [
+    "🧭",
+    "⭐",
+    "🧭",
+    "✨"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-feather-quill",
+  "name": "Feather Quill",
+  "world": 0,
+  "anim": "float",
+  "aura": "quill",
+  "auraKind": "pulse",
+  "rarity": "epic",
+  "badge": "🪶",
+  "cols": [
+   "#f0e0c0",
+   "#804030",
+   "#503020",
+   "#ffe8a0",
+   "tall"
+  ],
+  "extra": {
+   "prop": "book",
+   "orbit": [
+    "🪶",
+    "📜",
+    "🪶",
+    "✨"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-crown-jewel",
+  "name": "Crown Jewel",
+  "world": 8,
+  "anim": "bounce",
+  "aura": "crownjewel",
+  "auraKind": "shard",
+  "rarity": "exclusive",
+  "badge": "👑",
+  "cols": [
+   "#ffd060",
+   "#8020ff",
+   "#401080",
+   "#ffffff",
+   "tall"
+  ],
+  "extra": {
+   "hat": "crown",
+   "prop": "gemstick",
+   "orbit": [
+    "👑",
+    "💎",
+    "👑",
+    "✨"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-silver-wolf",
+  "name": "Silver Wolf",
+  "world": 6,
+  "anim": "hop",
+  "aura": "silverwolf",
+  "auraKind": "storm",
+  "rarity": "secret",
+  "badge": "🐺",
+  "cols": [
+   "#c0c8d0",
+   "#384858",
+   "#283040",
+   "#e8f0ff",
+   "tall"
+  ],
+  "extra": {
+   "orbit": [
+    "🐺",
+    "🌙",
+    "🐺",
+    "✨"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-golden-koi",
+  "name": "Golden Koi",
+  "world": 0,
+  "anim": "float",
+  "aura": "goldenkoi",
+  "auraKind": "bubble",
+  "rarity": "legendary",
+  "badge": "🎏",
+  "cols": [
+   "#ffd060",
+   "#ff8040",
+   "#c04010",
+   "#ffe8a0",
+   "chibi"
+  ],
+  "extra": {
+   "orbit": [
+    "🎏",
+    "✨",
+    "🎏",
+    "💛"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-plasma-orb",
+  "name": "Plasma Orb",
+  "world": 8,
+  "anim": "spin",
+  "aura": "plasma",
+  "auraKind": "pulse",
+  "rarity": "secret",
+  "badge": "🔮",
+  "cols": [
+   "#8040ff",
+   "#ff4080",
+   "#401080",
+   "#ffffff",
+   "chibi"
+  ],
+  "extra": {
+   "orbit": [
+    "🔮",
+    "⚡",
+    "🔮",
+    "💫"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-terra-cotta",
+  "name": "Terra Cotta",
+  "world": 3,
+  "anim": "sway",
+  "aura": "terracotta",
+  "auraKind": "ring",
+  "rarity": "common",
+  "badge": "🏺",
+  "cols": [
+   "#c89060",
+   "#804830",
+   "#583020",
+   "#e8c0a0",
+   "builder"
+  ],
+  "extra": {
+   "orbit": [
+    "🏺",
+    "🌿",
+    "🏺",
+    "✨"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-wind-chime",
+  "name": "Wind Chime",
+  "world": 5,
+  "anim": "sway",
+  "aura": "windchime",
+  "auraKind": "orbit",
+  "rarity": "uncommon",
+  "badge": "🎐",
+  "cols": [
+   "#c0e8ff",
+   "#6080a0",
+   "#406080",
+   "#ffffff",
+   "classic"
+  ],
+  "extra": {
+   "orbit": [
+    "🎐",
+    "💨",
+    "🎐",
+    "✨"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-thunder-hammer",
+  "name": "Thunder Hammer",
+  "world": 7,
+  "anim": "pulse",
+  "aura": "thunder",
+  "auraKind": "storm",
+  "rarity": "exclusive",
+  "badge": "🔨",
+  "cols": [
+   "#8090b0",
+   "#304878",
+   "#203058",
+   "#ffe860",
+   "builder"
+  ],
+  "extra": {
+   "prop": "sword",
+   "orbit": [
+    "🔨",
+    "⚡",
+    "🔨",
+    "💥"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-crystal-bloom",
+  "name": "Crystal Bloom",
+  "world": 3,
+  "anim": "float",
+  "aura": "crystalbloom",
+  "auraKind": "shard",
+  "rarity": "epic",
+  "badge": "💠",
+  "cols": [
+   "#80e0ff",
+   "#4080c0",
+   "#204878",
+   "#ffffff",
+   "chibi"
+  ],
+  "extra": {
+   "hat": "gem",
+   "orbit": [
+    "💠",
+    "🌸",
+    "💠",
+    "✨"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-void-petal",
+  "name": "Void Petal",
+  "world": 9,
+  "anim": "glitch",
+  "aura": "voidpetal",
+  "auraKind": "glitch",
+  "rarity": "voidfallen",
+  "badge": "🥀",
+  "cols": [
+   "#802050",
+   "#180810",
+   "#100008",
+   "#ff4080",
+   "ghost"
+  ],
+  "extra": {
+   "voidFallen": true,
+   "orbit": [
+    "🥀",
+    "🕳",
+    "🥀",
+    "…"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-ember-fox",
+  "name": "Ember Fox",
+  "world": 6,
+  "anim": "hop",
+  "aura": "emberfox",
+  "auraKind": "flame",
+  "rarity": "legendary",
+  "badge": "🦊",
+  "cols": [
+   "#ff9060",
+   "#802818",
+   "#501810",
+   "#ffe8a0",
+   "chibi"
+  ],
+  "extra": {
+   "orbit": [
+    "🦊",
+    "🔥",
+    "🦊",
+    "✨"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-cloud-knight",
+  "name": "Cloud Knight",
+  "world": 5,
+  "anim": "float",
+  "aura": "cloudknight",
+  "auraKind": "bubble",
+  "rarity": "rare",
+  "badge": "☁",
+  "cols": [
+   "#ffffff",
+   "#80a0c0",
+   "#6080a0",
+   "#e8f0ff",
+   "tall"
+  ],
+  "extra": {
+   "prop": "sword",
+   "orbit": [
+    "☁",
+    "⚔",
+    "☁",
+    "✨"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-rune-scribe",
+  "name": "Rune Scribe",
+  "world": 7,
+  "anim": "pulse",
+  "aura": "runescribe",
+  "auraKind": "ring",
+  "rarity": "secret",
+  "badge": "ᚠ",
+  "cols": [
+   "#d8c8a0",
+   "#504878",
+   "#383058",
+   "#ffd060",
+   "classic"
+  ],
+  "extra": {
+   "prop": "book",
+   "glasses": true,
+   "orbit": [
+    "ᚠ",
+    "📜",
+    "ᚠ",
+    "✨"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-jellyfish",
+  "name": "Jellyfish Drift",
+  "world": 2,
+  "anim": "float",
+  "aura": "jellyfish",
+  "auraKind": "bubble",
+  "rarity": "uncommon",
+  "badge": "🪼",
+  "cols": [
+   "#c0a0ff",
+   "#6040a0",
+   "#402080",
+   "#ffffff",
+   "ghost"
+  ],
+  "extra": {
+   "orbit": [
+    "🪼",
+    "🫧",
+    "🪼",
+    "✨"
+   ]
+  }
+ },
+ {
+  "id": "ex-aura-supernova",
+  "name": "Supernova Burst",
+  "world": 8,
+  "anim": "pulse",
+  "aura": "supernova",
+  "auraKind": "spark",
+  "rarity": "exclusive",
+  "badge": "💥",
+  "cols": [
+   "#ffffa0",
+   "#ff8040",
+   "#802040",
+   "#ffffff",
+   "tall"
+  ],
+  "extra": {
+   "hat": "voidhalo",
+   "orbit": [
+    "💥",
+    "⭐",
+    "💥",
+    "✨"
+   ]
+  }
+ }
+];
+ T.forEach(row=>{
+  mhPushAuraNoobie(list,{
+   id:row.id,name:row.name,world:row.world,anim:row.anim,aura:row.aura,auraKind:row.auraKind,rarity:row.rarity,badge:row.badge,cols:row.cols,
+   orbit:row.extra.orbit,accent:row.extra.accent,hat:row.extra.hat,prop:row.extra.prop,face:row.extra.face,stripe:row.extra.stripe,glasses:row.extra.glasses,voidFallen:row.extra.voidFallen,extra:row.extra
+  });
+ });
+ return list;
+}
+
 function mhQuestMorphEntries(){
  const mk=(id,name,world,anim,questAura,rarity,cols,extra)=>{
   const e=extra||{};
@@ -906,6 +3242,7 @@ function mhBuildMorphs(){
   voidPower:{id:'death_sigil',name:'Death Sigil',color:'#303038',kind:'nova',speed:4,range:95},
   plagueLines:['I am the cure.','Oh my, the sickness…','Then I can fix you.']
  });
+ mhAuraCollectibleBatch().forEach(m=>list.push(m));
  mhQuestMorphEntries().forEach(m=>list.push(m));
  mhSignatureNoobieList().forEach(m=>list.push(m));
  return list;
@@ -3263,7 +5600,7 @@ function mhDrawYouInWorld(ctx,wear,pos,map,t,walkPhase,wi,running){
  if(m.plagueDoctor){
   mhPaintVoidFallenStormAura(ctx,pos.px,pos.py-18,t,0.62,false,m);
   mhDrawPlagueDoctorAura(ctx,pos.px,pos.py-18,t,0.88);
- }else if(m.questOnly) mhDrawQuestMorphAura(ctx,m,pos.px,pos.py-18,t,0.9);
+ }else if(mhHasMorphAura(m)) mhDrawQuestMorphAura(ctx,m,pos.px,pos.py-18,t,0.9);
  else if(m.signatureOnly||m.mayorOnly||(m.signatureReal&&m.sigLook)) mhDrawSignatureNoobAura(ctx,m,pos.px,pos.py,t,0.88);
  mhPaintNoobWorld(ctx,m,pos.px,pos.py,sc,1,false,t,walkPhase||0,flat,!!running);
  if(m.plagueDoctor) mhDrawPassiveAncientShieldsOnCharacter(ctx,pos.px,pos.py-8,t,m,1);
@@ -3648,8 +5985,71 @@ function mhQuestBuddyHandshake(st,save){
  mhToast('🤝 Test Buddy high-five! Press E on Greeter!');
  return true;
 }
+function mhDrawAuraKindPreset(ctx,m,cx,cy,t,a,pulse,drawRing,orbit,glow){
+ const kind=m.auraKind||'ring';
+ const col=m.auraGlow||m.accent||'#80e0ff';
+ const em=m.auraOrbit||[m.sigBadge||'✨'];
+ const spd=0.75+(mhHashStr(m.id+'sp')%10)*0.08;
+ const seed=mhHashStr(m.id)%997;
+ glow(kind==='storm'?58:48,col);
+ if(kind==='ring') drawRing(32+(seed%8),0.5,2);
+ else if(kind==='pulse'){
+  for(let i=0;i<3;i++){
+   ctx.strokeStyle=mhHex(col,0.35+Math.sin(t*3+i)*0.2); ctx.lineWidth=2;
+   ctx.beginPath(); ctx.arc(cx,cy,(22+i*10)*pulse,0,Math.PI*2); ctx.stroke();
+  }
+ }else if(kind==='orbit') orbit(em,30+seed%8,spd);
+ else if(kind==='storm'){
+  for(let i=0;i<7;i++){
+   const ang=t*1.8+i*0.95+seed*0.01;
+   ctx.strokeStyle=mhHex(col,0.25+Math.sin(t*4+i)*0.15); ctx.lineWidth=1.5;
+   ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+Math.cos(ang)*46,cy+Math.sin(ang)*24); ctx.stroke();
+  }
+  orbit(em,34,spd*1.1);
+ }else if(kind==='spark'){
+  for(let i=0;i<8;i++){
+   const ang=t*2.4+i*0.8;
+   ctx.fillStyle=mhHex(col,0.55+Math.sin(t*5+i)*0.25);
+   ctx.fillRect(cx+Math.cos(ang)*38-2,cy+Math.sin(ang)*20-2,4,4);
+  }
+  drawRing(28,0.45,1.5);
+  orbit(em,26,spd*1.25,'12px');
+ }else if(kind==='glitch'){
+  if(Math.random()<0.07) ctx.translate((Math.random()-0.5)*10,(Math.random()-0.5)*8);
+  ctx.strokeStyle=mhHex(col,0.5); ctx.lineWidth=1;
+  for(let i=0;i<4;i++) ctx.strokeRect(cx-36+i*4,cy-28+i*2,72-i*8,56-i*4);
+  orbit(em,32,spd*1.35,'13px');
+ }else if(kind==='flame'){
+  for(let i=0;i<6;i++){
+   const ang=t*2.2+i*1.05;
+   ctx.fillStyle=mhHex(i%2?'#ff6040':col,0.65);
+   ctx.beginPath(); ctx.arc(cx+Math.cos(ang)*34,cy+Math.sin(ang)*18,3+Math.sin(t*4+i),0,Math.PI*2); ctx.fill();
+  }
+  orbit(em,28,spd);
+ }else if(kind==='bubble'){
+  for(let i=0;i<5;i++){
+   const ang=t*0.9+i*1.25;
+   ctx.strokeStyle=mhHex(col,0.45); ctx.lineWidth=1.5;
+   ctx.beginPath(); ctx.arc(cx+Math.cos(ang)*30,cy+Math.sin(ang)*16,4+Math.sin(t*3+i)*2,0,Math.PI*2); ctx.stroke();
+  }
+  orbit(em,30,-spd,'13px');
+ }else if(kind==='shard'){
+  for(let i=0;i<6;i++){
+   const ang=t*1.5+i;
+   ctx.fillStyle=mhHex(col,0.7);
+   ctx.beginPath();
+   ctx.moveTo(cx+Math.cos(ang)*36,cy+Math.sin(ang)*20);
+   ctx.lineTo(cx+Math.cos(ang+0.4)*28,cy+Math.sin(ang+0.4)*16);
+   ctx.lineTo(cx+Math.cos(ang+0.2)*40,cy+Math.sin(ang+0.2)*22);
+   ctx.fill();
+  }
+  drawRing(34,0.4,2);
+  orbit(em,32,spd);
+ }else drawRing(30,0.42,2);
+ if(kind!=='orbit'&&kind!=='storm'&&kind!=='glitch') orbit(em,30+(seed%6),spd);
+}
 function mhDrawQuestMorphAura(ctx,m,x,y,t,alpha){
- if(!m?.questAura) return;
+ if(!mhMorphAuraKey(m)) return;
  const a=alpha==null?1:alpha;
  const col=m.accent||'#80e0ff';
  const cx=x, cy=y-18;
@@ -3760,8 +6160,8 @@ function mhDrawQuestMorphAura(ctx,m,x,y,t,alpha){
    orbit(['⌨','</>','💻','✨'],32,0.85,'12px');
    break;
   default:
-   glow(44,col); drawRing(30,0.4,2);
-   orbit([m.sigBadge||'✨'],28,0.9);
+   if(m.auraCollectible||m.auraKind) mhDrawAuraKindPreset(ctx,m,cx,cy,t,a,pulse,drawRing,orbit,glow);
+   else{ glow(44,col); drawRing(30,0.4,2); orbit([m.sigBadge||'✨'],28,0.9); }
  }
  ctx.restore();
 }
@@ -4178,7 +6578,7 @@ function mhClassicNoobSvg(m){
   <circle cx="42" cy="22" r="3" fill="#1a1a20"/><circle cx="58" cy="22" r="3" fill="#1a1a20"/>
   <circle cx="43" cy="21" r="1" fill="#fff" opacity=".5"/><circle cx="59" cy="21" r="1" fill="#fff" opacity=".5"/>`;
  const sigDeco=m.sigDeco||'';
- const questRing=m.questOnly?`<ellipse cx="50" cy="72" rx="42" ry="54" fill="none" stroke="${m.accent||'#80e0ff'}" stroke-width="2.2" opacity=".5"/><ellipse cx="50" cy="72" rx="34" ry="44" fill="none" stroke="${m.accent||'#80e0ff'}" stroke-width="1" opacity=".28" stroke-dasharray="4 3"/>`:'';
+ const questRing=(m.questOnly||m.auraCollectible)?`<ellipse cx="50" cy="72" rx="42" ry="54" fill="none" stroke="${m.accent||'#80e0ff'}" stroke-width="2.2" opacity=".5"/><ellipse cx="50" cy="72" rx="34" ry="44" fill="none" stroke="${m.accent||'#80e0ff'}" stroke-width="1" opacity=".28" stroke-dasharray="4 3"/>`:'';
  return `<g>
   ${questRing}
   ${mhBodyShape(m)}
@@ -5750,7 +8150,7 @@ function mhDrawMorphShowcasePanel(ctx,W,H,m,t,phase){
  ctx.restore();
  ctx.save();
  if(m.plagueDoctor) mhDrawPlagueDoctorAura(ctx,W*0.74,H*0.46,t,0.85+pulse*0.12);
- else if(m.questOnly) mhDrawQuestMorphAura(ctx,m,W*0.74,H*0.46,t,0.88+pulse*0.1);
+ else if(mhHasMorphAura(m)) mhDrawQuestMorphAura(ctx,m,W*0.74,H*0.46,t,0.88+pulse*0.1);
  else if(m.signatureOnly||m.mayorOnly||(m.signatureReal&&m.sigLook)) mhDrawSignatureNoobAura(ctx,m,W*0.74,H*0.46,t,0.82+pulse*0.15);
  else if(m.voidFallen||m.rarity==='voidfallen') mhPaintVoidFallenStormAura(ctx,W*0.74,H*0.46,t,0.75,false,m);
  const sc=1.02+morphT*0.12;
@@ -7970,6 +10370,7 @@ function mhPaintNoobWorld(ctx,m,x,y,sc,alpha,silhouette,t,walkPhase,flat,running
   ctx.restore();
   return;
  }
+ if(m.auraCollectible&&mhMorphAuraKey(m)) mhDrawQuestMorphAura(ctx,m,0,-8,t,(alpha==null?1:alpha)*0.88);
  if((m.signatureOnly||m.mayorOnly||(m.signatureReal&&m.sigLook))&&m.sigLook){
   if(m.voidFallen){
    mhDrawPassiveAncientShieldsOnCharacter(ctx,0,-8,t,m,alpha);
@@ -9015,6 +11416,7 @@ function mhSigPanelHtml(m,canWear){
  else if(m.timeTravelerOnly) blurb='⏳ Buddy Plaza · chat “go back in time” · 2000💰 · Matrix quest';
  else if(m.matrixOnly) blurb='🌐 Time Traveler mine reward — not in gacha';
  else if(m.questOnly) blurb=m.sigTag||'✨ Quest exclusive — find the glowing NPC on the map';
+ else if(m.auraCollectible) blurb=m.sigTag||'✨ Aura collectible — groves, fights & gacha';
  const combat=(m.voidFallen&&m.voidAttack&&!m.plagueDoctor)?`<span class="mh-sig-combat">⚔ ${m.voidAttack.name} · ✦ ${m.voidPower?.name||'?'}</span>`:'';
  if(m.plagueDoctor&&m.voidAttack) blurb+=' · ⚔ '+m.voidAttack.name+' · ✦ '+m.voidPower.name;
  return `<article class="mh-sig-panel-full" style="--mh-rarity:${r.color}">
