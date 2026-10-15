@@ -5,9 +5,9 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v127';
-const MH_SCENERY_STAMP='STABLE_v127';
-const MH_SCRIPT_CANON='morph-hunt.void-2d-v127.js';
+const MH_BUILD='void-2d-v128';
+const MH_SCENERY_STAMP='STABLE_v128';
+const MH_SCRIPT_CANON='morph-hunt.void-2d-v128.js';
 const MH_QUEST_STUB_COST=800;
 const MH_TIME_TRAVEL_COST=2000;
 const MH_TIME_TRAVELER_ID='ex-time-traveler';
@@ -119,7 +119,7 @@ const MH_VOID_STORM_NAME='Void Storm';
 const MH_PLAGUE_GRAVEYARD_NAME='Graveyard Legion';
 const MH_PLAGUE_STORM_NAME='Black-Red Storm';
 const MH_VOID_STORM_POWER={id:'void_storm',name:'Void Storm',color:'#ff2020',kind:'storm',range:200};
-const MH_KING_STAMP='RED_BLACK_KING_v31';
+const MH_KING_STAMP='VOID_FALLEN_GOD_v32';
 const MH_MEGA_W=7;
 const MH_MEGA_H=6;
 const MH_MEGA_BUILDING_KINDS=new Set(['house','shop','stall','booth','tent','cloud_house','sky_bridge','beach_hut','lifeguard','burned_house','ruined_house','void_fallen_building','void_cathedral','fluoro_hall','liminal_door','vault','expedition_tent','expedition_camp','crystal','nexus_ruins','neon_sign']);
@@ -208,7 +208,7 @@ const MH_WORLDS=[
  {id:'w6',name:'Lava Park',emoji:'🌋',tagline:'Flat lava tiles.',bg:'#ff8860',ground:'#8a4030',wall:'#602818',prop:'#ff6040'},
  {id:'w7',name:'Legend Nexus',emoji:'👑',tagline:'Flat nexus floor.',bg:'#6080c0',ground:'#506898',wall:'#384868',prop:'#ffd060'},
  {id:'w8',name:'Epic+ Realm',emoji:'💎',tagline:'TELEPORT HERE — Epic · Legendary · Secret · Exotic · Exclusive.',bg:'#281040',ground:'#502868',wall:'#381838',prop:'#ff48e8'},
- {id:'w9',name:'Void Fallen Abyss',emoji:'🕳',tagline:'TELEPORT HERE — Male Void Fallen + King.',bg:'#050008',ground:'#120818',wall:'#282038',prop:'#402060'}
+ {id:'w9',name:'Void Fallen Abyss',emoji:'🕳',tagline:'TELEPORT HERE — Male Void Fallen + Fallen God boss.',bg:'#050008',ground:'#120818',wall:'#282038',prop:'#402060'}
 ];
 const MH_WORLD_DECORS=[
  ['house','shop','park','noobie_statue','fountain','playground'],
@@ -363,7 +363,7 @@ function mhAssignVoidCombat(m){
  if(m.rarity!=='voidfallen'&&!m.voidFallen) return;
  if(m.plagueDoctor) return;
  if(m.voidKing){
-  m.voidAttack={id:'king_cleave',name:'Greataxe Cleave',color:'#ff3030',kind:'arc',speed:9,range:130};
+  m.voidAttack={id:'god_twin_axe',name:'Twin-Axe Cleave',color:'#ff3030',kind:'arc',speed:9,range:145};
   m.voidPower={...MH_VOID_STORM_POWER,id:'forbidden_storm',name:'Forbidden Void Storm',range:240};
   return;
  }
@@ -809,16 +809,17 @@ function mhBuildMorphs(){
  }
  list.push({
   id:'vf-king',
-  name:'Void Fallen King',
+  name:'Void Fallen God',
   exclusive:false,
   voidFallen:true,
   voidMale:true,
   voidKing:true,
+  voidFallenGod:true,
   voidDepth:MH_VOID_KING_DEPTH,
   void5D:false,
   world:MH_VOID_WORLD,
   x:50,y:40,
-  scale:1.32,
+  scale:1.72,
   head:'#0a0a0a',
   torso:'#580808',
   legs:'#141414',
@@ -4081,19 +4082,31 @@ function mhClassicNoobSvg(m){
   return mhSignatureNoobSvg(m);
  }
  if(m.voidKing){
-  return `<ellipse cx="50" cy="124" rx="22" ry="4" fill="#000" opacity=".25"/>
-   <rect x="32" y="66" width="14" height="36" fill="#141414" stroke="#801010" stroke-width="1"/>
-   <rect x="54" y="66" width="14" height="36" fill="#141414" stroke="#801010" stroke-width="1"/>
-   <rect x="28" y="38" width="44" height="28" fill="#580808" stroke="#a01010" stroke-width="1.5"/>
-   <rect x="14" y="42" width="12" height="24" fill="#161616"/>
-   <rect x="74" y="42" width="12" height="24" fill="#161616"/>
-   <rect x="8" y="36" width="16" height="32" fill="#480808" stroke="#cc1010" stroke-width="1.5"/>
-   <path d="M78 38 L88 28 L88 52 L78 48 Z" fill="#1a1a1a" stroke="#b01010"/>
-   <rect x="76" y="20" width="6" height="28" fill="#2a1810"/>
-   <rect x="72" y="8" width="14" height="14" fill="#0a0a0a" stroke="#ff2020"/>
-   <rect x="33" y="6" width="34" height="34" fill="#161616" stroke="#801010" stroke-width="1.5"/>
-   <rect x="36" y="10" width="28" height="26" fill="#0a0a0a"/>
-   <rect x="40" y="22" width="20" height="4" fill="#ff2020" opacity=".9"/>`;
+  const gid='vfg'+((mhHashStr(m.id||'vf-king')>>>0)%99999);
+  const syms=MH_ANCIENT_GLYPHS.map((g,i)=>`<text x="${12+i*19}" y="14" font-size="8" fill="#ff8080" opacity=".75" font-family="serif">${g}</text>`).join('');
+  return `<defs><radialGradient id="${gid}S" cx="50%" cy="40%" r="65%"><stop offset="0%" stop-color="#ff3030" stop-opacity=".35"/><stop offset="45%" stop-color="#280808" stop-opacity=".55"/><stop offset="100%" stop-color="#000" stop-opacity="0"/></radialGradient></defs>
+   ${syms}
+   <ellipse cx="50" cy="72" rx="46" ry="58" fill="url(#${gid}S)"/>
+   <ellipse cx="50" cy="124" rx="26" ry="5" fill="#000" opacity=".28"/>
+   <rect x="30" y="64" width="15" height="38" fill="#141414" stroke="#801010" stroke-width="1"/>
+   <rect x="55" y="64" width="15" height="38" fill="#141414" stroke="#801010" stroke-width="1"/>
+   <rect x="26" y="36" width="48" height="30" fill="#580808" stroke="#a01010" stroke-width="1.5"/>
+   <rect x="12" y="40" width="13" height="26" fill="#161616"/>
+   <rect x="75" y="40" width="13" height="26" fill="#161616"/>
+   <path d="M4 34 L4 70 L18 66 L18 38 Z" fill="#480808" stroke="#cc1010" stroke-width="1.5"/>
+   <path d="M4 34 L-2 28 L-2 44 Z M4 70 L-2 76 L-2 60 Z M18 38 L24 32 L24 48 Z M18 66 L24 72 L24 56 Z" fill="#a01010"/>
+   <text x="11" y="56" text-anchor="middle" font-size="11" fill="#ffe0e0" font-family="serif">${MH_ANCIENT_GLYPHS[4]}</text>
+   <rect x="78" y="18" width="7" height="34" fill="#2a1810"/>
+   <rect x="74" y="4" width="15" height="13" fill="#0a0a0a" stroke="#ff2020"/>
+   <rect x="74" y="24" width="15" height="13" fill="#0a0a0a" stroke="#ff2020"/>
+   <rect x="76" y="6" width="11" height="3" fill="#b01010"/>
+   <rect x="76" y="26" width="11" height="3" fill="#b01010"/>
+   <rect x="31" y="4" width="38" height="36" fill="#161616" stroke="#801010" stroke-width="1.5"/>
+   <rect x="34" y="8" width="32" height="28" fill="#0a0a0a"/>
+   <ellipse cx="42" cy="18" rx="5" ry="4" fill="#030305"/><ellipse cx="58" cy="18" rx="5" ry="4" fill="#030305"/>
+   <rect x="40" y="16" width="3" height="2" fill="#ff2020"/><rect x="57" y="16" width="3" height="2" fill="#ff2020"/>
+   <path d="M36 32 Q50 28 64 32" fill="none" stroke="#ff2020" stroke-width="1.2"/>
+   <rect x="38" y="24" width="24" height="3" fill="#ff2020" opacity=".85"/>`;
  }
  if(m.rarity==='voidfallen'||m.voidFallen){
   const gid='vf'+((mhHashStr(m.id||'vf')>>>0)%99999);
@@ -6160,7 +6173,7 @@ function mhGradRect(ctx,x,y,w,h,c1,c2){
 }
 function mhRarityLabel(m){
  if(!m) return 'Common';
- if(m.voidKing) return 'Void Fallen King · '+MH_VOID_KING_DEPTH+' Depth · 5D';
+ if(m.voidKing) return 'Void Fallen God · '+MH_VOID_KING_DEPTH+' Depth · 5D';
  if(m.rarity==='voidfallen') return m.voidMale?'Male Void Fallen':'Void Fallen';
  if(m.exclusive&&m.rarity!=='exotic') return 'Exclusive';
  return (MH_RARITY[m.rarity]||MH_RARITY.common).label;
@@ -6235,11 +6248,11 @@ function mhPaintForbiddenStone(ctx,sx,sy,t,i,alpha){
  ctx.shadowBlur=0;
  ctx.restore();
 }
-function mhPaintKingRedBlackStormAura(ctx,x,y,t,alpha,silhouette){
+function mhPaintKingRedBlackStormAura(ctx,x,y,t,alpha,silhouette,voidGod){
  const pulse=1+Math.sin(t*3.2)*0.18;
- const rad=46*pulse;
+ const rad=(voidGod?82:46)*pulse;
  const a=silhouette?0.28:(alpha==null?1:alpha);
- const cy=y-18;
+ const cy=y-(voidGod?28:18);
  ctx.save();
  ctx.globalAlpha=a;
  const g=ctx.createRadialGradient(x,cy,4,x,cy,rad+36);
@@ -6265,14 +6278,28 @@ function mhPaintKingRedBlackStormAura(ctx,x,y,t,alpha,silhouette){
   ctx.lineWidth=2;
   ctx.beginPath(); ctx.moveTo(sx,sy-10); ctx.lineTo(sx+(Math.sin(t*6+i)*8),sy+8); ctx.stroke();
  }
- for(let i=0;i<6;i++){
-  const ang=t*0.65+i*Math.PI*2/6;
+ for(let i=0;i<(voidGod?10:6);i++){
+  const ang=t*0.65+i*Math.PI*2/(voidGod?10:6);
   const sx=x+Math.cos(ang)*rad*0.92, sy=cy+Math.sin(ang)*rad*0.38;
   if(i%2===0) mhPaintForbiddenStone(ctx,sx,sy,t,i,a);
   else{
    ctx.fillStyle='rgba(0,0,0,.75)';
    ctx.beginPath(); ctx.arc(sx,sy,5+Math.sin(t*5+i),0,Math.PI*2); ctx.fill();
    ctx.strokeStyle='rgba(255,40,40,.6)'; ctx.stroke();
+  }
+ }
+ if(voidGod){
+  ctx.globalAlpha=a*0.82;
+  ctx.font='bold 16px serif';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  for(let i=0;i<5;i++){
+   const ang=-t*1.05+i*Math.PI*2/5;
+   const gx=x+Math.cos(ang)*rad*0.78;
+   const gy=cy+Math.sin(ang)*rad*0.42;
+   ctx.fillStyle='rgba(255,60,60,.55)';
+   ctx.shadowColor='#ff2020'; ctx.shadowBlur=10;
+   ctx.fillText(MH_ANCIENT_GLYPHS[i],gx,gy);
+   ctx.shadowBlur=0;
   }
  }
  ctx.restore();
@@ -6546,6 +6573,18 @@ function mhPaintOneAncientShield(ctx,x,y,glyph,king,wobbleT){
  ctx.strokeStyle='rgba(255,60,60,.55)'; ctx.lineWidth=1;
  ctx.beginPath(); ctx.moveTo(-w*0.35,-h*0.15); ctx.lineTo(w*0.35,-h*0.15); ctx.stroke();
  ctx.beginPath(); ctx.moveTo(0,-h*0.15); ctx.lineTo(0,h*0.28); ctx.stroke();
+ if(king){
+  ctx.fillStyle='#a01010';
+  for(let s=0;s<8;s++){
+   const a=s*Math.PI*2/8;
+   const sx=Math.cos(a)*w*0.62, sy=Math.sin(a)*h*0.38;
+   ctx.beginPath();
+   ctx.moveTo(sx,sy);
+   ctx.lineTo(sx+Math.cos(a)*7,sy+Math.sin(a)*7);
+   ctx.lineTo(sx+Math.cos(a+0.35)*4,sy+Math.sin(a+0.35)*4);
+   ctx.closePath(); ctx.fill();
+  }
+ }
  ctx.restore();
 }
 function mhMorphHasPassiveAncientShields(m){
@@ -6556,9 +6595,10 @@ function mhMorphHasPassiveAncientShields(m){
 function mhDrawPassiveAncientShieldsOnCharacter(ctx,cx,cy,t,m,alpha){
  if(!mhMorphHasPassiveAncientShields(m)) return;
  const king=!!(m.voidKing||m.plagueDoctor);
+ const god=!!m.voidFallenGod;
  const a=(alpha==null?1:alpha)*0.92;
- const orbitRad=king?52:44;
- const oy=cy-(king?18:14);
+ const orbitRad=god?68:king?52:44;
+ const oy=cy-(god?24:king?18:14);
  ctx.save();
  ctx.globalAlpha=a*0.38;
  ctx.strokeStyle='rgba(255,80,80,.45)'; ctx.lineWidth=2;
@@ -6567,10 +6607,20 @@ function mhDrawPassiveAncientShieldsOnCharacter(ctx,cx,cy,t,m,alpha){
  ctx.setLineDash([]);
  ctx.globalAlpha=a;
  for(let i=0;i<5;i++){
-  const ang=t*0.85+i*Math.PI*2/5;
+  const ang=t*(god?0.72:0.85)+i*Math.PI*2/5;
   const sx=cx+Math.cos(ang)*orbitRad;
   const sy=oy+Math.sin(ang)*orbitRad*0.62;
   mhPaintOneAncientShield(ctx,sx,sy,MH_ANCIENT_GLYPHS[i],king,t+i);
+ }
+ if(god){
+  ctx.globalAlpha=a*0.55;
+  ctx.font='bold 14px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  for(let i=0;i<5;i++){
+   const ang=-t*1.15+i*Math.PI*2/5+0.4;
+   const rr=orbitRad*1.22;
+   ctx.fillStyle='rgba(255,120,120,.7)';
+   ctx.fillText(MH_ANCIENT_GLYPHS[i],cx+Math.cos(ang)*rr,oy+Math.sin(ang)*rr*0.62);
+  }
  }
  ctx.restore();
 }
@@ -7058,7 +7108,7 @@ function mhStartKingAction4Cutscene(st,save,wi,pos){
  if(st.kingCutscene) return;
  const m=mhVoidCombatMorph(save);
  if(!m?.voidKing){
-  mhToast('👑 Action 4 is a cutscene — morph into Void Fallen King first!');
+  mhToast('👑 Action 4 is a cutscene — morph into Void Fallen God first!');
   return;
  }
  st.kingCutscene={
@@ -7232,20 +7282,17 @@ function mhDrawKingAction4Cutscene(ctx,W,H,st,t){
   ctx.restore();
  }
  const blend=cs.swordBlend||0;
- ctx.save();
- ctx.translate(cx,cy-8);
- ctx.fillStyle='#1a1a1a'; ctx.fillRect(-14,8,28,36);
- ctx.fillStyle='#ff3030'; ctx.fillRect(-16,-28,32,32);
- if(blend<1){
-  ctx.save(); ctx.globalAlpha=1-blend;
-  ctx.strokeStyle='#888'; ctx.lineWidth=4;
-  ctx.beginPath(); ctx.moveTo(28,-10); ctx.lineTo(52,-38); ctx.lineTo(48,-42); ctx.lineTo(24,-14); ctx.closePath();
-  ctx.fillStyle='#666'; ctx.fill(); ctx.stroke();
-  ctx.fillStyle='#444'; ctx.fillRect(20,-18,14,8);
-  ctx.restore();
+ mhPaintKingRedBlackStormAura(ctx,cx,cy-8,t,0.92,false,true);
+ for(let i=0;i<5;i++){
+  const a=t*0.72+i*Math.PI*2/5;
+  const sx=cx+Math.cos(a)*78, sy=cy-26+Math.sin(a)*46;
+  mhPaintOneAncientShield(ctx,sx,sy,MH_ANCIENT_GLYPHS[i],true,t+i);
  }
+ mhPaintVoidKing(ctx,cx,cy-8,1.15,1,false,0,false,t,false);
  if(blend>0){
-  ctx.save(); ctx.globalAlpha=blend;
+  ctx.save();
+  ctx.translate(cx,cy-8);
+  ctx.globalAlpha=blend;
   ctx.fillStyle='#ccc'; ctx.fillRect(22,-42,6,52);
   ctx.fillStyle='#ff5050'; ctx.fillRect(18,-46,14,8);
   ctx.shadowColor='#ff8080'; ctx.shadowBlur=12;
@@ -7253,12 +7300,6 @@ function mhDrawKingAction4Cutscene(ctx,W,H,st,t){
   ctx.beginPath(); ctx.moveTo(25,-38); ctx.lineTo(25,-90); ctx.stroke();
   ctx.restore();
  }
- for(let i=0;i<5;i++){
-  const a=t*0.85+i*Math.PI*2/5;
-  const sx=Math.cos(a)*62, sy=-18+Math.sin(a)*38;
-  mhPaintOneAncientShield(ctx,sx,sy,MH_ANCIENT_GLYPHS[i],true,t+i);
- }
- ctx.restore();
  if(cs.starT>0){
   const stT=cs.starT;
   const hole=cs.holeR||0;
@@ -7499,6 +7540,53 @@ function mhUseVoidPower(st,save,pos,map,wi){
  mhToast('✦ '+pow.name+'!');
  mhPlaySfx('ui');
 }
+function mhPaintVoidKingSpikyShield(ctx,swingArm){
+ ctx.save();
+ ctx.translate(-28,4+swingArm);
+ ctx.fillStyle='#161616'; ctx.fillRect(-10,-14,12,28);
+ ctx.fillStyle='#480808'; ctx.fillRect(-30,-22,22,42);
+ ctx.strokeStyle='#b01010'; ctx.lineWidth=2.5; ctx.strokeRect(-30.5,-22.5,23,43);
+ ctx.fillStyle='#0a0a0a'; ctx.fillRect(-28,-16,18,10);
+ mhDrawForbiddenSymbol(ctx,-19,-4,5,2);
+ ctx.fillStyle='#a01010';
+ for(let s=0;s<10;s++){
+  const a=s*Math.PI*2/10;
+  const sx=Math.cos(a)*11-19, sy=Math.sin(a)*16;
+  ctx.beginPath(); ctx.moveTo(sx,sy);
+  ctx.lineTo(sx+Math.cos(a)*6,sy+Math.sin(a)*6);
+  ctx.lineTo(sx+Math.cos(a+0.4)*3,sy+Math.sin(a+0.4)*3);
+  ctx.closePath(); ctx.fill();
+ }
+ ctx.restore();
+}
+function mhPaintVoidKingTwinAxe(ctx,swing,wa){
+ ctx.save();
+ ctx.translate(26,2-wa.ax);
+ ctx.rotate(swing);
+ ctx.fillStyle='#161616'; ctx.fillRect(-5,-12,12,26);
+ ctx.fillStyle='#2a1810'; ctx.fillRect(3,-6,7,46);
+ ctx.fillStyle='#0a0a0a'; ctx.fillRect(-4,-38,20,15);
+ ctx.fillStyle='#480808'; ctx.fillRect(-2,-36,16,4);
+ ctx.fillStyle='#b01010'; ctx.fillRect(0,-34,12,2);
+ ctx.fillStyle='#0a0a0a'; ctx.fillRect(-4,14,20,15);
+ ctx.fillStyle='#480808'; ctx.fillRect(-2,16,16,4);
+ ctx.fillStyle='#b01010'; ctx.fillRect(0,18,12,2);
+ ctx.fillStyle='#888'; ctx.fillRect(5,-2,3,6);
+ ctx.restore();
+}
+function mhPaintVoidKingMask(ctx,silhouette,flat,glow){
+ ctx.fillStyle='#161616'; ctx.fillRect(-18,-58,36,38);
+ ctx.fillStyle='#0a0a0a'; ctx.fillRect(-16,-56,32,34);
+ ctx.fillStyle='#030305'; ctx.fillRect(-12,-48,8,7); ctx.fillRect(4,-48,8,7);
+ if(!silhouette){
+  ctx.fillStyle='#ff2020'; ctx.shadowColor=glow; ctx.shadowBlur=flat?0:12;
+  ctx.fillRect(-10,-46,4,3); ctx.fillRect(6,-46,4,3);
+  ctx.shadowBlur=0;
+ }
+ ctx.strokeStyle='#801010'; ctx.lineWidth=1.2;
+ ctx.beginPath(); ctx.moveTo(-14,-36); ctx.quadraticCurveTo(0,-32,14,-36); ctx.stroke();
+ ctx.fillStyle='#b01010'; ctx.fillRect(-14,-40,28,3);
+}
 function mhPaintVoidKing(ctx,x,y,sc,alpha,silhouette,walkPhase,running,t,flat){
  ctx.save();
  ctx.translate(x,y);
@@ -7508,40 +7596,20 @@ function mhPaintVoidKing(ctx,x,y,sc,alpha,silhouette,walkPhase,running,t,flat){
  ctx.translate(0,-wa.bob);
  const black='#0a0a0a', armor='#161616', darkRed='#480808', red='#b01010', glow='#ff2020';
  const swing=Math.sin(t*2.6)*0.72-0.15;
- ctx.fillStyle='rgba(0,0,0,.45)';
- ctx.beginPath(); ctx.ellipse(0,58,22,5,0,0,Math.PI*2); ctx.fill();
- mhGradRect(ctx,-11+wa.lx,20+wa.ly,10,36,black,darkRed);
- mhGradRect(ctx,1+wa.rx,20+wa.ry,10,36,black,darkRed);
- ctx.fillStyle=red; ctx.fillRect(-11+wa.lx,28+wa.ly,10,2); ctx.fillRect(1+wa.rx,28+wa.ry,10,2);
- mhGradRect(ctx,-20,-4,40,28,darkRed,armor);
- ctx.fillStyle=armor; ctx.fillRect(-20,-4,40,6); ctx.fillRect(-20,10,40,4);
- ctx.fillStyle=red; ctx.fillRect(-20,2,40,3);
- ctx.fillStyle=black; ctx.fillRect(-22,8,6,14); ctx.fillRect(16,8,6,14);
- ctx.save();
- ctx.translate(-24,6+wa.ax);
- ctx.fillStyle=armor; ctx.fillRect(-8,-12,10,24);
- ctx.fillStyle=darkRed; ctx.fillRect(-26,-18,18,36);
- ctx.strokeStyle=red; ctx.lineWidth=2; ctx.strokeRect(-26.5,-18.5,19,37);
- ctx.fillStyle=black; ctx.fillRect(-24,-14,15,8);
- mhDrawForbiddenSymbol(ctx,-17,-2,4,2);
- ctx.restore();
- ctx.save();
- ctx.translate(22,4-wa.ax);
- ctx.rotate(swing);
- ctx.fillStyle=armor; ctx.fillRect(-4,-10,10,22);
- ctx.fillStyle='#2a1810'; ctx.fillRect(2,0,5,34);
- ctx.fillStyle=black; ctx.fillRect(-2,-32,18,16);
- ctx.fillStyle=darkRed; ctx.fillRect(0,-30,14,4);
- ctx.fillStyle=red; ctx.fillRect(1,-28,12,2);
- ctx.fillRect(4,2,3,28);
- ctx.restore();
- ctx.fillStyle=armor; ctx.fillRect(-16,-54,32,34);
- ctx.fillStyle=black; ctx.fillRect(-14,-52,28,30);
- ctx.fillStyle=red; ctx.shadowColor=glow; ctx.shadowBlur=silhouette?0:10;
- ctx.fillRect(-10,-44,20,3);
- ctx.shadowBlur=0;
+ ctx.fillStyle='rgba(0,0,0,.5)';
+ ctx.beginPath(); ctx.ellipse(0,62,26,6,0,0,Math.PI*2); ctx.fill();
+ mhGradRect(ctx,-13+wa.lx,22+wa.ly,11,40,black,darkRed);
+ mhGradRect(ctx,2+wa.rx,22+wa.ry,11,40,black,darkRed);
+ ctx.fillStyle=red; ctx.fillRect(-13+wa.lx,32+wa.ly,11,2); ctx.fillRect(2+wa.rx,32+wa.ry,11,2);
+ mhGradRect(ctx,-24,-2,48,32,darkRed,armor);
+ ctx.fillStyle=armor; ctx.fillRect(-24,-2,48,7); ctx.fillRect(-24,12,48,5);
+ ctx.fillStyle=red; ctx.fillRect(-24,4,48,4);
+ ctx.fillStyle=black; ctx.fillRect(-26,10,7,16); ctx.fillRect(19,10,7,16);
+ mhPaintVoidKingSpikyShield(ctx,wa.ax);
+ mhPaintVoidKingTwinAxe(ctx,swing,wa);
+ mhPaintVoidKingMask(ctx,silhouette,flat,glow);
  if(!silhouette&&!flat){
-  ctx.fillStyle='rgba(80,0,0,.5)'; ctx.fillRect(-16,-8,10,16); ctx.fillRect(6,-8,10,16);
+  ctx.fillStyle='rgba(80,0,0,.45)'; ctx.fillRect(-18,-6,12,18); ctx.fillRect(6,-6,12,18);
  }
  ctx.restore();
 }
@@ -7832,8 +7900,8 @@ function mhPaintNoobWorld(ctx,m,x,y,sc,alpha,silhouette,t,walkPhase,flat,running
  ctx.save();
  ctx.translate(x+off.dx,y+off.dy);
  if(m.voidKing){
+  mhPaintKingStoneAura(ctx,0,-8,t,alpha,silhouette,true);
   mhDrawPassiveAncientShieldsOnCharacter(ctx,0,-8,t,m,alpha);
-  mhPaintKingStoneAura(ctx,0,-8,t,alpha,silhouette);
   mhPaintVoidKing(ctx,0,-8,sc*off.sc,alpha,silhouette,walkPhase,running,t,flat);
   ctx.restore();
   return;
@@ -7893,7 +7961,7 @@ function mhDrawVoidThrone(ctx,map){
  ctx.fillStyle='#a01010'; ctx.fillRect(x+6,y-6,MH_TILE-12,10);
  ctx.strokeStyle='#ff3030'; ctx.lineWidth=2; ctx.strokeRect(x+.5,y+.5,MH_TILE-1,MH_TILE-1);
  ctx.fillStyle='#ff8080'; ctx.font='bold 9px system-ui'; ctx.textAlign='center';
- ctx.fillText('FORBIDDEN THRONE · '+MH_VOID_KING_DEPTH+' DEPTH · 5D',x+MH_TILE/2,y-10);
+ ctx.fillText('FORBIDDEN THRONE · VOID FALLEN GOD · '+MH_VOID_KING_DEPTH+' DEPTH',x+MH_TILE/2,y-10);
 }
 function mhCanvasToWorld(canvas,camX,camY,clientX,clientY){
  const rect=canvas.getBoundingClientRect();
@@ -8307,7 +8375,7 @@ function mhWalkDrawFrame(){
   if(!mhShouldDrawMapMorph(m,save,dist,nearId)) return;
   if(!mhEnemyAlive(st,wi,m)) return;
   let sc=(m.scale||1)*(flatMap?0.78:0.72);
-  if(m.voidKing) sc*=1.35;
+  if(m.voidKing) sc*=1.62;
   if(MH_1000D&&!flatMap){
    const depth=0.82+(my/(map.h*MH_TILE))*0.32;
    sc*=depth;
@@ -8316,17 +8384,18 @@ function mhWalkDrawFrame(){
   mhPaintNoobWorld(ctx,m,mx,my,sc,got?0.55:1,sil,t,MH_FREEZE_NPC_WALK?0:npc.phase,flatMap,!MH_FREEZE_NPC_WALK&&!!npc.walking);
   const ehp=mhGetEnemyHp(st,wi,m), emax=mhEnemyMaxHp(m);
   if(ehp<emax||st.enemyAggro[mhEnemyFightKey(wi,m)]>performance.now()){
-   mhDrawFightHpBar(ctx,mx,my-92,Math.min(90,14+m.name.length*3),ehp,emax,m.voidKing?'#ff4040':'#c898ff');
+   mhDrawFightHpBar(ctx,mx,my-(m.voidKing?118:92),Math.min(90,14+m.name.length*3),ehp,emax,m.voidKing?'#ff4040':'#c898ff');
   }
   if(st.enemyHitFlash[mhEnemyFightKey(wi,m)]>performance.now()){
    ctx.fillStyle='rgba(255,80,80,.35)'; ctx.beginPath(); ctx.arc(mx,my-24,28,0,Math.PI*2); ctx.fill();
   }
-  if(m.voidKing&&dist<240){
-   ctx.fillStyle='rgba(0,0,0,.88)'; ctx.fillRect(mx-78,my-98,156,22);
+  if(m.voidKing&&dist<280){
+   ctx.fillStyle='rgba(0,0,0,.88)'; ctx.fillRect(mx-88,my-112,176,34);
    ctx.fillStyle='#ff4040'; ctx.font='bold 9px system-ui'; ctx.textAlign='center';
-   ctx.fillText('👑 '+MH_VOID_ABYSS_LABEL+' · KING',mx,my-84);
+   ctx.fillText('👑 '+MH_VOID_ABYSS_LABEL+' · FALLEN GOD',mx,my-96);
    ctx.fillStyle='#ffe8a0'; ctx.font='bold 8px system-ui';
-   ctx.fillText('⚔ '+(m.voidAttack?.name||'Cleave')+' · ✦ '+(m.voidPower?.name||'Storm'),mx,my-74);
+   ctx.fillText('🛡 '+MH_ANCIENT_GLYPHS.join(' ')+' · 🌌 storm backdrop',mx,my-84);
+   ctx.fillText('⚔ '+(m.voidAttack?.name||'Twin-Axe')+' · ✦ '+(m.voidPower?.name||'Storm'),mx,my-72);
   }
   if(m.rarity==='exotic'){
    ctx.fillStyle='rgba(255,40,200,.85)'; ctx.fillRect(mx-54,my-98,108,14);
@@ -8513,7 +8582,7 @@ function mhRenderPreview(){
  const flat=!!mhState.previewFlat;
  return `<div class="mh-preview-tab">
   <h3>🎬 Animation preview — everything live</h3>
-  <p class="mh-scene-hint">All <b>${MH_ANIMS.length}</b> idle styles · <b>walk</b> vs <b>run</b> leg cycles · 👑 <b>Void Fallen King 5D</b> · flat 2D vs depth</p>
+  <p class="mh-scene-hint">All <b>${MH_ANIMS.length}</b> idle styles · <b>walk</b> vs <b>run</b> leg cycles · 👑 <b>Void Fallen God</b> (huge · twin axe · storm) · flat 2D vs depth</p>
   <div class="mh-preview-tools">
    <button type="button" class="mh-btn${run?'':' primary'}" data-mh-prev-mode="walk">🚶 Walk cycle</button>
    <button type="button" class="mh-btn${run?' primary':''}" data-mh-prev-mode="run">🏃 Run cycle</button>
@@ -8572,10 +8641,10 @@ function mhPreviewDrawFrame(){
  ctx.fillText('WALK',140,H-28);
  mhPaintNoobWorld(ctx,move,380,H-78,0.95,1,false,t,phase,flat,true);
  ctx.fillStyle='#ffe060'; ctx.fillText('RUN',380,H-28);
- mhPaintNoobWorld(ctx,king,640,H-82,1.05,1,false,t,phase,true,false);
+ mhPaintNoobWorld(ctx,king,640,H-88,1.22,1,false,t,phase,true,false);
  ctx.fillStyle='#e8d0ff'; ctx.font='bold 10px system-ui';
- ctx.fillText('KING · RED/BLACK ARMOR',640,H-28);
- ctx.fillText('AXE + SHIELD · '+MH_VOID_KING_DEPTH+' DEPTH',640,H-14);
+ ctx.fillText('VOID FALLEN GOD · HUGE',640,H-28);
+ ctx.fillText('TWIN AXE · SPIKY SHIELD · MASK · '+MH_VOID_KING_DEPTH+' DEPTH',640,H-14);
  const flatDemo=mhDemoMorph('sway',{torso:'#0085DB'});
  mhPaintNoobWorld(ctx,flatDemo,860,H-78,0.88,1,false,t,phase,flat,false);
  ctx.fillStyle='#c0d0e0'; ctx.fillText(flat?'FLAT 2D':'3D',860,H-28);
@@ -8895,7 +8964,7 @@ function mhRenderMorph(save){
 }
 
 function mhStoryPreviewRoster(){
- const extras=[mhMorph('ex-mayor'),mhMorph('ex-plague-doctor')].filter(Boolean);
+ const extras=[mhMorph('ex-mayor'),mhMorph('ex-plague-doctor'),mhMorph('vf-king')].filter(Boolean);
  return MH_SIGNATURE_NOOBIES.concat(extras);
 }
 function mhSigPanelHtml(m,canWear){
@@ -8965,7 +9034,7 @@ function mhStarsDrawFrame(){
    mhDrawPlagueDoctorAura(ctx,cx,cy-4,t,0.9);
    mhPaintPlagueDoctorNoob(ctx,cx,cy+8,0.58,1,false,phase,false,t);
   }else if(m.voidKing){
-   mhPaintVoidKing(ctx,cx,cy+8,0.58,1,false,phase,false,t,false);
+   mhPaintNoobWorld(ctx,m,cx,cy+8,0.72,1,false,t,phase,false,false);
   }else{
    mhPaintNoobWorld(ctx,m,cx,cy+8,0.58,1,false,t,phase,false,false);
   }
