@@ -5,9 +5,9 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v129';
-const MH_SCENERY_STAMP='STABLE_v129';
-const MH_SCRIPT_CANON='morph-hunt.void-2d-v129.js';
+const MH_BUILD='void-2d-v131';
+const MH_SCENERY_STAMP='STABLE_v131';
+const MH_SCRIPT_CANON='morph-hunt.void-2d-v131.js';
 const MH_QUEST_STUB_COST=800;
 const MH_TIME_TRAVEL_COST=2000;
 const MH_TIME_TRAVELER_ID='ex-time-traveler';
@@ -4307,32 +4307,9 @@ function mhBindHuntUiCompact(root){
  root?.querySelector('#mh-ui-compact-toggle')?.addEventListener('click',()=>{
   const compact=!mhHuntUiCompact();
   mhSetHuntUiCompact(compact);
-  mhToast(compact?'🎮 Clean view — slim bottom bar · 👀 Preview · H for more':'📋 Full tips & controls shown');
+  mhToast(compact?'🎮 Clean view — no bottom bar · E fight · F house · P preview':'📋 Full tips & map controls shown');
   mhRender();
  });
-}
-function mhWalkDockToggleExpanded(root){
- const hud=root?.querySelector('#mh-walk-hud.mh-walk-dock');
- if(!hud) return false;
- const on=!hud.classList.contains('is-expanded');
- hud.classList.toggle('is-expanded',on);
- if(on) mhToast('More controls · H to tuck away');
- else mhToast('Slim bar only · H expands');
- return on;
-}
-function mhBindWalkHudDock(root){
- if(!mhHuntUiCompact()) return;
- const hud=root?.querySelector('#mh-walk-hud.mh-walk-dock');
- if(!hud) return;
- root?.querySelector('#mh-walk-dock-toggle')?.addEventListener('click',()=> mhWalkDockToggleExpanded(root));
- document.addEventListener('keydown',e=>{
-  if(mhState?.tab!=='hunt') return;
-  if(mhMorphHuntTypingTarget(document.activeElement)) return;
-  if(e.key==='h'&&!e.metaKey&&!e.ctrlKey&&!e.altKey){
-   e.preventDefault();
-   mhWalkDockToggleExpanded(root);
-  }
- },true);
 }
 function mhQuickPreviewPickIds(save){
  const ids=[];
@@ -4387,7 +4364,7 @@ function mhOpenQuickPreview(focusId){
   modal.hidden=true;
   mhShowcaseStop();
  });
- mhToast('👀 Preview · P anytime on the map');
+ mhToast('👀 Preview · P on map · or 🎭 Morph / ⭐ Stars tabs');
 }
 function mhMorphHuntInertBackground(on){
  if(!mhState) return;
@@ -8756,7 +8733,6 @@ function mhWalkStart(){
   if(mhState?.insideBuilding) mhExitBuilding();
   else if(mhState?.walkNearBuilding) mhEnterBuilding(mhState.walkNearBuilding,mhState.world);
  });
- root?.querySelector('#mh-walk-preview')?.addEventListener('click',()=> mhOpenQuickPreview());
  root?.querySelector('#mh-walk-run')?.addEventListener('pointerdown',()=>{
   if(!mhState.walkKeys) mhState.walkKeys={};
   mhState.walkKeys.run=true;
@@ -8913,22 +8889,7 @@ function mhRenderHunt(save, wi){
    <button type="button" class="mh-dpad-btn mh-dpad-fight" id="mh-touch-fight" aria-label="Fight">⚔</button>
   </div>
   ${mhHuntUiCompact()
-   ?`<div id="mh-walk-hud" class="mh-walk-hud mh-walk-hud-clean is-compact mh-walk-dock" aria-label="Map controls">
-   <div class="mh-walk-dock-bar">
-    <span class="mh-walk-zone">${world.emoji} ${world.name} · ${found}/${morphs.length}</span>
-    <div class="mh-walk-dock-btns">
-     <button type="button" class="mh-btn primary mh-btn-sm mh-dock-btn" id="mh-walk-interact" title="Fight (E)">⚔</button>
-     <button type="button" class="mh-btn mh-btn-sm mh-dock-btn" id="mh-walk-enter" title="House (F)">🏠</button>
-     <button type="button" class="mh-btn mh-btn-sm mh-dock-btn" id="mh-walk-preview" title="Preview morph (P)">👀</button>
-     <button type="button" class="mh-btn mh-btn-sm mh-dock-btn mh-dock-more" id="mh-walk-dock-toggle" title="More controls (H)">⋯</button>
-    </div>
-   </div>
-   <div class="mh-walk-dock-extra">
-    <span class="mh-walk-prompt" hidden>Walk closer</span>
-    <button type="button" class="mh-btn mh-btn-sm" id="mh-walk-run">Run</button>
-    ${fightKeysUi}
-   </div>
-  </div>`
+   ?''
    :`<div id="mh-walk-hud" class="mh-walk-hud mh-walk-hud-clean">
    <span class="mh-walk-zone">${world.emoji} ${world.name} · ${found}/${morphs.length}</span>
    <span class="mh-walk-prompt" hidden>Walk closer</span>
@@ -9142,7 +9103,6 @@ function mhRenderGacha(save){
 function mhBind(root){
  mhBindIdeHint(root);
  mhBindHuntUiCompact(root);
- mhBindWalkHudDock(root);
  root.querySelector('#mh-leave')?.addEventListener('click',mhClose);
  root.querySelectorAll('[data-mh-id]').forEach(btn=>btn.addEventListener('click',()=>mhCollect(btn.dataset.mhId)));
  root.querySelectorAll('[data-mh-world]').forEach(btn=>btn.addEventListener('click',()=>{ mhState.huntPage=0; mhSetWorld(+btn.dataset.mhWorld); }));
