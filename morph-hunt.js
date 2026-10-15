@@ -5,9 +5,9 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v131';
-const MH_SCENERY_STAMP='STABLE_v131';
-const MH_SCRIPT_CANON='morph-hunt.void-2d-v131.js';
+const MH_BUILD='void-2d-v132';
+const MH_SCENERY_STAMP='STABLE_v132';
+const MH_SCRIPT_CANON='morph-hunt.void-2d-v132.js';
 const MH_QUEST_STUB_COST=800;
 const MH_TIME_TRAVEL_COST=2000;
 const MH_TIME_TRAVELER_ID='ex-time-traveler';
@@ -1424,14 +1424,19 @@ mhScatterHiddenHideouts();
  const m=MH_MORPHS.find(x=>x.id===MH_TIME_TRAVELER_ID);
  const map=MH_WORLD_MAPS[0];
  if(!m||!map?.court) return;
- for(let a=0;a<40;a++){
-  const tx=map.court.tx+map.court.w+1+(a%3);
-  const ty=map.court.ty+1+(Math.floor(a/3)%Math.max(1,map.court.h-1));
+ for(let a=0;a<80;a++){
+  const tx=map.court.tx+map.court.w+1+(a%5);
+  const ty=map.court.ty+(Math.floor(a/5)%Math.max(1,map.court.h+2));
   if(mhTileWalkable(map,tx,ty)&&!mhTileInCourt(map,tx,ty)){
    m.tileX=tx; m.tileY=ty;
    map.timeTraveler={tx,ty,label:'⏳ Time Traveler'};
    break;
   }
+ }
+ if(!m.tileX){
+  const tx=Math.min(map.w-3,map.court.tx+map.court.w+1), ty=map.court.ty+1;
+  m.tileX=tx; m.tileY=ty;
+  map.timeTraveler={tx,ty,label:'⏳ Time Traveler'};
  }
 })();
 
@@ -1571,6 +1576,9 @@ const MH_DISCO_MORPH_IDS=['ex-disco-mirror','ex-disco-laser','ex-disco-strobe'];
 let mhDiscoBroadcast=null;
 function mhMorphNeverInGacha(m){
  return !!(m&&(m.codeOnly||m.mayorOnly||m.plagueOnly||m.discoOnly||m.timeTravelerOnly||m.matrixOnly||m.signatureOnly||m.questOnly));
+}
+function mhOpenPlayMorphIds(){
+ return MH_MORPHS.filter(m=>!mhMorphNeverInGacha(m)).map(m=>m.id);
 }
 function mhDiscoWorldRead(){
  try{ return JSON.parse(localStorage.getItem(MH_DISCO_WORLD_KEY)||'null'); }catch(_){ return null; }
@@ -1927,7 +1935,7 @@ function mhOpenPlaySave(){
  const wear=mhLoadWearId();
  const test=mhIsTestProfile();
  const base={
-  collected:MH_MORPHS.filter(m=>!m.questOnly).map(m=>m.id),
+  collected:mhOpenPlayMorphIds(),
   worldsUnlocked:MH_WORLDS.length,
   coins:99999,
   wearing:wear||(test?'ex-welcome':'ex-welcome'),
@@ -1938,6 +1946,7 @@ function mhOpenPlaySave(){
   chatDisplayName:test?'Test Account':'',
   chatFriends:[],
   plagueQuest:mhDefaultPlagueQuest(),
+  timeQuest:mhDefaultTimeQuest(),
   questPack:mhDefaultQuestPack()
  };
  try{
@@ -1950,6 +1959,7 @@ function mhOpenPlaySave(){
   if(typeof raw.chatDisplayName==='string'&&raw.chatDisplayName&&!test) base.chatDisplayName=raw.chatDisplayName;
   if(Array.isArray(raw.chatFriends)) base.chatFriends=raw.chatFriends.filter(x=>typeof x==='string');
   base.plagueQuest=mhNormalizePlagueQuest(raw.plagueQuest);
+  base.timeQuest=mhNormalizeTimeQuest(raw.timeQuest);
   base.questPack=mhNormalizeQuestPack(raw.questPack);
   if(raw.wearing&&MH_MORPHS.some(m=>m.id===raw.wearing)) base.wearing=raw.wearing;
   else if(wear) base.wearing=wear;
@@ -1965,6 +1975,7 @@ function mhOpenPlaySave(){
  }
  mhCrossLinkPlayFriends(base);
  mhDiscoApplyPending(base,true);
+ mhRepairTimeQuestGrant(base);
  return base;
 }
 function mhCrossLinkPlayFriends(save){
@@ -3295,7 +3306,7 @@ function mhLoadSave(){
    if(slim&&typeof slim.chatDisplayName==='string'&&slim.chatDisplayName.trim()) ownerName=slim.chatDisplayName.trim();
   }catch(_){}
   return{
-   collected:MH_MORPHS.filter(m=>!m.questOnly).map(m=>m.id),
+   collected:mhOpenPlayMorphIds(),
    worldsUnlocked:MH_WORLDS.length,
    coins:99999,
    wearing:wear||'ex-welcome',
@@ -3332,6 +3343,7 @@ function mhLoadSave(){
   };
   mhAdminApplyPendingGifts(out);
   mhDiscoApplyPending(out,true);
+  mhRepairTimeQuestGrant(out);
   return out;
  }catch(_){return {...mhDefaultSave(),wearing:wear};}
 }
@@ -3451,6 +3463,11 @@ function mhTimeQuest(save){
  if(!save.timeQuest) save.timeQuest=mhDefaultTimeQuest();
  save.timeQuest=mhNormalizeTimeQuest(save.timeQuest);
  return save.timeQuest;
+}
+function mhRepairTimeQuestGrant(save){
+ if(!save) return;
+ const q=mhTimeQuest(save);
+ if(q.done&&!mhHasMorph(save,MH_MATRIX_MORPH_ID)) mhAdminGrantMorph(save,MH_MATRIX_MORPH_ID,true);
 }
 function mhDefaultQuestPack(){
  return{
@@ -3830,6 +3847,16 @@ function mhDrawQuestWorldMarkers(ctx,map,wi,t,save){
   ctx.fillStyle='#ffe8a0'; ctx.font='bold 9px system-ui'; ctx.textAlign='center';
   ctx.fillText(pin.label||'✨ Quest',x,y-10);
  });
+ if(wi===0&&map.court){
+  const dev=mhQuestMorphByKey('developer');
+  if(dev&&!mhHasMorph(save,dev.id)&&dev.tileX!=null){
+   const ax=(map.court.tx+map.court.w)*MH_TILE+MH_TILE*0.65, ay=map.court.ty*MH_TILE+MH_TILE*0.4;
+   const bob=Math.sin(t*2.2)*3;
+   ctx.fillStyle='rgba(0,24,16,.78)'; ctx.fillRect(ax-36,ay-18+bob,72,22);
+   ctx.fillStyle='#39ff14'; ctx.font='bold 11px monospace'; ctx.textAlign='center';
+   ctx.fillText('</>',ax,ay-2+bob);
+  }
+ }
 }
 function mhNearTimeTraveler(st,wi,pos){
  const m=mhMorph(MH_TIME_TRAVELER_ID);
