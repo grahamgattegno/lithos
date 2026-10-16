@@ -5,7 +5,7 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v134';
+const MH_BUILD='void-2d-v135';
 const MH_SCENERY_STAMP='STABLE_v133';
 const MH_SCRIPT_CANON='morph-hunt.void-2d-v133.js';
 const MH_QUEST_STUB_COST=800;
@@ -6767,7 +6767,7 @@ function mhOpenQuickPreview(focusId){
   <div class="mh-quick-preview-links">
    <button type="button" class="mh-btn mh-btn-sm" data-mh-tab="morph">🎭 Your morphs</button>
    <button type="button" class="mh-btn mh-btn-sm" data-mh-tab="stars">⭐ Story Stars</button>
-   <button type="button" class="mh-btn mh-btn-sm primary" data-mh-tab="auras">✨ All new noobies</button>
+   <button type="button" class="mh-btn mh-btn-sm primary" data-mh-tab="stars">✨ All new (Stars)</button>
    <button type="button" class="mh-btn mh-btn-sm" data-mh-tab="preview">🎬 Animations</button>
   </div>
   ${mhHasMorph(save,m.id)||mhIsOwner()?`<button type="button" class="mh-btn primary" data-mh-wear="${m.id}">🎭 Morph into ${m.name.replace(/ Noobie$/,'')}</button>`:''}
@@ -8571,6 +8571,7 @@ function mhSetWorld(wi){
 
 function mhSetTab(tab){
  if(!mhState)return;
+ if(tab==='auras') tab='stars';
  mhState.tab=tab;
  mhState.page=0;
  mhRender();
@@ -11485,6 +11486,7 @@ function mhStarsDrawFrame(){
   ctx.fillStyle='#788898'; ctx.font='9px system-ui';
   ctx.fillText(mhRarityLabel(m),cx,cy+boxH/2+2,boxW-8);
  });
+ mhDrawAuraGalleryCanvas(t,phase);
  st.starsRaf=requestAnimationFrame(mhStarsDrawFrame);
 }
 function mhStarsStart(){
@@ -11492,6 +11494,7 @@ function mhStarsStart(){
  if(mhState) mhState.starsPhase=0;
  mhStarsDrawFrame();
 }
+function mhAurasStop(){}
 function mhAuraGalleryRoster(){
  const out=[];
  MH_MORPHS.forEach(m=>{
@@ -11504,21 +11507,7 @@ function mhAuraGalleryRoster(){
  });
  return out;
 }
-function mhAurasStop(){
- if(mhState&&mhState.aurasRaf) cancelAnimationFrame(mhState.aurasRaf);
- if(mhState) mhState.aurasRaf=0;
-}
-function mhAurasDrawFrame(){
- const st=mhState;
- if(!st||st.tab!=='auras') return;
- const canvas=document.getElementById('mh-aura-gallery-canvas');
- if(!canvas){ st.aurasRaf=requestAnimationFrame(mhAurasDrawFrame); return; }
- const ctx=canvas.getContext('2d');
- if(!ctx){ st.aurasRaf=requestAnimationFrame(mhAurasDrawFrame); return; }
- const W=canvas.width,H=canvas.height;
- const t=performance.now()/1000;
- st.aurasPhase=(st.aurasPhase||0)+0.028;
- const phase=st.aurasPhase;
+function mhDrawNewNoobieGallery(ctx,W,H,t,phase){
  const roster=mhAuraGalleryRoster();
  const cols=6;
  const cw=W/cols;
@@ -11532,7 +11521,8 @@ function mhAurasDrawFrame(){
  ctx.fillStyle='#ffe8a0'; ctx.font='bold 15px system-ui,sans-serif'; ctx.textAlign='center';
  ctx.fillText('✨ All new noobies — live auras & animations ('+roster.length+')',W/2,28);
  ctx.font='11px system-ui'; ctx.fillStyle='#90a0b8';
- ctx.fillText('88 aura collectibles + quest crew · scroll this page · groves, gacha & quests to unlock',W/2,46);
+ const auraN=roster.filter(m=>m.auraCollectible).length;
+ ctx.fillText(auraN+' aura collectibles + quest crew · groves, gacha & quests to unlock',W/2,46);
  roster.forEach((m,i)=>{
   const col=i%cols,row=Math.floor(i/cols);
   const cx=cw*col+cw/2,cy=64+row*cellH+cellH*0.46;
@@ -11559,28 +11549,13 @@ function mhAurasDrawFrame(){
   const tag=m.auraCollectible?(m.auraKind||m.auraType||'aura'):(m.questOnly?'quest':'special');
   ctx.fillText(tag+' · '+mhRarityLabel(m),cx,cy+boxH/2+0,boxW-6);
  });
- st.aurasRaf=requestAnimationFrame(mhAurasDrawFrame);
 }
-function mhAurasStart(){
- mhAurasStop();
- if(mhState) mhState.aurasPhase=0;
- mhAurasDrawFrame();
-}
-function mhRenderAuras(save){
- const roster=mhAuraGalleryRoster();
- const cols=6;
- const rows=Math.ceil(roster.length/cols);
- const canvasH=56+rows*136;
- const auraCount=MH_MORPHS.filter(m=>m.auraCollectible).length;
- const questCount=roster.length-auraCount;
- return `<div class="mh-stars-tab mh-sig-one-page mh-aura-gallery-page">
-  <h3>✨ All new noobies — one page</h3>
-  <p class="mh-scene-hint"><b>${auraCount}</b> aura collectibles · <b>${questCount}</b> quest &amp; special · <b>${roster.length}</b> total on the live mosaic below (animated)</p>
-  <div class="mh-aura-gallery-scroll">
-  <canvas id="mh-aura-gallery-canvas" class="mh-sig-all-canvas" width="960" height="${canvasH}" aria-label="Live preview of all new aura and quest noobies"></canvas>
-  </div>
-  <p class="mh-scene-hint">Tip: open with <code>?tab=auras</code> in the URL · Index search works too · Owner <code>/give ex-aura-fire-sprite</code> to wear one</p>
- </div>`;
+function mhDrawAuraGalleryCanvas(t,phase){
+ const canvas=document.getElementById('mh-aura-gallery-canvas');
+ if(!canvas) return;
+ const ctx=canvas.getContext('2d');
+ if(!ctx) return;
+ mhDrawNewNoobieGallery(ctx,canvas.width,canvas.height,t,phase);
 }
 function mhRenderStars(save){
  const canWear=mhIsOwner();
@@ -11596,9 +11571,22 @@ function mhRenderStars(save){
  const questCrew=`<section class="mh-sig-section"><h4>☣ Quest crew (already in game)</h4><div class="mh-sig-all-list">${mhSigPanelHtml(mhMorph('ex-mayor'),canWear)}${mhSigPanelHtml(mhMorph('ex-plague-doctor'),canWear)}</div></section>`;
  const u100=mhMorph('code-update100');
  const partySec=u100?`<section class="mh-sig-section mh-update100-party"><h4>🎂 Update 100 party</h4><div class="mh-sig-all-list">${mhSigPanelHtml(u100,canWear)}<p class="mh-scene-hint">Redeem in 🎲 Gacha: <b>UPDATE100</b> (also <b>HAPPY100THUPDATE</b>) · confetti + <b>Update 100 Noobie</b> + 💯 title</p></div></section>`:'';
- return `<div class="mh-stars-tab mh-sig-one-page">
-  <h3>⭐ All story noobies — one preview page</h3>
-  <p class="mh-scene-hint"><b>${roster.length}</b> morphs on the mosaic below · 🎂 <b>UPDATE100</b> for the 100th update party!</p>
+ const newRoster=mhAuraGalleryRoster();
+ const newCols=6;
+ const newRows=Math.ceil(newRoster.length/newCols);
+ const newCanvasH=56+newRows*136;
+ const auraCount=MH_MORPHS.filter(m=>m.auraCollectible).length;
+ return `<div class="mh-stars-tab mh-sig-one-page mh-aura-gallery-page">
+  <h3>⭐ Stars — all new noobies + story previews</h3>
+  <section class="mh-sig-section">
+   <h4>✨ All new noobies (${newRoster.length} live — auras &amp; animations)</h4>
+   <p class="mh-scene-hint"><b>${auraCount}</b> aura collectibles + quest crew · scroll for story mosaic below</p>
+   <div class="mh-aura-gallery-scroll">
+    <canvas id="mh-aura-gallery-canvas" class="mh-sig-all-canvas" width="960" height="${newCanvasH}" aria-label="Live preview of all new aura and quest noobies"></canvas>
+   </div>
+  </section>
+  <h4>⭐ Story star mosaic (${roster.length})</h4>
+  <p class="mh-scene-hint">🎂 <b>UPDATE100</b> for the 100th update party!</p>
   <canvas id="mh-sig-all-canvas" class="mh-sig-all-canvas" width="960" height="${canvasH}" aria-label="Combined preview of all story noobies"></canvas>
   <div class="mh-sig-all-scroll">${partySec}${panels}${questCrew}</div>
  </div>`;
@@ -11695,7 +11683,6 @@ function mhRender(){
  else if(tab==='gacha') body=mhRenderGacha(save);
  else if(tab==='preview') body=mhRenderPreview();
  else if(tab==='stars') body=mhRenderStars(save);
- else if(tab==='auras') body=mhRenderAuras(save);
 
  root.innerHTML=`<div class="mh-panel mh-ftn${mhHuntUiCompact()?' mh-ui-compact':''}">
   ${mhIdePreviewHintHtml()}
@@ -11712,7 +11699,6 @@ function mhRender(){
     <button type="button" class="mh-tab${tab==='morph'?' on':''}" data-mh-tab="morph">🎭 Morph</button>
     <button type="button" class="mh-tab${tab==='gacha'?' on':''}" data-mh-tab="gacha">🎲 Gacha</button>
     <button type="button" class="mh-tab${tab==='stars'?' on':''}" data-mh-tab="stars">⭐ Stars</button>
-    <button type="button" class="mh-tab${tab==='auras'?' on':''}" data-mh-tab="auras">✨ All new</button>
     <button type="button" class="mh-tab${tab==='preview'?' on':''}" data-mh-tab="preview">🎬 Animations</button>
    </div>
    <div class="mh-head-stats">
@@ -11758,8 +11744,6 @@ function mhRender(){
  }else if(tab==='stars'){
   mhStarsStart();
   mhShowcaseStart();
- }else if(tab==='auras'){
-  mhAurasStart();
  }else if(tab==='morph'){
   mhShowcaseStart();
  }
@@ -11777,8 +11761,8 @@ function mhSyncMorphHuntUrl(){
 function mhMorphHuntOpenTab(){
  try{
   const t=(new URLSearchParams(location.search).get('tab')||'').toLowerCase();
-  if(t==='aura'||t==='auras'||t==='new') return 'auras';
-  const ok=['hunt','index','morph','gacha','stars','preview','auras'];
+  if(t==='aura'||t==='auras'||t==='new') return 'stars';
+  const ok=['hunt','index','morph','gacha','stars','preview'];
   if(ok.includes(t)) return t;
  }catch(_){}
  return 'hunt';
