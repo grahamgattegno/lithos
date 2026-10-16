@@ -5,7 +5,7 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v136';
+const MH_BUILD='void-2d-v137';
 const MH_SCENERY_STAMP='STABLE_v133';
 const MH_SCRIPT_CANON='morph-hunt.void-2d-v133.js';
 const MH_QUEST_STUB_COST=800;
@@ -11240,8 +11240,21 @@ function mhRenderPlagueQuestPanel(save){
  </div>`;
 }
 function mhCodexArtHtml(m,got){
- if(got||m.plagueOnly||m.mayorOnly||m.discoOnly||m.timeTravelerOnly||m.matrixOnly||m.questOnly) return `<svg viewBox="0 0 100 130">${mhClassicNoobSvg(m)}</svg>`;
+ if(got||m.plagueOnly||m.mayorOnly||m.discoOnly||m.timeTravelerOnly||m.matrixOnly||m.questOnly||m.auraCollectible) return `<svg viewBox="0 0 100 130">${mhClassicNoobSvg(m)}</svg>`;
  return '<div class="mh-silhouette">?</div>';
+}
+function mhRenderAuraGalleryGrid(){
+ const roster=mhAuraGalleryRoster();
+ const cards=roster.map(m=>{
+  const r=mhRarityInfo(m);
+  const tag=m.auraCollectible?(m.auraKind||m.auraType||'aura'):(m.questOnly?'quest':'special');
+  return `<div class="mh-sig-card mh-aura-gallery-card" style="--mh-rarity:${r.color}" title="${String(m.name).replace(/"/g,'&quot;')}">
+   <div class="mh-codex-art">${mhCodexArtHtml(m,true)}</div>
+   <b>${m.name.replace(/ Noobie$/,'')}</b>
+   <small>${tag} · ${mhRarityLabel(m)}</small>
+  </div>`;
+ }).join('');
+ return `<div class="mh-sig-grid mh-aura-gallery-grid" aria-label="All new noobies preview grid">${cards}</div>`;
 }
 function mhRenderHuntDeck(save,wi,morphs){
  const pg=mhPaginate(morphs,mhState.huntPage||0,16);
@@ -11441,6 +11454,10 @@ function mhStarsStop(){
 function mhStarsDrawFrame(){
  const st=mhState;
  if(!st||st.tab!=='stars') return;
+ if(st.starsSlowUntil==null) st.starsSlowUntil=0;
+ const now=performance.now();
+ if(now<st.starsSlowUntil){ st.starsRaf=requestAnimationFrame(mhStarsDrawFrame); return; }
+ st.starsSlowUntil=now+120;
  const canvas=document.getElementById('mh-sig-all-canvas');
  if(!canvas){ st.starsRaf=requestAnimationFrame(mhStarsDrawFrame); return; }
  const ctx=canvas.getContext('2d');
@@ -11486,7 +11503,6 @@ function mhStarsDrawFrame(){
   ctx.fillStyle='#788898'; ctx.font='9px system-ui';
   ctx.fillText(mhRarityLabel(m),cx,cy+boxH/2+2,boxW-8);
  });
- mhDrawAuraGalleryCanvas(t,phase);
  st.starsRaf=requestAnimationFrame(mhStarsDrawFrame);
 }
 function mhStarsStart(){
@@ -11572,18 +11588,13 @@ function mhRenderStars(save){
  const u100=mhMorph('code-update100');
  const partySec=u100?`<section class="mh-sig-section mh-update100-party"><h4>🎂 Update 100 party</h4><div class="mh-sig-all-list">${mhSigPanelHtml(u100,canWear)}<p class="mh-scene-hint">Redeem in 🎲 Gacha: <b>UPDATE100</b> (also <b>HAPPY100THUPDATE</b>) · confetti + <b>Update 100 Noobie</b> + 💯 title</p></div></section>`:'';
  const newRoster=mhAuraGalleryRoster();
- const newCols=6;
- const newRows=Math.ceil(newRoster.length/newCols);
- const newCanvasH=56+newRows*136;
  const auraCount=MH_MORPHS.filter(m=>m.auraCollectible).length;
  return `<div class="mh-stars-tab mh-sig-one-page mh-aura-gallery-page">
   <h3>⭐ Stars — all new noobies + story previews</h3>
   <section class="mh-sig-section">
-   <h4>✨ All new noobies (${newRoster.length} live — auras &amp; animations)</h4>
-   <p class="mh-scene-hint"><b>${auraCount}</b> aura collectibles + quest crew · scroll for story mosaic below</p>
-   <div class="mh-aura-gallery-scroll">
-    <canvas id="mh-aura-gallery-canvas" class="mh-sig-all-canvas" width="960" height="${newCanvasH}" aria-label="Live preview of all new aura and quest noobies"></canvas>
-   </div>
+   <h4>✨ All new noobies (${newRoster.length} on this page — auras in art)</h4>
+   <p class="mh-scene-hint"><b>${auraCount}</b> aura collectibles + quest crew · <b>scroll the grid</b> ↓ · live motion on story mosaic below</p>
+   <div class="mh-aura-gallery-scroll">${mhRenderAuraGalleryGrid()}</div>
   </section>
   <h4>⭐ Story star mosaic (${roster.length})</h4>
   <p class="mh-scene-hint">🎂 <b>UPDATE100</b> for the 100th update party!</p>
