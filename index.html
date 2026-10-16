@@ -1705,8 +1705,11 @@
   .mh-ui-compact .mh-chat-chips-fold{display:none!important}
   .mh-ui-compact .mh-chat-compose.is-slim{border-width:1px;padding:6px 8px;box-shadow:none}
   .mh-ui-compact .mh-chat-compose.is-slim .mh-chat-compose-head{display:none!important}
-  .mh-ui-compact .mh-chat-panel .mh-chat-head,.mh-ui-compact .mh-chat-panel .mh-chat-profile,.mh-ui-compact .mh-chat-panel .mh-chat-buddy-row,.mh-ui-compact .mh-chat-panel .mh-chat-buddy-code,.mh-ui-compact .mh-chat-panel .mh-chat-tabs,.mh-ui-compact .mh-chat-panel .mh-chat-log,.mh-ui-compact .mh-chat-panel .mh-chat-friends,.mh-ui-compact .mh-chat-panel .mh-chat-rules,.mh-ui-compact .mh-chat-panel .mh-chat-hint{display:none!important}
+  .mh-ui-compact .mh-chat-panel .mh-chat-profile,.mh-ui-compact .mh-chat-panel .mh-chat-buddy-row,.mh-ui-compact .mh-chat-panel .mh-chat-buddy-code,.mh-ui-compact .mh-chat-panel .mh-chat-friends,.mh-ui-compact .mh-chat-panel .mh-chat-rules,.mh-ui-compact .mh-chat-panel .mh-chat-hint{display:none!important}
   .mh-ui-compact .mh-chat-panel{padding:8px;max-height:none;gap:6px}
+  .mh-ui-compact .mh-chat-panel .mh-chat-head{font-size:11px;padding-bottom:2px}
+  .mh-ui-compact .mh-chat-panel .mh-chat-tabs{display:flex!important}
+  .mh-ui-compact .mh-chat-panel .mh-chat-log{display:block!important;flex:1 1 auto;min-height:120px;max-height:min(36vh,260px);margin:0}
   .mh-quick-preview-chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:10px 0 8px}
   .mh-quick-preview-chip{font:inherit;font-size:10px;font-weight:800;padding:5px 9px;border-radius:999px;border:2px solid #304050;background:#121820;color:#c0d0e8;cursor:pointer}
   .mh-quick-preview-chip.on{border-color:#80e8ff;color:#ffe8a0;background:#1a2840}
@@ -5678,7 +5681,7 @@
 <script src="gemcopter.js?v=deploy-85"></script>
 <script>
 (function lithosLoadMorphHunt(){
- var MH_NEED='void-2d-v135';
+ var MH_NEED='void-2d-v136';
  var MH_CHAT_UI='compose-under-log-v2';
  var MH_SCRIPT='morph-hunt.'+MH_NEED+'.js';
  window.__LITHOS_MH_LATEST=MH_NEED;
@@ -5777,7 +5780,7 @@
 <script>
 window.lithosPlayMorphHunt=function lithosPlayMorphHunt(){
  try{if(typeof closeGamesHub==='function')closeGamesHub({skipHash:true});}catch(_){}
-  var NEED=window.__LITHOS_MH_LATEST||window.__LITHOS_MH_NEED||'void-2d-v135';
+  var NEED=window.__LITHOS_MH_LATEST||window.__LITHOS_MH_NEED||'void-2d-v136';
  var tries=0;
  function mhBuildNum(tag){
   var m=String(tag||'').match(/void-2d-v(\d+)/);
