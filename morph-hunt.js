@@ -5,7 +5,7 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v137';
+const MH_BUILD='void-2d-v138';
 const MH_SCENERY_STAMP='STABLE_v133';
 const MH_SCRIPT_CANON='morph-hunt.void-2d-v133.js';
 const MH_QUEST_STUB_COST=800;
@@ -11788,7 +11788,26 @@ function mhMorphHuntStaleHostHint(){
  }catch(_){}
  return false;
 }
+function mhForcePageReloadIfStaleIndex(){
+ try{
+  const need=typeof window.__LITHOS_MH_LATEST==='string'?window.__LITHOS_MH_LATEST:'';
+  if(!need||need===MH_BUILD) return false;
+  const n=+(sessionStorage.getItem('lithos_mh_reload_n')||0);
+  if(n>=8){ mhToast('⚠️ Still on '+MH_BUILD+' — index wants '+need+'. Quit Safari (Cmd+Q) and run Play-Newest-Lithos-in-Safari.command'); return true; }
+  sessionStorage.setItem('lithos_mh_reload_n',String(n+1));
+  const u=new URL(location.href);
+  u.searchParams.set('mh',need);
+  u.searchParams.set('sr','138');
+  u.searchParams.set('hard','1');
+  u.searchParams.set('fresh','1');
+  u.searchParams.set('t',String(Date.now()));
+  u.hash='morphhunt';
+  location.replace(u.toString());
+  return true;
+ }catch(_){ return false; }
+}
 function playMorphHunt(){
+ if(mhForcePageReloadIfStaleIndex()) return;
  mhApplyProfileFromUrl();
  mhSyncMorphHuntUrl();
  mhClose();

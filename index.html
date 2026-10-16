@@ -1,10 +1,32 @@
 <!DOCTYPE html>
-<!-- lithos-v:morph-hunt-v125-hardrefresh-v1 -->
+<!-- lithos-v:morph-hunt-index-rev-138 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<script>
+(function lithosEnforceSiteRev(){
+ var SITE_REV='138';
+ var MH_LATEST='void-2d-v138';
+ try{
+  var u=new URL(location.href);
+  if(u.searchParams.get('sr')===SITE_REV) return;
+  u.searchParams.set('sr',SITE_REV);
+  u.searchParams.set('hard','1');
+  u.searchParams.set('fresh','1');
+  u.searchParams.set('t',String(Date.now()));
+  var qMh=u.searchParams.get('mh')||'';
+  var qN=parseInt((qMh.match(/void-2d-v(\d+)/)||[])[1]||'0',10);
+  var needN=parseInt((MH_LATEST.match(/void-2d-v(\d+)/)||[])[1]||'0',10);
+  if(!qMh||qN<needN) u.searchParams.set('mh',MH_LATEST);
+  if((u.hash||'').indexOf('morphhunt')<0&&u.searchParams.get('mh')) u.hash='morphhunt';
+  location.replace(u.toString());
+ }catch(_){}
+})();
+</script>
 <script>
 (function lithosHardRefreshBootstrap(){
  if(!/[?&](?:hard|fresh)=1(?:&|$)/.test(location.search)) return;
@@ -5686,7 +5708,7 @@
 <script src="gemcopter.js?v=deploy-85"></script>
 <script>
 (function lithosLoadMorphHunt(){
- var MH_NEED='void-2d-v137';
+ var MH_NEED='void-2d-v138';
  var MH_CHAT_UI='compose-under-log-v2';
  var MH_SCRIPT='morph-hunt.'+MH_NEED+'.js';
  window.__LITHOS_MH_LATEST=MH_NEED;
@@ -5729,7 +5751,7 @@
    return;
   }
   if(!qMh||qNum<needNum){
-   location.replace(mhMorphHuntUrl());
+   location.replace(mhMorphHuntUrl({fresh:'1'}));
    return;
   }
   if(onPages&&qNum===needNum&&(location.hash||'').indexOf('morphhunt')>=0&&!hard){
@@ -5785,7 +5807,7 @@
 <script>
 window.lithosPlayMorphHunt=function lithosPlayMorphHunt(){
  try{if(typeof closeGamesHub==='function')closeGamesHub({skipHash:true});}catch(_){}
-  var NEED=window.__LITHOS_MH_LATEST||window.__LITHOS_MH_NEED||'void-2d-v137';
+  var NEED=window.__LITHOS_MH_LATEST||window.__LITHOS_MH_NEED||'void-2d-v138';
  var tries=0;
  function mhBuildNum(tag){
   var m=String(tag||'').match(/void-2d-v(\d+)/);
@@ -5803,6 +5825,8 @@ window.lithosPlayMorphHunt=function lithosPlayMorphHunt(){
      try{sessionStorage.setItem('lithos_mh_reload_n',String(n+1));}catch(_){}
      var u=new URL(location.href);
      u.searchParams.set('mh',NEED);
+     u.searchParams.set('hard','1');
+     u.searchParams.set('fresh','1');
      u.searchParams.set('t',String(Date.now()));
      u.hash='morphhunt';
      location.replace(u.toString());
