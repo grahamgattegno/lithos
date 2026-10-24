@@ -5,7 +5,7 @@
 const MH_STORE_KEY='lithos_morph_hunt_v9';
 /* loader bridge: MH_BUILD='void-2d-v46' MH_BUILD='void-2d-v47' MH_BUILD='void-2d-v48' MH_BUILD='void-2d-v49' */
 /* loader bridge: MH_BUILD='void-2d-v50' */
-const MH_BUILD='void-2d-v138';
+const MH_BUILD='void-2d-v146';
 const MH_SCENERY_STAMP='STABLE_v133';
 const MH_SCRIPT_CANON='morph-hunt.void-2d-v133.js';
 const MH_QUEST_STUB_COST=800;
@@ -3781,27 +3781,137 @@ function mhIsRealOwner(){
  if(typeof isOwner!=='undefined'&&isOwner)return true;
  if(typeof document!=='undefined'&&document.body&&document.body.classList.contains('is-owner'))return true;
  try{
+  if(/[?&]owner=1(?:&|$)/.test(location.search)){
+   localStorage.setItem('lithos_owner','1');
+   return true;
+  }
   if(localStorage.getItem('lithos_owner')==='1') return true;
-  if(/[?&]owner=1(?:&|$)/.test(location.search)) return true;
  }catch(_){}
  return false;
+}
+function mhCanOwnerBan(){
+ return mhIsRealOwner();
+}
+function mhBuildNumFromTag(tag){
+ const m=String(tag||'').match(/void-2d-v(\d+)/);
+ return m?parseInt(m[1],10):0;
+}
+function mhLatestBuildTag(){
+ try{
+  return window.__LITHOS_MH_LATEST||window.__LITHOS_MH_NEED||MH_BUILD;
+ }catch(_){ return MH_BUILD; }
+}
+function mhBuildIsStale(){
+ return mhBuildNumFromTag(MH_BUILD)<mhBuildNumFromTag(mhLatestBuildTag());
+}
+function mhLiveBuildHtml(){
+ const latest=mhLatestBuildTag();
+ const stale=mhBuildIsStale();
+ const label=stale?('⚠ Update · '+MH_BUILD+' → '+latest):('✓ '+MH_BUILD);
+ const cls='mh-live-build'+(stale?' mh-live-build-stale':'');
+ return `<button type="button" class="${cls}" id="mh-live-build" title="${stale?'Tap to load '+latest+' (same as owner)':'You are on the newest Lithos build'}">${label}</button>`;
 }
 function mhIsOwner(){
  return MH_OPEN_PLAY||mhIsRealOwner();
 }
 const MH_ADMIN_GIFT_KEY='lithos_mh_admin_gifts_v1';
-const MH_BAN_KEY='lithos_mh_chat_bans_v1';
+const MH_BAN_KEY='lithos_mh_chat_bans_v2';
 const MH_BAN_BROADCAST='lithos-mh-ban';
+const MH_BAN_DEFAULT_MS=24*60*60*1000;
 let mhBanBroadcast=null;
 function mhBanDataRead(){
  try{
   const raw=JSON.parse(localStorage.getItem(MH_BAN_KEY)||'null');
-  if(raw&&typeof raw==='object') return {ids:raw.ids||{},names:raw.names||{}};
+  if(raw&&typeof raw==='object'){
+   const data={ids:raw.ids||{},names:raw.names||{}};
+   mhBanSweepExpired(data);
+   return data;
+  }
  }catch(_){}
  return {ids:{},names:{}};
 }
 function mhBanDataWrite(data){
+ mhBanSweepExpired(data);
  try{ localStorage.setItem(MH_BAN_KEY,JSON.stringify({ids:data.ids||{},names:data.names||{}})); }catch(_){}
+}
+function mhBanEntryActive(entry){
+ if(!entry) return false;
+ if(entry.permanent||entry.until===0) return true;
+ if(!entry.until) return true;
+ return entry.until>Date.now();
+}
+function mhBanSweepExpired(data){
+ if(!data?.ids) return;
+ const now=Date.now();
+ Object.keys(data.ids).forEach(id=>{
+  const e=data.ids[id];
+  if(!e) return;
+  if(e.permanent||e.until===0) return;
+  if(e.until&&e.until<=now){
+   delete data.ids[id];
+   Object.keys(data.names).forEach(k=>{ if(data.names[k]===id) delete data.names[k]; });
+  }
+ });
+}
+function mhBanLookup(data,fromId,fromName){
+ if(!data) return null;
+ if(fromId&&data.ids[fromId]){
+  const e=data.ids[fromId];
+  if(mhBanEntryActive(e)) return e;
+ }
+ const nm=String(fromName||'').trim().toLowerCase();
+ if(nm&&data.names[nm]){
+  const e=data.ids[data.names[nm]];
+  if(mhBanEntryActive(e)) return e;
+ }
+ return null;
+}
+function mhFormatBanRemaining(entry){
+ if(!entry||!mhBanEntryActive(entry)) return '';
+ if(entry.permanent||entry.until===0) return 'permanent';
+ const ms=Math.max(0,(entry.until||0)-Date.now());
+ if(ms<=0) return '';
+ const sec=Math.floor(ms/1000);
+ const d=Math.floor(sec/86400);
+ const h=Math.floor((sec%86400)/3600);
+ const m=Math.floor((sec%3600)/60);
+ if(d>0) return d+'d '+h+'h left';
+ if(h>0) return h+'h '+m+'m left';
+ if(m>0) return m+'m left';
+ return Math.max(1,Math.floor(sec))+'s left';
+}
+function mhFormatBanDurationLabel(durationMs){
+ if(durationMs==null) return 'permanent';
+ const ms=Math.max(0,durationMs);
+ const h=Math.round(ms/3600000);
+ if(ms>=86400000) return Math.round(ms/86400000)+' day(s)';
+ if(h>=1) return h+' hour(s)';
+ return Math.max(1,Math.round(ms/60000))+' min';
+}
+function mhParseBanDurationToken(s){
+ const t=String(s||'').trim().toLowerCase();
+ if(!t) return undefined;
+ if(t==='permanent'||t==='forever'||t==='perm') return null;
+ const m=t.match(/^(\d+(?:\.\d+)?)(m|min|mins|h|hr|hrs|d|day|days|w|week|weeks|s|sec|secs)?$/);
+ if(!m) return undefined;
+ let n=parseFloat(m[1]);
+ const u=(m[2]||'h').replace(/s$/,'');
+ if(u==='m'||u==='min') return n*60000;
+ if(u==='h'||u==='hr') return n*3600000;
+ if(u==='d'||u==='day') return n*86400000;
+ if(u==='w'||u==='week') return n*604800000;
+ if(u==='s'||u==='sec') return n*1000;
+ return n*3600000;
+}
+function mhSplitBanTarget(raw){
+ const q=String(raw||'').trim();
+ if(!q) return {target:'',durationMs:MH_BAN_DEFAULT_MS};
+ const parts=q.split(/\s+/);
+ if(parts.length>=2){
+  const dur=mhParseBanDurationToken(parts[parts.length-1]);
+  if(dur!==undefined) return {target:parts.slice(0,-1).join(' '),durationMs:dur};
+ }
+ return {target:q,durationMs:MH_BAN_DEFAULT_MS};
 }
 function mhBanBroadcastInit(){
  if(mhBanBroadcast||typeof BroadcastChannel==='undefined') return;
@@ -3815,7 +3925,10 @@ function mhBanApplyRemote(payload){
   delete data.ids[payload.id];
   if(payload.name) delete data.names[String(payload.name).trim().toLowerCase()];
  }else{
-  data.ids[payload.id]={name:payload.name||payload.id,at:payload.at||Date.now(),by:payload.by||''};
+  const at=payload.at||Date.now();
+  const permanent=!!payload.permanent||payload.until===0;
+  const until=permanent?0:(payload.until||(at+(payload.durationMs||MH_BAN_DEFAULT_MS)));
+  data.ids[payload.id]={name:payload.name||payload.id,at,by:payload.by||'',until,permanent};
   if(payload.name) data.names[String(payload.name).trim().toLowerCase()]=payload.id;
  }
  mhBanDataWrite(data);
@@ -3824,16 +3937,54 @@ function mhBanPost(payload){
  mhBanBroadcastInit();
  try{ mhBanBroadcast?.postMessage(payload); }catch(_){}
 }
-function mhIsPlayerIdBanned(fromId,fromName){
+function mhModSyncMessage(payload){
+ if(!payload?.id) return;
+ const at=payload.at||Date.now();
+ const msg={
+  id:'mod-'+payload.type+'-'+payload.id+'-'+at,
+  channel:'mod',
+  fromId:payload.by||'lithos-mod',
+  fromName:'Lithos Mod',
+  text:JSON.stringify(payload),
+  t:at
+ };
+ mhChatMergeMessages([msg]);
+ mhChatPostRemote(msg);
+ try{ mhChatBroadcast?.postMessage(msg); }catch(_){}
+}
+function mhModApplyFromMessage(msg){
+ if(!msg||msg.channel!=='mod') return false;
+ let p=null;
+ try{ p=JSON.parse(msg.text||'{}'); }catch(_){ return false; }
+ if(!p?.id) return false;
+ mhBanApplyRemote(p);
+ return true;
+}
+function mhGetBanEntry(fromId,fromName){
  const data=mhBanDataRead();
- if(fromId&&data.ids[fromId]) return true;
- const nm=String(fromName||'').trim().toLowerCase();
- if(nm&&data.names[nm]) return true;
- return false;
+ return mhBanLookup(data,fromId,fromName);
+}
+function mhIsPlayerIdBanned(fromId,fromName){
+ return !!mhGetBanEntry(fromId,fromName);
 }
 function mhIsChatBanned(profile){
  if(!profile) return false;
  return mhIsPlayerIdBanned(profile.id,profile.name);
+}
+function mhChatBanNotice(profile){
+ const e=mhGetBanEntry(profile?.id,profile?.name);
+ if(!e) return '';
+ const rem=mhFormatBanRemaining(e);
+ if(e.permanent||e.until===0) return '🚫 You are banned from Lithos chat (permanent).';
+ if(rem) return '🚫 You are banned from Lithos chat · '+rem+'.';
+ return '🚫 You are banned from Lithos chat.';
+}
+function mhBanTagForPlayer(id,name){
+ const e=mhGetBanEntry(id,name);
+ if(!e) return '';
+ const rem=mhFormatBanRemaining(e);
+ if(e.permanent||e.until===0) return ' · banned (permanent)';
+ return rem?' · banned ('+rem+')':' · banned';
 }
 function mhChatKnownPlayers(){
  const map=new Map();
@@ -3869,18 +4020,30 @@ function mhChatResolvePlayer(q){
  }
  return best;
 }
-function mhAdminBanPlayer(save,targetQ){
- const target=mhChatResolvePlayer(targetQ);
+function mhAdminBanPlayer(save,targetQ,durationMs){
+ const split=mhSplitBanTarget(targetQ);
+ let target=mhChatResolvePlayer(split.target);
+ if(!target){
+  const q=String(split.target||'').trim();
+  if(q&&(q.startsWith('noob-')||q.startsWith('site-')||q.startsWith('lithos-'))) target={id:q,name:q};
+ }
  if(!target){ mhToast('🚫 No player match — use their friend code or name from chat'); return true; }
  const me=mhEnsureChatProfile(save);
  if(target.id===me.id){ mhToast('🚫 You cannot ban yourself'); return true; }
  if(target.id===MH_TEST_BUDDY_ID){ mhToast('🚫 Test Buddy cannot be banned'); return true; }
+ const dur=durationMs!==undefined?durationMs:split.durationMs;
+ const at=Date.now();
+ const permanent=dur==null;
+ const until=permanent?0:at+(dur||MH_BAN_DEFAULT_MS);
  const data=mhBanDataRead();
- data.ids[target.id]={name:target.name||target.id,at:Date.now(),by:me.id};
+ data.ids[target.id]={name:target.name||target.id,at,by:me.id,until,permanent};
  if(target.name) data.names[String(target.name).trim().toLowerCase()]=target.id;
  mhBanDataWrite(data);
- mhBanPost({type:'ban',id:target.id,name:target.name,at:Date.now(),by:me.id});
- mhToast('🚫 Banned '+ (target.name||target.id)+' · '+target.id);
+ mhBanPost({type:'ban',id:target.id,name:target.name,at,by:me.id,until,permanent,durationMs:dur});
+ mhModSyncMessage({type:'ban',id:target.id,name:target.name,at,by:me.id,until,permanent,durationMs:dur});
+ const lenLabel=mhFormatBanDurationLabel(dur);
+ mhToast('🚫 Banned '+(target.name||target.id)+' for '+lenLabel+' · '+target.id);
+ if(mhState) mhRenderPlayerRoster(mhState,save);
  return true;
 }
 function mhAdminUnbanPlayer(targetQ){
@@ -3902,8 +4065,10 @@ function mhAdminUnbanPlayer(targetQ){
  delete data.ids[id];
  Object.keys(data.names).forEach(k=>{ if(data.names[k]===id) delete data.names[k]; });
  mhBanDataWrite(data);
- mhBanPost({type:'unban',id,name});
+ mhBanPost({type:'unban',id,name,at:Date.now()});
+ mhModSyncMessage({type:'unban',id,name,at:Date.now()});
  mhToast('✅ Unbanned '+name);
+ if(mhState) mhRenderPlayerRoster(mhState,mhState.save);
  return true;
 }
 const MH_DISCO_WORLD_KEY='lithos_mh_disco_world_v1';
@@ -4044,11 +4209,11 @@ function mhChatAdminHelp(owner){
   '/gift &lt;friendCode&gt; &lt;morph&gt; — queue gift on their device',
   '/admin help — staff list · /admin abuse — owner powers',
   '/admin abuse storm · kingstorm · disco · coins · allmorphs · heal · world · plague · raid',
-  '/ban &lt;name or friend code&gt; · /unban &lt;name&gt;'
+  '/ban &lt;name&gt; [2h|24h|7d|permanent] · /unban &lt;name&gt; · map Ban = 24h'
  ]:[
   '/give &lt;morph&gt; — free noobie (Lithos crew)',
   '/gift &lt;friendCode&gt; &lt;morph&gt; — give away a morph',
-  '/ban &lt;name or friend code&gt; · /unban &lt;name&gt;',
+  '/ban &lt;name&gt; [2h|24h|7d|permanent] · /unban &lt;name&gt; · map Ban = 24h',
   '/admin help — staff commands'
  ];
  mhToast('🛡️ Lithos admin: '+lines.join(' · '));
@@ -6633,6 +6798,7 @@ function mhMorphHuntKeyGuard(e){
  if(mhMorphHuntObbySpaceOk(e)) return;
  if(t?.closest?.('#mh-minigame-modal')) return;
  if(mhMorphHuntActivationKey(e)){
+  if(mhState?.tab==='hunt'&&!mhState?.minigameMorph&&!mhState?.kingCutscene&&isSpaceKey(e)) return;
   e.preventDefault();
   e.stopImmediatePropagation();
   return;
@@ -7041,17 +7207,106 @@ function mhPresenceFromPacket(m){
  if(!m?.fromId) return null;
  let data={};
  try{ data=JSON.parse(m.text||'{}'); }catch(_){}
+ const world=typeof data.world==='number'?data.world:0;
  return{
   id:m.fromId,
   name:m.fromName||m.fromId,
   title:m.fromTitle||'',
   morphId:data.morphId||m.morphId||'ex-welcome',
-  world:typeof data.world==='number'?data.world:0,
+  world,
+  where:data.where||(world<0?'website':(data.page==='morphhunt'?'morphhunt':'hunt')),
+  page:data.page||'',
   px:+(data.px||0),
   py:+(data.py||0),
   t:+(m.t||Date.now()),
   human:true
  };
+}
+function mhPresenceWhereLabel(p){
+ const w=String(p?.where||'').toLowerCase();
+ if(w==='website') return '🌐 Website tab';
+ if(w==='gacha') return '🎲 Gacha';
+ if(w==='morph') return '🎭 Morph';
+ if(w==='stars') return '⭐ Stars';
+ if(w==='index') return '📖 Index';
+ if(w==='preview') return '🎬 Animations';
+ if(typeof p?.world==='number'&&p.world>=0) return '🗺 Map '+p.world;
+ return '🗺 Hunt';
+}
+function mhSiteVisitorProfile(){
+ try{
+  const raw=JSON.parse(localStorage.getItem(MH_STORE_KEY)||'null');
+  if(raw&&typeof raw==='object'&&raw.chatPlayerId){
+   const name=(raw.chatDisplayName||'').trim();
+   return {id:raw.chatPlayerId,name:name||('Player '+String(raw.chatPlayerId).slice(-4))};
+  }
+ }catch(_){}
+ try{
+  let id=localStorage.getItem('lithos_site_visitor_id');
+  if(!id){ id='site-'+Math.random().toString(36).slice(2,11); localStorage.setItem('lithos_site_visitor_id',id); }
+  return {id,name:'Website guest'};
+ }catch(_){ return {id:'site-guest',name:'Guest'}; }
+}
+function mhSitePresenceBeat(){
+ if(typeof document==='undefined'||document.hidden) return;
+ if(mhState&&document.getElementById('morphhunt')) return;
+ const prof=mhSiteVisitorProfile();
+ const msg={
+  id:'presence-'+prof.id,
+  channel:'presence',
+  fromId:prof.id,
+  fromName:prof.name,
+  text:JSON.stringify({world:-1,where:'website',page:location.pathname||'/',px:0,py:0,morphId:''}),
+  t:Date.now()
+ };
+ mhPresenceBroadcastInit();
+ mhPresenceUpsert(mhPresenceFromPacket(msg));
+ mhChatPostRemote(msg);
+ try{ mhPresenceBroadcast?.postMessage(msg); }catch(_){}
+}
+function mhStartSitePresenceWatcher(){
+ if(typeof window==='undefined'||window.__lithosSitePresenceIv) return;
+ mhPresenceBroadcastInit();
+ mhSitePresenceBeat();
+ window.__lithosSitePresenceIv=setInterval(mhSitePresenceBeat,MH_PRESENCE_HEARTBEAT_MS);
+ document.addEventListener('visibilitychange',()=>{ if(!document.hidden) mhSitePresenceBeat(); });
+}
+function mhPresenceListRows(st,save){
+ const me=mhEnsureChatProfile(save);
+ const now=Date.now();
+ const online=mhPresenceOnline(st,save).sort((a,b)=>String(a.name).localeCompare(String(b.name)));
+ const selfRow={
+  id:me.id,name:me.name,title:me.title,morphId:me.morphId,
+  world:st?.world??0,where:st?.tab||'hunt',t:now,you:true
+ };
+ return [selfRow].concat(online.map(p=>({...p,you:false})));
+}
+function mhOnlineBanButtonHtml(st,save,p){
+ if(!mhCanOwnerBan()||p.you) return '';
+ const banned=mhIsPlayerIdBanned(p.id,p.name);
+ if(banned) return `<button type="button" class="mh-btn mh-btn-sm mh-roster-unban" data-mh-unban-id="${String(p.id).replace(/"/g,'&quot;')}" data-mh-unban-name="${String(p.name||'').replace(/"/g,'&quot;')}">Unban</button>`;
+ return `<button type="button" class="mh-btn mh-btn-sm mh-roster-ban" title="24 hour chat ban" data-mh-ban-id="${String(p.id).replace(/"/g,'&quot;')}" data-mh-ban-name="${String(p.name||'').replace(/"/g,'&quot;')}">Ban 24h</button>`;
+}
+function mhBindOnlineBanButtons(root,st,save){
+ if(!root||!st||!save||!mhCanOwnerBan()) return;
+ root.querySelectorAll('[data-mh-ban-id]').forEach(btn=>{
+  btn.onclick=(e)=>{
+   e.preventDefault();
+   e.stopPropagation();
+   const id=btn.getAttribute('data-mh-ban-id');
+   const nm=btn.getAttribute('data-mh-ban-name')||'';
+   mhAdminBanPlayer(save,nm?nm+' 24h':id);
+  };
+ });
+ root.querySelectorAll('[data-mh-unban-id]').forEach(btn=>{
+  btn.onclick=(e)=>{
+   e.preventDefault();
+   const id=btn.getAttribute('data-mh-unban-id');
+   if(id) mhAdminUnbanPlayer(id);
+   mhRenderPlayerRoster(st,save);
+   mhChatRefreshLog();
+  };
+ });
 }
 function mhPresenceUpsert(p){
  if(!p?.id) return;
@@ -7085,12 +7340,12 @@ function mhPresenceOnJoin(st,p){
  try{ mhPlaySfx('ui'); }catch(_){}
 }
 function mhPresenceHeartbeat(st,save){
- if(!st||!save||st.tab!=='hunt') return;
+ if(!st||!save||!document.getElementById('morphhunt')) return;
  const now=Date.now();
  if(st.presenceLastBeat&&now-st.presenceLastBeat<MH_PRESENCE_HEARTBEAT_MS) return;
  st.presenceLastBeat=now;
  const prof=mhEnsureChatProfile(save);
- const pos=mhWalkEnsurePos(st,st.world);
+ const pos=st.tab==='hunt'?mhWalkEnsurePos(st,st.world):{px:0,py:0};
  const msg={
   id:'presence-'+prof.id,
   channel:'presence',
@@ -7098,7 +7353,7 @@ function mhPresenceHeartbeat(st,save){
   fromName:prof.name,
   fromTitle:prof.title||'',
   morphId:prof.morphId,
-  text:JSON.stringify({world:st.world,px:pos.px,py:pos.py,morphId:prof.morphId}),
+  text:JSON.stringify({world:st.world,px:pos.px,py:pos.py,morphId:prof.morphId,where:st.tab||'hunt',page:'morphhunt'}),
   t:now
  };
  mhPresenceUpsert(mhPresenceFromPacket(msg));
@@ -7149,28 +7404,20 @@ function mhDrawOnlineHumans(ctx,st,save,t){
 function mhRenderPlayerRoster(st,save){
  const el=document.getElementById('mh-player-list');
  if(!el||!st||!save) return;
- const me=mhEnsureChatProfile(save);
  const wi=st.world;
- const online=mhPresenceOnline(st,save).sort((a,b)=>String(a.name).localeCompare(String(b.name)));
- const rows=[{id:me.id,name:me.name,title:me.title,world:wi,you:true}].concat(online);
+ const rows=mhPresenceListRows(st,save);
+ const nOthers=Math.max(0,rows.length-1);
  el.innerHTML=rows.map(p=>{
-  const here=p.you||p.world===wi;
-  const banBtn=(st.banModeOn&&mhIsLithosAdmin()&&!p.you)?`<button type="button" class="mh-btn mh-btn-sm mh-roster-ban" data-mh-ban-id="${String(p.id).replace(/"/g,'&quot;')}" data-mh-ban-name="${String(p.name||'').replace(/"/g,'&quot;')}">Banned</button>`:'';
-  return `<li class="mh-roster-row${here?' here':''}">${p.you?'<b>You</b>':('🧑 '+String(p.name||p.id).slice(0,18))}${p.title?` <span class="mh-roster-title">${p.title}</span>`:''}${!p.you&&p.world!==wi?` <small>map ${p.world}</small>`:''}${banBtn}</li>`;
+  const here=p.you||(p.world===wi&&p.where!=='website');
+  const loc=mhPresenceWhereLabel(p);
+  const banBtn=mhOnlineBanButtonHtml(st,save,p);
+  const banned=!p.you?mhBanTagForPlayer(p.id,p.name):'';
+  const bannedHtml=banned?` <span class="mh-online-banned">${banned.replace(/^ · /,'')}</span>`:'';
+  return `<li class="mh-roster-row${here?' here':''}">${p.you?'<b>You</b>':('🧑 '+String(p.name||p.id).slice(0,18))}${p.title?` <span class="mh-roster-title">${p.title}</span>`:''}${bannedHtml} <small class="mh-online-where">${loc}</small>${banBtn}</li>`;
  }).join('')||'<li class="mh-roster-row dim">No other humans yet — share Lithos link!</li>';
- el.querySelectorAll('[data-mh-ban-id]').forEach(btn=>{
-  btn.onclick=()=>{
-   const id=btn.getAttribute('data-mh-ban-id');
-   const nm=btn.getAttribute('data-mh-ban-name')||id;
-   mhAdminBanPlayer(save,nm||id);
-   mhRenderPlayerRoster(st,save);
-  };
- });
- const modeBtn=document.getElementById('mh-ban-mode');
- if(modeBtn){
-  modeBtn.textContent='Ban mode: '+(st.banModeOn?'ON':'OFF');
-  modeBtn.classList.toggle('primary',!!st.banModeOn);
- }
+ mhBindOnlineBanButtons(el,st,save);
+ const head=document.querySelector('#mh-player-roster .mh-roster-head strong');
+ if(head) head.textContent='🌐 Online ('+(nOthers+1)+')';
 }
 function mhChatBroadcastInit(){
  mhBanBroadcastInit();
@@ -7187,6 +7434,7 @@ function mhChatSpawnBubble(st,wx,wy,text,who,ms){
 }
 function mhChatIngest(msg,silent){
  if(!msg?.id||!mhState) return;
+ if(msg.channel==='mod'){ mhModApplyFromMessage(msg); return; }
  if(mhIsPlayerIdBanned(msg.fromId,msg.fromName)){
   msg={...msg,blocked:true,text:'[Banned from Lithos chat]'};
  }
@@ -7760,7 +8008,7 @@ function mhChatSend(st,save,text){
   return;
  }
  const profPre=mhEnsureChatProfile(save);
- if(mhIsChatBanned(profPre)){ mhToast('🚫 You are banned from Lithos chat.'); return; }
+ if(mhIsChatBanned(profPre)){ mhToast(mhChatBanNotice(profPre)); return; }
  const mod=mhChatModerate(raw);
  if(!mod.ok){ mhToast('🛡️ '+mod.reason); return; }
  mhTimeTravelMaybeChat(st,save,raw);
@@ -7827,8 +8075,51 @@ function mhChatRefreshLog(){
  }).join(''):'<div class="mh-chat-line dim">Messages appear here. Type in <b>Your message</b> right below ↑ / / / T · <b>Enter</b> to send.</div>';
  log.scrollTop=log.scrollHeight;
 }
+async function mhModPoll(st){
+ if(!st) return;
+ if(!st.modSince) st.modSince=0;
+ const remote=await mhChatFetchRemote('mod',st.modSince);
+ const local=mhChatLocalQuery('mod',st.modSince);
+ const batch=[...(remote||[]),...local].sort((a,b)=>a.t-b.t);
+ let maxT=st.modSince;
+ batch.forEach(m=>{
+  if(m.t<=st.modSince) return;
+  mhModApplyFromMessage(m);
+  if(m.t>maxT) maxT=m.t;
+ });
+ st.modSince=maxT;
+}
+async function mhPollSiteLatestBuild(st){
+ if(!st||st.buildPollBusy) return;
+ const now=Date.now();
+ if(st.buildPollAt&&now-st.buildPollAt<35000) return;
+ st.buildPollAt=now;
+ st.buildPollBusy=true;
+ try{
+  const url=(location.pathname||'/index.html')+'?srPing='+now;
+  const r=await fetch(url,{cache:'no-store'});
+  if(!r.ok) return;
+  const html=await r.text();
+  const m=html.match(/MH_LATEST='(void-2d-v\d+)'/)||html.match(/MH_NEED='(void-2d-v\d+)'/);
+  const latest=m&&m[1];
+  if(!latest) return;
+  window.__LITHOS_MH_LATEST=latest;
+  if(mhBuildNumFromTag(MH_BUILD)<mhBuildNumFromTag(latest)){
+   if(!st.buildReloadOnce){
+    st.buildReloadOnce=true;
+    mhToast('⬆️ Updating Lithos to '+latest+' (same as owner)…');
+    if(typeof window.lithosHardRefreshMorphHunt==='function') window.lithosHardRefreshMorphHunt();
+    else if(typeof window.lithosHardRefresh==='function') window.lithosHardRefresh({morphHunt:true});
+    else location.reload();
+   }
+  }
+ }catch(_){}finally{ st.buildPollBusy=false; }
+}
 async function mhChatPoll(st){
- if(!st||st.tab!=='hunt') return;
+ if(!st||!document.getElementById('morphhunt')) return;
+ mhPresenceHeartbeat(st,st.save);
+ await mhModPoll(st);
+ mhPollSiteLatestBuild(st);
  const channel=st.chatChannel||'global';
  if(!st.chatSince) st.chatSince={global:0,server:0,friend:0};
  const since=st.chatSince[channel]||0;
@@ -7844,7 +8135,8 @@ async function mhChatPoll(st){
   if(m.t>maxT) maxT=m.t;
  });
  st.chatSince[channel]=maxT;
- mhPresencePoll(st);
+ await mhPresencePoll(st);
+ mhRenderPlayerRoster(st,st.save);
  mhChatRefreshLog();
 }
 function mhChatStartPoll(st){
@@ -8261,9 +8553,9 @@ function mhCollect(id){
 }
 const MH_MINI_KINDS=['noobduel','obbyrun','jumpfight'];
 const MH_MINI_DESC={
- noobduel:'⚔ Duel — fight this noobie! Punch · Block · Win the brawl!',
- obbyrun:'🏃 Obby — auto-run & jump (Space) over pits & spikes to the flag!',
- jumpfight:'👊 Jump-in fight — counter when they leap at you (5 times)!'
+ noobduel:'Punch · Block · Space/E = punch',
+ obbyrun:'Space/tap = jump · reach 🏁',
+ jumpfight:'Space/E when they lunge · 5 counters'
 };
 function mhMinigameKind(m){
  return MH_MINI_KINDS[(mhHashStr(m.id+'mg')>>>0)%MH_MINI_KINDS.length];
@@ -8274,12 +8566,39 @@ function mhMinigameEnemyHp(m){
 }
 function mhMinigameCleanup(){
  if(!mhState) return;
+ mhState.minigameSession=(mhState.minigameSession||0)+1;
  if(mhState.minigameRaf){ cancelAnimationFrame(mhState.minigameRaf); mhState.minigameRaf=0; }
  if(mhState.minigameIv){ clearInterval(mhState.minigameIv); mhState.minigameIv=0; }
  if(mhState.minigameKeys){
   document.removeEventListener('keydown',mhState.minigameKeys,true);
   mhState.minigameKeys=null;
  }
+ mhState.minigameJump=null;
+ mhState.minigameAction=null;
+}
+function mhMiniBindBtn(el,fn){
+ if(!el||typeof fn!=='function') return;
+ el.addEventListener('click',(e)=>{
+  e.preventDefault();
+  e.stopPropagation();
+  fn();
+ });
+}
+function mhMinigameCancel(){
+ if(!mhState) return;
+ const pending=mhState.gachaPending;
+ const m=mhState.minigameMorph;
+ if(pending&&m&&pending.pickId===m.id){
+  mhState.save.coins+=pending.cost;
+  mhSaveSave(mhState.save);
+  mhToast('Gacha coins refunded — try again when ready!');
+ }
+ mhState.gachaPending=null;
+ mhMinigameCleanup();
+ const modal=document.getElementById('mh-minigame-modal');
+ if(modal) modal.hidden=true;
+ mhState.minigameMorph=null;
+ mhState.minigameKind=null;
 }
 function mhOpenMinigame(m){
  if(!mhState) return;
@@ -8300,11 +8619,12 @@ function mhOpenMinigame(m){
   <div id="mh-mini-stage" class="mh-mini-stage mh-mini-stage-action"></div>
   <button type="button" class="mh-btn ghost" id="mh-mini-cancel">Back to hunt</button>
  </div>`;
- modal.querySelector('#mh-mini-cancel').onclick=()=>{ mhMinigameCleanup(); modal.hidden=true; mhState.minigameMorph=null; };
+ modal.querySelector('#mh-mini-cancel').onclick=()=>mhMinigameCancel();
  mhRunMinigame(kind,m);
 }
 function mhWinMinigame(m){
  if(!mhState||!m) return;
+ mhState.gachaPending=null;
  mhMinigameCleanup();
  const save=mhState.save;
  if(!save.minigameWon) save.minigameWon=[];
@@ -8323,8 +8643,10 @@ function mhMiniFail(m,msg,kind){
 }
 function mhRunMinigame(kind,m){
  const stage=document.getElementById('mh-mini-stage');
- if(!stage) return;
+ if(!stage||!mhState) return;
  mhMinigameCleanup();
+ const sess=mhState.minigameSession;
+ const live=()=>mhState?.minigameMorph===m&&mhState.minigameSession===sess;
  stage.innerHTML='';
  const head=m.head||'#F5CD30', torso=m.torso||'#0085DB', legs=m.legs||'#A4BD47';
  if(kind==='noobduel'){
@@ -8356,12 +8678,13 @@ function mhRunMinigame(kind,m){
    if(enemyWind>0){ ctx.fillStyle='rgba(255,80,80,.7)'; ctx.font='bold 14px system-ui'; ctx.textAlign='center'; ctx.fillText('!',286,58); }
    if(flash>0){ ctx.fillStyle='rgba(255,255,255,'+(flash*0.35)+')'; ctx.fillRect(0,0,340,168); flash-=0.08; }
   };
-  const loop=()=>{ draw(); mhState.minigameRaf=requestAnimationFrame(loop); };
+  const loop=()=>{ if(!live()) return; draw(); mhState.minigameRaf=requestAnimationFrame(loop); };
   loop();
   const enemyAtk=()=>{
-   if(enemyHp<=0||playerHp<=0) return;
+   if(!live()||enemyHp<=0||playerHp<=0) return;
    enemyWind=1;
    setTimeout(()=>{
+    if(!live()) return;
     enemyWind=0;
     if(enemyHp<=0||playerHp<=0) return;
     const dmg=blocking?4:14+(mhHashStr(m.id+'atk')%8);
@@ -8371,48 +8694,56 @@ function mhRunMinigame(kind,m){
    },520);
   };
   mhState.minigameIv=setInterval(enemyAtk,1900);
-  const bindTap=(el,fn)=>{
-   if(!el) return;
-   el.addEventListener('click',(e)=>{ e.preventDefault(); fn(); });
-   el.addEventListener('pointerdown',(e)=>{ if(e.pointerType==='mouse') return; e.preventDefault(); fn(); });
-  };
-  bindTap(btns.querySelector('[data-a="punch"]'),()=>{
-   if(enemyHp<=0||playerHp<=0) return;
+  const punch=()=>{
+   if(!live()||enemyHp<=0||playerHp<=0) return;
    const dmg=10+(mhHashStr(String(Date.now()))%9);
    enemyHp-=dmg; flash=0.6;
    status.textContent='Punch! -'+dmg+' HP';
    mhPlaySfx('hit');
    if(enemyHp<=0){ clearInterval(mhState.minigameIv); mhWinMinigame(m); }
-  });
-  bindTap(btns.querySelector('[data-a="block"]'),()=>{
+  };
+  const block=()=>{
+   if(!live()) return;
    blocking=true; status.textContent='Blocking…';
-   setTimeout(()=>{ blocking=false; },650);
-  });
+   setTimeout(()=>{ if(live()) blocking=false; },650);
+  };
+  mhState.minigameAction=punch;
+  mhMiniBindBtn(btns.querySelector('[data-a="punch"]'),punch);
+  mhMiniBindBtn(btns.querySelector('[data-a="block"]'),block);
   return;
  }
  if(kind==='obbyrun'){
   let px=24, py=96, vy=0, onGround=true, scroll=0, dead=false, won=false;
-  const len=920;
+  const len=680;
   const status=document.createElement('p'); status.className='mh-mini-status'; status.textContent='🏃 Space / Tap = jump · reach the flag!';
   stage.appendChild(status);
   const canvas=document.createElement('canvas'); canvas.className='mh-mini-canvas'; canvas.width=340; canvas.height=168;
   stage.appendChild(canvas);
   const ctx=canvas.getContext('2d');
-  const jump=()=>{ if(onGround&&!dead&&!won){ vy=-11.5; onGround=false; } };
+  const jump=()=>{ if(!live()||dead||won) return; if(onGround){ vy=-12.4; onGround=false; } };
+  mhState.minigameJump=jump;
+  mhState.minigameAction=jump;
   canvas.onclick=jump;
   canvas.onpointerdown=(e)=>{ e.preventDefault(); jump(); };
   const onKey=(e)=>{
+   if(!live()) return;
    if(e.code==='Space'||e.code==='ArrowUp'){ e.preventDefault(); jump(); }
   };
   document.addEventListener('keydown',onKey,true);
   mhState.minigameKeys=onKey;
-  const pits=[]; for(let i=0;i<14;i++){
-   pits.push({x:120+i*58, w:28+(i%3)*8, spike:i%2===0});
+  try{ canvas.setAttribute('tabindex','0'); canvas.focus({preventScroll:true}); }catch(_){}
+  const pits=[];
+  let pitX=40;
+  for(let i=0;i<18;i++){
+   pitX+=20+(mhHashStr(m.id+'g'+i)%12);
+   const w=10+(mhHashStr(m.id+'h'+i)%9);
+   pits.push({x:pitX,w,spike:i%3!==1});
+   pitX+=w;
   }
   const tick=()=>{
-   if(dead||won) return;
-   scroll+=2.4;
-   px+=2.4;
+   if(!live()||dead||won) return;
+   scroll+=2.55;
+   px+=2.55;
    vy+=0.55; py+=vy;
    if(py>=96){ py=96; vy=0; onGround=true; }
    const wx=px;
@@ -8428,13 +8759,19 @@ function mhRunMinigame(kind,m){
    ctx.fillStyle='#101820'; ctx.fillRect(0,0,340,168);
    ctx.fillStyle='#283848'; ctx.fillRect(0,108,340,60);
    ctx.save(); ctx.translate(-scroll*0.85+40,0);
+   ctx.fillStyle='#4caf7d';
+   let lx=32;
    pits.forEach(p=>{
+    if(p.x>lx) ctx.fillRect(lx,104,p.x-lx,4);
     ctx.fillStyle='#0a0e14'; ctx.fillRect(p.x,108,p.w,60);
     if(p.spike){
      ctx.fillStyle='#ff4040';
-     for(let s=0;s<p.w;s+=10) ctx.fillRect(p.x+s,100,8,12);
+     for(let s=0;s<p.w;s+=8) ctx.fillRect(p.x+s,100,6,10);
     }
+    lx=p.x+p.w;
    });
+   ctx.fillStyle='#4caf7d';
+   if(lx<len) ctx.fillRect(lx,104,len-lx,4);
    ctx.fillStyle='#80ffb0'; ctx.fillRect(len,88,16,20); ctx.fillStyle='#ffe060'; ctx.font='20px system-ui'; ctx.fillText('🏁',len-4,82);
    ctx.fillStyle=head; ctx.fillRect(px-10,py-28,20,20);
    ctx.fillStyle=torso; ctx.fillRect(px-12,py-8,24,22);
@@ -8467,15 +8804,17 @@ function mhRunMinigame(kind,m){
    }
    ctx.fillStyle='#6080ff'; ctx.fillRect(40,90,24,24); ctx.fillRect(36,114,12,20); ctx.fillRect(52,114,12,20);
   };
-  const loop=()=>{ t++; draw(); mhState.minigameRaf=requestAnimationFrame(loop); };
+  const loop=()=>{ if(!live()) return; t++; draw(); mhState.minigameRaf=requestAnimationFrame(loop); };
   loop();
   const schedule=()=>{
+   if(!live()) return;
    phase='idle'; lx=80+mhHashStr(String(Date.now())+'j')%180;
    const wait=900+mhHashStr(String(Date.now())+'w')%900;
    setTimeout(()=>{
-    if(score>=need) return;
+    if(!live()||score>=need) return;
     phase='lunge'; status.textContent='NOW — FIGHT!';
     setTimeout(()=>{
+     if(!live()) return;
      if(phase==='lunge'){
       phase='idle'; misses++; status.textContent='Too slow! '+misses+'/'+maxMiss+' misses';
       if(misses>=maxMiss) mhMiniFail(m,m.name+' overwhelmed you!','jumpfight');
@@ -8486,6 +8825,7 @@ function mhRunMinigame(kind,m){
   };
   schedule();
   const fightTap=()=>{
+   if(!live()) return;
    if(phase==='lunge'){
     phase='idle'; score++; status.textContent='Counter! '+score+'/'+need;
     mhPlaySfx('hit');
@@ -8493,8 +8833,8 @@ function mhRunMinigame(kind,m){
     else schedule();
    }else{ misses++; status.textContent='Not yet! '+misses+'/'+maxMiss; if(misses>=maxMiss) mhMiniFail(m,'Wrong timing!','jumpfight'); }
   };
-  btn.onclick=fightTap;
-  btn.onpointerdown=(e)=>{ e.preventDefault(); fightTap(); };
+  mhState.minigameAction=fightTap;
+  mhMiniBindBtn(btn,fightTap);
   return;
  }
 }
@@ -8555,6 +8895,7 @@ function mhGacha(exclusive){
  let bag=[];
  pool.forEach(m=>{ const w=weights[m.rarity]||5; for(let i=0;i<w;i++) bag.push(m); });
  const pick=bag[Math.floor(Math.random()*bag.length)];
+ mhState.gachaPending={cost,pickId:pick.id,exclusive:!!exclusive};
  mhSaveSave(save);
  mhRender();
  mhOpenMinigame(pick);
@@ -9391,9 +9732,20 @@ function mhFacingDir(st){
  const k=st.walkKeys||{};
  let dx=0,dy=0;
  if(k.left) dx-=1; if(k.right) dx+=1; if(k.up) dy-=1; if(k.down) dy+=1;
- if(!dx&&!dy) return {dx:0,dy:1};
- const l=Math.hypot(dx,dy)||1;
- return {dx:dx/l,dy:dy/l};
+ if(dx||dy){
+  const l=Math.hypot(dx,dy)||1;
+  st.lastFace={dx:dx/l,dy:dy/l};
+  return st.lastFace;
+ }
+ if(st.lastFace) return st.lastFace;
+ return {dx:0,dy:1};
+}
+function mhHuntDoAttack(st,save){
+ if(!st||!save) return;
+ mhMorphHuntBlurPageFocus();
+ const wi=st.world;
+ const pos=mhWalkEnsurePos(st,wi);
+ mhUseFightAttack(st,save,pos,wi);
 }
 function mhEnsureFight(st,save){
  if(!st) return;
@@ -9453,7 +9805,7 @@ function mhFightHitscan(st,save,wi,pos,dir,dmg,range,minDot){
   const np=mhGetNpcPos(st,wi,m);
   const dx=np.px-pos.px, dy=np.py-pos.py;
   const dist=Math.hypot(dx,dy);
-  if(dist>range||dist<8) return;
+  if(dist>range) return;
   const dot=(dx/dist)*dir.dx+(dy/dist)*dir.dy;
   if(dot<dotMin) return;
   mhDamageEnemy(st,wi,m,dmg,save);
@@ -9797,7 +10149,7 @@ function mhUseFightAttack(st,save,pos,wi){
  const vm=mhVoidCombatMorph(save);
  if(vm) return mhUseVoidAttack(st,save,pos,wi);
  const dir=mhFacingDir(st);
- const hits=mhFightHitscan(st,save,wi,pos,dir,16,78);
+ const hits=mhFightHitscan(st,save,wi,pos,dir,16,105,0.12);
  mhSpawnVoidFx(st,{kind:'arc',x:pos.px,y:pos.py-12,vx:dir.dx*6,vy:dir.dy*6,color:'#ffe060',a0:Math.atan2(dir.dy,dir.dx)-0.8,a1:Math.atan2(dir.dy,dir.dx)+0.8,r:42,dr:60,life:0.35});
  mhToast(hits?'👊 Noobie punch!':'👊 Swing!');
  mhPlaySfx('hit');
@@ -10591,21 +10943,41 @@ function mhWalkNearMorph(save,wi,pos,st){
 function mhWalkActive(){
  return !!(mhState&&mhState.tab==='hunt'&&document.getElementById('morphhunt')&&!mhState.minigameMorph&&!mhState.kingCutscene);
 }
+function mhWalkFightKey(e,down){
+ if(!down||!e) return false;
+ const c=e.code,k=e.key;
+ return c==='Digit1'||c==='Numpad1'||k==='1'
+  ||c==='Digit2'||c==='Numpad2'||k==='2'
+  ||c==='Digit3'||c==='Numpad3'||k==='3'
+  ||c==='Digit4'||c==='Numpad4'||k==='4'
+  ||c==='KeyE'||k==='e'||k==='E'
+  ||isSpaceKey(e);
+}
 function mhWalkApplyKey(e,down){
  if(!mhMorphHuntIsOpen()) return false;
+ const c=e.code,k=e.key;
  if(mhState.minigameMorph||mhState.kingCutscene){
-  if(down&&isSpaceKey(e)&&!mhMorphHuntTypingTarget(e.target)){
-   e.preventDefault();
-   e.stopPropagation();
-   return true;
+  if(down&&!mhMorphHuntTypingTarget(e.target)){
+   const actKey=isSpaceKey(e)||c==='KeyE'||k==='e'||k==='E';
+   if(actKey&&typeof mhState.minigameAction==='function'){
+    e.preventDefault();
+    e.stopPropagation();
+    mhState.minigameAction();
+    return true;
+   }
+   if(down&&isSpaceKey(e)){
+    e.preventDefault();
+    e.stopPropagation();
+    return true;
+   }
   }
   return false;
  }
  if(!mhWalkActive()) return false;
  const ae=document.activeElement;
- if(mhMorphHuntTypingTarget(ae)) return false;
+ const fightBypass=mhWalkFightKey(e,down);
+ if(mhMorphHuntTypingTarget(ae)&&!fightBypass) return false;
  if(!mhState.walkKeys) mhState.walkKeys={};
- const c=e.code,k=e.key;
  let hit=false;
  const touch=(name,on)=>{
   if(on) mhState.walkKeys[name]=true;
@@ -10625,6 +10997,7 @@ function mhWalkApplyKey(e,down){
   hit=true;
  }
  if(down&&isSpaceKey(e)){
+  mhHuntDoAttack(mhState,mhState.save);
   hit=true;
  }
  if(down&&(c==='KeyF'||k==='f'||k==='F')){
@@ -10644,8 +11017,8 @@ function mhWalkApplyKey(e,down){
  }
  if(down&&(c==='Digit1'||c==='Numpad1'||k==='1')){
   mhUnlockSfx();
-  const pos=mhWalkEnsurePos(mhState,mhState.world);
-  mhUseFightAttack(mhState,mhState.save,pos,mhState.world); hit=true;
+  mhHuntDoAttack(mhState,mhState.save);
+  hit=true;
  }
  if(down&&(c==='Digit2'||c==='Numpad2'||k==='2')){
   const map=MH_WORLD_MAPS[mhState.world];
@@ -11151,14 +11524,17 @@ function mhWalkStart(){
   btn.addEventListener('pointerup',up);
   btn.addEventListener('pointerleave',up);
  });
- root?.querySelector('#mh-walk-interact')?.addEventListener('click',()=> mhTryStartMinigame());
- root?.querySelector('#mh-touch-fight')?.addEventListener('pointerdown',(e)=>{ e.preventDefault(); mhTryStartMinigame(); });
- root?.querySelector('#mh-ban-mode')?.addEventListener('click',()=>{
-  if(!mhState) return;
-  mhState.banModeOn=!mhState.banModeOn;
-  mhToast(mhState.banModeOn?'🚫 Ban mode ON — tap Banned on a player':'Ban mode off');
-  mhRenderPlayerRoster(mhState,mhState.save);
- });
+ const bindHuntBtn=(sel,fn)=>{
+  const el=root?.querySelector(sel);
+  if(!el) return;
+  const go=(e)=>{ e.preventDefault(); e.stopPropagation(); fn(); };
+  el.addEventListener('click',go);
+  el.addEventListener('pointerup',go,{passive:false});
+ };
+ bindHuntBtn('#mh-walk-interact',()=>mhTryStartMinigame());
+ bindHuntBtn('#mh-hunt-attack',()=>mhHuntDoAttack(mhState,mhState.save));
+ bindHuntBtn('#mh-touch-fight',()=>mhHuntDoAttack(mhState,mhState.save));
+ bindHuntBtn('#mh-touch-unlock',()=>mhTryStartMinigame());
  root?.querySelector('#mh-walk-enter')?.addEventListener('click',()=>{
   if(mhState?.insideBuilding) mhExitBuilding();
   else if(mhState?.walkNearBuilding) mhEnterBuilding(mhState.walkNearBuilding,mhState.world);
@@ -11319,7 +11695,7 @@ function mhRenderHunt(save, wi){
  <div class="mh-walk-wrap mh-walk-with-chat">
   <div class="mh-walk-game">
   <div class="mh-player-roster" id="mh-player-roster">
-   <div class="mh-roster-head"><strong>👥 Players</strong>${mhIsLithosAdmin()?'<button type="button" class="mh-btn mh-btn-sm" id="mh-ban-mode">Ban mode: OFF</button>':''}</div>
+   <div class="mh-roster-head"><strong>🌐 Online</strong>${mhCanOwnerBan()?'<span class="mh-roster-mod-tag">Owner · Ban 24h</span>':''}</div>
    <ul id="mh-player-list" class="mh-player-list"><li class="mh-roster-row dim">Looking for humans…</li></ul>
   </div>
   ${voidReadout}
@@ -11329,10 +11705,15 @@ function mhRenderHunt(save, wi){
    <button type="button" class="mh-dpad-btn mh-dpad-left" data-mh-dpad="left" aria-label="Left">◀</button>
    <button type="button" class="mh-dpad-btn mh-dpad-down" data-mh-dpad="down" aria-label="Down">▼</button>
    <button type="button" class="mh-dpad-btn mh-dpad-right" data-mh-dpad="right" aria-label="Right">▶</button>
-   <button type="button" class="mh-dpad-btn mh-dpad-fight" id="mh-touch-fight" aria-label="Fight">⚔</button>
+   <button type="button" class="mh-dpad-btn mh-dpad-fight" id="mh-touch-fight" aria-label="Attack">👊</button>
+   <button type="button" class="mh-dpad-btn mh-dpad-unlock" id="mh-touch-unlock" aria-label="Unlock fight">⚔</button>
   </div>
   ${mhHuntUiCompact()
-   ?''
+   ?`<div id="mh-walk-hud" class="mh-walk-hud mh-walk-hud-compact">
+   <button type="button" class="mh-btn primary mh-btn-sm" id="mh-hunt-attack">👊 Attack (Space)</button>
+   <button type="button" class="mh-btn mh-btn-sm" id="mh-walk-interact">⚔ Unlock (E)</button>
+   <button type="button" class="mh-btn mh-btn-sm" id="mh-walk-enter">F House</button>
+  </div>`
    :`<div id="mh-walk-hud" class="mh-walk-hud mh-walk-hud-clean">
    <span class="mh-walk-zone">${world.emoji} ${world.name} · ${found}/${morphs.length}</span>
    <span class="mh-walk-prompt" hidden>Walk closer</span>
@@ -11622,6 +12003,11 @@ function mhRenderGacha(save){
 function mhBind(root){
  mhBindIdeHint(root);
  mhBindHuntUiCompact(root);
+ root.querySelector('#mh-live-build')?.addEventListener('click',()=>{
+  mhToast('Loading newest Lithos…');
+  if(typeof window.lithosHardRefreshMorphHunt==='function') window.lithosHardRefreshMorphHunt();
+  else mhForceReloadNewestMorphHunt();
+ });
  root.querySelector('#mh-leave')?.addEventListener('click',mhClose);
  root.querySelectorAll('[data-mh-id]').forEach(btn=>btn.addEventListener('click',()=>mhCollect(btn.dataset.mhId)));
  root.querySelectorAll('[data-mh-world]').forEach(btn=>btn.addEventListener('click',()=>{ mhState.huntPage=0; mhSetWorld(+btn.dataset.mhWorld); }));
@@ -11716,8 +12102,8 @@ function mhRender(){
     <span class="mh-player-identity">${mhChatSpeakerLabel(mhEnsureChatProfile(save).name,mhChatRoleTitle(save))}</span>
     <span class="mh-coins">💰 <b>${save.coins}</b></span>
     <span>${MH_TOTAL_COUNT} · 🕳 <b>${save.collected.filter(id=>mhMorph(id)?.rarity==='voidfallen').length}</b>/${MH_VOID_COUNT} Void Fallen</span>
-    <span class="mh-live-build" id="mh-live-build" title="If this number is old, you are not on the latest file">✓ ${MH_BUILD}</span>
     ${owner?'<span class="mh-owner-tag">Owner</span>':''}
+    ${mhLiveBuildHtml()}
     ${mhIsLithosStaff()&&!owner?'<span class="mh-owner-tag" style="border-color:rgba(128,200,255,.45);color:#a0d8ff">Lithos staff</span>':''}
     ${MH_OPEN_PLAY?'<span class="mh-owner-tag" style="border-color:rgba(128,255,176,.45);color:#80ffb0">Open play · all morphs</span>':''}
     ${mhIsTestProfile()?'<span class="mh-owner-tag" style="border-color:rgba(128,200,255,.5);color:#80d8ff">🧪 Test Account</span>':'<button type="button" class="mh-btn mh-btn-sm" id="mh-switch-test">🧪 Test Account</button>'}
@@ -11758,6 +12144,7 @@ function mhRender(){
  }else if(tab==='morph'){
   mhShowcaseStart();
  }
+ if(tab!=='hunt') mhChatStartPoll(st);
 }
 
 function mhSyncMorphHuntUrl(){
@@ -11817,7 +12204,7 @@ function playMorphHunt(){
  if(typeof closeGamesHub==='function'){ try{ closeGamesHub({skipHash:true}); }catch(_){} }
  mhMorphHuntHideSiteChrome();
  const openTab=mhMorphHuntOpenTab();
- mhState={save:mhLoadSave(),world:0,tab:openTab,page:0,huntPage:0,filter:'',indexKind:'all',walkPos:{},enemyHp:{},enemyAggro:{},enemyRespawnAt:{},enemyLastHit:{},enemyHitFlash:{},chatChannel:'global',chatSince:{global:0,server:0,friend:0},presenceSince:Date.now()-MH_PRESENCE_TTL,presenceSeen:{},banModeOn:false,chatBubbles:[],chatNpcLine:{},npcReactCd:{},prevNearMorphId:null,testBuddy:mhTestBuddyDefault(),buddyAiOn:true,testAccountAiOn:true,testAccountNpc:{phase:2.2,morphId:'ex-welcome'},aiHist:{buddy:[],account:[]}};
+ mhState={save:mhLoadSave(),world:0,tab:openTab,page:0,huntPage:0,filter:'',indexKind:'all',walkPos:{},enemyHp:{},enemyAggro:{},enemyRespawnAt:{},enemyLastHit:{},enemyHitFlash:{},chatChannel:'global',chatSince:{global:0,server:0,friend:0},modSince:0,presenceSince:Date.now()-MH_PRESENCE_TTL,presenceSeen:{},chatBubbles:[],chatNpcLine:{},npcReactCd:{},prevNearMorphId:null,testBuddy:mhTestBuddyDefault(),buddyAiOn:true,testAccountAiOn:true,testAccountNpc:{phase:2.2,morphId:'ex-welcome'},aiHist:{buddy:[],account:[]}};
  mhTestBuddyEnsureFriend(mhState.save);
  const wrap=document.createElement('div');
  wrap.id='morphhunt';
@@ -11886,6 +12273,7 @@ window.mhGetWearingMorph=mhGetWearingMorph;
 window.mhClassicNoobSvg=mhClassicNoobSvg;
 window.mhRefreshTeacherNoob=mhRefreshTeacherNoob;
 
-document.addEventListener('DOMContentLoaded',()=>{ mhRefreshTeacherNoob(); });
-if(document.readyState!=='loading') mhRefreshTeacherNoob();
+document.addEventListener('DOMContentLoaded',()=>{ mhRefreshTeacherNoob(); mhStartSitePresenceWatcher(); });
+if(document.readyState!=='loading'){ mhRefreshTeacherNoob(); mhStartSitePresenceWatcher(); }
+window.lithosMhSitePresenceBeat=mhSitePresenceBeat;
 })();
